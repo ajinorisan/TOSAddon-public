@@ -9,10 +9,11 @@
 -- v1.0.8 セッティングフレームの高さ足りなかったの修正
 -- v1.0.9 バフが無い場合スロット非表示にするなどした
 -- v1.1.0 ウルトラワイドに対応
+-- v1.1.1 アドオンボタン回り修正。バフリスト検索機能追加。
 local addon_name = "skill_notice_free"
 local addon_name_lower = string.lower(addon_name)
 local author = "norisan"
-local ver = "1.1.0"
+local ver = "1.1.1"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -263,7 +264,7 @@ function skill_notice_free_frame_init(always_show)
                 if mode == "icon" then
 
                     local icon_slot = icon_frame:CreateOrGetControl("slot", "icon_slot" .. buff_id,
-                        (icon_count - 1) * 50, 10, 50, 50)
+                                                                    (icon_count - 1) * 50, 10, 50, 50)
                     AUTO_CAST(icon_slot)
                     icon_slot:EnablePop(0)
                     icon_slot:EnableDrop(0)
@@ -321,7 +322,7 @@ function skill_notice_free_frame_init(always_show)
                     end
 
                     local buff_text = buffgb:CreateOrGetControl("richtext", "buff_text" .. buff_id, 0, y * 25 + 10, 160,
-                        20)
+                                                                20)
                     AUTO_CAST(buff_text)
                     local dic_buff_name = buff_class.Name
                     buff_text:SetText("{ol}{s12}" .. dic_buff_name)
@@ -339,36 +340,88 @@ function skill_notice_free_frame_init(always_show)
     frame:ShowWindow(1)
 end
 
-function skill_notice_free_buff_list_open(frame, ctrl, str, num)
-    local buff_list_frame = ui.CreateNewFrame("notice_on_pc", addon_name_lower .. "buff_list_frame", 0, 0, 10, 10)
-    AUTO_CAST(buff_list_frame)
-    buff_list_frame:SetSkinName("bg")
-    buff_list_frame:Resize(500, 1060)
-    buff_list_frame:SetPos(1400, 10)
-    buff_list_frame:SetLayerLevel(121)
-    buff_list_frame:RemoveAllChild()
+function skill_notice_free_bufflist_search()
 
-    local buff_list_gb = buff_list_frame:CreateOrGetControl("groupbox", " buff_list_gb", 5, 35, 490, 1015)
+    local frame = ui.GetFrame(addon_name_lower .. "buff_list_frame")
+    local ctrl = GET_CHILD_RECURSIVELY(frame, "search_edit")
+    local ctrl_text = ctrl:GetText()
+
+    if ctrl_text == "" then
+        skill_notice_free_buff_list_open(frame, ctrl)
+    else
+        skill_notice_free_buff_list_open(frame, ctrl, ctrl_text)
+    end
+end
+
+function skill_notice_free_buff_list_open(frame, ctrl, ctrl_text, num)
+
+    local buff_list_frame_name = addon_name_lower .. "buff_list_frame"
+    local buff_list_frame = ui.GetFrame(buff_list_frame_name)
+
+    if not buff_list_frame then
+
+        buff_list_frame = ui.CreateNewFrame("notice_on_pc", buff_list_frame_name, 0, 0, 10, 10)
+        AUTO_CAST(buff_list_frame)
+        buff_list_frame:SetSkinName("test_frame_low")
+        buff_list_frame:Resize(500, 1060)
+        buff_list_frame:SetPos(1400, 10)
+        buff_list_frame:SetLayerLevel(121)
+
+        local title_text = buff_list_frame:CreateOrGetControl('richtext', 'title_text', 10, 10, 100, 30)
+        AUTO_CAST(title_text)
+        title_text:SetText("{ol}Buff List")
+
+        local search_edit = buff_list_frame:CreateOrGetControl("edit", "search_edit", title_text:GetWidth() + 10, 10,
+                                                               305, 38) -- search_edit -> search_edit_ctrl_for_setup
+        AUTO_CAST(search_edit)
+        search_edit:SetFontName("white_18_ol")
+        search_edit:SetTextAlign("left", "center")
+        search_edit:SetSkinName("inventory_serch")
+        search_edit:SetEventScript(ui.ENTERKEY, "skill_notice_free_bufflist_search")
+
+        local search_btn = search_edit:CreateOrGetControl("button", "search_btn", 0, 0, 40, 38) -- search_btn -> search_btn_for_setup
+        AUTO_CAST(search_btn)
+        search_btn:SetImage("inven_s")
+        search_btn:SetGravity(ui.RIGHT, ui.TOP)
+        search_btn:SetEventScript(ui.LBUTTONUP, "skill_notice_free_bufflist_search")
+
+        local close_button = buff_list_frame:CreateOrGetControl('button', 'close_button', 0, 0, 20, 20) -- close_button -> close_button_for_setup
+        AUTO_CAST(close_button)
+        close_button:SetImage("testclose_button")
+        close_button:SetGravity(ui.RIGHT, ui.TOP)
+        close_button:SetEventScript(ui.LBUTTONUP, "skill_notice_free_buff_list_close");
+    end
+
+    local search_edit = GET_CHILD_RECURSIVELY(buff_list_frame, "search_edit")
+    if search_edit and ctrl_text then
+        search_edit:SetText(ctrl_text)
+    elseif search_edit and not ctrl_text then
+        search_edit:SetText("")
+    end
+
+    local buff_list_gb = buff_list_frame:CreateOrGetControl("groupbox", "buff_list_gb", 5, 35, 490, 1015)
     AUTO_CAST(buff_list_gb)
     buff_list_gb:SetSkinName("bg")
-
-    local close_button = buff_list_frame:CreateOrGetControl('button', 'close_button', 0, 0, 20, 20)
-    AUTO_CAST(close_button)
-    close_button:SetImage("testclose_button")
-    close_button:SetGravity(ui.RIGHT, ui.TOP)
-    close_button:SetEventScript(ui.LBUTTONUP, "skill_notice_free_buff_list_close");
+    buff_list_gb:RemoveAllChild()
 
     local get_buffs, err = g.load_json(g.get_buffs_file_path)
 
     local sorted_buffs = {}
-    for buff_id, _ in pairs(get_buffs) do
-        table.insert(sorted_buffs, tonumber(buff_id))
+
+    if ctrl_text then
+        for buff_id_str, _ in pairs(get_buffs) do
+            local buff_name = GetClassByType("Buff", tonumber(buff_id_str)).Name
+            if string.find(buff_name, ctrl_text) then
+                table.insert(sorted_buffs, tonumber(buff_id_str))
+            end
+        end
+
+    else
+        for buff_id_str, _ in pairs(get_buffs) do
+            table.insert(sorted_buffs, tonumber(buff_id_str))
+        end
     end
     table.sort(sorted_buffs)
-
-    local title_text = buff_list_frame:CreateOrGetControl('richtext', 'title_text', 10, 10, 200, 30)
-    AUTO_CAST(title_text)
-    title_text:SetText("{ol}Setting Buff List")
 
     -- ソートされた順番で表示
     local y = 0
@@ -400,7 +453,7 @@ function skill_notice_free_buff_list_open(frame, ctrl, str, num)
                     buff_set:SetEventScriptArgNumber(ui.LBUTTONUP, buff_id)
 
                     local buff_text = buff_list_gb:CreateOrGetControl('richtext', 'buff_text' .. buff_id, 90, y + 10,
-                        200, 30)
+                                                                      200, 30)
                     AUTO_CAST(buff_text)
                     buff_text:SetText("{ol}" .. buff_id .. " : " .. buff_name)
                     buff_text:AdjustFontSizeByWidth(400)
@@ -440,7 +493,7 @@ end
 function skill_notice_free_buff_list_close(frame, ctrl, argStr, argNum)
 
     frame:ShowWindow(0)
-    skill_notice_free_setting(nil, nil, nil, nil)
+    -- skill_notice_free_setting(nil, nil, nil, nil)
 end
 
 function skill_notice_free_setting(frame, ctrl, str, num)
