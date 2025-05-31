@@ -11,23 +11,24 @@
 -- v1.1.0 キャラ順バグるの修正
 -- v1.1.1 レイヤーの取り方修正。バラックでのフックの結果をグローバルに置くように。
 -- v1.1.2 リターンバラックで戻った時にゲームに接続できないバグ修正。
-local addonName = "INSTANTCC"
-local addonNameLower = string.lower(addonName)
+-- v1.1.3 バラックレイヤー取れないバグ修正
+local addon_name = "INSTANTCC"
+local addon_name_lower = string.lower(addon_name)
 
 local author = "ebisuke"
-local ver = "1.1.2"
+local ver = "1.1.3"
 local basever = "0.0.7"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
-_G["ADDONS"][author][addonName] = _G["ADDONS"][author][addonName] or {}
-local g = _G["ADDONS"][author][addonName]
+_G["ADDONS"][author][addon_name] = _G["ADDONS"][author][addon_name] or {}
+local g = _G["ADDONS"][author][addon_name]
 
 local json = require("json")
 
 function g.mkdir_new_folder()
-    local folder_path = string.format("../addons/%s", addonNameLower)
-    local file_path = string.format("../addons/%s/mkdir.txt", addonNameLower)
+    local folder_path = string.format("../addons/%s", addon_name_lower)
+    local file_path = string.format("../addons/%s/mkdir.txt", addon_name_lower)
     local file = io.open(file_path, "r")
     if not file then
         os.execute('mkdir "' .. folder_path .. '"')
@@ -41,8 +42,8 @@ function g.mkdir_new_folder()
     end
 
     local active_id = session.loginInfo.GetAID()
-    g.settings_path = string.format('../addons/%s/%s.json', addonNameLower, active_id)
-    g.log_file_path = string.format('../addons/%s/debug_log.txt', addonNameLower)
+    g.settings_path = string.format('../addons/%s/%s.json', addon_name_lower, active_id)
+    g.log_file_path = string.format('../addons/%s/debug_log.txt', addon_name_lower)
 end
 g.mkdir_new_folder()
 
@@ -147,21 +148,43 @@ function g.load_settings()
 end
 
 function INSTANTCC_SORT_CHAR_DATA()
-
     local account_info = session.barrack.GetMyAccount()
-    local pc_count = account_info:GetPCCount()
+    if not account_info then
+        return
+    end
+
+    local all_names = {}
+    local barrack_max_pc = account_info:GetBarrackPCCount()
+    for i = 0, barrack_max_pc - 1 do
+        local b_char = account_info:GetBarrackPCByIndex(i)
+        if b_char then
+            local b_name = b_char:GetName()
+            if b_name then
+                all_names[b_name] = true
+            end
+        end
+    end
 
     g.settings.characters = g.settings.characters or {}
 
+    local new_char_list = {}
+
+    for _, char_data in ipairs(g.settings.characters) do
+        if char_data and char_data.name and all_names[char_data.name] then
+            table.insert(new_char_list, char_data)
+        end
+    end
+    g.settings.characters = new_char_list
+
+    local pc_count = account_info:GetPCCount()
     for i = 0, pc_count - 1 do
         local pc_info = account_info:GetPCByIndex(i)
         local pc_apc = pc_info:GetApc()
         local pc_name = pc_apc:GetName()
         local pc_cid = pc_info:GetCID()
         local gender = pc_apc:GetGender()
-        local pc_info = account_info:GetByStrCID(pc_cid);
-
-        local jobid = pc_info:GetRepID() or pc_apc:GetJob()
+        local pc_info_cid = account_info:GetByStrCID(pc_cid);
+        local jobid = pc_info_cid:GetRepID() or pc_apc:GetJob()
         local level = pc_apc:GetLv()
 
         local info = {
@@ -199,6 +222,7 @@ function INSTANTCC_SORT_CHAR_DATA()
     end
 
     table.sort(g.settings.characters, compare_characters)
+
     g.save_settings()
 
 end
@@ -235,6 +259,7 @@ function INSTANTCC_BARRACK_START_FRAME_OPEN(...)
 end
 
 function INSTANTCC_BARRACK_START_FRAME_OPEN_HOOK()
+    g.FUNCS = g.FUNCS or {}
     local origin_func_name = "BARRACK_START_FRAME_OPEN"
     if _G[origin_func_name] then
         if not g.FUNCS[origin_func_name] then
@@ -265,6 +290,7 @@ function INSTANTCC_BARRACK_TO_GAME(...)
 end
 
 function INSTANTCC_BARRACK_TO_GAME_HOOK()
+    g.FUNCS = g.FUNCS or {}
     local origin_func_name = "BARRACK_TO_GAME"
     if _G[origin_func_name] then
         if not g.FUNCS[origin_func_name] then
@@ -274,6 +300,7 @@ function INSTANTCC_BARRACK_TO_GAME_HOOK()
     end
 end
 
+g.first = true
 function INSTANTCC_ON_INIT(addon, frame)
 
     g.addon = addon
@@ -291,15 +318,18 @@ function INSTANTCC_ON_INIT(addon, frame)
     _G["norisan"] = _G["norisan"] or {}
     _G["norisan"]["HOOKS"] = _G["norisan"]["HOOKS"] or {}
     if not _G["norisan"]["HOOKS"]["BARRACK_START_FRAME_OPEN"] then
-        _G["norisan"]["HOOKS"]["BARRACK_START_FRAME_OPEN"] = addonName
+        _G["norisan"]["HOOKS"]["BARRACK_START_FRAME_OPEN"] = addon_name
         addon:RegisterMsg("GAME_START", "INSTANTCC_BARRACK_START_FRAME_OPEN_HOOK")
     end
     if not _G["norisan"]["HOOKS"]["BARRACK_TO_GAME"] then
-        _G["norisan"]["HOOKS"]["BARRACK_TO_GAME"] = addonName
+        _G["norisan"]["HOOKS"]["BARRACK_TO_GAME"] = addon_name
         addon:RegisterMsg("GAME_START", "INSTANTCC_BARRACK_TO_GAME_HOOK")
     end
-
-    INSTANTCC_SORT_CHAR_DATA()
+    if not g.first then
+        addon:RegisterMsg("GAME_START_3SEC", "INSTANTCC_SORT_CHAR_DATA")
+    else
+        g.first = false
+    end
 
     local apps = ui.GetFrame("apps")
     local go_barrackmode = GET_CHILD_RECURSIVELY(apps, "GO_BARRACKMODE")
@@ -323,8 +353,15 @@ function INSTANTCC_TEXT_TOOLTIP(frame, ctrl, str, num)
                      "{ol}Instant CC{nl}Right click: Switch display"
     notice:SetText(text)
     tooltip_frame:Resize(notice:GetWidth() + 10, notice:GetHeight() + 10)
-    tooltip_frame:SetPos(g.go_x - notice:GetWidth() - 10, g.go_y + 250)
 
+    local scene_width = 0
+    if ui.GetSceneWidth() > 1920 then
+        scene_width = ui.GetSceneWidth()
+    else
+        scene_width = 1920
+    end
+    tooltip_frame:SetPos(scene_width - notice:GetWidth() - 50, g.go_y + 250)
+    tooltip_frame:SetLayerLevel(999)
     if str == "ON" then
         tooltip_frame:ShowWindow(1)
     else
@@ -374,7 +411,9 @@ function INSTANTCC_APPS_TRY_MOVE_BARRACK_(barrack_num)
             local pc_name = info.name
             local job_cls = GetClassByType("Job", info.jobid)
             local job_name = GET_JOB_NAME(job_cls, info.gender)
-            local str = "Lv" .. info.level .. " " .. pc_name .. " (" .. job_name .. ")"
+            job_name = string.gsub(dic.getTranslatedStr(job_name), "{s18}", "")
+
+            local str = "Lv" .. info.level .. " " .. pc_name .. " (" .. job_name .. ")          "
             ui.AddContextMenuItem(context, str, string.format("INSTANTCC_DO_CC('%s',%d)", info.cid, info.layer))
         end
 
@@ -393,7 +432,8 @@ function INSTANTCC_APPS_TRY_MOVE_BARRACK_(barrack_num)
                 local pc_name = info.name
                 local job_cls = GetClassByType("Job", info.jobid)
                 local job_name = GET_JOB_NAME(job_cls, info.gender)
-                local str = "Lv" .. info.level .. " " .. pc_name .. " (" .. job_name .. ")"
+                job_name = string.gsub(dic.getTranslatedStr(job_name), "{s18}", "")
+                local str = "Lv" .. info.level .. " " .. pc_name .. " (" .. job_name .. ")          "
                 ui.AddContextMenuItem(context, str, string.format("INSTANTCC_DO_CC('%s',%d)", info.cid, info.layer))
             end
         end
