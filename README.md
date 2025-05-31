@@ -195,6 +195,7 @@ Tree of Savior 用のアドオンを作成・改変しています。
 <details>
 <summary>更新履歴 (Revival Timer)</summary>
 
+*   v1.0.7 PTチャットのバグ修正。
 *   v1.0.6 アドオンボタン回り修正。ショートカットのON/OFF。rtimer内のPTチャットをNICOチャットで表示。
 *   v1.0.5 ウルトラワイド対応。フレーム移動可能に。
 *   v1.0.4 PT通知バグ再修正

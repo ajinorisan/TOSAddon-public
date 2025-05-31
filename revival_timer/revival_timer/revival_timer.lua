@@ -5,10 +5,11 @@
 -- v1.0.4 使用文字バグ修正したはず。なんでなってたかも良くワカラン
 -- v1.0.5 ウルトラワイド対応
 -- v1.0.6 アドオンボタン回り修正。ショートカットのON/OFF。rtimer内のPTチャットをNICOチャットで表示。
+-- v1.0.7 WithPTChatバグ修正
 local addon_name = "REVIVAL_TIMER"
 local addon_name_lower = string.lower(addon_name)
 local author = "norisan"
-local ver = "1.0.6"
+local ver = "1.0.7"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -406,14 +407,22 @@ function revival_timer_timer_update(frame)
         timer_text:SetText(string.format("{ol}{s46}%02d:%02d{/}", m, s))
         if g.start_seconds <= 10.5 and g.start_seconds >= 9.5 then
 
+            local text =
+                string.gsub("/p " .. "[R Timer]" .. tostring(g.settings.set_text) .. " 10 sec rem.", "{ol}", "")
+
             if g.settings.with_ptchat then
-                ui.Chat("/p " .. "[R Timer]" .. tostring(g.settings.set_text) .. " 10 sec rem.")
+                UI_CHAT(text)
+                -- ui.Chat(text)
             end
             revival_timer_NICO_CHAT("{@st55_a}" .. g.settings.set_text .. " 10 sec rem.")
         elseif g.start_seconds <= 5.5 and g.start_seconds >= 4.5 then
 
+            local text = string.gsub("/p " .. "[R Timer]" .. tostring(g.settings.set_text) .. " 5 sec rem.", "{ol}", "")
+
             if g.settings.with_ptchat then
-                ui.Chat("/p " .. "[R Timer]" .. tostring(g.settings.set_text) .. " 5 sec rem.")
+
+                UI_CHAT(text)
+                -- ui.Chat(text)
             end
             imcSound.PlaySoundEvent('sys_tp_box_3')
             revival_timer_NICO_CHAT("{@st55_a}" .. g.settings.set_text .. " 5 sec rem.")
