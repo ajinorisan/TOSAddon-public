@@ -1358,7 +1358,7 @@ function goddess_icor_manager_set_save(frame, ctrl, str, ctrl_key)
 
             if eng_opts then
                 local eng_strs = string.format("%s:%s:%s", tostring(eng_opts or ""), tostring(eng_grps or ""),
-                    tostring(eng_vals or ""))
+                                               tostring(eng_vals or ""))
 
                 if cur_strs[current_slot_name] and cur_strs[current_slot_name] == eng_strs then
                     eng_count = eng_count + 1
@@ -1646,19 +1646,6 @@ function goddess_icor_manager_set_change(frame, ctrl, str, ctrl_key)
 
     local spot_names = ""
 
-    if g.rh then
-        spot_names = spot_names .. ":::" .. "RH_DAMMY"
-    end
-    if g.lh then
-        spot_names = spot_names .. ":::" .. "LH_DAMMY"
-    end
-    if g.rh_sub then
-        spot_names = spot_names .. ":::" .. "RH_SUB_DAMMY"
-    end
-    if g.lh_sub then
-        spot_names = spot_names .. ":::" .. "LH_SUB_DAMMY"
-    end
-
     for i = 1, page_max do
         for j = 1, #managed_slot_list do
             local cur_slot_name = managed_slot_list[j].slot_name
@@ -1672,7 +1659,7 @@ function goddess_icor_manager_set_change(frame, ctrl, str, ctrl_key)
             if eng_opts then
 
                 local eng_strs = string.format("%s:%s:%s", tostring(eng_opts or ""), tostring(eng_grps or ""),
-                    tostring(eng_vals or ""))
+                                               tostring(eng_vals or ""))
 
                 local base_condition = cur_strs[cur_slot_name] and cur_strs[cur_slot_name] ~= eng_strs
 
@@ -1681,19 +1668,19 @@ function goddess_icor_manager_set_change(frame, ctrl, str, ctrl_key)
                     cur_strs[cur_slot_name] = nil
                     local spot_name_found = true
                     if cur_slot_name == "RH" then
-                        if g.rh or g.rh_sub then
+                        if g.rh then
                             spot_name_found = false
                         end
                     elseif cur_slot_name == "LH" then
-                        if g.lh or g.lh_sub then
+                        if g.lh then
                             spot_name_found = false
                         end
                     elseif cur_slot_name == "RH_SUB" then
-                        if g.rh_sub or g.rh then
+                        if g.rh_sub then
                             spot_name_found = false
                         end
                     elseif cur_slot_name == "LH_SUB" then
-                        if g.lh_sub or g.lh then
+                        if g.lh_sub then
                             spot_name_found = false
                         end
                     end
@@ -1707,7 +1694,7 @@ function goddess_icor_manager_set_change(frame, ctrl, str, ctrl_key)
     print(tostring(g.rh) .. ":" .. tostring(g.lh) .. ":" .. tostring(g.rh_sub) .. ":" .. tostring(g.lh_sub))
     print(tostring(spot_names))
     if spot_names ~= "" then
-        local _, dammy_count = string.gsub(spot_names, "_DAMMY", "")
+
         local _, count = string.gsub(spot_names, ":::", "")
         g.try = count - dammy_count
 
@@ -1720,6 +1707,19 @@ function goddess_icor_manager_set_change(frame, ctrl, str, ctrl_key)
         AUTO_CAST(notice)
         notice:ShowWindow(0)
     end
+end
+local _, dammy_count = string.gsub(spot_names, "_DAMMY", "")
+if g.rh then
+    spot_names = spot_names .. ":::" .. "RH_DAMMY"
+end
+if g.lh then
+    spot_names = spot_names .. ":::" .. "LH_DAMMY"
+end
+if g.rh_sub then
+    spot_names = spot_names .. ":::" .. "RH_SUB_DAMMY"
+end
+if g.lh_sub then
+    spot_names = spot_names .. ":::" .. "LH_SUB_DAMMY"
 end
 
 function goddess_icor_manager_set_change_action(ctrl_key, spot_names)
@@ -1829,7 +1829,7 @@ function goddess_icor_manager_newframe_init(ctrl_key)
                                "{ol}Swap the reverse side of weapons")
 
     local set_droplist = newframe:CreateOrGetControl('droplist', 'set_droplist', change_check:GetWidth() + 50, 35, 250,
-        30)
+                                                     30)
     AUTO_CAST(set_droplist)
     set_droplist:SetSkinName('droplist_normal')
     set_droplist:EnableHitTest(1)
@@ -2297,7 +2297,7 @@ function goddess_icor_manager_check()
                         equip_button:SetEventScriptArgNumber(ui.LBUTTONUP, i) -- sets the 4th parameter (numarg)
                         equip_button:SetEventScriptArgString(ui.LBUTTONUP, j)
                         equip_button:SetTextTooltip(goddess_icor_manager_language(
-                            "Equip the icor with a left click of the button."))
+                                                        "Equip the icor with a left click of the button."))
                     end
                 end
             end
@@ -2350,7 +2350,7 @@ function goddess_icor_manager_check()
                             equip_button:SetEventScriptArgNumber(ui.LBUTTONUP, i) -- sets the 4th parameter (numarg)
                             equip_button:SetEventScriptArgString(ui.LBUTTONUP, j)
                             equip_button:SetTextTooltip(goddess_icor_manager_language(
-                                "Equip the icor with a left click of the button."))
+                                                            "Equip the icor with a left click of the button."))
 
                         end
                     end
@@ -2400,7 +2400,7 @@ function goddess_icor_manager_check()
                             equip_button:SetEventScriptArgNumber(ui.LBUTTONUP, i) -- sets the 4th parameter (numarg)
                             equip_button:SetEventScriptArgString(ui.LBUTTONUP, j)
                             equip_button:SetTextTooltip(goddess_icor_manager_language(
-                                "Equip the icor with a left click of the button."))
+                                                            "Equip the icor with a left click of the button."))
                         end
                     end
                 end
