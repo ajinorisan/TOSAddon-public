@@ -203,11 +203,15 @@ function revival_timer_DRAW_CHAT_MSG(my_frame, my_msg)
 
     local groupboxname, startindex, chatframe = g.get_event_args(my_msg)
 
-    local frame = ui.GetFrame("chatframe")
+    -- local frame = ui.GetFrame("chatframe")
     local size = session.ui.GetMsgInfoSize(groupboxname)
     local chat = session.ui.GetChatMsgInfo(groupboxname, size - 1)
 
     local msg = chat:GetMsg()
+    local msg_type = chat:GetMsgType()
+    if msg_type ~= "Party" then
+        return
+    end
     local name = chat:GetCommanderName()
     local my_name = GETMYFAMILYNAME()
     if name == my_name then

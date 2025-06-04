@@ -135,19 +135,18 @@ function SKILL_NOTICE_FREE_ON_INIT(addon, frame)
     addon:RegisterMsg("BUFF_ADD", "skill_notice_free_buff_add")
     addon:RegisterMsg("BUFF_REMOVE", "skill_notice_free_buff_remove")
 
-    -- time_0
-    -- sysmenu_skill
     local menu_data = {
         name = "Skill Notice Free",
         icon = "sysmenu_skill",
         func = "skill_notice_free_setting",
         image = ""
     }
-    if g.get_map_type() == "City" then
+    --[[if g.get_map_type() == "City" then
         _G["norisan"]["MENU"][addon_name] = menu_data
     else
         _G["norisan"]["MENU"][addon_name] = nil
-    end
+    end]]
+    _G["norisan"]["MENU"][addon_name] = menu_data
 
     if not _G["norisan"]["MENU"][addon_name_lower] or _G["norisan"]["MENU"].frame_name == addon_name_lower then
         _G["norisan"]["MENU"].frame_name = addon_name_lower
@@ -367,11 +366,11 @@ function skill_notice_free_buff_list_open(frame, ctrl, ctrl_text, num)
         buff_list_frame:SetPos(1400, 10)
         buff_list_frame:SetLayerLevel(121)
 
-        local title_text = buff_list_frame:CreateOrGetControl('richtext', 'title_text', 10, 10, 100, 30)
+        local title_text = buff_list_frame:CreateOrGetControl('richtext', 'title_text', 20, 20, 100, 30)
         AUTO_CAST(title_text)
         title_text:SetText("{ol}Buff List")
 
-        local search_edit = buff_list_frame:CreateOrGetControl("edit", "search_edit", title_text:GetWidth() + 10, 10,
+        local search_edit = buff_list_frame:CreateOrGetControl("edit", "search_edit", title_text:GetWidth() + 40, 10,
                                                                305, 38) -- search_edit -> search_edit_ctrl_for_setup
         AUTO_CAST(search_edit)
         search_edit:SetFontName("white_18_ol")
@@ -399,7 +398,7 @@ function skill_notice_free_buff_list_open(frame, ctrl, ctrl_text, num)
         search_edit:SetText("")
     end
 
-    local buff_list_gb = buff_list_frame:CreateOrGetControl("groupbox", "buff_list_gb", 5, 35, 490, 1015)
+    local buff_list_gb = buff_list_frame:CreateOrGetControl("groupbox", "buff_list_gb", 10, 50, 480, 1000)
     AUTO_CAST(buff_list_gb)
     buff_list_gb:SetSkinName("bg")
     buff_list_gb:RemoveAllChild()
@@ -410,7 +409,7 @@ function skill_notice_free_buff_list_open(frame, ctrl, ctrl_text, num)
 
     if ctrl_text then
         for buff_id_str, _ in pairs(get_buffs) do
-            local buff_name = GetClassByType("Buff", tonumber(buff_id_str)).Name
+            local buff_name = dic.getTranslatedStr(GetClassByType("Buff", tonumber(buff_id_str)).Name)
             if string.find(buff_name, ctrl_text) then
                 table.insert(sorted_buffs, tonumber(buff_id_str))
             end
@@ -456,7 +455,7 @@ function skill_notice_free_buff_list_open(frame, ctrl, ctrl_text, num)
                                                                       200, 30)
                     AUTO_CAST(buff_text)
                     buff_text:SetText("{ol}" .. buff_id .. " : " .. buff_name)
-                    buff_text:AdjustFontSizeByWidth(400)
+                    buff_text:AdjustFontSizeByWidth(380)
                     y = y + 35
                 end
             end
@@ -589,20 +588,21 @@ function skill_notice_free_setting(frame, ctrl, str, num)
     setting_frame:ShowWindow(1)
 end
 
-function skill_notice_free_newframe_close(frame, ctrl, argStr, argNum)
+function skill_notice_free_newframe_close(frame, ctrl, str, num)
 
-    local pc = GetMyPCObject();
+    --[[local pc = GetMyPCObject();
     local curMap = GetZoneName(pc)
     local mapCls = GetClass("Map", curMap)
     if mapCls.MapType ~= "City" then
-        skill_notice_free_frame_init(true)
+
         -- skill_notice_free_frame_init_test()
     else
         local snf_frame = ui.GetFrame("skill_notice_free")
         snf_frame:ShowWindow(0)
         local snf_icon_frame = ui.GetFrame(addon_name_lower .. "icon_frame")
         snf_icon_frame:ShowWindow(0)
-    end
+    end]]
+    skill_notice_free_frame_init(true)
     frame:ShowWindow(0)
 
 end
@@ -1072,10 +1072,12 @@ function skill_notice_free_buff_update(frame, msg, str, buff_id)
         end
         -- buff_count:SetText("{ol}{s35}" .. info_buff.over)
 
-        if info_buff.over >= buff_data.max_charge and not g.buffs[str_buff_id] then
+        if info_buff.over >= buff_data.max_charge then
             buff_count:SetColorTone("FFFF0000")
-            skill_notice_free_apply_buff_effects(buff_data)
-            g.buffs[str_buff_id] = true
+            if not g.buffs[str_buff_id] then
+                skill_notice_free_apply_buff_effects(buff_data)
+                g.buffs[str_buff_id] = true
+            end
         elseif info_buff.over < buff_data.max_charge then
             buff_count:SetColorTone("FFFFFFFF")
             local effect_name = buff_data.effect
@@ -1094,12 +1096,14 @@ function skill_notice_free_buff_update(frame, msg, str, buff_id)
             gauge:SetStatAlign(0, ui.RIGHT, ui.CENTER_VERT)
             gauge:EnableHitTest(0)
 
-            if info_buff.over == buff_data.max_charge and not g.buffs[str_buff_id] then
+            if info_buff.over >= buff_data.max_charge then
 
                 gauge:SetColorTone("FFFF0000")
-                skill_notice_free_apply_buff_effects(buff_data)
-                g.buffs[str_buff_id] = true
-            elseif info_buff.over ~= buff_data.max_charge then
+                if not g.buffs[str_buff_id] then
+                    skill_notice_free_apply_buff_effects(buff_data)
+                    g.buffs[str_buff_id] = true
+                end
+            elseif info_buff.over < buff_data.max_charge then
                 local color = buff_table[str_buff_id].color
                 gauge:SetColorTone(color)
             end
