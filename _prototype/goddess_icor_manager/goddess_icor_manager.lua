@@ -1367,7 +1367,7 @@ function goddess_icor_manager_set_save(frame, ctrl, str, ctrl_key)
                 goddess_icor_manager_GET_ENGRAVED_OPTION_LIST(etc_obj, i, base_equip_name)
             if eng_opts then
                 local eng_strs = string.format("%s:%s:%s", tostring(eng_opts or ""), tostring(eng_grps or ""),
-                    tostring(eng_vals or ""))
+                                               tostring(eng_vals or ""))
                 if strs == eng_strs then
 
                     temp_data.set[base_equip_name] = i .. ":::" .. base_equip_name
@@ -1379,7 +1379,7 @@ function goddess_icor_manager_set_save(frame, ctrl, str, ctrl_key)
                             goddess_icor_manager_GET_ENGRAVED_OPTION_LIST(etc_obj, i, "RH_SUB")
                         if eng_opts then
                             eng_strs = string.format("%s:%s:%s", tostring(eng_opts or ""), tostring(eng_grps or ""),
-                                tostring(eng_vals or ""))
+                                                     tostring(eng_vals or ""))
                             if strs == eng_strs then
                                 eng_count = eng_count + 1
                                 temp_data.set[base_equip_name] = i .. ":::" .. "RH_SUB"
@@ -1392,7 +1392,7 @@ function goddess_icor_manager_set_save(frame, ctrl, str, ctrl_key)
                             goddess_icor_manager_GET_ENGRAVED_OPTION_LIST(etc_obj, i, "RH")
                         if eng_opts then
                             eng_strs = string.format("%s:%s:%s", tostring(eng_opts or ""), tostring(eng_grps or ""),
-                                tostring(eng_vals or ""))
+                                                     tostring(eng_vals or ""))
                             if strs == eng_strs then
                                 eng_count = eng_count + 1
                                 temp_data.set[base_equip_name] = i .. ":::" .. "RH"
@@ -1404,7 +1404,7 @@ function goddess_icor_manager_set_save(frame, ctrl, str, ctrl_key)
                             goddess_icor_manager_GET_ENGRAVED_OPTION_LIST(etc_obj, i, "LH_SUB")
                         if eng_opts then
                             eng_strs = string.format("%s:%s:%s", tostring(eng_opts or ""), tostring(eng_grps or ""),
-                                tostring(eng_vals or ""))
+                                                     tostring(eng_vals or ""))
                             if strs == eng_strs then
                                 eng_count = eng_count + 1
                                 temp_data.set[base_equip_name] = i .. ":::" .. "LH_SUB"
@@ -1416,7 +1416,7 @@ function goddess_icor_manager_set_save(frame, ctrl, str, ctrl_key)
                             goddess_icor_manager_GET_ENGRAVED_OPTION_LIST(etc_obj, i, "LH")
                         if eng_opts then
                             eng_strs = string.format("%s:%s:%s", tostring(eng_opts or ""), tostring(eng_grps or ""),
-                                tostring(eng_vals or ""))
+                                                     tostring(eng_vals or ""))
                             if strs == eng_strs then
                                 eng_count = eng_count + 1
                                 temp_data.set[base_equip_name] = i .. ":::" .. "LH"
@@ -1530,44 +1530,20 @@ function goddess_icor_manager_droplist_select(frame, ctrl)
         status_bg:RemoveAllChild()
 
         g.same = 0
-
-        local cur_strs = {}
-
         g.rh = nil
         g.lh = nil
         g.rh_sub = nil
         g.lh_sub = nil
 
-        for base_equip_name, data in pairs(temp_data.set) do
-
-            local _, save_equip_name = string.match(data, "^(.-):::(.+)$")
-            if save_equip_name then
-                if base_equip_name ~= save_equip_name then
-                    if base_equip_name == "RH" then
-                        g.rh = true
-                    elseif base_equip_name == "LH" then
-                        g.lh = true
-                    elseif base_equip_name == "RH_SUB" then
-                        g.rh_sub = true
-                    elseif base_equip_name == "LH_SUB" then
-                        g.lh_sub = true
-                    end
-                end
-            end
-        end
-
         local cur_strs = {}
-
         for i = 1, #managed_slot_list do
             local new_bg = GET_CHILD(frame, "new_bg" .. i)
             AUTO_CAST(new_bg)
-            local slot = GET_CHILD(new_bg, "slot" .. i)
-            AUTO_CAST(slot)
 
             local slot_info = managed_slot_list[i]
             local slot_name = slot_info.slot_name
+
             local inv_item = session.GetEquipItemBySpot(item.GetEquipSpotNum(slot_name))
-            local guid = inv_item:GetIESID()
 
             if inv_item and inv_item:GetObject() then
                 local item_obj = GetIES(inv_item:GetObject())
@@ -1602,125 +1578,79 @@ function goddess_icor_manager_droplist_select(frame, ctrl)
                     end
                 end
             end
-            local tgt_str = temp_data.set[slot_name]
+
+            local tgt_str = temp_data.set[slot_name] or ""
             local load_index, load_equip_name = string.match(tgt_str, "^(.-):::(.+)$")
 
-            local eng_opts, eng_grps, eng_vals, is_goddess =
-                goddess_icor_manager_GET_ENGRAVED_OPTION_LIST(etc_obj, tonumber(load_index), load_equip_name)
-
-            local eng_strs = string.format("%s:%s:%s", tostring(eng_opts or ""), tostring(eng_grps or ""),
-                tostring(eng_vals or ""))
-            if cur_strs[slot_name] == eng_strs then
-                g.same = g.same + 1
+            local eng_opts, eng_grps, eng_vals
+            if load_index and load_equip_name then
+                eng_opts, eng_grps, eng_vals, _ = goddess_icor_manager_GET_ENGRAVED_OPTION_LIST(etc_obj,
+                                                                                                tonumber(load_index),
+                                                                                                load_equip_name)
             end
 
-            local _, count = string.gsub(eng_opts, "/", "")
-            local size = count + 1
-            for j = 1, size do
+            local eng_strs = string.format("%s:%s:%s", tostring(eng_opts or ""), tostring(eng_grps or ""),
+                                           tostring(eng_vals or ""))
 
-                local parts1 = {}
-                local parts2 = {}
-                local parts3 = {}
-                if eng_opts ~= nil then
-                    for part in eng_opts:gmatch("([^/]+)") do
-                        table.insert(parts1, part)
-                    end
+            if cur_strs[slot_name] == eng_strs then
+                g.same = g.same + 1
+            else
+                if slot_name == "RH" then
+                    g.rh = true
+                elseif slot_name == "LH" then
+                    g.lh = true
+                elseif slot_name == "RH_SUB" then
+                    g.rh_sub = true
+                elseif slot_name == "LH_SUB" then
+                    g.lh_sub = true
+                end
+            end
+
+            if eng_opts ~= nil then
+                local parts1, parts2, parts3 = {}, {}, {}
+                for part in eng_opts:gmatch("([^/]+)") do
+                    table.insert(parts1, part)
+                end
+                if eng_grps then
                     for part in eng_grps:gmatch("([^/]+)") do
                         table.insert(parts2, part)
                     end
+                end
+                if eng_vals then
                     for part in eng_vals:gmatch("([^/]+)") do
                         table.insert(parts3, part)
                     end
+                end
 
-                    if #parts1 <= 4 then
-                        local text = GET_CHILD(new_bg, "text" .. 5)
-                        if text then
-                            new_bg:RemoveChild("text" .. 5)
-                        end
-                    end
-
-                    local y = 25
-                    for k = 1, #parts1 do
-                        local opt_name = parts1[k]
-                        local grp_name = parts2[k]
-                        local val = parts3[k]
-
-                        local text = new_bg:CreateOrGetControl("richtext", "text" .. k, 5, y)
-                        AUTO_CAST(text)
-
-                        local color = goddess_icor_manager_color(grp_name)
-                        text:SetText("{ol}" .. color .. goddess_icor_manager_language(opt_name) .. "{ol}{#FFFFFF} : " ..
-                                         val)
-                        y = y + 20
+                for k_child = new_bg:GetChildCount() - 1, 0, -1 do
+                    local child_to_remove = new_bg:GetChildByIndex(k_child)
+                    if child_to_remove and string.sub(child_to_remove:GetName(), 1, 4) == "text" then
+                        new_bg:RemoveChild(child_to_remove:GetName())
                     end
                 end
+
+                local y = 25
+                for k = 1, #parts1 do
+                    local opt_name = parts1[k]
+                    local grp_name = parts2[k]
+                    local val = parts3[k]
+
+                    local text = new_bg:CreateOrGetControl("richtext", "text" .. k, 5, y)
+                    AUTO_CAST(text)
+
+                    local color = goddess_icor_manager_color(grp_name)
+                    text:SetText("{ol}" .. color .. goddess_icor_manager_language(opt_name) .. "{ol}{#FFFFFF} : " .. val)
+                    y = y + 20
+                end
             end
+
         end
+
     end
 
 end
 
-function goddess_icor_manager_set_change_weapon(ctrl_key, slot_name)
-
-    local temp_data = g.settings[g.cid].drop_items[ctrl_key]
-    local spot_names = ""
-    local cur_strs = ""
-    local etc_obj = GetMyEtcObject()
-
-    if not slot_name then
-        slot_name = "RH"
-    end
-
-    local inv_item = session.GetEquipItemBySpot(item.GetEquipSpotNum(slot_name))
-
-    if inv_item and inv_item:GetObject() then
-        local item_obj = GetIES(inv_item:GetObject())
-        local item_dic = GET_ITEM_RANDOMOPTION_DIC(item_obj)
-
-        if item_dic then
-            local size = item_dic["Size"] or 0
-
-            if size ~= 0 then
-                local opts, grps, vals = {}, {}, {}
-                for j = 1, size do
-                    local key_opt = "RandomOption_" .. j
-                    local key_val = "RandomOptionValue_" .. j
-                    local key_grp = "RandomOptionGroup_" .. j
-
-                    local opt = item_dic[key_opt]
-                    local val = item_dic[key_val]
-                    local grp = item_dic[key_grp]
-
-                    table.insert(opts, opt ~= nil and tostring(opt) or "")
-                    table.insert(grps, grp ~= nil and tostring(grp) or "")
-                    table.insert(vals, val ~= nil and tostring(val) or "")
-                end
-
-                if #opts > 0 then
-                    local cur_opts = table.concat(opts, "/")
-                    local cur_grps = table.concat(grps, "/")
-                    local cur_vals = table.concat(vals, "/")
-
-                    cur_strs = string.format("%s:%s:%s", cur_opts, cur_grps, cur_vals)
-                end
-            end
-        end
-    end
-    local tgt_str = temp_data.set[slot_name]
-    local load_index, load_equip_name = string.match(tgt_str, "^(.-):::(.+)$")
-
-    local eng_opts, eng_grps, eng_vals, is_goddess = goddess_icor_manager_GET_ENGRAVED_OPTION_LIST(etc_obj, tonumber(
-        load_index), load_equip_name)
-
-    local eng_strs = string.format("%s:%s:%s", tostring(eng_opts or ""), tostring(eng_grps or ""),
-        tostring(eng_vals or ""))
-    if cur_strs ~= eng_strs then
-        spot_names = spot_names .. ":::" .. slot_name
-    end
-
-end
-
-function goddess_icor_manager_set_change(frame, ctrl, str, ctrl_key)
+function goddess_icor_manager_set_change(frame, ctrl, str, ctrl_key, step)
 
     for i = 1, #managed_slot_list do
         local slot_info = managed_slot_list[i]
@@ -1744,7 +1674,7 @@ function goddess_icor_manager_set_change(frame, ctrl, str, ctrl_key)
     end
 
     local acc = GetMyAccountObj()
-    local etc_obj = GetMyEtcObject()
+
     local remain_time = GET_REMAIN_SECOND_ENGRAVE_SLOT_EXTENSION_TIME(acc)
     local page_max = 0
     if tonumber(remain_time) == 0 then
@@ -1777,10 +1707,14 @@ function goddess_icor_manager_set_change(frame, ctrl, str, ctrl_key)
     local newframe = ui.GetFrame("goddess_icor_manager_newframe")
     newframe:ShowWindow(0)
 
+    local etc_obj = GetMyEtcObject()
     local temp_data = g.settings[g.cid].drop_items[ctrl_key]
     local cur_strs = {}
     local spot_names = ""
-    for i = 3, #managed_slot_list - 2 do
+
+    step = step or 1
+
+    for i = 1, #managed_slot_list do
 
         local slot_info = managed_slot_list[i]
         local slot_name = slot_info.slot_name
@@ -1819,176 +1753,92 @@ function goddess_icor_manager_set_change(frame, ctrl, str, ctrl_key)
                 end
             end
         end
-        local tgt_str = temp_data.set[slot_name]
-        local load_index, load_equip_name = string.match(tgt_str, "^(.-):::(.+)$")
-
-        local eng_opts, eng_grps, eng_vals, is_goddess = goddess_icor_manager_GET_ENGRAVED_OPTION_LIST(etc_obj,
-            tonumber(load_index), load_equip_name)
-
-        local eng_strs = string.format("%s:%s:%s", tostring(eng_opts or ""), tostring(eng_grps or ""),
-            tostring(eng_vals or ""))
-        if cur_strs[slot_name] ~= eng_strs then
-            spot_names = spot_names .. ":::" .. slot_name
-        end
 
     end
+    -- ぼう
+    if step == 1 then
+        for base_equip_name, strs in pairs(cur_strs) do
+            if not string.find(base_equip_name, "RH") or not string.find(base_equip_name, "LH") then
+                local tgt_str = temp_data.set[base_equip_name]
+                local load_index, load_equip_name = string.match(tgt_str, "^(.-):::(.+)$")
 
-    if spot_names ~= "" then
-        goddess_icor_manager_set_change_action(ctrl_key, spot_names)
-    else
-        -- 防具は一緒で武器ちゃう時書く
-        goddess_icor_manager_set_change_weapon(ctrl_key)
-    end
+                local eng_opts, eng_grps, eng_vals, is_goddess =
+                    goddess_icor_manager_GET_ENGRAVED_OPTION_LIST(etc_obj, tonumber(load_index), load_equip_name)
 
-    --[[local cur_strs = {}
-
-    for i = 1, #managed_slot_list do
-        local slot_info = managed_slot_list[i]
-        local slot_name = slot_info.slot_name
-        local inv_item = session.GetEquipItemBySpot(item.GetEquipSpotNum(slot_name))
-        local guid = inv_item:GetIESID()
-
-        if inv_item and inv_item:GetObject() then
-            local item_obj = GetIES(inv_item:GetObject())
-            local item_dic = GET_ITEM_RANDOMOPTION_DIC(item_obj)
-
-            if item_dic then
-                local size = item_dic["Size"] or 0
-
-                if size ~= 0 then
-                    local opts, grps, vals = {}, {}, {}
-                    for j = 1, size do
-                        local key_opt = "RandomOption_" .. j
-                        local key_val = "RandomOptionValue_" .. j
-                        local key_grp = "RandomOptionGroup_" .. j
-
-                        local opt = item_dic[key_opt]
-                        local val = item_dic[key_val]
-                        local grp = item_dic[key_grp]
-
-                        table.insert(opts, opt ~= nil and tostring(opt) or "")
-                        table.insert(grps, grp ~= nil and tostring(grp) or "")
-                        table.insert(vals, val ~= nil and tostring(val) or "")
-                    end
-
-                    if #opts > 0 then
-                        local cur_opts = table.concat(opts, "/")
-                        local cur_grps = table.concat(grps, "/")
-                        local cur_vals = table.concat(vals, "/")
-
-                        cur_strs[slot_name] = string.format("%s:%s:%s", cur_opts, cur_grps, cur_vals)
-                    end
-                end
-            end
-        end
-    end
-
-    local spot_names = ""
-    local temp_data = g.settings[g.cid].drop_items[ctrl_key]
-    local eng_opts, eng_grps, eng_vals
-
-    for i = 1, #managed_slot_list do
-        local cur_slot_name = managed_slot_list[i].slot_name
-
-        for base_equip_name, data in pairs(temp_data.set) do
-            local load_index, load_equip_name = string.match(data, "^(.-):::(.+)$")
-            if cur_slot_name == base_equip_name then
-                eng_opts, eng_grps, eng_vals = goddess_icor_manager_GET_ENGRAVED_OPTION_LIST(etc_obj, load_index,
-                    load_equip_name)
                 local eng_strs = string.format("%s:%s:%s", tostring(eng_opts or ""), tostring(eng_grps or ""),
-                    tostring(eng_vals or ""))
-                local base_condition = cur_strs[cur_slot_name] and cur_strs[cur_slot_name] ~= eng_strs
-                if base_condition then
-                    print(cur_slot_name .. " :" .. tostring(cur_strs[cur_slot_name]) .. ":::" .. tostring(eng_strs))
-                    cur_strs[cur_slot_name] = nil
-                    spot_names = spot_names .. ":::" .. cur_slot_name
+                                               tostring(eng_vals or ""))
+                if cur_strs[base_equip_name] ~= eng_strs then
+                    spot_names = spot_names .. ":::" .. base_equip_name
                 end
             end
         end
 
-        local tgt_str = g.settings[g.cid].drop_items[ctrl_key].set[cur_slot_name]
-        local load_index, load_equip_name = string.match(tgt_str, "^(.-):::(.+)$")
-        load_index = tonumber(load_index)
+        if spot_names ~= "" then
+            goddess_icor_manager_set_change_action(ctrl_key, spot_names, step)
+        else
+            if g.rh or g.lh or g.rh_sub or g.lh_sub then
+                goddess_icor_manager_set_change(_, _, _, ctrl_key, 2)
+            else
+                goddess_icor_manager_set_end()
+            end
+        end
+    elseif step == 2 then -- ぶ
+        for base_equip_name, strs in pairs(cur_strs) do
+            if string.find(base_equip_name, "RH") or string.find(base_equip_name, "LH") then
+                local tgt_str = temp_data.set[base_equip_name]
+                local load_index, load_equip_name = string.match(tgt_str, "^(.-):::(.+)$")
 
-        local eng_opts, eng_grps, eng_vals, is_goddess = goddess_icor_manager_GET_ENGRAVED_OPTION_LIST(etc_obj,
-            load_index, load_equip_name)
+                if base_equip_name == "RH" and g.rh then
 
-        if eng_opts then
-
-            local eng_strs = string.format("%s:%s:%s", tostring(eng_opts or ""), tostring(eng_grps or ""),
-                tostring(eng_vals or ""))
-
-            local base_condition = cur_strs[cur_slot_name] and cur_strs[cur_slot_name] ~= eng_strs
-
-            if base_condition then
-                -- print(tostring(cur_strs["RH"]) .. ":::" .. tostring(eng_strs))
-                cur_strs[cur_slot_name] = nil
-                local spot_name_found = true
-                if cur_slot_name == "RH" and g.rh then
-                    if cur_strs["RH_SUB"] == eng_strs then
-                        spot_name_found = false
+                    if base_equip_name == load_equip_name then
+                        spot_names = spot_names .. ":::" .. base_equip_name
                     end
-                elseif cur_slot_name == "LH" and g.lh then
-                    if cur_strs["LH_SUB"] == eng_strs then
-                        spot_name_found = false
+                    g.rh = nil
+                elseif base_equip_name == "LH" and g.lh then
+
+                    if base_equip_name == load_equip_name then
+                        spot_names = spot_names .. ":::" .. base_equip_name
                     end
-                elseif cur_slot_name == "RH_SUB" and g.rh_sub then
-                    if cur_strs["RH"] == eng_strs then
-                        spot_name_found = false
+                    g.lh = nil
+                elseif base_equip_name == "RH_SUB" and g.rh_sub then
+
+                    if base_equip_name == load_equip_name then
+                        spot_names = spot_names .. ":::" .. base_equip_name
                     end
-                elseif cur_slot_name == "LH_SUB" and g.lh_sub then
-                    if cur_strs["LH"] == eng_strs then
-                        spot_name_found = false
+                    g.rh_sub = nil
+                elseif base_equip_name == "LH_SUB" and g.lh_sub then
+
+                    if base_equip_name == load_equip_name then
+                        spot_names = spot_names .. ":::" .. base_equip_name
                     end
-                end
-                if spot_name_found then
-                    spot_names = spot_names .. ":::" .. cur_slot_name
+                    g.lh_sub = nil
                 end
             end
         end
+        if spot_names ~= "" then
+            goddess_icor_manager_set_change_action(ctrl_key, spot_names, step)
+        else
+            if g.rh or g.lh or g.rh_sub or g.lh_sub then
+                goddess_icor_manager_set_change(_, _, _, ctrl_key, 3)
+            else
+                goddess_icor_manager_set_end()
+            end
+        end
+    elseif step == 3 then -- swap
+
     end
-    -- print(tostring(g.rh) .. ":" .. tostring(g.lh) .. ":" .. tostring(g.rh_sub) .. ":" .. tostring(g.lh_sub))
-    print(tostring(spot_names))
-    if spot_names ~= "" then
-
-        local _, count = string.gsub(spot_names, ":::", "")
-        g.try = count
-        goddess_icor_manager_set_change_action(ctrl_key, spot_names)
-    elseif g.auto_set then
-        goddess_icor_manager_set_change_action(ctrl_key, spot_names)
-
-    end]]
 end
 
-function goddess_icor_manager_set_change_action(ctrl_key, spot_names)
-
-    --[[if g.try == 0 and (g.rh or g.lh or g.rh_sub or g.lh_sub) then
-
-        g.auto_set = true
-        g.ctrl_key = ctrl_key
-        if g.rh then
-            g.rh = false
-        end
-        if g.lh then
-            g.lh = false
-        end
-        if g.rh_sub then
-            g.rh_sub = false
-        end
-        if g.lh_sub then
-            g.lh_sub = false
-        end
-        goddess_icor_manager_swap_weapon()
-        return
-    elseif g.try == 0 and (g.rh == false or g.lh == false or g.rh_sub == false or g.lh_sub == false) then
-        g.auto_set = false
-        goddess_icor_manager_swap_weapon()
-        return
-    end]]
+function goddess_icor_manager_set_change_action(ctrl_key, spot_names, step)
 
     local _, count = string.gsub(spot_names, ":::", "")
-    local try = count
-    print(try)
+
+    if count <= 0 then
+        step = step + 1
+        goddess_icor_manager_set_change(_, _, _, ctrl_key, step)
+        return
+    end
+
     local frame = ui.GetFrame('goddess_equip_manager')
     frame:ShowWindow(1)
 
@@ -2005,7 +1855,7 @@ function goddess_icor_manager_set_change_action(ctrl_key, spot_names)
     session.ResetItemList()
 
     local arg_list = NewStringList()
-    local tgt_item = session.GetEquipItemBySpot(item.GetEquipSpotNum(load_equip_name))
+    local tgt_item = session.GetEquipItemBySpot(item.GetEquipSpotNum(spot_name))
 
     if tgt_item then
         if tgt_item.isLockState == true then
@@ -2016,7 +1866,7 @@ function goddess_icor_manager_set_change_action(ctrl_key, spot_names)
 
         if guid ~= 'None' and guid ~= '0' then
             session.AddItemID(guid, 1)
-            arg_list:Add(load_equip_name)
+            arg_list:Add(spot_name)
         end
     end
 
@@ -2027,16 +1877,11 @@ function goddess_icor_manager_set_change_action(ctrl_key, spot_names)
 
         item.DialogTransaction('ICOR_PRESET_ENGRAVE_APPLY', result_list, '', arg_list)
 
-        if try > 0 then
-            -- try = try - 1
-            ReserveScript(string.format("goddess_icor_manager_set_change_action(%d,'%s')", ctrl_key, spot_names),
+        if count > 0 then
+            ReserveScript(
+                string.format("goddess_icor_manager_set_change_action(%d,'%s',%d)", ctrl_key, spot_names, step),
                 g.settings.delay or 0.5)
             return
-        else
-            local notice = ui.GetFrame("notice")
-            AUTO_CAST(notice)
-            notice:ShowWindow(0)
-            goddess_icor_manager_list_close()
         end
     end
 end
@@ -2175,7 +2020,7 @@ function goddess_icor_manager_newframe_init(ctrl_key)
     delay_edit:SetEventScript(ui.ENTERKEY, "goddess_icor_manager_setting_delay")
 
     local set_droplist = newframe:CreateOrGetControl('droplist', 'set_droplist', change_check:GetWidth() + 30, 35, 250,
-        30)
+                                                     30)
     AUTO_CAST(set_droplist)
     set_droplist:SetSkinName('droplist_normal')
     set_droplist:EnableHitTest(1)
@@ -2561,7 +2406,7 @@ function goddess_icor_manager_equip_button(frame, ctrl, argStr, argNum)
     end
 
     ReserveScript(string.format("goddess_icor_manager_list_init('%s','%s','%s',%d)", frame, "", "", g.num),
-        g.settings.delay or 0.5)
+                  g.settings.delay or 0.5)
 
 end
 
@@ -2644,7 +2489,7 @@ function goddess_icor_manager_check()
                         equip_button:SetEventScriptArgNumber(ui.LBUTTONUP, i) -- sets the 4th parameter (numarg)
                         equip_button:SetEventScriptArgString(ui.LBUTTONUP, j)
                         equip_button:SetTextTooltip(goddess_icor_manager_language(
-                            "Equip the icor with a left click of the button."))
+                                                        "Equip the icor with a left click of the button."))
                     end
                 end
             end
@@ -2697,7 +2542,7 @@ function goddess_icor_manager_check()
                             equip_button:SetEventScriptArgNumber(ui.LBUTTONUP, i) -- sets the 4th parameter (numarg)
                             equip_button:SetEventScriptArgString(ui.LBUTTONUP, j)
                             equip_button:SetTextTooltip(goddess_icor_manager_language(
-                                "Equip the icor with a left click of the button."))
+                                                            "Equip the icor with a left click of the button."))
 
                         end
                     end
@@ -2747,7 +2592,7 @@ function goddess_icor_manager_check()
                             equip_button:SetEventScriptArgNumber(ui.LBUTTONUP, i) -- sets the 4th parameter (numarg)
                             equip_button:SetEventScriptArgString(ui.LBUTTONUP, j)
                             equip_button:SetTextTooltip(goddess_icor_manager_language(
-                                "Equip the icor with a left click of the button."))
+                                                            "Equip the icor with a left click of the button."))
                         end
                     end
                 end
@@ -2914,7 +2759,7 @@ function goddess_icor_manager_check_save(frame, ctrl, argStr, argNum)
     g.save_json(g.settings_path, g.settings)
     local frame = ui.GetFrame("goddess_icor_manager")
     ReserveScript(string.format("goddess_icor_manager_list_init('%s','%s','%s',%d)", frame, "", "", 1),
-        g.settings.delay or 0.5)
+                  g.settings.delay or 0.5)
 
 end
 
@@ -3066,7 +2911,7 @@ function goddess_icor_manager_equip()
             return
         else
             ReserveScript(string.format("goddess_icor_manager_list_init('%s','%s','%s',%d)", _, _, _, g.num or 1),
-                g.settings.delay or 0.5)
+                          g.settings.delay or 0.5)
         end
     end
 
@@ -3329,4 +3174,385 @@ function goddess_icor_manager_get_pagename(index)
     end
 
 end
+--[==[
+function goddess_icor_manager_set_change_weapon(ctrl_key, slot_name)
 
+    local temp_data = g.settings[g.cid].drop_items[ctrl_key]
+    local spot_names = ""
+    local cur_strs = ""
+    local etc_obj = GetMyEtcObject()
+
+    if not slot_name then
+        slot_name = "RH"
+    end
+
+    local inv_item = session.GetEquipItemBySpot(item.GetEquipSpotNum(slot_name))
+
+    if inv_item and inv_item:GetObject() then
+        local item_obj = GetIES(inv_item:GetObject())
+        local item_dic = GET_ITEM_RANDOMOPTION_DIC(item_obj)
+
+        if item_dic then
+            local size = item_dic["Size"] or 0
+
+            if size ~= 0 then
+                local opts, grps, vals = {}, {}, {}
+                for j = 1, size do
+                    local key_opt = "RandomOption_" .. j
+                    local key_val = "RandomOptionValue_" .. j
+                    local key_grp = "RandomOptionGroup_" .. j
+
+                    local opt = item_dic[key_opt]
+                    local val = item_dic[key_val]
+                    local grp = item_dic[key_grp]
+
+                    table.insert(opts, opt ~= nil and tostring(opt) or "")
+                    table.insert(grps, grp ~= nil and tostring(grp) or "")
+                    table.insert(vals, val ~= nil and tostring(val) or "")
+                end
+
+                if #opts > 0 then
+                    local cur_opts = table.concat(opts, "/")
+                    local cur_grps = table.concat(grps, "/")
+                    local cur_vals = table.concat(vals, "/")
+
+                    cur_strs = string.format("%s:%s:%s", cur_opts, cur_grps, cur_vals)
+                end
+            end
+        end
+    end
+    local tgt_str = temp_data.set[slot_name]
+    local load_index, load_equip_name = string.match(tgt_str, "^(.-):::(.+)$")
+
+    local eng_opts, eng_grps, eng_vals, is_goddess = goddess_icor_manager_GET_ENGRAVED_OPTION_LIST(etc_obj, tonumber(
+        load_index), load_equip_name)
+
+    local eng_strs = string.format("%s:%s:%s", tostring(eng_opts or ""), tostring(eng_grps or ""),
+        tostring(eng_vals or ""))
+    if cur_strs ~= eng_strs then
+        spot_names = spot_names .. ":::" .. slot_name
+    end
+
+end
+
+function goddess_icor_manager_set_change(frame, ctrl, str, ctrl_key)
+
+    for i = 1, #managed_slot_list do
+        local slot_info = managed_slot_list[i]
+        local slot_name = slot_info.slot_name
+        local inv_item = session.GetEquipItemBySpot(item.GetEquipSpotNum(slot_name))
+        local guid = inv_item:GetIESID()
+
+        if guid == "0" then
+            local text = g.lang == "Japanese" and "{ol}装備を8ヶ所に着けてから起動してください" or
+                             "{ol}Wear the equipment in 8 places before activating it"
+            ui.SysMsg(text)
+            return
+        end
+    end
+
+    if g.same == 8 then
+        local text = g.lang == "Japanese" and "{ol}現在装備中と同一のセットです" or
+                         "{ol}This is the same set you currently have equipped"
+        ui.SysMsg(text)
+        return
+    end
+
+    local acc = GetMyAccountObj()
+    local etc_obj = GetMyEtcObject()
+    local remain_time = GET_REMAIN_SECOND_ENGRAVE_SLOT_EXTENSION_TIME(acc)
+    local page_max = 0
+    if tonumber(remain_time) == 0 then
+        page_max = GET_MAX_ENGARVE_SLOT_COUNT(acc)
+    else
+        page_max = GET_MAX_ENGARVE_SLOT_COUNT(acc) + 5
+    end
+
+    for j = 1, #managed_slot_list do
+        local cur_slot_name = managed_slot_list[j].slot_name
+        local tgt_str = g.settings[g.cid].drop_items[ctrl_key].set[cur_slot_name]
+
+        local load_index, load_equip_name = string.match(tgt_str, "^(.-):::(.+)$")
+        if tonumber(load_index) > page_max then
+            local text = g.lang == "Japanese" and
+                             "{ol}保存しているイコルが使用不可のため、終了します" or
+                             "{ol}Process terminated Stored Icor is unavailable"
+            ui.SysMsg(text)
+
+            return
+        end
+    end
+
+    local notice = g.lang == "Japanese" and
+                       "{ol}[GIM]セット適用中{nl}バグ防止のため操作をしないでください" or
+                       "{ol}[GIM]set is being applied{nl}Do not operate to prevent bugs"
+
+    imcAddOn.BroadMsg("NOTICE_Dm_stage_start", notice)
+
+    local newframe = ui.GetFrame("goddess_icor_manager_newframe")
+    newframe:ShowWindow(0)
+
+    local temp_data = g.settings[g.cid].drop_items[ctrl_key]
+    local cur_strs = {}
+    local spot_names = ""
+    for i = 3, #managed_slot_list - 2 do
+
+        local slot_info = managed_slot_list[i]
+        local slot_name = slot_info.slot_name
+        local inv_item = session.GetEquipItemBySpot(item.GetEquipSpotNum(slot_name))
+
+        if inv_item and inv_item:GetObject() then
+            local item_obj = GetIES(inv_item:GetObject())
+            local item_dic = GET_ITEM_RANDOMOPTION_DIC(item_obj)
+
+            if item_dic then
+                local size = item_dic["Size"] or 0
+
+                if size ~= 0 then
+                    local opts, grps, vals = {}, {}, {}
+                    for j = 1, size do
+                        local key_opt = "RandomOption_" .. j
+                        local key_val = "RandomOptionValue_" .. j
+                        local key_grp = "RandomOptionGroup_" .. j
+
+                        local opt = item_dic[key_opt]
+                        local val = item_dic[key_val]
+                        local grp = item_dic[key_grp]
+
+                        table.insert(opts, opt ~= nil and tostring(opt) or "")
+                        table.insert(grps, grp ~= nil and tostring(grp) or "")
+                        table.insert(vals, val ~= nil and tostring(val) or "")
+                    end
+
+                    if #opts > 0 then
+                        local cur_opts = table.concat(opts, "/")
+                        local cur_grps = table.concat(grps, "/")
+                        local cur_vals = table.concat(vals, "/")
+
+                        cur_strs[slot_name] = string.format("%s:%s:%s", cur_opts, cur_grps, cur_vals)
+                    end
+                end
+            end
+        end
+        local tgt_str = temp_data.set[slot_name]
+        local load_index, load_equip_name = string.match(tgt_str, "^(.-):::(.+)$")
+
+        local eng_opts, eng_grps, eng_vals, is_goddess = goddess_icor_manager_GET_ENGRAVED_OPTION_LIST(etc_obj,
+            tonumber(load_index), load_equip_name)
+
+        local eng_strs = string.format("%s:%s:%s", tostring(eng_opts or ""), tostring(eng_grps or ""),
+            tostring(eng_vals or ""))
+        if cur_strs[slot_name] ~= eng_strs then
+            spot_names = spot_names .. ":::" .. slot_name
+        end
+
+    end
+
+    if spot_names ~= "" then
+        goddess_icor_manager_set_change_action(ctrl_key, spot_names)
+    else
+        -- 防具は一緒で武器ちゃう時書く
+        goddess_icor_manager_set_change_weapon(ctrl_key)
+    end
+
+    --[[local cur_strs = {}
+
+    for i = 1, #managed_slot_list do
+        local slot_info = managed_slot_list[i]
+        local slot_name = slot_info.slot_name
+        local inv_item = session.GetEquipItemBySpot(item.GetEquipSpotNum(slot_name))
+        local guid = inv_item:GetIESID()
+
+        if inv_item and inv_item:GetObject() then
+            local item_obj = GetIES(inv_item:GetObject())
+            local item_dic = GET_ITEM_RANDOMOPTION_DIC(item_obj)
+
+            if item_dic then
+                local size = item_dic["Size"] or 0
+
+                if size ~= 0 then
+                    local opts, grps, vals = {}, {}, {}
+                    for j = 1, size do
+                        local key_opt = "RandomOption_" .. j
+                        local key_val = "RandomOptionValue_" .. j
+                        local key_grp = "RandomOptionGroup_" .. j
+
+                        local opt = item_dic[key_opt]
+                        local val = item_dic[key_val]
+                        local grp = item_dic[key_grp]
+
+                        table.insert(opts, opt ~= nil and tostring(opt) or "")
+                        table.insert(grps, grp ~= nil and tostring(grp) or "")
+                        table.insert(vals, val ~= nil and tostring(val) or "")
+                    end
+
+                    if #opts > 0 then
+                        local cur_opts = table.concat(opts, "/")
+                        local cur_grps = table.concat(grps, "/")
+                        local cur_vals = table.concat(vals, "/")
+
+                        cur_strs[slot_name] = string.format("%s:%s:%s", cur_opts, cur_grps, cur_vals)
+                    end
+                end
+            end
+        end
+    end
+
+    local spot_names = ""
+    local temp_data = g.settings[g.cid].drop_items[ctrl_key]
+    local eng_opts, eng_grps, eng_vals
+
+    for i = 1, #managed_slot_list do
+        local cur_slot_name = managed_slot_list[i].slot_name
+
+        for base_equip_name, data in pairs(temp_data.set) do
+            local load_index, load_equip_name = string.match(data, "^(.-):::(.+)$")
+            if cur_slot_name == base_equip_name then
+                eng_opts, eng_grps, eng_vals = goddess_icor_manager_GET_ENGRAVED_OPTION_LIST(etc_obj, load_index,
+                    load_equip_name)
+                local eng_strs = string.format("%s:%s:%s", tostring(eng_opts or ""), tostring(eng_grps or ""),
+                    tostring(eng_vals or ""))
+                local base_condition = cur_strs[cur_slot_name] and cur_strs[cur_slot_name] ~= eng_strs
+                if base_condition then
+                    print(cur_slot_name .. " :" .. tostring(cur_strs[cur_slot_name]) .. ":::" .. tostring(eng_strs))
+                    cur_strs[cur_slot_name] = nil
+                    spot_names = spot_names .. ":::" .. cur_slot_name
+                end
+            end
+        end
+
+        local tgt_str = g.settings[g.cid].drop_items[ctrl_key].set[cur_slot_name]
+        local load_index, load_equip_name = string.match(tgt_str, "^(.-):::(.+)$")
+        load_index = tonumber(load_index)
+
+        local eng_opts, eng_grps, eng_vals, is_goddess = goddess_icor_manager_GET_ENGRAVED_OPTION_LIST(etc_obj,
+            load_index, load_equip_name)
+
+        if eng_opts then
+
+            local eng_strs = string.format("%s:%s:%s", tostring(eng_opts or ""), tostring(eng_grps or ""),
+                tostring(eng_vals or ""))
+
+            local base_condition = cur_strs[cur_slot_name] and cur_strs[cur_slot_name] ~= eng_strs
+
+            if base_condition then
+                -- print(tostring(cur_strs["RH"]) .. ":::" .. tostring(eng_strs))
+                cur_strs[cur_slot_name] = nil
+                local spot_name_found = true
+                if cur_slot_name == "RH" and g.rh then
+                    if cur_strs["RH_SUB"] == eng_strs then
+                        spot_name_found = false
+                    end
+                elseif cur_slot_name == "LH" and g.lh then
+                    if cur_strs["LH_SUB"] == eng_strs then
+                        spot_name_found = false
+                    end
+                elseif cur_slot_name == "RH_SUB" and g.rh_sub then
+                    if cur_strs["RH"] == eng_strs then
+                        spot_name_found = false
+                    end
+                elseif cur_slot_name == "LH_SUB" and g.lh_sub then
+                    if cur_strs["LH"] == eng_strs then
+                        spot_name_found = false
+                    end
+                end
+                if spot_name_found then
+                    spot_names = spot_names .. ":::" .. cur_slot_name
+                end
+            end
+        end
+    end
+    -- print(tostring(g.rh) .. ":" .. tostring(g.lh) .. ":" .. tostring(g.rh_sub) .. ":" .. tostring(g.lh_sub))
+    print(tostring(spot_names))
+    if spot_names ~= "" then
+
+        local _, count = string.gsub(spot_names, ":::", "")
+        g.try = count
+        goddess_icor_manager_set_change_action(ctrl_key, spot_names)
+    elseif g.auto_set then
+        goddess_icor_manager_set_change_action(ctrl_key, spot_names)
+
+    end]]
+end
+
+function goddess_icor_manager_set_change_action(ctrl_key, spot_names)
+
+    --[[if g.try == 0 and (g.rh or g.lh or g.rh_sub or g.lh_sub) then
+
+        g.auto_set = true
+        g.ctrl_key = ctrl_key
+        if g.rh then
+            g.rh = false
+        end
+        if g.lh then
+            g.lh = false
+        end
+        if g.rh_sub then
+            g.rh_sub = false
+        end
+        if g.lh_sub then
+            g.lh_sub = false
+        end
+        goddess_icor_manager_swap_weapon()
+        return
+    elseif g.try == 0 and (g.rh == false or g.lh == false or g.rh_sub == false or g.lh_sub == false) then
+        g.auto_set = false
+        goddess_icor_manager_swap_weapon()
+        return
+    end]]
+
+    local _, count = string.gsub(spot_names, ":::", "")
+    local try = count
+    print(try)
+    local frame = ui.GetFrame('goddess_equip_manager')
+    frame:ShowWindow(1)
+
+    local spot_name = string.match(spot_names, "^:::([A-Z0-9_]+)")
+
+    if spot_name then
+        spot_names = string.gsub(spot_names, "^:::" .. spot_name, "", 1)
+    end
+
+    local tgt_str = g.settings[g.cid].drop_items[ctrl_key].set[spot_name]
+    local load_index, load_equip_name = string.match(tgt_str, "^(.-):::(.+)$")
+    load_index = tonumber(load_index)
+
+    session.ResetItemList()
+
+    local arg_list = NewStringList()
+    local tgt_item = session.GetEquipItemBySpot(item.GetEquipSpotNum(load_equip_name))
+
+    if tgt_item then
+        if tgt_item.isLockState == true then
+            ui.SysMsg(ClMsg('MaterialItemIsLock'))
+            return
+        end
+        local guid = tgt_item:GetIESID()
+
+        if guid ~= 'None' and guid ~= '0' then
+            session.AddItemID(guid, 1)
+            arg_list:Add(load_equip_name)
+        end
+    end
+
+    if load_index then
+
+        arg_list:Add(load_index)
+        local result_list = session.GetItemIDList()
+
+        item.DialogTransaction('ICOR_PRESET_ENGRAVE_APPLY', result_list, '', arg_list)
+
+        if try > 0 then
+            -- try = try - 1
+            ReserveScript(string.format("goddess_icor_manager_set_change_action(%d,'%s')", ctrl_key, spot_names),
+                g.settings.delay or 0.5)
+            return
+        else
+            local notice = ui.GetFrame("notice")
+            AUTO_CAST(notice)
+            notice:ShowWindow(0)
+            goddess_icor_manager_list_close()
+        end
+    end
+end
+]==]

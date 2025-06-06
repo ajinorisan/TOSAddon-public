@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<uiframe name="goddess_icor_manager" x="0" y="0" width="0" height="0" create="open">
-  <controls>
-    <timer name="addontimer" rect="0 0 10 10" margin="0 0 0 0" layout_gravity="left top"/>
-  </controls>
-</uiframe>
