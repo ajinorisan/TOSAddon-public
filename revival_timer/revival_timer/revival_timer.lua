@@ -6,10 +6,11 @@
 -- v1.0.5 ウルトラワイド対応
 -- v1.0.6 アドオンボタン回り修正。ショートカットのON/OFF。rtimer内のPTチャットをNICOチャットで表示。
 -- v1.0.7 WithPTChatバグ修正
+-- v1.0.8 レシーブチャットの早期return修正
 local addon_name = "REVIVAL_TIMER"
 local addon_name_lower = string.lower(addon_name)
 local author = "norisan"
-local ver = "1.0.7"
+local ver = "1.0.8"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -196,51 +197,39 @@ function revival_timer_DRAW_CHAT_MSG(my_frame, my_msg)
     end
 
     local now = os.clock()
-    if g.last_rtimer_proc_time and (now - g.last_rtimer_proc_time < g.rtimer_cooldown) then
+    if g.last_rtimer_proc_time and ((now - g.last_rtimer_proc_time) < g.rtimer_cooldown) then
         return
     end
 
     local groupboxname, startindex, chatframe = g.get_event_args(my_msg)
 
-    local frame = ui.GetFrame("chatframe")
+    -- local frame = ui.GetFrame("chatframe")
     local size = session.ui.GetMsgInfoSize(groupboxname)
     local chat = session.ui.GetChatMsgInfo(groupboxname, size - 1)
 
-    for i = startindex, size - 1 do
-
-        local clusterinfo = session.ui.GetChatMsgInfo(groupboxname, i)
-
-        local chat_id = clusterinfo:GetMsgInfoID()
-
-        if not g.chat_check[chat_id] then
-            g.chat_check[chat_id] = true
-        end
-
-        local clustername = "cluster_" .. chat_id
-        local cluster = GET_CHILD_RECURSIVELY(frame, clustername)
-
-        if not cluster then
-            return
-        end
-        local msg = chat:GetMsg()
-        local name = chat:GetCommanderName()
-        local my_name = GETMYFAMILYNAME()
-        if name == my_name then
-            return
-        end
-
-        local found = string.find(msg, "%[R Timer%]")
-        if found then
-            msg = msg:gsub("%[R Timer%]", "")
-            revival_timer_NICO_CHAT("{@st55_a}" .. name .. ":" .. msg)
-            found = string.find(msg, " 5 sec rem.")
-            if found then
-                imcSound.PlaySoundEvent('sys_tp_box_3')
-            end
-            g.last_rtimer_proc_time = os.clock()
-        end
-
+    local msg = chat:GetMsg()
+    local msg_type = chat:GetMsgType()
+    if msg_type ~= "Party" then
+        return
     end
+    local name = chat:GetCommanderName()
+    local my_name = GETMYFAMILYNAME()
+    if name == my_name then
+        return
+    end
+
+    local found = string.find(msg, "%[R Timer%]")
+    if found then
+        msg = msg:gsub("%[R Timer%]", "")
+        revival_timer_NICO_CHAT("{@st55_a}" .. name .. ":" .. msg)
+        found = string.find(msg, " 5 sec rem.")
+        if found then
+            imcSound.PlaySoundEvent('sys_tp_box_3')
+        end
+        g.last_rtimer_proc_time = os.clock()
+        return
+    end
+
 end
 
 function revival_timer_frame_init()
