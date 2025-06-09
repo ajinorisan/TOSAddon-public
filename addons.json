@@ -102,7 +102,7 @@
 		"name" : "Revival Timer",
 		"file" : "revival_timer",
 		"extension" : "ipf",
-		"fileVersion" : "v1.0.7",
+		"fileVersion" : "v1.0.8",
 		"releaseTag" : "revival_timer",
 		"unicode" : "⛄",
 		"description" : "Wide monitor supported<br>右ALTキーでタイマーを起動します。左ALTでタイマーを終了し消します。ミニマップ上部のボタンで設定します。既存のTimer addonと競合しません。<br> Right ALT key starts the timer. Left ALT key exits the timer and turns it off. Use the buttons at the top of the minimap to set the timer. Does not conflict with existing Timer addon.<br> 오른쪽 ALT 키로 타이머를 시작합니다. 왼쪽 ALT로 타이머를 종료하고 지웁니다. 미니맵 상단의 버튼으로 설정합니다. 기존 Timer addon과 충돌하지 않습니다.",
