@@ -64,28 +64,25 @@ function g.save_json(path, tbl)
 end
 
 function g.load_json(path)
-
-    function g.load_json(path)
-        local file = io.open(path, "r")
-        if not file then
-            return nil, "Error opening file: " .. path
-        end
-
-        local content = file:read("*all")
-        file:close()
-
-        if not content or content == "" then
-            return nil, "File content is empty or could not be read: " .. path
-        end
-
-        local decoded_table, decode_err = json.decode(content)
-
-        if not decoded_table then
-            return nil, decode_err
-        end
-
-        return decoded_table, nil
+    local file = io.open(path, "r")
+    if not file then
+        return nil, "Error opening file: " .. path
     end
+
+    local content = file:read("*all")
+    file:close()
+
+    if not content or content == "" then
+        return nil, "File content is empty or could not be read: " .. path
+    end
+
+    local decoded_table, decode_err = json.decode(content)
+
+    if not decoded_table then
+        return nil, decode_err
+    end
+
+    return decoded_table, nil
 end
 
 function g.setup_hook_and_event(my_addon, origin_func_name, my_func_name, bool)

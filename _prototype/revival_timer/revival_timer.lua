@@ -6,11 +6,12 @@
 -- v1.0.5 ウルトラワイド対応
 -- v1.0.6 アドオンボタン回り修正。ショートカットのON/OFF。rtimer内のPTチャットをNICOチャットで表示。
 -- v1.0.7 WithPTChatバグ修正
--- v1.0.8 [Wサーバー]とかの文字を名前から外す処理追加
+-- v1.0.8 ニコチャット絨毯爆撃バグ修正
+-- v1.0.9 [Wサーバー]とかの文字を名前から外す処理追加
 local addon_name = "REVIVAL_TIMER"
 local addon_name_lower = string.lower(addon_name)
 local author = "norisan"
-local ver = "1.0.8"
+local ver = "1.0.9"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
