@@ -195,15 +195,15 @@ function QUICKSLOT_OPERATE_ON_INIT(addon, frame)
     g.potion_delay = 0.5
 
     g.setup_hook_and_event(addon, "ON_GUILD_EVENT_RECRUITING_START",
-        "quickslot_operate_ON_GUILD_EVENT_RECRUITING_START", true)
+                           "quickslot_operate_ON_GUILD_EVENT_RECRUITING_START", true)
 
     addon:RegisterMsg("GAME_START", "quickslot_operate_frame_init")
     addon:RegisterMsg("GAME_START_3SEC", "quickslot_operate_GAME_START_3SEC")
-    frame:RunUpdateScript("quickslot_operate_set_script", 0.15)
+    ----frame:RunUpdateScript("quickslot_operate_set_script", 0.15)
 
 end
 
-function quickslot_operate_set_script()
+--[[function quickslot_operate_set_script()
 
     if keyboard.IsKeyPressed("RSHIFT") == 0 then
         return 1
@@ -263,6 +263,104 @@ function quickslot_operate_set_script()
         end
     end
     return 1
+end]]
+
+function quickslot_operate_set_script()
+    local frame = ui.GetFrame("quickslotnexpbar")
+    if not frame then
+        return
+    end
+
+    g.new_list = {}
+
+    for key, value_tbl in pairs(atk_list) do
+        for _, num_val in ipairs(value_tbl) do
+            table.insert(g.new_list, num_val)
+        end
+    end
+
+    for key, num_val in pairs(def_list) do
+        table.insert(g.new_list, num_val)
+    end
+
+    local slot_count = MAX_QUICKSLOT_CNT
+
+    for i = 0, slot_count - 1 do
+        local slot = tolua.cast(frame:GetChildRecursively("slot" .. i + 1), "ui::CSlot")
+
+        local quickSlotInfo = quickslot.GetInfoByIndex(i)
+
+        local icon = slot:GetIcon()
+        if icon ~= nil then
+            local iconinfo = icon:GetInfo()
+            local cls_id = iconinfo.type
+            for _, id in pairs(g.new_list) do
+                if id == cls_id then
+                    slot:SetEventScript(ui.MOUSEON, "quickslot_operate_choice_potion")
+                    break
+                end
+            end
+
+        end
+    end
+end
+
+function quickslot_operate_set_potion(frame, ctrl, str, cls_id)
+    local matched_key = nil
+
+    for key, value_tbl in pairs(atk_list) do
+        for _, num_val in ipairs(value_tbl) do
+            matched_key = key
+        end
+    end
+
+    if matched_key then
+        local down_potion_id = def_list[matched_key]
+        if down_potion_id then
+            quickslot_operate_check_all_slots(cls_id, down_potion_id)
+            local frame = ui.GetFrame("quickslot_operate")
+            frame:ShowWindow(0)
+        end
+    end
+end
+
+function quickslot_operate_choice_potion(frame, ctrl, str, num)
+    local slot = ctrl
+    slot:RunUpdateScript("quickslot_operate_frame_close", 5)
+
+    local frame = ui.GetFrame("quickslot_operate")
+    frame:RemoveAllChild()
+    frame:Resize(150, 30)
+    frame:SetPos(720 + 140, 810)
+    frame:SetTitleBarSkin("None")
+    frame:SetSkinName("chat_window")
+    frame:SetLayerLevel(150)
+
+    local slotset = frame:CreateOrGetControl('slotset', 'slotset', 0, 0, 0, 0)
+    AUTO_CAST(slotset)
+    slotset:SetSlotSize(30, 30)
+    slotset:EnablePop(0)
+    slotset:EnableDrag(0)
+    slotset:EnableDrop(0)
+    slotset:SetColRow(5, 1)
+    slotset:SetSpc(0, 0)
+    slotset:SetSkinName('slot')
+    slotset:CreateSlots()
+    local slot_count = slotset:GetSlotCount()
+
+    local index = 1
+    for _, id in pairs(g.new_list) do
+        if index <= slot_count then
+            local slot = slotset:GetSlotByIndex(index - 1)
+            slot:SetEventScript(ui.LBUTTONDOWN, "quickslot_operate_set_potion")
+            slot:SetEventScriptArgNumber(ui.LBUTTONDOWN, id)
+            local class = GetClassByType('Item', id)
+            SET_SLOT_ITEM_CLS(slot, class)
+            index = index + 1
+        end
+    end
+    frame:ShowWindow(1)
+
 end
 
 function quickslot_operate_frame_init()
@@ -288,14 +386,14 @@ function quickslot_operate_context(frame, ctr, str, num)
     local context = ui.CreateContextMenu("CONTEXT", "slotset context", 0, -500, 0, 0)
     ui.AddContextMenuItem(context, "-----", "None")
     ui.AddContextMenuItem(context,
-        g.lang == "Japanese" and "{ol}スロットレイアウト保存" or "{ol}Save Slot layout",
-        "quickslot_operate_save_slotset()")
+                          g.lang == "Japanese" and "{ol}スロットレイアウト保存" or "{ol}Save Slot layout",
+                          "quickslot_operate_save_slotset()")
     ui.AddContextMenuItem(context,
-        g.lang == "Japanese" and "{ol}スロットレイアウト読込" or "{ol}Load Slot layout",
-        "quickslot_operate_load_slotset_context()")
+                          g.lang == "Japanese" and "{ol}スロットレイアウト読込" or "{ol}Load Slot layout",
+                          "quickslot_operate_load_slotset_context()")
     if g.settings.slotset[g.login_name] then
         ui.AddContextMenuItem(context, g.lang == "Japanese" and "{ol}スロットレイアウト削除" or
-            "{ol}Delete Slot layout", "quickslot_operate_delete_slotset()")
+                                  "{ol}Delete Slot layout", "quickslot_operate_delete_slotset()")
     end
     ui.OpenContextMenu(context)
 end
@@ -304,8 +402,83 @@ function quickslot_operate_delete_slotset()
     g.settings.slotset[g.login_name] = nil
     g.save_settings()
 end
-
 function quickslot_operate_load_slotset_context()
+
+    if not g.settings.slotset[g.login_name] then
+        return
+    elseif g.settings.slotset[g.login_name][tostring(1)] then
+
+        g.settings.slotset[g.login_name] = {}
+        g.save_settings()
+        return
+    end
+
+    local context = ui.CreateContextMenu("CONTEXT", "Load Slotset", 0, 0, 0, 0)
+
+    -- g.login_name の下にある、各インデックス付きレイアウトセットをループ
+    -- キー (index_str) は "41", "42", ... のような文字列
+    -- layout_data が各レイアウトセットのテーブル ({jobid_0=..., "1"={...}, ...})
+    for index_str, layout_data in pairs(g.settings.slotset[g.login_name]) do
+        -- index_str が数値として扱えるか、または特定の命名規則 (例: "layout_") を持つかなどで
+        -- 古い形式のデータと区別する必要があれば、ここでフィルタリングしてもええ。
+        -- 今回は、g.login_name の直下にあるキーは全て新しい形式のインデックスと仮定する。
+        -- (古い形式のデータは保存時に初期化されるはずやから)
+
+        -- もし layout_data がテーブルでなかったらスキップ (ありえないはずやけど念のため)
+        if type(layout_data) ~= "table" then
+            goto continue_layout_loop
+        end
+
+        local display_name_parts = {} -- ジョブ名を格納する配列
+        for i = 0, 3 do -- 表示するジョブ名はとりあえず4つまで
+            local job_key = "jobid_" .. i
+            local saved_job_id = layout_data[job_key] -- layout_data からジョブIDを取得
+
+            if saved_job_id then
+                local job_cls = GetClassByType("Job", tonumber(saved_job_id))
+                local job_name = TryGetProp(job_cls, "Name", "None")
+                if job_name ~= "None" then -- "None" でない場合のみ処理
+                    if string.find(job_name, '@dicID') then
+                        job_name = dic.getTranslatedStr(job_name)
+                    end
+                    table.insert(display_name_parts, job_name)
+                end
+            end
+        end
+
+        local display_str -- コンテキストメニューに表示する文字列
+        if #display_name_parts > 0 then
+            display_str = table.concat(display_name_parts, ", ")
+        else
+            display_str = "ジョブ情報なし" -- ジョブ情報がなかった場合の表示
+        end
+
+        -- コンテキストメニューの表示名: "レイアウト 41 (ビルド1, ビルド2, ...)" のような感じ
+        -- index_str をそのまま使うか、何か分かりやすいプレフィックスを付けるかはお好みで。
+        -- "name" の代わりに index_str を使う。
+        local menu_item_display = string.format("レイアウト %s (%s)", index_str, display_str)
+        -- ui.AddContextMenuItem(context, menu_item_display, string.format("quickslot_operate_load_all_slot('%s')", index_str))
+        -- ↑ quickslot_operate_load_all_slot に渡す引数も index_str (文字列) になる。
+        --   もしロード関数が数値のインデックスを期待してるなら、tonumber(index_str) する必要がある。
+        --   今回は文字列のまま渡す形にしとくで。
+        ui.AddContextMenuItem(context, menu_item_display,
+                              string.format("QUICKSLOT_OPERATE_LOAD_SLOTSET_EXECUTE('%s')", index_str))
+        -- ↑ コールバック関数名も、実際にロード処理を行う関数名に合わせる必要があるな。
+        --   仮に QUICKSLOT_OPERATE_LOAD_SLOTSET_EXECUTE というグローバル関数を呼ぶとする。
+    end
+    ::continue_layout_loop::
+
+    ui.OpenContextMenu(context)
+end
+
+-- ロード処理を行う関数の例 (グローバルに定義する必要がある)
+-- function QUICKSLOT_OPERATE_LOAD_SLOTSET_EXECUTE(frame, ctrl, saved_index_str)
+--     -- saved_index_str を使って、g.settings.slotset[g.login_name][saved_index_str] のデータを読み込み、
+--     -- クイックスロットに適用する処理をここに書く。
+--     print("Load layout for index: " .. saved_index_str)
+--     -- (実際のロード処理)
+-- end
+--[[function quickslot_operate_load_slotset_context()
     local context = ui.CreateContextMenu("CONTEXT", "Load Slotset", 0, 0, 0, 0)
     for name, data in pairs(g.settings.slotset) do
 
@@ -331,7 +504,7 @@ function quickslot_operate_load_slotset_context()
         ui.AddContextMenuItem(context, display, string.format("quickslot_operate_load_all_slot('%s')", name))
     end
     ui.OpenContextMenu(context)
-end
+end]]
 
 function quickslot_operate_load_all_slot(name)
 
@@ -364,6 +537,21 @@ function quickslot_operate_save_slotset()
 
     if not g.settings.slotset[g.login_name] then
         g.settings.slotset[g.login_name] = {}
+    elseif type(g.settings.slotset[g.login_name][tostring(1)]) == "table" then
+        g.settings.slotset[g.login_name] = {}
+    end
+
+    if not g.settings.index then
+        g.settings.index = 41
+    else
+        g.settings.index = g.settings.index + 1
+    end
+
+    local temp_data = g.settings.slotset[g.login_name][tostring(g.settings.index)]
+
+    if not temp_data then
+        temp_data = {}
+        g.settings.slotset[g.login_name][tostring(g.settings.index)] = temp_data
     end
 
     local main_session = session.GetMainSession()
@@ -375,7 +563,8 @@ function quickslot_operate_save_slotset()
         local current_job_info = pc_job_data:GetJobInfoByIndex(i)
         if current_job_info then
             local job_key = "jobid_" .. i
-            g.settings.slotset[g.login_name][job_key] = tonumber(current_job_info.jobID)
+
+            temp_data[job_key] = tonumber(current_job_info.jobID)
         end
     end
 
@@ -389,7 +578,7 @@ function quickslot_operate_save_slotset()
                 local category = icon_info:GetCategory()
                 local item_type = icon_info.type
                 local iesid = icon_info:GetIESID()
-                g.settings.slotset[g.login_name][tostring(i)] = {
+                temp_data[tostring(i)] = {
                     ["category"] = category,
                     ["type"] = item_type,
                     ["iesid"] = iesid
@@ -404,6 +593,8 @@ end
 
 function quickslot_operate_GAME_START_3SEC(frame, msg)
 
+    quickslot_operate_set_script()
+
     local map_name = session.GetMapName()
     local map_cls = GetClass("Map", map_name)
     local map_id = map_cls.ClassID
@@ -415,7 +606,6 @@ function quickslot_operate_GAME_START_3SEC(frame, msg)
             if potion_type then
                 frame:SetUserValue("POT_TYPE", potion_type)
                 frame:RunUpdateScript("quickslot_operate_get_potion", 2.0)
-                -- quickslot_operate_get_potion(potion_type)
                 return
             end
         end
@@ -537,8 +727,8 @@ function quickslot_operate_check_all_slots(atk_pid, def_pid)
                         for _, id in pairs(ids) do
                             if id == clsid then
                                 SET_QUICK_SLOT(quickslotnexpbar, slot, quick_slot_info.category, atk_pid, _, 0, true,
-                                    true)
-
+                                               true)
+                                slot:SetEventScript(ui.MOUSEON, "quickslot_operate_choice_potion")
                                 break
                             end
                         end
@@ -548,7 +738,7 @@ function quickslot_operate_check_all_slots(atk_pid, def_pid)
                     for group, id in pairs(def_list) do
                         if id == clsid then
                             SET_QUICK_SLOT(quickslotnexpbar, slot, quick_slot_info.category, def_pid, _, 0, true, true)
-
+                            slot:SetEventScript(ui.MOUSEON, "quickslot_operate_choice_potion")
                             break
                         end
                     end
