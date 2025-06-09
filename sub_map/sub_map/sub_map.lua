@@ -1,9 +1,10 @@
 -- v1.0.1 チャレンジのボスの位置の取り方変更。その他色々修正
 -- v1.0.2 チャレンジの他キャラの位置の取り方変更。その他色々修正。
+-- v1.0.3 ウルトラワイドからの切替など修正
 local addon_name = "SUB_MAP"
 local addon_name_lower = string.lower(addon_name)
 local author = "norisan"
-local ver = "1.0.2"
+local ver = "1.0.3"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -124,7 +125,9 @@ function SUB_MAP_ON_INIT(addon, frame)
     -- CHAT_SYSTEM(string.format("%s: %.4f seconds", addon_name, elapsed_time))
 end
 
-function sub_map_frame_init(frame)
+function sub_map_frame_init(frame, msg)
+
+    local frame = ui.GetFrame("sub_map")
 
     if g.try == 0 then
         frame:RunUpdateScript("sub_map_frame_init", 2.0)
@@ -170,7 +173,9 @@ function sub_map_frame_init(frame)
     local width = map_frame:GetWidth()
 
     local x = g.settings.x
-    if width <= 1920 and x > 1920 then
+    if msg == "restore" then
+        x = 1200
+    elseif width <= 1920 and x > 1920 then
         x = g.settings.x / 21 * 16
     end
 
@@ -200,6 +205,7 @@ function sub_map_frame_init(frame)
         display:SetImage("btn_plus")
         frame:Resize(g.size + 10, 40)
         frame:ShowWindow(1)
+
         return
     end
 
@@ -261,10 +267,15 @@ function sub_map_frame_init(frame)
         display:ShowWindow(0)
         local minimap = ui.GetFrame("minimap")
         minimap:ShowWindow(0)
+
         sub_map_change_minimap_mode(frame)
     else
+        local frame = ui.GetFrame("sub_map")
+
         frame:ShowWindow(1)
+        frame:SetPos(x, g.settings.y)
     end
+
     g.addon:RegisterMsg("PARTY_INST_UPDATE", "sub_map_MAP_UPDATE_PARTY_INST")
     g.addon:RegisterMsg("PARTY_UPDATE", "sub_map_ipdate_party_or_guild")
     g.addon:RegisterMsg("GUILD_INFO_UPDATE", "sub_map_ipdate_party_or_guild")
@@ -588,7 +599,7 @@ function sub_map_config(frame, ctrl, str)
             local minimap = ui.GetFrame("minimap")
             minimap:ShowWindow(1)
             g.settings.mini_map = false
-            sub_map_frame_init()
+            sub_map_frame_init(frame, "restore")
         end
         g.save_settings()
         return
@@ -969,7 +980,7 @@ function sub_map_change_minimap_mode(frame, msg)
     frame:SetSkinName("chat_window")
     frame:EnableMove(0)
     frame:SetAlpha(100)
-    frame:SetLayerLevel(79)
+    frame:SetLayerLevel(80) ---
     frame:SetEventScript(ui.LBUTTONUP, "None")
 
     if msg then

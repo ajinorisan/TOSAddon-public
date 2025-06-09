@@ -58,10 +58,11 @@
 -- v1.5.8 フレーム固定を設定に変更。墓チケットを使える様に。その他コード見直しacutilやめた。
 -- v1.5.9 傭兵団コインの1日分裂券バグってたの修正。でもIMCが勝手に仕様変更したのもアカンと思うんです。
 -- v1.6.0 ヴェルニケBUYUSEで入れる様に。マーケットボタン。テスト的にフィールドでも表示出来る様に。
+-- v1.6.1 閉じてる時に出すアイコン選べる様に。ilvと一部統合。
 local addonName = "indun_panel"
 local addon_name_lower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.6.0"
+local ver = "1.6.1"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -95,8 +96,8 @@ function g.setup_hook_and_event(my_addon, origin_func_name, my_func_name, bool)
 
     _G[origin_func_name] = hooked_function
 
-    if not g.RAGISTER[origin_func_name] then -- g.RAGISTERはON_INIT内で都度初期化
-        g.RAGISTER[origin_func_name] = true
+    if not g.REGISTER[origin_func_name] then -- g.REGISTERはON_INIT内で都度初期化
+        g.REGISTER[origin_func_name] = true
         my_addon:RegisterMsg(origin_func_name, my_func_name)
     end
 end
@@ -218,13 +219,27 @@ function indun_panel_frame_drag(frame, ctrl, str, num)
     button:SetText("{ol}{s10}INDUNPANEL")
 end
 
+function indun_panel_always_init(frame, ctrl, str)
+
+    if str == "OPEN" then
+
+        g.settings.checkbox = 1
+        indun_panel_init(frame)
+
+    else
+        g.settings.checkbox = 0
+        indun_panel_frame_init()
+    end
+    g.save_settings()
+end
+
 function indun_panel_frame_init()
 
     local frame = ui.GetFrame("indun_panel")
 
     frame:SetSkinName('None')
     frame:SetLayerLevel(30)
-    frame:Resize(170, 40)
+
     frame:EnableHittestFrame(1)
     frame:EnableMove(g.settings.move or 0)
     frame:SetEventScript(ui.LBUTTONUP, "indun_panel_frame_drag")
@@ -252,23 +267,154 @@ function indun_panel_frame_init()
     AUTO_CAST(button)
     button:SetText("{ol}{s10}INDUNPANEL")
     button:SetEventScript(ui.LBUTTONUP, "indun_panel_init")
+    button:SetEventScript(ui.RBUTTONUP, "indun_panel_always_init")
+    button:SetEventScriptArgString(ui.RBUTTONUP, "OPEN")
+    button:SetTextTooltip(g.lang == "Japanese" and "{ol}右クリック: 常時展開で開く" or
+                              "{ol}Right click: Open in Always Expand")
 
     local ccbtn = frame:CreateOrGetControl('button', 'ccbtn', 85, 5, 30, 30)
     AUTO_CAST(ccbtn)
     ccbtn:SetSkinName("None")
     ccbtn:SetText("{img barrack_button_normal 30 30}")
-    ccbtn:SetEventScript(ui.LBUTTONUP, "APPS_TRY_MOVE_BARRACK")
-    ccbtn:SetTextTooltip(g.lang == "Japanese" and "{ol}バラックに戻ります" or "{ol}Return to Barracks")
+    if type(_G["indun_list_viewer_title_frame_open"]) ~= "function" or type(_G["INSTANTCC_APPS_TRY_MOVE_BARRACK"]) ~=
+        "function" then
+        ccbtn:SetEventScript(ui.LBUTTONUP, "APPS_TRY_MOVE_BARRACK")
+        ccbtn:SetTextTooltip(g.lang == "Japanese" and "{ol}バラックに戻ります" or "{ol}Return to Barracks")
+    else
+        ccbtn:SetEventScript(ui.LBUTTONUP, "indun_list_viewer_title_frame_open")
+        ccbtn:SetTextTooltip("{ol}[ILV]open")
+        local indun_list_viewer = ui.GetFrame("indun_list_viewer")
+        if indun_list_viewer:IsVisible() == 1 then
+            indun_list_viewer:ShowWindow(0)
+        end
+    end
+
+    local x = 115
 
     if g.get_map_type() == "City" then
-        local leticia = frame:CreateOrGetControl("button", "leticia", 115, 5, 30, 30);
+
+        local temp_tbl = {"tos", "gabija", "vakarine", "rada", "jurate", "pvp_mine", "market", "craft", "leticia"}
+
+        if not g.settings.cols then
+            g.settings.cols = {}
+            for _, key_name in ipairs(temp_tbl) do
+                if key_name == "leticia" then
+                    g.settings.cols[key_name] = 1
+                else
+                    g.settings.cols[key_name] = 0
+                end
+            end
+
+            g.save_settings()
+        end
+
+        local account_obj = GetMyAccountObj()
+        local coin_count = 0
+
+        for _, key_name in ipairs(temp_tbl) do
+            if g.settings.cols[key_name] == 1 then
+                local tooltip_msg = ""
+                if key_name == "tos" then
+                    local tosshop = frame:CreateOrGetControl("button", "tosshop", x, 8, 25, 25);
+                    AUTO_CAST(tosshop)
+                    tosshop:SetSkinName("None")
+                    tosshop:SetText("{img icon_item_Tos_Event_Coin 25 25}")
+                    coin_count = GET_COMMAED_STRING(TryGetProp(account_obj, "EVENT_TOS_WHOLE_TOTAL_COIN", "0"))
+                    tooltip_msg = g.lang == "Japanese" and "{ol}TOSイベントショップ" or "{ol}TOS Event Shop"
+                    tosshop:SetTextTooltip(tooltip_msg)
+                    tosshop:SetEventScript(ui.LBUTTONDOWN, "INDUN_PANEL_EARTHTOWERSHOP_CLOSE_RESTART")
+                    tosshop:SetEventScript(ui.LBUTTONUP, "indun_panel_event_tos_whole_shop_open")
+                elseif key_name == "gabija" then
+                    local gabija = frame:CreateOrGetControl("button", "gabija", x, 7, 29, 29);
+                    AUTO_CAST(gabija)
+                    gabija:SetSkinName("None")
+                    gabija:SetText("{img goddess_shop_btn 29 29}")
+                    coin_count = GET_COMMAED_STRING(TryGetProp(account_obj, "GabijaCertificate", "0"))
+                    tooltip_msg =
+                        g.lang == "Japanese" and "{ol}ガビヤショップ{nl}" .. "{#FFFF00}" .. coin_count or
+                            "{ol}Gabija Shop{nl}" .. "{#FFFF00}" .. coin_count
+                    gabija:SetTextTooltip(tooltip_msg)
+                    gabija:SetEventScript(ui.LBUTTONDOWN, "INDUN_PANEL_EARTHTOWERSHOP_CLOSE_RESTART")
+                    gabija:SetEventScript(ui.LBUTTONUP, "REQ_GabijaCertificate_SHOP_OPEN")
+                elseif key_name == "vakarine" then
+                    local vakarine = frame:CreateOrGetControl("button", "vakarine", x, 7, 29, 29);
+                    AUTO_CAST(vakarine)
+                    vakarine:SetSkinName("None")
+                    vakarine:SetText("{img goddess2_shop_btn 29 29}")
+                    coin_count = GET_COMMAED_STRING(TryGetProp(account_obj, "VakarineCertificate", "0"))
+                    tooltip_msg = g.lang == "Japanese" and "{ol}ヴァカリネショップ{nl}" .. "{#FFFF00}" ..
+                                      coin_count or "{ol}Vakarine Shop{nl}" .. "{#FFFF00}" .. coin_count
+                    vakarine:SetTextTooltip(tooltip_msg)
+                    vakarine:SetEventScript(ui.LBUTTONDOWN, "INDUN_PANEL_EARTHTOWERSHOP_CLOSE_RESTART")
+                    vakarine:SetEventScript(ui.LBUTTONUP, "REQ_VakarineCertificate_SHOP_OPEN")
+                elseif key_name == "rada" then
+                    local rada = frame:CreateOrGetControl("button", "rada", x, 7, 29, 29);
+                    AUTO_CAST(rada)
+                    rada:SetSkinName("None")
+                    rada:SetText("{img goddess3_shop_btn 29 29}")
+                    coin_count = GET_COMMAED_STRING(TryGetProp(account_obj, "RadaCertificate", "0"))
+                    tooltip_msg = g.lang == "Japanese" and "{ol}ラダショップ{nl}" .. "{#FFFF00}" .. coin_count or
+                                      "{ol}Rada Shop{nl}" .. "{#FFFF00}" .. coin_count
+                    rada:SetTextTooltip(tooltip_msg)
+                    rada:SetEventScript(ui.LBUTTONDOWN, "INDUN_PANEL_EARTHTOWERSHOP_CLOSE_RESTART")
+                    rada:SetEventScript(ui.LBUTTONUP, "REQ_RadaCertificate_SHOP_OPEN")
+                elseif key_name == "jurate" then
+                    local jurate = frame:CreateOrGetControl("button", "jurate", x, 7, 29, 29);
+                    AUTO_CAST(jurate)
+                    jurate:SetSkinName("None")
+                    jurate:SetText("{img goddess4_shop_btn 29 29}")
+                    coin_count = GET_COMMAED_STRING(TryGetProp(account_obj, "JurateCertificate", "0"))
+                    tooltip_msg =
+                        g.lang == "Japanese" and "{ol}ユラテショップ{nl}" .. "{#FFFF00}" .. coin_count or
+                            "{ol}Jurate Shop{nl}" .. "{#FFFF00}" .. coin_count
+                    jurate:SetTextTooltip(tooltip_msg)
+                    jurate:SetEventScript(ui.LBUTTONDOWN, "INDUN_PANEL_EARTHTOWERSHOP_CLOSE_RESTART")
+                    jurate:SetEventScript(ui.LBUTTONUP, "REQ_JurateCertificate_SHOP_OPEN")
+                elseif key_name == "pvp_mine" then
+                    local pvp_mine = frame:CreateOrGetControl("button", "pvp_mine", x, 7, 29, 29);
+                    AUTO_CAST(pvp_mine)
+                    pvp_mine:SetSkinName("None")
+                    pvp_mine:SetText("{img pvpmine_shop_btn_total 29 29}")
+                    pvp_mine:SetTextTooltip(g.lang == "Japanese" and "{ol}傭兵団ショップ" or "{ol}Mercenary Shop")
+                    pvp_mine:SetEventScript(ui.LBUTTONDOWN, "INDUN_PANEL_EARTHTOWERSHOP_CLOSE_RESTART")
+                    pvp_mine:SetEventScript(ui.LBUTTONUP, "REQ_PVP_MINE_SHOP_OPEN")
+                elseif key_name == "market" then
+                    local market = frame:CreateOrGetControl("button", "market", x, 5, 29, 29);
+                    AUTO_CAST(market)
+                    market:SetSkinName("None")
+                    market:SetText("{img market_shortcut_btn02 29 29}")
+                    market:SetTextTooltip(g.lang == "Japanese" and "{ol}マーケット" or "{ol}Market")
+                    market:SetEventScript(ui.LBUTTONUP, "MINIMIZED_MARKET_BUTTON_CLICK")
+                elseif key_name == "craft" then
+                    local craft = frame:CreateOrGetControl("button", "craft", x, 5, 29, 29);
+                    AUTO_CAST(craft)
+                    craft:SetSkinName("None")
+                    craft:SetText("{img icon_fullscreen_menu_equipment_processing 28 28}")
+                    craft:SetTextTooltip(g.lang == "Japanese" and "{ol}装備加工" or "{ol}Equipment Processing")
+                    craft:SetEventScript(ui.LBUTTONUP, "FULLSCREEN_NAVIGATION_MENU_DEATIL_EQUIPMENT_PROCESSING_NPC")
+                elseif key_name == "leticia" then
+                    local leticia = frame:CreateOrGetControl("button", "leticia", x, 5, 29, 29);
+                    AUTO_CAST(leticia)
+                    leticia:SetSkinName("None")
+                    leticia:SetText("{img icon_fullscreen_menu_letica 28 28}")
+                    leticia:SetTextTooltip(g.lang == "Japanese" and "{ol}レティーシャへ移動" or
+                                               "{ol}Leticia Move")
+                    leticia:SetEventScript(ui.LBUTTONUP, "indun_panel_FULLSCREEN_NAVIGATION_MENU_DETAIL_MOVE_NPC")
+                    leticia:SetEventScriptArgNumber(ui.LBUTTONUP, 309)
+                end
+                x = x + 30
+            end
+        end
+
+        --[[local leticia = frame:CreateOrGetControl("button", "leticia", 115, 5, 30, 30);
         AUTO_CAST(leticia)
         leticia:SetSkinName("Cube_skin2")
         leticia:SetText("{img icon_fullscreen_menu_letica 30 30}")
         leticia:SetTextTooltip(g.lang == "Japanese" and "{ol}レティーシャへ移動" or "{ol}Leticia Move")
         leticia:SetEventScript(ui.LBUTTONUP, "indun_panel_FULLSCREEN_NAVIGATION_MENU_DETAIL_MOVE_NPC")
-        leticia:SetEventScriptArgNumber(ui.LBUTTONUP, 309)
+        leticia:SetEventScriptArgNumber(ui.LBUTTONUP, 309)]]
     end
+    frame:Resize(x, 40)
     frame:ShowWindow(1)
 
     frame:RunUpdateScript("indun_panel_time_update", 60)
@@ -477,6 +623,8 @@ function indun_panel_init(frame)
         x = g.settings.x / 21 * 16
     end
 
+    local frame = ui.GetFrame("indun_panel")
+
     frame:SetPos(x, g.settings.y)
     frame:SetTitleBarSkin("None")
     frame:EnableHittestFrame(1)
@@ -494,13 +642,26 @@ function indun_panel_init(frame)
     local button = frame:CreateOrGetControl("button", "indun_panel_open", 5, 5, 80, 30)
     AUTO_CAST(button)
     button:SetText("{ol}{s10}INDUNPANEL")
+    button:SetEventScript(ui.RBUTTONUP, "indun_panel_always_init")
+    button:SetTextTooltip(g.lang == "Japanese" and "{ol}右クリック: 常時展開解除で閉じる" or
+                              "{ol}Right click: Close with permanent unexpand")
 
     local ccbtn = frame:CreateOrGetControl('button', 'ccbtn', 85, 5, 30, 30)
     AUTO_CAST(ccbtn)
     ccbtn:SetSkinName("None")
     ccbtn:SetText("{img barrack_button_normal 30 30}")
-    ccbtn:SetEventScript(ui.LBUTTONUP, "APPS_TRY_MOVE_BARRACK")
-    ccbtn:SetTextTooltip(g.lang == "Japanese" and "{ol}バラックに戻ります" or "{ol}Return to Barracks")
+    if type(_G["indun_list_viewer_title_frame_open"]) ~= "function" or type(_G["INSTANTCC_APPS_TRY_MOVE_BARRACK"]) ~=
+        "function" then
+        ccbtn:SetEventScript(ui.LBUTTONUP, "APPS_TRY_MOVE_BARRACK")
+        ccbtn:SetTextTooltip(g.lang == "Japanese" and "{ol}バラックに戻ります" or "{ol}Return to Barracks")
+    else
+        ccbtn:SetEventScript(ui.LBUTTONUP, "indun_list_viewer_title_frame_open")
+        ccbtn:SetTextTooltip("{ol}[ILV]open")
+        local indun_list_viewer = ui.GetFrame("indun_list_viewer")
+        if indun_list_viewer:IsVisible() == 1 then
+            indun_list_viewer:ShowWindow(0)
+        end
+    end
 
     function indun_panel_frame_base_position(frame, ctrl, str, num)
         frame:SetPos(665, 30)
@@ -532,48 +693,6 @@ function indun_panel_init(frame)
         button:SetText("{ol}{s10}INDUNPANEL")
         button:SetEventScript(ui.LBUTTONUP, "indun_panel_frame_init")
 
-        local position = frame:CreateOrGetControl("button", "position", 155, 10, 60, 25)
-        AUTO_CAST(position)
-        position:SetText("{ol}{s10}BasePos")
-        position:SetEventScript(ui.LBUTTONUP, "indun_panel_frame_base_position")
-
-        local en_ver = frame:CreateOrGetControl('checkbox', 'en_ver', 25, 45, 25, 25)
-        AUTO_CAST(en_ver)
-        if g.settings.en_ver == nil then
-            g.settings.en_ver = 0
-            g.save_settings()
-        end
-        en_ver:SetCheck(g.settings.en_ver)
-        en_ver:SetEventScript(ui.LBUTTONUP, "indun_panel_ischecked")
-        en_ver:SetText(g.lang == "Japanese" and "{ol}チェックすると英語表示に変更します" or
-                           "{ol}Check to display to English")
-
-        local move = frame:CreateOrGetControl('checkbox', 'move', 25, 80, 25, 25)
-        AUTO_CAST(move)
-        if g.settings.move == nil then
-            g.settings.move = 0
-            g.save_settings()
-        end
-        move:SetCheck(g.settings.move)
-        move:SetEventScript(ui.LBUTTONUP, "indun_panel_ischecked")
-        move:SetText(g.lang == "Japanese" and "{ol}チェックするとフレームを動かせます" or
-                         "{ol}Check to move the frame")
-
-        local field_mode = frame:CreateOrGetControl('checkbox', 'field_mode', 25, 115, 25, 25)
-        AUTO_CAST(field_mode)
-        if g.settings.field_mode == nil then
-            g.settings.field_mode = 0
-            g.save_settings()
-        end
-        field_mode:SetCheck(g.settings.field_mode)
-        field_mode:SetEventScript(ui.LBUTTONUP, "indun_panel_ischecked")
-        field_mode:SetText(g.lang == "Japanese" and "{ol}チェックするとフィールドで表示(β版)" or
-                               "{ol}Check to display in field(βver)")
-
-        local label_line = frame:CreateControl('labelline', 'label_line', 5, 140, 355, 5);
-        AUTO_CAST(label_line)
-        label_line:SetSkinName("labelline2")
-
         local zoomedit = frame:CreateOrGetControl('edit', 'zoomedit', 100, 5, 50, 30)
         AUTO_CAST(zoomedit)
         zoomedit:SetText("{ol}" .. g.settings.zoom)
@@ -585,7 +704,146 @@ function indun_panel_init(frame)
                             "{ol}Input a value from 0 to 700. Standard is 336. Zoom to the input value when switching maps.{nl}Disable function by inputting 0."
         zoomedit:SetTextTooltip("Auto Zoom Setting{nl}" .. zoomtxt)
 
-        local posY = 145
+        local position = frame:CreateOrGetControl("button", "position", 160, 5, 60, 30)
+        AUTO_CAST(position)
+        position:SetText("{ol}{s10}BASE POS MOVE")
+        position:SetEventScript(ui.LBUTTONUP, "indun_panel_frame_base_position")
+
+        ---ここから
+
+        local config_x = 15
+        local tosshop = frame:CreateOrGetControl("checkbox", "tosshop", config_x, 47, 25, 25);
+        AUTO_CAST(tosshop)
+        tosshop:SetText("{img icon_item_Tos_Event_Coin 25 25}")
+        tosshop:SetEventScript(ui.LBUTTONUP, "indun_panel_ischecked")
+        tosshop:SetEventScriptArgString(ui.LBUTTONUP, "config")
+        tosshop:SetTextTooltip(g.lang == "Japanese" and "{ol}チェックすると常に表示" or
+                                   "{ol}Always visible when checked")
+        tosshop:SetCheck(g.settings.cols.tos)
+        config_x = config_x + tosshop:GetWidth() + 10
+
+        local gabija = frame:CreateOrGetControl("checkbox", "gabija", config_x, 47, 29, 29);
+        AUTO_CAST(gabija)
+        gabija:SetText("{img goddess_shop_btn 29 29}")
+        gabija:SetEventScript(ui.LBUTTONUP, "indun_panel_ischecked")
+        gabija:SetEventScriptArgString(ui.LBUTTONUP, "config")
+        gabija:SetTextTooltip(g.lang == "Japanese" and "{ol}チェックすると常に表示" or
+                                  "{ol}Always visible when checked")
+        gabija:SetCheck(g.settings.cols.gabija)
+        config_x = config_x + gabija:GetWidth() + 10
+
+        local vakarine = frame:CreateOrGetControl("checkbox", "vakarine", config_x, 47, 29, 29);
+        AUTO_CAST(vakarine)
+        vakarine:SetText("{img goddess2_shop_btn 29 29}")
+        vakarine:SetEventScript(ui.LBUTTONUP, "indun_panel_ischecked")
+        vakarine:SetEventScriptArgString(ui.LBUTTONUP, "config")
+        vakarine:SetTextTooltip(g.lang == "Japanese" and "{ol}チェックすると常に表示" or
+                                    "{ol}Always visible when checked")
+        vakarine:SetCheck(g.settings.cols.vakarine)
+        config_x = config_x + vakarine:GetWidth() + 10
+
+        local rada = frame:CreateOrGetControl("checkbox", "rada", config_x, 47, 29, 29);
+        AUTO_CAST(rada)
+        rada:SetText("{img goddess3_shop_btn 29 29}")
+        rada:SetEventScript(ui.LBUTTONUP, "indun_panel_ischecked")
+        rada:SetEventScriptArgString(ui.LBUTTONUP, "config")
+        rada:SetTextTooltip(g.lang == "Japanese" and "{ol}チェックすると常に表示" or
+                                "{ol}Always visible when checked")
+        rada:SetCheck(g.settings.cols.rada)
+        config_x = config_x + rada:GetWidth() + 10
+
+        local jurate = frame:CreateOrGetControl("checkbox", "jurate", config_x, 47, 29, 29);
+        AUTO_CAST(jurate)
+        jurate:SetText("{img goddess4_shop_btn 29 29}")
+        jurate:SetEventScript(ui.LBUTTONUP, "indun_panel_ischecked")
+        jurate:SetEventScriptArgString(ui.LBUTTONUP, "config")
+        jurate:SetTextTooltip(g.lang == "Japanese" and "{ol}チェックすると常に表示" or
+                                  "{ol}Always visible when checked")
+        jurate:SetCheck(g.settings.cols.jurate)
+        config_x = config_x + jurate:GetWidth() + 10
+
+        local pvp_mine = frame:CreateOrGetControl("checkbox", "pvp_mine", config_x, 47, 29, 29);
+        AUTO_CAST(pvp_mine)
+        pvp_mine:SetText("{img pvpmine_shop_btn_total 29 29}")
+        pvp_mine:SetEventScript(ui.LBUTTONUP, "indun_panel_ischecked")
+        pvp_mine:SetEventScriptArgString(ui.LBUTTONUP, "config")
+        pvp_mine:SetTextTooltip(g.lang == "Japanese" and "{ol}チェックすると常に表示" or
+                                    "{ol}Always visible when checked")
+        pvp_mine:SetCheck(g.settings.cols.pvp_mine)
+        config_x = config_x + pvp_mine:GetWidth() + 10
+
+        local market = frame:CreateOrGetControl("checkbox", "market", config_x, 47, 29, 29);
+        AUTO_CAST(market)
+        market:SetText("{img market_shortcut_btn02 29 29}")
+        market:SetEventScript(ui.LBUTTONUP, "indun_panel_ischecked")
+        market:SetEventScriptArgString(ui.LBUTTONUP, "config")
+        market:SetTextTooltip(g.lang == "Japanese" and "{ol}チェックすると常に表示" or
+                                  "{ol}Always visible when checked")
+        market:SetCheck(g.settings.cols.market)
+        config_x = config_x + market:GetWidth() + 10
+
+        local craft = frame:CreateOrGetControl("checkbox", "craft", config_x, 47, 29, 29);
+        AUTO_CAST(craft)
+        craft:SetText("{img icon_fullscreen_menu_equipment_processing 28 28}")
+        craft:SetEventScript(ui.LBUTTONUP, "indun_panel_ischecked")
+        craft:SetEventScriptArgString(ui.LBUTTONUP, "config")
+        craft:SetTextTooltip(g.lang == "Japanese" and "{ol}チェックすると常に表示" or
+                                 "{ol}Always visible when checked")
+        craft:SetCheck(g.settings.cols.craft)
+        config_x = config_x + craft:GetWidth() + 10
+
+        local leticia = frame:CreateOrGetControl("checkbox", "leticia", config_x, 47, 29, 29);
+        AUTO_CAST(leticia)
+        leticia:SetText("{img icon_fullscreen_menu_letica 28 28}")
+        leticia:SetEventScript(ui.LBUTTONUP, "indun_panel_ischecked")
+        leticia:SetEventScriptArgString(ui.LBUTTONUP, "config")
+        leticia:SetTextTooltip(g.lang == "Japanese" and "{ol}チェックすると常に表示" or
+                                   "{ol}Always visible when checked")
+        leticia:SetCheck(g.settings.cols.leticia)
+        config_x = config_x + leticia:GetWidth() + 10
+
+        local label_line2 = frame:CreateControl('labelline', 'label_line2', 10, 77, config_x, 5);
+        AUTO_CAST(label_line2)
+        label_line2:SetSkinName("labelline2")
+
+        local en_ver = frame:CreateOrGetControl('checkbox', 'en_ver', 25, 85, 25, 25)
+        AUTO_CAST(en_ver)
+        if g.settings.en_ver == nil then
+            g.settings.en_ver = 0
+            g.save_settings()
+        end
+        en_ver:SetCheck(g.settings.en_ver)
+        en_ver:SetEventScript(ui.LBUTTONUP, "indun_panel_ischecked")
+        en_ver:SetText(g.lang == "Japanese" and "{ol}チェックすると英語表示に変更します" or
+                           "{ol}Check to display to English")
+
+        local move = frame:CreateOrGetControl('checkbox', 'move', 25, 120, 25, 25)
+        AUTO_CAST(move)
+        if g.settings.move == nil then
+            g.settings.move = 0
+            g.save_settings()
+        end
+        move:SetCheck(g.settings.move)
+        move:SetEventScript(ui.LBUTTONUP, "indun_panel_ischecked")
+        move:SetText(g.lang == "Japanese" and "{ol}チェックするとフレームを動かせます" or
+                         "{ol}Check to move the frame")
+
+        local field_mode = frame:CreateOrGetControl('checkbox', 'field_mode', 25, 155, 25, 25)
+        AUTO_CAST(field_mode)
+        if g.settings.field_mode == nil then
+            g.settings.field_mode = 0
+            g.save_settings()
+        end
+        field_mode:SetCheck(g.settings.field_mode)
+        field_mode:SetEventScript(ui.LBUTTONUP, "indun_panel_ischecked")
+        field_mode:SetText(g.lang == "Japanese" and "{ol}チェックするとフィールドで表示(β版)" or
+                               "{ol}Check to display in field(βver)")
+
+        local label_line = frame:CreateControl('labelline', 'label_line', 10, 180, config_x, 5);
+        AUTO_CAST(label_line)
+        label_line:SetSkinName("labelline2")
+
+        local posY = 185
         local count = #induntype
         for i = 1, count do
             local entry = induntype[i]
@@ -600,7 +858,8 @@ function indun_panel_init(frame)
             end
             posY = posY + 35
         end
-        frame:Resize(360, posY + 5)
+        -- frame:Resize(360, posY + 5)
+        frame:Resize(660, posY + 5)
     end
 
     local configbtn = frame:CreateOrGetControl('button', 'configbtn', 115, 5, 30, 30)
@@ -797,7 +1056,12 @@ function indun_panel_ischecked(frame, ctrl, argStr, argNum)
         ctrlname = "singularity_check"
     end
 
-    g.settings[ctrlname] = ischeck
+    if g.settings[ctrlname] then
+        g.settings[ctrlname] = ischeck
+    elseif g.settings.cols[ctrlname] then
+        g.settings.cols[ctrlname] = ischeck
+    end
+
     g.save_settings()
 
     if ctrlname == "move" then
@@ -1097,9 +1361,36 @@ function indun_panel_frame_contents(frame)
                                                           INDUN_PANEL_LANG(
                                     "priority{nl}1.Tickets due within 24 hours{nl}2.Tickets with expiration date{nl}" ..
                                         "3.Event tickets with no expiration date{nl}4.{img icon_item_Tos_Event_Coin 20 20} tickets (buy and use){nl}" ..
-                                        "5.{img pvpmine_shop_btn_total 20 20} tickets (buy and use))"))
+                                        "5.{img pvpmine_shop_btn_total 20 20} tickets (buy and use){nl} {nl}" ..
+                                        "{#FFFF00}Right-click to switch priority"))
+
                             ticket_btn:SetEventScript(ui.LBUTTONUP, "indun_panel_item_use")
                             ticket_btn:SetEventScriptArgNumber(ui.LBUTTONUP, value.low)
+
+                            function indun_panel_item_use_change()
+                                if not g.settings.challenge_ticket then
+                                    g.settings.challenge_ticket = "week"
+                                    local msg = g.lang == "Japanese" and
+                                                    "{ol}傭兵団コイン優先に切替えました" or
+                                                    "{ol}Switched to Mercenary coin priority"
+                                    ui.SysMsg(msg)
+                                elseif g.settings.challenge_ticket == "month" then
+                                    g.settings.challenge_ticket = "week"
+                                    local msg = g.lang == "Japanese" and
+                                                    "{ol}傭兵団コイン優先に切替えました" or
+                                                    "{ol}Switched to Mercenary coin priority"
+                                    ui.SysMsg(msg)
+                                elseif g.settings.challenge_ticket == "week" then
+                                    g.settings.challenge_ticket = "month"
+                                    local msg =
+                                        g.lang == "Japanese" and "{ol}TOSコイン優先に切替えました" or
+                                            "{ol}Switched to TOS coin priority"
+                                    ui.SysMsg(msg)
+                                end
+                                g.save_settings()
+                            end
+
+                            ticket_btn:SetEventScript(ui.RBUTTONUP, "indun_panel_item_use_change")
 
                             local a_ticket_btn = frame:CreateOrGetControl('button', key .. 'a_ticket_btn', 615, y, 80,
                                 30)
@@ -1686,7 +1977,7 @@ function indun_panel_item_use(frame, ctrl, argStr, indun_type)
             for i = 1, #targetItems do
                 local classid = targetItems[i] -- インデックスを使ってアイテムを取得
                 local use_item = session.GetInvItemByType(classid)
-                if use_item ~= nil then
+                if use_item ~= nil and enterance_count == 0 then
                     -- local obj = GetIES(use_item:GetObject());
                     --[[local msg = g.lang == "Japanese" and "期限はありません。使用しますか？" or
                                     "It has no expiration date.{nl}Do you want to use it?"
@@ -1741,32 +2032,68 @@ function indun_panel_item_use(frame, ctrl, argStr, indun_type)
             end
 
             if enterance_count == 1 then
-                local event_trade_count = INDUN_PANEL_GET_RECIPE_TRADE_COUNT("EVENT_TOS_WHOLE_SHOP_315")
-                if event_trade_count >= 1 then
-                    INDUN_PANEL_ITEM_BUY_USE("EVENT_TOS_WHOLE_SHOP_315", indun_type)
-                    indun_panel_enter_challenge_reserve()
-                    return
-                end
+                if g.settings.challenge_ticket == "month" then
+                    local event_trade_count = INDUN_PANEL_GET_RECIPE_TRADE_COUNT("EVENT_TOS_WHOLE_SHOP_315")
+                    if event_trade_count >= 1 then
+                        INDUN_PANEL_ITEM_BUY_USE("EVENT_TOS_WHOLE_SHOP_315", indun_type)
+                        indun_panel_enter_challenge_reserve()
+                        return
+                    end
 
-                local trade_count = INDUN_PANEL_GET_RECIPE_TRADE_COUNT("PVP_MINE_40")
-                if trade_count >= 1 then
-                    INDUN_PANEL_ITEM_BUY_USE("PVP_MINE_40", indun_type)
-                    indun_panel_enter_challenge_reserve()
-                    return
-                elseif trade_count <= 0 then
-                    local account_obj = GetMyAccountObj()
-                    local recipe_cls = GetClass('ItemTradeShop', "PVP_MINE_40")
-                    local over_max = TryGetProp(recipe_cls, 'MaxOverBuyCount', 0)
-                    local over_prop = TryGetProp(recipe_cls, 'OverBuyProperty', 'None')
-                    local over_count = TryGetProp(account_obj, over_prop, 0)
-                    local overbuy_count = tonumber(over_max) - tonumber(over_count)
-
-                    if overbuy_count > 0 then
-                        local msg = g.lang == "Japanese" and "{img pvpmine_shop_btn_total 29 29} " ..
-                                        (1100 + over_count * 100) .. " 使用しました" or
-                                        "{img pvpmine_shop_btn_total 29 29} " .. (1100 + over_count * 100) .. " Used"
-                        ui.SysMsg(msg)
+                    local trade_count = INDUN_PANEL_GET_RECIPE_TRADE_COUNT("PVP_MINE_40")
+                    if trade_count >= 1 then
                         INDUN_PANEL_ITEM_BUY_USE("PVP_MINE_40", indun_type)
+                        indun_panel_enter_challenge_reserve()
+                        return
+                    elseif trade_count <= 0 then
+                        local account_obj = GetMyAccountObj()
+                        local recipe_cls = GetClass('ItemTradeShop', "PVP_MINE_40")
+                        local over_max = TryGetProp(recipe_cls, 'MaxOverBuyCount', 0)
+                        local over_prop = TryGetProp(recipe_cls, 'OverBuyProperty', 'None')
+                        local over_count = TryGetProp(account_obj, over_prop, 0)
+                        local overbuy_count = tonumber(over_max) - tonumber(over_count)
+
+                        if overbuy_count > 0 then
+                            local msg = g.lang == "Japanese" and "{img pvpmine_shop_btn_total 29 29} " ..
+                                            (1100 + over_count * 100) .. " 使用しました" or
+                                            "{img pvpmine_shop_btn_total 29 29} " .. (1100 + over_count * 100) ..
+                                            " Used"
+                            ui.SysMsg(msg)
+                            INDUN_PANEL_ITEM_BUY_USE("PVP_MINE_40", indun_type)
+                            indun_panel_enter_challenge_reserve()
+                            return
+                        end
+                    end
+                else
+
+                    local trade_count = INDUN_PANEL_GET_RECIPE_TRADE_COUNT("PVP_MINE_40")
+                    if trade_count >= 1 then
+                        INDUN_PANEL_ITEM_BUY_USE("PVP_MINE_40", indun_type)
+                        indun_panel_enter_challenge_reserve()
+                        return
+                    elseif trade_count <= 0 then
+                        local account_obj = GetMyAccountObj()
+                        local recipe_cls = GetClass('ItemTradeShop', "PVP_MINE_40")
+                        local over_max = TryGetProp(recipe_cls, 'MaxOverBuyCount', 0)
+                        local over_prop = TryGetProp(recipe_cls, 'OverBuyProperty', 'None')
+                        local over_count = TryGetProp(account_obj, over_prop, 0)
+                        local overbuy_count = tonumber(over_max) - tonumber(over_count)
+
+                        if overbuy_count > 0 then
+                            local msg = g.lang == "Japanese" and "{img pvpmine_shop_btn_total 29 29} " ..
+                                            (1100 + over_count * 100) .. " 使用しました" or
+                                            "{img pvpmine_shop_btn_total 29 29} " .. (1100 + over_count * 100) ..
+                                            " Used"
+                            ui.SysMsg(msg)
+                            INDUN_PANEL_ITEM_BUY_USE("PVP_MINE_40", indun_type)
+                            indun_panel_enter_challenge_reserve()
+                            return
+                        end
+                    end
+
+                    local event_trade_count = INDUN_PANEL_GET_RECIPE_TRADE_COUNT("EVENT_TOS_WHOLE_SHOP_315")
+                    if event_trade_count >= 1 then
+                        INDUN_PANEL_ITEM_BUY_USE("EVENT_TOS_WHOLE_SHOP_315", indun_type)
                         indun_panel_enter_challenge_reserve()
                         return
                     end
@@ -1891,6 +2218,7 @@ function g.settings_make()
         y = 30,
         move = 0
     }
+
     g.save_settings()
 end
 
@@ -1912,7 +2240,7 @@ function INDUN_PANEL_ON_INIT(addon, frame)
     g.framename = addonName
     g.lang = option.GetCurrentCountry()
 
-    g.RAGISTER = {}
+    g.REGISTER = {}
 
     local map_id = session.GetMapID()
 
@@ -2060,10 +2388,13 @@ function INDUN_PANEL_LANG(str)
         end
         if str == tostring("priority{nl}1.Tickets due within 24 hours{nl}2.Tickets with expiration date{nl}" ..
                                "3.Event tickets with no expiration date{nl}4.{img icon_item_Tos_Event_Coin 20 20} tickets (buy and use){nl}" ..
-                               "5.{img pvpmine_shop_btn_total 20 20} tickets (buy and use))") then
+                               "5.{img pvpmine_shop_btn_total 20 20} tickets (buy and use){nl} {nl}" ..
+                               "{#FFFF00}Right-click to switch priority") then
             str = "優先順位{nl}1.24時間以内の期限付きチケット{nl}2.期限付きチケット{nl}" ..
                       "3.期限のないイベントチケット{nl}4.{img icon_item_Tos_Event_Coin 20 20}チケット(買って使います){nl}" ..
-                      "5.{img pvpmine_shop_btn_total 20 20}チケット(買って使います){nl}{img pvpmine_shop_btn_total 20 20}このチケットで分裂券作れるで!"
+                      "5.{img pvpmine_shop_btn_total 20 20}チケット(買って使います){nl}" ..
+                      "{img pvpmine_shop_btn_total 20 20}このチケットで分裂券作れるで!{nl} {nl}" ..
+                      "{#FFFF00}右クリックで優先順位切替"
         end
         -- "There are no ticket items in inventory."
         if str == tostring("There are no ticket items in inventory.") then
@@ -2075,60 +2406,3 @@ function INDUN_PANEL_LANG(str)
     return "{s20}" .. str
 end
 
---[[function indun_panel_save_settings()
-    acutil.saveJSON(g.settingsFileLoc, g.settings);
-end
-
-function indun_panel_load_settings()
-
-    local settings, err = acutil.loadJSON(g.settingsFileLoc)
-
-    local default_settings = {
-        checkbox = 0,
-        zoom = 336,
-        challenge_checkbox = 1,
-        singularity_checkbox = 1,
-        redania_checkbox = 1,
-        neringa_checkbox = 1,
-        golem_checkbox = 1,
-        merregina_checkbox = 1,
-        slogutis_checkbox = 1,
-        upinis_checkbox = 1,
-        roze_checkbox = 1,
-        falouros_checkbox = 1,
-        spreader_checkbox = 1,
-        jellyzele_checkbox = 1,
-        delmore_checkbox = 1,
-        telharsha_checkbox = 1,
-        velnice_checkbox = 1,
-        giltine_checkbox = 1,
-        earring_checkbox = 1,
-        cemetery_checkbox = 1,
-        jsr_checkbox = 1,
-        singularity_check = 0,
-        en_ver = 0,
-        season_checkbox = 1
-    }
-
-    if not settings then
-        settings = default_settings
-    else
-        for key, value in pairs(default_settings) do
-            if not settings[key] then
-                settings[key] = value
-            end
-        end
-    end
-
-    g.settings = settings
-    indun_panel_save_settings()
-end]]
-
---[[function indun_panel_frame_move_mode(frame, ctrl, str, num)
-    ctrl:SetText("{ol}{s10}MOVE MODE")
-    frame:Resize(170, 40)
-    frame:EnableMove(1)
-    frame:SetSkinName('chat_window')
-    frame:SetTitleBarSkin("None")
-    frame:SetEventScript(ui.LBUTTONUP, "indun_panel_frame_drag")
-end]]

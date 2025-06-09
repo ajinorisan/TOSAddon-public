@@ -26,36 +26,19 @@
 -- v1.2.5 メモ欄バグってたの修正
 -- v1.2.6 再修正。。。
 -- v1.2.7 レイドカウント取るタイミング修正
-local addonName = "indun_list_viewer"
-local addonNameLower = string.lower(addonName)
+-- v1.2.8 acutil終わり。indunpanelに統合準備。非表示のキャラを非表示にする機能。
+local addon_name = "indun_list_viewer"
+local addon_name_lower = string.lower(addon_name)
 local author = "norisan"
-local ver = "1.2.7"
+local ver = "1.2.8"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
-_G["ADDONS"][author][addonName] = _G["ADDONS"][author][addonName] or {}
-local g = _G["ADDONS"][author][addonName]
+_G["ADDONS"][author][addon_name] = _G["ADDONS"][author][addon_name] or {}
+local g = _G["ADDONS"][author][addon_name]
 
-local acutil = require("acutil")
+-- local acutil = require("acutil")
 local json = require("json")
-local os = require("os")
-
-function g.mkdir_new_folder()
-    local folder_path = string.format("../addons/%s", addonNameLower)
-    local file_path = string.format("../addons/%s/mkdir.txt", addonNameLower)
-    local file = io.open(file_path, "r")
-    if not file then
-        os.execute('mkdir "' .. folder_path .. '"')
-        file = io.open(file_path, "w")
-        if file then
-            file:write("A new file has been created")
-            file:close()
-        end
-    else
-        file:close()
-    end
-end
-g.mkdir_new_folder()
 
 local function unicode_to_codepoint(char)
     local codepoint = utf8.codepoint(char)
@@ -72,98 +55,277 @@ end
 
 local input = GETMYFAMILYNAME()
 local output = convert_to_ascii(input)
-g.settings_file_location = string.format('../addons/%s/%s.json', addonNameLower, output .. "2410")
+g.settings_old = string.format('../addons/%s/%s.json', addon_name_lower, output .. "2410")
 
-local base = {}
-
-function g.SetupHook(func, baseFuncName)
-    local addonUpper = string.upper(addonName)
-    local replacementName = addonUpper .. "_BASE_" .. baseFuncName
-    if (_G[replacementName] == nil) then
-        _G[replacementName] = _G[baseFuncName];
-        _G[baseFuncName] = func
+function g.mkdir_new_folder()
+    local function create_folder(folder_path, file_path)
+        local file = io.open(file_path, "r")
+        if not file then
+            os.execute('mkdir "' .. folder_path .. '"')
+            file = io.open(file_path, "w")
+            if file then
+                file:write("A new file has been created")
+                file:close()
+            end
+        else
+            file:close()
+        end
     end
-    base[baseFuncName] = _G[replacementName]
+
+    local folder = string.format("../addons/%s", addon_name_lower)
+    local file_path = string.format("../addons/%s/mkdir.txt", addon_name_lower)
+    create_folder(folder, file_path)
+
+    g.active_id = session.loginInfo.GetAID()
+    local user_folder = string.format("../addons/%s/%s", addon_name_lower, g.active_id)
+    local user_file_path = string.format("../addons/%s/%s/mkdir.txt", addon_name_lower, g.active_id)
+    create_folder(user_folder, user_file_path)
+
+    g.settings_path = string.format("../addons/%s/%s/settings.json", addon_name_lower, g.active_id)
+
+    local new_settings_file_check = io.open(g.settings_path, "r")
+    if not new_settings_file_check then
+
+        local old_file_handle = io.open(g.settings_old, "rb")
+        if old_file_handle then
+
+            local content_to_copy = old_file_handle:read("*all")
+            old_file_handle:close()
+
+            local new_file_handle = io.open(g.settings_path, "wb")
+            if new_file_handle then
+                new_file_handle:write(content_to_copy)
+                new_file_handle:close()
+
+            end
+
+        end
+    else
+        new_settings_file_check:close()
+    end
+end
+g.mkdir_new_folder()
+function g.save_json(path, tbl)
+    local file = io.open(path, "w")
+    if file then
+        local str = json.encode(tbl)
+        file:write(str)
+        file:close()
+    end
+end
+
+function g.load_json(path)
+    local file = io.open(path, "r")
+    if not file then
+        return nil, "Error opening file: " .. path
+    end
+
+    local content = file:read("*all")
+    file:close()
+
+    if not content or content == "" then
+        return nil, "File content is empty or could not be read: " .. path
+    end
+
+    local decoded_table, decode_err = json.decode(content)
+
+    if not decoded_table then
+        return nil, decode_err
+    end
+
+    return decoded_table, nil
+end
+
+function g.get_map_type()
+    local map_name = session.GetMapName()
+    local map_cls = GetClass("Map", map_name)
+    local map_type = map_cls.MapType
+    return map_type
+end
+
+function g.setup_hook_and_event(my_addon, origin_func_name, my_func_name, bool)
+
+    g.FUNCS = g.FUNCS or {}
+    if not g.FUNCS[origin_func_name] then
+        g.FUNCS[origin_func_name] = _G[origin_func_name]
+    end
+
+    local origin_func = g.FUNCS[origin_func_name]
+
+    local function hooked_function(...)
+
+        local original_results
+
+        if bool == true then
+            original_results = {origin_func(...)}
+        end
+
+        g.ARGS = g.ARGS or {}
+        g.ARGS[origin_func_name] = {...}
+        imcAddOn.BroadMsg(origin_func_name)
+
+        if original_results then
+            return table.unpack(original_results)
+        else
+            return
+        end
+    end
+
+    _G[origin_func_name] = hooked_function
+
+    if not g.REGISTER[origin_func_name .. my_func_name] then -- g.REGISTERはON_INIT内で都度初期化
+        g.REGISTER[origin_func_name .. my_func_name] = true
+        my_addon:RegisterMsg(origin_func_name, my_func_name)
+    end
+end
+
+function g.get_event_args(origin_func_name)
+    local args = g.ARGS[origin_func_name]
+    if args then
+        return table.unpack(args)
+    end
+    return nil
 end
 
 function indun_list_viewer_save_settings()
-    acutil.saveJSON(g.settings_file_location, g.settings)
+    g.save_json(g.settings_path, g.settings)
+
 end
 
 function indun_list_viewer_load_settings()
 
-    local file = io.open(g.settings_file_location, "r")
-    if file then
-        local content = file:read("*all")
-        file:close()
-        g.settings = json.decode(content)
-    else
-        g.settings = {
+    local settings = g.load_json(g.settings_path)
+
+    if not settings then
+        settings = {
             reset_time = 1702846800,
             display_mode = "full"
         }
     end
 
-    local account_info = session.barrack.GetMyAccount()
-    local barrack_pc_count = account_info:GetBarrackPCCount()
+    local acc_info = session.barrack.GetMyAccount()
+    if g.load == true then
+        local barrack_cnt = acc_info:GetBarrackPCCount()
 
-    for i = 0, barrack_pc_count - 1 do
-        local barrack_pc_info = account_info:GetBarrackPCByIndex(i)
-        local barrack_pc_name = barrack_pc_info:GetName()
-        if not g.settings[barrack_pc_name] then
-            g.settings[barrack_pc_name] = {
-                pc_name = barrack_pc_name,
-                layer = 9,
-                order = 99,
-                hide = false,
-                memo = "",
-                president_jobid = "",
-                jobid = "",
-                raid_count = {
-                    N_H = "?",
-                    N_A = "?",
-                    G_H = "?",
-                    G_A = "?",
-                    M_H = "?",
-                    M_A = "?",
-                    S_H = "?",
-                    S_A = "?",
-                    U_H = "?",
-                    U_A = "?"
-                },
-                auto_clear_count = {
-                    N_S = "?",
-                    G_S = "?",
-                    M_S = "?",
-                    U_S = "?",
-                    S_S = "?"
+        for i = 0, barrack_cnt - 1 do
+            local pc_info = acc_info:GetBarrackPCByIndex(i)
+            local pc_name = pc_info:GetName()
+
+            if not settings[pc_name] then
+                settings[pc_name] = {
+                    pc_name = pc_name,
+                    layer = 9,
+                    order = 99,
+                    hide = false,
+                    memo = "",
+                    president_jobid = "",
+
+                    jobid = "",
+                    raid_count = {
+                        N_H = "?",
+                        N_A = "?",
+                        G_H = "?",
+                        G_A = "?",
+                        M_H = "?",
+                        M_A = "?",
+                        S_H = "?",
+                        S_A = "?",
+                        U_H = "?",
+                        U_A = "?"
+
+                    },
+                    auto_clear_count = {
+                        N_S = "?",
+                        G_S = "?",
+                        M_S = "?",
+                        U_S = "?",
+                        S_S = "?"
+
+                    }
                 }
-            }
-        end
-        if not g.settings[barrack_pc_name]["raid_count"].R_H then
-            g.settings[barrack_pc_name]["raid_count"].R_H = "?"
-            g.settings[barrack_pc_name]["raid_count"].R_A = "?"
-            g.settings[barrack_pc_name]["auto_clear_count"].R_S = "?"
+            end
+
+            if settings[pc_name] and settings[pc_name]["raid_count"] then
+                if not settings[pc_name]["raid_count"].R_H then
+                    settings[pc_name]["raid_count"].R_H = "?"
+                    settings[pc_name]["raid_count"].R_A = "?"
+
+                    if settings[pc_name]["auto_clear_count"] then
+                        settings[pc_name]["auto_clear_count"].R_S = "?"
+
+                    end
+                end
+            end
         end
     end
 
+    g.settings = settings
+
     indun_list_viewer_save_settings()
-    indun_list_viewer_sort_characters(account_info)
 
     if g.load == true then
+        indun_list_viewer_sort_characters(acc_info)
         local now = os.time()
+
         if now > g.settings.reset_time then
             indun_list_viewer_raid_reset()
         end
-    end
-    if g.load == false then
+    else
+        g.sorted_settings = {}
+        for _, data in pairs(g.settings) do
+            if type(data) == "table" then
+                table.insert(g.sorted_settings, data)
+            end
+        end
+
+        local function sort_layer_order(a, b)
+            if a.layer ~= b.layer then
+                return a.layer < b.layer
+            else
+                return a.order < b.order
+            end
+        end
+
+        table.sort(g.sorted_settings, sort_layer_order)
         g.load = true
     end
 
-    g.cid = session.GetMySession():GetCID();
-    g.lang = option.GetCurrentCountry()
-    g.login_name = session.GetMySession():GetPCApc():GetName()
     indun_list_viewer_frame_init()
+end
+
+function indun_list_viewer_get_reset_time()
+    local now = os.time()
+    local date_table = os.date("*t", now)
+    local current_day = date_table.wday
+    local next_monday_timestamp
+
+    if current_day == 2 and date_table.hour < 6 then
+        next_monday_timestamp = os.time({
+            year = date_table.year,
+            month = date_table.month,
+            day = date_table.day,
+            hour = 6,
+            min = 0,
+            sec = 0
+        })
+    else
+        local days_to_next_monday = (9 - current_day) % 7
+        if days_to_next_monday == 0 then
+            days_to_next_monday = 7 -- 次週の月曜日に設定
+        end
+
+        local next_monday_date = os.date("*t", now + days_to_next_monday * 86400)
+        next_monday_timestamp = os.time({
+            year = next_monday_date.year,
+            month = next_monday_date.month,
+            day = next_monday_date.day,
+            hour = 6,
+            min = 0,
+            sec = 0
+        })
+    end
+
+    return next_monday_timestamp
 end
 
 function indun_list_viewer_raid_reset()
@@ -209,7 +371,7 @@ function indun_list_viewer_sort_characters(account_info)
         local pc_cid = pc_info:GetCID()
         g.settings[pc_name].cid = pc_cid
         g.settings[pc_name].order = order
-        if g.layer ~= nil and g.layer ~= g.settings[pc_name].layer then
+        if g.layer and g.layer ~= g.settings[pc_name].layer then
             g.settings[pc_name].layer = g.layer
         end
     end
@@ -235,46 +397,129 @@ function indun_list_viewer_sort_characters(account_info)
     table.sort(g.sorted_settings, sort_layer_order)
 end
 
-function indun_list_viewer_BARRACK_TO_GAME()
-    local frame = ui.GetFrame("barrack_charlist")
-    local layer = tonumber(frame:GetUserValue("SelectBarrackLayer"))
-    g.layer = layer
+function indun_list_viewer_BARRACK_TO_GAME(...)
 
-    local start_frame = ui.GetFrame("barrack_gamestart")
-    local hide_check = GET_CHILD_RECURSIVELY(start_frame, "hidelogin")
-    AUTO_CAST(hide_check)
-    hide_check:SetCheck(1)
-    barrack.SetHideLogin(1)
-    base["BARRACK_TO_GAME"]()
+    local bc_frame = ui.GetFrame("barrack_charlist")
+    if bc_frame then
+        g.layer = tonumber(bc_frame:GetUserValue("SelectBarrackLayer"))
+        _G["norisan"] = _G["norisan"] or {}
+        _G["norisan"]["LAST_LAYER"] = tonumber(bc_frame:GetUserValue("SelectBarrackLayer"))
+    end
+
+    local original_func = g.FUNCS["BARRACK_TO_GAME"]
+
+    local result
+
+    if original_func then
+        result = original_func(...)
+    end
+    return result
 end
 
-g.load = false
+function indun_list_viewer_BARRACK_TO_GAME_HOOK()
+    g.FUNCS = g.FUNCS or {}
+    local origin_func_name = "BARRACK_TO_GAME"
+    if _G[origin_func_name] then
+        if not g.FUNCS[origin_func_name] then
+            g.FUNCS[origin_func_name] = _G[origin_func_name]
+        end
+        _G[origin_func_name] = indun_list_viewer_BARRACK_TO_GAME
+    end
+end
+
 function INDUN_LIST_VIEWER_ON_INIT(addon, frame)
 
     g.addon = addon
     g.frame = frame
 
-    local pc = GetMyPCObject()
-    local current_map = GetZoneName(pc)
-    local map_class = GetClass("Map", current_map)
-    if map_class.MapType == "City" then
+    g.REGISTER = {}
 
-        g.SetupHook(indun_list_viewer_BARRACK_TO_GAME, "BARRACK_TO_GAME")
+    _G["norisan"] = _G["norisan"] or {}
+    _G["norisan"]["HOOKS"] = _G["norisan"]["HOOKS"] or {}
+    if not _G["norisan"]["HOOKS"]["BARRACK_TO_GAME"] then
+        _G["norisan"]["HOOKS"]["BARRACK_TO_GAME"] = addon_name
+        addon:RegisterMsg("GAME_START", "indun_list_viewer_BARRACK_TO_GAME_HOOK")
+    end
+
+    g.cid = session.GetMySession():GetCID();
+    g.lang = option.GetCurrentCountry()
+    g.login_name = session.GetMySession():GetPCApc():GetName()
+
+    g.layer = g.layer or (g.settings and g.settings[g.login_name] and g.settings[g.login_name].layer) or 1
+
+    if g.get_map_type() == "City" then
         addon:RegisterMsg('GAME_START', "indun_list_viewer_load_settings")
-
         addon:RegisterMsg('GAME_START_3SEC', "indun_list_viewer_get_raid_count")
-        acutil.setupEvent(addon, "APPS_TRY_MOVE_BARRACK", "indun_list_viewer_get_raid_count")
-        acutil.setupEvent(addon, "APPS_TRY_LOGOUT", "indun_list_viewer_get_raid_count")
-        acutil.setupEvent(addon, "APPS_TRY_EXIT", "indun_list_viewer_get_raid_count")
 
-        acutil.setupEvent(addon, "STATUS_SELET_REPRESENTATION_CLASS",
-            "indun_list_viewer_STATUS_SELET_REPRESENTATION_CLASS")
+        g.setup_hook_and_event(addon, "APPS_TRY_MOVE_BARRACK", "indun_list_viewer_get_raid_count", true)
+        g.setup_hook_and_event(addon, "APPS_TRY_LOGOUT", "indun_list_viewer_get_raid_count", true)
+        g.setup_hook_and_event(addon, "APPS_TRY_EXIT", "indun_list_viewer_get_raid_count", true)
+        g.setup_hook_and_event(addon, "STATUS_SELET_REPRESENTATION_CLASS",
+            "indun_list_viewer_STATUS_SELET_REPRESENTATION_CLASS", true)
 
+    end
+    if g.load then
+        addon:RegisterMsg('GAME_START_3SEC', "indun_list_viewer_delete_character")
     end
 end
 
+function indun_list_viewer_delete_character()
+
+    local acc_info = session.barrack.GetMyAccount()
+    local barrack_cnt = acc_info:GetBarrackPCCount()
+
+    local barrack_names = {}
+    for i = 0, barrack_cnt - 1 do
+        local pc_info = acc_info:GetBarrackPCByIndex(i)
+        local pc_name = pc_info:GetName()
+        table.insert(barrack_names, pc_name)
+    end
+
+    local remove_keys = {}
+
+    if g.settings then
+        for set_key, data_val in pairs(g.settings) do
+
+            local is_char_data = false
+            if type(data_val) == "table" and data_val.pc_name then
+                is_char_data = true
+            end
+
+            if is_char_data then
+
+                local found_barrack = false
+                if barrack_names and #barrack_names > 0 then
+                    for _, name_barrack in ipairs(barrack_names) do
+                        if set_key == name_barrack then
+                            found_barrack = true
+                            break
+                        end
+                    end
+                end
+
+                if not found_barrack then
+
+                    table.insert(remove_keys, set_key)
+
+                end
+
+            end
+        end
+
+        if #remove_keys > 0 then
+
+            for _, key_del in ipairs(remove_keys) do
+
+                g.settings[key_del] = nil
+            end
+        end
+    end
+
+    indun_list_viewer_save_settings()
+end
+
 function indun_list_viewer_get_raid_count()
-    -- CHAT_SYSTEM("TEST")
+
     local function create_data()
         local data = {
             R_H = GET_CURRENT_ENTERANCE_COUNT(GetClassByType("Indun", 718).PlayPerResetType),
@@ -331,41 +576,6 @@ function indun_list_viewer_get_raid_count()
     indun_list_viewer_save_settings()
 end
 
-function indun_list_viewer_get_reset_time()
-    local now = os.time()
-    local date_table = os.date("*t", now)
-    local current_day = date_table.wday
-    local next_monday_timestamp
-
-    if current_day == 2 and date_table.hour < 6 then
-        next_monday_timestamp = os.time({
-            year = date_table.year,
-            month = date_table.month,
-            day = date_table.day,
-            hour = 6,
-            min = 0,
-            sec = 0
-        })
-    else
-        local days_to_next_monday = (9 - current_day) % 7
-        if days_to_next_monday == 0 then
-            days_to_next_monday = 7 -- 次週の月曜日に設定
-        end
-
-        local next_monday_date = os.date("*t", now + days_to_next_monday * 86400)
-        next_monday_timestamp = os.time({
-            year = next_monday_date.year,
-            month = next_monday_date.month,
-            day = next_monday_date.day,
-            hour = 6,
-            min = 0,
-            sec = 0
-        })
-    end
-
-    return next_monday_timestamp
-end
-
 local check_table = {"Redania_H", "Neringa_H", "Golem_H", "Merregina_H", "Slogutis_H", "Upinis_H", "Redania_S",
                      "Neringa_S", "Golem_S", "Merregina_S", "Slogutis_S", "Upinis_S", "Memo"}
 
@@ -379,7 +589,7 @@ function indun_list_viewer_frame_init()
 
     local open_button = frame:CreateOrGetControl('button', 'open_button', 0, 0, 35, 35)
     open_button:SetSkinName("None")
-    open_button:SetText("{img sysmenu_sys 35 35}")
+    open_button:SetText("{img sysmenu_qu 35 35}")
     open_button:SetEventScript(ui.LBUTTONDOWN, "indun_list_viewer_title_frame_open")
 
     if g.lang == "Japanese" then
@@ -406,7 +616,7 @@ end
 function indun_list_viewer_title_frame_open()
 
     indun_list_viewer_get_raid_count()
-    local frame = ui.CreateNewFrame("notice_on_pc", addonNameLower .. "list_frame", 0, 0, 10, 10)
+    local frame = ui.CreateNewFrame("notice_on_pc", addon_name_lower .. "list_frame", 0, 0, 10, 10)
     AUTO_CAST(frame)
     frame:RemoveAllChild()
     frame:SetLayerLevel(99);
@@ -423,7 +633,8 @@ function indun_list_viewer_title_frame_open()
             mode_text = "チェックを入れるとスクロールモードに切替",
             display_text = "チェックしたキャラはレイド回数非表示",
             memo = "メモ",
-            display = "表示"
+            display = "表示",
+            hidden = "チェックを入れると非表示キャラを表示しません"
         },
         etc = {
             charcter_name = "CharacterName",
@@ -433,7 +644,8 @@ function indun_list_viewer_title_frame_open()
             mode_text = "Switch to scroll mode when checked",
             display_text = "Checked characters hide raid count",
             memo = "Memo",
-            display = "Disp"
+            display = "Disp",
+            hidden = "If checked, do not show hidden characters"
         }
     }
 
@@ -526,7 +738,7 @@ function indun_list_viewer_title_frame_open()
 
     function indun_list_viewer_config(frame, ctrl, str, num)
 
-        local frame = ui.GetFrame(addonNameLower .. "list_frame")
+        local frame = ui.GetFrame(addon_name_lower .. "list_frame")
         frame:RemoveAllChild()
         local config_gb = frame:CreateOrGetControl("groupbox", "config_gb", 10, 35, 10, 10)
         AUTO_CAST(config_gb)
@@ -586,7 +798,7 @@ function indun_list_viewer_title_frame_open()
         end
 
         for i = 1, #check_table do
-            -- print(tostring(check_table[i]))
+
             if g.settings[tostring(check_table[i])] == nil then
                 g.settings[tostring(check_table[i])] = 1
             end
@@ -637,6 +849,17 @@ function indun_list_viewer_title_frame_open()
     mode_check:SetEventScript(ui.LBUTTONUP, "indun_list_viewer_modechange")
     mode_check:SetTextTooltip("{ol}" .. select_texts.mode_text)
 
+    local hidden = title_gb:CreateOrGetControl('checkbox', 'hidden', 150, 5, 30, 30)
+    AUTO_CAST(hidden)
+    if not g.settings.hidden then
+        g.settings.hidden = 0
+        indun_list_viewer_save_settings()
+    end
+    hidden:SetCheck(g.settings.hidden)
+
+    hidden:SetEventScript(ui.LBUTTONUP, "indun_list_viewer_modechange")
+    hidden:SetTextTooltip("{ol}" .. select_texts.hidden)
+
     if g.settings[tostring(check_table[#check_table])] == 1 then
         local memo_text = title_gb:CreateOrGetControl("richtext", "memo_text", x, 10)
         AUTO_CAST(memo_text)
@@ -659,7 +882,7 @@ end
 
 function indun_list_viewer_close(frame, ctrl, str, num)
 
-    local frame = ui.GetFrame(addonNameLower .. "list_frame")
+    local frame = ui.GetFrame(addon_name_lower .. "list_frame")
     frame:ShowWindow(0)
 
     if num == 1 then
@@ -676,8 +899,24 @@ function indun_list_viewer_frame_open(frame)
     AUTO_CAST(gb)
     gb:SetSkinName("bg")
 
-    local y = 10
+    local sorted_new_settings = {}
     for _, data in ipairs(g.sorted_settings) do
+        if type(data) == "table" then
+            if g.settings.hidden == 1 then
+                local hidden = data.hide
+                if not hidden then
+                    table.insert(sorted_new_settings, data)
+                end
+            else
+                table.insert(sorted_new_settings, data)
+            end
+        end
+    end
+
+    local y = 10
+    g.x = 0
+
+    for _, data in ipairs(sorted_new_settings) do
         local x = 35
         if type(data) == "table" then
             local pc_name = data.pc_name
@@ -694,9 +933,11 @@ function indun_list_viewer_frame_open(frame)
 
             local i = 1
             local index = 0
+
             if not data.hide then
                 local raid_count = data["raid_count"]
                 local auto_clear_count = data["auto_clear_count"]
+
                 if g.settings[tostring(check_table[i])] == 1 then
 
                     x = index == 0 and x + 140 or x + 30
@@ -914,15 +1155,32 @@ function indun_list_viewer_frame_open(frame)
                     memo:SetText(memoData)
 
                     x = x + 180
+
                 end
+
+            end
+            if not g.x then
+                g.x = x
+            elseif x > g.x then
                 g.x = x
             end
-
             i = i + 1
+            y = y + 25
+        end
+    end
+
+    local y = 10
+    for _, data in ipairs(sorted_new_settings) do
+
+        if type(data) == "table" then
+            local pc_name = data.pc_name
+
             local line = gb:CreateOrGetControl("labelline", "line" .. pc_name, 25, y + 20, g.x + 10, 1)
+
             line:SetSkinName("labelline_def_3")
 
             local display = gb:CreateOrGetControl('checkbox', 'display' .. pc_name, g.x + 50, y - 5, 25, 25) -- 865
+
             AUTO_CAST(display)
             display:SetEventScript(ui.LBUTTONUP, "indun_list_viewer_display_save")
             display:SetEventScriptArgString(ui.LBUTTONUP, pc_name)
@@ -932,8 +1190,8 @@ function indun_list_viewer_frame_open(frame)
             end
             display:SetCheck(check)
 
-            y = y + 25
         end
+        y = y + 25
     end
 
     if g.settings.display_mode == "full" then
@@ -942,8 +1200,14 @@ function indun_list_viewer_frame_open(frame)
         title_gb:Resize(frame:GetWidth() - 20, 55)
 
     else
-        frame:Resize(g.x + 40 + 80, 545)
-        gb:Resize(frame:GetWidth() - 20, 500)
+        if y < 545 then
+            frame:Resize(g.x + 40 + 80, y + 50)
+            gb:Resize(frame:GetWidth() - 20, frame:GetHeight() - 45)
+        else
+            frame:Resize(g.x + 40 + 80, 545)
+            gb:Resize(frame:GetWidth() - 20, 500)
+        end
+
         gb:EnableScrollBar(1);
         gb:EnableDrawFrame(1);
         gb:SetScrollPos(0)
@@ -1119,19 +1383,29 @@ function indun_list_viewer_INSTANTCC_DO_CC(frame, ctrl, cid, layer)
 end
 
 function indun_list_viewer_modechange(frame, ctrl, argStr, argNum)
-
+    -- hidden
+    local ctrl_name = ctrl:GetName()
     local ischeck = ctrl:IsChecked()
-    if ischeck == 1 then
-        g.settings.display_mode = "slide"
+    if ctrl_name == "hidden" then
+        if ischeck == 1 then
+            g.settings.hidden = 1
+        else
+            g.settings.hidden = 0
+        end
     else
-        g.settings.display_mode = "full"
+        if ischeck == 1 then
+            g.settings.display_mode = "slide"
+        else
+            g.settings.display_mode = "full"
+        end
     end
+
     indun_list_viewer_save_settings()
     indun_list_viewer_title_frame_open()
 end
 
-function indun_list_viewer_STATUS_SELET_REPRESENTATION_CLASS(frame, msg)
-    local select_index, select_key = acutil.getEventArgs(msg)
+function indun_list_viewer_STATUS_SELET_REPRESENTATION_CLASS(my_frame, my_msg)
+    local select_index, select_key = g.get_event_args(my_msg)
 
     local main_session = session.GetMainSession();
     local pc_job_info = main_session:GetPCJobInfo();
@@ -1141,6 +1415,7 @@ function indun_list_viewer_STATUS_SELET_REPRESENTATION_CLASS(frame, msg)
         local job_info = pc_job_info:GetJobInfoByIndex(i);
         g.settings[g.login_name].jobid = g.settings[g.login_name].jobid .. "/" .. job_info.jobID
     end
+
     g.settings[g.login_name].president_jobid = select_key
     indun_list_viewer_save_settings()
 end
@@ -1158,7 +1433,7 @@ function indun_list_viewer_enter_context(frame, ctrl, str, num)
 end
 
 function indun_list_viewer_enter_solo(induntype)
-    local frame = ui.GetFrame(addonNameLower .. "list_frame")
+    local frame = ui.GetFrame(addon_name_lower .. "list_frame")
     frame:ShowWindow(0)
 
     ReqRaidAutoUIOpen(induntype)
@@ -1166,7 +1441,7 @@ function indun_list_viewer_enter_solo(induntype)
 end
 
 function indun_list_viewer_enter_auto(induntype)
-    local frame = ui.GetFrame(addonNameLower .. "list_frame")
+    local frame = ui.GetFrame(addon_name_lower .. "list_frame")
     frame:ShowWindow(0)
 
     ReqRaidAutoUIOpen(induntype)
@@ -1187,7 +1462,7 @@ function indun_list_viewer_enter_auto(induntype)
 end
 
 function indun_list_viewer_INDUNINFO_SET_BUTTONS(induntype, ctrl)
-    local frame = ui.GetFrame(addonNameLower .. "list_frame")
+    local frame = ui.GetFrame(addon_name_lower .. "list_frame")
     local indunCls = GetClassByType('Indun', induntype)
     local dungeonType = TryGetProp(indunCls, "DungeonType", "None")
     local btnInfoCls = GetClassByStrProp("IndunInfoButton", "DungeonType", dungeonType)
@@ -1202,7 +1477,7 @@ function indun_list_viewer_INDUNINFO_SET_BUTTONS(induntype, ctrl)
 end
 
 function indun_list_viewer_enter_hard(frame, ctrl, str, induntype)
-    local frame = ui.GetFrame(addonNameLower .. "list_frame")
+    local frame = ui.GetFrame(addon_name_lower .. "list_frame")
     local indunCls = GetClassByType("Indun", induntype)
     if str == "false" then
         indun_list_viewer_INDUNINFO_SET_BUTTONS(induntype, ctrl)
