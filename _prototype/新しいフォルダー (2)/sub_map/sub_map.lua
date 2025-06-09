@@ -1,8 +1,9 @@
 -- v1.0.1 チャレンジのボスの位置の取り方変更。その他色々修正
+-- v1.0.2 チャレンジの他キャラの位置の取り方変更。その他色々修正。
 local addon_name = "SUB_MAP"
 local addon_name_lower = string.lower(addon_name)
 local author = "norisan"
-local ver = "1.0.1"
+local ver = "1.0.2"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -120,10 +121,12 @@ function SUB_MAP_ON_INIT(addon, frame)
     end
     local end_time = os.clock() -- ★処理終了後の時刻を記録★
     local elapsed_time = end_time - start_time
-    CHAT_SYSTEM(string.format("%s: %.4f seconds", addon_name, elapsed_time))
+    -- CHAT_SYSTEM(string.format("%s: %.4f seconds", addon_name, elapsed_time))
 end
 
-function sub_map_frame_init(frame)
+function sub_map_frame_init(frame, msg)
+
+    local frame = ui.GetFrame("sub_map")
 
     if g.try == 0 then
         frame:RunUpdateScript("sub_map_frame_init", 2.0)
@@ -153,6 +156,7 @@ function sub_map_frame_init(frame)
     g.icon_size = g.size * 0.08
 
     local frame = ui.GetFrame("sub_map")
+
     frame:RemoveAllChild()
 
     frame:EnableMove(g.settings.move)
@@ -168,7 +172,9 @@ function sub_map_frame_init(frame)
     local width = map_frame:GetWidth()
 
     local x = g.settings.x
-    if width <= 1920 and x > 1920 then
+    if msg == "restore" then
+        x = 1200
+    elseif width <= 1920 and x > 1920 then
         x = g.settings.x / 21 * 16
     end
 
@@ -198,6 +204,7 @@ function sub_map_frame_init(frame)
         display:SetImage("btn_plus")
         frame:Resize(g.size + 10, 40)
         frame:ShowWindow(1)
+
         return
     end
 
@@ -242,15 +249,9 @@ function sub_map_frame_init(frame)
     g.addon:RegisterMsg("MON_MINIMAP", "sub_map_MAP_MON_MINIMAP")
     g.addon:RegisterMsg('MON_MINIMAP_END', 'sub_map_ON_MON_MINIMAP_END');
 
-    g.addon:RegisterMsg("PARTY_INST_UPDATE", "sub_map_MAP_UPDATE_PARTY_INST")
-    g.addon:RegisterMsg("PARTY_UPDATE", "sub_map_ipdate_party_or_guild")
-    g.addon:RegisterMsg("GUILD_INFO_UPDATE", "sub_map_ipdate_party_or_guild")
-
     g.handles = {}
 
     if MAP_USE_FOG(map_name) ~= 0 then
-        -- g.fogs = {}
-        -- g.fog_get = false
         g.addon:RegisterMsg("FPS_UPDATE", "sub_map_draw_fog")
     end
 
@@ -258,16 +259,25 @@ function sub_map_frame_init(frame)
         display:ShowWindow(0)
         sub_map_change_minimap_mode(frame, "challenge")
         g.challenge_count = 0
+        -- frame:RunUpdateScript("sub_map_callenge_pcicon_update", 1.0)
         g.addon:RegisterMsg("FPS_UPDATE", "sub_map_callenge_pcicon_update")
         return
     elseif g.settings.mini_map then
         display:ShowWindow(0)
         local minimap = ui.GetFrame("minimap")
         minimap:ShowWindow(0)
+
         sub_map_change_minimap_mode(frame)
     else
+        local frame = ui.GetFrame("sub_map")
+
         frame:ShowWindow(1)
+        frame:SetPos(x, g.settings.y)
     end
+
+    g.addon:RegisterMsg("PARTY_INST_UPDATE", "sub_map_MAP_UPDATE_PARTY_INST")
+    g.addon:RegisterMsg("PARTY_UPDATE", "sub_map_ipdate_party_or_guild")
+    g.addon:RegisterMsg("GUILD_INFO_UPDATE", "sub_map_ipdate_party_or_guild")
 
     g.icons = {}
     g.addon:RegisterMsg("FPS_UPDATE", "sub_map_update_remove_member")
@@ -275,124 +285,100 @@ end
 
 function sub_map_callenge_pcicon_update(frame, msg, str, num)
 
+    local minimap = ui.GetFrame("minimap")
+    if minimap:IsVisible() == 1 then
+        minimap:ShowWindow(0)
+    end
+
     local frame = ui.GetFrame("sub_map")
     local gbox = GET_CHILD(frame, "gbox")
 
-    local aids = {}
-
+    local names = {}
     for i = 0, gbox:GetChildCount() - 1 do
         local child = gbox:GetChildByIndex(i)
-        if child then
+        if child and child:GetName() ~= "map_pic" and child:GetName() ~= "my" then
             local aid = tonumber(child:GetName())
             if aid then
-                aids[tostring(aid)] = true
+                gbox:RemoveChild(child:GetName())
             end
+            names[child:GetName()] = true
         end
     end
 
     gbox:SetEventScript(ui.MOUSEON, "None")
-<<<<<<< HEAD
-
-    local start_frame = ui.GetFrame("skill_notice_freestart_frame")
-    if start_frame then
-        AUTO_CAST(start_frame)
-        start_frame:SetLayerLevel(78)
-    end
-
-    function sub_map_time_update(frame)
-        local server_time = geTime.GetServerSystemTime()
-        local hour = server_time.wHour
-        local min = server_time.wMinute
-
-        local ampm = "AM"
-        local display_hour = hour
-
-        if hour == 0 then -- 0時を12時AMにする
-            display_hour = 12
-            ampm = "AM"
-        elseif hour == 12 then -- 12時を12時PMにする
-            display_hour = 12
-            ampm = "PM"
-        elseif hour > 12 then -- 午後
-            display_hour = hour - 12
-            ampm = "PM"
-        end
-
-        local display_min = string.format("%02d", min) -- 分を2桁表示にする
-
-        local clock_text = string.format("{ol}{s18}%s %d:%s", ampm, display_hour, display_min)
-
-        local clock = frame:CreateOrGetControl("richtext", "clock", 0, 0)
-        AUTO_CAST(clock)
-        clock:SetGravity(ui.RIGHT, ui.BOTTOM)
-        clock:SetMargin(0, 0, 10, 5)
-        clock:SetText(clock_text)
-    end
-
-    local timer = frame:CreateOrGetControl("timer", "addontimer", 0, 0)
-    AUTO_CAST(timer)
-    timer:Stop()
-    timer:SetUpdateScript("sub_map_time_update")
-    timer:Start(1.0)
-end
---- 
-
-function sub_map_set_pcicon_update(frame, msg, str, num, info)
-
-    local frame = ui.GetFrame("sub_map")
-
-    sub_map_change_minimap_mode(frame, msg)
-
-    local gbox = GET_CHILD(frame, "gbox")
-    gbox:SetEventScript(ui.MOUSEON, "None")
-    local map_pic = frame:GetChildRecursively("map_pic")
-
+    local map_pic = GET_CHILD(gbox, "map_pic")
     local mapprop = session.GetCurrentMapProp()
     local party_list = session.party.GetPartyMemberList(PARTY_NORMAL)
     local party_count = party_list:Count()
     local my_info = session.party.GetMyPartyObj(PARTY_NORMAL)
+    local my_handle = session.GetMyHandle()
 
-    for i = 0, party_count - 1 do
-        local pc_info = party_list:Element(i)
-        local aid = pc_info:GetAID()
-        if my_info ~= pc_info then
+    local selected_objects, selected_objects_count = SelectObject(GetMyPCObject(), 5000, "ALL")
 
-            aids[aid] = false
-            local inst_info = pc_info:GetInst()
-            local worldPos = inst_info:GetPos()
-            local hp = inst_info.hp
+    for i = 1, selected_objects_count do
+        local handle = GetHandle(selected_objects[i])
 
-            local pc_icon = GET_CHILD(gbox, aid)
-            if not pc_icon then
-                pc_icon = gbox:CreateOrGetControl("picture", aid, 0, 0, g.icon_size, g.icon_size)
+        if handle and my_handle ~= handle and info.IsPC(handle) == 1 then
+            for j = 0, party_count - 1 do
+                local pc_info = party_list:Element(j)
+                local name = pc_info:GetName();
+                local actor = world.GetActor(handle)
+                if not actor then
+                    -- print("actor: " .. tostring(actor))
+                    return
+                end
+                local apc = actor:GetPCApc();
+                if not apc then
+                    -- print("apc: " .. tostring(apc))
+                    return
+                end
+                local actor_name = apc:GetFamilyName()
+
+                if my_info ~= pc_info and name == actor_name then
+                    names[name] = false
+                    local inst_info = pc_info:GetInst()
+                    local worldPos = actor:GetPos()
+                    local hp = inst_info.hp
+
+                    local pc_icon = GET_CHILD(gbox, name)
+                    if not pc_icon then
+                        pc_icon = gbox:CreateOrGetControl("picture", name, 0, 0, g.icon_size * 1.25, g.icon_size * 1.25)
+                    end
+                    AUTO_CAST(pc_icon)
+                    pc_icon:SetTextTooltip("{ol}{s10}" .. name)
+                    pc_icon:SetEnableStretch(1)
+
+                    local pos = mapprop:WorldPosToMinimapPos(worldPos, map_pic:GetWidth(), map_pic:GetHeight())
+
+                    local x = (pos.x - g.icon_size * 1.25 / 2)
+                    local y = (pos.y - g.icon_size * 1.25 / 2)
+
+                    pc_icon:SetPos(x, y)
+                    pc_icon:ShowWindow(1)
+
+                    local image_name = 'Archer_party'
+                    if hp <= 0 then
+                        image_name = 'die_party'
+                    end
+                    pc_icon:SetImage(image_name)
+                    break
+                end
             end
-            AUTO_CAST(pc_icon)
-            pc_icon:SetTextTooltip("{ol}{s10}" .. pc_info:GetName())
-            pc_icon:SetEnableStretch(1)
-
-            local pos = mapprop:WorldPosToMinimapPos(worldPos, map_pic:GetWidth(), map_pic:GetHeight())
-
-            local x = (pos.x - g.icon_size / 2)
-            local y = (pos.y - g.icon_size / 2)
-
-            pc_icon:SetPos(x, y)
-            pc_icon:ShowWindow(1)
-
-            local image_name = 'Archer_party'
-            if hp <= 0 then
-                image_name = 'die_party'
-            end
-            pc_icon:SetImage(image_name)
         end
     end
 
-    for aid, remove in pairs(aids) do
-        if remove == true then
-            gbox:RemoveChild(aid)
+    for check_name, bool in pairs(names) do
+        if bool == true and not string.find(check_name, "_MONPOS_") and not string.find(check_name, "SCR") then
+            local icon = GET_CHILD(gbox, check_name)
+            if icon then
+                -- print(tostring(check_name))
+                gbox:RemoveChild(check_name)
+            end
         end
     end
 
-    -- sub_map_MAP_UPDATE_PARTY_INST(frame, msg, str, PARTY_NORMAL)
+    return 1
+
 end
 
 function sub_map_ipdate_party_or_guild(frame, msg, arg, num, info)
@@ -407,71 +393,6 @@ function sub_map_ipdate_party_or_guild(frame, msg, arg, num, info)
         return
     end
 
-
-    local my_handle = session.GetMyHandle()
-    local selected_objects, selected_objects_count = SelectObject(GetMyPCObject(), 1000, "ALL")
-
-    for i = 1, selected_objects_count do
-
-        local handle = GetHandle(selected_objects[i])
-        if handle and info.IsPC(handle) == 1 then
-            local actor = world.GetActor(handle)
-
-            for j = 0, count - 1 do
-                local pc_info = list:Element(j)
-                if my_handle ~= handle and handle ~= 0 then
-                    local instInfo = pc_info:GetInst()
-                    local worldPos = actor:GetPos()
-                    local pos = mapprop:WorldPosToMinimapPos(worldPos, map_pic:GetWidth(), map_pic:GetHeight())
-                    local x = (pos.x - g.icon_size / 2)
-                    local y = (pos.y - g.icon_size / 2)
-                    local icon = GET_CHILD_RECURSIVELY(gbox, "pm_" .. handle)
-
-                    if icon then
-                        AUTO_CAST(icon)
-                        icon:SetTextTooltip("{ol}{s10}" .. pc_info:GetName())
-                        icon:SetEnableStretch(1)
-                    else
-                        icon = gbox:CreateOrGetControl("picture", "pm_" .. handle, x, y, g.icon_size, g.icon_size)
-                        AUTO_CAST(icon)
-                        icon:SetTextTooltip("{ol}{s10}" .. pc_info:GetName())
-                        icon:SetEnableStretch(1)
-                    end
-                    icon:SetPos(x, y)
-                    local pcinfo_hp = instInfo.hp
-                    if pcinfo_hp > 0 then
-                        icon:SetImage("Archer_party")
-                    else
-                        icon:SetImage("die_party")
-                    end
-                end
-            end
-        end
-    end
-    gbox:Invalidate()
-end
-
---[[function sub_map_set_pcicon_update(frame, msg, str, num, info)
-
-    local frame = ui.GetFrame("sub_map")
-
-    sub_map_change_minimap_mode(frame, msg)
-
-    local gbox = GET_CHILD(frame, "gbox")
-    gbox:SetEventScript(ui.MOUSEON, "None")
-    local map_pic = frame:GetChildRecursively("map_pic")
-    local mapprop = session.GetCurrentMapProp()
-
-    local list = session.party.GetPartyMemberList(PARTY_NORMAL)
-    local count = list:Count()
-
-    if count == 1 then
-        sub_map_DESTROY_CHILD_BYNAME(gbox, "pm_")
-        return
-    end
-
-    local my_handle = session.GetMyHandle()
-=======
     local my_info = session.party.GetMyPartyObj(party_type)
     if not my_info then
         return
@@ -479,7 +400,6 @@ end
 
     local frame = ui.GetFrame('sub_map')
     local mapprop = session.GetCurrentMapProp()
->>>>>>> 7e9382280df7e8e4efbac0673855255b562fe1f5
 
     for i = 0, count - 1 do
         local pc_info = list:Element(i)
@@ -613,12 +533,7 @@ function sub_map_MAP_UPDATE_PARTY_INST(frame, msg, str, party_type)
             end
         end
     end
-<<<<<<< HEAD
-    gbox:Invalidate()
-end]]
-=======
 end
->>>>>>> 7e9382280df7e8e4efbac0673855255b562fe1f5
 
 function sub_map_frame_toggle(frame, ctrl)
 
@@ -683,7 +598,7 @@ function sub_map_config(frame, ctrl, str)
             local minimap = ui.GetFrame("minimap")
             minimap:ShowWindow(1)
             g.settings.mini_map = false
-            sub_map_frame_init()
+            sub_map_frame_init(frame, "restore")
         end
         g.save_settings()
         return
@@ -817,7 +732,7 @@ function sub_map_mapicon_update(frame, msg, str, num)
             local item_name = GetClass("Item", item_split[2]).Name
 
             local icon = gbox:CreateOrGetControl("picture", "icon_" .. i, g.icon_size, g.icon_size, ui.LEFT, ui.TOP, 0,
-                                                 0, 0, 0)
+                0, 0, 0)
             AUTO_CAST(icon)
 
             icon:SetTextTooltip("{ol}{s10}" .. data.argstr1 .. "{nl}" .. item_name)
@@ -837,7 +752,7 @@ function sub_map_mapicon_update(frame, msg, str, num)
             string.find(data.class_type, "npc_orsha_goddess") or string.find(data.class_type, "statue_zemina") then
 
             local icon = gbox:CreateOrGetControl("picture", "icon_" .. i, g.icon_size, g.icon_size, ui.LEFT, ui.TOP, 0,
-                                                 0, 0, 0)
+                0, 0, 0)
             AUTO_CAST(icon)
             icon:SetTextTooltip("{ol}{s10}" .. data.name)
             icon:SetImage(data.icon_name)
@@ -885,7 +800,7 @@ function sub_map_set_warp_point(frame, map_name)
 
                     local mappos = mapprop:WorldPosToMinimapPos(pos.x, pos.z, map_pic:GetWidth(), map_pic:GetHeight())
                     local icon = gbox:CreateOrGetControl("picture", "icon_" .. cls_name, g.icon_size, g.icon_size,
-                                                         ui.LEFT, ui.TOP, 0, 0, 0, 0)
+                        ui.LEFT, ui.TOP, 0, 0, 0, 0)
                     AUTO_CAST(icon)
                     local map_cls = GetClass("Map", cls_name)
                     icon:SetTextTooltip("{ol}{s10}" .. map_cls.Name)
@@ -1064,7 +979,7 @@ function sub_map_change_minimap_mode(frame, msg)
     frame:SetSkinName("chat_window")
     frame:EnableMove(0)
     frame:SetAlpha(100)
-    frame:SetLayerLevel(79)
+    frame:SetLayerLevel(80) ---
     frame:SetEventScript(ui.LBUTTONUP, "None")
 
     if msg then

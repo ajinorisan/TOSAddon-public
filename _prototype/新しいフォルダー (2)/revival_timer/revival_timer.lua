@@ -4,10 +4,14 @@
 -- v1.0.3 PTチャットの英語修正。はずい。左ALTで隠すように。
 -- v1.0.4 使用文字バグ修正したはず。なんでなってたかも良くワカラン
 -- v1.0.5 ウルトラワイド対応
+-- v1.0.6 アドオンボタン回り修正。ショートカットのON/OFF。rtimer内のPTチャットをNICOチャットで表示。
+-- v1.0.7 WithPTChatバグ修正
+-- v1.0.8 ニコチャット絨毯爆撃バグ修正
+-- v1.0.9 [Wサーバー]とかの文字を名前から外す処理追加
 local addon_name = "REVIVAL_TIMER"
 local addon_name_lower = string.lower(addon_name)
 local author = "norisan"
-local ver = "1.0.5"
+local ver = "1.0.9"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -16,7 +20,6 @@ local g = _G["ADDONS"][author][addon_name]
 
 g.settings_file_path = string.format('../addons/%s/settings.json', addon_name_lower)
 
-local acutil = require("acutil")
 local json = require('json')
 local os = require("os")
 
@@ -151,6 +154,8 @@ function REVIVAL_TIMER_ON_INIT(addon, frame)
         addon:RegisterMsg("GAME_START", "norisan_menu_create_frame")
     end
 
+    g.chat_check = {}
+
     addon:RegisterMsg("GAME_START_3SEC", "revival_timer_frame_init")
     g.setup_hook_and_event(addon, "UI_CHAT", "revival_timer_UI_CHAT", false)
 end
@@ -162,16 +167,15 @@ function revival_timer_UI_CHAT(my_fram, my_msg)
 
     if found_rtimer then
 
-        local frame = ui.GetFrame(addon_name_lower .. "show_timer")
+        local show_timer = ui.GetFrame(addon_name_lower .. "show_timer")
 
-        if frame and frame:IsVisible() == 1 then
-            frame:StopUpdateScript("revival_timer_timer_update");
-            frame:ShowWindow(0)
-        else
-            local frame = ui.CreateNewFrame("notice_on_pc", addon_name_lower .. "show_timer", 0, 0, 0, 0)
-            AUTO_CAST(frame)
-            frame:ShowWindow(1)
-            frame:StopUpdateScript("revival_timer_timer_update");
+        if show_timer and show_timer:IsVisible() == 1 then
+            show_timer:StopUpdateScript("revival_timer_timer_update");
+            show_timer:ShowWindow(0)
+        elseif show_timer and show_timer:IsVisible() == 0 then
+
+            show_timer:ShowWindow(1)
+            show_timer:StopUpdateScript("revival_timer_timer_update");
             revival_timer_show_timer()
         end
         return
@@ -210,7 +214,7 @@ function revival_timer_DRAW_CHAT_MSG(my_frame, my_msg)
 
         local chat_id = clusterinfo:GetMsgInfoID()
 
-        if not g.chat_check[chat_id] ~= true then
+        if not g.chat_check[chat_id] then
             g.chat_check[chat_id] = true
         end
 
@@ -222,6 +226,7 @@ function revival_timer_DRAW_CHAT_MSG(my_frame, my_msg)
         end
         local msg = chat:GetMsg()
         local name = chat:GetCommanderName()
+        name = name:gsub(" %[(.-)%]", "")
         local my_name = GETMYFAMILYNAME()
         if name == my_name then
             return
@@ -243,16 +248,67 @@ end
 
 function revival_timer_frame_init()
 
+    g.last_toggle_time = 0
     g.last_rtimer_proc_time = 0
     g.rtimer_cooldown = 3.0
     g.setup_hook_and_event(g.addon, "DRAW_CHAT_MSG", "revival_timer_DRAW_CHAT_MSG", true)
+
+    revival_timer_timer_frame_init()
 
     if g.settings.short_cut then
         local sysmenu = ui.GetFrame("sysmenu")
         if sysmenu then
             sysmenu:ShowWindow(1)
-            sysmenu:RunUpdateScript("revival_timer_start", 0.1)
+            sysmenu:RunUpdateScript("revival_timer_start", 0.01)
         end
+    end
+end
+
+function revival_timer_timer_frame_init(frame)
+
+    local show_timer = ui.CreateNewFrame("notice_on_pc", addon_name_lower .. "show_timer", 0, 0, 0, 0)
+    AUTO_CAST(show_timer)
+    show_timer:SetPos(g.settings.X, g.settings.Y)
+    show_timer:SetSkinName("chat_window")
+    show_timer:SetLayerLevel(61)
+    show_timer:Resize(160, 150)
+    show_timer:EnableHittestFrame(1)
+    show_timer:EnableMove(1)
+    show_timer:SetEventScript(ui.LBUTTONUP, "revival_timer_end_drag")
+
+    local show_timer_gb = show_timer:CreateOrGetControl("groupbox", "buffgb", 0, 30, 150, 120)
+    AUTO_CAST(show_timer_gb)
+    show_timer_gb:RemoveAllChild()
+    show_timer_gb:SetSkinName("chat_window")
+
+    local close_button = show_timer:CreateOrGetControl("button", "close_button", 0, 0, 30, 30)
+    AUTO_CAST(close_button)
+    close_button:SetImage("testclose_button")
+    close_button:SetGravity(ui.RIGHT, ui.TOP)
+    close_button:SetEventScript(ui.LBUTTONUP, "revival_timer_frame_close");
+
+    local info_text = show_timer_gb:CreateOrGetControl('richtext', 'info_text', 10, 5, 50, 20)
+    AUTO_CAST(info_text)
+    info_text:SetText("{ol}{#FF0000}" .. g.settings.set_text)
+
+    local timer_text = show_timer_gb:CreateOrGetControl('richtext', 'timer_text', 15, 30, 50, 20)
+    AUTO_CAST(timer_text)
+    local m = math.floor((g.settings.set_second / 60) % 60)
+    local s = math.floor(g.settings.set_second % 60)
+    timer_text:SetText(string.format("{ol}{s46}%02d:%02d{/}", m, s))
+
+    local loop_timer_text = show_timer_gb:CreateOrGetControl('richtext', 'loop_timer_text', 10, 90, 50, 20)
+    AUTO_CAST(loop_timer_text)
+    local m = math.floor((g.settings.set_second / 60) % 60)
+    local s = math.floor(g.settings.set_second % 60)
+    loop_timer_text:SetText("{ol}Set Time : " .. string.format("%02d:%02d{/}", m, s))
+
+    show_timer:ShowWindow(0)
+    if frame then
+        show_timer:ShowWindow(1)
+        local setting_frame = ui.GetFrame(addon_name_lower .. "setting")
+        setting_frame:ShowWindow(0)
+        show_timer:RunUpdateScript("revival_timer_frame_close", 5.0)
     end
 end
 
@@ -295,54 +351,20 @@ function revival_timer_end_drag(frame, ctrl, str, num)
     g.save_json(g.settings_file_path, g.settings)
 end
 
-function revival_timer_show_timer(frame, ctrl, str, num)
+function revival_timer_show_timer()
 
-    local frame = ui.CreateNewFrame("notice_on_pc", addon_name_lower .. "show_timer", 0, 0, 0, 0)
-    AUTO_CAST(frame)
-    frame:SetPos(g.settings.X, g.settings.Y)
-    frame:SetSkinName("chat_window")
-    frame:SetLayerLevel(61)
-    frame:Resize(160, 150)
-    frame:EnableHittestFrame(1)
-    frame:EnableMove(1)
-    frame:SetEventScript(ui.LBUTTONUP, "revival_timer_end_drag")
+    local show_timer = ui.GetFrame(addon_name_lower .. "show_timer")
+    AUTO_CAST(show_timer)
 
-    local show_timer_gb = frame:CreateOrGetControl("groupbox", "buffgb", 0, 30, 150, 120)
-    AUTO_CAST(show_timer_gb)
-    show_timer_gb:RemoveAllChild()
-    show_timer_gb:SetSkinName("chat_window")
-
-    local close_button = frame:CreateOrGetControl("button", "close_button", 0, 0, 30, 30)
-    AUTO_CAST(close_button)
-    close_button:SetImage("testclose_button")
-    close_button:SetGravity(ui.RIGHT, ui.TOP)
-    close_button:SetEventScript(ui.LBUTTONUP, "revival_timer_frame_close");
-
-    local info_text = show_timer_gb:CreateOrGetControl('richtext', 'info_text', 10, 5, 50, 20)
-    AUTO_CAST(info_text)
-    info_text:SetText("{ol}{#FF0000}" .. g.settings.set_text)
-
-    local timer_text = show_timer_gb:CreateOrGetControl('richtext', 'timer_text', 15, 30, 50, 20)
+    g.start_seconds = g.settings.set_second
+    local timer_text = GET_CHILD_RECURSIVELY(show_timer, 'timer_text')
     AUTO_CAST(timer_text)
     local m = math.floor((g.settings.set_second / 60) % 60)
     local s = math.floor(g.settings.set_second % 60)
     timer_text:SetText(string.format("{ol}{s46}%02d:%02d{/}", m, s))
 
-    local loop_timer_text = show_timer_gb:CreateOrGetControl('richtext', 'loop_timer_text', 10, 90, 50, 20)
-    AUTO_CAST(loop_timer_text)
-    local m = math.floor((g.settings.set_second / 60) % 60)
-    local s = math.floor(g.settings.set_second % 60)
-    loop_timer_text:SetText("{ol}Set Time : " .. string.format("%02d:%02d{/}", m, s))
+    show_timer:RunUpdateScript("revival_timer_timer_update", 1.0)
 
-    g.start_seconds = g.settings.set_second
-    frame:RunUpdateScript("revival_timer_timer_update", 1.0)
-
-    frame:ShowWindow(1)
-    if str == "test" then
-        local setting_frame = ui.GetFrame(addon_name_lower .. "setting")
-        setting_frame:ShowWindow(0)
-        frame:RunUpdateScript("revival_timer_frame_close", 5.0)
-    end
 end
 
 function revival_timer_NICO_CHAT(msg)
@@ -380,7 +402,7 @@ function revival_timer_timer_update(frame)
     local timer_text = GET_CHILD_RECURSIVELY(frame, "timer_text")
 
     g.start_seconds = g.start_seconds - 1
-    if g.start_seconds >= 0 then
+    if g.start_seconds > 0 then
 
         local m = math.floor((g.start_seconds / 60) % 60)
         local s = math.floor(g.start_seconds % 60)
@@ -388,14 +410,22 @@ function revival_timer_timer_update(frame)
         timer_text:SetText(string.format("{ol}{s46}%02d:%02d{/}", m, s))
         if g.start_seconds <= 10.5 and g.start_seconds >= 9.5 then
 
+            local text =
+                string.gsub("/p " .. "[R Timer]" .. tostring(g.settings.set_text) .. " 10 sec rem.", "{ol}", "")
+
             if g.settings.with_ptchat then
-                ui.Chat("/p " .. "[R Timer]" .. tostring(g.settings.set_text) .. " 10 sec rem.")
+                UI_CHAT(text)
+                -- ui.Chat(text)
             end
             revival_timer_NICO_CHAT("{@st55_a}" .. g.settings.set_text .. " 10 sec rem.")
         elseif g.start_seconds <= 5.5 and g.start_seconds >= 4.5 then
 
+            local text = string.gsub("/p " .. "[R Timer]" .. tostring(g.settings.set_text) .. " 5 sec rem.", "{ol}", "")
+
             if g.settings.with_ptchat then
-                ui.Chat("/p " .. "[R Timer]" .. tostring(g.settings.set_text) .. " 5 sec rem.")
+
+                UI_CHAT(text)
+                -- ui.Chat(text)
             end
             imcSound.PlaySoundEvent('sys_tp_box_3')
             revival_timer_NICO_CHAT("{@st55_a}" .. g.settings.set_text .. " 5 sec rem.")
@@ -404,7 +434,7 @@ function revival_timer_timer_update(frame)
     else
 
         frame:StopUpdateScript("revival_timer_timer_update");
-        revival_timer_show_timer(frame, nil, nil, nil)
+        revival_timer_show_timer()
 
     end
 end
@@ -449,7 +479,7 @@ function revival_timer_setting(frame, ctrl, str, num)
     local show_timer = frame:CreateOrGetControl("button", "show_timer", 50, 210, 90, 30)
     AUTO_CAST(show_timer)
     show_timer:SetText("{ol}Test Show")
-    show_timer:SetEventScript(ui.LBUTTONUP, "revival_timer_show_timer");
+    show_timer:SetEventScript(ui.LBUTTONUP, "revival_timer_timer_frame_init");
     show_timer:SetEventScriptArgString(ui.LBUTTONUP, "test");
 
     local with_ptchat = frame:CreateOrGetControl('checkbox', "with_ptchat", 10, 100, 30, 30)
@@ -460,7 +490,7 @@ function revival_timer_setting(frame, ctrl, str, num)
 
     local ptchat_recv = frame:CreateOrGetControl('checkbox', "ptchat_recv", 10, 130, 30, 30)
     AUTO_CAST(ptchat_recv)
-    ptchat_recv:SetCheck(g.settings.with_ptchat and 1 or 0)
+    ptchat_recv:SetCheck(g.settings.ptchat_recv and 1 or 0)
     ptchat_recv:SetEventScript(ui.LBUTTONDOWN, 'revival_timer_checkbox_save')
     ptchat_recv:SetText("{ol}Receive PT chat{nl}display Nico chat")
 
@@ -493,6 +523,7 @@ function revival_timer_checkbox_save(frame, ctrl, str, num)
         if sysmenu then
             sysmenu:ShowWindow(1)
             if is_check == 1 then
+                sysmenu:StopUpdateScript("revival_timer_start")
                 sysmenu:RunUpdateScript("revival_timer_start", 0.01)
             else
                 sysmenu:StopUpdateScript("revival_timer_start")
@@ -503,29 +534,31 @@ end
 
 function revival_timer_start(frame)
 
+    local cool_down = 0.2
+    local now = os.clock()
+    if (now - g.last_toggle_time) < cool_down then
+        return 1
+    end
+
     local downKey = keyboard.GetDownKey();
     if downKey ~= nil then
 
         if downKey == "RALT" then
-            local frame = ui.GetFrame(addon_name_lower .. "show_timer")
 
-            if frame and frame:IsVisible() == 1 then
-                frame:StopUpdateScript("revival_timer_timer_update");
-                frame:ShowWindow(0)
-            else
+            local show_timer = ui.GetFrame(addon_name_lower .. "show_timer")
 
-                local frame = ui.CreateNewFrame("notice_on_pc", addon_name_lower .. "show_timer", 0, 0, 0, 0)
-                AUTO_CAST(frame)
-                frame:ShowWindow(1)
-                frame:StopUpdateScript("revival_timer_timer_update");
+            if show_timer and show_timer:IsVisible() == 1 then
+                show_timer:StopUpdateScript("revival_timer_timer_update");
+                show_timer:ShowWindow(0)
+            elseif show_timer and show_timer:IsVisible() == 0 then
+
+                show_timer:ShowWindow(1)
+                show_timer:StopUpdateScript("revival_timer_timer_update");
                 revival_timer_show_timer()
             end
 
-            --[[elseif downKey == "LALT" then
-            local frame = ui.CreateNewFrame("notice_on_pc", addon_name_lower .. "show_timer", 0, 0, 0, 0)
-            AUTO_CAST(frame)
-            frame:StopUpdateScript("revival_timer_timer_update");
-            frame:ShowWindow(0)]]
+            g.last_toggle_time = os.clock()
+
         end
     end
     return 1
