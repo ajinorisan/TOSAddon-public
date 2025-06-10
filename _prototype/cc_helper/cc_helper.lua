@@ -377,6 +377,109 @@ function cc_helper_tooltip()
     end
 end
 
+function cc_helper_cancel(frame, ctrl, skin)
+
+    ctrl:ClearIcon()
+    ctrl:RemoveAllChild()
+
+    local name = ctrl:GetName()
+
+    for key, value in pairs(g.settings[g.cid]) do
+        if name == key then
+
+            value.iesid = ""
+            value.clsid = 0
+            ctrl:SetSkinName(skin)
+
+            break
+        end
+    end
+
+    cc_helper_save_settings()
+end
+
+function cc_helper_slot_create(frame, eq_name, x, y, width, height, skin, text, clsid, iesid)
+
+    local slot = frame:CreateOrGetControl("slot", eq_name, x, y, width, height)
+    AUTO_CAST(slot)
+
+    slot:SetSkinName(skin)
+    slot:SetText(text)
+    slot:EnablePop(1)
+    slot:EnableDrag(1)
+    slot:EnableDrop(1)
+    slot:SetEventScript(ui.DROP, "cc_helper_frame_drop")
+    slot:SetEventScript(ui.RBUTTONDOWN, "cc_helper_cancel")
+    slot:SetEventScriptArgString(ui.RBUTTONDOWN, skin)
+    if eq_name == "ark" then
+        slot:SetEventScript(ui.MOUSEON, "cc_helper_tooltip")
+    end
+
+    if not string.find(eq_name, "gem") and clsid ~= 0 then
+        local item_cls = GetClassByType("Item", clsid)
+        local image = item_cls.Icon
+
+        SET_SLOT_ITEM_CLS(slot, item_cls);
+        SET_SLOT_IMG(slot, image)
+        SET_SLOT_IESID(slot, iesid);
+        if eq_name ~= "leg" and eq_name ~= "god" then
+            SET_SLOT_BG_BY_ITEMGRADE(slot, item_cls)
+        end
+
+        local icon = slot:GetIcon();
+
+        local inv_item = nil
+
+        inv_item = session.GetInvItemByGuid(iesid)
+
+        if inv_item == nil then
+            inv_item = session.GetEtcItemByGuid(IT_ACCOUNT_WAREHOUSE, iesid)
+        end
+
+        if inv_item == nil then
+            if g.settings then
+                for char_cid, char_settings in pairs(g.settings) do
+
+                    if type(char_settings) == "table" and char_settings["ark"] then
+                        local equip_ark = session.barrack.GetEquipItemByGuid(char_cid, iesid)
+                        if equip_ark then
+                            inv_item = equip_ark
+                            break
+                        end
+                    end
+                end
+            end
+        end
+        if inv_item then
+            icon:SetTooltipType('wholeitem');
+            icon:SetTooltipArg("None", clsid, iesid);
+
+        end
+    end
+
+end
+
+function cc_helper_slot_create_reserve(frame, slot_info)
+    local data = g.settings[g.cid]
+    for eq_name, info in pairs(slot_info) do
+        local width = 50
+        local height = 50
+        if eq_name == "leg" or eq_name == "god" then
+            width = 105
+            height = 160
+        end
+        local skin = "invenslot2"
+        if eq_name == "leg" then
+            skin = "legendopen_cardslot"
+        elseif eq_name == "god" then
+            skin = "goddess_card__activation"
+        end
+        local clsid = data[eq_name].clsid
+        local iesid = data[eq_name].iesid
+        cc_helper_slot_create(frame, eq_name, info.x, info.y, width, height, skin, info.text, clsid, iesid)
+    end
+end
+
 function cc_helper_setting_frame_init()
 
     local frame = ui.GetFrame("cc_helper")
@@ -461,312 +564,195 @@ function cc_helper_setting_frame_init()
 
     INVENTORY_SET_CUSTOM_RBTNDOWN("cc_helper_inv_rbtn")
 
-    function cc_helper_slot_create(frame, eq_name, x, y, width, height, skin, text, clsid, iesid)
+    cc_helper_slot_create_reserve(frame, slot_info)
+end
 
-        local slot = frame:CreateOrGetControl("slot", eq_name, x, y, width, height)
-        AUTO_CAST(slot)
+--[[function cc_helper_load_copy(cid)
 
-        slot:SetSkinName(skin)
-        slot:SetText(text)
-        slot:EnablePop(1)
-        slot:EnableDrag(1)
-        slot:EnableDrop(1)
-        slot:SetEventScript(ui.DROP, "cc_helper_frame_drop")
-        slot:SetEventScript(ui.RBUTTONDOWN, "cc_helper_cancel")
-        if eq_name == "ark" then
-            slot:SetEventScript(ui.MOUSEON, "cc_helper_tooltip")
-        end
-
-        if string.find(eq_name, "gem") == nil then
-            local item_cls = GetClassByType("Item", clsid)
-            local image = item_cls.Icon
-            SET_SLOT_ITEM_CLS(slot, item_cls);
-            SET_SLOT_IMG(slot, image)
-            SET_SLOT_IESID(slot, iesid);
-            if eq_name ~= "leg" and eq_name ~= "god" then
-                SET_SLOT_BG_BY_ITEMGRADE(slot, item_cls)
-            end
-            if string.find(eq_name, "hair") ~= nil then
-                slot:SetSkinName(skin)
-            end
-            local icon = slot:GetIcon();
-            local inv_item = session.GetInvItemByGuid(iesid);
-            if inv_item ~= nil then
-                icon:SetTooltipType('wholeitem');
-                icon:SetTooltipArg("None", clsid, iesid);
+    local function deepCopy(original)
+        local copy = {}
+        for k, v in pairs(original) do
+            if type(v) == "table" then
+                copy[k] = deepCopy(v) -- テーブルの場合は再帰的にコピー
             else
-                -- inv_item が nil の場合も次に進む
-                if clsid ~= 0 and string.find(name, "hair") ~= nil then
-
-                    local function split(str, sep)
-                        local parts = {}
-                        for part in str:gmatch("([^" .. sep .. "]+)") do
-                            table.insert(parts, part)
-                        end
-                        return parts
-                    end
-
-                    local str = g.settings[cid][name].memo
-                    if string.find(str, ":::") then
-                        local result = split(str, ":::")
-
-                        if #result == 4 then
-                            icon:SetTextTooltip(
-                                "{ol}Rank: " .. result[4] .. "{nl}" .. result[1] .. "{nl}" .. result[2] .. "{nl}" ..
-                                    result[3])
-                        elseif #result == 3 then
-
-                            icon:SetTextTooltip("{ol}Rank: " .. result[3] .. "{nl}" .. result[1] .. "{nl}" .. result[2])
-                        elseif #result == 2 then
-
-                            icon:SetTextTooltip("{ol}Rank: " .. result[2] .. "{nl}" .. result[1])
-
-                        end
-
-                    end
-                elseif clsid ~= 0 then
-                    icon:SetTooltipType('wholeitem');
-                    icon:SetTooltipArg("None", clsid, iesid);
-                end
+                copy[k] = v
             end
         end
-
+        return copy
     end
 
-    function cc_helper_slot_create_reserve(frame)
-        local data = g.settings[g.cid]
-        for eq_name, info in pairs(slot_info) do
-            local width = 50
-            local height = 50
-            if eq_name == "leg" or eq_name == "god" then
-                width = 105
-                height = 160
-            end
-            local skin = "invenslot2"
-            if eq_name == "leg" then
-                skin = "legendopen_cardslot"
-            elseif eq_name == "god" then
-                skin = "goddess_card__activation"
-            end
-            local clsid = data[eq_name].clsid
-            local iesid = data[eq_name].iesid
-            cc_helper_slot_create(frame, eq_name, info.x, info.y, width, height, skin, info.text, clsid, iesid)
+    -- 使用例
+    g.settings[g.cid] = deepCopy(g.copy_settings[cid]) -- ディープコピーを行う
+    g.settings[g.cid]["name"] = g.login_name -- name を更新
+
+    cc_helper_save_settings()
+    cc_helper_setting_frame_init()
+    -- cc_helper_load_settings()
+    -- cc_helper_function_check()
+    frame:ShowWindow(1)
+end
+
+function cc_helper_setting_copy(frame, ctrl, str, num)
+
+    local copy_settings_location = string.format('../addons/%s/%s_copy.json', addon_name_lower, active_id)
+    local copy_settings = acutil.loadJSON(copy_settings_location)
+    g.copy_settings = copy_settings
+
+    local context = ui.CreateContextMenu("MAPFOG_CONTEXT", "{ol}Copy source", 0, 0, 0, 0);
+    ui.AddContextMenuItem(context, "-----", "")
+
+    for cid, tbl in pairs(g.copy_settings) do
+
+        if next(tbl) then
+            local job_cls = GetClassByType("Job", tbl.jobid)
+            local job_name = GET_JOB_NAME(job_cls, tbl.gender)
+            local name = tbl.name
+            local text = name .. "(" .. job_name .. ")"
+            local scp = ui.AddContextMenuItem(context, text, string.format("cc_helper_load_copy('%s')", cid))
         end
-    end
-    cc_helper_slot_create_reserve(frame)
-
-    function cc_helper_load_copy(cid)
-
-        local function deepCopy(original)
-            local copy = {}
-            for k, v in pairs(original) do
-                if type(v) == "table" then
-                    copy[k] = deepCopy(v) -- テーブルの場合は再帰的にコピー
-                else
-                    copy[k] = v
-                end
-            end
-            return copy
-        end
-
-        -- 使用例
-        g.settings[g.cid] = deepCopy(g.copy_settings[cid]) -- ディープコピーを行う
-        g.settings[g.cid]["name"] = g.login_name -- name を更新
-
-        cc_helper_save_settings()
-        cc_helper_setting_frame_init()
-        -- cc_helper_load_settings()
-        -- cc_helper_function_check()
-        frame:ShowWindow(1)
-    end
-
-    function cc_helper_setting_copy(frame, ctrl, str, num)
-
-        local copy_settings_location = string.format('../addons/%s/%s_copy.json', addon_name_lower, active_id)
-        local copy_settings = acutil.loadJSON(copy_settings_location)
-        g.copy_settings = copy_settings
-
-        local context = ui.CreateContextMenu("MAPFOG_CONTEXT", "{ol}Copy source", 0, 0, 0, 0);
-        ui.AddContextMenuItem(context, "-----", "")
-
-        for cid, tbl in pairs(g.copy_settings) do
-
-            if next(tbl) then
-                local job_cls = GetClassByType("Job", tbl.jobid)
-                local job_name = GET_JOB_NAME(job_cls, tbl.gender)
-                local name = tbl.name
-                local text = name .. "(" .. job_name .. ")"
-                local scp = ui.AddContextMenuItem(context, text, string.format("cc_helper_load_copy('%s')", cid))
-            end
-
-        end
-        ui.OpenContextMenu(context);
 
     end
-
-    local copy = frame:CreateOrGetControl('button', 'copy', 180, 10, 40, 30)
-    AUTO_CAST(copy)
-    copy:SetText("{ol}copy")
-    copy:SetEventScript(ui.LBUTTONUP, "cc_helper_setting_copy")
-
-    function cc_helper_setting_save(frame, ctrl, str, num)
-
-        local copy_settings_location = string.format('../addons/%s/%s_copy.json', addon_name_lower, active_id)
-        local copy_settings = acutil.loadJSON(copy_settings_location)
-        if not copy_settings then
-            copy_settings = {}
-        end
-        if not copy_settings[g.cid] then
-            copy_settings[g.cid] = {}
-        end
-        copy_settings[g.cid] = g.settings[g.cid]
-
-        g.copy_settings = copy_settings
-        acutil.saveJSON(copy_settings_location, g.copy_settings)
-
-        ui.SysMsg(g.lang == "Japanese" and "{#FFFF00}設定を保存しました" or "{#FFFF00}Settings saved")
-        cc_helper_save_settings()
-    end
-
-    local save = frame:CreateOrGetControl('button', 'save', 130, 10, 40, 30)
-    AUTO_CAST(save)
-    save:SetText("{ol}save")
-    save:SetEventScript(ui.LBUTTONUP, "cc_helper_setting_save")
-    save:SetTextTooltip(g.lang == "Japanese" and "{ol}このキャラの設定をコピー用に保存します" or
-                            "{ol}Save this character settings for copying")
-
-    function cc_helper_setting_delete(frame, ctrl, str, num)
-        local copy_settings_location = string.format('../addons/%s/%s_copy.json', addon_name_lower, active_id)
-        local copy_settings = acutil.loadJSON(copy_settings_location)
-        if not copy_settings then
-            copy_settings = {}
-        end
-        if not copy_settings[g.cid] then
-            copy_settings[g.cid] = {}
-        end
-        copy_settings[g.cid] = {}
-        g.copy_settings = copy_settings
-        acutil.saveJSON(copy_settings_location, g.copy_settings)
-        ui.SysMsg(g.lang == "Japanese" and "{#FFFF00}設定を削除しました" or "{#FFFF00}Settings deleted")
-        cc_helper_save_settings()
-    end
-
-    local save_delete = frame:CreateOrGetControl('button', 'save_delete', 67, 10, 40, 30)
-    AUTO_CAST(save_delete)
-    save_delete:SetText("{ol}delete")
-    save_delete:SetEventScript(ui.LBUTTONUP, "cc_helper_setting_delete")
-    save_delete:SetTextTooltip(
-        g.lang == "Japanese" and "{ol}このキャラのコピー用の設定を削除します" or
-            "{ol}Delete settings for copying this character")
-
-    local agmuse = frame:CreateOrGetControl("checkbox", "agmuse", 80, 375, 25, 25)
-    AUTO_CAST(agmuse)
-    agmuse:SetText("{ol}agm")
-    agmuse:SetTextTooltip(
-        g.lang == "Japanese" and "チェックを入れると[Aethergem Manager]と連携します。" or
-            "If checked, it will work with [Aethergem Manager].")
-    agmuse:SetEventScript(ui.LBUTTONUP, "cc_helper_check_setting")
-    agmuse:SetCheck(g.settings[g.cid].agm_use)
-    -- end
-
-    function cc_helper_agm_setting(frame, ctrl, str, num)
-        if g.settings[g.cid].agm_check == 0 then
-            g.settings[g.cid].agm_check = 1
-        else
-            g.settings[g.cid].agm_check = 0
-        end
-        cc_helper_save_settings()
-        cc_helper_setting_frame_init()
-        frame:ShowWindow(1)
-
-    end
-
-    local agm_on_off = frame:CreateOrGetControl('button', 'agm_on_off', 150, 375, 60, 30)
-    AUTO_CAST(agm_on_off)
-    if g.settings[g.cid]["agm_use"] == 1 then -- !
-        agm_on_off:ShowWindow(1)
-        if g.settings[g.cid].agm_check == 1 then
-            agm_on_off:SetSkinName("test_red_button")
-            agm_on_off:SetText("{ol}ON")
-            agm_on_off:SetTextTooltip(g.lang == "Japanese" and
-                                          "[エーテルジェムマネージャー]との連携時に確認します" or
-                                          "Check when working with [Aethergem Manager]")
-        else
-            agm_on_off:SetSkinName("test_gray_button")
-            agm_on_off:SetText("{ol}OFF")
-            agm_on_off:SetTextTooltip(g.lang == "Japanese" and
-                                          "[エーテルジェムマネージャー]との連携時に確認しません" or
-                                          "Not checked when working with [Aethergem Manager]")
-        end
-    else
-        g.settings[g.cid].agm_check = 0
-        agm_on_off:ShowWindow(0)
-        cc_helper_save_settings()
-    end
-
-    agm_on_off:SetEventScript(ui.LBUTTONUP, "cc_helper_agm_setting")
-
-    local ecouse = frame:CreateOrGetControl("checkbox", "ecouse", 10, 405, 25, 25)
-    AUTO_CAST(ecouse)
-    ecouse:SetText("{ol}eco")
-    ecouse:SetTextTooltip(g.lang == "Japanese" and
-                              "チェックを入れると、外すのにシルバーが必要な{nl}レジェンドカードとエーテルジェムの動作をスキップします。" or
-                              "If checked, it skips the operation of legend cards and{nl}ether gems that require silver to remove.")
-    ecouse:SetEventScript(ui.LBUTTONUP, "cc_helper_check_setting")
-    ecouse:SetCheck(g.share_settings.eco_mode)
-
-    function cc_helper_delay_change(frame, ctrl, argStr, argNum)
-        local value = tonumber(ctrl:GetText())
-
-        if value ~= nil then
-            ui.SysMsg("Delay Time setting set to" .. value)
-            g.share_settings.delay = value
-        else
-            ui.SysMsg("Invalid value. Please enter one-byte numbers.")
-            local text = GET_CHILD_RECURSIVELY(frame, "delay")
-            text:SetText("0.3")
-            g.share_settings.delay = 0.3
-        end
-        acutil.saveJSON(g.settings_location, g.share_settings)
-    end
-
-    local delay_title = frame:CreateOrGetControl("richtext", "delay_title", 130, 440)
-    delay_title:SetText("{ol}delay")
-    local delay = frame:CreateOrGetControl('edit', 'delay', 175, 440, 50, 20)
-    AUTO_CAST(delay)
-    delay:SetText("{ol}" .. g.share_settings.delay)
-    delay:SetFontName("white_16_ol")
-    delay:SetTextAlign("center", "center")
-    delay:SetEventScript(ui.ENTERKEY, "cc_helper_delay_change")
-    delay:SetTextTooltip(g.lang == "Japanese" and
-                             "動作のディレイ時間を設定します。デフォルトは0.3秒。{nl}早過ぎると失敗が多発します。" or
-                             "Sets the delay time for the operation. Default is 0.3 seconds.{nl}Too early and many failures will occur.")
-
-    function cc_helper_cancel(frame, ctrl, argstr, argnum)
-
-        ctrl:ClearIcon()
-        ctrl:RemoveAllChild()
-        local name = ctrl:GetName()
-
-        for key, value in pairs(g.settings[g.cid]) do
-            if name == key then
-                value.image = ""
-                value.iesid = ""
-                value.clsid = 0
-                value.skin = ""
-                value.memo = ""
-                if string.find(name, "god") == nil and string.find(name, "leg") == nil then
-                    local skinName = "invenslot2"
-                    ctrl:SetSkinName(skinName)
-                end
-                break
-            end
-        end
-
-        cc_helper_save_settings()
-    end
+    ui.OpenContextMenu(context);
 
 end
+
+local copy = frame:CreateOrGetControl('button', 'copy', 180, 10, 40, 30)
+AUTO_CAST(copy)
+copy:SetText("{ol}copy")
+copy:SetEventScript(ui.LBUTTONUP, "cc_helper_setting_copy")
+
+function cc_helper_setting_save(frame, ctrl, str, num)
+
+    local copy_settings_location = string.format('../addons/%s/%s_copy.json', addon_name_lower, active_id)
+    local copy_settings = acutil.loadJSON(copy_settings_location)
+    if not copy_settings then
+        copy_settings = {}
+    end
+    if not copy_settings[g.cid] then
+        copy_settings[g.cid] = {}
+    end
+    copy_settings[g.cid] = g.settings[g.cid]
+
+    g.copy_settings = copy_settings
+    acutil.saveJSON(copy_settings_location, g.copy_settings)
+
+    ui.SysMsg(g.lang == "Japanese" and "{#FFFF00}設定を保存しました" or "{#FFFF00}Settings saved")
+    cc_helper_save_settings()
+end
+
+local save = frame:CreateOrGetControl('button', 'save', 130, 10, 40, 30)
+AUTO_CAST(save)
+save:SetText("{ol}save")
+save:SetEventScript(ui.LBUTTONUP, "cc_helper_setting_save")
+save:SetTextTooltip(g.lang == "Japanese" and "{ol}このキャラの設定をコピー用に保存します" or
+                        "{ol}Save this character settings for copying")
+
+function cc_helper_setting_delete(frame, ctrl, str, num)
+    local copy_settings_location = string.format('../addons/%s/%s_copy.json', addon_name_lower, active_id)
+    local copy_settings = acutil.loadJSON(copy_settings_location)
+    if not copy_settings then
+        copy_settings = {}
+    end
+    if not copy_settings[g.cid] then
+        copy_settings[g.cid] = {}
+    end
+    copy_settings[g.cid] = {}
+    g.copy_settings = copy_settings
+    acutil.saveJSON(copy_settings_location, g.copy_settings)
+    ui.SysMsg(g.lang == "Japanese" and "{#FFFF00}設定を削除しました" or "{#FFFF00}Settings deleted")
+    cc_helper_save_settings()
+end
+
+local save_delete = frame:CreateOrGetControl('button', 'save_delete', 67, 10, 40, 30)
+AUTO_CAST(save_delete)
+save_delete:SetText("{ol}delete")
+save_delete:SetEventScript(ui.LBUTTONUP, "cc_helper_setting_delete")
+save_delete:SetTextTooltip(g.lang == "Japanese" and "{ol}このキャラのコピー用の設定を削除します" or
+                               "{ol}Delete settings for copying this character")
+
+local agmuse = frame:CreateOrGetControl("checkbox", "agmuse", 80, 375, 25, 25)
+AUTO_CAST(agmuse)
+agmuse:SetText("{ol}agm")
+agmuse:SetTextTooltip(g.lang == "Japanese" and "チェックを入れると[Aethergem Manager]と連携します。" or
+                          "If checked, it will work with [Aethergem Manager].")
+agmuse:SetEventScript(ui.LBUTTONUP, "cc_helper_check_setting")
+agmuse:SetCheck(g.settings[g.cid].agm_use)
+-- end
+
+function cc_helper_agm_setting(frame, ctrl, str, num)
+    if g.settings[g.cid].agm_check == 0 then
+        g.settings[g.cid].agm_check = 1
+    else
+        g.settings[g.cid].agm_check = 0
+    end
+    cc_helper_save_settings()
+    cc_helper_setting_frame_init()
+    frame:ShowWindow(1)
+
+end
+
+local agm_on_off = frame:CreateOrGetControl('button', 'agm_on_off', 150, 375, 60, 30)
+AUTO_CAST(agm_on_off)
+if g.settings[g.cid]["agm_use"] == 1 then -- !
+    agm_on_off:ShowWindow(1)
+    if g.settings[g.cid].agm_check == 1 then
+        agm_on_off:SetSkinName("test_red_button")
+        agm_on_off:SetText("{ol}ON")
+        agm_on_off:SetTextTooltip(g.lang == "Japanese" and
+                                      "[エーテルジェムマネージャー]との連携時に確認します" or
+                                      "Check when working with [Aethergem Manager]")
+    else
+        agm_on_off:SetSkinName("test_gray_button")
+        agm_on_off:SetText("{ol}OFF")
+        agm_on_off:SetTextTooltip(g.lang == "Japanese" and
+                                      "[エーテルジェムマネージャー]との連携時に確認しません" or
+                                      "Not checked when working with [Aethergem Manager]")
+    end
+else
+    g.settings[g.cid].agm_check = 0
+    agm_on_off:ShowWindow(0)
+    cc_helper_save_settings()
+end
+
+agm_on_off:SetEventScript(ui.LBUTTONUP, "cc_helper_agm_setting")
+
+local ecouse = frame:CreateOrGetControl("checkbox", "ecouse", 10, 405, 25, 25)
+AUTO_CAST(ecouse)
+ecouse:SetText("{ol}eco")
+ecouse:SetTextTooltip(g.lang == "Japanese" and
+                          "チェックを入れると、外すのにシルバーが必要な{nl}レジェンドカードとエーテルジェムの動作をスキップします。" or
+                          "If checked, it skips the operation of legend cards and{nl}ether gems that require silver to remove.")
+ecouse:SetEventScript(ui.LBUTTONUP, "cc_helper_check_setting")
+ecouse:SetCheck(g.share_settings.eco_mode)
+
+function cc_helper_delay_change(frame, ctrl, argStr, argNum)
+    local value = tonumber(ctrl:GetText())
+
+    if value ~= nil then
+        ui.SysMsg("Delay Time setting set to" .. value)
+        g.share_settings.delay = value
+    else
+        ui.SysMsg("Invalid value. Please enter one-byte numbers.")
+        local text = GET_CHILD_RECURSIVELY(frame, "delay")
+        text:SetText("0.3")
+        g.share_settings.delay = 0.3
+    end
+    acutil.saveJSON(g.settings_location, g.share_settings)
+end
+
+local delay_title = frame:CreateOrGetControl("richtext", "delay_title", 130, 440)
+delay_title:SetText("{ol}delay")
+local delay = frame:CreateOrGetControl('edit', 'delay', 175, 440, 50, 20)
+AUTO_CAST(delay)
+delay:SetText("{ol}" .. g.share_settings.delay)
+delay:SetFontName("white_16_ol")
+delay:SetTextAlign("center", "center")
+delay:SetEventScript(ui.ENTERKEY, "cc_helper_delay_change")
+delay:SetTextTooltip(g.lang == "Japanese" and
+                         "動作のディレイ時間を設定します。デフォルトは0.3秒。{nl}早過ぎると失敗が多発します。" or
+                         "Sets the delay time for the operation. Default is 0.3 seconds.{nl}Too early and many failures will occur.")
+
+]]
 
 function cc_helper_check_setting(frame, ctrl, argStr, argNum)
     local ischeck = ctrl:IsChecked();

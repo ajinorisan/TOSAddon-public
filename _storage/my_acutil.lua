@@ -121,6 +121,62 @@ function g.setup_hook_and_event(my_addon, origin_func_name, my_func_name, bool)
     end
 end
 
+function g.setup_hook_and_event_and_before(my_addon, origin_func_name, my_func_name, bool)
+
+    g.FUNCS = g.FUNCS or {}
+    if not g.FUNCS[origin_func_name] then
+        g.FUNCS[origin_func_name] = _G[origin_func_name]
+    end
+
+    if bool == "before" then
+        local before_origin_func = g.FUNCS[origin_func_name]
+
+        local function before_hooked_function(...)
+
+            -- ここにアドオンコードを書く
+
+            local before_original_results = {before_origin_func(...)}
+
+            if before_original_results then
+                return table.unpack(before_original_results)
+            else
+                return
+            end
+        end
+
+        _G[origin_func_name] = before_hooked_function
+        return
+    end
+
+    local origin_func = g.FUNCS[origin_func_name]
+
+    local function hooked_function(...)
+
+        local original_results
+
+        if bool == true then
+            original_results = {origin_func(...)}
+        end
+
+        g.ARGS = g.ARGS or {}
+        g.ARGS[origin_func_name] = {...}
+        imcAddOn.BroadMsg(origin_func_name)
+
+        if original_results then
+            return table.unpack(original_results)
+        else
+            return
+        end
+    end
+
+    _G[origin_func_name] = hooked_function
+
+    if not g.REGISTER[origin_func_name .. my_func_name] then -- g.REGISTERはON_INIT内で都度初期化
+        g.REGISTER[origin_func_name .. my_func_name] = true
+        my_addon:RegisterMsg(origin_func_name, my_func_name)
+    end
+end
+
 function g.get_event_args(origin_func_name)
     local args = g.ARGS[origin_func_name]
     if args then
