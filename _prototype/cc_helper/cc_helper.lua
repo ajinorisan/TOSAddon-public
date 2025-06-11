@@ -406,7 +406,7 @@ function cc_helper_slot_create(frame, eq_name, x, y, width, height, skin, text, 
     slot:EnablePop(1)
     slot:EnableDrag(1)
     slot:EnableDrop(1)
-    slot:SetEventScript(ui.DROP, "cc_helper_frame_drop")
+    -- slot:SetEventScript(ui.DROP, "cc_helper_frame_drop")
     slot:SetEventScript(ui.RBUTTONDOWN, "cc_helper_cancel")
     slot:SetEventScriptArgString(ui.RBUTTONDOWN, skin)
     if eq_name == "ark" then
@@ -415,13 +415,18 @@ function cc_helper_slot_create(frame, eq_name, x, y, width, height, skin, text, 
 
     if not string.find(eq_name, "gem") and clsid ~= 0 then
         local item_cls = GetClassByType("Item", clsid)
+
         local image = item_cls.Icon
 
-        SET_SLOT_ITEM_CLS(slot, item_cls);
-        SET_SLOT_IMG(slot, image)
-        SET_SLOT_IESID(slot, iesid);
-        if eq_name ~= "leg" and eq_name ~= "god" then
-            SET_SLOT_BG_BY_ITEMGRADE(slot, item_cls)
+        if eq_name == "leg" or eq_name == "god" then
+
+            SET_SLOT_ITEM_CLS(slot, item_cls);
+            image = TryGetProp(item_cls, "TooltipImage")
+
+            SET_SLOT_IMG(slot, image);
+
+        else
+            SET_SLOT_ITEM_CLS(slot, item_cls);
         end
 
         local icon = slot:GetIcon();
@@ -432,6 +437,10 @@ function cc_helper_slot_create(frame, eq_name, x, y, width, height, skin, text, 
 
         if inv_item == nil then
             inv_item = session.GetEtcItemByGuid(IT_ACCOUNT_WAREHOUSE, iesid)
+        end
+
+        if inv_item == nil then
+            inv_item = session.GetEquipItemByGuid(iesid)
         end
 
         if inv_item == nil then
@@ -448,6 +457,7 @@ function cc_helper_slot_create(frame, eq_name, x, y, width, height, skin, text, 
                 end
             end
         end
+        print(eq_name .. tostring(inv_item))
         if inv_item then
             icon:SetTooltipType('wholeitem');
             icon:SetTooltipArg("None", clsid, iesid);
@@ -564,6 +574,7 @@ end
 function cc_helper_settings_slot(frame, slot_name, item_obj, iesid, clsid)
     local slot = GET_CHILD_RECURSIVELY(frame, slot_name)
     local item_cls = GetClassByType("Item", clsid)
+    print(tostring(item_cls))
     SET_SLOT_ITEM_CLS(slot, item_cls)
 
     if slot_name ~= "leg" and slot_name ~= "god" then
@@ -584,6 +595,7 @@ function cc_helper_settings_slot(frame, slot_name, item_obj, iesid, clsid)
         end
     elseif string.find(slot_name, "hair") then
         local rank = shared_enchant_special_option.get_item_rank(item_obj)
+        print(tostring(rank))
 
         if rank == "A" then
 
@@ -617,11 +629,13 @@ function cc_helper_INVENTORY_SET_CUSTOM_RBTNDOWN(item_obj, slot)
         return
     end
 
-    local iesid = item_obj:GetIESID()
+    local icon = slot:GetIcon();
+    local icon_info = icon:GetInfo();
+    local iesid = icon_info:GetIESID()
     local cls_type = item_obj.ClassType
     local clsid = item_obj.ClassID
-
     local parent_name = slot:GetParent():GetName()
+    print(tostring(parent_name))
     local char_belonging = TryGetProp(item_obj, 'CharacterBelonging', 0)
 
     local temp_tbl = {
@@ -636,6 +650,7 @@ function cc_helper_INVENTORY_SET_CUSTOM_RBTNDOWN(item_obj, slot)
     }
 
     for inve_type, slot_name in pairs(temp_tbl) do
+
         if inve_type == cls_type and clsid ~= 614001 then
             cc_helper_settings_slot(frame, slot_name, item_obj, iesid, clsid)
             return
@@ -646,6 +661,7 @@ function cc_helper_INVENTORY_SET_CUSTOM_RBTNDOWN(item_obj, slot)
             cc_helper_settings_slot(frame, slot_name, item_obj, iesid, clsid)
             return
         elseif string.find(inve_type, "sset_HairAcc_Acc") and inve_type == parent_name then
+
             cc_helper_settings_slot(frame, slot_name, item_obj, iesid, clsid)
             return
         elseif inve_type == "aether" then
@@ -659,69 +675,7 @@ function cc_helper_INVENTORY_SET_CUSTOM_RBTNDOWN(item_obj, slot)
                     end
                 end
             end
-            return
         end
-
-    end
-end
-
-function cc_helper_frame_drop(frame, ctrl)
-
-    local slot = AUTO_CAST(ctrl)
-    local lift_icon = ui.GetLiftIcon();
-    local icon_info = lift_icon:GetInfo();
-    local iesid = icon_info:GetIESID()
-
-    local parent = lift_icon:GetParent();
-    local fromslot = parent:GetParent();
-    local parent_name = fromslot:GetName()
-
-    local inv_item = session.GetInvItemByGuid(iesid);
-    local item_obj = GetIES(inv_item:GetObject());
-    local clsid = item_obj.ClassID
-    local image = TryGetProp(item_obj, "TooltipImage", "None")
-    local type = item_obj.ClassType
-    local gemtype = GET_EQUIP_GEM_TYPE(item_obj)
-    local char_belonging = TryGetProp(item_obj, 'CharacterBelonging', 0)
-
-    local temp_tbl = {
-        ["Seal"] = "seal",
-        ["Ark"] = "ark",
-        ["LEG"] = "leg",
-        ["GODDESS"] = "god",
-        ["sset_HairAcc_Acc1"] = "hair1",
-        ["sset_HairAcc_Acc2"] = "hair2",
-        ["sset_HairAcc_Acc3"] = "hair3",
-        ["aether"] = "gem"
-    }
-
-    for inve_type, slot_name in pairs(temp_tbl) do
-        if inve_type == cls_type and clsid ~= 614001 then
-            cc_helper_settings_slot(frame, slot_name, item_obj, iesid, clsid)
-            return
-        elseif inve_type == cls_type and char_belonging ~= 1 then
-            cc_helper_settings_slot(frame, slot_name, item_obj, iesid, clsid)
-            return
-        elseif inve_type == item_obj.CardGroupName then
-            cc_helper_settings_slot(frame, slot_name, item_obj, iesid, clsid)
-            return
-        elseif string.find(inve_type, "sset_HairAcc_Acc") and inve_type == parent_name then
-            cc_helper_settings_slot(frame, slot_name, item_obj, iesid, clsid)
-            return
-        elseif inve_type == "aether" then
-            local gemtype = GET_EQUIP_GEM_TYPE(item_obj)
-            if gemtype then
-                for i = 1, 4 do
-                    local cur_gem_slot = slot_name .. i
-                    if not g.settings[g.cid][cur_gem_slot] or g.settings[g.cid][cur_gem_slot].clsid == 0 then
-                        cc_helper_settings_slot(frame, cur_gem_slot, item_obj, "0", clsid)
-                        return
-                    end
-                end
-            end
-            return
-        end
-
     end
 end
 
@@ -833,6 +787,65 @@ function cc_helper_setting_frame_init()
 end
 
 --[[
+function cc_helper_frame_drop(frame, ctrl)
+
+    local slot = AUTO_CAST(ctrl)
+    local lift_icon = ui.GetLiftIcon();
+    local icon_info = lift_icon:GetInfo();
+    local iesid = icon_info:GetIESID()
+
+    local parent = lift_icon:GetParent();
+    local fromslot = parent:GetParent();
+    local parent_name = fromslot:GetName()
+
+    local inv_item = session.GetInvItemByGuid(iesid);
+    local item_obj = GetIES(inv_item:GetObject());
+    local clsid = item_obj.ClassID
+    local image = TryGetProp(item_obj, "TooltipImage", "None")
+    local type = item_obj.ClassType
+    local gemtype = GET_EQUIP_GEM_TYPE(item_obj)
+    local char_belonging = TryGetProp(item_obj, 'CharacterBelonging', 0)
+
+    local temp_tbl = {
+        ["Seal"] = "seal",
+        ["Ark"] = "ark",
+        ["LEG"] = "leg",
+        ["GODDESS"] = "god",
+        ["sset_HairAcc_Acc1"] = "hair1",
+        ["sset_HairAcc_Acc2"] = "hair2",
+        ["sset_HairAcc_Acc3"] = "hair3",
+        ["aether"] = "gem"
+    }
+
+    for inve_type, slot_name in pairs(temp_tbl) do
+        if inve_type == cls_type and clsid ~= 614001 then
+            cc_helper_settings_slot(frame, slot_name, item_obj, iesid, clsid)
+            return
+        elseif inve_type == cls_type and char_belonging ~= 1 then
+            cc_helper_settings_slot(frame, slot_name, item_obj, iesid, clsid)
+            return
+        elseif inve_type == item_obj.CardGroupName then
+            cc_helper_settings_slot(frame, slot_name, item_obj, iesid, clsid)
+            return
+        elseif string.find(inve_type, "sset_HairAcc_Acc") and inve_type == parent_name then
+            cc_helper_settings_slot(frame, slot_name, item_obj, iesid, clsid)
+            return
+        elseif inve_type == "aether" then
+            local gemtype = GET_EQUIP_GEM_TYPE(item_obj)
+            if gemtype then
+                for i = 1, 4 do
+                    local cur_gem_slot = slot_name .. i
+                    if not g.settings[g.cid][cur_gem_slot] or g.settings[g.cid][cur_gem_slot].clsid == 0 then
+                        cc_helper_settings_slot(frame, cur_gem_slot, item_obj, "0", clsid)
+                        return
+                    end
+                end
+            end
+            return
+        end
+
+    end
+end
 local agmuse = frame:CreateOrGetControl("checkbox", "agmuse", 80, 375, 25, 25)
 AUTO_CAST(agmuse)
 agmuse:SetText("{ol}agm")
