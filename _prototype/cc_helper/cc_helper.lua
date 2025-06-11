@@ -153,19 +153,14 @@ function cc_helper_load_settings()
         settings = {
             eco_mode = 0,
             auto_close = 1,
-            aether_gem = 0
+            gem = 0
         }
     end
-
-    local pc_info = session.barrack.GetMyAccount():GetByStrCID(g.cid);
-    local pc_apc = pc_info:GetApc()
-    local job_id = pc_info:GetRepID() or pc_apc:GetJob()
-    local gender = pc_apc:GetGender()
 
     if not settings[g.cid] then
         settings[g.cid] = {}
 
-        local init_keys = {"name", "agm_use", "agm_chk", "gender", "job_id" -- 装備じゃない系
+        local init_keys = {"name", "gem_use", "gem_auto" -- 装備じゃない系
         , "seal", "ark", "leg", "god", "hair1", "hair2", "hair3", "gem1", "gem2", "gem3", "gem4"}
 
         for _, key_name in ipairs(init_keys) do
@@ -175,10 +170,6 @@ function cc_helper_load_settings()
                 settings[g.cid][key_name] = 0
             elseif key_name == "agm_chk" then
                 settings[g.cid][key_name] = 1
-            elseif key_name == "gender" then
-                settings[g.cid][key_name] = gender
-            elseif key_name == "job_id" then
-                settings[g.cid][key_name] = job_id
             else
                 settings[g.cid][key_name] = {
                     iesid = "",
@@ -191,6 +182,14 @@ function cc_helper_load_settings()
     g.settings = settings
 
     cc_helper_save_settings()
+
+    g.copy_path = string.format('../addons/%s/%s_copy.json', addon_name_lower, g.active_id)
+    g.copy_settings = g.load_json(g.copy_path)
+
+    if not g.copy_settings then
+        g.copy_settings = {}
+        g.save_json(g.copy_path, g.copy_settings)
+    end
 
 end
 
@@ -390,7 +389,6 @@ function cc_helper_cancel(frame, ctrl, skin)
             value.iesid = ""
             value.clsid = 0
             ctrl:SetSkinName(skin)
-
             break
         end
     end
@@ -480,6 +478,253 @@ function cc_helper_slot_create_reserve(frame, slot_info)
     end
 end
 
+local function deep_copy(original)
+    local copy = {}
+    for k, v in pairs(original) do
+        if type(v) == "table" then
+            copy[k] = deep_copy(v)
+        else
+            copy[k] = v
+        end
+    end
+    return copy
+end
+
+function cc_helper_setting_save()
+
+    local pc_info = session.barrack.GetMyAccount():GetByStrCID(g.cid);
+    local pc_apc = pc_info:GetApc()
+    local job_id = pc_info:GetRepID() or pc_apc:GetJob()
+    local gender = pc_apc:GetGender()
+
+    g.copy_settings[g.login_name] = deep_copy(g.settings[g.cid])
+    g.copy_settings[g.login_name].job_id = job_id
+    g.copy_settings[g.login_name].gender = gender
+    g.save_json(g.copy_path, g.copy_settings)
+
+    ui.SysMsg(g.lang == "Japanese" and "{#FFFF00}設定を保存しました" or "{#FFFF00}Settings saved")
+end
+
+function cc_helper_load_copy(char_name)
+
+    g.settings[g.cid] = deep_copy(g.copy_settings[char_name])
+    g.settings[g.cid].name = char_name
+    g.settings[g.cid].job_id = nil
+    g.settings[g.cid].gender = nil
+    cc_helper_save_settings()
+    cc_helper_setting_frame_init()
+
+    local frame = ui.GetFrame("cc_helper")
+    frame:ShowWindow(1)
+end
+
+function cc_helper_setting_copy()
+
+    local context = ui.CreateContextMenu("MAPFOG_CONTEXT", "{ol}Copy source", 0, 0, 0, 0);
+    ui.AddContextMenuItem(context, "-----", "")
+
+    for char_name, char_data in pairs(g.copy_settings) do
+
+        local job_cls = GetClassByType("Job", char_data.job_id)
+        local job_name = GET_JOB_NAME(job_cls, char_data.gender)
+        local text = char_name .. "(" .. job_name .. ")"
+        local scp = ui.AddContextMenuItem(context, text, string.format("cc_helper_load_copy('%s')", char_name))
+
+    end
+
+    ui.OpenContextMenu(context);
+end
+
+function cc_helper_setting_delete_do(char_name)
+
+    g.copy_settings[char_name] = nil
+    g.save_json(g.copy_path, g.copy_settings)
+
+    ui.SysMsg(g.lang == "Japanese" and "{#FFFF00}設定を削除しました" or "{#FFFF00}Settings deleted")
+end
+
+function cc_helper_setting_delete()
+
+    local context = ui.CreateContextMenu("MAPFOG_CONTEXT", "{ol}Delete source", 0, 0, 0, 0);
+    ui.AddContextMenuItem(context, "-----", "")
+
+    for char_name, char_data in pairs(g.copy_settings) do
+
+        local job_cls = GetClassByType("Job", char_data.job_id)
+        local job_name = GET_JOB_NAME(job_cls, char_data.gender)
+        local text = char_name .. "(" .. job_name .. ")"
+        local scp = ui.AddContextMenuItem(context, text, string.format("cc_helper_setting_delete_do('%s')", char_name))
+
+    end
+
+    ui.OpenContextMenu(context);
+
+end
+
+function cc_helper_settings_slot(frame, slot_name, item_obj, iesid, clsid)
+    local slot = GET_CHILD_RECURSIVELY(frame, slot_name)
+    local item_cls = GetClassByType("Item", clsid)
+    SET_SLOT_ITEM_CLS(slot, item_cls)
+
+    if slot_name ~= "leg" and slot_name ~= "god" then
+        SET_SLOT_BG_BY_ITEMGRADE(slot, item_cls)
+    end
+
+    local skin = ""
+    if string.find(slot_name, "gem") ~= nil then
+        if string.find(item_obj.ClassName, "480") ~= nil then
+            skin = "invenslot_unique"
+            slot:SetSkinName(skin)
+        elseif string.find(item_obj.ClassName, "500") ~= nil then
+            skin = "invenslot_legend"
+            slot:SetSkinName(skin)
+        elseif string.find(item_obj.ClassName, "520") ~= nil then
+            skin = "invenslot_pic_goddess"
+            slot:SetSkinName(skin)
+        end
+    elseif string.find(slot_name, "hair") then
+        local rank = shared_enchant_special_option.get_item_rank(item_obj)
+
+        if rank == "A" then
+
+            skin = "invenslot_pic_goddess"
+            slot:SetSkinName(skin)
+        elseif rank == "B" then
+
+            skin = "invenslot_legend"
+            slot:SetSkinName(skin)
+        elseif rank == "C" then
+
+            skin = "invenslot_unique"
+            slot:SetSkinName(skin)
+
+        end
+    end
+
+    local icon = slot:GetIcon();
+    icon:SetTooltipType('wholeitem');
+    icon:SetTooltipArg("None", clsid, iesid);
+    g.settings[g.cid][slot_name].iesid = iesid
+    g.settings[g.cid][slot_name].clsid = clsid
+
+    cc_helper_save_settings()
+end
+
+function cc_helper_INVENTORY_SET_CUSTOM_RBTNDOWN(item_obj, slot)
+    local frame = ui.GetFrame("cc_helper");
+    if frame:IsVisible() == 0 then
+        INVENTORY_SET_CUSTOM_RBTNDOWN("None")
+        return
+    end
+
+    local iesid = item_obj:GetIESID()
+    local cls_type = item_obj.ClassType
+    local clsid = item_obj.ClassID
+
+    local parent_name = slot:GetParent():GetName()
+    local char_belonging = TryGetProp(item_obj, 'CharacterBelonging', 0)
+
+    local temp_tbl = {
+        ["Seal"] = "seal",
+        ["Ark"] = "ark",
+        ["LEG"] = "leg",
+        ["GODDESS"] = "god",
+        ["sset_HairAcc_Acc1"] = "hair1",
+        ["sset_HairAcc_Acc2"] = "hair2",
+        ["sset_HairAcc_Acc3"] = "hair3",
+        ["aether"] = "gem"
+    }
+
+    for inve_type, slot_name in pairs(temp_tbl) do
+        if inve_type == cls_type and clsid ~= 614001 then
+            cc_helper_settings_slot(frame, slot_name, item_obj, iesid, clsid)
+            return
+        elseif inve_type == cls_type and char_belonging ~= 1 then
+            cc_helper_settings_slot(frame, slot_name, item_obj, iesid, clsid)
+            return
+        elseif inve_type == item_obj.CardGroupName then
+            cc_helper_settings_slot(frame, slot_name, item_obj, iesid, clsid)
+            return
+        elseif string.find(inve_type, "sset_HairAcc_Acc") and inve_type == parent_name then
+            cc_helper_settings_slot(frame, slot_name, item_obj, iesid, clsid)
+            return
+        elseif inve_type == "aether" then
+            local gemtype = GET_EQUIP_GEM_TYPE(item_obj)
+            if gemtype then
+                for i = 1, 4 do
+                    local cur_gem_slot = slot_name .. i
+                    if not g.settings[g.cid][cur_gem_slot] or g.settings[g.cid][cur_gem_slot].clsid == 0 then
+                        cc_helper_settings_slot(frame, cur_gem_slot, item_obj, "0", clsid)
+                        return
+                    end
+                end
+            end
+            return
+        end
+
+    end
+end
+
+function cc_helper_frame_drop(frame, ctrl)
+
+    local slot = AUTO_CAST(ctrl)
+    local lift_icon = ui.GetLiftIcon();
+    local icon_info = lift_icon:GetInfo();
+    local iesid = icon_info:GetIESID()
+
+    local parent = lift_icon:GetParent();
+    local fromslot = parent:GetParent();
+    local parent_name = fromslot:GetName()
+
+    local inv_item = session.GetInvItemByGuid(iesid);
+    local item_obj = GetIES(inv_item:GetObject());
+    local clsid = item_obj.ClassID
+    local image = TryGetProp(item_obj, "TooltipImage", "None")
+    local type = item_obj.ClassType
+    local gemtype = GET_EQUIP_GEM_TYPE(item_obj)
+    local char_belonging = TryGetProp(item_obj, 'CharacterBelonging', 0)
+
+    local temp_tbl = {
+        ["Seal"] = "seal",
+        ["Ark"] = "ark",
+        ["LEG"] = "leg",
+        ["GODDESS"] = "god",
+        ["sset_HairAcc_Acc1"] = "hair1",
+        ["sset_HairAcc_Acc2"] = "hair2",
+        ["sset_HairAcc_Acc3"] = "hair3",
+        ["aether"] = "gem"
+    }
+
+    for inve_type, slot_name in pairs(temp_tbl) do
+        if inve_type == cls_type and clsid ~= 614001 then
+            cc_helper_settings_slot(frame, slot_name, item_obj, iesid, clsid)
+            return
+        elseif inve_type == cls_type and char_belonging ~= 1 then
+            cc_helper_settings_slot(frame, slot_name, item_obj, iesid, clsid)
+            return
+        elseif inve_type == item_obj.CardGroupName then
+            cc_helper_settings_slot(frame, slot_name, item_obj, iesid, clsid)
+            return
+        elseif string.find(inve_type, "sset_HairAcc_Acc") and inve_type == parent_name then
+            cc_helper_settings_slot(frame, slot_name, item_obj, iesid, clsid)
+            return
+        elseif inve_type == "aether" then
+            local gemtype = GET_EQUIP_GEM_TYPE(item_obj)
+            if gemtype then
+                for i = 1, 4 do
+                    local cur_gem_slot = slot_name .. i
+                    if not g.settings[g.cid][cur_gem_slot] or g.settings[g.cid][cur_gem_slot].clsid == 0 then
+                        cc_helper_settings_slot(frame, cur_gem_slot, item_obj, "0", clsid)
+                        return
+                    end
+                end
+            end
+            return
+        end
+
+    end
+end
+
 function cc_helper_setting_frame_init()
 
     local frame = ui.GetFrame("cc_helper")
@@ -503,6 +748,26 @@ function cc_helper_setting_frame_init()
     close:SetImage("testclose_button")
     close:SetGravity(ui.LEFT, ui.TOP)
     close:SetEventScript(ui.LBUTTONUP, "cc_helper_settings_close")
+
+    local copy = frame:CreateOrGetControl('button', 'copy', 180, 10, 40, 30)
+    AUTO_CAST(copy)
+    copy:SetText("{ol}copy")
+    copy:SetEventScript(ui.LBUTTONUP, "cc_helper_setting_copy")
+
+    local save = frame:CreateOrGetControl('button', 'save', 130, 10, 40, 30)
+    AUTO_CAST(save)
+    save:SetText("{ol}save")
+    save:SetEventScript(ui.LBUTTONUP, "cc_helper_setting_save")
+    save:SetTextTooltip(g.lang == "Japanese" and "{ol}このキャラの設定をコピー用に保存します" or
+                            "{ol}Save this character settings for copying")
+
+    local save_delete = frame:CreateOrGetControl('button', 'save_delete', 67, 10, 40, 30)
+    AUTO_CAST(save_delete)
+    save_delete:SetText("{ol}delete")
+    save_delete:SetEventScript(ui.LBUTTONUP, "cc_helper_setting_delete")
+    save_delete:SetTextTooltip(
+        g.lang == "Japanese" and "{ol}このキャラのコピー用の設定を削除します" or
+            "{ol}Delete settings for copying this character")
 
     local slot_info = {
         ["seal"] = {
@@ -562,114 +827,12 @@ function cc_helper_setting_frame_init()
         }
     }
 
-    INVENTORY_SET_CUSTOM_RBTNDOWN("cc_helper_inv_rbtn")
+    INVENTORY_SET_CUSTOM_RBTNDOWN("cc_helper_INVENTORY_SET_CUSTOM_RBTNDOWN")
 
     cc_helper_slot_create_reserve(frame, slot_info)
 end
 
---[[function cc_helper_load_copy(cid)
-
-    local function deepCopy(original)
-        local copy = {}
-        for k, v in pairs(original) do
-            if type(v) == "table" then
-                copy[k] = deepCopy(v) -- テーブルの場合は再帰的にコピー
-            else
-                copy[k] = v
-            end
-        end
-        return copy
-    end
-
-    -- 使用例
-    g.settings[g.cid] = deepCopy(g.copy_settings[cid]) -- ディープコピーを行う
-    g.settings[g.cid]["name"] = g.login_name -- name を更新
-
-    cc_helper_save_settings()
-    cc_helper_setting_frame_init()
-    -- cc_helper_load_settings()
-    -- cc_helper_function_check()
-    frame:ShowWindow(1)
-end
-
-function cc_helper_setting_copy(frame, ctrl, str, num)
-
-    local copy_settings_location = string.format('../addons/%s/%s_copy.json', addon_name_lower, active_id)
-    local copy_settings = acutil.loadJSON(copy_settings_location)
-    g.copy_settings = copy_settings
-
-    local context = ui.CreateContextMenu("MAPFOG_CONTEXT", "{ol}Copy source", 0, 0, 0, 0);
-    ui.AddContextMenuItem(context, "-----", "")
-
-    for cid, tbl in pairs(g.copy_settings) do
-
-        if next(tbl) then
-            local job_cls = GetClassByType("Job", tbl.jobid)
-            local job_name = GET_JOB_NAME(job_cls, tbl.gender)
-            local name = tbl.name
-            local text = name .. "(" .. job_name .. ")"
-            local scp = ui.AddContextMenuItem(context, text, string.format("cc_helper_load_copy('%s')", cid))
-        end
-
-    end
-    ui.OpenContextMenu(context);
-
-end
-
-local copy = frame:CreateOrGetControl('button', 'copy', 180, 10, 40, 30)
-AUTO_CAST(copy)
-copy:SetText("{ol}copy")
-copy:SetEventScript(ui.LBUTTONUP, "cc_helper_setting_copy")
-
-function cc_helper_setting_save(frame, ctrl, str, num)
-
-    local copy_settings_location = string.format('../addons/%s/%s_copy.json', addon_name_lower, active_id)
-    local copy_settings = acutil.loadJSON(copy_settings_location)
-    if not copy_settings then
-        copy_settings = {}
-    end
-    if not copy_settings[g.cid] then
-        copy_settings[g.cid] = {}
-    end
-    copy_settings[g.cid] = g.settings[g.cid]
-
-    g.copy_settings = copy_settings
-    acutil.saveJSON(copy_settings_location, g.copy_settings)
-
-    ui.SysMsg(g.lang == "Japanese" and "{#FFFF00}設定を保存しました" or "{#FFFF00}Settings saved")
-    cc_helper_save_settings()
-end
-
-local save = frame:CreateOrGetControl('button', 'save', 130, 10, 40, 30)
-AUTO_CAST(save)
-save:SetText("{ol}save")
-save:SetEventScript(ui.LBUTTONUP, "cc_helper_setting_save")
-save:SetTextTooltip(g.lang == "Japanese" and "{ol}このキャラの設定をコピー用に保存します" or
-                        "{ol}Save this character settings for copying")
-
-function cc_helper_setting_delete(frame, ctrl, str, num)
-    local copy_settings_location = string.format('../addons/%s/%s_copy.json', addon_name_lower, active_id)
-    local copy_settings = acutil.loadJSON(copy_settings_location)
-    if not copy_settings then
-        copy_settings = {}
-    end
-    if not copy_settings[g.cid] then
-        copy_settings[g.cid] = {}
-    end
-    copy_settings[g.cid] = {}
-    g.copy_settings = copy_settings
-    acutil.saveJSON(copy_settings_location, g.copy_settings)
-    ui.SysMsg(g.lang == "Japanese" and "{#FFFF00}設定を削除しました" or "{#FFFF00}Settings deleted")
-    cc_helper_save_settings()
-end
-
-local save_delete = frame:CreateOrGetControl('button', 'save_delete', 67, 10, 40, 30)
-AUTO_CAST(save_delete)
-save_delete:SetText("{ol}delete")
-save_delete:SetEventScript(ui.LBUTTONUP, "cc_helper_setting_delete")
-save_delete:SetTextTooltip(g.lang == "Japanese" and "{ol}このキャラのコピー用の設定を削除します" or
-                               "{ol}Delete settings for copying this character")
-
+--[[
 local agmuse = frame:CreateOrGetControl("checkbox", "agmuse", 80, 375, 25, 25)
 AUTO_CAST(agmuse)
 agmuse:SetText("{ol}agm")
@@ -752,7 +915,7 @@ delay:SetTextTooltip(g.lang == "Japanese" and
                          "動作のディレイ時間を設定します。デフォルトは0.3秒。{nl}早過ぎると失敗が多発します。" or
                          "Sets the delay time for the operation. Default is 0.3 seconds.{nl}Too early and many failures will occur.")
 
-]]
+
 
 function cc_helper_check_setting(frame, ctrl, argStr, argNum)
     local ischeck = ctrl:IsChecked();
@@ -798,69 +961,6 @@ end
 
 -- settingframe
 
-function cc_helper_inv_rbtn(item_obj, slot)
-    local frame = ui.GetFrame("cc_helper");
-    if frame:IsVisible() == 0 then
-        INVENTORY_SET_CUSTOM_RBTNDOWN("None")
-        return
-    end
-    local icon = slot:GetIcon();
-    local iconInfo = icon:GetInfo();
-    local iesid = iconInfo:GetIESID()
-    local inv_item = session.GetInvItemByGuid(iesid);
-    local item_obj = GetIES(inv_item:GetObject());
-    local image = TryGetProp(item_obj, "TooltipImage", "None")
-    local clsid = item_obj.ClassID
-    local type = item_obj.ClassType
-    local gemtype = GET_EQUIP_GEM_TYPE(item_obj)
-    local parent_name = slot:GetParent():GetName()
-
-    local char_belonging = TryGetProp(item_obj, 'CharacterBelonging', 0)
-
-    local temp_tbl = {
-        ["Seal"] = "seal",
-        ["Ark"] = "ark",
-        ["LEG"] = "leg",
-        ["GODDESS"] = "god",
-        ["sset_HairAcc_Acc1"] = "hair1",
-        ["sset_HairAcc_Acc2"] = "hair2",
-        ["sset_HairAcc_Acc3"] = "hair3"
-        -- ["aether"] = "gem"
-    }
-
-    for key, value in pairs(temp_tbl) do
-        if key == "Seal" and key == type and clsid ~= 614001 then
-            cc_helper_settings_slot(frame, value, item_obj, iesid, clsid, image)
-            return
-        elseif key == "Ark" and key == type and char_belonging ~= 1 then
-            cc_helper_settings_slot(frame, value, item_obj, iesid, clsid, image)
-            return
-        elseif key == "LEG" and key == item_obj.CardGroupName then
-            cc_helper_settings_slot(frame, value, item_obj, iesid, clsid, image)
-        elseif key == "GODDESS" and key == item_obj.CardGroupName then
-            cc_helper_settings_slot(frame, value, item_obj, iesid, clsid, image)
-        elseif key == "sset_HairAcc_Acc1" and key == parent_name then
-            local str = cc_helper_hair_option(item_obj)
-            cc_helper_settings_slot(frame, value, item_obj, iesid, clsid, image, str)
-        elseif key == "sset_HairAcc_Acc2" and key == parent_name then
-            local str = cc_helper_hair_option(item_obj)
-            cc_helper_settings_slot(frame, value, item_obj, iesid, clsid, image, str)
-        elseif key == "sset_HairAcc_Acc3" and key == parent_name then
-            local str = cc_helper_hair_option(item_obj)
-            cc_helper_settings_slot(frame, value, item_obj, iesid, clsid, image, str)
-            --[[elseif gemtype == "aether" and key == "aether" then
-            for i = 1, 4 do
-                if g.settings[g.cid][tostring(value) .. i].clsid == 0 then
-                    cc_helper_settings_slot(frame, value .. i, item_obj, iesid, clsid, image)
-                    break
-                end
-            end]]
-
-        end
-
-    end
-end
-
 function cc_helper_hair_option(item_obj)
     local strInfo = ""
     for i = 1, 3 do
@@ -886,121 +986,7 @@ function cc_helper_hair_option(item_obj)
     strInfo = strInfo:gsub("-", "")
 
     return strInfo
-end
-
-function cc_helper_settings_slot(frame, value, item_obj, iesid, clsid, image, str)
-    local slot = GET_CHILD_RECURSIVELY(frame, value)
-    local item_cls = GetClassByType("Item", clsid);
-    SET_SLOT_ITEM_CLS(slot, item_cls);
-    SET_SLOT_IMG(slot, image)
-    SET_SLOT_IESID(slot, iesid);
-    if value ~= "leg" and value ~= "god" then
-        SET_SLOT_BG_BY_ITEMGRADE(slot, item_cls)
-    end
-
-    local skin = ""
-    if string.find(value, "gem") ~= nil then
-        if string.find(item_obj.ClassName, "480") ~= nil then
-            skin = "invenslot_unique"
-            slot:SetSkinName(skin)
-        elseif string.find(item_obj.ClassName, "500") ~= nil then
-            skin = "invenslot_legend"
-            slot:SetSkinName(skin)
-        elseif string.find(item_obj.ClassName, "520") ~= nil then
-            skin = "invenslot_pic_goddess"
-            slot:SetSkinName(skin)
-        end
-    end
-    if str ~= nil then
-        local rank = shared_enchant_special_option.get_item_rank(item_obj)
-
-        if rank == "A" then
-            str = str .. "A"
-            skin = "invenslot_pic_goddess"
-            slot:SetSkinName(skin)
-        elseif rank == "B" then
-            str = str .. "B"
-            skin = "invenslot_legend"
-            slot:SetSkinName(skin)
-        elseif rank == "C" then
-            str = str .. "C"
-            skin = "invenslot_unique"
-            slot:SetSkinName(skin)
-        else
-            str = str .. "D"
-        end
-    end
-    local icon = slot:GetIcon();
-    icon:SetTooltipType('wholeitem');
-    icon:SetTooltipArg("None", clsid, iesid);
-    g.settings[g.cid][value].iesid = iesid
-    g.settings[g.cid][value].image = image
-    g.settings[g.cid][value].clsid = clsid
-    g.settings[g.cid][value].skin = skin
-    g.settings[g.cid][value].memo = str
-    cc_helper_save_settings()
-end
-
-function cc_helper_frame_drop(frame, ctrl, argstr, argnum)
-
-    local slot = AUTO_CAST(ctrl)
-    local lifticon = ui.GetLiftIcon();
-    local iconinfo = lifticon:GetInfo();
-    local iesid = iconinfo:GetIESID()
-
-    local parent = lifticon:GetParent();
-    local fromslot = parent:GetParent();
-    local parent_name = fromslot:GetName()
-
-    local inv_item = session.GetInvItemByGuid(iesid);
-    local item_obj = GetIES(inv_item:GetObject());
-    local clsid = item_obj.ClassID
-    local image = TryGetProp(item_obj, "TooltipImage", "None")
-    local type = item_obj.ClassType
-    local gemtype = GET_EQUIP_GEM_TYPE(item_obj)
-    local char_belonging = TryGetProp(item_obj, 'CharacterBelonging', 0)
-
-    local temp_tbl = {
-        ["Seal"] = "seal",
-        ["Ark"] = "ark",
-        ["LEG"] = "leg",
-        ["GODDESS"] = "god",
-        ["sset_HairAcc_Acc1"] = "hair1",
-        ["sset_HairAcc_Acc2"] = "hair2",
-        ["sset_HairAcc_Acc3"] = "hair3"
-        -- ["aether"] = "gem"
-    }
-
-    for key, value in pairs(temp_tbl) do
-        if key == "Seal" and key == type and clsid ~= 614001 then
-            cc_helper_settings_slot(frame, value, item_obj, iesid, clsid, image)
-            return
-        elseif key == "Ark" and key == type and char_belonging ~= 1 then
-            cc_helper_settings_slot(frame, value, item_obj, iesid, clsid, image)
-            return
-        elseif key == "LEG" and key == item_obj.CardGroupName then
-            cc_helper_settings_slot(frame, value, item_obj, iesid, clsid, image)
-        elseif key == "GODDESS" and key == item_obj.CardGroupName then
-            cc_helper_settings_slot(frame, value, item_obj, iesid, clsid, image)
-        elseif key == "sset_HairAcc_Acc1" and key == parent_name then
-            local str = cc_helper_hair_option(item_obj)
-            cc_helper_settings_slot(frame, value, item_obj, iesid, clsid, image, str)
-        elseif key == "sset_HairAcc_Acc2" and key == parent_name then
-            local str = cc_helper_hair_option(item_obj)
-            cc_helper_settings_slot(frame, value, item_obj, iesid, clsid, image, str)
-        elseif key == "sset_HairAcc_Acc3" and key == parent_name then
-            local str = cc_helper_hair_option(item_obj)
-            cc_helper_settings_slot(frame, value, item_obj, iesid, clsid, image, str)
-            --[[elseif gemtype == "aether" and key == "aether" then
-            for i = 1, 4 do
-                if g.settings[g.cid][tostring(value) .. i].clsid == 0 then
-                    cc_helper_settings_slot(frame, value .. i, item_obj, iesid, clsid, image)
-                    break
-                end
-            end]]
-        end
-    end
-end
+end]]
 
 -- putitem
 function cc_helper_in_btn_aethergem_mgr()
