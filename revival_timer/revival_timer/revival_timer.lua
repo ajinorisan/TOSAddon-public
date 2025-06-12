@@ -8,10 +8,11 @@
 -- v1.0.7 WithPTChatバグ修正
 -- v1.0.8 ニコチャット絨毯爆撃バグ修正
 -- v1.0.9 [Wサーバー]とかの文字を名前から外す処理追加
+-- v1.1.0 チャット受信時重くなってたと思われる原因修正
 local addon_name = "REVIVAL_TIMER"
 local addon_name_lower = string.lower(addon_name)
 local author = "norisan"
-local ver = "1.0.9"
+local ver = "1.1.0"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -62,11 +63,54 @@ function g.load_json(path)
     end
 end
 
-function g.setup_hook_and_event(my_addon, origin_func_name, my_func_name, bool)
+function g.setup_hook_and_event_and_before(my_addon, origin_func_name, my_func_name, bool)
 
     g.FUNCS = g.FUNCS or {}
     if not g.FUNCS[origin_func_name] then
         g.FUNCS[origin_func_name] = _G[origin_func_name]
+    end
+
+    if bool == "before" then
+        local before_origin_func = g.FUNCS[origin_func_name]
+
+        local function before_hooked_function(...)
+
+            -- ここにアドオンコードを書く
+            local original_args = {...}
+
+            if origin_func_name == "UI_CHAT" then
+                local msg = original_args[1]
+
+                local found_rtimer = string.find(msg, "/rtimer", 1, true)
+
+                if found_rtimer then
+
+                    local show_timer = ui.GetFrame(addon_name_lower .. "show_timer")
+
+                    if show_timer and show_timer:IsVisible() == 1 then
+                        show_timer:StopUpdateScript("revival_timer_timer_update");
+                        show_timer:ShowWindow(0)
+                    elseif show_timer and show_timer:IsVisible() == 0 then
+
+                        show_timer:ShowWindow(1)
+                        show_timer:StopUpdateScript("revival_timer_timer_update");
+                        revival_timer_show_timer()
+                    end
+                    return
+                end
+            end
+
+            local before_original_results = {before_origin_func(...)}
+
+            if before_original_results then
+                return table.unpack(before_original_results)
+            else
+                return
+            end
+        end
+
+        _G[origin_func_name] = before_hooked_function
+        return
     end
 
     local origin_func = g.FUNCS[origin_func_name]
@@ -157,7 +201,7 @@ function REVIVAL_TIMER_ON_INIT(addon, frame)
     g.chat_check = {}
 
     addon:RegisterMsg("GAME_START_3SEC", "revival_timer_frame_init")
-    g.setup_hook_and_event(addon, "UI_CHAT", "revival_timer_UI_CHAT", false)
+    g.setup_hook_and_event_and_before(addon, "UI_CHAT", "revival_timer_UI_CHAT", true)
 end
 
 function revival_timer_UI_CHAT(my_fram, my_msg)
@@ -198,52 +242,39 @@ function revival_timer_DRAW_CHAT_MSG(my_frame, my_msg)
     end
 
     local now = os.clock()
-    if g.last_rtimer_proc_time and (now - g.last_rtimer_proc_time < g.rtimer_cooldown) then
+    if g.last_rtimer_proc_time and ((now - g.last_rtimer_proc_time) < g.rtimer_cooldown) then
         return
     end
 
     local groupboxname, startindex, chatframe = g.get_event_args(my_msg)
 
-    local frame = ui.GetFrame("chatframe")
     local size = session.ui.GetMsgInfoSize(groupboxname)
     local chat = session.ui.GetChatMsgInfo(groupboxname, size - 1)
+    local msg_type = chat:GetMsgType()
 
-    for i = startindex, size - 1 do
-
-        local clusterinfo = session.ui.GetChatMsgInfo(groupboxname, i)
-
-        local chat_id = clusterinfo:GetMsgInfoID()
-
-        if not g.chat_check[chat_id] then
-            g.chat_check[chat_id] = true
-        end
-
-        local clustername = "cluster_" .. chat_id
-        local cluster = GET_CHILD_RECURSIVELY(frame, clustername)
-
-        if not cluster then
-            return
-        end
-        local msg = chat:GetMsg()
-        local name = chat:GetCommanderName()
-        name = name:gsub(" %[(.-)%]", "")
-        local my_name = GETMYFAMILYNAME()
-        if name == my_name then
-            return
-        end
-
-        local found = string.find(msg, "%[R Timer%]")
-        if found then
-            msg = msg:gsub("%[R Timer%]", "")
-            revival_timer_NICO_CHAT("{@st55_a}" .. name .. ":" .. msg)
-            found = string.find(msg, " 5 sec rem.")
-            if found then
-                imcSound.PlaySoundEvent('sys_tp_box_3')
-            end
-            g.last_rtimer_proc_time = os.clock()
-        end
-
+    if msg_type ~= "Party" then
+        return
     end
+
+    local name = chat:GetCommanderName()
+    name = name:gsub(" %[(.-)%]", "")
+    local my_name = GETMYFAMILYNAME()
+    if name == my_name then
+        return
+    end
+
+    local msg = chat:GetMsg()
+    local found = string.find(msg, "%[R Timer%]")
+    if found then
+        msg = msg:gsub("%[R Timer%]", "")
+        revival_timer_NICO_CHAT("{@st55_a}" .. name .. ":" .. msg)
+        found = string.find(msg, " 5 sec rem.")
+        if found then
+            imcSound.PlaySoundEvent('sys_tp_box_3')
+        end
+        g.last_rtimer_proc_time = os.clock()
+    end
+
 end
 
 function revival_timer_frame_init()
@@ -251,7 +282,7 @@ function revival_timer_frame_init()
     g.last_toggle_time = 0
     g.last_rtimer_proc_time = 0
     g.rtimer_cooldown = 3.0
-    g.setup_hook_and_event(g.addon, "DRAW_CHAT_MSG", "revival_timer_DRAW_CHAT_MSG", true)
+    g.setup_hook_and_event_and_before(g.addon, "DRAW_CHAT_MSG", "revival_timer_DRAW_CHAT_MSG", true)
 
     revival_timer_timer_frame_init()
 
