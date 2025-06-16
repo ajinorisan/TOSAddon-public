@@ -721,7 +721,7 @@ function cc_helper_setting_frame_init()
     ecouse:SetEventScript(ui.LBUTTONUP, "cc_helper_check_setting")
     ecouse:SetCheck(g.share_settings.eco_mode)
 
-    local delay_title = frame:CreateOrGetControl("richtext", "delay_title", 130, 440)
+    --[[local delay_title = frame:CreateOrGetControl("richtext", "delay_title", 130, 440)
     delay_title:SetText("{ol}delay")
     function cc_helper_delay_change(frame, ctrl, argStr, argNum)
         local value = tonumber(ctrl:GetText())
@@ -745,7 +745,7 @@ function cc_helper_setting_frame_init()
     delay:SetEventScript(ui.ENTERKEY, "cc_helper_delay_change")
     delay:SetTextTooltip(g.lang == "Japanese" and
                              "動作のディレイ時間を設定します。デフォルトは0.3秒。{nl}早過ぎると失敗が多発します。" or
-                             "Sets the delay time for the operation. Default is 0.3 seconds.{nl}Too early and many failures will occur.")
+                             "Sets the delay time for the operation. Default is 0.3 seconds.{nl}Too early and many failures will occur.")]]
 
     function cc_helper_settings_close(frame)
         local frame = ui.GetFrame("cc_helper")
