@@ -17,37 +17,26 @@
 -- v1.3.0 ヘアコスのエンチャントが3個じゃない場合バグってたの修正
 -- v1.3.1 オードクローズバグってたの修正。agm全キャラ処理追加
 -- v1.3.2 agm連携のトコ修正した
-local addonName = "CC_HELPER"
-local addonNameLower = string.lower(addonName)
+local addon_name = "CC_HELPER"
+local addon_name_lower = string.lower(addon_name)
 local author = "norisan"
 local ver = "1.3.2"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
-_G["ADDONS"][author][addonName] = _G["ADDONS"][author][addonName] or {}
-local g = _G["ADDONS"][author][addonName]
+_G["ADDONS"][author][addon_name] = _G["ADDONS"][author][addon_name] or {}
+local g = _G["ADDONS"][author][addon_name]
 
 local acutil = require("acutil")
 local json = require('json')
-local base = {}
 
 local active_id = session.loginInfo.GetAID()
--- 
-g.settings_location = string.format('../addons/%s/settings.json', addonNameLower)
 
-function g.SetupHook(func, baseFuncName)
-    local addonUpper = string.upper(addonName)
-    local replacementName = addonUpper .. "_BASE_" .. baseFuncName
-    if (_G[replacementName] == nil) then
-        _G[replacementName] = _G[baseFuncName]
-        _G[baseFuncName] = func
-    end
-    base[baseFuncName] = _G[replacementName]
-end
+g.settings_path = string.format('../addons/%s/settings.json', addon_name_lower)
 
 function g.mkdir_new_folder()
-    local folder_path = string.format("../addons/%s", addonNameLower)
-    local file_path = string.format("../addons/%s/mkdir.txt", addonNameLower)
+    local folder_path = string.format("../addons/%s", addon_name_lower)
+    local file_path = string.format("../addons/%s/mkdir.txt", addon_name_lower)
     local file = io.open(file_path, "r")
     if not file then
         os.execute('mkdir "' .. folder_path .. '"')
@@ -62,16 +51,51 @@ function g.mkdir_new_folder()
 end
 g.mkdir_new_folder()
 
-function cc_helper_save_settings()
+function g.get_map_type()
+    local map_name = session.GetMapName()
+    local map_cls = GetClass("Map", map_name)
+    local map_type = map_cls.MapType
+    return map_type
+end
 
-    acutil.saveJSON(g.settingsFileLoc, g.settings)
+function g.save_json(path, tbl)
+    local file = io.open(path, "w")
+    if file then
+        local str = json.encode(tbl)
+        file:write(str)
+        file:close()
+    end
+end
+
+function g.load_json(path)
+    local file = io.open(path, "r")
+    if not file then
+        return nil, "Error opening file: " .. path
+    end
+
+    local content = file:read("*all")
+    file:close()
+
+    if not content or content == "" then
+        return nil, "File content is empty or could not be read: " .. path
+    end
+
+    local decoded_table, decode_err = json.decode(content)
+
+    if not decoded_table then
+        return nil, decode_err
+    end
+
+    return decoded_table, nil
+end
+
+function cc_helper_save_settings()
+    g.save_json(g.cid_settings_path, g.settings)
 end
 
 function cc_helper_load_settings()
 
-    local start_time = os.clock()
-
-    local share_settings = acutil.loadJSON(g.settings_location)
+    local share_settings = g.load_json(g.settings_path)
 
     if not share_settings then
         share_settings = {
@@ -80,17 +104,17 @@ function cc_helper_load_settings()
             auto_close = 1,
             all_agm = 0
         }
-
     end
     if not share_settings.all_agm then
         share_settings.all_agm = 0
     end
     g.share_settings = share_settings
-    acutil.saveJSON(g.settings_location, g.share_settings)
 
-    g.settingsFileLoc = string.format('../addons/%s/%s.json', addonNameLower, g.cid)
+    g.save_json(g.settings_path, g.share_settings)
 
-    local settings = acutil.loadJSON(g.settingsFileLoc)
+    g.cid_settings_path = string.format('../addons/%s/%s.json', addon_name_lower, g.cid)
+
+    local settings = g.load_json(g.cid_settings_path)
 
     if not settings then
         settings = {}
@@ -134,59 +158,39 @@ function cc_helper_load_settings()
 
     g.settings = settings
 
-    local end_time = os.clock()
-    local elapsed_time = end_time - start_time
-
     cc_helper_save_settings()
 
 end
 
 function cc_helper_function_check()
-    local functionName = "AETHERGEM_MGR_ON_INIT" -- チェックしたい関数の名前を文字列として指定します
-    if type(_G[functionName]) == "function" then
-        g.agm_func = true
-        g.agm = true
-    else
-        g.agm = false
-        if g.settings[g.cid].agm_use then
-            g.settings[g.cid].agm_use = 0
-        end
-    end
 
-    if g.share_settings.all_agm and g.share_settings.all_agm == 1 then
-        g.agm = false
-    else
-        local found = false
-        for k, v in pairs(g.settings[g.cid]) do
-            if string.find(k, "gem") and type(v) == "table" then
-                for k2, v2 in pairs(v) do
-                    if k2 == "clsid" then
-                        if v2 > 0 then
-                            found = true
-                        end
+    if type(_G["AETHERGEM_MGR_ON_INIT"]) == "function" then
 
-                    end
+        local valid_gem_count = 0
+        for key, data in pairs(g.settings[g.cid]) do
+            if string.find(key, "gem") and type(data) == "table" then
+                if data.clsid and data.clsid > 0 then
+                    valid_gem_count = valid_gem_count + 1
                 end
             end
         end
 
-        if g.settings[g.cid].agm_use == 1 or found == false then
+        if valid_gem_count >= 4 then
             g.agm = true
         else
             g.agm = false
+            if g.settings[g.cid].agm_use == 1 then
+                g.settings[g.cid].agm_use = 0
+            end
         end
-    end
-
-    local functionName = "MONSTERCARD_CHANGE_ON_INIT" -- チェックしたい関数の名前を文字列として指定します
-    if type(_G[functionName]) == "function" then
-        g.mcc = true
     else
-        g.mcc = false
-        if g.settings[g.cid].mcc_use then
-            g.settings[g.cid].mcc_use = 0
+        g.agm = false
+        if g.settings[g.cid].agm_use == 1 then
+            g.settings[g.cid].agm_use = 0
         end
     end
 
+    cc_helper_save_settings()
 end
 
 function CC_HELPER_ON_INIT(addon, frame)
@@ -197,17 +201,14 @@ function CC_HELPER_ON_INIT(addon, frame)
     g.lang = option.GetCurrentCountry()
     g.login_name = session.GetMySession():GetPCApc():GetName()
 
-    local pc = GetMyPCObject()
-    local curMap = GetZoneName(pc)
-    local mapCls = GetClass("Map", curMap)
-    if mapCls.MapType == "City" then
+    if g.get_map_type() == "City" then
         cc_helper_load_settings()
         acutil.setupEvent(addon, "ACCOUNTWAREHOUSE_CLOSE", "cc_helper_ACCOUNTWAREHOUSE_CLOSE")
         acutil.setupEvent(addon, "INVENTORY_CLOSE", "cc_helper_settings_close")
         acutil.setupEvent(addon, "UI_TOGGLE_INVENTORY", "cc_helper_invframe_init")
         acutil.setupEvent(addon, "INVENTORY_OPEN", "cc_helper_invframe_init")
         addon:RegisterMsg("OPEN_DLG_ACCOUNTWAREHOUSE", "cc_helper_accountwarehouse_init")
-        addon:RegisterMsg("GAME_START", "cc_helper_function_check")
+        -- addon:RegisterMsg("GAME_START", "cc_helper_function_check")
     end
 
 end
@@ -286,7 +287,7 @@ function cc_helper_accountwarehouse_init()
     auto_close:SetCheck(g.share_settings.auto_close)
 
     -- if _G.ADDONS.norisan.monstercard_change ~= nil then
-    if g.mcc then
+    --[[if g.mcc then
         local mccbtn = awhframe:CreateOrGetControl("button", "mcc", 625, 120, 30, 30)
         AUTO_CAST(mccbtn)
         mccbtn:SetSkinName("test_red_button")
@@ -295,7 +296,7 @@ function cc_helper_accountwarehouse_init()
         mccbtn:SetTextTooltip(g.lang == "Japanese" and "カード自動搬出入、自動着脱" or
                                   "Automatic card loading/unloading, automatic insertion/removal")
         mccbtn:SetEventScript(ui.LBUTTONUP, "monstercard_change_MONSTERCARDPRESET_FRAME_OPEN")
-    end
+    end]]
 
     cc_helper_invframe_init()
 end
@@ -303,14 +304,15 @@ end
 function cc_helper_ACCOUNTWAREHOUSE_CLOSE(frame)
 
     local invframe = ui.GetFrame("inventory")
-    local inbtn = GET_CHILD_RECURSIVELY(invframe, "inv_in")
-    local outbtn = GET_CHILD_RECURSIVELY(invframe, "inv_out")
+    local in_btn = GET_CHILD_RECURSIVELY(invframe, "in_btn")
+    local out_btn = GET_CHILD_RECURSIVELY(invframe, "out_btn")
 
-    inbtn:ShowWindow(0)
-    outbtn:ShowWindow(0)
+    in_btn:ShowWindow(0)
+    out_btn:ShowWindow(0)
 end
 
-function cc_helper_check_setting(frame, ctrl, argStr, argNum)
+function cc_helper_check_setting(frame, ctrl)
+
     local ischeck = ctrl:IsChecked()
 
     if ctrl:GetName() == "mccuse" then
@@ -345,15 +347,24 @@ function cc_helper_check_setting(frame, ctrl, argStr, argNum)
         else
             g.share_settings.all_agm = 1
         end
+    elseif ctrl:GetName() == "agm_check" then
+        if ischeck == 0 then
+            g.settings[g.cid].agm_check = 0
+        else
+            g.settings[g.cid].agm_check = 1
+        end
     end
-    acutil.saveJSON(g.settings_location, g.share_settings)
+    g.save_json(g.settings_path, g.share_settings)
     cc_helper_save_settings()
+
     cc_helper_setting_frame_init()
     frame:ShowWindow(1)
 end
 
 -- settingframe
 function cc_helper_setting_frame_init()
+
+    cc_helper_function_check()
 
     local awhframe = ui.GetFrame("accountwarehouse")
     ACCOUNTWAREHOUSE_CLOSE(awhframe)
@@ -503,11 +514,11 @@ function cc_helper_setting_frame_init()
             end
         end
 
-        if g.settings[g.cid].agm_use == 0 and string.find(name, "gem") ~= nil then
+        if string.find(name, "gem") and g.settings[g.cid].agm_use == 0 then
             slot:ShowWindow(0)
-        elseif g.settings[g.cid].agm_use == 1 and string.find(name, "gem") ~= nil then
+        elseif string.find(name, "gem") and g.settings[g.cid].agm_use == 1 then
             local agm_json = string.format('../addons/%s/%s.json', "aethergem_mgr", active_id)
-            local settings = acutil.loadJSON(agm_json)
+            local settings = g.load_json(agm_json)
             local agm_tbl = settings
             if agm_tbl ~= nil then
                 local use_index = settings[g.cid]["use_index"]
@@ -545,13 +556,7 @@ function cc_helper_setting_frame_init()
             slot:EnableDrop(0)
             slot:SetEventScript(ui.DROP, "None")
             slot:SetEventScript(ui.RBUTTONDOWN, "None")
-
         end
-
-        --[[if string.find(name, "gem") ~= nil then
-            slot:SetSkinName(g.settings[cid][name].skin)
-        end]]
-
     end
 
     function cc_helper_load_copy(cid)
@@ -560,7 +565,7 @@ function cc_helper_setting_frame_init()
             local copy = {}
             for k, v in pairs(original) do
                 if type(v) == "table" then
-                    copy[k] = deepCopy(v) -- テーブルの場合は再帰的にコピー
+                    copy[k] = deepCopy(v)
                 else
                     copy[k] = v
                 end
@@ -568,21 +573,18 @@ function cc_helper_setting_frame_init()
             return copy
         end
 
-        -- 使用例
-        g.settings[g.cid] = deepCopy(g.copy_settings[cid]) -- ディープコピーを行う
-        g.settings[g.cid]["name"] = g.login_name -- name を更新
+        g.settings[g.cid] = deepCopy(g.copy_settings[cid])
+        g.settings[g.cid]["name"] = g.login_name
 
         cc_helper_save_settings()
         cc_helper_setting_frame_init()
-        -- cc_helper_load_settings()
-        -- cc_helper_function_check()
         frame:ShowWindow(1)
     end
 
     function cc_helper_setting_copy(frame, ctrl, str, num)
 
-        local copy_settings_location = string.format('../addons/%s/%s_copy.json', addonNameLower, active_id)
-        local copy_settings = acutil.loadJSON(copy_settings_location)
+        local copy_settings_location = string.format('../addons/%s/%s_copy.json', addon_name_lower, active_id)
+        local copy_settings = g.load_json(copy_settings_location)
         g.copy_settings = copy_settings
 
         local context = ui.CreateContextMenu("MAPFOG_CONTEXT", "{ol}Copy source", 0, 0, 0, 0)
@@ -610,8 +612,8 @@ function cc_helper_setting_frame_init()
 
     function cc_helper_setting_save(frame, ctrl, str, num)
 
-        local copy_settings_location = string.format('../addons/%s/%s_copy.json', addonNameLower, active_id)
-        local copy_settings = acutil.loadJSON(copy_settings_location)
+        local copy_settings_location = string.format('../addons/%s/%s_copy.json', addon_name_lower, active_id)
+        local copy_settings = g.load_json(copy_settings_location)
         if not copy_settings then
             copy_settings = {}
         end
@@ -621,7 +623,7 @@ function cc_helper_setting_frame_init()
         copy_settings[g.cid] = g.settings[g.cid]
 
         g.copy_settings = copy_settings
-        acutil.saveJSON(copy_settings_location, g.copy_settings)
+        g.save_json(copy_settings_location, g.copy_settings)
 
         ui.SysMsg(g.lang == "Japanese" and "{#FFFF00}設定を保存しました" or "{#FFFF00}Settings saved")
         cc_helper_save_settings()
@@ -635,8 +637,8 @@ function cc_helper_setting_frame_init()
                             "{ol}Save this character settings for copying")
 
     function cc_helper_setting_delete(frame, ctrl, str, num)
-        local copy_settings_location = string.format('../addons/%s/%s_copy.json', addonNameLower, active_id)
-        local copy_settings = acutil.loadJSON(copy_settings_location)
+        local copy_settings_location = string.format('../addons/%s/%s_copy.json', addon_name_lower, active_id)
+        local copy_settings = g.load_json(copy_settings_location)
         if not copy_settings then
             copy_settings = {}
         end
@@ -645,7 +647,7 @@ function cc_helper_setting_frame_init()
         end
         copy_settings[g.cid] = {}
         g.copy_settings = copy_settings
-        acutil.saveJSON(copy_settings_location, g.copy_settings)
+        g.save_json(copy_settings_location, g.copy_settings)
         ui.SysMsg(g.lang == "Japanese" and "{#FFFF00}設定を削除しました" or "{#FFFF00}Settings deleted")
         cc_helper_save_settings()
     end
@@ -658,7 +660,7 @@ function cc_helper_setting_frame_init()
         g.lang == "Japanese" and "{ol}このキャラのコピー用の設定を削除します" or
             "{ol}Delete settings for copying this character")
 
-    if g.mcc then
+    --[[if g.mcc then
         local mccuse = frame:CreateOrGetControl("checkbox", "mccuse", 10, 375, 25, 25)
         AUTO_CAST(mccuse)
         mccuse:SetText("{ol}mcc")
@@ -667,9 +669,9 @@ function cc_helper_setting_frame_init()
                                   "If checked, it will work with [Monster Card Change].")
         mccuse:SetCheck(g.settings[g.cid].mcc_use)
         mccuse:SetEventScript(ui.LBUTTONUP, "cc_helper_check_setting")
-    end
+    end]]
 
-    if g.agm_func then
+    if g.agm then
         local all_agm = frame:CreateOrGetControl("checkbox", "all_agm", 10, 435, 25, 25)
         AUTO_CAST(all_agm)
         all_agm:SetText("{ol}all agm")
@@ -679,77 +681,36 @@ function cc_helper_setting_frame_init()
         all_agm:SetEventScript(ui.LBUTTONUP, "cc_helper_check_setting")
         all_agm:SetCheck(g.share_settings.all_agm)
 
-        if g.share_settings.all_agm == 1 then
-            g.agm = false
-        else
-            local found = false
-            for k, v in pairs(g.settings[g.cid]) do
-                if string.find(k, "gem") and type(v) == "table" then
-                    for k2, v2 in pairs(v) do
-                        if k2 == "clsid" then
-                            if v2 > 0 then
-                                found = true
-                            end
+        local agmuse = frame:CreateOrGetControl("checkbox", "agmuse", 80, 375, 25, 25)
+        AUTO_CAST(agmuse)
+        agmuse:SetText("{ol}agm")
+        agmuse:SetTextTooltip(g.lang == "Japanese" and
+                                  "チェックを入れると[Aethergem Manager]と連携します。" or
+                                  "If checked, it will work with [Aethergem Manager].")
+        agmuse:SetEventScript(ui.LBUTTONUP, "cc_helper_check_setting")
+        agmuse:SetCheck(g.settings[g.cid].agm_use)
 
-                        end
-                    end
-                end
-            end
-            if g.settings[g.cid].agm_use == 1 or found == false then
-                g.agm = true
+        if g.settings[g.cid]["agm_use"] == 1 then
+            local agm_on_off = frame:CreateOrGetControl('button', 'agm_on_off', 150, 375, 60, 30)
+            AUTO_CAST(agm_on_off)
+            agm_on_off:ShowWindow(1)
+            agmuse:SetEventScript(ui.LBUTTONUP, "cc_helper_check_setting")
+
+            if g.settings[g.cid].agm_check == 1 then
+                agm_on_off:SetSkinName("test_red_button")
+                agm_on_off:SetText("{ol}ON")
+                agm_on_off:SetTextTooltip(g.lang == "Japanese" and
+                                              "[エーテルジェムマネージャー]との連携時に確認します" or
+                                              "Check when working with [Aethergem Manager]")
             else
-                g.agm = false
+                agm_on_off:SetSkinName("test_gray_button")
+                agm_on_off:SetText("{ol}OFF")
+                agm_on_off:SetTextTooltip(g.lang == "Japanese" and
+                                              "[エーテルジェムマネージャー]との連携時に確認しません" or
+                                              "Not checked when working with [Aethergem Manager]")
             end
         end
     end
-
-    -- if g.agm then
-    local agmuse = frame:CreateOrGetControl("checkbox", "agmuse", 80, 375, 25, 25)
-    AUTO_CAST(agmuse)
-    agmuse:SetText("{ol}agm")
-    agmuse:SetTextTooltip(
-        g.lang == "Japanese" and "チェックを入れると[Aethergem Manager]と連携します。" or
-            "If checked, it will work with [Aethergem Manager].")
-    agmuse:SetEventScript(ui.LBUTTONUP, "cc_helper_check_setting")
-    agmuse:SetCheck(g.settings[g.cid].agm_use)
-    -- end
-
-    function cc_helper_agm_setting(frame, ctrl, str, num)
-        if g.settings[g.cid].agm_check == 0 then
-            g.settings[g.cid].agm_check = 1
-        else
-            g.settings[g.cid].agm_check = 0
-        end
-        cc_helper_save_settings()
-        cc_helper_setting_frame_init()
-        frame:ShowWindow(1)
-
-    end
-
-    local agm_on_off = frame:CreateOrGetControl('button', 'agm_on_off', 150, 375, 60, 30)
-    AUTO_CAST(agm_on_off)
-    if g.settings[g.cid]["agm_use"] == 1 then -- !
-        agm_on_off:ShowWindow(1)
-        if g.settings[g.cid].agm_check == 1 then
-            agm_on_off:SetSkinName("test_red_button")
-            agm_on_off:SetText("{ol}ON")
-            agm_on_off:SetTextTooltip(g.lang == "Japanese" and
-                                          "[エーテルジェムマネージャー]との連携時に確認します" or
-                                          "Check when working with [Aethergem Manager]")
-        else
-            agm_on_off:SetSkinName("test_gray_button")
-            agm_on_off:SetText("{ol}OFF")
-            agm_on_off:SetTextTooltip(g.lang == "Japanese" and
-                                          "[エーテルジェムマネージャー]との連携時に確認しません" or
-                                          "Not checked when working with [Aethergem Manager]")
-        end
-    else
-        g.settings[g.cid].agm_check = 0
-        agm_on_off:ShowWindow(0)
-        cc_helper_save_settings()
-    end
-
-    agm_on_off:SetEventScript(ui.LBUTTONUP, "cc_helper_agm_setting")
 
     local ecouse = frame:CreateOrGetControl("checkbox", "ecouse", 10, 405, 25, 25)
     AUTO_CAST(ecouse)
@@ -759,10 +720,6 @@ function cc_helper_setting_frame_init()
                               "If checked, it skips the operation of legend cards and{nl}ether gems that require silver to remove.")
     ecouse:SetEventScript(ui.LBUTTONUP, "cc_helper_check_setting")
     ecouse:SetCheck(g.share_settings.eco_mode)
-
-    --[[if agm_on_off then
-        agm_on_off:ShowWindow(1)
-    end]]
 
     local delay_title = frame:CreateOrGetControl("richtext", "delay_title", 130, 440)
     delay_title:SetText("{ol}delay")
@@ -778,7 +735,7 @@ function cc_helper_setting_frame_init()
             text:SetText("0.3")
             g.share_settings.delay = 0.3
         end
-        acutil.saveJSON(g.settings_location, g.share_settings)
+        g.save_json(g.settings_path, g.share_settings)
     end
     local delay = frame:CreateOrGetControl('edit', 'delay', 175, 440, 50, 20)
     AUTO_CAST(delay)
@@ -886,7 +843,7 @@ function cc_helper_setting_frame_init()
                         skin = "goddess_card__activation"
                     end
                     cc_helper_create_slot(frame, name, info.x, info.y, width, height, skin, info.text, value.clsid,
-                        value.iesid, value.image, g.cid)
+                                          value.iesid, value.image, g.cid)
                     break
                 end
             end
