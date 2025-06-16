@@ -15,10 +15,11 @@
 -- v1.1.5 バグで色々どうしようもなくなったので仕切り直し。セーブファイル消えます。アドオンメニューに参加
 -- v1.1.6 アドオンメニュー回り修正。
 -- V1.1.7 バラックに戻るところバグってたの修正
+-- v1.1.8 ICCと連携
 local addon_name = "OTHER_CHARACTER_SKILL_LIST"
 local addon_name_lower = string.lower(addon_name)
 local author = "norisan"
-local ver = "1.1.7"
+local ver = "1.1.8"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -300,7 +301,7 @@ function OTHER_CHARACTER_SKILL_LIST_ON_INIT(addon, frame)
         return
     end
 
-    g.layer = g.layer or _G["norisan"]["LAST_LAYER"] or 1
+    g.layer = _G["norisan"]["LAST_LAYER"] or g.layer or 1
 
     local menu_data = {
         name = "Other Character Skill List ",
@@ -771,6 +772,8 @@ end
 
 function other_character_skill_list_frame_open(frame, ctrl, str, num)
 
+    other_character_skill_list_save_enchant()
+
     local main_frame = ui.CreateNewFrame("notice_on_pc", addon_name_lower .. "new_frame", 0, 0, 70, 30)
     AUTO_CAST(main_frame)
 
@@ -860,18 +863,50 @@ function other_character_skill_list_frame_open(frame, ctrl, str, num)
         local char_equips = char_settings.equips
         local gear_score = char_settings.gear_score
 
-        local name_lbl = main_gbox:CreateOrGetControl("richtext", "name_text" .. i, 10, y_pos, 145, 20)
+        local job_list, level, last_job_id = GetJobListFromAdventureBookCharData(char_info.name)
+        local last_job_class = GetClassByType("Job", last_job_id)
+        local last_job_icon = TryGetProp(last_job_class, "Icon")
+
+        local job_slot = main_gbox:CreateOrGetControl("slot", "jobslot" .. i, 0, y_pos - 3, 25, 25)
+        AUTO_CAST(job_slot)
+        job_slot:SetSkinName("None")
+        job_slot:EnableHitTest(1)
+        job_slot:EnablePop(0)
+
+        local job_icon = CreateIcon(job_slot)
+        job_icon:SetImage(last_job_icon)
+
+        local name_lbl = main_gbox:CreateOrGetControl("richtext", "name_text" .. i, 25, y_pos, 195, 20)
         AUTO_CAST(name_lbl)
         name_lbl:SetText("{ol}" .. char_info.name)
-        name_lbl:AdjustFontSizeByWidth(150)
-        name_lbl:SetEventScript(ui.LBUTTONUP, "other_character_skill_list_char_report")
-        name_lbl:SetEventScriptArgString(ui.LBUTTONUP, char_info.name)
+        name_lbl:AdjustFontSizeByWidth(195)
+        name_lbl:SetEventScript(ui.RBUTTONUP, "other_character_skill_list_char_report")
+        name_lbl:SetEventScriptArgString(ui.RBUTTONUP, char_info.name)
         local gs_str = gear_score ~= 0 and tostring(gear_score) or "NoData" -- tostring 追加
 
-        name_lbl:SetTextTooltip(current_lang == "Japanese" and "{ol}GearScore: " .. gs_str .. "{nl} {nl}" ..
-                                    "名前部分を押すと各キャラの装備詳細が見れます。" or
-                                    "{ol}GearScore: " .. gs_str .. "{nl} {nl}" ..
-                                    "Press the name part to see the{nl}equipment details of each character.")
+        local functionName = "INSTANTCC_ON_INIT"
+        if type(_G[functionName]) == "function" then
+
+            function other_character_skill_list_INSTANTCC_DO_CC(frame, ctrl, cid, layer)
+                -- other_character_skill_list_save_enchant()
+                INSTANTCC_DO_CC(cid, layer)
+            end
+
+            local cid = char_info.cid
+            local layer = char_info.layer
+
+            name_lbl:SetEventScript(ui.LBUTTONDOWN, "other_character_skill_list_INSTANTCC_DO_CC")
+            name_lbl:SetEventScriptArgString(ui.LBUTTONDOWN, cid)
+            name_lbl:SetEventScriptArgNumber(ui.LBUTTONDOWN, layer)
+            name_lbl:SetTextTooltip(current_lang == "Japanese" and "{ol}GearScore: " .. gs_str .. "{nl} {nl}" ..
+                                        "右クリック: 各キャラ装備詳細{nl}左クリック：キャラクターチェンジ" or
+                                        "{ol}GearScore: " .. gs_str .. "{nl} {nl}" ..
+                                        "Right click: Details of each character's equipment{nl}Left click: Character change")
+        else
+            name_lbl:SetTextTooltip(current_lang == "Japanese" and "{ol}GearScore: " .. gs_str .. "{nl} {nl}" ..
+                                        "右クリック: 各キャラ装備詳細" or "{ol}GearScore: " .. gs_str ..
+                                        "{nl} {nl}" .. "Right-click: Details of each character's equipment")
+        end
 
         for j, equip_type in ipairs(equips) do
 

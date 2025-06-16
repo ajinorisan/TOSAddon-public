@@ -10,10 +10,11 @@
 -- v1.0.7 settingsファイルが無い状態で読み込んだらバグってたの修正。ツールチップ併記取りやめ。
 -- v1.0.8 種族特攻とかのMAX数値が間違ってたの修正。そんなん知らんかった。
 -- v1.0.9 セット適用出来る様に。大変やった。
+-- v1.1.0 デフォルトのフレームバグってたの修正
 local addon_name = "GODDESS_ICOR_MANAGER"
 local addon_name_lower = string.lower(addon_name)
 local author = "norisan"
-local ver = "1.0.9"
+local ver = "1.1.0"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -2138,9 +2139,9 @@ function goddess_icor_manager_GODDESS_EQUIP_MANAGER_OPEN(frame)
     bg:Resize(1218, 890)
 
     local randomoption_bg = GET_CHILD(bg, "randomoption_bg")
-
+    randomoption_bg:SetGravity(ui.LEFT, ui.TOP)
     -- 66,112,0,0
-    randomoption_bg:SetMargin(66, 112, 0, 0);
+    randomoption_bg:SetMargin(112, 66, 0, 0);
 
     local randomoption_tab = GET_CHILD(randomoption_bg, "randomoption_tab")
     randomoption_tab:ShowWindow(1)

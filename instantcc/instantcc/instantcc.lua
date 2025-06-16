@@ -12,11 +12,12 @@
 -- v1.1.1 レイヤーの取り方修正。バラックでのフックの結果をグローバルに置くように。
 -- v1.1.2 リターンバラックで戻った時にゲームに接続できないバグ修正。
 -- v1.1.3 バラックレイヤー取れないバグ修正
+-- v1.1.4 順番並ばなかったの修正
 local addon_name = "INSTANTCC"
 local addon_name_lower = string.lower(addon_name)
 
 local author = "ebisuke"
-local ver = "1.1.3"
+local ver = "1.1.4"
 local basever = "0.0.7"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
@@ -148,83 +149,88 @@ function g.load_settings()
 end
 
 function INSTANTCC_SORT_CHAR_DATA()
-    local account_info = session.barrack.GetMyAccount()
-    if not account_info then
-        return
-    end
 
-    local all_names = {}
-    local barrack_max_pc = account_info:GetBarrackPCCount()
-    for i = 0, barrack_max_pc - 1 do
-        local b_char = account_info:GetBarrackPCByIndex(i)
-        if b_char then
-            local b_name = b_char:GetName()
-            if b_name then
-                all_names[b_name] = true
-            end
-        end
-    end
+    local acc_info = session.barrack.GetMyAccount()
 
     g.settings.characters = g.settings.characters or {}
 
-    local new_char_list = {}
+    local active_pc_num = acc_info:GetPCCount()
+    for i = 0, active_pc_num - 1 do
+        local pc_info = acc_info:GetPCByIndex(i)
+        if pc_info then
+            local pc_apc = pc_info:GetApc()
+            if pc_apc then
+                local pc_name = pc_apc:GetName()
+                local pc_cid = pc_info:GetCID()
 
-    for _, char_data in ipairs(g.settings.characters) do
-        if char_data and char_data.name and all_names[char_data.name] then
-            table.insert(new_char_list, char_data)
-        end
-    end
-    g.settings.characters = new_char_list
+                local char_data_new = {
+                    name = pc_name,
+                    layer = g.layer,
+                    order = i,
+                    jobid = (acc_info:GetByStrCID(pc_cid) and acc_info:GetByStrCID(pc_cid):GetRepID()) or
+                        pc_apc:GetJob(),
+                    gender = pc_apc:GetGender(),
+                    level = pc_apc:GetLv(),
+                    cid = pc_cid
+                }
 
-    local pc_count = account_info:GetPCCount()
-    for i = 0, pc_count - 1 do
-        local pc_info = account_info:GetPCByIndex(i)
-        local pc_apc = pc_info:GetApc()
-        local pc_name = pc_apc:GetName()
-        local pc_cid = pc_info:GetCID()
-        local gender = pc_apc:GetGender()
-        local pc_info_cid = account_info:GetByStrCID(pc_cid);
-        local jobid = pc_info_cid:GetRepID() or pc_apc:GetJob()
-        local level = pc_apc:GetLv()
-
-        local info = {
-            name = pc_name,
-            layer = g.layer,
-            cid = pc_cid,
-            jobid = jobid,
-            gender = gender,
-            level = level,
-            order = i
-        }
-
-        local found = false
-        for j, character in ipairs(g.settings.characters) do
-            if character.cid == pc_cid then
-                g.settings.characters[j] = info
-                found = true
-                break
+                local exists = false
+                for j, existing_char_data in ipairs(g.settings.characters) do
+                    if existing_char_data.cid == pc_cid then
+                        g.settings.characters[j] = char_data_new
+                        exists = true
+                        break
+                    end
+                end
+                if not exists then
+                    table.insert(g.settings.characters, char_data_new)
+                end
             end
         end
-
-        if not found then
-            table.insert(g.settings.characters, info)
-        end
-
     end
 
-    local function compare_characters(a, b)
+    local barrack_all_names = {}
+    local barrack_total = acc_info:GetBarrackPCCount()
+    for i = 0, barrack_total - 1 do
+        local char_b = acc_info:GetBarrackPCByIndex(i)
+        if char_b then
+            local name_b = char_b:GetName()
+            if name_b then
+                barrack_all_names[name_b] = true
+            end
+        end
+    end
 
+    local valid_chars = {}
+    for _, char_d_set in ipairs(g.settings.characters) do
+        if char_d_set and char_d_set.name and barrack_all_names[char_d_set.name] then
+            table.insert(valid_chars, char_d_set)
+        end
+    end
+    g.settings.characters = valid_chars
+
+    local function compare_chars(a, b)
         if a.layer == b.layer then
             return a.order < b.order
         else
             return a.layer < b.layer
         end
     end
-
-    table.sort(g.settings.characters, compare_characters)
-
+    table.sort(g.settings.characters, compare_chars)
     g.save_settings()
 
+    --[[print(string.format("--- INSTANTCC_SORT_CHAR_DATA: g.settings.characters (count: %d) ---", #g.settings.characters))
+    if g.settings.characters and #g.settings.characters > 0 then
+        for idx, char_info_to_print in ipairs(g.settings.characters) do
+            print(string.format("  [%d] Name: %s, Layer: %s, CID: %s, JobID: %s, Gender: %s, Level: %s, Order: %s", idx,
+                tostring(char_info_to_print.name), tostring(char_info_to_print.layer), tostring(char_info_to_print.cid),
+                tostring(char_info_to_print.jobid), tostring(char_info_to_print.gender),
+                tostring(char_info_to_print.level), tostring(char_info_to_print.order)))
+        end
+    else
+        print("  g.settings.characters is empty or nil.")
+    end
+    print("--------------------------------------------------------------------")]]
 end
 
 function INSTANTCC_BARRACK_START_FRAME_OPEN(...)
@@ -312,7 +318,7 @@ function INSTANTCC_ON_INIT(addon, frame)
 
     g.retry = nil
     g.do_cc = nil
-    g.layer = g.layer or (g.settings and g.settings.characters and g.settings.characters.layer) or 1
+
     g.setup_hook_and_event(addon, "APPS_TRY_MOVE_BARRACK", "INSTANTCC_APPS_TRY_MOVE_BARRACK", false)
 
     _G["norisan"] = _G["norisan"] or {}
@@ -325,9 +331,51 @@ function INSTANTCC_ON_INIT(addon, frame)
         _G["norisan"]["HOOKS"]["BARRACK_TO_GAME"] = addon_name
         addon:RegisterMsg("GAME_START", "INSTANTCC_BARRACK_TO_GAME_HOOK")
     end
+
+    g.layer = _G["norisan"]["LAST_LAYER"] or 1
+
     if not g.first then
+
         addon:RegisterMsg("GAME_START_3SEC", "INSTANTCC_SORT_CHAR_DATA")
     else
+        g.settings.characters = g.settings.characters or {}
+        if not next(g.settings.characters) then
+            local acc_info = session.barrack.GetMyAccount()
+            local active_pc_num = acc_info:GetPCCount()
+            for i = 0, active_pc_num - 1 do
+                local pc_info = acc_info:GetPCByIndex(i)
+                if pc_info then
+                    local pc_apc = pc_info:GetApc()
+                    if pc_apc then
+                        local pc_name = pc_apc:GetName()
+                        local pc_cid = pc_info:GetCID()
+
+                        local char_data_new = {
+                            name = pc_name,
+                            layer = g.layer,
+                            order = i,
+                            jobid = (acc_info:GetByStrCID(pc_cid) and acc_info:GetByStrCID(pc_cid):GetRepID()) or
+                                pc_apc:GetJob(),
+                            gender = pc_apc:GetGender(),
+                            level = pc_apc:GetLv(),
+                            cid = pc_cid
+                        }
+
+                        table.insert(g.settings.characters, char_data_new)
+
+                    end
+                end
+            end
+        end
+        local function compare_chars(a, b)
+            if a.layer == b.layer then
+                return a.order < b.order
+            else
+                return a.layer < b.layer
+            end
+        end
+        table.sort(g.settings.characters, compare_chars)
+        g.save_settings()
         g.first = false
     end
 

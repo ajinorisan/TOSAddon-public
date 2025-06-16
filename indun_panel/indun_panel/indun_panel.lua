@@ -59,10 +59,11 @@
 -- v1.5.9 傭兵団コインの1日分裂券バグってたの修正。でもIMCが勝手に仕様変更したのもアカンと思うんです。
 -- v1.6.0 ヴェルニケBUYUSEで入れる様に。マーケットボタン。テスト的にフィールドでも表示出来る様に。
 -- v1.6.1 閉じてる時に出すアイコン選べる様に。ilvと一部統合。
+-- v1.6.2 チャレ券4枚で分裂券作って入場まで。アイコンバグ修正。
 local addonName = "indun_panel"
 local addon_name_lower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.6.1"
+local ver = "1.6.2"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -210,13 +211,14 @@ function indun_panel_frame_drag(frame, ctrl, str, num)
     g.settings.y = frame:GetY()
     g.save_settings()
 
-    frame:SetSkinName('None')
+    --[[frame:SetSkinName('None')
     frame:SetTitleBarSkin("None")
-    frame:Resize(150, 40)
+    frame:Resize(140, 40)
 
     local button = GET_CHILD(frame, "indun_panel_open")
     AUTO_CAST(button)
-    button:SetText("{ol}{s10}INDUNPANEL")
+    button:SetText("{ol}{s10}INDUNPANEL")]]
+    indun_panel_frame_init()
 end
 
 function indun_panel_always_init(frame, ctrl, str)
@@ -1052,6 +1054,9 @@ function indun_panel_ischecked(frame, ctrl, argStr, argNum)
     local ischeck = ctrl:IsChecked()
 
     local ctrlname = ctrl:GetName()
+    if ctrlname == "tosshop" then
+        ctrlname = "tos"
+    end
     if string.find(ctrl:GetName(), "auto_check") then
         ctrlname = "singularity_check"
     end
@@ -1501,6 +1506,14 @@ function indun_panel_frame_contents(frame)
                                                           "{ol}If checked, the automatic matching button will not be pressed.")
                             auto_check:SetCheck(g.settings.singularity_check)
 
+                            local buy_craft = frame:CreateOrGetControl('button', key .. 'buy_craft', 510, y, 80, 30)
+                            AUTO_CAST(buy_craft)
+                            buy_craft:SetText("{ol}{#EE7800}{s14}BUYCRAFT")
+                            buy_craft:SetTextTooltip("{ol}" ..
+                                                         INDUN_PANEL_LANG(
+                                    "I'll buy 4 Challenge Vouchers{nl}craft a Singularity Voucher, and use it"))
+                            buy_craft:SetEventScript(ui.LBUTTONUP, "indun_panel_singularity_ticket_craft")
+
                         end
                         indun_panel_singularity_frame(frame, key, y)
                     elseif key == "telharsha" then
@@ -1765,6 +1778,84 @@ function indun_panel_frame_contents(frame)
     g.x = x
     g.y = y
     return 1
+end
+
+function indun_panel_singularity_ticket_craft(frame, ctrl, str_arg, step)
+
+    local notice_msg
+    if g.lang == "Japanese" then
+        notice_msg = "{ol}[IDP]分裂券作成中{nl}バグ防止のため操作をしないでください"
+    else
+        notice_msg = "{ol}[IDP]Creating Singularity Voucher{nl}Please do not perform any actions to prevent bugs"
+    end
+    imcAddOn.BroadMsg("NOTICE_Dm_GetItem", notice_msg, 2.0)
+
+    if step == 0 then
+        local recipe_name = "PVP_MINE_40"
+        if INDUN_PANEL_GET_RECIPE_TRADE_COUNT(recipe_name) >= 4 then
+            local recipe_cls = GetClass("ItemTradeShop", recipe_name)
+            session.ResetItemList()
+            session.AddItemID(tostring(0), 1)
+            local item_list = session.GetItemIDList()
+            local cnt_text = string.format("%s %s", tostring(recipe_cls.ClassID), tostring(4))
+
+            item.DialogTransaction("PVP_MINE_SHOP", item_list, cnt_text)
+            ReserveScript(string.format("indun_panel_singularity_ticket_craft(nil,nil,nil,%d)", 1), 0.5)
+            return
+        else
+            local msg
+            if g.lang == "Japanese" then
+                msg = "{ol}チャレンジ券が4枚未満です"
+            else
+                msg = "{ol}Less than 4 challenge tickets"
+            end
+            ui.SysMsg(msg)
+            return
+        end
+
+    elseif step == 1 then
+        local recipe_name = "PVP_MINE_122"
+        local recipe_cls = GetClass("ItemTradeShop", recipe_name)
+        session.ResetItemList()
+        session.AddItemID(tostring(0), 1)
+        local item_list = session.GetItemIDList()
+        local cnt_text = string.format("%s %s", tostring(recipe_cls.ClassID), tostring(1))
+
+        item.DialogTransaction("PVP_MINE_SHOP", item_list, cnt_text)
+        ReserveScript(string.format("indun_panel_singularity_ticket_craft(nil,nil,nil,%d)", 2), 0.5)
+        return
+    elseif step == 2 then
+        local recipe_name = "PVP_MINE_122"
+        local recipe_cls = GetClass("ItemTradeShop", recipe_name)
+        local item_cls = GetClass("Item", recipe_cls.TargetItem)
+
+        local inv_item = session.GetInvItemByType(item_cls.ClassID)
+        if inv_item then
+            INV_ICON_USE(inv_item)
+        else
+            return
+        end
+        ReserveScript(string.format("indun_panel_singularity_ticket_craft(nil,nil,nil,%d)", 3), 0.5)
+        return
+    elseif step == 3 then
+        local input_frame = ui.GetFrame("inputstring")
+        if input_frame and input_frame:IsVisible() == 1 then
+            INPUT_STRING_EXEC(input_frame)
+        end
+        ReserveScript(string.format("indun_panel_singularity_ticket_craft(nil,nil,nil,%d)", 4), 0.5)
+        return
+    elseif step == 4 then
+        local item_id_ticket = 11030067 -- チャレンジモード：[Lv.520] 分裂特異点1回入場券(1日)
+        local inv_item = session.GetInvItemByType(item_id_ticket)
+        if inv_item then
+            INV_ICON_USE(inv_item)
+        else
+            return
+        end
+
+        ReserveScript(string.format("indun_panel_enter_singularity(nil,nil,nil, %d)", 2000), 0.5)
+        return
+    end
 end
 
 function indun_panel_enter_challenge(frame, ctrl, str_index, indun_type)
@@ -2381,6 +2472,12 @@ function INDUN_PANEL_LANG(str)
         if str == tostring("season") then
             str = "シーズンチャレンジ"
         end
+        -- "I'll buy 4 Challenge Vouchers and craft a singularity Voucher"
+        if str == "I'll buy 4 Challenge Vouchers{nl}craft a Singularity Voucher, and use it" then
+            str = "チャレンジチケットを4枚買って{nl}分裂特異点チケットを作って使います"
+
+        end
+
         if str == tostring("priority{nl}1.Tickets due within 24 hours{nl}2.Tickets with expiration date{nl}" ..
                                "3.{img pvpmine_shop_btn_total 20 20} tickets (buy and use){nl}4.{img icon_item_Tos_Event_Coin 20 20} tickets (buy and use))") then
             str = "優先順位{nl}1.24時間以内の期限付きチケット{nl}2.期限付きチケット{nl}" ..
