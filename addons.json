@@ -9,7 +9,7 @@
 		"tags" : ["ajinori","ajinorisan"]
 	},
 	{
-		"name" : "My Debuff Notice",
+		"name" : "Debuff Notice",
 		"file" : "debuff_notice",
 		"extension" : "ipf",
 		"fileVersion" : "v1.0.0",

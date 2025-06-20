@@ -51,7 +51,7 @@ Tree of Savior 用のアドオンを作成・改変しています。
 
 ---
 
-### My Debuff Notice
+### Debuff Notice
 
 `separatedpcdebuff` (meldavyさん作) オマージュ。他のアドオンに干渉しないように修正し、少し目立つようにしました。
 
