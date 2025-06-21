@@ -4,10 +4,11 @@
 -- v1.0.4 エモーションの使用出来ないものを分かるようにした。上手いことハマらないエモーションあったのを直した。
 -- v1.0.5 ウルトラワイド対応。スロット作るボタンも動かせるように
 -- v1.0.6 アドオンボタン修正。使えるエモーション判定部分修正。
+-- v1.0.7 シェアとキャラの切替バグ修正
 local addon_name = "SUB_SLOTSET"
 local addon_name_lower = string.lower(addon_name)
 local author = "norisan"
-local ver = "1.0.6"
+local ver = "1.0.7"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -18,7 +19,7 @@ local json = require("json")
 
 g.settings_base_FileLoc = string.format('../addons/%s/settings.json', addon_name_lower)
 g.active_id = session.loginInfo.GetAID()
-g.settingsFileLoc = string.format("../addons/%s/%s/settings.json", addon_name_lower, g.active_id)
+g.settings_path = string.format("../addons/%s/%s/settings.json", addon_name_lower, g.active_id)
 
 function g.mkdir_new_folder()
     local folder_path = string.format("../addons/%s", addon_name_lower)
@@ -51,14 +52,14 @@ function g.mkdir_new_folder()
 end
 g.mkdir_new_folder()
 
-local file = io.open(g.settingsFileLoc, "r")
+local file = io.open(g.settings_path, "r")
 if not file then
     file = io.open(g.settings_base_FileLoc, "r")
     if file then
         local base_settings = file:read("a")
         file:close()
 
-        file = io.open(g.settingsFileLoc, "w")
+        file = io.open(g.settings_path, "w")
         if file then
             file:write(base_settings)
             file:close()
@@ -134,7 +135,7 @@ end
 
 function sub_slotset_load_settings()
 
-    local settings = g.load_json(g.settingsFileLoc)
+    local settings = g.load_json(g.settings_path)
 
     if not settings then
         settings = {
@@ -143,18 +144,19 @@ function sub_slotset_load_settings()
     end
     g.settings = settings
 
-    g.save_json(g.settingsFileLoc, g.settings)
+    g.save_json(g.settings_path, g.settings)
 
-    g.personalFileLoc = string.format('../addons/%s/%s.json', addon_name_lower, g.cid)
+    g.cid = session.GetMySession():GetCID()
+    g.personal_path = string.format('../addons/%s/%s.json', addon_name_lower, g.cid)
 
-    local personal = g.load_json(g.personalFileLoc)
+    local personal = g.load_json(g.personal_path)
 
     if not personal or not next(settings) then
         personal = {}
     end
 
     g.personal = personal
-    g.save_json(g.personalFileLoc, g.personal)
+    g.save_json(g.personal_path, g.personal)
 
 end
 
@@ -176,13 +178,15 @@ function SUB_SLOTSET_ON_INIT(addon, frame)
     g.addon = addon
     g.frame = frame
 
-    g.cid = session.GetMySession():GetCID()
-
     g.REGISTER = {}
 
-    if not g.settings then
+    -- print(tostring(g.cid) .. ":" .. session.GetMySession():GetCID())
+    if not g.cid then
+        sub_slotset_load_settings()
+    elseif g.cid ~= session.GetMySession():GetCID() then
         sub_slotset_load_settings()
     end
+
     addon:RegisterMsg("GAME_START_3SEC", "sub_slotset_GAME_START_3SEC")
 
     g.setup_hook_and_event(addon, "SET_QUEST_CTRL_TEXT", "sub_slotset_SET_QUEST_CTRL_TEXT", false)
@@ -382,7 +386,7 @@ function sub_slotset_newframe_end_drag(frame, ctrl, str, num)
             end
 
         end
-        g.save_json(g.settingsFileLoc, g.settings)
+        g.save_json(g.settings_path, g.settings)
 
     elseif belong == "character" then
         for key, value in pairs(g.personal[frame:GetName()]) do
@@ -397,7 +401,7 @@ function sub_slotset_newframe_end_drag(frame, ctrl, str, num)
             end
 
         end
-        g.save_json(g.personalFileLoc, g.personal)
+        g.save_json(g.personal_path, g.personal)
     end
 
 end
@@ -534,7 +538,7 @@ function sub_slotset_slotset_init(frame)
             g.settings[frame:GetName()] = slot_table
             g.settings[frame:GetName()]["etc"] = etc_table -- ここで etc_table を settings として保存
 
-            g.save_json(g.settingsFileLoc, g.settings)
+            g.save_json(g.settings_path, g.settings)
 
         elseif str == "character" then
 
@@ -567,7 +571,7 @@ function sub_slotset_slotset_init(frame)
             g.personal[frame:GetName()] = slot_table
             g.personal[frame:GetName()]["etc"] = etc_table -- ここで etc_table を settings として保存
 
-            g.save_json(g.personalFileLoc, g.personal)
+            g.save_json(g.personal_path, g.personal)
 
         end
     end
@@ -651,7 +655,7 @@ function sub_slotset_slotset_update(frame)
                 iesid = g.settings[frame_name][tostring(i)].iesid
             else
                 g.settings[frame_name][tostring(i)] = {}
-                g.save_json(g.settingsFileLoc, g.settings)
+                g.save_json(g.settings_path, g.settings)
             end
         elseif belong == "character" then
             if g.personal[frame_name][tostring(i)] ~= nil then
@@ -660,7 +664,7 @@ function sub_slotset_slotset_update(frame)
                 iesid = g.personal[frame_name][tostring(i)].iesid
             else
                 g.personal[frame_name][tostring(i)] = {}
-                g.save_json(g.personalFileLoc, g.personal)
+                g.save_json(g.personal_path, g.personal)
             end
         end
         if clsid == "Normal" then
@@ -860,7 +864,7 @@ function sub_slotset_pop(frame, ctrl, str, num)
             g.settings[frame_name][index].clsid = 0
             g.settings[frame_name][index].category = ""
             g.settings[frame_name][index].iesid = ""
-            g.save_json(g.settingsFileLoc, g.settings)
+            g.save_json(g.settings_path, g.settings)
             CLEAR_SLOT_ITEM_INFO(ctrl)
 
         end
@@ -870,7 +874,7 @@ function sub_slotset_pop(frame, ctrl, str, num)
             g.personal[frame_name][index].clsid = 0
             g.personal[frame_name][index].category = ""
             g.personal[frame_name][index].iesid = ""
-            g.save_json(g.personalFileLoc, g.personal)
+            g.save_json(g.personal_path, g.personal)
             CLEAR_SLOT_ITEM_INFO(ctrl)
 
         end
@@ -923,7 +927,7 @@ function sub_slotset_drop(frame, slot, str, num)
             iesid = iesid
         }
 
-        g.save_json(g.settingsFileLoc, g.settings)
+        g.save_json(g.settings_path, g.settings)
     elseif str == "character" then
 
         g.personal[frameName][tostring(index)] = {
@@ -932,7 +936,7 @@ function sub_slotset_drop(frame, slot, str, num)
             iesid = iesid
         }
 
-        g.save_json(g.personalFileLoc, g.personal)
+        g.save_json(g.personal_path, g.personal)
     end
 
     sub_slotset_slotset_update(frame)
@@ -1094,7 +1098,7 @@ function sub_slotset_make_slotset_frame(str)
 
     g.settings.index = g.settings.index + 1
     local isnew = true
-    g.save_json(g.settingsFileLoc, g.settings)
+    g.save_json(g.settings_path, g.settings)
     sub_slotset_slotset_frame_init(str, isnew)
 
 end
@@ -1140,14 +1144,14 @@ function sub_slotset_newframe_remove(frame_name)
         if g.settings[frame_name] then
             g.settings[frame:GetName()] = nil
         end
-        g.save_json(g.settingsFileLoc, g.settings)
+        g.save_json(g.settings_path, g.settings)
     elseif belong == "character" then
         if g.personal[frame_name] then
             g.personal[frame:GetName()] = nil
 
         end
 
-        g.save_json(g.personalFileLoc, g.personal)
+        g.save_json(g.personal_path, g.personal)
     end
 
     ui.DestroyFrame(frame_name);
@@ -1166,7 +1170,7 @@ function sub_slotset_lock_slotset_frame(frame_name)
                 g.settings[frame:GetName()]["etc"].lock = true
             end
         end
-        g.save_json(g.settingsFileLoc, g.settings)
+        g.save_json(g.settings_path, g.settings)
         sub_slotset_slotset_init(frame)
     elseif belong == "character" then
         if g.personal[frame_name] then
@@ -1179,7 +1183,7 @@ function sub_slotset_lock_slotset_frame(frame_name)
             end
         end
 
-        g.save_json(g.personalFileLoc, g.personal)
+        g.save_json(g.personal_path, g.personal)
         sub_slotset_slotset_init(frame)
     end
 
@@ -1234,7 +1238,7 @@ function sub_slotset_resetting(frame_name)
     resetting_frame:ShowWindow(1)
 
     local gbox = resetting_frame:CreateOrGetControl("groupbox", "gbox", 35, 0, resetting_frame:GetWidth() - 35,
-                                                    resetting_frame:GetHeight())
+        resetting_frame:GetHeight())
     AUTO_CAST(gbox)
     gbox:SetSkinName("test_frame_midle_light")
 
@@ -1368,10 +1372,10 @@ function sub_slotset_reset_edit(frame, ctrl, str, num)
 
     if belong == "shared" then
         g.settings[frame_name]["etc"] = table
-        g.save_json(g.settingsFileLoc, g.settings)
+        g.save_json(g.settings_path, g.settings)
     elseif belong == "character" then
         g.personal[frame_name]["etc"] = table
-        g.save_json(g.personalFileLoc, g.personal)
+        g.save_json(g.personal_path, g.personal)
     end
 
     local slot_frame = ui.GetFrame(frame_name)
@@ -1400,8 +1404,8 @@ function sub_slotset_change_belong(frame, ctrl, belong, num)
             belong = "shared"
         end
     end
-    g.save_json(g.settingsFileLoc, g.settings)
-    g.save_json(g.personalFileLoc, g.personal)
+    g.save_json(g.settings_path, g.settings)
+    g.save_json(g.personal_path, g.personal)
 
     local slot_frame = ui.GetFrame(frame_name)
     slot_frame:RemoveAllChild()

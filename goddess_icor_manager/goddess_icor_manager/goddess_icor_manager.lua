@@ -11,10 +11,11 @@
 -- v1.0.8 種族特攻とかのMAX数値が間違ってたの修正。そんなん知らんかった。
 -- v1.0.9 セット適用出来る様に。大変やった。
 -- v1.1.0 デフォルトのフレームバグってたの修正
+-- v1.1.1 保存バグってたの修正
 local addon_name = "GODDESS_ICOR_MANAGER"
 local addon_name_lower = string.lower(addon_name)
 local author = "norisan"
-local ver = "1.1.0"
+local ver = "1.1.1"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -1434,6 +1435,7 @@ function goddess_icor_manager_set_save(frame, ctrl, str, ctrl_key)
     for i = 1, #managed_slot_list do
         local slot_info = managed_slot_list[i]
         local slot_name = slot_info.slot_name
+
         local inv_item = session.GetEquipItemBySpot(item.GetEquipSpotNum(slot_name))
 
         if inv_item and inv_item:GetObject() then
@@ -1485,58 +1487,20 @@ function goddess_icor_manager_set_save(frame, ctrl, str, ctrl_key)
 
                     temp_data.set[base_equip_name] = i .. ":::" .. base_equip_name
                     eng_count = eng_count + 1
-                    break
-                else
-                    if base_equip_name == "RH" then
-                        eng_opts, eng_grps, eng_vals, is_goddess =
-                            goddess_icor_manager_GET_ENGRAVED_OPTION_LIST(etc_obj, i, "RH_SUB")
-                        if eng_opts then
-                            eng_strs = string.format("%s:%s:%s", tostring(eng_opts or ""), tostring(eng_grps or ""),
-                                tostring(eng_vals or ""))
-                            if strs == eng_strs then
-                                eng_count = eng_count + 1
-                                temp_data.set[base_equip_name] = i .. ":::" .. "RH_SUB"
-                                break
-                            end
-                        end
-
-                    elseif base_equip_name == "RH_SUB" then
-                        eng_opts, eng_grps, eng_vals, is_goddess =
-                            goddess_icor_manager_GET_ENGRAVED_OPTION_LIST(etc_obj, i, "RH")
-                        if eng_opts then
-                            eng_strs = string.format("%s:%s:%s", tostring(eng_opts or ""), tostring(eng_grps or ""),
-                                tostring(eng_vals or ""))
-                            if strs == eng_strs then
-                                eng_count = eng_count + 1
-                                temp_data.set[base_equip_name] = i .. ":::" .. "RH"
-                                break
-                            end
-                        end
-                    elseif base_equip_name == "LH" then
-                        eng_opts, eng_grps, eng_vals, is_goddess =
-                            goddess_icor_manager_GET_ENGRAVED_OPTION_LIST(etc_obj, i, "LH_SUB")
-                        if eng_opts then
-                            eng_strs = string.format("%s:%s:%s", tostring(eng_opts or ""), tostring(eng_grps or ""),
-                                tostring(eng_vals or ""))
-                            if strs == eng_strs then
-                                eng_count = eng_count + 1
-                                temp_data.set[base_equip_name] = i .. ":::" .. "LH_SUB"
-                                break
-                            end
-                        end
-                    elseif base_equip_name == "LH_SUB" then
-                        eng_opts, eng_grps, eng_vals, is_goddess =
-                            goddess_icor_manager_GET_ENGRAVED_OPTION_LIST(etc_obj, i, "LH")
-                        if eng_opts then
-                            eng_strs = string.format("%s:%s:%s", tostring(eng_opts or ""), tostring(eng_grps or ""),
-                                tostring(eng_vals or ""))
-                            if strs == eng_strs then
-                                eng_count = eng_count + 1
-                                temp_data.set[base_equip_name] = i .. ":::" .. "LH"
-                                break
-                            end
-                        end
+                    if base_equip_name == "RH" and cur_strs["RH"] == cur_strs["RH_SUB"] then
+                        temp_data.set["RH_SUB"] = i .. ":::" .. "RH"
+                        eng_count = eng_count + 1
+                    elseif base_equip_name == "RH_SUB" and cur_strs["RH"] == cur_strs["RH_SUB"] then
+                        temp_data.set["RH"] = i .. ":::" .. "RH_SUB"
+                        eng_count = eng_count + 1
+                    elseif base_equip_name == "LH" and cur_strs["LH"] == cur_strs["LH_SUB"] then
+                        temp_data.set["LH_SUB"] = i .. ":::" .. "LH"
+                        eng_count = eng_count + 1
+                    elseif base_equip_name == "LH_SUB" and cur_strs["LH"] == cur_strs["LH_SUB"] then
+                        temp_data.set["LH"] = i .. ":::" .. "LH_SUB"
+                        eng_count = eng_count + 1
                     end
+                    break
                 end
             end
         end
@@ -1991,7 +1955,7 @@ function goddess_icor_manager_set_change(frame, ctrl, str, ctrl_key, step)
             goddess_icor_manager_set_end()
         end
     elseif step == 4 then -- 裏武器
-        print(tostring(g.rh) .. ":" .. tostring(g.lh) .. ":" .. tostring(g.rh_sub) .. ":" .. tostring(g.lh_sub))
+        -- print(tostring(g.rh) .. ":" .. tostring(g.lh) .. ":" .. tostring(g.rh_sub) .. ":" .. tostring(g.lh_sub))
 
         for base_equip_name, strs in pairs(cur_strs) do
             if string.find(base_equip_name, "RH") or string.find(base_equip_name, "LH") then
@@ -2022,7 +1986,7 @@ function goddess_icor_manager_set_change(frame, ctrl, str, ctrl_key, step)
                 end
             end
         end
-        print(spot_names)
+
         if spot_names ~= "" then
 
             -- print(tostring(g.rh) .. ":" .. tostring(g.lh) .. ":" .. tostring(g.rh_sub) .. ":" .. tostring(g.lh_sub))
