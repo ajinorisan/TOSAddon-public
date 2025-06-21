@@ -9,10 +9,11 @@
 -- v1.0.8 ニコチャット絨毯爆撃バグ修正
 -- v1.0.9 [Wサーバー]とかの文字を名前から外す処理追加
 -- v1.1.0 チャット受信時重くなってたと思われる原因修正
+-- v1.1.1 チャットマクロ使えなかったの修正
 local addon_name = "REVIVAL_TIMER"
 local addon_name_lower = string.lower(addon_name)
 local author = "norisan"
-local ver = "1.1.0"
+local ver = "1.1.1"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -63,14 +64,14 @@ function g.load_json(path)
     end
 end
 
-function g.setup_hook_and_event_and_before(my_addon, origin_func_name, my_func_name, bool)
+function g.setup_hook_and_event(my_addon, origin_func_name, my_func_name, bool)
 
     g.FUNCS = g.FUNCS or {}
     if not g.FUNCS[origin_func_name] then
         g.FUNCS[origin_func_name] = _G[origin_func_name]
     end
 
-    if bool == "before" then
+    --[[if bool == "before" then
         local before_origin_func = g.FUNCS[origin_func_name]
 
         local function before_hooked_function(...)
@@ -78,9 +79,23 @@ function g.setup_hook_and_event_and_before(my_addon, origin_func_name, my_func_n
             -- ここにアドオンコードを書く
             local original_args = {...}
 
-            if origin_func_name == "UI_CHAT" then
-                local msg = original_args[1]
+            if origin_func_name == "EXEC_CHATMACRO" then
+                local index = original_args[1]
 
+                local macro = GET_CHAT_MACRO(index);
+                if macro == nil then
+                    return;
+                end
+
+                local poseCls = GetClassByType('Pose', macro.poseID);
+                if poseCls ~= nil then
+                    control.Pose(poseCls.ClassName);
+                end
+
+                if macro.macro == "" then
+                    return;
+                end
+                local msg = macro.macro
                 local found_rtimer = string.find(msg, "/rtimer", 1, true)
 
                 if found_rtimer then
@@ -98,20 +113,17 @@ function g.setup_hook_and_event_and_before(my_addon, origin_func_name, my_func_n
                     end
                     return
                 end
-            end
 
-            local before_original_results = {before_origin_func(...)}
-
-            if before_original_results then
-                return table.unpack(before_original_results)
-            else
+                ui.Chat(REPLACE_EMOTICON(macro.macro));
                 return
+
             end
+
         end
 
         _G[origin_func_name] = before_hooked_function
         return
-    end
+    end]]
 
     local origin_func = g.FUNCS[origin_func_name]
 
@@ -201,10 +213,51 @@ function REVIVAL_TIMER_ON_INIT(addon, frame)
     g.chat_check = {}
 
     addon:RegisterMsg("GAME_START_3SEC", "revival_timer_frame_init")
-    g.setup_hook_and_event_and_before(addon, "UI_CHAT", "revival_timer_UI_CHAT", true)
+    g.setup_hook_and_event(addon, "UI_CHAT", "revival_timer_UI_CHAT", false)
+    g.setup_hook_and_event(addon, "EXEC_CHATMACRO", "revival_timer_EXEC_CHATMACRO", false)
 end
 
-function revival_timer_UI_CHAT(my_fram, my_msg)
+function revival_timer_EXEC_CHATMACRO(my_frame, my_msg)
+
+    local index = g.get_event_args(my_msg)
+
+    local macro = GET_CHAT_MACRO(index);
+    if macro == nil then
+        return;
+    end
+
+    local poseCls = GetClassByType('Pose', macro.poseID);
+    if poseCls ~= nil then
+        control.Pose(poseCls.ClassName);
+    end
+
+    if macro.macro == "" then
+        return;
+    end
+    local msg = macro.macro
+    local found_rtimer = string.find(msg, "/rtimer", 1, true)
+
+    if found_rtimer then
+
+        local show_timer = ui.GetFrame(addon_name_lower .. "show_timer")
+
+        if show_timer and show_timer:IsVisible() == 1 then
+            show_timer:StopUpdateScript("revival_timer_timer_update");
+            show_timer:ShowWindow(0)
+        elseif show_timer and show_timer:IsVisible() == 0 then
+
+            show_timer:ShowWindow(1)
+            show_timer:StopUpdateScript("revival_timer_timer_update");
+            revival_timer_show_timer()
+        end
+        return
+    end
+
+    ui.Chat(REPLACE_EMOTICON(macro.macro));
+    return
+end
+
+function revival_timer_UI_CHAT(my_frame, my_msg)
     local msg = g.get_event_args(my_msg)
 
     local found_rtimer = string.find(msg, "/rtimer", 1, true)
@@ -282,7 +335,7 @@ function revival_timer_frame_init()
     g.last_toggle_time = 0
     g.last_rtimer_proc_time = 0
     g.rtimer_cooldown = 3.0
-    g.setup_hook_and_event_and_before(g.addon, "DRAW_CHAT_MSG", "revival_timer_DRAW_CHAT_MSG", true)
+    g.setup_hook_and_event(g.addon, "DRAW_CHAT_MSG", "revival_timer_DRAW_CHAT_MSG", true)
 
     revival_timer_timer_frame_init()
 
@@ -439,7 +492,7 @@ function revival_timer_timer_update(frame)
         local s = math.floor(g.start_seconds % 60)
 
         timer_text:SetText(string.format("{ol}{s46}%02d:%02d{/}", m, s))
-        if g.start_seconds <= 10.5 and g.start_seconds >= 9.5 then
+        if g.start_seconds <= 10.4 and g.start_seconds >= 9.6 then
 
             local text =
                 string.gsub("/p " .. "[R Timer]" .. tostring(g.settings.set_text) .. " 10 sec rem.", "{ol}", "")
@@ -449,7 +502,7 @@ function revival_timer_timer_update(frame)
                 -- ui.Chat(text)
             end
             revival_timer_NICO_CHAT("{@st55_a}" .. g.settings.set_text .. " 10 sec rem.")
-        elseif g.start_seconds <= 5.5 and g.start_seconds >= 4.5 then
+        elseif g.start_seconds <= 5.4 and g.start_seconds >= 4.6 then
 
             local text = string.gsub("/p " .. "[R Timer]" .. tostring(g.settings.set_text) .. " 5 sec rem.", "{ol}", "")
 
@@ -576,6 +629,7 @@ function revival_timer_start(frame)
 
         if downKey == "RALT" then
 
+            -- UI_CHAT("/rtimer")
             local show_timer = ui.GetFrame(addon_name_lower .. "show_timer")
 
             if show_timer and show_timer:IsVisible() == 1 then
