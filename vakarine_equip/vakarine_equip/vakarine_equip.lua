@@ -3,10 +3,11 @@
 -- v1.0.2 ui.holdが手を出すには早かった。
 -- v1.0.3 ローディング最適化
 -- v1.0.4 最適化。手動モード。JSRの起動ONOFF
+-- v1.0.5 no_heal機能移植
 local addon_name = "vakarine_equip"
 local addon_name_lower = string.lower(addon_name)
 local author = "norisan"
-local ver = "1.0.4"
+local ver = "1.0.5"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -183,11 +184,13 @@ function VAKARINE_EQUIP_ON_INIT(addon, frame)
     g.REGISTER = {}
     g.setup_hook_and_event(addon, "FIELD_BOSS_JOIN_ENTER_CLICK_MSG", "vakarine_equip_FIELD_BOSS_JOIN_ENTER_CLICK_MSG",
         false)
-    -- addon:RegisterMsg('BUFF_ADD', 'vakarine_equip_BUFF_ON_MSG')
-    -- addon:RegisterMsg('BUFF_UPDATE', 'vakarine_equip_BUFF_ON_MSG');
-    addon:RegisterMsg('STAT_UPDATE', 'vakarine_equip_stat_update');
-    addon:RegisterMsg('TAKE_DAMAGE', 'vakarine_equip_stat_update');
-    addon:RegisterMsg('TAKE_HEAL', 'vakarine_equip_stat_update');
+
+    addon:RegisterMsg('BUFF_ADD', 'vakarine_equip_BUFF_ON_MSG')
+    addon:RegisterMsg('BUFF_UPDATE', 'vakarine_equip_BUFF_ON_MSG')
+
+    addon:RegisterMsg('STAT_UPDATE', 'vakarine_equip_stat_update')
+    addon:RegisterMsg('TAKE_DAMAGE', 'vakarine_equip_stat_update')
+    addon:RegisterMsg('TAKE_HEAL', 'vakarine_equip_stat_update')
 
     addon:RegisterMsg("GAME_START", "vakarine_equip_frame_init")
 
@@ -294,16 +297,16 @@ function vakarine_equip_frame_init(frame, msg, str, num)
     frame:SetEventScript(ui.LBUTTONUP, "vakarine_equip_location_save")
     frame:SetEventScript(ui.RBUTTONUP, "vakarine_equip_location_fixed")
 
-    local vaka_pic = frame:CreateOrGetControl("picture", "vaka_pic", 0, 0, 30, 30);
+    local vaka_pic = frame:CreateOrGetControl("picture", "vaka_pic", 0, 0, 30, 30)
     AUTO_CAST(vaka_pic)
 
-    -- vaka_pic:SetImage("bakarine_emotion61");
-    -- vaka_pic:SetImage("emoticon_0024");
-    vaka_pic:SetImage("bakarine_emotion68");
+    -- vaka_pic:SetImage("bakarine_emotion61")
+    -- vaka_pic:SetImage("emoticon_0024")
+    vaka_pic:SetImage("bakarine_emotion68")
     vaka_pic:SetColorTone("FFFFFFFF")
-    vaka_pic:SetEnableStretch(1);
+    vaka_pic:SetEnableStretch(1)
     vaka_pic:EnableHitTest(1)
-    vaka_pic:SetGravity(ui.LEFT, ui.TOP);
+    vaka_pic:SetGravity(ui.LEFT, ui.TOP)
     vaka_pic:SetTextTooltip(g.lang == "Japanese" and
                                 "{ol}Vakarine Equip{nl}左クリック{nl}街: 設定{nl}街以外: 手動起動{nl}右クリック: ON/OFF{nl}フレーム右クリック: 場所固定" or
                                 "{ol}Vakarine Equip{nl}Left click{nl}City: Setup{nl}Other cities: Manual activation{nl}Right clickto switch ON/OFF{nl} frame right click: fixed location")
@@ -315,38 +318,13 @@ function vakarine_equip_frame_init(frame, msg, str, num)
     vaka_pic:SetEventScript(ui.RBUTTONUP, "vakarine_equip_onoff_switch")
     vaka_pic:SetEventScript(ui.LBUTTONUP, "vakarine_equip_config_or_startup")
 
-    local frame = ui.GetFrame("headsupdisplay")
-    local jobPic = GET_CHILD_RECURSIVELY(frame, "jobPic")
-    AUTO_CAST(jobPic)
-    local pic = jobPic:CreateOrGetControl("picture", "pic", 0, 0, 50, 50);
-    AUTO_CAST(pic)
-    pic:EnableHitTest(1)
-    pic:SetGravity(ui.RIGHT, ui.TOP);
-    pic:SetImage("itemslot_alchemy_mark")
-    pic:SetEnableStretch(1);
-
-    if g.settings[g.cid].use == 0 then
-        pic:SetColorTone("FF555555")
-    else
-        pic:SetColorTone("FFFFFFFF")
-    end
-
-    pic:SetEventScript(ui.LBUTTONUP, "vakarine_equip_onoff_switch")
-    pic:SetEventScript(ui.RBUTTONUP, "vakarine_equip_config_frame_open")
-
-    pic:SetTextTooltip(g.lang == "Japanese" and
-                           "{ol}Vakarine Equip{nl}左クリックでON/OFF切替{nl}右クリックで設定" or
-                           "{ol}Vakarine Equip{nl}Left click to switch ON/OFF{nl}Right click to config")
-
-    -- 良くないね
-    -- pic:SetEventScript(ui.RBUTTONDOWN, "vakarine_equip_buff_list")
 end
 
 function vakarine_equip_config_frame_open()
     local frame = ui.CreateNewFrame("notice_on_pc", addon_name_lower .. "config_frame", 0, 0, 0, 0)
     AUTO_CAST(frame)
     frame:RemoveAllChild()
-    frame:SetLayerLevel(99);
+    frame:SetLayerLevel(99)
     frame:SetSkinName("test_frame_low")
 
     local title_text = frame:CreateOrGetControl("richtext", "title_text", 10, 10)
@@ -367,29 +345,6 @@ function vakarine_equip_config_frame_open()
     close_button:SetImage("testclose_button")
     close_button:SetGravity(ui.RIGHT, ui.TOP)
     close_button:SetEventScript(ui.LBUTTONUP, "vakarine_equip_config_close")
-
-    --[[function vakarine_equip_delay_save(frame, ctrl, str, num)
-        local delay = tonumber(ctrl:GetText())
-        if delay > 1 then
-            ui.SysMsg(g.lang == "Japanese" and "ディレイ設定は1秒未満" or "Delay setting is less than 1 sec")
-            return
-        end
-        ui.SysMsg(g.lang == "Japanese" and "ディレイを設定しました" or "Delay set")
-        g.settings.delay = delay
-        g.save_settings()
-        vakarine_equip_config_frame_open()
-    end
-
-    local delay_text = config_gb:CreateOrGetControl("richtext", "delay_text", 20, 10)
-    AUTO_CAST(delay_text)
-    delay_text:SetText("{ol}Delay Time")
-
-    local delay_edit = config_gb:CreateOrGetControl('edit', 'delay_edit', delay_text:GetWidth() + 20, 10, 50, 20)
-    AUTO_CAST(delay_edit)
-    delay_edit:SetFontName("white_14_ol")
-    delay_edit:SetTextAlign("center", "center")
-    delay_edit:SetEventScript(ui.ENTERKEY, "vakarine_equip_delay_save")
-    delay_edit:SetText(g.settings.delay)]]
 
     function vakarine_equip_check_switch(frame, ctrl, equip_name, num)
 
@@ -413,7 +368,7 @@ function vakarine_equip_config_frame_open()
         g.save_settings()
     end
 
-    local jsr_check = config_gb:CreateOrGetControl('checkbox', "jsr_check", 10, 5, 30, 30);
+    local jsr_check = config_gb:CreateOrGetControl('checkbox', "jsr_check", 10, 5, 30, 30)
     AUTO_CAST(jsr_check)
     jsr_check:SetCheck(g.settings.jsr)
     local text = g.lang == "Japanese" and "チェックするとJSRで作動" or "Activated in JSR when checked"
@@ -432,7 +387,7 @@ function vakarine_equip_config_frame_open()
                         "SHOULDER", "BELT", "NECK"}
     for i, equip_name in ipairs(equips_tbl) do
 
-        local check_box = config_gb:CreateOrGetControl('checkbox', "check_box" .. i, 20, y, 30, 30);
+        local check_box = config_gb:CreateOrGetControl('checkbox', "check_box" .. i, 20, y, 30, 30)
         AUTO_CAST(check_box)
         check_box:SetCheck(g.settings[g.cid]["equip_tbl"][equip_name])
         check_box:SetTextTooltip(g.lang == "Japanese" and "{ol}チェックした装備を脱着します" or
@@ -473,6 +428,40 @@ function vakarine_equip_holdui_release(frame)
     return 0
 end
 
+function vakarine_equip_vakarine()
+    local equip_item_list = session.GetEquipItemList()
+    local equip_guid_list = equip_item_list:GetGuidList()
+    local count = equip_guid_list:Count()
+    local vakarine_count = 0
+    for i = 0, count - 1 do
+        local guid = equip_guid_list:Get(i)
+        if guid ~= '0' then
+            local equip_item = equip_item_list:GetItemByGuid(guid)
+            local item = GetIES(equip_item:GetObject())
+            for j = 1, MAX_OPTION_EXTRACT_COUNT do
+
+                local prop_name = "RandomOption_" .. j
+                local cls_msg = ScpArgMsg(item[prop_name])
+                if string.find(cls_msg, "vakarine_bless") ~= nil then
+                    vakarine_count = vakarine_count + 1
+                    break
+                end
+            end
+        end
+    end
+
+    if vakarine_count >= 5 then
+        g.vakarine = true
+        return true
+    elseif vakarine_count == 4 then
+        g.vakarine = true
+        return false
+    else
+        g.vakarine = false
+        return false
+    end
+end
+
 function vakarine_equip_GAME_START(frame, msg, str, num)
 
     g.start_time = os.clock() -- ★処理開始前の時刻を記録★
@@ -483,40 +472,6 @@ function vakarine_equip_GAME_START(frame, msg, str, num)
         return
     elseif g.enter_field_boss and g.settings.jsr == 1 then
         g.enter_field_boss = nil
-    end
-
-    function vakarine_equip_vakarine()
-        local equip_item_list = session.GetEquipItemList();
-        local equip_guid_list = equip_item_list:GetGuidList();
-        local count = equip_guid_list:Count();
-        local vakarine_count = 0
-        for i = 0, count - 1 do
-            local guid = equip_guid_list:Get(i);
-            if guid ~= '0' then
-                local equip_item = equip_item_list:GetItemByGuid(guid);
-                local item = GetIES(equip_item:GetObject())
-                for j = 1, MAX_OPTION_EXTRACT_COUNT do
-
-                    local prop_name = "RandomOption_" .. j;
-                    local cls_msg = ScpArgMsg(item[prop_name])
-                    if string.find(cls_msg, "vakarine_bless") ~= nil then
-                        vakarine_count = vakarine_count + 1
-                        break
-                    end
-                end
-            end
-        end
-
-        if vakarine_count >= 5 then
-            g.vakarine = true
-            return true
-        elseif vakarine_count == 4 then
-            g.vakarine = true
-            return false
-        else
-            g.vakarine = false
-            return false
-        end
     end
 
     local vakarine_judgment = vakarine_equip_vakarine()
@@ -570,8 +525,8 @@ function vakarine_equip_GAME_START(frame, msg, str, num)
             NECK = 19
         }}
 
-        session.ResetItemList();
-        local equip_item_list = session.GetEquipItemList();
+        session.ResetItemList()
+        local equip_item_list = session.GetEquipItemList()
         g.equip_tbl = {}
         g.neck = false
         for index, data in ipairs(equips) do
@@ -633,7 +588,7 @@ end
 
 function vakarine_equip_unequip(frame)
 
-    local equip_item_list = session.GetEquipItemList();
+    local equip_item_list = session.GetEquipItemList()
     for i, data in ipairs(g.equip_tbl) do
 
         local equip_index = data[2]
@@ -658,7 +613,7 @@ end
 
 function vakarine_equip_item_equip(frame)
 
-    local equip_item_list = session.GetEquipItemList();
+    local equip_item_list = session.GetEquipItemList()
     local neck_index = nil
     local neck_iesid = nil
     local neck_name = nil
@@ -677,9 +632,9 @@ function vakarine_equip_item_equip(frame)
         if not use then
             local inv_item = nil
             if equip_name ~= "NECK" then
-                inv_item = session.GetInvItemByGuid(iesid);
+                inv_item = session.GetInvItemByGuid(iesid)
             else
-                inv_item = session.GetInvItemByGuid(g.animas_iesid or iesid);
+                inv_item = session.GetInvItemByGuid(g.animas_iesid or iesid)
             end
 
             if inv_item then
@@ -700,7 +655,7 @@ function vakarine_equip_item_equip(frame)
 
     ui.SetHoldUI(false)
 
-    imcAddOn.BroadMsg("NOTICE_Dm_stage_start", "[VE]End of Operation", 3);
+    imcAddOn.BroadMsg("NOTICE_Dm_stage_start", "[VE]End of Operation", 3)
     local end_time = os.clock() -- ★処理終了後の時刻を記録★
     local elapsed_time = end_time - g.start_time
     -- CHAT_SYSTEM(string.format("%s: %.4f seconds", addon_name, elapsed_time))
@@ -709,17 +664,21 @@ end
 
 function vakarine_equip_onoff_switch(parent, ctrl, str, num)
 
-    local frame = ui.GetFrame("headsupdisplay")
-    local pic = GET_CHILD_RECURSIVELY(frame, "pic")
+    if keyboard.IsKeyPressed("LSHIFT") == 1 then
+        vakarine_equip_buff_list()
+        return
+    end
+
+    vakarine_equip_vakarine()
+    print(tostring(g.vakarine))
+
     local parent = ui.GetFrame("vakarine_equip")
     local vaka_pic = GET_CHILD(parent, "vaka_pic")
 
     if g.settings[g.cid].use == 0 then
         g.settings[g.cid].use = 1
-        pic:SetColorTone("FFFFFFFF")
         vaka_pic:SetColorTone("FFFFFFFF")
     else
-        pic:SetColorTone("FF555555")
         vaka_pic:SetColorTone("FF555555")
         g.settings[g.cid].use = 0
     end
@@ -758,152 +717,251 @@ function vakarine_equip_stat_update()
 
     local effecttext = frame:CreateOrGetControl("richtext", "effecttext", 0, 0, hp:GetWidth(), hp:GetHeight())
     effecttext:SetText(string.format('{ol}{%s}{%s}%s', "s15", color, status))
-    effecttext:SetGravity(ui.RIGHT, ui.TOP);
+    effecttext:SetGravity(ui.RIGHT, ui.TOP)
     effecttext:SetOffset(hp:GetX(), hp:GetY() - 25 - (15 - 15))
     local hptext = frame:CreateOrGetControl("richtext", "hptext", 0, 0, hp:GetWidth(), hp:GetHeight())
     hptext:SetText(string.format('{%s}{ol}{%s}%d%%', "s15", color, hp_now))
-    hptext:SetGravity(ui.RIGHT, ui.TOP);
+    hptext:SetGravity(ui.RIGHT, ui.TOP)
     hptext:SetOffset(hp:GetX(), hp:GetY() - 10 - (15 - 15))
 end
 
 function vakarine_equip_BUFF_ON_MSG(frame, msg, str, buff_id)
+
     local exists = false
-    for buffid, value in pairs(g.settings["buffid"]) do
-        if tonumber(buffid) == buff_id then
-            exists = true
-            -- 良くないね
-            --[[if value == 1 and g.vakarine then
-                REMOVE_BUF(_, _, _, buff_id)
-            end]]
-            return
+    if g.settings and g.settings["buffid"] then
+        for id_str, val in pairs(g.settings["buffid"]) do
+            if tonumber(id_str) == buff_id then
+                exists = true
+                -- 良くないね
+                if g.settings.auto_remove == 1 then
+                    if val == 1 and g.vakarine then
+                        REMOVE_BUF(_, _, _, buff_id)
+                    end
+                end
+                return
+            end
         end
     end
+
     if not exists then
-        g.settings["buffid"][tostring(buff_id)] = 0
+        if g.settings and not g.settings["buffid"] then
+            g.settings["buffid"] = {}
+        end
+        if g.settings then
+            g.settings["buffid"][tostring(buff_id)] = 0
+            g.save_settings()
+        end
+    end
+end
+
+function vakarine_equip_bufflist_frame_close()
+    local frame_bufflist = ui.GetFrame(addon_name_lower .. "_bufflist")
+    frame_bufflist:ShowWindow(0)
+end
+
+function vakarine_equip_buff_aoto_remove(frame, ctrl, str, num)
+    if not g.settings.auto_remove then
+        g.settings.auto_remove = 0
+    end
+
+    if g.settings.auto_remove == 0 then
+        g.settings.auto_remove = 1
+    else
+        g.settings.auto_remove = 0
+    end
+    g.save_settings()
+end
+
+function vakarine_equip_bufflist_search(frame, ctrl)
+    if ctrl:GetName() == "search_btn" then
+        ctrl = frame
+    end
+    local search_text = ctrl:GetText()
+
+    if search_text == "" then
+        vakarine_equip_buff_list()
+        return
+    end
+
+    local top_frame = ctrl:GetTopParentFrame()
+
+    local bufflist_bg = GET_CHILD(top_frame, "bufflist_bg")
+    bufflist_bg:RemoveAllChild()
+
+    local buffs = {}
+    local search_id = tonumber(search_text)
+
+    if search_id then
+        if g.settings and g.settings["buffid"] then
+            for id_str, check_val in pairs(g.settings["buffid"]) do
+                if string.find(id_str, search_text, 1, true) then
+                    table.insert(buffs, {
+                        buff_id = tonumber(id_str),
+                        check = check_val
+                    })
+                end
+            end
+        end
+    else
+        if g.settings and g.settings["buffid"] then
+            for id_str, check_val in pairs(g.settings["buffid"]) do
+                local buff_cls = GetClassByType("Buff", id_str)
+                if buff_cls then
+                    local buff_name = dic.getTranslatedStr(buff_cls.Name)
+                    if string.find(buff_name, search_text, 1, true) then
+                        table.insert(buffs, {
+                            buff_id = tonumber(id_str),
+                            check = check_val
+                        })
+                    end
+                end
+            end
+        end
+    end
+
+    local y = 0
+    for _, buff_data in ipairs(buffs) do
+        local buff_id = buff_data.buff_id
+        local check_val = buff_data.check
+        local slot_ui = bufflist_bg:CreateOrGetControl('slot', 'buff_slot' .. buff_id, 10, y + 5, 30, 30)
+        AUTO_CAST(slot_ui)
+        local buff_cls_obj = GetClassByType("Buff", buff_id)
+
+        if buff_cls_obj then
+            local img_name = GET_BUFF_ICON_NAME(buff_cls_obj)
+            if img_name ~= "icon_None" then
+                SET_SLOT_IMG(slot_ui, img_name)
+
+                local icon_ui = CreateIcon(slot_ui)
+                AUTO_CAST(icon_ui)
+                icon_ui:SetTooltipType('buff')
+                icon_ui:SetTooltipArg(buff_cls_obj.Name, buff_id, 0)
+
+                local check_ui = bufflist_bg:CreateOrGetControl('checkbox', 'buffcheck' .. buff_id, 45, y + 5, 30, 30)
+                AUTO_CAST(check_ui)
+                check_ui:SetCheck(check_val)
+                check_ui:SetEventScript(ui.LBUTTONUP, "vakarine_equip_buff_check")
+                check_ui:SetEventScriptArgNumber(ui.LBUTTONUP, buff_id)
+                check_ui:SetText("{ol}" .. buff_cls_obj.Name)
+                check_ui:SetTextTooltip(g.lang == "Japanese" and "{ol}" .. buff_id ..
+                                            "{nl}チェックすると自動でバフ削除" or "{ol}" .. buff_id ..
+                                            "{nl}Check to automatically remove buff")
+                y = y + 35
+            end
+        end
+    end
+
+end
+
+function vakarine_equip_buff_check(frame, ctrl, argStr, buffID)
+    local check = ctrl:IsChecked()
+
+    if g.settings["buffid"] then
+        g.settings["buffid"][tostring(buffID)] = check
         g.save_settings()
     end
+
 end
 
 function vakarine_equip_buff_list(frame, ctrl, str, num)
-    local bufflistframe = ui.CreateNewFrame("notice_on_pc", addon_name_lower .. "_bufflist", 0, 0, 10, 10)
-    AUTO_CAST(bufflistframe)
-    bufflistframe:SetSkinName("bg")
-    bufflistframe:Resize(500, 1060)
-    bufflistframe:SetPos(10, 10)
-    bufflistframe:SetLayerLevel(121)
-    bufflistframe:RemoveAllChild()
-    local bg = bufflistframe:CreateOrGetControl("groupbox", "bufflist_bg", 5, 35, 490, 1015)
-    AUTO_CAST(bg)
-    bg:SetSkinName("bg")
 
-    function vakarine_equip_bufflist_close(frame, ctrl, str, num)
-        frame:ShowWindow(0)
-    end
+    local list_frame = ui.CreateNewFrame("notice_on_pc", addon_name_lower .. "_bufflist", 0, 0, 10, 10)
+    AUTO_CAST(list_frame)
+    list_frame:SetSkinName("test_frame_low")
+    list_frame:Resize(500, 1060)
+    list_frame:SetPos(10, 10)
+    list_frame:SetLayerLevel(121)
+    list_frame:RemoveAllChild()
 
-    local closeBtn = bufflistframe:CreateOrGetControl('button', 'closeBtn', 450, 0, 30, 30)
-    AUTO_CAST(closeBtn)
-    closeBtn:SetImage("testclose_button")
-    closeBtn:SetGravity(ui.RIGHT, ui.TOP)
-    closeBtn:SetEventScript(ui.LBUTTONUP, "vakarine_equip_bufflist_close");
-    local sortedBuffIDs = {}
-    for buffID, _ in pairs(g.settings["buffid"]) do
-        table.insert(sortedBuffIDs, tonumber(buffID))
-    end
-    table.sort(sortedBuffIDs)
-    local bufflisttext = bufflistframe:CreateOrGetControl('richtext', 'bufflisttext', 90, 10, 200, 30)
-    AUTO_CAST(bufflisttext)
-    bufflisttext:SetText("{ol}Vakarine Equip Buff List")
-    local y = 0
-    local i = 1
-    for _, buffID in ipairs(sortedBuffIDs) do
-        local buffslot = bg:CreateOrGetControl('slot', 'buffslot' .. i, 10, y + 5, 30, 30)
-        AUTO_CAST(buffslot)
-        local buffCls = GetClassByType("Buff", buffID);
-        if buffCls ~= nil then
-            SET_SLOT_IMG(buffslot, GET_BUFF_ICON_NAME(buffCls));
-            local icon = CreateIcon(buffslot)
-            AUTO_CAST(icon)
-            icon:SetTooltipType('buff');
-            icon:SetTooltipArg(buffCls.Name, buffID, 0);
-            local buffcheck = bg:CreateOrGetControl('checkbox', 'buffcheck' .. i, 45, y + 5, 30, 30)
-            AUTO_CAST(buffcheck)
-            local check = g.settings["buffid"][tostring(buffID)] or 0
-            function vakarine_equip_buff_check(frame, ctrl, argStr, buffID)
-                local check = ctrl:IsChecked()
-                g.settings["buffid"][tostring(buffID)] = check
-                g.save_settings()
-            end
-            buffcheck:SetCheck(check)
-            buffcheck:SetEventScript(ui.LBUTTONUP, "vakarine_equip_buff_check")
-            buffcheck:SetEventScriptArgNumber(ui.LBUTTONUP, buffID)
-            buffcheck:SetText("{ol}" .. buffCls.Name)
-            buffcheck:SetTextTooltip(g.lang == "Japanese" and "{ol}" .. buffID ..
-                                         "{nl}チェックするとバフを削除" or "{ol}" .. buffID ..
-                                         "{nl}Check to remove buffs")
-            y = y + 35
-            i = i + 1
+    local bufflist_bg = list_frame:CreateOrGetControl("groupbox", "bufflist_bg", 10, 45, 480, 1005)
+    AUTO_CAST(bufflist_bg)
+    bufflist_bg:SetSkinName("bg")
+
+    local close_btn = list_frame:CreateOrGetControl('button', 'close_btn', 450, 0, 30, 30)
+    AUTO_CAST(close_btn)
+    close_btn:SetImage("testclose_button")
+    close_btn:SetGravity(ui.RIGHT, ui.TOP)
+    close_btn:SetEventScript(ui.LBUTTONUP, "vakarine_equip_bufflist_frame_close")
+
+    local func_toggle = list_frame:CreateOrGetControl('checkbox', 'func_toggle', 435, 10, 25, 25)
+    AUTO_CAST(func_toggle)
+    func_toggle:SetTextTooltip(g.lang == "Japanese" and "{ol}チェックすると自動バフ削除有効化" or
+                                   "{ol}Check to enable auto buff removal")
+    func_toggle:SetEventScript(ui.LBUTTONUP, "vakarine_equip_buff_aoto_remove")
+    func_toggle:SetCheck(g.settings.auto_remove or 0)
+
+    local list_title = list_frame:CreateOrGetControl('richtext', 'bufflisttext', 10, 15, 200, 30)
+    AUTO_CAST(list_title)
+    list_title:SetText("{ol}BUFF LIST")
+
+    local search_edit = list_frame:CreateOrGetControl("edit", "search_edit", 120, 10, 305, 38)
+    AUTO_CAST(search_edit)
+    search_edit:SetFontName("white_18_ol")
+    search_edit:SetTextAlign("left", "center")
+    search_edit:SetSkinName("inventory_serch")
+
+    search_edit:SetEventScript(ui.ENTERKEY, "vakarine_equip_bufflist_search")
+
+    local search_btn = search_edit:CreateOrGetControl("button", "search_btn", 0, 0, 40, 38)
+    AUTO_CAST(search_btn)
+    search_btn:SetImage("inven_s")
+    search_btn:SetGravity(ui.RIGHT, ui.TOP)
+    search_btn:SetEventScript(ui.LBUTTONUP, "vakarine_equip_bufflist_search")
+
+    local sort_list = {}
+    if g.settings and g.settings["buffid"] then
+        for id_str, check_val in pairs(g.settings["buffid"]) do
+            table.insert(sort_list, {
+                id = tonumber(id_str),
+                checked = (check_val == 0)
+            })
         end
     end
-    bufflistframe:ShowWindow(1)
+
+    table.sort(sort_list, function(a, b)
+        if b.checked and not a.checked then
+            return true
+        elseif not b.checked and a.checked then
+            return false
+        else
+            return a.id < b.id
+        end
+    end)
+
+    local y_pos = 0
+    for item_idx, buff_item in ipairs(sort_list) do
+        local buff_id_val = buff_item.id
+        local slot_ui_disp = bufflist_bg:CreateOrGetControl('slot', 'buffslot' .. buff_id_val, 10, y_pos + 5, 30, 30)
+        AUTO_CAST(slot_ui_disp)
+        local buff_cls = GetClassByType("Buff", buff_id_val)
+
+        if buff_cls then
+            local img_name_disp = GET_BUFF_ICON_NAME(buff_cls)
+            if img_name_disp ~= "icon_None" then
+                SET_SLOT_IMG(slot_ui_disp, img_name_disp)
+                if buff_cls.Name ~= "None" then
+
+                    local icon_disp = CreateIcon(slot_ui_disp)
+                    AUTO_CAST(icon_disp)
+                    icon_disp:SetTooltipType('buff')
+                    icon_disp:SetTooltipArg(buff_cls.Name, buff_id_val, 0)
+
+                    local check_ui_disp = bufflist_bg:CreateOrGetControl('checkbox', 'buffcheck' .. buff_id_val, 45,
+                        y_pos + 5, 30, 30)
+                    AUTO_CAST(check_ui_disp)
+                    check_ui_disp:SetCheck((g.settings["buffid"] and g.settings["buffid"][tostring(buff_id_val)]) or 0)
+                    check_ui_disp:SetEventScript(ui.LBUTTONUP, "vakarine_equip_buff_check")
+                    check_ui_disp:SetEventScriptArgNumber(ui.LBUTTONUP, buff_id_val)
+                    check_ui_disp:SetText("{ol}" .. buff_cls.Name)
+                    check_ui_disp:SetTextTooltip(g.lang == "Japanese" and "{ol}" .. buff_id_val ..
+                                                     "{nl}チェックすると自動でバフ削除" or "{ol}" ..
+                                                     buff_id_val .. "{nl}Check to automatically remove buff")
+                    y_pos = y_pos + 35
+                end
+            end
+        end
+    end
+    list_frame:ShowWindow(1)
+
 end
 
---[[function vakarine_equip_unequip_animas(frame)
-
-    if g.get_map_type() == "City" and g.neck then
-        local try = 1
-        function vakarine_equip_neck_equip(frame, msg, str, num)
-            if try <= 3 then
-                local equip_item_list = session.GetEquipItemList()
-                if not equip_item_list then
-                    try = try + 1
-                    return 1
-                end
-                local equip_item = equip_item_list:GetEquipItemByIndex(19);
-                if not equip_item then
-                    try = try + 1
-                    return 1
-                end
-                local iesid = equip_item:GetIESID()
-                if g.neck_iesid and iesid ~= g.neck_iesid then
-                    local equip_item = session.GetInvItemByGuid(g.neck_iesid)
-                    if equip_item then
-                        local item_index = equip_item.invIndex
-                        item.Equip(item_index)
-                        try = try + 1
-                        return 1
-                    end
-                else
-                    g.neck_iesid = nil
-                    g.neck = false
-                end
-                try = try + 1
-                return 1
-            else
-
-                return 0
-            end
-        end
-        frame:RunUpdateScript("vakarine_equip_neck_equip", 1.0)
-    end
-end]]
-
---[[function vakarine_equip_equips_check()
-
-    local equip_item_list = session.GetEquipItemList();
-    for i, data in ipairs(g.equip_tbl) do
-        local equip_name = data[1]
-        local equip_index = data[2]
-        local equip_item = equip_item_list:GetEquipItemByIndex(equip_index)
-        local iesid = equip_item:GetIESID()
-
-        if iesid == "0" then
-            imcAddOn.BroadMsg("NOTICE_Dm_!", equip_name .. " Not equipped", 10);
-
-            return
-        end
-    end
-    local invframe = ui.GetFrame("inventory")
-    invframe:ShowWindow(0)
-
-    imcAddOn.BroadMsg("NOTICE_Dm_stage_start", "[NH]End of Operation", 3);
-end]]
