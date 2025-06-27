@@ -9,36 +9,36 @@
 -- v1.0.6 翻訳モード切替修正。/でバグってたらしいので修正
 -- v1.0.7 個別翻訳
 -- v1.0.8 滅茶苦茶速くなって軽くなった。
-local addonName = "NATIVE_LANG"
-local addonNameLower = string.lower(addonName)
+local addon_name = "NATIVE_LANG"
+local addon_name_lower = string.lower(addon_name)
 local author = "norisan"
 local ver = "1.0.8"
 local exe = "0.0.3"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
-_G["ADDONS"][author][addonName] = _G["ADDONS"][author][addonName] or {}
-local g = _G["ADDONS"][author][addonName]
+_G["ADDONS"][author][addon_name] = _G["ADDONS"][author][addon_name] or {}
+local g = _G["ADDONS"][author][addon_name]
 
 local acutil = require("acutil")
 local json = require('json')
 local os = require("os")
 
---[[local folder_path = string.format("../addons/%s", addonNameLower)
+--[[local folder_path = string.format("../addons/%s", addon_name_lower)
 os.execute('mkdir "' .. folder_path .. '"')]]
 
-g.settings_location = string.format('../addons/%s/settings.json', addonNameLower)
-g.send_msg = string.format('../addons/%s/send_msg.dat', addonNameLower)
-g.recv_msg = string.format('../addons/%s/recv_msg.dat', addonNameLower)
-g.send_name = string.format('../addons/%s/send_name.dat', addonNameLower)
-g.recv_name = string.format('../addons/%s/recv_name.dat', addonNameLower)
-g.restart = string.format('../addons/%s/restart.dat', addonNameLower)
-g.gear_score = string.format('../addons/%s/gear_score.dat', addonNameLower)
+g.settings_location = string.format('../addons/%s/settings.json', addon_name_lower)
+g.send_msg = string.format('../addons/%s/send_msg.dat', addon_name_lower)
+g.recv_msg = string.format('../addons/%s/recv_msg.dat', addon_name_lower)
+g.send_name = string.format('../addons/%s/send_name.dat', addon_name_lower)
+g.recv_name = string.format('../addons/%s/recv_name.dat', addon_name_lower)
+g.restart = string.format('../addons/%s/restart.dat', addon_name_lower)
+g.gear_score = string.format('../addons/%s/gear_score.dat', addon_name_lower)
 
 local base = {}
 
 function g.SetupHook(func, baseFuncName)
-    local addonUpper = string.upper(addonName)
+    local addonUpper = string.upper(addon_name)
     local replacementName = addonUpper .. "_BASE_" .. baseFuncName
     if (_G[replacementName] == nil) then
         _G[replacementName] = _G[baseFuncName];
@@ -168,6 +168,21 @@ function native_lang_load_settings()
         end
     end
     native_lang_name_table_create()
+
+    local function native_lang_sent_name_table_create()
+        g.sent_names = {} -- ★翻訳依頼済みの名前を保存するテーブル
+        local file = io.open(g.send_name, "r")
+        if file then
+            for line in file:lines() do
+                local key = line:match("^(.-):::")
+                if key then
+                    g.sent_names[key] = true
+                end
+            end
+            file:close()
+        end
+    end
+    native_lang_sent_name_table_create()
 
     g.gear_scores = {}
     local seen_keys = {} -- 追加したorg_nameを記録するためのテーブル
@@ -359,7 +374,7 @@ function native_lang_SET_PARTYINFO_ITEM(my_frame, my_msg)
         -- name_text:SetText("")
         local left_tag_length = string.len("{@st43b}{s14}{#FFFFFF}")
         local name_part, space_and_right_part = string.match(original_string,
-            "^" .. string.rep('.', left_tag_length) .. "(.-)(%s+%b())")
+                                                             "^" .. string.rep('.', left_tag_length) .. "(.-)(%s+%b())")
 
         if native_lang_is_translation(name_part) then
 
@@ -371,7 +386,7 @@ function native_lang_SET_PARTYINFO_ITEM(my_frame, my_msg)
             if map_cls then
 
                 local combined_string = ScpArgMsg("PartyMemberMapNChannel", "Name", name_part, "Mapname", map_cls.Name,
-                    "ChNo", partyMemberInfo:GetChannel() + 1)
+                                                  "ChNo", partyMemberInfo:GetChannel() + 1)
 
                 local x = name_text:GetX()
                 name_text:ShowWindow(0)
@@ -416,12 +431,12 @@ function native_lang_PARTY_OPEN(my_frame, my_msg)
                 if map_cls then
 
                     local combined_string = ScpArgMsg("PartyMemberMapNChannel", "Name", name_part, "Mapname",
-                        map_cls.Name, "ChNo", partyMemberInfo:GetChannel() + 1)
+                                                      map_cls.Name, "ChNo", partyMemberInfo:GetChannel() + 1)
 
                     local x = name_text:GetX()
                     name_text:ShowWindow(0)
                     local new_name_text = partyInfoCtrlSet:CreateOrGetControl('richtext', 'new_name_text', x, 55, 120,
-                        20)
+                                                                              20)
                     AUTO_CAST(new_name_text)
                     new_name_text:SetText("{@st43b}{s14}" .. combined_string)
                 end
@@ -437,6 +452,8 @@ function NATIVE_LANG_ON_INIT(addon, frame)
     g.addon = addon
     g.frame = frame
     g.chat_ids = g.chat_ids or {}
+    g.send_buf = g.send_buf or {}
+    g.proc_pcs = g.proc_pcs or {}
     g.name_len = 0
     g.msg_len = 0
 
@@ -475,7 +492,7 @@ function NATIVE_LANG_ON_INIT(addon, frame)
 
     local end_time = os.clock() -- ★処理終了後の時刻を記録★
     local elapsed_time = end_time - start_time
-    -- CHAT_SYSTEM(string.format("%s: %.4f seconds", addonName, elapsed_time))
+    -- CHAT_SYSTEM(string.format("%s: %.4f seconds", addon_name, elapsed_time))
 
 end
 
@@ -536,26 +553,26 @@ function native_lang_context()
     if not g.settings.chatmode then
         str_scp = string.format("native_lang_mode_switching()")
         ui.AddContextMenuItem(context, g.language == "Japanese" and "{ol}チャットモードへ切替" or
-            "{ol}Switch to chat mode", str_scp)
+                                  "{ol}Switch to chat mode", str_scp)
     else
         str_scp = string.format("native_lang_mode_switching()")
         ui.AddContextMenuItem(context, g.language == "Japanese" and "{ol}フル翻訳モードへ切替" or
-            "{ol}Switch to full translation mode", str_scp)
+                                  "{ol}Switch to full translation mode", str_scp)
     end
 
     if g.settings.use == 1 then
         str_scp = string.format("native_lang_switching()")
         ui.AddContextMenuItem(context, g.language == "Japanese" and "{ol}アドオンストップ" or "{ol}addon Stop",
-            str_scp)
+                              str_scp)
     else
         str_scp = string.format("native_lang_switching()")
         ui.AddContextMenuItem(context, g.language == "Japanese" and "{ol}アドオン起動" or "{ol}addon Activation",
-            str_scp)
+                              str_scp)
     end
 
     str_scp = string.format("native_lang_restart()")
     ui.AddContextMenuItem(context, g.language == "Japanese" and "{ol}アドオン再起動" or "{ol}addon Reboot",
-        str_scp)
+                          str_scp)
 
     ui.OpenContextMenu(context)
 end
@@ -622,7 +639,7 @@ function native_lang_GAME_START()
 end
 
 function native_lang_GAME_START_3SEC()
-    g.setup_hook_and_event(g.addon, "DRAW_CHAT_MSG", "native_lang_DRAW_CHAT_MSG", true)
+    --[[g.setup_hook_and_event(g.addon, "DRAW_CHAT_MSG", "native_lang_DRAW_CHAT_MSG", true)
 
     -- acutil.setupEvent(g.addon, "DRAW_CHAT_MSG", "native_lang_DRAW_CHAT_MSG");
     -- g.addon:RegisterMsg("FPS_UPDATE", "native_lang_FPS_UPDATE");
@@ -633,8 +650,22 @@ function native_lang_GAME_START_3SEC()
     else
         chatframe:StopUpdateScript("native_lang_run_UPDATE")
     end
+
     -- g.msg_len = 0
     -- native_lang_chat_recv()
+    native_lang_replace()]]
+
+    g.setup_hook_and_event(g.addon, "DRAW_CHAT_MSG", "native_lang_DRAW_CHAT_MSG", true)
+
+    local chatframe = ui.GetFrame("chatframe")
+
+    -- ★変更点: Pythonからの返信チェックを常に動かすようにする
+    chatframe:RunUpdateScript("native_lang_chat_recv", 0.5)
+
+    if not g.settings.chatmode then
+        chatframe:RunUpdateScript("native_lang_run_UPDATE", 1.0)
+    end
+
     native_lang_replace()
 end
 
@@ -661,7 +692,7 @@ function native_lang_chat_recv(frame)
     if new_chat_content ~= "" then
         for line in string.gmatch(new_chat_content, "[^\r\n]+") do
             local chat_id, msg_type, msg, separate_msg, org_msg, org_name = line:match(
-                "^(.-):::(.-):::(.-):::(.-):::(.-):::(.*)$")
+                                                                                "^(.-):::(.-):::(.-):::(.-):::(.-):::(.*)$")
             if chat_id then
                 local chat_id_str = tostring(chat_id)
                 if g.chat_ids and g.chat_ids[chat_id_str] then
@@ -693,8 +724,6 @@ end
 
 function native_lang_run_UPDATE(frame)
 
-    native_lang_name_trans()
-
     function native_lang_name_dat_check()
 
         local recv_name_file = io.open(g.recv_name, "r")
@@ -722,6 +751,19 @@ function native_lang_run_UPDATE(frame)
         recv_name_file:close()
     end
     native_lang_name_dat_check()
+    if not g.settings.chatmode then
+        native_lang_name_trans()
+    end
+
+    if g.send_buf and #g.send_buf > 0 then
+        local file = io.open(g.send_msg, "a")
+        if file then
+            -- table.concatで全メッセージを改行でつないで、一気に書き込む！
+            file:write(table.concat(g.send_buf, "\n") .. "\n")
+            file:close()
+            g.send_buf = {} -- バッファを空にする
+        end
+    end
     return 1
 end
 
@@ -801,10 +843,10 @@ end
 
 function native_lang_replace()
 
-    if g.settings.use == 0 and not g.individual then
+    if g.settings.use == 0 then
         return
     end
-    if g.individual then
+    --[[if g.individual then
 
         g.individual = false
         ui.SysMsg("Please wait while translating")
@@ -812,7 +854,7 @@ function native_lang_replace()
         local frame = ui.GetFrame("chatframe")
         frame:StopUpdateScript("native_lang_chat_recv")
         frame:RunUpdateScript("native_lang_chat_recv", 0.5) -- ！
-    end
+    end]]
 
     local chatframe = ui.GetFrame("chatframe")
     local gbox = GET_CHILD(chatframe, g.gbox_name)
@@ -1190,8 +1232,8 @@ function native_lang_individual_translation(parent, chatctrl, chatctrlname, num)
         local send_msg = chat_id .. ":::" .. msg_type .. ":::" .. proc_msg .. ":::" ..
                              g.chat_ids[tostring(chat_id)].separate_msg .. ":::" .. msg .. ":::" .. name
         native_lang_msg_send(send_msg, chat_id)
-        frame:StopUpdateScript("native_lang_chat_recv")
-        frame:RunUpdateScript("native_lang_chat_recv", 0.5)
+        -- frame:StopUpdateScript("native_lang_chat_recv")
+        -- frame:RunUpdateScript("native_lang_chat_recv", 0.5)
     end
 
 end
@@ -1389,19 +1431,51 @@ function native_lang_DRAW_CHAT_MSG(my_frame, my_msg)
     end
 
     if native_lang_is_translation_msg(proc_msg) then
-        local send_msg = chat_id .. ":::" .. msg_type .. ":::" .. proc_msg .. ":::" ..
+        --[[local send_msg = chat_id .. ":::" .. msg_type .. ":::" .. proc_msg .. ":::" ..
                              g.chat_ids[tostring(chat_id)].separate_msg .. ":::" .. msg .. ":::" .. name
         native_lang_msg_send(send_msg, chat_id)
         -- frame:StopUpdateScript("native_lang_chat_recv")
-        frame:RunUpdateScript("native_lang_chat_recv", 0.5)
+        frame:RunUpdateScript("native_lang_chat_recv", 0.5)]]
+
+        local send_msg = string.format("%s:::%s:::%s:::%s:::%s:::%s", chat_id, msg_type, proc_msg,
+                                       g.chat_ids[tostring(chat_id)].separate_msg, msg, name)
+
+        -- ファイルに直接書き込まず、バッファテーブルに溜める
+        table.insert(g.send_buf, send_msg)
 
     end
 
 end
 
---[[CHAT_SYSTEM(
-    "{#DD0000}!@#$Guild_Colony_Occupation_WorldMessage$*$partyName$*$바이보라$*$mapName$*$|$#수로교 지역#$|#@!")]]
 function native_lang_process_name(clean_name)
+
+    if string.find(clean_name, "PartyMemberMapNChannel", 1, true) then
+        return clean_name
+    elseif string.find(clean_name, "★★", 1, true) then
+        return clean_name
+    end
+
+    if g.names[clean_name] then
+        return g.names[clean_name]
+    end
+
+    if g.sent_names and g.sent_names[clean_name] then
+        return clean_name
+    end
+
+    if native_lang_is_translation(clean_name) then
+
+        local append_file = io.open(g.send_name, "a")
+        if append_file then
+            append_file:write(clean_name .. ":::" .. clean_name .. "\n")
+            append_file:close()
+            g.sent_names[clean_name] = true
+        end
+    end
+
+    return clean_name
+end
+--[[function native_lang_process_name(clean_name)
 
     if string.find(clean_name, "PartyMemberMapNChannel", 1, true) then
         return clean_name
@@ -1461,7 +1535,7 @@ function native_lang_process_name(clean_name)
         end
     end
     return clean_name
-end
+end]]
 
 function native_lang_name_trans()
     if g.settings.use == 0 then
@@ -1484,15 +1558,19 @@ function native_lang_name_trans()
         end
     end
     local selected_objects, selected_objects_count = SelectObject(GetMyPCObject(), 500, "ALL")
+    local view_pcs = {}
 
     for i = 1, selected_objects_count do
 
         local handle = GetHandle(selected_objects[i])
 
-        if handle ~= nil then
-            if info.IsPC(handle) == 1 then
-                local frame_name = "charbaseinfo1_" .. handle
-                local pc_txt_frame = ui.GetFrame(frame_name)
+        if handle and info.IsPC(handle) == 1 then
+            view_pcs[handle] = true -- 画面内にいるPCとして記録
+
+            -- ★もし、まだ処理していない新しいPCなら、翻訳処理を実行する
+            if not g.proc_pcs[handle] then
+
+                local pc_txt_frame = ui.GetFrame("charbaseinfo1_" .. handle)
                 local shop_frame = ui.GetFrame("SELL_BALLOON_" .. handle)
 
                 function native_lang_name_replace(ctrl)
@@ -1522,7 +1600,8 @@ function native_lang_name_trans()
                                         if family_name ~= nil then
                                             local frame_family_name_margin = family_name:GetMargin()
                                             family_name:SetMargin(x + ctrl_Width + 5, frame_family_name_margin.top,
-                                                frame_family_name_margin.right, frame_family_name_margin.bottom)
+                                                                  frame_family_name_margin.right,
+                                                                  frame_family_name_margin.bottom)
                                         end
                                     elseif ctrl:GetName() == "familyName" or ctrl:GetName() == "name" then
                                         local original_part = origin_name:sub(1, 9)
@@ -1579,8 +1658,14 @@ function native_lang_name_trans()
                         end
                     end
                 end
-
+                g.proc_pcs[handle] = true
             end
+        end
+    end
+
+    for handle, _ in pairs(g.proc_pcs) do
+        if not view_pcs[handle] then
+            g.proc_pcs[handle] = nil -- テーブルから削除
         end
     end
 end
@@ -1726,7 +1811,7 @@ function native_lang_GUILDINFO_MEMBER_LIST_CREATE_(memberCtrlBox, partyMemberInf
         if mapCls ~= nil then
             pic_online:SetImage(ONLINE_IMG);
             locationText = string.format("[%s%d] %s", ScpArgMsg("Channel"), partyMemberInfo:GetChannel() + 1,
-                mapCls.Name);
+                                         mapCls.Name);
         end
     else
         isOnline = false;
@@ -1909,12 +1994,12 @@ function native_lang_ON_EVENTBANNER_GEARSCORE_()
 end
 
 function native_lang_real_rank_frame_close(frame, ctrl, str, num)
-    local frame = ui.GetFrame(addonNameLower .. "gear_score_info")
+    local frame = ui.GetFrame(addon_name_lower .. "gear_score_info")
     frame:ShowWindow(0)
 end
 
 function native_lang_real_rank_frame(frame, ctrl, str, num)
-    local frame = ui.CreateNewFrame("notice_on_pc", addonNameLower .. "gear_score_info", 0, 0, 0, 0)
+    local frame = ui.CreateNewFrame("notice_on_pc", addon_name_lower .. "gear_score_info", 0, 0, 0, 0)
     AUTO_CAST(frame)
     frame:SetPos(1000, 30)
     frame:SetSkinName("test_frame_low")
@@ -1945,7 +2030,7 @@ function native_lang_real_rank_frame(frame, ctrl, str, num)
     score_title:SetText("Gear Score")
 
     local info_gbox = frame:CreateOrGetControl("groupbox", "info_gbox", 10, 95, frame:GetWidth() - 20,
-        frame:GetHeight() - 55)
+                                               frame:GetHeight() - 55)
     AUTO_CAST(info_gbox)
 
     info_gbox:SetSkinName("bg")
@@ -2219,7 +2304,7 @@ function native_lang_WEEKLY_BOSS_RANK_UPDATE()
                 for _, score in ipairs(g.gear_scores) do
                     if score[1] == org_name then
                         local text_gs = rankListBox:CreateOrGetControl('button', "text_gs" .. i, 215, (i - 1) * 73 + 50,
-                            100, 25);
+                                                                       100, 25);
                         AUTO_CAST(text_gs)
                         text_gs:SetSkinName("None")
                         local score_text = "{@st66b}{s16}Max Gear Score : " .. score[4]
