@@ -23,6 +23,7 @@ function EBI_try_catch(what)
     return result
 end
 -- デフォルト設定
+
 if not g.loaded then
     g.settings = {
         -- 有効/無効
@@ -32,7 +33,8 @@ if not g.loaded then
             x = 0,
             y = 0
         },
-        items = {}
+        items = {},
+        searchs = {}
     }
 end
 
@@ -1173,6 +1175,7 @@ function MARKETFAVORITE_ON_INIT(addon, frame)
             frame = ui.GetFrame('marketfavorite')
             g.addon = addon
             g.frame = frame
+            g.lang = option.GetCurrentCountry()
 
             frame:ShowWindow(0)
             -- acutil.slashCommand("/"..addonNameLower, MARKETFAVORITE_PROCESS_COMMAND);
@@ -1211,8 +1214,8 @@ function MARKETFAVORITE_ON_INIT(addon, frame)
             end
             frame:ShowWindow(0)
             g.REGISTER = {}
-            g.setup_hook_and_event(addon, "MARKET_SUB_CATEOGRY_CLICK", "MARKETFAVORITE_MARKET_SUB_CATEOGRY_CLICK", true)
-            g.setup_hook_and_event(addon, "MARKET_SUB_CATEOGRY_CLICK", "MARKETFAVORITE_MARKET_SUB_CATEOGRY_CLICK", true)
+            g.setup_hook_and_event(addon, "MARKET_CLOSE", "MARKETFAVORITE_MARKET_CLOSE", true)
+            -- g.setup_hook_and_event(addon, "MARKET_SUB_CATEOGRY_CLICK", "MARKETFAVORITE_MARKET_SUB_CATEOGRY_CLICK", true)
         end,
         catch = function(error)
             CHAT_SYSTEM(error)
@@ -1220,26 +1223,9 @@ function MARKETFAVORITE_ON_INIT(addon, frame)
     }
 end
 
-function MARKETFAVORITE_MARKET_SUB_CATEOGRY_CLICK(my_frame, my_msg)
-    print("etst")
-    local parent, subCategoryCtrlset, reqList = g.get_event_args(my_msg)
-    print(tostring(subCategoryCtrlset:GetName()))
-    --[[local frame = parent:GetTopParentFrame();
-    print(tostring(subCategoryCtrlset))
-    local prevSelectedSubCategory = frame:GetUserValue('SELECTED_SUB_CATEGORY');
-    local prevSelectedSubCateCtrlset = GET_CHILD_RECURSIVELY(frame, 'SUB_CATE_' .. prevSelectedSubCategory);
-    if prevSelectedSubCateCtrlset ~= nil then
-        prevSelectedSubCateCtrlset:FillColorRect(false, nil);
-    end
-
-    local parentCategory = subCategoryCtrlset:GetUserValue('PARENT_CATEGORY');
-    local category = subCategoryCtrlset:GetUserValue('CATEGORY');
-    subCategoryCtrlset:FillColorRect(true, 'FFDEDE00');
-    frame:SetUserValue('SELECTED_SUB_CATEGORY', category);
-
-    if reqList ~= false then
-        MARKET_REQ_LIST(frame);
-    end]]
+function MARKETFAVORITE_MARKET_CLOSE()
+    local marketfavorite = ui.GetFrame("marketfavorite")
+    marketfavorite:ShowWindow(0)
 end
 
 function MARKETFAVORITE_SAVETOSTRUCTURE()
@@ -1329,15 +1315,15 @@ function MARKETFAVORITE_INIT_FRAME(frame)
 
             frame:RemoveChild('slt')
 
-            local obj = frame:CreateOrGetControl('slotset', 'slt', 30, 120, 0, 0)
+            local obj = frame:CreateOrGetControl('slotset', 'slt', 15, 75, 0, 0)
             if (obj == nil) then
                 CHAT_SYSTEM('nil')
             end
             obj = frame:GetChild('slt')
             local slotset = tolua.cast(obj, 'ui::CSlotSet')
             local slotCount = g.slots
-            slotset:SetColRow(5, 7)
-            slotset:SetSlotSize(64, 64)
+            slotset:SetColRow(7, 8)
+            slotset:SetSlotSize(50, 50)
             slotset:EnableDrag(0)
             slotset:EnableDrop(1)
             slotset:EnablePop(1)
@@ -1354,10 +1340,26 @@ function MARKETFAVORITE_INIT_FRAME(frame)
             end
             MARKETFAVORITE_LOADFROMSTRUCTURE()
 
-            local frame = ui.GetFrame('market')
+            local x = 15
+            for i = 1, 10 do
+                local search_btn = frame:CreateOrGetControl('button', 'search_btn' .. i, x, 485, 30, 25)
+                AUTO_CAST(search_btn)
+                search_btn:SetText("{ol}" .. i)
+                x = x + 35
+            end
+
+            local market = ui.GetFrame("market")
+            local open_btn = market:CreateOrGetControl("button", "open_btn", 610, 120, 100, 30)
+            AUTO_CAST(open_btn)
+            open_btn:SetSkinName("tab2_btn")
+            local text = g.lang == "Japanese" and "{@st66b18}お気に入り" or "{@st66b18}Favorites"
+            open_btn:SetText(text)
+            open_btn:SetEventScript(ui.LBUTTONUP, "MARKETFAVORITE_TOGGLE_FRAME")
+
+            --[[local frame = ui.GetFrame('market')
             local obj = frame:CreateOrGetControl('button', 'openbtn', 270, 30, 70, 40)
             obj:SetText(L_("Favorites"))
-            obj:SetEventScript(ui.LBUTTONDOWN, "MARKETFAVORITE_TOGGLE_FRAME")
+            obj:SetEventScript(ui.LBUTTONDOWN, "MARKETFAVORITE_TOGGLE_FRAME")]]
         end,
         catch = function(error)
             CHAT_SYSTEM(error)
@@ -1496,17 +1498,107 @@ function MARKETFAVORITE_ON_RCLICK(frame, slot, argstr, argnum)
                 local searchtext = GET_CHILD_RECURSIVELY(frame, 'searchEdit')
                 AUTO_CAST(searchtext)
                 local realname = dictionary.ReplaceDicIDInCompStr(invitem.Name)
-                print(tostring(invitem.ClassName))
-                if string.find(invitem.ClassName, "EP16_GoddessIcor_Armor_high") then
-                    local subCategoryCtrlset = GET_CHILD_RECURSIVELY(frame, 'SUB_CATE_' .. "SUB_CATE_GoddessIcorArmor");
-                    print(tostring(subCategoryCtrlset))
-                    if subCategoryCtrlset ~= nil then
-                        MARKET_SUB_CATEOGRY_CLICK(subCategoryCtrlset:GetParent(), subCategoryCtrlset, false);
+                local cls_name = invitem.ClassName
+                local armor = nil
+                local weapon = nil
+
+                if string.find(cls_name, "EP16_GoddessIcor_Weapon_high") or
+                    string.find(cls_name, "EP16_GoddessIcor_Weapon") or
+                    string.find(cls_name, "EP15_GoddessIcor_Weapon_high") or
+                    string.find(cls_name, "EP15_GoddessIcor_Weapon") then
+                    weapon = true
+                elseif string.find(cls_name, "EP16_GoddessIcor_Armor_high") or
+                    string.find(cls_name, "EP16_GoddessIcor_Armor") or
+                    string.find(cls_name, "EP15_GoddessIcor_Armor_high") or
+                    string.find(cls_name, "EP15_GoddessIcor_Armor") then
+                    armor = true
+                end
+
+                if weapon or armor then
+                    local marketCategory = GET_CHILD_RECURSIVELY(frame, 'marketCategory');
+                    local bgBox = GET_CHILD(marketCategory, 'bgBox');
+
+                    local cateListBox = GET_CHILD_RECURSIVELY(marketCategory, 'cateListBox');
+                    cateListBox:RemoveAllChild();
+
+                    local function SORT_CATEGORY(categoryList, sortFunc)
+                        table.sort(categoryList, sortFunc);
+                        return categoryList;
                     end
+
+                    local marketCategorySortCriteria =
+                        { -- 숫자가 작은 순서로 나오고, 없는 애들은 밑에 감
+                            Weapon = 1,
+                            Armor = 2,
+                            Consume = 3,
+                            Accessory = 4,
+                            Recipe = 5,
+                            Card = 6,
+                            Misc = 7,
+                            Gem = 8
+                        };
+
+                    local categoryList = SORT_CATEGORY(GetMarketCategoryList('root'), function(lhs, rhs)
+                        local lhsValue = marketCategorySortCriteria[lhs];
+                        local rhsValue = marketCategorySortCriteria[rhs];
+
+                        if lhsValue == nil then
+                            lhsValue = 200000000;
+                        end
+                        if rhsValue == nil then
+                            rhsValue = 200000000;
+                        end
+
+                        return lhsValue < rhsValue;
+                    end);
+
+                    for i = 0, #categoryList do
+                        local group;
+                        if i == 0 then
+                            group = 'IntegrateRetreive';
+                        else
+                            group = categoryList[i];
+                        end
+                        local ctrlSet = cateListBox:CreateControlSet("market_tree", "CATEGORY_" .. group, ui.LEFT, 0, 0,
+                            0, 0, 0);
+                        AUTO_CAST(ctrlSet)
+
+                        local part = ctrlSet:GetChild("part");
+                        part:SetTextByKey("value", ClMsg(group));
+                        ctrlSet:SetUserValue('CATEGORY', group);
+                    end
+                    GBOX_AUTO_ALIGN(cateListBox, 0, 0, 0, true, false);
+
+                    local optionBox = GET_CHILD_RECURSIVELY(frame, 'optionBox');
+                    optionBox:ShowWindow(0);
+
+                    frame:SetUserValue('SELECTED_CATEGORY', 'None');
+                    frame:SetUserValue('SELECTED_SUB_CATEGORY', 'None');
+
+                    local categoryCtrlset = GET_CHILD_RECURSIVELY(frame, 'CATEGORY_' .. "OPTMisc");
+                    AUTO_CAST(categoryCtrlset)
+                    MARKET_CATEGORY_CLICK(categoryCtrlset, categoryCtrlset:GetChild('bgBox'), false, true);
+                    local subCategoryCtrlset = nil
+                    if weapon then
+                        subCategoryCtrlset = GET_CHILD_RECURSIVELY(frame, 'SUB_CATE_' .. "GoddessIcorWeapon");
+                    elseif armor then
+                        subCategoryCtrlset = GET_CHILD_RECURSIVELY(frame, 'SUB_CATE_' .. "GoddessIcorArmor");
+                    end
+                    AUTO_CAST(subCategoryCtrlset)
+                    MARKET_SUB_CATEOGRY_CLICK(subCategoryCtrlset:GetParent(), subCategoryCtrlset, true);
+                    local market_search = GET_CHILD_RECURSIVELY(frame, 'itemSearchSet');
+
+                    local searchEdit = GET_CHILD_RECURSIVELY(market_search, 'searchEdit');
+                    AUTO_CAST(searchEdit)
+
+                    realname = utf8sub(realname, 2, math.min(#realname, 17))
+
+                    searchEdit:SetText(realname)
+                    frame:RunUpdateScript("MARKET_REQ_LIST", 0.1) -- (frame)
                     return
                 end
                 realname = utf8sub(realname, 1, math.min(#realname, 16))
-                searchtext:SetMaxLen(500)
+
                 searchtext:SetText(realname)
                 MARKET_REQ_LIST(frame)
             end
