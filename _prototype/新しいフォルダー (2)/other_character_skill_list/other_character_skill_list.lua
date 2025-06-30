@@ -13,10 +13,12 @@
 -- v1.1.3 キャラ削除した時に反映されなかったの修正。ロードを起動時のみに。セーブデータ持ち方修正。レイヤーの取り方修正
 -- v1.1.4 バニラでセッティングバグってたの修正
 -- v1.1.5 バグで色々どうしようもなくなったので仕切り直し。セーブファイル消えます。アドオンメニューに参加
+-- v1.1.6 アドオンメニュー回り修正。
+-- V1.1.7 バラックに戻るところバグってたの修正
 local addon_name = "OTHER_CHARACTER_SKILL_LIST"
 local addon_name_lower = string.lower(addon_name)
 local author = "norisan"
-local ver = "1.1.5"
+local ver = "1.1.7"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -264,6 +266,7 @@ function other_character_skill_list_BARRACK_TO_GAME(...)
 end
 
 function other_character_skill_list_BARRACK_TO_GAME_hook()
+    g.FUNCS = g.FUNCS or {}
     local origin_func_name = "BARRACK_TO_GAME"
     if _G[origin_func_name] then
         if not g.FUNCS[origin_func_name] then
@@ -282,8 +285,6 @@ function OTHER_CHARACTER_SKILL_LIST_ON_INIT(addon, frame)
     g.name = session.GetMySession():GetPCApc():GetName()
     g.cid = session.GetMySession():GetCID()
 
-    g.layer = g.layer or _G["norisan"]["LAST_LAYER"] or 1
-
     g.REGISTER = {}
 
     _G["norisan"] = _G["norisan"] or {}
@@ -298,6 +299,8 @@ function OTHER_CHARACTER_SKILL_LIST_ON_INIT(addon, frame)
         g.first = false
         return
     end
+
+    g.layer = g.layer or _G["norisan"]["LAST_LAYER"] or 1
 
     local menu_data = {
         name = "Other Character Skill List ",
@@ -333,6 +336,11 @@ end
 
 function other_character_APPS_TRY_MOVE_BARRACK()
     other_character_skill_list_save_enchant()
+
+    if type(_G["INSTANTCC_APPS_TRY_MOVE_BARRACK"]) ~= "function" then
+        APPS_TRY_LEAVE("Barrack");
+    end
+
 end
 
 local equips = {"SHIRT", "PANTS", "GLOVES", "BOOTS", "LEG", "GOD", "SEAL", "ARK", "RELIC", "RH", "LH", "RH_SUB",
