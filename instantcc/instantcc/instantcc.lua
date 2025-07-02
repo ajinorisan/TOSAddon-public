@@ -13,11 +13,12 @@
 -- v1.1.2 リターンバラックで戻った時にゲームに接続できないバグ修正。
 -- v1.1.3 バラックレイヤー取れないバグ修正
 -- v1.1.4 順番並ばなかったの修正
+-- v1.1.5 クライアントエラーになりそうなコード修正
 local addon_name = "INSTANTCC"
 local addon_name_lower = string.lower(addon_name)
 
 local author = "ebisuke"
-local ver = "1.1.4"
+local ver = "1.1.5"
 local basever = "0.0.7"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
