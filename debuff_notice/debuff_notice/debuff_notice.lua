@@ -1,7 +1,8 @@
+-- v1.0.1 デバフのカウントも表示する様に
 local addon_name = "DEBUFF_NOTICE"
 local addon_name_lower = string.lower(addon_name)
 local author = "norisan"
-local ver = "1.0.0"
+local ver = "1.0.1"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -17,26 +18,34 @@ function DEBUFF_NOTICE_ON_INIT(addon, frame)
     addon:RegisterMsg('TARGET_BUFF_ADD', 'debuff_notice_TARGETBUFF_ON_MSG');
     addon:RegisterMsg('TARGET_BUFF_REMOVE', 'debuff_notice_TARGETBUFF_ON_MSG');
     addon:RegisterMsg('TARGET_BUFF_UPDATE', 'debuff_notice_TARGETBUFF_ON_MSG');
-
+    -- addon:RegisterMsg('TARGET_SET', 'debuff_notice_TARGETBUFF_ON_MSG');
+    -- addon:RegisterMsg('TARGET_CLEAR', 'debuff_notice_TARGETBUFF_ON_MSG');
     g.slot_table = {}
+
 end
 
 function debuff_notice_frame_init()
+
+    g.highlander = nil
+    local map_name = session.GetMapName()
+    if map_name == "c_highlander" then
+        g.highlander = true
+    end
 
     local targetbuff = ui.GetFrame("targetbuff")
 
     local frame = ui.GetFrame("debuff_notice")
     frame:SetSkinName("None")
     frame:SetTitleBarSkin("None")
-    frame:Resize(300, 50)
+    frame:Resize(400, 50)
     frame:SetPos(targetbuff:GetX() + 100, targetbuff:GetY() + targetbuff:GetHeight() + 50)
 
     local debuff_slotset = GET_CHILD(frame, "debuff_slotset")
 
     if not debuff_slotset then
-        debuff_slotset = frame:CreateOrGetControl("slotset", "debuff_slotset", 0, 0, 315, 50)
+        debuff_slotset = frame:CreateOrGetControl("slotset", "debuff_slotset", 0, 0, 415, 50)
         AUTO_CAST(debuff_slotset)
-        debuff_slotset:SetColRow(6, 1)
+        debuff_slotset:SetColRow(8, 1)
         debuff_slotset:SetSlotSize(50, 50)
         debuff_slotset:SetSpc(0, 0)
         debuff_slotset:EnablePop(0)
@@ -54,8 +63,11 @@ function debuff_notice_frame_init()
         AUTO_CAST(slot)
         local icon = CreateIcon(slot)
         AUTO_CAST(icon)
-        local time_text = slot:CreateOrGetControl('richtext', "time_text", 25, 30, 20, 20);
+        local time_text = slot:CreateOrGetControl('richtext', "time_text", 10, 35, 20, 20);
         AUTO_CAST(time_text)
+
+        local count_text = slot:CreateOrGetControl('richtext', "count_text", 5, 0, 40, 35);
+        AUTO_CAST(count_text)
     end
     frame:ShowWindow(1)
     frame:RunUpdateScript("debuff_notice_frame_resize", 0.2)
@@ -83,12 +95,21 @@ function debuff_notice_frame_resize(frame)
         local buff_id = slot:GetUserIValue("DEBUFF_ID")
         local buff_index = slot:GetUserIValue("DEBUFF_INDEX")
         local time_text = GET_CHILD(slot, "time_text")
+        local count_text = GET_CHILD(slot, "count_text")
+
         local buff = info.GetBuff(handle, buff_id, buff_index) or info.GetBuff(handle, buff_id)
-        if not buff or buff.time <= 0 then
-            time_text:SetText("")
+        if buff then
+            if buff.time <= 0 then
+                time_text:SetText("")
+            end
+            if buff.over <= 0 then
+                count_text:SetText("")
+            end
+        else
             slot:ClearIcon();
             debuff_notice_common_buff_msg(frame, "REMOVE", buff_id, handle, buff_index)
         end
+
     end
 
     return 1
@@ -136,7 +157,7 @@ function debuff_notice_TARGETBUFF_ON_MSG(frame, msg, arg_str, buff_id)
 
     local actor = world.GetActor(handle)
     local mon_cls = GetClassByType("Monster", actor:GetType())
-    if TryGetProp(mon_cls, "MonRank", "None") ~= "Boss" then
+    if TryGetProp(mon_cls, "MonRank", "None") ~= "Boss" and not g.highlander then
         return
     else
         if not g.slot_table[handle] then
@@ -150,7 +171,6 @@ function debuff_notice_TARGETBUFF_ON_MSG(frame, msg, arg_str, buff_id)
         debuff_notice_common_buff_msg(frame, "REMOVE", buff_id, handle, arg_str)
     elseif msg == "TARGET_BUFF_UPDATE" then
         debuff_notice_common_buff_msg(frame, "UPDATE", buff_id, handle, arg_str)
-
     end
 
 end
@@ -163,17 +183,23 @@ function debuff_notice_time_update(slot, timer)
 
     local frame = slot:GetTopParentFrame()
     local time_text = GET_CHILD(slot, "time_text")
+    local count_text = GET_CHILD(slot, "count_text")
 
     local buff = info.GetBuff(handle, buff_id, buff_index) or info.GetBuff(handle, buff_id)
-    if not buff or buff.time <= 0 then
-        time_text:SetText("")
+    if buff then
+        if buff.time > 0 then
+            local sec = buff.time / 1000
+            sec = math.floor(sec * 10 + 0.5) / 10
+            sec = string.format("%.1f", sec)
+            time_text:SetText("{ol}{s15}{#FFFF00}" .. sec .. "s")
+        end
+        if buff.over > 0 then
+            count_text:SetText("{ol}{s35}{#FFFFFF}" .. buff.over)
+            -- count_text:SetGravity(ui.LEFT, ui.TOP)
+        end
+    else
         slot:ClearIcon();
         debuff_notice_common_buff_msg(frame, "REMOVE", buff_id, handle, buff_index)
-    else
-        local sec = buff.time / 1000
-        sec = math.floor(sec * 10 + 0.5) / 10
-        sec = string.format("%d", sec)
-        time_text:SetText("{ol}{s18}{#FFFF00}" .. sec)
     end
 
     -- .. ScpArgMsg("Auto_Cho")
@@ -229,7 +255,7 @@ function debuff_notice_frame_redraw(frame, handle)
                 AUTO_CAST(addon_timer)
                 -- addon_timer:Stop()
                 addon_timer:SetUpdateScript("debuff_notice_time_update");
-                addon_timer:Start(0.2);
+                addon_timer:Start(0.1);
                 local x = #buffs_to_display * 50
                 frame:Resize(x, 50)
 

@@ -237,7 +237,7 @@ function INSTANTCC_BARRACK_START_FRAME_OPEN(...)
 
     local barrack_gamestart = ui.GetFrame("barrack_gamestart")
     if barrack_gamestart == nil then
-        ReserveScript("INSTANTCC_BARRACK_START_FRAME_OPEN()", 0.1)
+        -- ReserveScript("INSTANTCC_BARRACK_START_FRAME_OPEN()", 0.1)
         return
     end
 

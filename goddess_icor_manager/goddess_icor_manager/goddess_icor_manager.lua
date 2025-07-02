@@ -12,10 +12,11 @@
 -- v1.0.9 セット適用出来る様に。大変やった。
 -- v1.1.0 デフォルトのフレームバグってたの修正
 -- v1.1.1 保存バグってたの修正
+-- v1.1.2 保存時更にバグってたの修正
 local addon_name = "GODDESS_ICOR_MANAGER"
 local addon_name_lower = string.lower(addon_name)
 local author = "norisan"
-local ver = "1.1.1"
+local ver = "1.1.2"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -1478,6 +1479,7 @@ function goddess_icor_manager_set_save(frame, ctrl, str, ctrl_key)
 
     for base_equip_name, strs in pairs(cur_strs) do
         for i = 1, page_max do
+            temp_data.set[base_equip_name] = ""
             local eng_opts, eng_grps, eng_vals, is_goddess =
                 goddess_icor_manager_GET_ENGRAVED_OPTION_LIST(etc_obj, i, base_equip_name)
             if eng_opts then
@@ -1487,24 +1489,61 @@ function goddess_icor_manager_set_save(frame, ctrl, str, ctrl_key)
 
                     temp_data.set[base_equip_name] = i .. ":::" .. base_equip_name
                     eng_count = eng_count + 1
-                    if base_equip_name == "RH" and cur_strs["RH"] == cur_strs["RH_SUB"] then
-                        temp_data.set["RH_SUB"] = i .. ":::" .. "RH"
-                        eng_count = eng_count + 1
-                    elseif base_equip_name == "RH_SUB" and cur_strs["RH"] == cur_strs["RH_SUB"] then
-                        temp_data.set["RH"] = i .. ":::" .. "RH_SUB"
-                        eng_count = eng_count + 1
-                    elseif base_equip_name == "LH" and cur_strs["LH"] == cur_strs["LH_SUB"] then
-                        temp_data.set["LH_SUB"] = i .. ":::" .. "LH"
-                        eng_count = eng_count + 1
-                    elseif base_equip_name == "LH_SUB" and cur_strs["LH"] == cur_strs["LH_SUB"] then
-                        temp_data.set["LH"] = i .. ":::" .. "LH_SUB"
-                        eng_count = eng_count + 1
+                    if not string.find(base_equip_name, "_SUB") then
+                        if cur_strs[base_equip_name] == cur_strs[base_equip_name .. "_SUB"] then
+                            temp_data.set[base_equip_name .. "_SUB"] = i .. ":::" .. base_equip_name
+                            eng_count = eng_count + 1
+                        end
+                    else
+                        if cur_strs[base_equip_name] == cur_strs[string.gsub(base_equip_name, "_SUB", "")] then
+                            temp_data.set[string.gsub(base_equip_name, "_SUB", "")] = i .. ":::" .. base_equip_name
+                            eng_count = eng_count + 1
+                        end
                     end
                     break
                 end
             end
+            if temp_data.set[base_equip_name] == "" then
+
+                local change_equip_name = nil
+                if base_equip_name == "RH" then
+                    change_equip_name = "RH_SUB"
+                elseif base_equip_name == "RH_SUB" then
+                    change_equip_name = "RH"
+                elseif base_equip_name == "LH" then
+                    change_equip_name = "LH_SUB"
+                elseif base_equip_name == "LH_SUB" then
+                    change_equip_name = "LH"
+                end
+
+                local eng_opts, eng_grps, eng_vals, is_goddess =
+                    goddess_icor_manager_GET_ENGRAVED_OPTION_LIST(etc_obj, i, change_equip_name)
+                if eng_opts then
+                    local eng_strs = string.format("%s:%s:%s", tostring(eng_opts or ""), tostring(eng_grps or ""),
+                        tostring(eng_vals or ""))
+                    if strs == eng_strs then
+                        temp_data.set[base_equip_name] = i .. ":::" .. change_equip_name
+                        eng_count = eng_count + 1
+                        break
+                    end
+                end
+            end
         end
     end
+
+    --[[if temp_data and temp_data.set then -- temp_data と temp_data.set が nil でないことを確認
+        if next(temp_data.set) then -- テーブルが空でないか確認
+            for slot_name_key, engraved_info_value in pairs(temp_data.set) do
+                print(string.format("  [%s] = %s", tostring(slot_name_key), -- 装備部位名 (キー)
+                tostring(engraved_info_value) -- "ページ:::関連スロット名" (値)
+                ))
+            end
+        else
+            print("  temp_data.set is empty.")
+        end
+    else
+        print("  temp_data or temp_data.set is nil.")
+    end]]
 
     if eng_count >= 8 then
 
@@ -1514,6 +1553,30 @@ function goddess_icor_manager_set_save(frame, ctrl, str, ctrl_key)
                          "{ol}Cannot be saved as it is not replaceable"
         ui.SysMsg(text)
     end
+end
+
+function goddess_icor_manager_GET_ENGRAVED_OPTION_LIST(etc, index, spot)
+    if etc == nil then
+        return nil
+    end
+
+    local suffix = string.format('_%d_%s', tonumber(index), spot)
+
+    local option_prop = TryGetProp(etc, 'RandomOptionPreset' .. suffix, 'None')
+    local group_prop = TryGetProp(etc, 'RandomOptionGroupPreset' .. suffix, 'None')
+    local value_prop = TryGetProp(etc, 'RandomOptionValuePreset' .. suffix, 'None')
+
+    if option_prop == 'None' then
+        return nil
+    end
+
+    local option_list = SCR_STRING_CUT(option_prop, '/')
+    local group_list = SCR_STRING_CUT(group_prop, '/')
+    local value_list = SCR_STRING_CUT(value_prop, '/')
+
+    local is_goddess_option = TryGetProp(etc, 'IsGoddessIcorOption' .. suffix, 0)
+
+    return option_prop, group_prop, value_prop, is_goddess_option
 end
 
 function goddess_icor_manager_save_setname(inputstring, ctrl, str, ctrl_key)
@@ -3381,30 +3444,6 @@ function goddess_icor_manager_set_frame_color_equip(bg, size, item_dic, slot)
     end
     return "FF000000"
 
-end
-
-function goddess_icor_manager_GET_ENGRAVED_OPTION_LIST(etc, index, spot)
-    if etc == nil then
-        return nil
-    end
-
-    local suffix = string.format('_%d_%s', tonumber(index), spot)
-
-    local option_prop = TryGetProp(etc, 'RandomOptionPreset' .. suffix, 'None')
-    local group_prop = TryGetProp(etc, 'RandomOptionGroupPreset' .. suffix, 'None')
-    local value_prop = TryGetProp(etc, 'RandomOptionValuePreset' .. suffix, 'None')
-
-    if option_prop == 'None' then
-        return nil
-    end
-
-    local option_list = SCR_STRING_CUT(option_prop, '/')
-    local group_list = SCR_STRING_CUT(group_prop, '/')
-    local value_list = SCR_STRING_CUT(value_prop, '/')
-
-    local is_goddess_option = TryGetProp(etc, 'IsGoddessIcorOption' .. suffix, 0)
-
-    return option_prop, group_prop, value_prop, is_goddess_option
 end
 
 function goddess_icor_manager_list_close(frame)
