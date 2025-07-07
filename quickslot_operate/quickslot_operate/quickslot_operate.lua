@@ -19,10 +19,11 @@
 -- v1.1.8 コード書き直した。右SHIFTでポーション入替える仕様に。ギルドレイド対応。
 -- v1.1.9 やっぱバグってた。直したつもり
 -- v1.2.0 RSHIFTのショトカを切替式に。ジョイスティックでも使える様に。セット保存を1キャラで色々出来る様に
+-- v1.2.1 ボタンの機能振り分け見直し。スロット入れ替え時にバグってたの修正。quickslot.RequestSave()で固定出来た。
 local addon_name = "quickslot_operate"
 local addon_name_lower = string.lower(addon_name)
 local author = "norisan"
-local ver = "1.2.0"
+local ver = "1.2.1"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -169,11 +170,6 @@ function quickslot_operate_load_settings()
     g.save_settings()
 end
 
-function quickslot_operate_tips(frame, msg)
-    ui.SysMsg(g.lang == "Japanese" and "{ol}{#00FFFF}[Quick Slot Operate]{nl}右SHIFT: ポーション入替" or
-                  "{ol}{#00FFFF}[Quick Slot Operate]{nl}Right click: Save/load slot set{nl} RSHIFT: switch potions")
-end
-
 function QUICKSLOT_OPERATE_ON_INIT(addon, frame)
 
     g.addon = addon
@@ -184,22 +180,438 @@ function QUICKSLOT_OPERATE_ON_INIT(addon, frame)
     g.lang = option.GetCurrentCountry()
 
     g.login_name = session.GetMySession():GetPCApc():GetName()
+    g.cid = session.GetMySession():GetCID()
 
     if not g.settings then
         quickslot_operate_load_settings()
         -- addon:RegisterMsg("GAME_START_3SEC", "quickslot_operate_tips")
     end
 
-    g.setup_hook_and_event(addon, "SHOW_INDUNENTER_DIALOG", "quickslot_operate_SHOW_INDUNENTER_DIALOG", true)
-
     g.last_potion_time = g.last_potion_time or 0
     g.potion_delay = 0.5
-
-    g.setup_hook_and_event(addon, "ON_GUILD_EVENT_RECRUITING_START",
-        "quickslot_operate_ON_GUILD_EVENT_RECRUITING_START", true)
+    g.setup_hook_and_event(addon, "SHOW_INDUNENTER_DIALOG", "quickslot_operate_SHOW_INDUNENTER_DIALOG", true)
 
     addon:RegisterMsg("GAME_START", "quickslot_operate_frame_init")
     addon:RegisterMsg("GAME_START_3SEC", "quickslot_operate_GAME_START_3SEC")
+
+    -- addon:RegisterMsg("GAME_START_3SEC", "quickslot_operate_load_all_slot_game_start_3sec")
+
+end
+
+function quickslot_operate_GAME_START_3SEC(frame, msg)
+
+    if g.settings.rshift == 1 then
+        local sysmenu = ui.GetFrame("sysmenu")
+        sysmenu:RunUpdateScript("quickslot_operate_set_rshift_script", 0.15)
+        local chat = ui.GetFrame('chat')
+        local chatEditCtrl = chat:GetChild('mainchat')
+        chatEditCtrl:ShowWindow(0)
+    end
+
+    local quickslotnexpbar = ui.GetFrame("quickslotnexpbar")
+    -- quickslot_operate_set_script(quickslotnexpbar)
+    quickslotnexpbar:RunUpdateScript("quickslot_operate_set_script", 2.0)
+
+    local map_name = session.GetMapName()
+
+    local map_cls = GetClass("Map", map_name)
+    local map_id = session.GetMapID()
+    local frame = ui.GetFrame("quickslot_operate")
+
+    for _, zone_id in ipairs(zone_id_list) do
+        if zone_id == map_id then
+            local potion_type = quickslot_operate_get_potion_type(g.indun_type)
+            if potion_type then
+                frame:SetUserValue("POT_TYPE", potion_type)
+                frame:RunUpdateScript("quickslot_operate_get_potion", 2.0)
+                return
+            end
+        end
+    end
+
+    for _, eventmap_id in ipairs(guild_eventmap) do
+
+        if eventmap_id == map_id then
+            frame:SetUserValue("POT_TYPE", "Velnias")
+            frame:RunUpdateScript("quickslot_operate_get_potion", 2.0)
+            return
+        end
+    end
+
+end
+
+function quickslot_operate_set_script(quickslotnexpbar)
+    local frame = ui.GetFrame("quickslotnexpbar")
+    if not frame then
+        return
+    end
+
+    g.new_list = {}
+
+    for key, value_tbl in pairs(atk_list) do
+        table.insert(g.new_list, value_tbl[1])
+
+    end
+
+    for key, num_val in pairs(def_list) do
+        table.insert(g.new_list, num_val)
+    end
+
+    local slot_count = MAX_QUICKSLOT_CNT
+
+    for i = 0, slot_count - 1 do
+        local slot = tolua.cast(frame:GetChildRecursively("slot" .. i + 1), "ui::CSlot")
+
+        local quickSlotInfo = quickslot.GetInfoByIndex(i)
+        if quickSlotInfo and quickSlotInfo.type ~= 0 then
+            for _, id in pairs(g.new_list) do
+
+                if id == quickSlotInfo.type then
+                    slot:SetEventScript(ui.MOUSEON, "quickslot_operate_choice_potion")
+                    break
+                end
+            end
+        end
+
+    end
+end
+
+function quickslot_operate_choice_potion(frame, ctrl, str, num)
+
+    local slot = ctrl
+
+    slot:RunUpdateScript("quickslot_operate_frame_close", 5)
+
+    local joystickquickslot = ui.GetFrame('joystickquickslot')
+    joystickquickslot:RunUpdateScript("quickslot_operate_frame_close", 5)
+
+    local frame = ui.GetFrame("quickslot_operate")
+    frame:RemoveAllChild()
+    frame:Resize(150, 30)
+
+    local map_frame = ui.GetFrame("map")
+    local width = map_frame:GetWidth()
+
+    frame:SetPos(width / 2 - 75, 780)
+    -- frame:SetGravity(ui.CENTER_HORZ, ui.CENTER_VERT)
+    frame:SetTitleBarSkin("None")
+    frame:SetSkinName("chat_window")
+    frame:SetLayerLevel(150)
+
+    local slotset = frame:CreateOrGetControl('slotset', 'slotset', 0, 0, 0, 0)
+    AUTO_CAST(slotset)
+    slotset:SetSlotSize(30, 30)
+    slotset:EnablePop(0)
+    slotset:EnableDrag(0)
+    slotset:EnableDrop(0)
+    slotset:SetColRow(5, 1)
+    slotset:SetSpc(0, 0)
+    slotset:SetSkinName('slot')
+    slotset:CreateSlots()
+    local slot_count = slotset:GetSlotCount()
+
+    local index = 1
+    for _, id in pairs(g.new_list) do
+        if index <= slot_count then
+            local slot = slotset:GetSlotByIndex(index - 1)
+            slot:SetEventScript(ui.LBUTTONDOWN, "quickslot_operate_set_potion")
+            slot:SetEventScriptArgNumber(ui.LBUTTONDOWN, id)
+            local class = GetClassByType('Item', id)
+            SET_SLOT_ITEM_CLS(slot, class)
+            index = index + 1
+        end
+    end
+    frame:ShowWindow(1)
+
+end
+
+-- マウスオン機能
+
+function quickslot_operate_set_potion(frame, ctrl, str, cls_id)
+    local matched_key = nil
+
+    for key, value_tbl in pairs(atk_list) do
+        for _, num_val in ipairs(value_tbl) do
+            if num_val == cls_id then
+                matched_key = key
+            end
+        end
+    end
+
+    if matched_key then
+        local down_potion_id = def_list[matched_key]
+
+        if down_potion_id then
+            quickslot_operate_check_all_slots(cls_id, down_potion_id)
+            local frame = ui.GetFrame("quickslot_operate")
+            frame:ShowWindow(0)
+        end
+    end
+end
+
+function quickslot_operate_frame_close()
+    local frame = ui.GetFrame("quickslot_operate")
+    frame:ShowWindow(0)
+    return 0
+end
+
+function quickslot_operate_frame_init()
+    local frame = ui.GetFrame("quickslotnexpbar")
+
+    local setting = frame:CreateOrGetControl("button", "setting", 0, 0, 30, 20)
+    AUTO_CAST(setting)
+    setting:SetMargin(-260, 0, 0, 55)
+    setting:SetText("{ol}{s11}QSO")
+    setting:SetGravity(ui.CENTER_HORZ, ui.BOTTOM)
+
+    setting:SetTextTooltip(g.lang == "Japanese" and
+                               "{ol}左クリック: スロットセット読込{nl}右クリック: 各種設定" or
+                               "{ol}Left-click: Load Slot Set{nl}Right-click: Settings")
+    setting:SetEventScript(ui.RBUTTONUP, "quickslot_operate_context")
+    setting:SetEventScript(ui.LBUTTONUP, "quickslot_operate_load_slotset_context")
+
+    quickslot_operate_straight()
+end
+
+function quickslot_operate_context(frame, ctr, str, num)
+
+    local context = ui.CreateContextMenu("CONTEXT", "{ol}slotset context", 0, -300, 0, 0)
+    ui.AddContextMenuItem(context, "-----", "None")
+    ui.AddContextMenuItem(context,
+        g.lang == "Japanese" and "{ol}スロットレイアウト保存" or "{ol}Save Slot layout",
+        "quickslot_operate_save_slotset()")
+
+    ui.AddContextMenuItem(context,
+        g.lang == "Japanese" and "{ol}スロットレイアウト削除" or "{ol}Delete Slot layout",
+        "quickslot_operate_delete_slotset()")
+
+    ui.AddContextMenuItem(context, "------", "None")
+    if not g.settings.rshift then
+        g.settings.rshift = 0
+        g.save_settings()
+    end
+    if g.settings.rshift == 0 then
+        ui.AddContextMenuItem(context, g.lang == "Japanese" and "{ol}RSHIFT {#FFFF00}ONにする" or "{ol}Turn ON",
+            "quickslot_operate_switch_rshift()")
+    else
+        ui.AddContextMenuItem(context, g.lang == "Japanese" and "{ol}RSHIFT {#FFFF00}OFFにする" or "{ol}Turn OFF",
+            "quickslot_operate_switch_rshift()")
+    end
+
+    ui.AddContextMenuItem(context, "-------", "None")
+    ui.AddContextMenuItem(context,
+        g.lang == "Japanese" and "{ol}ストレートモード切替" or "{ol}Switch straight mode",
+        "quickslot_operate_straight(nil,'save')")
+    ui.OpenContextMenu(context)
+end
+
+function quickslot_operate_straight(frame, ctrl)
+
+    if ctrl then
+
+        if g.settings.straight then
+            g.settings.straight = false
+        else
+            g.settings.straight = true
+        end
+        g.save_settings()
+    end
+
+    local frame = ui.GetFrame("quickslotnexpbar")
+
+    if g.settings.straight then
+        -- true
+        local margin, margin_2, margin_3 = -200, -200, -200
+        for i = 11, MAX_QUICKSLOT_CNT do
+            local slot = GET_CHILD_RECURSIVELY(frame, "slot" .. i)
+            AUTO_CAST(slot)
+            if i <= 20 then
+                slot:SetMargin(margin, 230, 0, 0)
+                margin = margin + 50
+            elseif i <= 30 then
+                slot:SetMargin(margin_2, 180, 0, 0)
+                margin_2 = margin_2 + 50
+            elseif i <= 40 then
+                slot:SetMargin(margin_3, 130, 0, 0)
+                margin_3 = margin_3 + 50
+            end
+        end
+
+    else
+        -- false
+        local margin, margin_2, margin_3 = -225, -250, -225
+        for i = 11, MAX_QUICKSLOT_CNT do
+            local slot = GET_CHILD_RECURSIVELY(frame, "slot" .. i)
+            AUTO_CAST(slot)
+            if i <= 20 then
+                slot:SetMargin(margin, 230, 0, 0)
+                margin = margin + 50
+            elseif i <= 30 then
+                slot:SetMargin(margin_2, 180, 0, 0)
+                margin_2 = margin_2 + 50
+            elseif i <= 40 then
+                slot:SetMargin(margin_3, 130, 0, 0)
+                margin_3 = margin_3 + 50
+            end
+        end
+
+    end
+    frame:Invalidate()
+    DebounceScript("QUICKSLOTNEXTBAR_UPDATE_ALL_SLOT", 0.1)
+end
+
+function quickslot_operate_SHOW_INDUNENTER_DIALOG()
+
+    local now = os.clock()
+
+    if now - g.last_potion_time < g.potion_delay then
+        return
+    end
+
+    g.last_potion_time = now
+
+    local indunenter = ui.GetFrame('indunenter')
+    local indun_type = tonumber(indunenter:GetUserValue("INDUN_TYPE"))
+    g.indun_type = indun_type
+    local potion_type = quickslot_operate_get_potion_type(indun_type)
+
+    if potion_type then
+        local quickslot_operate = ui.GetFrame("quickslot_operate")
+        quickslot_operate:SetUserValue("POT_TYPE", potion_type)
+        quickslot_operate_get_potion(quickslot_operate)
+    end
+end
+
+function quickslot_operate_get_potion_type(indun_type)
+    for potion_type, indun_list in pairs(raid_list) do
+        for _, indun_id in ipairs(indun_list) do
+            if indun_id == indun_type then
+                return potion_type
+            end
+        end
+    end
+    return
+end
+
+function quickslot_operate_get_potion(frame)
+
+    local potion_type = frame:GetUserValue("POT_TYPE")
+
+    local atk_pid = atk_list[potion_type][1]
+    local second_atk_pid = atk_list[potion_type][2]
+
+    local def_pid = def_list[potion_type]
+
+    session.ResetItemList()
+    local inv_list = session.GetInvItemList()
+    local item_guids = inv_list:GetGuidList()
+    local item_count = item_guids:Count()
+
+    local found_atk_id = nil
+    local found_second_atk = nil
+    local found_def_id = nil
+
+    for i = 0, item_count - 1 do
+        local current_guid = item_guids:Get(i)
+        local inv_item = inv_list:GetItemByGuid(current_guid)
+        local item_data = GetIES(inv_item:GetObject())
+        local item_cid = item_data.ClassID
+
+        if item_cid == atk_pid then
+            found_atk_id = atk_pid
+        elseif item_cid == def_pid then
+            found_def_id = def_pid
+        elseif item_cid == second_atk_pid then
+
+            found_second_atk = second_atk_pid
+        end
+    end
+
+    if not found_atk_id then
+        found_atk_id = found_second_atk
+    end
+
+    if found_atk_id or found_def_id then
+        quickslot_operate_check_all_slots(found_atk_id, found_def_id)
+    end
+end
+
+function quickslot_operate_check_all_slots(atk_pid, def_pid)
+
+    local quickslotnexpbar = ui.GetFrame("quickslotnexpbar")
+    local joystickquickslot = ui.GetFrame('joystickquickslot')
+    if IsJoyStickMode() == 1 then
+        quickslotnexpbar:ShowWindow(1)
+        joystickquickslot:ShowWindow(0)
+    end
+
+    local slot_count = MAX_QUICKSLOT_CNT
+
+    for i = 0, slot_count - 1 do
+        local slot = GET_CHILD_RECURSIVELY(quickslotnexpbar, "slot" .. i + 1)
+        AUTO_CAST(slot)
+        local quick_slot_info = quickslot.GetInfoByIndex(i)
+
+        if quick_slot_info and quick_slot_info.type ~= 0 then
+
+            for key, value_tbl in pairs(atk_list) do
+                for _, num_val in ipairs(value_tbl) do
+
+                    if num_val == quick_slot_info.type then
+
+                        SET_QUICK_SLOT(quickslotnexpbar, slot, quick_slot_info.category, atk_pid, _, 0, true, true)
+                        slot:SetEventScript(ui.MOUSEON, "quickslot_operate_choice_potion")
+                        break
+                    end
+                end
+            end
+            for key, num_val in pairs(def_list) do
+                if num_val == quick_slot_info.type then
+
+                    SET_QUICK_SLOT(quickslotnexpbar, slot, quick_slot_info.category, def_pid, _, 0, true, true)
+                    slot:SetEventScript(ui.MOUSEON, "quickslot_operate_choice_potion")
+                    break
+                end
+            end
+
+        end
+
+    end
+    quickslot.RequestSave()
+    QUICKSLOTNEXPBAR_UPDATE_HOTKEYNAME(quickslotnexpbar)
+    if IsJoyStickMode() == 1 then
+        DebounceScript("JOYSTICK_QUICKSLOT_UPDATE_ALL_SLOT", 0.1)
+        quickslotnexpbar:ShowWindow(0)
+        joystickquickslot:ShowWindow(1)
+    else
+        DebounceScript("QUICKSLOTNEXTBAR_UPDATE_ALL_SLOT", 0.1)
+    end
+
+end
+
+function quickslot_operate_load_all_slot(name, title)
+
+    local frame = ui.GetFrame('quickslotnexpbar')
+    local slot_count = MAX_QUICKSLOT_CNT
+
+    for i = 0, slot_count - 1 do
+        local str_index = tostring(i + 1)
+        local slot = GET_CHILD_RECURSIVELY(frame, "slot" .. str_index, "ui::CSlot")
+        local slot_info = g.settings.slotset[name][title][str_index]
+        if slot_info then
+            local category = slot_info.category
+            local clsid = slot_info.type
+            local iesid = slot_info.iesid
+            SET_QUICK_SLOT(frame, slot, category, clsid, iesid, 0, true, true)
+        else
+            slot:ClearText()
+            CLEAR_QUICKSLOT_SLOT(slot, 0, true)
+        end
+        slot:Invalidate()
+    end
+    quickslot.RequestSave()
+    QUICKSLOTNEXPBAR_UPDATE_HOTKEYNAME(frame)
+    DebounceScript("QUICKSLOTNEXTBAR_UPDATE_ALL_SLOT", 0.1)
 
 end
 
@@ -209,8 +621,8 @@ function quickslot_operate_set_rshift_script()
         return 1
     end
 
-    local chat = ui.GetFrame('chat');
-    local chatEditCtrl = chat:GetChild('mainchat');
+    local chat = ui.GetFrame('chat')
+    local chatEditCtrl = chat:GetChild('mainchat')
     if chatEditCtrl:IsVisible() == 1 then
         return 1
     end
@@ -275,7 +687,7 @@ function quickslot_operate_set_rshift_script()
             end
         end
     end
-
+    quickslot.RequestSave()
     if IsJoyStickMode() == 1 then
         quickslotnexpbar:ShowWindow(0)
         joystickquickslot:ShowWindow(1)
@@ -284,22 +696,45 @@ function quickslot_operate_set_rshift_script()
     return 1
 end
 
-function quickslot_operate_frame_init()
-    local frame = ui.GetFrame("quickslotnexpbar")
+function quickslot_operate_load_slotset_context(frame, ctrl)
 
-    local setting = frame:CreateOrGetControl("button", "setting", 0, 0, 30, 20)
-    AUTO_CAST(setting)
-    setting:SetMargin(-260, 0, 0, 55)
-    setting:SetText("{ol}{s11}QSO")
-    setting:SetGravity(ui.CENTER_HORZ, ui.BOTTOM);
+    local context = ui.CreateContextMenu("CONTEXT", "{ol}Load Slotset", 0, -350, 0, 0)
 
-    setting:SetTextTooltip(g.lang == "Japanese" and
-                               "{ol}右クリック: ストレートモード切替{nl}左クリック: スロットセット保存/読込{nl}右SHIFT: ポーション入替" or
-                               "{ol}Right click: Switch straight mode {nl}Left click: Save/load slot set{nl} RSHIFT: switch potions")
-    setting:SetEventScript(ui.RBUTTONUP, "quickslot_operate_straight")
-    setting:SetEventScript(ui.LBUTTONUP, "quickslot_operate_context")
+    for name, data in pairs(g.settings.slotset) do
 
-    quickslot_operate_straight()
+        for title, layout_data in pairs(data) do
+
+            local display_name_parts = {}
+            for i = 0, 3 do
+                local job_key = "jobid_" .. i
+                local saved_job_id = layout_data[job_key]
+
+                if saved_job_id then
+                    local job_cls = GetClassByType("Job", tonumber(saved_job_id))
+                    local job_name = TryGetProp(job_cls, "Name", "None")
+                    if job_name ~= "None" then
+                        if string.find(job_name, '@dicID') then
+                            job_name = dic.getTranslatedStr(job_name)
+                        end
+                        table.insert(display_name_parts, job_name)
+                    end
+                end
+            end
+
+            local display_str
+            if #display_name_parts > 0 then
+                display_str = table.concat(display_name_parts, ", ")
+
+            end
+
+            local menu_item_display = string.format("%s : %s ", tostring(name), tostring(title))
+
+            ui.AddContextMenuItem(context, menu_item_display,
+                string.format("quickslot_operate_load_all_slot('%s','%s')", name, title))
+
+        end
+    end
+    ui.OpenContextMenu(context)
 end
 
 -- スロットセット保存
@@ -409,90 +844,12 @@ function quickslot_operate_switch_rshift()
     quickslot_operate_context()
 end
 
-function quickslot_operate_context(frame, ctr, str, num)
-
-    local context = ui.CreateContextMenu("CONTEXT", "{ol}slotset context", 0, -300, 0, 0)
-    ui.AddContextMenuItem(context, "-----", "None")
-    ui.AddContextMenuItem(context,
-        g.lang == "Japanese" and "{ol}スロットレイアウト保存" or "{ol}Save Slot layout",
-        "quickslot_operate_save_slotset()")
-    ui.AddContextMenuItem(context,
-        g.lang == "Japanese" and "{ol}スロットレイアウト読込" or "{ol}Load Slot layout",
-        "quickslot_operate_load_slotset_context()")
-    if g.settings.slotset[g.login_name] then
-        ui.AddContextMenuItem(context, g.lang == "Japanese" and "{ol}スロットレイアウト削除" or
-            "{ol}Delete Slot layout", "quickslot_operate_delete_slotset()")
-    end
-    ui.AddContextMenuItem(context, "------", "None")
-    if not g.settings.rshift then
-        g.settings.rshift = 0
-        g.save_settings()
-    end
-    if g.settings.rshift == 0 then
-        ui.AddContextMenuItem(context, g.lang == "Japanese" and "{ol}RSHIFT {#FFFF00}ONにする" or "{ol}Turn ON",
-            "quickslot_operate_switch_rshift()")
-    else
-        ui.AddContextMenuItem(context, g.lang == "Japanese" and "{ol}RSHIFT {#FFFF00}OFFにする" or "{ol}Turn OFF",
-            "quickslot_operate_switch_rshift()")
-    end
-    ui.OpenContextMenu(context)
-end
-
 function quickslot_operate_delete_slotset()
     local context = ui.CreateContextMenu("CONTEXT", "{ol}Delete slotset", 0, -100, 0, 0)
     ui.AddContextMenuItem(context, "-----", "None")
     for name, data in pairs(g.settings.slotset) do
 
-        if name == g.login_name then
-            for title, layout_data in pairs(data) do
-
-                local display_name_parts = {}
-                for i = 0, 3 do
-                    local job_key = "jobid_" .. i
-                    local saved_job_id = layout_data[job_key]
-
-                    if saved_job_id then
-                        local job_cls = GetClassByType("Job", tonumber(saved_job_id))
-                        local job_name = TryGetProp(job_cls, "Name", "None")
-                        if job_name ~= "None" then
-                            if string.find(job_name, '@dicID') then
-                                job_name = dic.getTranslatedStr(job_name)
-                            end
-                            table.insert(display_name_parts, job_name)
-                        end
-                    end
-                end
-
-                local display_str
-                if #display_name_parts > 0 then
-                    display_str = table.concat(display_name_parts, ", ")
-
-                end
-
-                local menu_item_display = string.format("%s : %s : (%s)", tostring(name), tostring(title),
-                    tostring(display_str))
-
-                ui.AddContextMenuItem(context, menu_item_display,
-                    string.format("quickslot_operate_delete_slotset_('%s','%s')", name, title))
-
-            end
-        end
-    end
-    ui.OpenContextMenu(context)
-
-end
-
-function quickslot_operate_delete_slotset_(name, title)
-    g.settings.slotset[g.login_name][title] = nil
-    g.save_settings()
-end
-
-function quickslot_operate_load_slotset_context()
-
-    local context = ui.CreateContextMenu("CONTEXT", "{ol}Load Slotset", 0, -300, 0, 0)
-
-    for name, data in pairs(g.settings.slotset) do
-
+        -- if name == g.login_name then
         for title, layout_data in pairs(data) do
 
             local display_name_parts = {}
@@ -522,378 +879,45 @@ function quickslot_operate_load_slotset_context()
                 tostring(display_str))
 
             ui.AddContextMenuItem(context, menu_item_display,
-                string.format("quickslot_operate_load_all_slot('%s','%s')", name, title))
+                string.format("quickslot_operate_delete_slotset_('%s','%s')", name, title))
 
         end
+        -- end
     end
     ui.OpenContextMenu(context)
-end
-
-function quickslot_operate_load_all_slot(name, title)
-
-    local frame = ui.GetFrame('quickslotnexpbar')
-    local slot_count = MAX_QUICKSLOT_CNT
-
-    for i = 0, slot_count - 1 do
-        local slot = GET_CHILD_RECURSIVELY(frame, "slot" .. i + 1, "ui::CSlot")
-        slot:ReleaseBlink()
-        slot:ClearIcon()
-        quickslot.SetInfo(slot:GetSlotIndex(), 'None', 0, '0')
-        QUICKSLOT_SET_GAUGE_VISIBLE(slot, 0)
-    end
-
-    for i = 0, slot_count - 1 do
-        local str_index = tostring(i + 1)
-        local slot = GET_CHILD_RECURSIVELY(frame, "slot" .. str_index, "ui::CSlot")
-        if g.settings.slotset[name][title][str_index] then
-            local category = g.settings.slotset[name][title][str_index].category
-            local clsid = g.settings.slotset[name][title][str_index].type
-            local iesid = g.settings.slotset[name][title][str_index].iesid
-            SET_QUICK_SLOT(frame, slot, category, clsid, iesid, 0, true, true)
-        end
-    end
-    DebounceScript("QUICKSLOTNEXTBAR_UPDATE_ALL_SLOT", 0.1)
-end
-
-function quickslot_operate_GAME_START_3SEC(frame, msg)
-
-    if g.settings.rshift == 1 then
-        local sysmenu = ui.GetFrame("sysmenu")
-        sysmenu:RunUpdateScript("quickslot_operate_set_rshift_script", 0.15)
-        local chat = ui.GetFrame('chat');
-        local chatEditCtrl = chat:GetChild('mainchat');
-        chatEditCtrl:ShowWindow(0)
-    end
-
-    frame:RunUpdateScript("quickslot_operate_set_script", 2.0)
-
-    local map_name = session.GetMapName()
-    local map_cls = GetClass("Map", map_name)
-    local map_id = map_cls.ClassID
-    local frame = ui.GetFrame("quickslot_operate")
-
-    for _, zone_id in ipairs(zone_id_list) do
-        if zone_id == map_id then
-            local potion_type = quickslot_operate_get_potion_type(g.indun_type)
-            if potion_type then
-                frame:SetUserValue("POT_TYPE", potion_type)
-                frame:RunUpdateScript("quickslot_operate_get_potion", 2.0)
-                return
-            end
-        end
-    end
-
-    for _, eventmap_id in ipairs(guild_eventmap) do
-        if eventmap_id == map_id then
-            frame:SetUserValue("POT_TYPE", "Velnias")
-            frame:RunUpdateScript("quickslot_operate_get_potion", 2.0)
-            return
-        end
-    end
 
 end
 
-function quickslot_operate_straight(frame, ctrl)
+function quickslot_operate_delete_slotset_(name, title)
+    g.settings.slotset[name][title] = nil
+    g.save_settings() -- Deleted
+    local msg = name .. ":" .. title .. (g.lang == "Japanese" and " 削除しました" or " Deleted")
 
-    if ctrl then
-
-        if g.settings.straight then
-            g.settings.straight = false
-        else
-            g.settings.straight = true
-        end
-        g.save_settings()
-    end
-
-    local frame = ui.GetFrame("quickslotnexpbar")
-
-    if g.settings.straight then
-        -- true
-        local margin, margin_2, margin_3 = -200, -200, -200
-        for i = 11, MAX_QUICKSLOT_CNT do
-            local slot = GET_CHILD_RECURSIVELY(frame, "slot" .. i)
-            AUTO_CAST(slot)
-            if i <= 20 then
-                slot:SetMargin(margin, 230, 0, 0)
-                margin = margin + 50
-            elseif i <= 30 then
-                slot:SetMargin(margin_2, 180, 0, 0)
-                margin_2 = margin_2 + 50
-            elseif i <= 40 then
-                slot:SetMargin(margin_3, 130, 0, 0)
-                margin_3 = margin_3 + 50
-            end
-        end
-
-    else
-        -- false
-        local margin, margin_2, margin_3 = -225, -250, -225
-        for i = 11, MAX_QUICKSLOT_CNT do
-            local slot = GET_CHILD_RECURSIVELY(frame, "slot" .. i)
-            AUTO_CAST(slot)
-            if i <= 20 then
-                slot:SetMargin(margin, 230, 0, 0)
-                margin = margin + 50
-            elseif i <= 30 then
-                slot:SetMargin(margin_2, 180, 0, 0)
-                margin_2 = margin_2 + 50
-            elseif i <= 40 then
-                slot:SetMargin(margin_3, 130, 0, 0)
-                margin_3 = margin_3 + 50
-            end
-        end
-
-    end
-    frame:Invalidate()
-    DebounceScript("QUICKSLOTNEXTBAR_UPDATE_ALL_SLOT", 0.1)
-end
-
-function quickslot_operate_SHOW_INDUNENTER_DIALOG()
-
-    local now = os.clock()
-
-    if now - g.last_potion_time < g.potion_delay then
-        return
-    end
-
-    g.last_potion_time = now
-
-    local indunenter = ui.GetFrame('indunenter')
-    local indun_type = tonumber(indunenter:GetUserValue("INDUN_TYPE"))
-    g.indun_type = indun_type
-    local potion_type = quickslot_operate_get_potion_type(indun_type)
-
-    if potion_type then
-        local quickslot_operate = ui.GetFrame("quickslot_operate")
-        quickslot_operate:SetUserValue("POT_TYPE", potion_type)
-        quickslot_operate_get_potion(quickslot_operate)
-    end
-end
-
-function quickslot_operate_check_all_slots(atk_pid, def_pid)
-
-    local quickslotnexpbar = ui.GetFrame("quickslotnexpbar")
-    local joystickquickslot = ui.GetFrame('joystickquickslot')
-    if IsJoyStickMode() == 1 then
-        quickslotnexpbar:ShowWindow(1)
-        joystickquickslot:ShowWindow(0)
-    end
-
-    local slotCount = 40
-
-    for i = 0, slotCount - 1 do
-        local slot = GET_CHILD_RECURSIVELY(quickslotnexpbar, "slot" .. i + 1)
-        AUTO_CAST(slot)
-        local quick_slot_info = quickslot.GetInfoByIndex(i)
-
-        if quick_slot_info and quick_slot_info.type ~= 0 then
-
-            for key, value_tbl in pairs(atk_list) do
-                for _, num_val in ipairs(value_tbl) do
-
-                    if num_val == quick_slot_info.type then
-
-                        SET_QUICK_SLOT(quickslotnexpbar, slot, quick_slot_info.category, atk_pid, _, 0, true, true)
-                        slot:SetEventScript(ui.MOUSEON, "quickslot_operate_choice_potion")
-                        break
-                    end
-                end
-            end
-            for key, num_val in pairs(def_list) do
-                if num_val == quick_slot_info.type then
-
-                    SET_QUICK_SLOT(quickslotnexpbar, slot, quick_slot_info.category, def_pid, _, 0, true, true)
-                    slot:SetEventScript(ui.MOUSEON, "quickslot_operate_choice_potion")
-                    break
-                end
-            end
-
-        end
-
-    end
-
-    if IsJoyStickMode() == 1 then
-        DebounceScript("JOYSTICK_QUICKSLOT_UPDATE_ALL_SLOT", 0.1)
-        quickslotnexpbar:ShowWindow(0)
-        joystickquickslot:ShowWindow(1)
-    else
-        DebounceScript("QUICKSLOTNEXTBAR_UPDATE_ALL_SLOT", 0.1)
-    end
-
-end
-
-function quickslot_operate_get_potion(frame)
-
-    local potion_type = frame:GetUserValue("POT_TYPE")
-
-    local atk_pid = atk_list[potion_type][1]
-    local second_atk_pid = atk_list[potion_type][2]
-
-    local def_pid = def_list[potion_type]
-
-    session.ResetItemList()
-    local inv_list = session.GetInvItemList()
-    local item_guids = inv_list:GetGuidList()
-    local item_count = item_guids:Count()
-
-    local found_atk_id = nil
-    local found_second_atk = nil
-    local found_def_id = nil
-
-    for i = 0, item_count - 1 do
-        local current_guid = item_guids:Get(i)
-        local inv_item = inv_list:GetItemByGuid(current_guid)
-        local item_data = GetIES(inv_item:GetObject())
-        local item_cid = item_data.ClassID
-
-        if item_cid == atk_pid then
-            found_atk_id = atk_pid
-        elseif item_cid == def_pid then
-            found_def_id = def_pid
-        elseif item_cid == second_atk_pid then
-
-            found_second_atk = second_atk_pid
-        end
-    end
-
-    if not found_atk_id then
-        found_atk_id = found_second_atk
-    end
-
-    if found_atk_id or found_def_id then
-        quickslot_operate_check_all_slots(found_atk_id, found_def_id)
-    end
-end
-
-function quickslot_operate_get_potion_type(indun_type)
-    for potion_type, indun_list in pairs(raid_list) do
-        for _, indun_id in ipairs(indun_list) do
-            if indun_id == indun_type then
-                return potion_type
-            end
-        end
-    end
-    return
-end
-
--- マウスオン機能
-
-function quickslot_operate_set_script(frame)
-    local frame = ui.GetFrame("quickslotnexpbar")
-    if not frame then
-        return
-    end
-
-    g.new_list = {}
-
-    for key, value_tbl in pairs(atk_list) do
-        table.insert(g.new_list, value_tbl[1])
-
-    end
-
-    for key, num_val in pairs(def_list) do
-        table.insert(g.new_list, num_val)
-    end
-
-    local slot_count = MAX_QUICKSLOT_CNT
-
-    for i = 0, slot_count - 1 do
-        local slot = tolua.cast(frame:GetChildRecursively("slot" .. i + 1), "ui::CSlot")
-
-        local quickSlotInfo = quickslot.GetInfoByIndex(i)
-        if quickSlotInfo and quickSlotInfo.type ~= 0 then
-            for _, id in pairs(g.new_list) do
-
-                if id == quickSlotInfo.type then
-                    slot:SetEventScript(ui.MOUSEON, "quickslot_operate_choice_potion")
-                    break
-                end
-            end
-        end
-
-    end
-end
-
-function quickslot_operate_set_potion(frame, ctrl, str, cls_id)
-    local matched_key = nil
-
-    for key, value_tbl in pairs(atk_list) do
-        for _, num_val in ipairs(value_tbl) do
-            if num_val == cls_id then
-                matched_key = key
-            end
-        end
-    end
-
-    if matched_key then
-        local down_potion_id = def_list[matched_key]
-
-        if down_potion_id then
-            quickslot_operate_check_all_slots(cls_id, down_potion_id)
-            local frame = ui.GetFrame("quickslot_operate")
-            frame:ShowWindow(0)
-        end
-    end
-end
-
-function quickslot_operate_frame_close()
-    local frame = ui.GetFrame("quickslot_operate")
-    frame:ShowWindow(0)
-    return 0
-end
-
-function quickslot_operate_choice_potion(frame, ctrl, str, num)
-
-    local slot = ctrl
-
-    slot:RunUpdateScript("quickslot_operate_frame_close", 5)
-
-    local joystickquickslot = ui.GetFrame('joystickquickslot')
-    joystickquickslot:RunUpdateScript("quickslot_operate_frame_close", 5)
-
-    local frame = ui.GetFrame("quickslot_operate")
-    frame:RemoveAllChild()
-    frame:Resize(150, 30)
-
-    local map_frame = ui.GetFrame("map")
-    local width = map_frame:GetWidth()
-
-    frame:SetPos(width / 2 - 75, 780)
-    -- frame:SetGravity(ui.CENTER_HORZ, ui.CENTER_VERT)
-    frame:SetTitleBarSkin("None")
-    frame:SetSkinName("chat_window")
-    frame:SetLayerLevel(150)
-
-    local slotset = frame:CreateOrGetControl('slotset', 'slotset', 0, 0, 0, 0)
-    AUTO_CAST(slotset)
-    slotset:SetSlotSize(30, 30)
-    slotset:EnablePop(0)
-    slotset:EnableDrag(0)
-    slotset:EnableDrop(0)
-    slotset:SetColRow(5, 1)
-    slotset:SetSpc(0, 0)
-    slotset:SetSkinName('slot')
-    slotset:CreateSlots()
-    local slot_count = slotset:GetSlotCount()
-
-    local index = 1
-    for _, id in pairs(g.new_list) do
-        if index <= slot_count then
-            local slot = slotset:GetSlotByIndex(index - 1)
-            slot:SetEventScript(ui.LBUTTONDOWN, "quickslot_operate_set_potion")
-            slot:SetEventScriptArgNumber(ui.LBUTTONDOWN, id)
-            local class = GetClassByType('Item', id)
-            SET_SLOT_ITEM_CLS(slot, class)
-            index = index + 1
-        end
-    end
-    frame:ShowWindow(1)
-
+    ui.SysMsg(msg)
 end
 
 ---
+--[[
+function quickslot_operate_load_all_slot_game_start_3sec(frame, msg)
+    if g.settings.rshift == 1 then
+        local sysmenu = ui.GetFrame("sysmenu")
+        sysmenu:RunUpdateScript("quickslot_operate_set_rshift_script", 0.15)
+        local chat = ui.GetFrame('chat')
+        local chatEditCtrl = chat:GetChild('mainchat')
+        chatEditCtrl:ShowWindow(0)
+    end
 
---[[function quickslot_operate_set_script()
+    quickslot_operate_GAME_START_3SEC(frame, msg)
+
+end
+function quickslot_operate_load_all_slot_game_start_3sec_(frame)
+    quickslot_operate_load_all_slot(g.name, g.title)
+end
+function quickslot_operate_tips(frame, msg)
+    ui.SysMsg(g.lang == "Japanese" and "{ol}{#00FFFF}[Quick Slot Operate]{nl}右SHIFT: ポーション入替" or
+                  "{ol}{#00FFFF}[Quick Slot Operate]{nl}Right click: Save/load slot set{nl} RSHIFT: switch potions")
+end
+function quickslot_operate_set_script()
     local frame = ui.GetFrame("quickslotnexpbar")
     if not frame then
         return

@@ -18,10 +18,11 @@
 -- v1.3.1 オードクローズバグってたの修正。agm全キャラ処理追加
 -- v1.3.2 agm連携のトコ修正した
 -- v1.3.3 コード全体見直し。mcc殺した。ペット登録可能に
+-- v1.3.4 セーブデータのジョブバグってたの修正
 local addon_name = "CC_HELPER"
 local addon_name_lower = string.lower(addon_name)
 local author = "norisan"
-local ver = "1.3.3"
+local ver = "1.3.4"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -567,6 +568,12 @@ function cc_helper_setting_frame_init()
         if not copy_settings[g.cid] then
             copy_settings[g.cid] = {}
         end
+        local pc_info = session.barrack.GetMyAccount():GetByStrCID(g.cid)
+        local pc_apc = pc_info:GetApc()
+        local jobid = pc_info:GetRepID() or pc_apc:GetJob()
+        local gender = pc_apc:GetGender()
+        g.settings[g.cid].jobid = jobid
+        g.settings[g.cid].gender = gender
         copy_settings[g.cid] = g.settings[g.cid]
 
         g.copy_settings = copy_settings
@@ -1912,11 +1919,13 @@ function cc_helper_end_of_operation(btn)
     if g.share_settings.auto_close == 1 then
 
         local accountwarehouse = ui.GetFrame("accountwarehouse")
-        accountwarehouse:RunUpdateScript("ACCOUNTWAREHOUSE_CLOSE", 1.0)
+        ACCOUNTWAREHOUSE_CLOSE(accountwarehouse)
+        -- accountwarehouse:RunUpdateScript("ACCOUNTWAREHOUSE_CLOSE", 1.0)
     end
     local monstercardslot = ui.GetFrame("monstercardslot")
     if monstercardslot:IsVisible() == 1 then
-        monstercardslot:RunUpdateScript("MONSTERCARDSLOT_CLOSE", 1.0)
+        MONSTERCARDSLOT_CLOSE(monstercardslot)
+        -- monstercardslot:RunUpdateScript("MONSTERCARDSLOT_CLOSE", 1.0)
     end
 
     ui.SysMsg("{ol}[CCH]End of Operation")
