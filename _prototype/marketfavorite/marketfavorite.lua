@@ -270,11 +270,11 @@ function MARKETFAVORITE_ON_INIT(addon, frame)
             g.REGISTER = {}
             g.setup_hook_and_event(addon, "MARKET_CLOSE", "MARKETFAVORITE_MARKET_CLOSE", true)
             g.setup_hook_and_event(addon, "_MARKET_SAVE_CATEGORY_OPTION", "MARKETFAVORITE__MARKET_SAVE_CATEGORY_OPTION",
-                true)
+                                   true)
             g.setup_hook_and_event(addon, "MARKET_ADD_SEARCH_OPTION_GROUP",
-                "MARKETFAVORITE_MARKET_ADD_SEARCH_OPTION_GROUP", false)
+                                   "MARKETFAVORITE_MARKET_ADD_SEARCH_OPTION_GROUP", false)
             g.setup_hook_and_event(addon, "MARKET_DELETE_SAVED_OPTION", "MARKETFAVORITE_MARKET_DELETE_SAVED_OPTION",
-                false)
+                                   false)
 
             g.setup_hook_and_event(addon, "MARKET_BUYMODE", "MARKETFAVORITE_MARKET_BUYMODE", true)
 
@@ -294,189 +294,189 @@ function MARKETFAVORITE_MARKET_SELL_REGISTER(my_frame, my_msg)
 
     local parent, ctrl = g.get_event_args(my_msg)
 
-    local count = session.market.GetItemCount();
-    local userType = session.loginInfo.GetPremiumState();
-    local maxCount = GetCashValue(userType, "marketUpMax");
+    local count = session.market.GetItemCount()
+    local userType = session.loginInfo.GetPremiumState()
+    local maxCount = GetCashValue(userType, "marketUpMax")
     if true == session.loginInfo.IsPremiumState(ITEM_TOKEN) then
-        local tokenCnt = GetCashValue(ITEM_TOKEN, "marketUpMax");
+        local tokenCnt = GetCashValue(ITEM_TOKEN, "marketUpMax")
         if tokenCnt > maxCount then
-            maxCount = tokenCnt;
+            maxCount = tokenCnt
         end
     end
 
     if count + 1 > maxCount then
-        ui.SysMsg(ClMsg("MarketRegitCntOver"));
-        return;
+        ui.SysMsg(ClMsg("MarketRegitCntOver"))
+        return
     end
-    local frame = parent:GetTopParentFrame();
-    local groupbox = frame:GetChild("groupbox");
-    local slot_item = GET_CHILD_RECURSIVELY(groupbox, "slot_item", "ui::CSlot");
-    local edit_count = GET_CHILD_RECURSIVELY(groupbox, "edit_count");
-    local edit_price = GET_CHILD_RECURSIVELY(groupbox, "edit_price");
+    local frame = parent:GetTopParentFrame()
+    local groupbox = frame:GetChild("groupbox")
+    local slot_item = GET_CHILD_RECURSIVELY(groupbox, "slot_item", "ui::CSlot")
+    local edit_count = GET_CHILD_RECURSIVELY(groupbox, "edit_count")
+    local edit_price = GET_CHILD_RECURSIVELY(groupbox, "edit_price")
 
-    local invitem = GET_SLOT_ITEM(slot_item);
+    local invitem = GET_SLOT_ITEM(slot_item)
     if invitem == nil then
-        return;
+        return
     end
 
-    local count = tonumber(edit_count:GetText());
-    local price = GET_NOT_COMMAED_NUMBER(edit_price:GetText());
+    local count = tonumber(edit_count:GetText())
+    local price = GET_NOT_COMMAED_NUMBER(edit_price:GetText())
     if price < 100 then
-        ui.SysMsg(ClMsg("SellPriceMustOverThen100Silver"));
-        return;
+        ui.SysMsg(ClMsg("SellPriceMustOverThen100Silver"))
+        return
     end
 
-    local limitMoneyStr = GET_REMAIN_MARKET_TRADE_AMOUNT_STR();
+    local limitMoneyStr = GET_REMAIN_MARKET_TRADE_AMOUNT_STR()
     if limitMoneyStr == nil then
-        ui.SysMsg(ClMsg('LoadingTradeLimitAmount'));
-        return;
+        ui.SysMsg(ClMsg('LoadingTradeLimitAmount'))
+        return
     end
 
     if IsGreaterThanForBigNumber(math.mul_int_for_lua(price, count), limitMoneyStr) == 1 then
-        ui.SysMsg(ScpArgMsg('MarketMaxSilverLimit{LIMIT}Over', 'LIMIT', GET_COMMAED_STRING(limitMoneyStr)));
-        return;
+        ui.SysMsg(ScpArgMsg('MarketMaxSilverLimit{LIMIT}Over', 'LIMIT', GET_COMMAED_STRING(limitMoneyStr)))
+        return
     end
 
-    local strprice = tostring(price);
+    local strprice = tostring(price)
     if string.len(strprice) < 3 then
         return
     end
 
-    local floorprice = strprice.sub(strprice, 0, 2);
+    local floorprice = strprice.sub(strprice, 0, 2)
     for i = 0, string.len(strprice) - 3 do
         floorprice = floorprice .. "0"
     end
 
     if strprice ~= floorprice then
-        edit_price:SetText(GET_COMMAED_STRING(floorprice));
-        ui.SysMsg(ScpArgMsg("AutoAdjustToMinPrice"));
-        price = tonumber(floorprice);
+        edit_price:SetText(GET_COMMAED_STRING(floorprice))
+        ui.SysMsg(ScpArgMsg("AutoAdjustToMinPrice"))
+        price = tonumber(floorprice)
 
-        local sellPriceGbox = GET_CHILD_RECURSIVELY(frame, 'sellPriceGbox');
-        local priceText = GET_CHILD(sellPriceGbox, 'priceText');
-        priceText:SetTextByKey('priceText', GetMonetaryString(floorprice));
+        local sellPriceGbox = GET_CHILD_RECURSIVELY(frame, 'sellPriceGbox')
+        local priceText = GET_CHILD(sellPriceGbox, 'priceText')
+        priceText:SetTextByKey('priceText', GetMonetaryString(floorprice))
     end
 
     if count <= 0 then
-        ui.SysMsg(ClMsg("SellCountMustOverThenZeo"));
-        return;
+        ui.SysMsg(ClMsg("SellCountMustOverThenZeo"))
+        return
     end
 
-    local isPrivate = GET_CHILD_RECURSIVELY(groupbox, "isPrivate", "ui::CCheckBox");
-    local itemGuid = invitem:GetIESID();
-    local obj = GetIES(invitem:GetObject());
+    local isPrivate = GET_CHILD_RECURSIVELY(groupbox, "isPrivate", "ui::CCheckBox")
+    local itemGuid = invitem:GetIESID()
+    local obj = GetIES(invitem:GetObject())
 
     -- 선택한 라디오를 가져옴
     local radioCtrl = GET_CHILD_RECURSIVELY(frame, "feePerTime_1")
-    local selecIndex = GET_RADIOBTN_NUMBER(radioCtrl) - 1;
+    local selecIndex = GET_RADIOBTN_NUMBER(radioCtrl) - 1
 
-    local needTime = frame:GetUserIValue('TIME_' .. selecIndex);
-    local free = tonumber(frame:GetUserValue('FREE_' .. selecIndex));
-    local registerFeeValueCtrl = GET_CHILD_RECURSIVELY(frame, "registerFeeValue");
+    local needTime = frame:GetUserIValue('TIME_' .. selecIndex)
+    local free = tonumber(frame:GetUserValue('FREE_' .. selecIndex))
+    local registerFeeValueCtrl = GET_CHILD_RECURSIVELY(frame, "registerFeeValue")
     local commission = registerFeeValueCtrl:GetTextByKey("value")
     commission = string.gsub(commission, ",", "")
-    commission = math.max(tonumber(commission), 1);
+    commission = math.max(tonumber(commission), 1)
     if IsGreaterThanForBigNumber(commission, GET_TOTAL_MONEY_STR()) == 1 then
-        ui.SysMsg(ClMsg("Auto_SilBeoKa_BuJogHapNiDa."));
-        return;
+        ui.SysMsg(ClMsg("Auto_SilBeoKa_BuJogHapNiDa."))
+        return
     end
 
     UPDATE_FEE_INFO(frame, free, count, price)
 
-    local sellPriceGbox = GET_CHILD_RECURSIVELY(groupbox, "sellPriceGbox");
+    local sellPriceGbox = GET_CHILD_RECURSIVELY(groupbox, "sellPriceGbox")
 
-    local down = sellPriceGbox:GetChild("minPrice");
+    local down = sellPriceGbox:GetChild("minPrice")
 
-    local minPrice = down:GetTextByKey("value");
-    local iminPrice = GET_NOT_COMMAED_NUMBER(minPrice);
-    local iPrice = tonumber(price);
+    local minPrice = down:GetTextByKey("value")
+    local iminPrice = GET_NOT_COMMAED_NUMBER(minPrice)
+    local iPrice = tonumber(price)
     if IGNORE_ITEM_AVG_TABLE_FOR_TOKEN == 1 then
         if false == session.loginInfo.IsPremiumState(ITEM_TOKEN) then
             if 0 ~= iminPrice and iPrice < iminPrice then
-                ui.SysMsg(ScpArgMsg("PremiumRegMinPrice{Price}", "Price", minPrice));
-                return;
+                ui.SysMsg(ScpArgMsg("PremiumRegMinPrice{Price}", "Price", minPrice))
+                return
             end
         end
     else
         if 0 ~= iminPrice and iPrice < iminPrice then
-            ui.SysMsg(ScpArgMsg("PremiumRegMinPrice{Price}", "Price", minPrice));
-            return;
+            ui.SysMsg(ScpArgMsg("PremiumRegMinPrice{Price}", "Price", minPrice))
+            return
         end
     end
 
     if obj.ClassName == "PremiumToken" and iPrice < tonumber(TOKEN_MARKET_REG_LIMIT_PRICE) then
-        ui.SysMsg(ScpArgMsg("PremiumRegMinPrice{Price}", "Price", TOKEN_MARKET_REG_LIMIT_PRICE));
-        return;
+        ui.SysMsg(ScpArgMsg("PremiumRegMinPrice{Price}", "Price", TOKEN_MARKET_REG_LIMIT_PRICE))
+        return
     end
     if obj.ClassName == "PremiumToken" and iPrice > tonumber(TOKEN_MARKET_REG_MAX_PRICE) then
-        ui.SysMsg(ScpArgMsg("PremiumRegMaxPrice{Price}", "Price", TOKEN_MARKET_REG_MAX_PRICE));
-        return;
+        ui.SysMsg(ScpArgMsg("PremiumRegMaxPrice{Price}", "Price", TOKEN_MARKET_REG_MAX_PRICE))
+        return
     end
 
     if true == invitem.isLockState then
-        ui.SysMsg(ClMsg("MaterialItemIsLock"));
-        return false;
+        ui.SysMsg(ClMsg("MaterialItemIsLock"))
+        return false
     end
 
-    local invframe = ui.GetFrame("inventory");
+    local invframe = ui.GetFrame("inventory")
     if true == IS_TEMP_LOCK(invframe, invitem) then
-        ui.SysMsg(ClMsg("MaterialItemIsLock"));
-        return false;
+        ui.SysMsg(ClMsg("MaterialItemIsLock"))
+        return false
     end
-    local itemProp = geItemTable.GetProp(obj.ClassID);
-    local pr = TryGetProp(obj, "PR");
+    local itemProp = geItemTable.GetProp(obj.ClassID)
+    local pr = TryGetProp(obj, "PR")
 
-    local noTradeCnt = TryGetProp(obj, "BelongingCount");
+    local noTradeCnt = TryGetProp(obj, "BelongingCount")
     local tradeCount = invitem.count
     if nil ~= noTradeCnt and 0 < tonumber(noTradeCnt) then
-        local wareItem = nil;
+        local wareItem = nil
         if obj.MaxStack > 1 then
-            wareItem = session.GetWarehouseItemByType(obj.ClassID);
+            wareItem = session.GetWarehouseItemByType(obj.ClassID)
         end
-        local wareCnt = 0;
+        local wareCnt = 0
         if nil ~= wareItem then
-            wareCnt = wareItem.count;
+            wareCnt = wareItem.count
         end
-        tradeCount = (invitem.count + wareCnt) - tonumber(noTradeCnt);
+        tradeCount = (invitem.count + wareCnt) - tonumber(noTradeCnt)
         if tradeCount <= 0 then
-            ui.AlarmMsg("ItemIsNotTradable");
-            return false;
+            ui.AlarmMsg("ItemIsNotTradable")
+            return false
         end
     end
 
     if itemProp:IsEnableMarketTrade() == false or itemProp:IsMoney() == true or
         ((pr ~= nil and pr < 1) and itemProp:NeedCheckPotential() == true) then
-        ui.AlarmMsg("ItemIsNotTradable");
-        return false;
+        ui.AlarmMsg("ItemIsNotTradable")
+        return false
     end
 
     if false == session.loginInfo.IsPremiumState(ITEM_TOKEN) then
-        local maxPrice = GET_CHILD_RECURSIVELY(frame, "maxPrice");
-        local maxPriceStr = GET_NOT_COMMAED_NUMBER(maxPrice:GetTextByKey('value'), true);
+        local maxPrice = GET_CHILD_RECURSIVELY(frame, "maxPrice")
+        local maxPriceStr = GET_NOT_COMMAED_NUMBER(maxPrice:GetTextByKey('value'), true)
         if tonumber(maxPriceStr) ~= 0 and IsGreaterThanForBigNumber(floorprice, maxPriceStr) == 1 then
-            ui.SysMsg(ClMsg('MaxAllowPriceError'));
-            return false;
+            ui.SysMsg(ClMsg('MaxAllowPriceError'))
+            return false
         end
     end
 
     local clsid = obj.ClassID
-    -- local yesScp = string.format("market.ReqRegisterItem(\'%s\', %s, %d, 1, %d)", itemGuid, floorprice, count, needTime);
+    -- local yesScp = string.format("market.ReqRegisterItem(\'%s\', %s, %d, 1, %d)", itemGuid, floorprice, count, needTime)
     local yesScp = string.format("MARKETFAVORITE_req_register_item(\'%s\', %s, %d, 1, %d,%d)", itemGuid, floorprice,
-        count, needTime, clsid);
-    commission = registerFeeValueCtrl:GetTextByKey("value");
-    commission = string.gsub(commission, ",", "");
-    commission = math.max(tonumber(commission), 1);
+                                 count, needTime, clsid)
+    commission = registerFeeValueCtrl:GetTextByKey("value")
+    commission = string.gsub(commission, ",", "")
+    commission = math.max(tonumber(commission), 1)
 
     if nil ~= obj and obj.ItemType == 'Equip' then
         if 0 < obj.BuffValue then
             -- 장비그룹만 buffValue가 있다.
-            ui.MsgBox(ScpArgMsg("BuffDestroy{Price}", "Price", tostring(commission)), yesScp, "None");
+            ui.MsgBox(ScpArgMsg("BuffDestroy{Price}", "Price", tostring(commission)), yesScp, "None")
         else
             ui.MsgBox(ScpArgMsg("CommissionRegMarketItem{Price}", "Price", GetMonetaryString(commission)), yesScp,
-                "None");
+                      "None")
         end
     else
-        ui.MsgBox(ScpArgMsg("CommissionRegMarketItem{Price}", "Price", GetMonetaryString(commission)), yesScp, "None");
+        ui.MsgBox(ScpArgMsg("CommissionRegMarketItem{Price}", "Price", GetMonetaryString(commission)), yesScp, "None")
     end
 end
 
@@ -536,11 +536,11 @@ end]]
 function MARKETFAVORITE_ON_CABINET_ITEM_LIST(my_frame, my_msg)
 
     local frame = g.get_event_args(my_msg)
-    local itemGbox = GET_CHILD(frame, "itemGbox");
-    local itemlist = GET_CHILD(itemGbox, "itemlist", "ui::CDetailListBox");
-    itemlist:RemoveAllChild();
-    local cnt = session.market.GetCabinetItemCount();
-    local sysTime = geTime.GetServerSystemTime();
+    local itemGbox = GET_CHILD(frame, "itemGbox")
+    local itemlist = GET_CHILD(itemGbox, "itemlist", "ui::CDetailListBox")
+    itemlist:RemoveAllChild()
+    local cnt = session.market.GetCabinetItemCount()
+    local sysTime = geTime.GetServerSystemTime()
 
     local cab_items = {}
     for i = 0, cnt - 1 do
@@ -567,110 +567,110 @@ function MARKETFAVORITE_ON_CABINET_ITEM_LIST(my_frame, my_msg)
     MARKETFAVORITE_SAVE_SETTINGS()
 
     for i = 0, cnt - 1 do
-        local cabinetItem = session.market.GetCabinetItemByIndex(i);
-        local itemID = cabinetItem:GetItemID();
+        local cabinetItem = session.market.GetCabinetItemByIndex(i)
+        local itemID = cabinetItem:GetItemID()
         print(tostring(itemID))
-        local itemObj = GetIES(cabinetItem:GetObject());
+        local itemObj = GetIES(cabinetItem:GetObject())
 
-        local registerTime = cabinetItem:GetRegSysTime();
+        local registerTime = cabinetItem:GetRegSysTime()
         print(tostring(registerTime))
-        local difSec = imcTime.GetDifSec(registerTime, sysTime);
+        local difSec = imcTime.GetDifSec(registerTime, sysTime)
         if 0 >= difSec then
-            difSec = 0;
+            difSec = 0
         end
-        local timeString = GET_TIME_TXT(difSec);
+        local timeString = GET_TIME_TXT(difSec)
 
-        local refreshScp = itemObj.RefreshScp;
+        local refreshScp = itemObj.RefreshScp
         if refreshScp ~= "None" then
-            refreshScp = _G[refreshScp];
-            refreshScp(itemObj);
+            refreshScp = _G[refreshScp]
+            refreshScp(itemObj)
         end
 
         -- market_cabinet_item_detail / market_cabinet_item_etc
-        local ctrlSet = INSERT_CONTROLSET_DETAIL_LIST(itemlist, i, 0, "market_cabinet_item_detail");
-        ctrlSet:Resize(itemlist:GetWidth() - 20, ctrlSet:GetHeight());
-        AUTO_CAST(ctrlSet);
+        local ctrlSet = INSERT_CONTROLSET_DETAIL_LIST(itemlist, i, 0, "market_cabinet_item_detail")
+        ctrlSet:Resize(itemlist:GetWidth() - 20, ctrlSet:GetHeight())
+        AUTO_CAST(ctrlSet)
 
         -- get skin and text style
-        local BUY_SUCCESS_IMAGE = ctrlSet:GetUserConfig('BUY_SUCCESS_IMAGE');
-        local SELL_SUCCESS_IMAGE = ctrlSet:GetUserConfig('SELL_SUCCESS_IMAGE');
-        local SELL_CANCEL_IMAGE = ctrlSet:GetUserConfig('SELL_CANCEL_IMAGE');
-        local DEFAULT_TYPE_IMAGE = ctrlSet:GetUserConfig('DEFAULT_TYPE_IMAGE');
-        local BUY_SUCCESS_TEXT_STYLE = ctrlSet:GetUserConfig('BUY_SUCCESS_TEXT_STYLE');
-        local SELL_SUCCESS_TEXT_STYLE = ctrlSet:GetUserConfig('SELL_SUCCESS_TEXT_STYLE');
-        local SELL_CANCEL_TEXT_STYLE = ctrlSet:GetUserConfig('SELL_CANCEL_TEXT_STYLE');
+        local BUY_SUCCESS_IMAGE = ctrlSet:GetUserConfig('BUY_SUCCESS_IMAGE')
+        local SELL_SUCCESS_IMAGE = ctrlSet:GetUserConfig('SELL_SUCCESS_IMAGE')
+        local SELL_CANCEL_IMAGE = ctrlSet:GetUserConfig('SELL_CANCEL_IMAGE')
+        local DEFAULT_TYPE_IMAGE = ctrlSet:GetUserConfig('DEFAULT_TYPE_IMAGE')
+        local BUY_SUCCESS_TEXT_STYLE = ctrlSet:GetUserConfig('BUY_SUCCESS_TEXT_STYLE')
+        local SELL_SUCCESS_TEXT_STYLE = ctrlSet:GetUserConfig('SELL_SUCCESS_TEXT_STYLE')
+        local SELL_CANCEL_TEXT_STYLE = ctrlSet:GetUserConfig('SELL_CANCEL_TEXT_STYLE')
 
         -- type
-        local typeBox = GET_CHILD_RECURSIVELY(ctrlSet, 'typeBox');
-        local typeText = typeBox:GetChild('typeText');
+        local typeBox = GET_CHILD_RECURSIVELY(ctrlSet, 'typeBox')
+        local typeText = typeBox:GetChild('typeText')
         AUTO_CAST(typeText)
 
-        local whereFrom = cabinetItem:GetWhereFrom();
+        local whereFrom = cabinetItem:GetWhereFrom()
 
-        ctrlSet:SetUserValue('CABINET_TYPE', whereFrom);
+        ctrlSet:SetUserValue('CABINET_TYPE', whereFrom)
         if whereFrom == 'market_sell' then -- 판매 완료
-            typeText:SetTextByKey('type', ClMsg('SellSuccess'));
+            typeText:SetTextByKey('type', ClMsg('SellSuccess'))
         elseif whereFrom == 'market_buy' then -- 구매 완료
-            typeText:SetTextByKey('type', ClMsg('BuySuccess'));
+            typeText:SetTextByKey('type', ClMsg('BuySuccess'))
         elseif whereFrom == 'market_cancel' or whereFrom == 'market_expire' then -- 판매 취소, 판매 기한 완료
-            typeText:SetTextByKey('type', ClMsg('SellCancel'));
+            typeText:SetTextByKey('type', ClMsg('SellCancel'))
         end
 
         -- item picture and name
-        local pic = GET_CHILD(ctrlSet, "pic", "ui::CSlot");
-        local itemImage = GET_ITEM_ICON_IMAGE(itemObj);
+        local pic = GET_CHILD(ctrlSet, "pic", "ui::CSlot")
+        local itemImage = GET_ITEM_ICON_IMAGE(itemObj)
         local icon = CreateIcon(pic)
-        local iconInfo = icon:GetInfo();
+        local iconInfo = icon:GetInfo()
 
         SET_SLOT_ITEM_CLS(pic, itemObj)
-        icon:SetImage(itemImage);
+        icon:SetImage(itemImage)
         SET_SLOT_STYLESET(pic, itemObj)
 
         if itemObj.ClassName ~= MONEY_NAME and itemObj.MaxStack > 1 then
             if whereFrom == "market_sell" then
-                SET_SLOT_COUNT_TEXT(pic, cabinetItem.sellItemAmount, '{s16}{ol}{b}');
+                SET_SLOT_COUNT_TEXT(pic, cabinetItem.sellItemAmount, '{s16}{ol}{b}')
             elseif whereFrom ~= "market_sell" then
-                SET_SLOT_COUNT_TEXT(pic, cabinetItem.count or tonumber(cabinetItem:GetCount()), '{s16}{ol}{b}');
+                SET_SLOT_COUNT_TEXT(pic, cabinetItem.count or tonumber(cabinetItem:GetCount()), '{s16}{ol}{b}')
             end
         end
 
-        -- pic:SetImage(itemImage);
-        local name = ctrlSet:GetChild("name");
+        -- pic:SetImage(itemImage)
+        local name = ctrlSet:GetChild("name")
 
-        name:SetTextByKey("value", GET_FULL_NAME(itemObj));
+        name:SetTextByKey("value", GET_FULL_NAME(itemObj))
 
         -- etc box
-        local etcBox = GET_CHILD_RECURSIVELY(ctrlSet, 'etcBox');
-        local etcShow = false;
+        local etcBox = GET_CHILD_RECURSIVELY(ctrlSet, 'etcBox')
+        local etcShow = false
 
         if whereFrom ~= 'market_sell' and whereFrom ~= 'market_buy' and itemObj.ClassName ~= MONEY_NAME then
-            local etcText = etcBox:GetChild('etcText');
-            etcText:SetTextByKey('count', cabinetItem.count or tonumber(cabinetItem:GetCount()));
-            etcBox:ShowWindow(1);
-            etcShow = true;
+            local etcText = etcBox:GetChild('etcText')
+            etcText:SetTextByKey('count', cabinetItem.count or tonumber(cabinetItem:GetCount()))
+            etcBox:ShowWindow(1)
+            etcShow = true
         else
-            etcBox:ShowWindow(0);
+            etcBox:ShowWindow(0)
         end
 
         -- time
-        local timeBox = GET_CHILD_RECURSIVELY(ctrlSet, 'timeBox');
-        local endTime = timeBox:GetChild("endTime");
+        local timeBox = GET_CHILD_RECURSIVELY(ctrlSet, 'timeBox')
+        local endTime = timeBox:GetChild("endTime")
         if (etcShow == true and difSec <= 0) or whereFrom ~= 'market_sell' then
-            timeBox:ShowWindow(0);
+            timeBox:ShowWindow(0)
         else
-            endTime:SetTextByKey("value", timeString);
+            endTime:SetTextByKey("value", timeString)
             if 0 == difSec then
-                endTime:SetTextByKey("value", ClMsg("Auto_JongLyo"));
+                endTime:SetTextByKey("value", ClMsg("Auto_JongLyo"))
             else
-                endTime:SetUserValue("REMAINSEC", difSec);
-                endTime:SetUserValue("STARTSEC", imcTime.GetAppTime());
-                SHOW_REMAIN_NEXT_TIME_GET_CABINET(medalFreeTime);
-                endTime:RunUpdateScript("SHOW_REMAIN_NEXT_TIME_GET_CABINET");
+                endTime:SetUserValue("REMAINSEC", difSec)
+                endTime:SetUserValue("STARTSEC", imcTime.GetAppTime())
+                SHOW_REMAIN_NEXT_TIME_GET_CABINET(medalFreeTime)
+                endTime:RunUpdateScript("SHOW_REMAIN_NEXT_TIME_GET_CABINET")
             end
         end
 
         -- fees / NEXON_PC 조건도 추가해야 된다. / 추후 작업
-        -- local fees = 0;
+        -- local fees = 0
         -- if true == session.loginInfo.IsPremiumState(ITEM_TOKEN) then					
         -- fees = cabinetItem.count * 0.1
         -- elseif false == session.loginInfo.IsPremiumState(ITEM_TOKEN) then
@@ -699,55 +699,55 @@ function MARKETFAVORITE_ON_CABINET_ITEM_LIST(my_frame, my_msg)
             end
         end
 
-        local totalPrice = GET_CHILD_RECURSIVELY(ctrlSet, "totalPrice"); -- 10,000 처럼 표기
-        local totalPriceStr = GET_CHILD_RECURSIVELY(ctrlSet, "totalPriceStr"); -- 1만    처럼 표기
+        local totalPrice = GET_CHILD_RECURSIVELY(ctrlSet, "totalPrice") -- 10,000 처럼 표기
+        local totalPriceStr = GET_CHILD_RECURSIVELY(ctrlSet, "totalPriceStr") -- 1만    처럼 표기
         if itemObj.ClassName == MONEY_NAME or (whereFrom == 'market_sell' and etcShow == false) then
             local count = cabinetItem.count or tonumber(cabinetItem:GetCount())
             if count and count < 70 then
-                ClientRemoteLog("CABINET_ITEM_PRICE_ERROR - " .. cabinetItem.count or tonumber(cabinetItem:GetCount()));
+                ClientRemoteLog("CABINET_ITEM_PRICE_ERROR - " .. cabinetItem.count or tonumber(cabinetItem:GetCount()))
             end
             -- :GetCount()
-            -- totalPrice:SetTextByKey("value", GET_COMMAED_STRING(cabinetItem.count));
-            -- totalPriceStr:SetTextByKey("value", GetMonetaryString(cabinetItem.count));
+            -- totalPrice:SetTextByKey("value", GET_COMMAED_STRING(cabinetItem.count))
+            -- totalPriceStr:SetTextByKey("value", GetMonetaryString(cabinetItem.count))
             local amount = tonumber(cabinetItem:GetCount())
 
-            totalPrice:SetTextByKey("value", GET_COMMAED_STRING(amount));
-            totalPriceStr:SetTextByKey("value", GetMonetaryString(amount));
+            totalPrice:SetTextByKey("value", GET_COMMAED_STRING(amount))
+            totalPriceStr:SetTextByKey("value", GetMonetaryString(amount))
         else
-            totalPrice:ShowWindow(0);
-            totalPriceStr:ShowWindow(0);
+            totalPrice:ShowWindow(0)
+            totalPriceStr:ShowWindow(0)
         end
 
         SET_ITEM_TOOLTIP_ALL_TYPE(ctrlSet, cabinetItem, itemObj.ClassName, "cabinet", cabinetItem.itemType,
-            cabinetItem:GetItemID());
+                                  cabinetItem:GetItemID())
 
-        local btn = GET_CHILD(ctrlSet, "btn");
-        btn:SetTextByKey("value", ClMsg("Receieve"));
+        local btn = GET_CHILD(ctrlSet, "btn")
+        btn:SetTextByKey("value", ClMsg("Receieve"))
         btn:UseOrifaceRectTextpack(true)
-        btn:SetEventScript(ui.LBUTTONUP, "CABINET_ITEM_BUY");
-        btn:SetEventScriptArgString(ui.LBUTTONUP, cabinetItem:GetItemID());
+        btn:SetEventScript(ui.LBUTTONUP, "CABINET_ITEM_BUY")
+        btn:SetEventScriptArgString(ui.LBUTTONUP, cabinetItem:GetItemID())
 
         if 0 >= difSec or whereFrom ~= 'market_sell' then
-            btn:SetEnable(1);
+            btn:SetEnable(1)
         else
-            btn:SetEnable(0);
+            btn:SetEnable(0)
         end
 
     end
 
-    GBOX_AUTO_ALIGN(itemlist:GetGroupBox(), 3, 0, 0, true, true);
-    itemlist:RealignItems();
+    GBOX_AUTO_ALIGN(itemlist:GetGroupBox(), 3, 0, 0, true, true)
+    itemlist:RealignItems()
 
     -- default filter
-    local buySuccessCheckBox = GET_CHILD_RECURSIVELY(frame, 'buySuccessCheckBox');
-    local sellSuccessCheckBox = GET_CHILD_RECURSIVELY(frame, 'sellSuccessCheckBox');
-    local sellCancelCheckBox = GET_CHILD_RECURSIVELY(frame, 'sellCancelCheckBox');
-    local etcCheckBox = GET_CHILD_RECURSIVELY(frame, 'etcCheckBox');
-    buySuccessCheckBox:SetCheck(1);
-    sellSuccessCheckBox:SetCheck(1);
-    sellCancelCheckBox:SetCheck(1);
-    etcCheckBox:SetCheck(1);
-    MARKET_CABINET_FILTER(frame);
+    local buySuccessCheckBox = GET_CHILD_RECURSIVELY(frame, 'buySuccessCheckBox')
+    local sellSuccessCheckBox = GET_CHILD_RECURSIVELY(frame, 'sellSuccessCheckBox')
+    local sellCancelCheckBox = GET_CHILD_RECURSIVELY(frame, 'sellCancelCheckBox')
+    local etcCheckBox = GET_CHILD_RECURSIVELY(frame, 'etcCheckBox')
+    buySuccessCheckBox:SetCheck(1)
+    sellSuccessCheckBox:SetCheck(1)
+    sellCancelCheckBox:SetCheck(1)
+    etcCheckBox:SetCheck(1)
+    MARKET_CABINET_FILTER(frame)
 
 end
 
@@ -755,76 +755,76 @@ function MARKETFAVORITE_ON_MARKET_SELL_LIST(my_frame, my_msg)
 
     local frame, msg, argStr, argNum = g.get_event_args(my_msg)
     if msg == MARKET_ITEM_LIST then
-        local str = GET_TIME_TXT(argNum);
-        ui.SysMsg(ScpArgMsg("MarketCabinetAfter{TIME}", "Time", str));
+        local str = GET_TIME_TXT(argNum)
+        ui.SysMsg(ScpArgMsg("MarketCabinetAfter{TIME}", "Time", str))
         if frame:IsVisible() == 0 then
-            return;
+            return
         end
     end
 
-    local itemlist = GET_CHILD(frame, "itemlist", "ui::CDetailListBox");
-    itemlist:RemoveAllChild();
-    local sysTime = geTime.GetServerSystemTime();
-    local count = session.market.GetItemCount();
+    local itemlist = GET_CHILD(frame, "itemlist", "ui::CDetailListBox")
+    itemlist:RemoveAllChild()
+    local sysTime = geTime.GetServerSystemTime()
+    local count = session.market.GetItemCount()
 
     local live_guids = {}
 
     for i = 0, count - 1 do
-        local marketItem = session.market.GetItemByIndex(i);
+        local marketItem = session.market.GetItemByIndex(i)
 
-        local itemObj = GetIES(marketItem:GetObject());
-        local refreshScp = itemObj.RefreshScp;
+        local itemObj = GetIES(marketItem:GetObject())
+        local refreshScp = itemObj.RefreshScp
         if refreshScp ~= "None" then
-            refreshScp = _G[refreshScp];
-            refreshScp(itemObj);
+            refreshScp = _G[refreshScp]
+            refreshScp(itemObj)
         end
 
-        local ctrlSet = INSERT_CONTROLSET_DETAIL_LIST(itemlist, i, 0, "market_sell_item_detail");
-        local pic = GET_CHILD(ctrlSet, "pic", "ui::CSlot");
-        local imgName = GET_ITEM_ICON_IMAGE(itemObj);
+        local ctrlSet = INSERT_CONTROLSET_DETAIL_LIST(itemlist, i, 0, "market_sell_item_detail")
+        local pic = GET_CHILD(ctrlSet, "pic", "ui::CSlot")
+        local imgName = GET_ITEM_ICON_IMAGE(itemObj)
         local icon = CreateIcon(pic)
         SET_SLOT_ITEM_CLS(pic, itemObj)
-        icon:SetImage(imgName);
+        icon:SetImage(imgName)
         SET_SLOT_STYLESET(pic, itemObj)
         if itemObj.MaxStack > 1 then
-            SET_SLOT_COUNT_TEXT(pic, marketItem.count, '{s16}{ol}{b}');
+            SET_SLOT_COUNT_TEXT(pic, marketItem.count, '{s16}{ol}{b}')
         end
 
-        local nameCtrl = ctrlSet:GetChild("name");
-        nameCtrl:SetTextByKey("value", GET_FULL_NAME(itemObj));
+        local nameCtrl = ctrlSet:GetChild("name")
+        nameCtrl:SetTextByKey("value", GET_FULL_NAME(itemObj))
 
-        local totalPriceCtrl = ctrlSet:GetChild("totalPrice");
-        local totalPriceValue = math.mul_int_for_lua(marketItem:GetSellPrice(), marketItem.count);
-        local totalPrice = GET_COMMAED_STRING(totalPriceValue);
-        totalPriceCtrl:SetTextByKey("value", totalPrice);
+        local totalPriceCtrl = ctrlSet:GetChild("totalPrice")
+        local totalPriceValue = math.mul_int_for_lua(marketItem:GetSellPrice(), marketItem.count)
+        local totalPrice = GET_COMMAED_STRING(totalPriceValue)
+        totalPriceCtrl:SetTextByKey("value", totalPrice)
 
-        local totalPriceStrCtrl = ctrlSet:GetChild("totalPriceStr");
-        local totalPriceStr = GetMonetaryString(totalPriceValue);
-        totalPriceStrCtrl:SetTextByKey("value", totalPriceStr);
+        local totalPriceStrCtrl = ctrlSet:GetChild("totalPriceStr")
+        local totalPriceStr = GetMonetaryString(totalPriceValue)
+        totalPriceStrCtrl:SetTextByKey("value", totalPriceStr)
 
         -- 시간 표기하는 부분
-        local remainTimeCtrl = ctrlSet:GetChild("remainTime");
+        local remainTimeCtrl = ctrlSet:GetChild("remainTime")
         if marketItem:IsWatingForRegister() == true then
-            remainTimeCtrl:SetTextByKey("value", ClMsg("PleaseWaiting"));
+            remainTimeCtrl:SetTextByKey("value", ClMsg("PleaseWaiting"))
         else
-            local endSYSTime = marketItem:GetEndTime();
-            local difSec = imcTime.GetDifSec(endSYSTime, sysTime);
-            remainTimeCtrl:SetUserValue("REMAINSEC", difSec);
-            remainTimeCtrl:SetUserValue("STARTSEC", imcTime.GetAppTime());
-            remainTimeCtrl:RunUpdateScript("SHOW_REMAIN_MARKET_SELL_TIME");
+            local endSYSTime = marketItem:GetEndTime()
+            local difSec = imcTime.GetDifSec(endSYSTime, sysTime)
+            remainTimeCtrl:SetUserValue("REMAINSEC", difSec)
+            remainTimeCtrl:SetUserValue("STARTSEC", imcTime.GetAppTime())
+            remainTimeCtrl:RunUpdateScript("SHOW_REMAIN_MARKET_SELL_TIME")
         end
         -- 시간 표기하는 부분 end
 
-        local cashValue = GetCashValue(marketItem.premuimState, "marketSellCom") * 0.01;
-        local stralue = GetCashValue(marketItem.premuimState, "marketSellCom");
-        local feeValueCtrl = ctrlSet:GetChild("feeValue");
-        local feeValue = math.floor(math.mul_int_for_lua(totalPriceValue, cashValue));
+        local cashValue = GetCashValue(marketItem.premuimState, "marketSellCom") * 0.01
+        local stralue = GetCashValue(marketItem.premuimState, "marketSellCom")
+        local feeValueCtrl = ctrlSet:GetChild("feeValue")
+        local feeValue = math.floor(math.mul_int_for_lua(totalPriceValue, cashValue))
 
-        local feeStr = GET_COMMAED_STRING(feeValue);
-        feeValueCtrl:SetTextByKey("value", feeStr);
-        local feeValueStrCtrl = ctrlSet:GetChild("feeValueStr");
-        local feeValueStr = GetMonetaryString(feeValue);
-        feeValueStrCtrl:SetTextByKey("value", feeValueStr);
+        local feeStr = GET_COMMAED_STRING(feeValue)
+        feeValueCtrl:SetTextByKey("value", feeStr)
+        local feeValueStrCtrl = ctrlSet:GetChild("feeValueStr")
+        local feeValueStr = GetMonetaryString(feeValue)
+        feeValueStrCtrl:SetTextByKey("value", feeValueStr)
 
         if msg == "MARKET_SELL_LIST" then
 
@@ -841,12 +841,12 @@ function MARKETFAVORITE_ON_MARKET_SELL_LIST(my_frame, my_msg)
 
         end
         SET_ITEM_TOOLTIP_ALL_TYPE(ctrlSet, marketItem, itemObj.ClassName, "market", marketItem.itemType,
-            marketItem:GetMarketGuid());
+                                  marketItem:GetMarketGuid())
 
-        local btn = GET_CHILD(ctrlSet, "btn");
-        btn:SetTextByKey("value", ClMsg("Cancel"));
-        btn:SetEventScript(ui.LBUTTONUP, "CANCEL_MARKET_ITEM");
-        btn:SetEventScriptArgString(ui.LBUTTONUP, marketItem:GetMarketGuid());
+        local btn = GET_CHILD(ctrlSet, "btn")
+        btn:SetTextByKey("value", ClMsg("Cancel"))
+        btn:SetEventScript(ui.LBUTTONUP, "CANCEL_MARKET_ITEM")
+        btn:SetEventScriptArgString(ui.LBUTTONUP, marketItem:GetMarketGuid())
     end
     if msg == "MARKET_SELL_LIST" then
         for _, saved_item in ipairs(g.settings.sell_items[g.login_name]) do
@@ -860,8 +860,8 @@ function MARKETFAVORITE_ON_MARKET_SELL_LIST(my_frame, my_msg)
         end
     end
     MARKETFAVORITE_SAVE_SETTINGS()
-    itemlist:RealignItems();
-    GBOX_AUTO_ALIGN(itemlist:GetGroupBox(), 2, 0, 0, false, true);
+    itemlist:RealignItems()
+    GBOX_AUTO_ALIGN(itemlist:GetGroupBox(), 2, 0, 0, false, true)
 end
 
 function MARKETFAVORITE_MARKET_BUYMODE(my_frame, my_msg)
@@ -877,9 +877,9 @@ end
 function MARKETFAVORITE_MARKET_DELETE_SAVED_OPTION(my_frame, my_msg)
 
     local parent, ctrl = g.get_event_args(my_msg)
-    local nameText = GET_CHILD(parent, 'nameText');
-    session.market.DeleteCategoryConfig(nameText:GetText());
-    MARKET_TRY_LOAD_CATEGORY_OPTION(parent);
+    local nameText = GET_CHILD(parent, 'nameText')
+    session.market.DeleteCategoryConfig(nameText:GetText())
+    MARKET_TRY_LOAD_CATEGORY_OPTION(parent)
 
     local delete_text = nameText:GetText()
 
@@ -1041,7 +1041,7 @@ function MARKETFAVORITE__MARKET_LOAD_CATEGORY_OPTION(frame, configKey)
 
     -- set level range
     local function GET_MINMAX_VALUE_BY_QUERY_STRING(queryString)
-        local semiColonIdx = string.find(queryString, ';')
+        local semiColonIdx = string.find(queryString, '')
         local minValue = tonumber(string.sub(queryString, 0, semiColonIdx - 1))
         local maxValue = tonumber(string.sub(queryString, semiColonIdx + 1))
         minValue = math.max(minValue, 0)
@@ -1148,7 +1148,7 @@ function MARKETFAVORITE__MARKET_LOAD_CATEGORY_OPTION(frame, configKey)
                 groupList:SelectItemByKey(configName)
                 local minValue, maxValue = GET_MINMAX_VALUE_BY_QUERY_STRING(configValue)
                 local minEdit, maxEdit = GET_CHILD_RECURSIVELY(selectSet, 'minEdit'),
-                    GET_CHILD_RECURSIVELY(selectSet, 'maxEdit')
+                                         GET_CHILD_RECURSIVELY(selectSet, 'maxEdit')
                 minEdit:SetText(minValue)
                 maxEdit:SetText(maxValue)
 
@@ -1180,7 +1180,7 @@ function MARKETFAVORITE__MARKET_LOAD_CATEGORY_OPTION(frame, configKey)
                 local minValue, maxValue = GET_MINMAX_VALUE_BY_QUERY_STRING(configValue)
                 -- print(tostring(minValue) .. ":" .. tostring(maxValue))
                 local minEdit, maxEdit = GET_CHILD_RECURSIVELY(selectSet, 'minEdit'),
-                    GET_CHILD_RECURSIVELY(selectSet, 'maxEdit')
+                                         GET_CHILD_RECURSIVELY(selectSet, 'maxEdit')
                 minEdit:SetText(minValue)
                 maxEdit:SetText(maxValue)
 
@@ -1202,21 +1202,21 @@ function MARKETFAVORITE__MARKET_LOAD_CATEGORY_OPTION(frame, configKey)
 
             local minValue, maxValue = GET_MINMAX_VALUE_BY_QUERY_STRING(configTable['GemLevel'])
             local minEdit, maxEdit = GET_CHILD_RECURSIVELY(selectSet, 'levelMinEdit'),
-                GET_CHILD_RECURSIVELY(selectSet, 'levelMaxEdit')
+                                     GET_CHILD_RECURSIVELY(selectSet, 'levelMaxEdit')
             minEdit:SetText(minValue)
             maxEdit:SetText(maxValue)
         end
         if configTable['CardLevel'] ~= nil then
             local minValue, maxValue = GET_MINMAX_VALUE_BY_QUERY_STRING(configTable['CardLevel'])
             local minEdit, maxEdit = GET_CHILD_RECURSIVELY(selectSet, 'levelMinEdit'),
-                GET_CHILD_RECURSIVELY(selectSet, 'levelMaxEdit')
+                                     GET_CHILD_RECURSIVELY(selectSet, 'levelMaxEdit')
             minEdit:SetText(minValue)
             maxEdit:SetText(maxValue)
         end
         if configTable['GemRoastingLv'] ~= nil then
             local minValue, maxValue = GET_MINMAX_VALUE_BY_QUERY_STRING(configTable['CardLevel'])
             local minEdit, maxEdit = GET_CHILD_RECURSIVELY(selectSet, 'levelMinEdit'),
-                GET_CHILD_RECURSIVELY(selectSet, 'levelMaxEdit')
+                                     GET_CHILD_RECURSIVELY(selectSet, 'levelMaxEdit')
             minEdit:SetText(minValue)
             maxEdit:SetText(maxValue)
         end
@@ -1244,14 +1244,14 @@ end
 
 function MARKETFAVORITE_delete_load_option(frame, ctrl, delete_text)
 
-    local configKeyList = GetMarketCategoryConfigKeyList();
+    local configKeyList = GetMarketCategoryConfigKeyList()
 
     for i = 1, #configKeyList do
 
         if configKeyList[i] ~= '' then
             local text = configKeyList[i]
             if delete_text == text then
-                session.market.DeleteCategoryConfig(delete_text);
+                session.market.DeleteCategoryConfig(delete_text)
                 break
             end
         end
@@ -1265,6 +1265,67 @@ function MARKETFAVORITE_delete_load_option(frame, ctrl, delete_text)
     end
     MARKETFAVORITE_SAVE_SETTINGS()
     MARKETFAVORITE_TOGGLE_FRAME("true")
+end
+-- !
+
+function MARKETFAVORITE_ON_LBUTTONDOWN(frame, ctrl, str, num)
+    g.settings.items[num] = {}
+    g.slot_index = num
+end
+
+function MARKETFAVORITE_ON_DROP(frame, slot, str, slot_index)
+
+    local lift_Icon = ui.GetLiftIcon()
+    local top_frame = lift_Icon:GetTopParentFrame()
+    AUTO_CAST(slot)
+    local icon_info = lift_Icon:GetInfo()
+
+    local inv_item = GET_ITEM_BY_GUID(icon_info:GetIESID())
+
+    if not icon_info or not slot or not inv_item then
+        return
+    end
+
+    local iesid = icon_info:GetIESID()
+
+    local item_obj = GetIES(inv_item:GetObject())
+    if iesid == '0' and top_frame:GetName() == "Market" then
+
+        local count = session.market.GetItemCount()
+        for i = 0, count - 1 do
+            local market_item = session.market.GetItemByIndex(i);
+            local market_obj = GetIES(market_item:GetObject())
+            local cls_id = market_obj.ClassID
+            if item_obj.ClassID == cls_id then
+                local item_cls = GetClassByType("Item", cls_id)
+                if item_cls then
+                    slot:SetUserValue('clsid', cls_id)
+                    g.settings.items[slot_index] = {
+                        ["clsid"] = cls_id
+                    }
+                    SET_SLOT_ITEM_CLS(slot, item_cls)
+                    SET_SLOT_STYLESET(slot, item_cls)
+                    break
+                end
+            end
+        end
+    else
+        local cls_id = item_obj.ClassID
+        local item_cls = GetClassByType("Item", cls_id)
+        if item_cls then
+            slot:SetUserValue('clsid', tostring(cls_id))
+            g.settings.items[slot_index] = {
+                ["clsid"] = cls_id
+            }
+            SET_SLOT_ITEM_CLS(slot, item_cls)
+            SET_SLOT_STYLESET(slot, item_cls)
+        end
+        if g.slot_index then
+
+        end
+    end
+    MARKETFAVORITE_SAVE_SETTINGS()
+
 end
 
 function MARKETFAVORITE_TOGGLE_FRAME(bool)
@@ -1281,7 +1342,7 @@ function MARKETFAVORITE_TOGGLE_FRAME(bool)
 
         slot_set:SetColRow(7, 8)
         slot_set:SetSlotSize(50, 50)
-        slot_set:EnableDrag(0)
+        slot_set:EnableDrag(1)
         slot_set:EnableDrop(1)
         slot_set:EnablePop(1)
         slot_set:SetSpc(0, 0)
@@ -1297,6 +1358,8 @@ function MARKETFAVORITE_TOGGLE_FRAME(bool)
             slot:SetEventScriptArgNumber(ui.RBUTTONDOWN, i)
             slot:SetEventScript(ui.DROP, 'MARKETFAVORITE_ON_DROP')
             slot:SetEventScriptArgNumber(ui.DROP, i)
+            slot:SetEventScript(ui.LBUTTONDOWN, 'MARKETFAVORITE_ON_LBUTTONDOWN')
+            slot:SetEventScriptArgNumber(ui.LBUTTONDOWN, i)
             if g.settings.items then
                 local item = g.settings.items[i]
                 if item and item['clsid'] then
@@ -1452,7 +1515,7 @@ function MARKETFAVORITE__MARKET_SAVE_CATEGORY_OPTION(my_frame, my_msg)
     end
 
     local serialize_val = string.format('order:%s@searchText:%s@category:%s', tostring(orderByDesc),
-        tostring(searchText), tostring(category))
+                                        tostring(searchText), tostring(category))
     if optionKey and optionValue then
         for i = 1, #optionKey do
             serialize_val = serialize_val .. '@' .. tostring(optionKey[i]) .. ':' .. tostring(optionValue[i])
@@ -1471,7 +1534,7 @@ function MARKETFAVORITE__MARKET_SAVE_CATEGORY_OPTION(my_frame, my_msg)
     MARKETFAVORITE_TOGGLE_FRAME("true")
 end
 
-function MARKETFAVORITE_ON_DROP(frame, ctrl, str, num)
+--[==[function MARKETFAVORITE_ON_DROP(frame, ctrl, str, num)
     EBI_try_catch {
         try = function()
             local liftIcon = ui.GetLiftIcon()
@@ -1540,7 +1603,7 @@ function MARKETFAVORITE_ON_DROP(frame, ctrl, str, num)
             CHAT_SYSTEM(error)
         end
     }
-end
+end]==]
 
 function MARKETFAVORITE_ON_RCLICK(frame, slot, argstr, argnum)
 
@@ -1641,7 +1704,7 @@ function MARKETFAVORITE_ON_RCLICK(frame, slot, argstr, argnum)
                             group = categoryList[i]
                         end
                         local ctrlSet = cateListBox:CreateControlSet("market_tree", "CATEGORY_" .. group, ui.LEFT, 0, 0,
-                            0, 0, 0)
+                                                                     0, 0, 0)
                         AUTO_CAST(ctrlSet)
 
                         local part = ctrlSet:GetChild("part")
