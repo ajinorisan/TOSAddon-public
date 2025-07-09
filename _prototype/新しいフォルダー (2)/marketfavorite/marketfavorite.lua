@@ -270,11 +270,11 @@ function MARKETFAVORITE_ON_INIT(addon, frame)
             g.REGISTER = {}
             g.setup_hook_and_event(addon, "MARKET_CLOSE", "MARKETFAVORITE_MARKET_CLOSE", true)
             g.setup_hook_and_event(addon, "_MARKET_SAVE_CATEGORY_OPTION", "MARKETFAVORITE__MARKET_SAVE_CATEGORY_OPTION",
-                                   true)
+                true)
             g.setup_hook_and_event(addon, "MARKET_ADD_SEARCH_OPTION_GROUP",
-                                   "MARKETFAVORITE_MARKET_ADD_SEARCH_OPTION_GROUP", false)
+                "MARKETFAVORITE_MARKET_ADD_SEARCH_OPTION_GROUP", false)
             g.setup_hook_and_event(addon, "MARKET_DELETE_SAVED_OPTION", "MARKETFAVORITE_MARKET_DELETE_SAVED_OPTION",
-                                   false)
+                false)
 
             g.setup_hook_and_event(addon, "MARKET_BUYMODE", "MARKETFAVORITE_MARKET_BUYMODE", true)
 
@@ -462,7 +462,7 @@ function MARKETFAVORITE_MARKET_SELL_REGISTER(my_frame, my_msg)
     local clsid = obj.ClassID
     -- local yesScp = string.format("market.ReqRegisterItem(\'%s\', %s, %d, 1, %d)", itemGuid, floorprice, count, needTime)
     local yesScp = string.format("MARKETFAVORITE_req_register_item(\'%s\', %s, %d, 1, %d,%d)", itemGuid, floorprice,
-                                 count, needTime, clsid)
+        count, needTime, clsid)
     commission = registerFeeValueCtrl:GetTextByKey("value")
     commission = string.gsub(commission, ",", "")
     commission = math.max(tonumber(commission), 1)
@@ -473,7 +473,7 @@ function MARKETFAVORITE_MARKET_SELL_REGISTER(my_frame, my_msg)
             ui.MsgBox(ScpArgMsg("BuffDestroy{Price}", "Price", tostring(commission)), yesScp, "None")
         else
             ui.MsgBox(ScpArgMsg("CommissionRegMarketItem{Price}", "Price", GetMonetaryString(commission)), yesScp,
-                      "None")
+                "None")
         end
     else
         ui.MsgBox(ScpArgMsg("CommissionRegMarketItem{Price}", "Price", GetMonetaryString(commission)), yesScp, "None")
@@ -719,7 +719,7 @@ function MARKETFAVORITE_ON_CABINET_ITEM_LIST(my_frame, my_msg)
         end
 
         SET_ITEM_TOOLTIP_ALL_TYPE(ctrlSet, cabinetItem, itemObj.ClassName, "cabinet", cabinetItem.itemType,
-                                  cabinetItem:GetItemID())
+            cabinetItem:GetItemID())
 
         local btn = GET_CHILD(ctrlSet, "btn")
         btn:SetTextByKey("value", ClMsg("Receieve"))
@@ -841,7 +841,7 @@ function MARKETFAVORITE_ON_MARKET_SELL_LIST(my_frame, my_msg)
 
         end
         SET_ITEM_TOOLTIP_ALL_TYPE(ctrlSet, marketItem, itemObj.ClassName, "market", marketItem.itemType,
-                                  marketItem:GetMarketGuid())
+            marketItem:GetMarketGuid())
 
         local btn = GET_CHILD(ctrlSet, "btn")
         btn:SetTextByKey("value", ClMsg("Cancel"))
@@ -1148,7 +1148,7 @@ function MARKETFAVORITE__MARKET_LOAD_CATEGORY_OPTION(frame, configKey)
                 groupList:SelectItemByKey(configName)
                 local minValue, maxValue = GET_MINMAX_VALUE_BY_QUERY_STRING(configValue)
                 local minEdit, maxEdit = GET_CHILD_RECURSIVELY(selectSet, 'minEdit'),
-                                         GET_CHILD_RECURSIVELY(selectSet, 'maxEdit')
+                    GET_CHILD_RECURSIVELY(selectSet, 'maxEdit')
                 minEdit:SetText(minValue)
                 maxEdit:SetText(maxValue)
 
@@ -1180,7 +1180,7 @@ function MARKETFAVORITE__MARKET_LOAD_CATEGORY_OPTION(frame, configKey)
                 local minValue, maxValue = GET_MINMAX_VALUE_BY_QUERY_STRING(configValue)
                 -- print(tostring(minValue) .. ":" .. tostring(maxValue))
                 local minEdit, maxEdit = GET_CHILD_RECURSIVELY(selectSet, 'minEdit'),
-                                         GET_CHILD_RECURSIVELY(selectSet, 'maxEdit')
+                    GET_CHILD_RECURSIVELY(selectSet, 'maxEdit')
                 minEdit:SetText(minValue)
                 maxEdit:SetText(maxValue)
 
@@ -1202,21 +1202,21 @@ function MARKETFAVORITE__MARKET_LOAD_CATEGORY_OPTION(frame, configKey)
 
             local minValue, maxValue = GET_MINMAX_VALUE_BY_QUERY_STRING(configTable['GemLevel'])
             local minEdit, maxEdit = GET_CHILD_RECURSIVELY(selectSet, 'levelMinEdit'),
-                                     GET_CHILD_RECURSIVELY(selectSet, 'levelMaxEdit')
+                GET_CHILD_RECURSIVELY(selectSet, 'levelMaxEdit')
             minEdit:SetText(minValue)
             maxEdit:SetText(maxValue)
         end
         if configTable['CardLevel'] ~= nil then
             local minValue, maxValue = GET_MINMAX_VALUE_BY_QUERY_STRING(configTable['CardLevel'])
             local minEdit, maxEdit = GET_CHILD_RECURSIVELY(selectSet, 'levelMinEdit'),
-                                     GET_CHILD_RECURSIVELY(selectSet, 'levelMaxEdit')
+                GET_CHILD_RECURSIVELY(selectSet, 'levelMaxEdit')
             minEdit:SetText(minValue)
             maxEdit:SetText(maxValue)
         end
         if configTable['GemRoastingLv'] ~= nil then
             local minValue, maxValue = GET_MINMAX_VALUE_BY_QUERY_STRING(configTable['CardLevel'])
             local minEdit, maxEdit = GET_CHILD_RECURSIVELY(selectSet, 'levelMinEdit'),
-                                     GET_CHILD_RECURSIVELY(selectSet, 'levelMaxEdit')
+                GET_CHILD_RECURSIVELY(selectSet, 'levelMaxEdit')
             minEdit:SetText(minValue)
             maxEdit:SetText(maxValue)
         end
@@ -1271,6 +1271,7 @@ end
 function MARKETFAVORITE_ON_LBUTTONDOWN(frame, ctrl, str, num)
     g.settings.items[num] = {}
     g.slot_index = num
+    g.slot = ctrl
 end
 
 function MARKETFAVORITE_ON_DROP(frame, slot, str, slot_index)
@@ -1287,8 +1288,8 @@ function MARKETFAVORITE_ON_DROP(frame, slot, str, slot_index)
     end
 
     local iesid = icon_info:GetIESID()
-
-    local item_obj = GetIES(inv_item:GetObject())
+    local clsid = icon_info.type
+    -- local item_obj = GetIES(inv_item:GetObject())
     if iesid == '0' and top_frame:GetName() == "Market" then
 
         local count = session.market.GetItemCount()
@@ -1296,12 +1297,12 @@ function MARKETFAVORITE_ON_DROP(frame, slot, str, slot_index)
             local market_item = session.market.GetItemByIndex(i);
             local market_obj = GetIES(market_item:GetObject())
             local cls_id = market_obj.ClassID
-            if item_obj.ClassID == cls_id then
-                local item_cls = GetClassByType("Item", cls_id)
+            if clsid == cls_id then
+                local item_cls = GetClassByType("Item", clsid)
                 if item_cls then
-                    slot:SetUserValue('clsid', cls_id)
+                    slot:SetUserValue('clsid', clsid)
                     g.settings.items[slot_index] = {
-                        ["clsid"] = cls_id
+                        ["clsid"] = clsid
                     }
                     SET_SLOT_ITEM_CLS(slot, item_cls)
                     SET_SLOT_STYLESET(slot, item_cls)
@@ -1310,19 +1311,30 @@ function MARKETFAVORITE_ON_DROP(frame, slot, str, slot_index)
             end
         end
     else
-        local cls_id = item_obj.ClassID
-        local item_cls = GetClassByType("Item", cls_id)
+        if g.slot_index then
+            local cls_id = slot:GetUserValue("clsid")
+            local item_cls = GetClassByType("Item", cls_id)
+            if item_cls then
+                slot:SetUserValue('clsid', tostring(cls_id))
+                g.settings.items[g.slot_index] = {
+                    ["clsid"] = cls_id
+                }
+                SET_SLOT_ITEM_CLS(g.slot, item_cls)
+                SET_SLOT_STYLESET(g.slot, item_cls)
+            end
+            g.slot_index = nil
+            g.slot = nil
+        end
+        local item_cls = GetClassByType("Item", clsid)
         if item_cls then
-            slot:SetUserValue('clsid', tostring(cls_id))
+            slot:SetUserValue('clsid', tostring(clsid))
             g.settings.items[slot_index] = {
-                ["clsid"] = cls_id
+                ["clsid"] = clsid
             }
             SET_SLOT_ITEM_CLS(slot, item_cls)
             SET_SLOT_STYLESET(slot, item_cls)
         end
-        if g.slot_index then
 
-        end
     end
     MARKETFAVORITE_SAVE_SETTINGS()
 
@@ -1515,7 +1527,7 @@ function MARKETFAVORITE__MARKET_SAVE_CATEGORY_OPTION(my_frame, my_msg)
     end
 
     local serialize_val = string.format('order:%s@searchText:%s@category:%s', tostring(orderByDesc),
-                                        tostring(searchText), tostring(category))
+        tostring(searchText), tostring(category))
     if optionKey and optionValue then
         for i = 1, #optionKey do
             serialize_val = serialize_val .. '@' .. tostring(optionKey[i]) .. ':' .. tostring(optionValue[i])
@@ -1704,7 +1716,7 @@ function MARKETFAVORITE_ON_RCLICK(frame, slot, argstr, argnum)
                             group = categoryList[i]
                         end
                         local ctrlSet = cateListBox:CreateControlSet("market_tree", "CATEGORY_" .. group, ui.LEFT, 0, 0,
-                                                                     0, 0, 0)
+                            0, 0, 0)
                         AUTO_CAST(ctrlSet)
 
                         local part = ctrlSet:GetChild("part")
