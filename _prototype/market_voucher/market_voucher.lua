@@ -181,6 +181,7 @@ g.translations = {
 
 function g.lang_trans(key)
     local lang_code = option.GetCurrentCountry()
+
     if g.translations[lang_code] and g.translations[lang_code][key] then
         return g.translations[lang_code][key]
     end
@@ -188,20 +189,129 @@ function g.lang_trans(key)
 end
 
 function g.ui_text(key)
+
     return "{ol}" .. g.lang_trans(key)
 end
 
-function g.save_settings()
+function market_voucher_save_settings()
     g.save_json(g.settings_path, g.settings)
 end
 
-function g.load_settings()
+function market_voucherload_settings()
     local settings, err = g.load_json(g.settings_path)
     if not settings then
         settings = {}
     end
     g.settings = settings
     g.save_settings()
+end
+
+function market_voucher__BUY_MARKET_ITEM(my_frame, my_msg)
+
+    local row, isRecipeSearchBox = g.get_event_args(my_msg)
+    local frame = ui.GetFrame("market");
+
+    local totalPrice = 0;
+    market.ClearBuyInfo();
+
+    local marketItem = nil
+    local buyCount = nil
+    if isRecipeSearchBox ~= nil and isRecipeSearchBox == 1 then
+        local itemlist = GET_CHILD_RECURSIVELY(frame, "recipeSearchGbox")
+        local child = itemlist:GetChildByIndex(row - 1);
+        local editCount = GET_CHILD_RECURSIVELY(child, "count")
+        if editCount == nil then
+            marketItem = session.market.GetRecipeSearchByIndex(row - 1);
+            market.AddBuyInfo(marketItem:GetMarketGuid(), 1);
+            totalPrice = SumForBigNumber(totalPrice, marketItem:GetSellPrice());
+        else
+            buyCount = editCount:GetText()
+            if tonumber(buyCount) > 0 then
+                marketItem = session.market.GetRecipeSearchByIndex(row - 1);
+                market.AddBuyInfo(marketItem:GetMarketGuid(), buyCount);
+                totalPrice = SumForBigNumber(totalPrice, math.mul_int_for_lua(buyCount, marketItem:GetSellPrice()));
+            else
+                ui.SysMsg(ScpArgMsg("YouCantBuyZeroItem"));
+            end
+        end
+    else
+        local itemlist = GET_CHILD_RECURSIVELY(frame, "itemListGbox");
+        local child = itemlist:GetChildByIndex(row - 1);
+        if child == nil then
+            marketItem = session.market.GetItemByIndex(row - 1);
+            market.AddBuyInfo(marketItem:GetMarketGuid(), 1);
+            totalPrice = SumForBigNumber(totalPrice, marketItem:GetSellPrice());
+        else
+            local editCount = GET_CHILD_RECURSIVELY(child, "count")
+            buyCount = 1;
+            if editCount ~= nil then
+                buyCount = editCount:GetText()
+            end
+
+            if tonumber(buyCount) > 0 then
+                marketItem = session.market.GetItemByIndex(row - 1);
+                market.AddBuyInfo(marketItem:GetMarketGuid(), buyCount);
+                totalPrice = SumForBigNumber(totalPrice, math.mul_int_for_lua(buyCount, marketItem:GetSellPrice()));
+            else
+                ui.SysMsg(ScpArgMsg("YouCantBuyZeroItem"));
+            end
+        end
+    end
+
+    if totalPrice == 0 then
+        return;
+    end
+
+    if IsGreaterThanForBigNumber(totalPrice, GET_TOTAL_MONEY_STR()) == 1 then
+        ui.SysMsg(ClMsg("NotEnoughMoney"));
+        return;
+    end
+
+    local limitTradeStr = GET_REMAIN_MARKET_TRADE_AMOUNT_STR();
+    if limitTradeStr ~= nil then
+        if IsGreaterThanForBigNumber(totalPrice, limitTradeStr) == 1 then
+            ui.SysMsg(ScpArgMsg('MarketMaxSilverLimit{LIMIT}Over', 'LIMIT', GET_COMMAED_STRING(limitTradeStr)));
+            return;
+        end
+    end
+
+    local my_char_name = GETMYPCNAME()
+
+    local item_obj = GetIES(marketItem:GetObject())
+
+    local item_name = dictionary.ReplaceDicIDInCompStr(item_obj.Name)
+
+    local sanitized_item_name = string.gsub(item_name, "-", "?")
+    local time = geTime.GetServerSystemTime()
+    print(tostring(reg_time))
+    local formatted_time = string.format("%04d-%02d-%02d %02d:%02d:%02d", time.wYear, time.wMonth, time.wDay,
+        time.wHour, time.wMinute, time.wSecond)
+    print(tostring(formatted_time))
+    local quantity = tonumber(buyCount)
+    print(tostring(quantity))
+    local total_amount = tonumber(totalPrice)
+    print(tostring(total_amount))
+    local unit_price = 0
+    if quantity > 0 then
+        unit_price = total_amount / quantity
+    end
+    print(tostring(unit_price))
+    local results_table = {}
+    local result_string = string.format("%s/%s/%s/%d/%d/%d/%s", formatted_time, my_char_name, sanitized_item_name,
+        quantity, unit_price, total_amount, "buy")
+    table.insert(results_table, result_string)
+    if #results_table > 0 then
+        table.insert(g.settings, table.unpack(results_table))
+        local all_results = table.concat(results_table, "\n")
+        local file_handle = io.open(g.logpath, "a")
+        if file_handle then
+            file_handle:write(all_results .. "\n")
+            file_handle:close()
+        end
+        market_voucher_save_settings()
+    end
+
+    market.ReqBuyItems();
 end
 
 function MARKET_VOUCHER_ON_INIT(addon, frame)
@@ -213,10 +323,11 @@ function MARKET_VOUCHER_ON_INIT(addon, frame)
     g.REGISTER = {}
     g.setup_hook_and_event(addon, "CABINET_GET_ALL_LIST", "market_voucher_CABINET_GET_ALL_LIST", false)
 
-    addon:RegisterMsg("GAME_START", "market_voucher_init_frame")
+    g.setup_hook_and_event(addon, "_BUY_MARKET_ITEM", "market_voucher__BUY_MARKET_ITEM", false)
 
+    addon:RegisterMsg("CABINET_ITEM_LIST", "market_voucher_init_frame");
     if not g.settings then
-        g.load_settings()
+        market_voucherload_settings()
     end
     local end_time = os.clock() -- ★処理終了後の時刻を記録★
     local elapsed_time = end_time - start_time
@@ -229,100 +340,96 @@ function market_voucher_CABINET_GET_ALL_LIST(my_frame, my_msg)
 
     local item_count = session.market.GetCabinetItemCount()
     if item_count == 0 then
-        g.FUNCS["CABINET_GET_ALL_LIST"](frame, control, strarg, now)
         return
     end
 
-    local lang_code = option.GetCurrentCountry()
     local my_char_name = GETMYPCNAME()
     local results_table = {}
 
     for i = 0, item_count - 1 do
         local cabinet_item = session.market.GetCabinetItemByIndex(i)
+        if not cabinet_item then
+            goto continue
+        end
+
         local where_from = cabinet_item:GetWhereFrom()
 
         if where_from == "market_sell" then
             local item_obj = GetIES(cabinet_item:GetObject())
-            local item_cls = GetClassByType("Item", item_obj.ClassID)
-            local item_name = TryGetProp(item_cls, "Name")
-
-            item_name = dictionary.ReplaceDicIDInCompStr(item_obj.Name)
-
+            local item_name = dictionary.ReplaceDicIDInCompStr(item_obj.Name)
             local sanitized_item_name = string.gsub(item_name, "-", "?")
-
             local reg_time = cabinet_item:GetRegSysTime()
             local formatted_time = string.format("%04d-%02d-%02d %02d:%02d:%02d", reg_time.wYear, reg_time.wMonth,
-                                                 reg_time.wDay, reg_time.wHour, reg_time.wMinute, reg_time.wSecond)
+                reg_time.wDay, reg_time.wHour, reg_time.wMinute, reg_time.wSecond)
 
-            local sell_count = tonumber(cabinet_item.sellItemAmount)
+            local quantity = tonumber(cabinet_item.sellItemAmount)
             local total_amount = tonumber(cabinet_item:GetCount())
 
-            -- ゼロ除算を避ける
             local unit_price = 0
-            if sell_count and sell_count > 0 then
-                unit_price = total_amount / sell_count
+            if quantity > 0 then
+                unit_price = total_amount / quantity
             end
 
-            local result_string =
-                string.format("%s%s/%s%s/%s%s/%s%d/%d/%d/%s/%s", -- スペースをスラッシュに変更
-                g.ui_text("time of sale:"), formatted_time, g.ui_text("/name:"), my_char_name, g.ui_text("/item:"),
-                              sanitized_item_name, g.ui_text("/quantity:"), sell_count, unit_price, total_amount,
-                              g.ui_text("/unit price:"), GET_COMMAED_STRING(unit_price), g.ui_text("/total amount:"),
-                              GET_COMMAED_STRING(total_amount))
-
-            table.insert(g.settings, result_string)
+            local result_string = string.format("%s/%s/%s/%d/%d/%d", formatted_time, my_char_name, sanitized_item_name,
+                quantity, unit_price, total_amount)
             table.insert(results_table, result_string)
         end
+
+        ::continue::
     end
 
     if #results_table > 0 then
+        table.insert(g.settings, table.unpack(results_table))
         local all_results = table.concat(results_table, "\n")
-
-        local file_handle, err = io.open(g.logpath, "a")
+        local file_handle = io.open(g.logpath, "a")
         if file_handle then
             file_handle:write(all_results .. "\n")
             file_handle:close()
         end
+        market_voucher_save_settings()
     end
 
-    g.save_settings()
     g.FUNCS["CABINET_GET_ALL_LIST"](frame, control, strarg, now)
 end
 
-function g.round(number)
+function market_voucher_round(number)
     return math.floor(number + 0.5)
 end
 
-function g.print(frame, ctrl, arg_str, arg_num)
+function market_voucher_print(frame, ctrl, arg_str, arg_num)
+
     local frame = ui.GetFrame("market_voucher")
     frame:SetSkinName("downbox")
     frame:ShowTitleBar(0)
     frame:SetOffset(15, 175)
-    frame:Resize(1220, 770)
+    frame:Resize(1280, 770)
     frame:EnableHitTest(1)
     frame:SetLayerLevel(100)
 
-    local bg = frame:CreateOrGetControl("groupbox", "bg", 5, 5, 1210, 720)
+    local bg = frame:CreateOrGetControl("groupbox", "bg", 5, 5, 1270, 720)
     AUTO_CAST(bg)
     bg:SetSkinName("chat_window")
     bg:SetTextTooltip(g.ui_text("CloseFrameTooltip"))
-    bg:SetEventScript(ui.LBUTTONUP, "g.print_close")
+    bg:SetEventScript(ui.LBUTTONUP, "market_voucher_print_close")
 
-    local log_delete_button = frame:CreateOrGetControl("button", "logdelete", 1130, 730, 80, 30)
+    local log_delete_button = frame:CreateOrGetControl("button", "logdelete", 1180, 735, 80, 30)
     AUTO_CAST(log_delete_button)
     log_delete_button:SetTextTooltip(g.ui_text("ClearLogTooltip"))
     log_delete_button:SetText(g.ui_text("Clear Log"))
-    log_delete_button:SetEventScript(ui.LBUTTONUP, "g.clear")
+    log_delete_button:SetEventScript(ui.LBUTTONUP, "market_voucher_clear")
 
-    local close_button = frame:CreateOrGetControl("button", "close", 1185, 5, 30, 30)
+    local close_button = frame:CreateOrGetControl("button", "close", 1245, 0, 30, 30)
     AUTO_CAST(close_button)
-    close_button:SetText("×")
-    close_button:SetEventScript(ui.LBUTTONUP, "g.print_close")
+    close_button:SetImage("testclose_button")
+    -- close_button:SetGravity(ui.RIGHT, ui.TOP)
+    -- close_button:SetText("×")
+    close_button:SetEventScript(ui.LBUTTONUP, "market_voucher_print_close")
 
     local sumtotal_amount = 0
 
     if #g.settings == 0 then
         frame:ShowWindow(1)
+        frame:RunUpdateScript("market_voucher_auto_close", 0.1)
         return -- 表示するログがない場合はここで終了
     end
 
@@ -330,7 +437,7 @@ function g.print(frame, ctrl, arg_str, arg_num)
         -- 日付文字列 (YYYY-MM-DD...) は直接比較可能
         return a > b
     end)
-
+    -- print(#g.settings .. "a")
     local item_count = #g.settings
     local y_pos = 5
 
@@ -350,7 +457,7 @@ function g.print(frame, ctrl, arg_str, arg_num)
 
         -- 1行のテキストを生成
         local line_text = string.format("%s , %s , %s , %s , %s , %s", date_str, name_str, item_str, quantity_str,
-                                        unit_price_str, total_amount_str)
+            unit_price_str, total_amount_str)
 
         -- 1行ごとにRichTextコントロールを作成してテキストを設定
         local text_view = bg:CreateOrGetControl("richtext", "textview" .. i, 5, y_pos)
@@ -366,37 +473,38 @@ function g.print(frame, ctrl, arg_str, arg_num)
 
     -- 合計金額のテキストを設定
 
-    local sum_total_amount_text = frame:CreateOrGetControl("richtext", "sumtotal_amount_text", 880, 740, 100, 30)
-    local rounded_number = g.round(sumtotal_amount / 1000000)
+    local sum_total_amount_text = frame:CreateOrGetControl("richtext", "sumtotal_amount_text", 900, 740, 100, 30)
+    local rounded_number = market_voucher_round(sumtotal_amount / 1000000)
     sum_total_amount_text:SetText(g.ui_text("Total Sales:") .. GET_COMMAED_STRING(sumtotal_amount) .. "(" ..
                                       rounded_number .. "M)")
     sum_total_amount_text:ShowWindow(1)
 
     -- 期間のテキストを設定
-    local period_text = frame:CreateOrGetControl("richtext", "date_text", 600, 740, 100, 30)
+    local period_text = frame:CreateOrGetControl("richtext", "date_text", 640, 740, 100, 30)
     period_text:SetText(g.ui_text("Period:") .. earliest_date_str .. "～" .. latest_date_str)
 
     frame:ShowWindow(1)
-    frame:RunUpdateScript("g.auto_close", 0.5)
+    frame:RunUpdateScript("market_voucher_auto_close", 0.3)
 end
 
-function g.auto_close(frame)
+function market_voucher_auto_close(frame)
     local market_frame = ui.GetFrame("market_cabinet")
     if market_frame:IsVisible() == 1 then
         return 1
     else
         frame:ShowWindow(0)
+        market_frame:RemoveChild("log_btn")
         return 0
     end
 end
 
-function g.clear(frame)
+function market_voucher_clear(frame)
     g.settings = {}
     ui.SysMsg(g.ui_text("ClearedMsg"))
-    g.save_settings()
+    market_voucher_save_settings()
 end
 
-function g.print_close(frame, ctrl, argStr, argNum)
+function market_voucher_print_close(frame, ctrl, argStr, argNum)
     local frame = ui.GetFrame("market_voucher")
     frame:RemoveAllChild()
     frame:ShowWindow(0)
@@ -404,11 +512,15 @@ end
 
 function market_voucher_init_frame()
     local frame = ui.GetFrame("market_cabinet")
-    local logbtn = frame:CreateOrGetControl("button", "log", 810, 105, 200, 45)
+    local log_btn = frame:CreateOrGetControl("button", "log_btn", 610, 120, 100, 30)
 
-    logbtn:SetText(g.ui_text("Sales Slip"))
-    logbtn:SetEventScript(ui.LBUTTONUP, "g.print")
-    logbtn:ShowWindow(1)
+    AUTO_CAST(log_btn)
+    log_btn:SetSkinName("tab2_btn")
+    local text = "{@st66b18}" .. g.lang_trans("Sales Slip")
+
+    log_btn:SetText(text)
+    log_btn:SetEventScript(ui.LBUTTONUP, "market_voucher_print")
+    log_btn:ShowWindow(1)
 
 end
 
