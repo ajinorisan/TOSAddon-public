@@ -7,15 +7,17 @@ import os
 import threading
 import sys
 import psutil
+import time
+
+# 変更: メッセージボックス表示のためにtkinterをインポート
+import tkinter as tk
+from tkinter import messagebox
 
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-from selenium.common.exceptions import TimeoutException
-import time
-# ★★★ webdriver-manager をインポート ★★★
 from selenium.webdriver.chrome.service import Service as ChromeService
 from webdriver_manager.chrome import ChromeDriverManager
 
@@ -33,6 +35,16 @@ def terminate_self():
         psutil.Process(os.getpid()).terminate()
     except Exception as e:
         print(f"エラーが発生しました: {e}")
+
+def show_error_and_exit(title, message):
+  
+    print(f"重大なエラー: {title} - {message}")
+    # tkinterのウィンドウが裏に隠れちゃうのを防ぐおまじない
+    root = tk.Tk()
+    root.withdraw()
+    messagebox.showerror(title, message)
+   
+    terminate_self()
 
 class ProcessMonitor:
    
@@ -82,7 +94,6 @@ class OutgoingTranslator:
         print(f"発言翻訳: -> {self.lang}")
 
     def _translate_str(self, text, max_attempts=5):
-
         if not text.strip():
             return ""
         
@@ -102,16 +113,26 @@ class OutgoingTranslator:
         return translated_text
 
     def process_speech(self):
+        # 変更: ファイルの存在チェックを厳密にしたわ
         if not os.path.exists(self.send_path) or os.path.getsize(self.send_path) == 0:
             return
         
-        try: # ファイル操作はtry-exceptで囲むとより安全
-            with open(self.send_path, 'r', encoding='utf-8') as f:
-                line = f.read().strip()
-            os.remove(self.send_path)
-        except Exception as e:
-            print(f"my_send.dat の読み込み/削除エラー: {e}")
+        # 変更: ファイルをリネームして処理することで、処理中のデータ損失を防ぐわ
+        processing_path = self.send_path + ".processing"
+        try:
+            os.rename(self.send_path, processing_path)
+        except OSError: # リネームしようとした瞬間にファイルが消えてた、なんて場合のため
             return
+
+        try:
+            with open(processing_path, 'r', encoding='utf-8') as f:
+                line = f.read().strip()
+        except Exception as e:
+            print(f"my_send.dat の読み込みエラー: {e}")
+            line = "" # エラーが起きても後処理は進める
+        finally:
+            # 変更: 処理が終わったリネーム後ファイルを削除
+            os.remove(processing_path)
 
         if not line: return
 
@@ -119,13 +140,10 @@ class OutgoingTranslator:
         if len(parts) != 3:
             print(f"発言のフォーマットが不正です: {line}")
             if len(parts) >= 2:
-                # Lua側が `msg_type .. trans_msg .. org_msg` を期待しているので、
-                # `trans_msg`に元のメッセージ(parts[1])を、`org_msg`に空文字を設定して返す
                 result_line = f"{parts[0]}:::{parts[1]}:::"
                 with open(self.recv_path, 'w', encoding='utf-8') as f: f.write(result_line)
             return
 
-        #msg_type,org_msg_retun,org_msg, sep = parts
         msg_type,org_msg_retun,org_msg = parts
         translated_msg = self._translate_str(org_msg)
         print(f"発言翻訳: {org_msg} -> {translated_msg}")
@@ -151,7 +169,6 @@ class IncomingTranslator:
         print(f"受信翻訳: -> {self.lang}")
 
     def _translate_str(self, text, max_attempts=5):
-
         if not text.strip():
             return ""
         
@@ -179,13 +196,29 @@ class IncomingTranslator:
                 self.names_to_skip = {line.split(':::')[0] for line in f if ":::" in line}
         print(f"読み込み完了: 翻訳済みメッセージ {len(self.translated_chat_ids)}件, 名前 {len(self.names_to_skip)}件")
 
+    # 変更: ネストした関数をやめて、元の分かりやすい形に戻したわ
     def process_names(self):
         send_path = self.file_paths["send_name"]
-        if not os.path.exists(send_path) or os.path.getsize(send_path) == 0: return 
-        with open(send_path, 'r', encoding='utf-8') as f: lines = f.readlines()
-        if not lines: return
-        os.remove(send_path) 
+        if not os.path.exists(send_path) or os.path.getsize(send_path) == 0: return
+
+        # 安全なファイル処理（リネーム方式）はそのまま使うわよ
+        processing_path = send_path + ".processing"
+        try:
+            os.rename(send_path, processing_path)
+        except OSError:
+            return
+
+        lines = []
+        try:
+            with open(processing_path, 'r', encoding='utf-8') as f:
+                lines = f.readlines()
+        except Exception as e:
+            print(f"send_name.dat の読み込みエラー: {e}")
+        finally:
+            os.remove(processing_path)
         
+        if not lines: return
+
         updated_lines = []
         for line in lines:
             parts = line.strip().split(':::')
@@ -209,13 +242,29 @@ class IncomingTranslator:
             with open(self.file_paths["recv_name"], 'a', encoding='utf-8') as f:
                 f.writelines(updated_lines)
 
+    # 変更: こっちも同じように、ネストした関数をやめて元の形に戻したわ
     def process_messages(self):
         send_path = self.file_paths["send_msg"]
         if not os.path.exists(send_path) or os.path.getsize(send_path) == 0: return
-        with open(send_path, 'r', encoding='utf-8', errors='ignore') as f: lines = f.readlines()
-        if not lines: return
-        os.remove(send_path)
         
+        # 安全なファイル処理（リネーム方式）はこっちでも活躍！
+        processing_path = send_path + ".processing"
+        try:
+            os.rename(send_path, processing_path)
+        except OSError:
+            return
+
+        lines = []
+        try:
+            with open(processing_path, 'r', encoding='utf-8', errors='ignore') as f:
+                lines = f.readlines()
+        except Exception as e:
+            print(f"send_msg.dat の読み込みエラー: {e}")
+        finally:
+            os.remove(processing_path)
+
+        if not lines: return
+
         updated_lines = []
         for line in lines:
             parts = line.strip().split(':::')
@@ -243,31 +292,35 @@ class TranslationManager:
         self.driver = None
         self.incoming_translator = None
         self.outgoing_translator = None
-      
         self.restart_file_path = os.path.join(self.base_dir, "restart.dat")
+        self._is_stopping = False # 変更: 二重に終了処理が走らないようにするためのフラグよ
 
     def _create_driver(self):
         try:
             chrome_options = Options()
             chrome_options.add_argument("--headless")
             chrome_options.add_argument("--incognito")
+            chrome_options.add_experimental_option('excludeSwitches', ['enable-logging']) # 変更: 余計なログを非表示にしてコンソールをスッキリさせたわ
           
             service = ChromeService(ChromeDriverManager().install())
             self.driver = webdriver.Chrome(service=service, options=chrome_options)
             print("WebDriverが正常に初期化されました。")
             return True
         except Exception as e:
-            print(f"WebDriverの初期化中にエラーが発生しました: {e}")
-            print("Chromeブラウザがインストールされているか、またはバージョンが古すぎないか確認してください。")
+             # 変更: WebDriver初期化失敗は致命的！メッセージボックスで通知するわ
+            error_message = (
+                f"翻訳エンジンの起動に失敗しました。\n\n"
+                f"・Chromeブラウザがインストールされていますか？\n"
+                f"・インターネットに接続されていますか？\n\n"
+                f"エラー詳細: {e}"
+            )
+            show_error_and_exit("致命的なエラー", error_message)
             return False
         
     def _load_settings(self):
         settings_path = os.path.join(self.base_dir, "settings.json")
        
-        default_settings = {
-            "lang": "ja",
-            "recv_lang": "en"
-        }
+        default_settings = { "lang": "ja", "recv_lang": "en" }
         
         loaded_settings = {}
         try:
@@ -278,17 +331,13 @@ class TranslationManager:
             print(f"settings.json の読み込みエラー: {e}")
             return default_settings
 
-        final_settings = {
-            "lang": loaded_settings.get("lang", default_settings["lang"]),
-            "recv_lang": loaded_settings.get("recv_lang", default_settings["recv_lang"]),
-        }
-        
+        final_settings = default_settings.copy()
+        final_settings.update(loaded_settings)
         return final_settings
 
     def run(self):
         if not self._create_driver():
-            time.sleep(10) # エラー時に即終了しないように少し待つ
-            return
+            return # _create_driverの中で終了処理までしちゃうから、ここはreturnするだけ
         
         settings = self._load_settings()
         incoming_lang = settings.get("lang", "ja")
@@ -308,34 +357,55 @@ class TranslationManager:
         print("ファイル監視を開始しました。")
         loop_counter = 0
         
-        while True:
+        while not self._is_stopping:
             try:
-                # --- 毎回 (0.1秒ごと) 実行する処理 ---
                 self.outgoing_translator.process_speech()
 
-                # --- 特定の回数ごと (0.5秒ごと) に実行する処理 ---
-                # loop_counter が 0, 5, 10, ... の時に実行される (0.1秒 * 5 = 0.5秒)
                 if loop_counter % 5 == 0:
-                    # print(f"--- 0.5秒ごとの処理を実行 (カウンター: {loop_counter}) ---")
                     self.incoming_translator.process_names()
                     self.incoming_translator.process_messages()
 
             except Exception as e:
-                print(f"メインループでエラーが発生しました: {e}")
+                # 変更: メインループでの予期せぬエラーも、メッセージボックスで通知よ！
+                error_message = f"翻訳処理中に予期せぬエラーが発生しました。\nプログラムを再起動してください。\n\nエラー詳細: {e}"
+                # ここでは直接終了させず、stop()を呼んで綺麗に後片付けするわ
+                self.stop() 
+                show_error_and_exit("予期せぬエラー", error_message)
+                break # ループを抜ける
 
-            # ループカウンターを更新
-            loop_counter += 1
-            if loop_counter >= 1000:
-                loop_counter = 0
-
+            loop_counter = (loop_counter + 1) % 1000
             time.sleep(0.1)
 
     def stop(self):
+        if self._is_stopping:
+            return
+        self._is_stopping = True
+        print("終了処理を開始します...")
+
         if self.driver:
-            self.driver.quit()
-            print("WebDriverが正常に終了しました。")
-        terminate_self()
+            # 変更: driverの終了処理もtry-exceptで囲んで、より安全にしたわ
+            try:
+                self.driver.quit()
+                print("WebDriverが正常に終了しました。")
+            except Exception as e:
+                print(f"WebDriverの終了中にエラーが発生しました: {e}")
 
 if __name__ == "__main__":
-    manager = TranslationManager(base_dir=exe_dir)
-    manager.run()
+    manager = None
+    try:
+        manager = TranslationManager(base_dir=exe_dir)
+        manager.run()
+    except KeyboardInterrupt:
+        print("\n手動で終了します...")
+    except Exception as e:
+        # 変更: ここで起きるエラーは、主にmanager.run()より前の段階。これも通知！
+        error_message = f"プログラムの初期化中に予期せぬエラーが発生しました。\n\nエラー詳細: {e}"
+        show_error_and_exit("起動エラー", error_message)
+    finally:
+        if manager:
+            # 変更: stop()を呼んだ後、プロセスを終了させる
+            manager.stop()
+            terminate_self()
+        else:
+            # managerすらいない場合は、直接終了
+            terminate_self()
