@@ -4,6 +4,26 @@
 # Filename: text_input_helper.py
 # Description: A custom text input tool with multi-language support.
 
+# 変更：この生存確認コードを、ファイルの本当に一番上に追加するのよ！
+import os
+from datetime import datetime
+
+# このスクリプトの場所を基準にする
+try:
+    # __file__ が使える環境なら、こっちの方が確実
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+except NameError:
+    # .exe化された時とか、__file__が使えない環境のための予備手段
+    script_dir = os.path.dirname(os.path.abspath(sys.argv[0]))
+
+# 生存確認用のファイルパス
+proof_file_path = os.path.join(script_dir, "iam_alive.txt")
+
+# ファイルに、呼ばれた時刻を書き込む
+with open(proof_file_path, "a", encoding="utf-8") as f:
+    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    f.write(f"Python script was called at: {timestamp}\n")
+    
 import tkinter as tk
 import os
 import sys
@@ -25,6 +45,7 @@ if hasattr(sys, "frozen"):
 else:
     base_dir = os.path.dirname(os.path.abspath(__file__))
 
+os.chdir(base_dir)
 
 # --- クラス定義 ---
 class ToolTip:
@@ -180,11 +201,19 @@ def check_limit(event):
 root = tk.Tk()
 root.overrideredirect(True)  # OS標準のタイトルバーを非表示
 root.attributes("-topmost", True)  # 常に最前面に表示
-root.configure(bg=ENTRY_BG, highlightbackground=BORDER_COLOR, highlightthickness=1)
+# 変更：rootウィンドウの背景色は枠線の色と統一。直接の枠線設定は削除
+root.configure(bg=BORDER_COLOR)
+
+# 変更：枠線と背景を管理するFrameウィジェットを新しく追加
+main_frame = tk.Frame(root, bg=BG_COLOR)
+# 変更：Frameに1pxのパディングを持たせ、rootの背景色を枠線として見せる
+main_frame.pack(fill="both", expand=True, padx=1, pady=1)
+
 
 # 2. テキストエリアウィジェットの生成と配置
+# 変更：親をrootからmain_frameに変更
 text_area = tk.Text(
-    root,
+    main_frame,
     bg=ENTRY_BG,
     fg=FG_COLOR,
     font=(FONT_NAME, 10),
@@ -239,4 +268,5 @@ if user_input_result:  # user_input_resultに有効な文字列が格納され�
         with open(output_path, "w", encoding="utf-8") as f:
             f.write(user_input_result)
     except Exception as e:
+        # print(string.format("File write error: %s", e)) # こんなのどう？
         print(f"File write error: {e}")

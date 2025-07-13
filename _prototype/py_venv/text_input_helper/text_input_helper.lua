@@ -9,9 +9,39 @@ _G["ADDONS"][author] = _G["ADDONS"][author] or {}
 _G["ADDONS"][author][addon_name] = _G["ADDONS"][author][addon_name] or {}
 local g = _G["ADDONS"][author][addon_name]
 
-g.input_dat = string.format('../addons/%s/kr_input.dat', addon_name_lower)
-g.exe_path = string.format('../addons/%s/text_input_helper.exe', addon_name_lower)
+g.input_dat = string.format('../addons/%s/input.dat', addon_name_lower)
+g.exe_path = string.format('../addons/%s/text_input_helper-v0.0.1.exe', addon_name_lower)
 g.watching_file = false
+
+local json = require("json")
+
+function g.mkdir_new_folder()
+    local function create_folder(folder_path, file_path)
+        local file = io.open(file_path, "r")
+        if not file then
+            os.execute('mkdir "' .. folder_path .. '"')
+            file = io.open(file_path, "w")
+            if file then
+                file:write("A new file has been created")
+                file:close()
+            end
+        else
+            file:close()
+        end
+    end
+
+    local folder = string.format("../addons/%s", addon_name_lower)
+    local file_path = string.format("../addons/%s/mkdir.txt", addon_name_lower)
+    create_folder(folder, file_path)
+
+    g.active_id = session.loginInfo.GetAID()
+    local user_folder = string.format("../addons/%s/%s", addon_name_lower, g.active_id)
+    local user_file_path = string.format("../addons/%s/%s/mkdir.txt", addon_name_lower, g.active_id)
+    create_folder(user_folder, user_file_path)
+
+    g.settings_path = string.format("../addons/%s/%s/settings.json", addon_name_lower, g.active_id)
+end
+g.mkdir_new_folder()
 
 function TEXT_INPUT_HELPER_ON_INIT(addon, frame)
     g.addon = addon

@@ -10,10 +10,11 @@
 -- v1.0.9 バフが無い場合スロット非表示にするなどした
 -- v1.1.0 ウルトラワイドに対応
 -- v1.1.1 アドオンボタン回り修正。バフリスト検索機能追加。
+-- v1.1.2 設定フレームがおかしかったの修正
 local addon_name = "skill_notice_free"
 local addon_name_lower = string.lower(addon_name)
 local author = "norisan"
-local ver = "1.1.1"
+local ver = "1.1.2"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -584,7 +585,11 @@ function skill_notice_free_setting(frame, ctrl, str, num)
         create_slot_and_edit(index, y, 0)
     end
 
+    if y > 990 then
+        y = 990
+    end
     setting_frame:Resize(660, y + 60)
+    -- setting_frame:Resize(660, 1050)
     gb:Resize(setting_frame:GetWidth() - 20, setting_frame:GetHeight() - 50)
     setting_frame:ShowWindow(1)
 end
