@@ -350,6 +350,7 @@ Tree of Savior 用のアドオンを作成・改変しています。
 <details>
 <summary>更新履歴 (Other Character Skill List)</summary>
 
+*   v1.1.9 イヤリング表示。
 *   v1.1.8 キャラ名左クリックでICC連携。
 *   v1.1.7 バラックに戻れないバグ修正。反省。完成。
 *   v1.1.6 アドオンメニュー回り修正。
@@ -419,6 +420,7 @@ Tree of Savior 用のアドオンを作成・改変しています。
 <details>
 <summary>更新履歴 (Always Status)</summary>
 
+*   v1.2.2 区切り文字修正
 *   v1.2.1 ローディング最適化
 *   v1.2.0 ワイドモニター対応
 *   v1.1.9 フォルダ作成処理を初回のみに変更
@@ -523,6 +525,7 @@ Tree of Savior 用のアドオンを作成・改変しています。
 <details>
 <summary>更新履歴 (Market Voucher)</summary>
 
+*   v1.1.0 売り買い表示。セーブデータ初期化されます
 *   v1.0.9 ローディング最適化
 *   v1.0.8 表示量上限超過バグ修正
 *   v1.0.7 韓国版クライアント対応（のつもり）
@@ -545,6 +548,7 @@ Tree of Savior 用のアドオンを作成・改変しています。
 <details>
 <summary>更新履歴 (Goddess Icor Manager)</summary>
 
+*   v1.1.3 バグ修正
 *   v1.1.2 保存時更にバグってたの修正
 *   v1.1.1 セット保存時のバグ修正
 *   v1.1.0 デフォルトフレームのバグ修正

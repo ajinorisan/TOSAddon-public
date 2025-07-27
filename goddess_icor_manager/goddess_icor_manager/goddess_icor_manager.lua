@@ -13,10 +13,11 @@
 -- v1.1.0 デフォルトのフレームバグってたの修正
 -- v1.1.1 保存バグってたの修正
 -- v1.1.2 保存時更にバグってたの修正
+-- v1.1.3 最終的には必ず武器スロ1を選択する様に
 local addon_name = "GODDESS_ICOR_MANAGER"
 local addon_name_lower = string.lower(addon_name)
 local author = "norisan"
-local ver = "1.1.2"
+local ver = "1.1.3"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -25,8 +26,6 @@ local g = _G["ADDONS"][author][addon_name]
 local json = require("json")
 
 g.settings_path = string.format('../addons/%s/settings.json', addon_name_lower)
-
-local acutil = require("acutil")
 
 local high500weapontbl = {{
     ["STR"] = 276
@@ -2500,6 +2499,8 @@ function goddess_icor_manager_newframe_init(ctrl_key)
             goddess_icor_manager_newframe_set_status(status_bg, stframe, status_str, i)
         end
     end
+    local inventory = ui.GetFrame("inventory")
+    DO_WEAPON_SLOT_CHANGE(inventory, 1)
 end
 
 function goddess_icor_manager_list_gb_init(frame, page)
