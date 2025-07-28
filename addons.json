@@ -12,7 +12,7 @@
 		"name" : "Debuff Notice",
 		"file" : "debuff_notice",
 		"extension" : "ipf",
-		"fileVersion" : "v1.0.0",
+		"fileVersion" : "v1.0.1",
 		"releaseTag" : "debuff_notice",
 		"unicode" : "⛄",
 		"description" : "meldavyさんのseparatedpcdebuffオマージュ 他のアドオンに干渉しない様に修正。少し目立つ様に。<br>meldavy's separatedpcdebuff tribute Fixed so it doesn't interfere with other addons. Made it a little more noticeable.<br>meldavy님의 separatedpcdebuff 오마주 다른 애드온을 방해하지 않도록 수정. 조금 더 눈에 띄도록",
