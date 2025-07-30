@@ -4,11 +4,12 @@
 -- v2.0.4 アイコン回転モード追加
 -- v2.0.5 with effect機能復活
 -- v2.0.6 PTチャットでDICデータバグってたの修正
+-- v2.0.7 Rebuildで独立
 local addon_name = "Muteki2ex_rebuild"
 local addon_name_upper = string.upper(addon_name)
 local addon_name_lower = string.lower(addon_name)
 local org_ver = "1.2.7"
-local ver = "2.0.6"
+local ver = "2.0.7"
 
 local author = "WRIT"
 local maintainer = "norisan"
@@ -255,6 +256,20 @@ function muteki2_rebuild_ON_INIT(addon, frame)
 
     frame:Move(0, 0)
     frame:SetOffset(g.settings.pos.x, g.settings.pos.y)
+
+    local menu_data = {
+        name = "Muteki2 Rebuild",
+        icon = "",
+        func = "muteki2_rebuild_FRAME_OPEN",
+        image = "{img sysmenu_sys 30 30}"
+    }
+
+    _G["norisan"]["MENU"][addon_name] = menu_data
+
+    if not _G["norisan"]["MENU"][addon_name_lower] or _G["norisan"]["MENU"].frame_name == addon_name_lower then
+        _G["norisan"]["MENU"].frame_name = addon_name_lower
+        addon:RegisterMsg("GAME_START", "norisan_menu_create_frame")
+    end
 
 end
 
@@ -631,7 +646,7 @@ end
 function muteki2_rebuild_INIT_SETTING_UI()
     g.setup_hook_and_event(g.addon, 'SET_BUFF_SLOT', "muteki2_rebuild_SET_BUFFICON_LBTNCLICK", true)
     -- acutil.setupEvent(g.addon, 'SET_BUFF_SLOT', "muteki2_rebuild_SET_BUFFICON_LBTNCLICK")
-    acutil.addSysIcon("muteki2ex", "sysmenu_skill", "muteki2ex", "muteki2_rebuild_FRAME_OPEN")
+    -- acutil.addSysIcon("muteki2ex", "sysmenu_skill", "muteki2ex", "muteki2_rebuild_FRAME_OPEN")
     g.is_setting_ui_created = false
 end
 
@@ -1150,6 +1165,436 @@ function muteki2_rebuild_GET_CONTROL(buff_id)
     else
         return g.gauge[tostring(buff_id)]
     end
+end
+
+-- アドオンメニューボタン
+local norisan_menu_addons = string.format("../%s", "addons")
+local norisan_menu_addons_mkfile = string.format("../%s/mkdir.txt", "addons")
+local norisan_menu_settings = string.format("../addons/%s/settings.json", "norisan_menu")
+local norisan_menu_folder = string.format("../addons/%s", "norisan_menu")
+local norisan_menu_mkfile = string.format("../addons/%s/mkdir.txt", "norisan_menu")
+_G["norisan"] = _G["norisan"] or {}
+_G["norisan"]["MENU"] = _G["norisan"]["MENU"] or {}
+
+local json = require("json")
+
+local function norisan_menu_create_folder_file()
+
+    local addons_file = io.open(norisan_menu_addons_mkfile, "r")
+    if not addons_file then
+        os.execute('mkdir "' .. norisan_menu_addons .. '"')
+        addons_file = io.open(norisan_menu_addons_mkfile, "w")
+        if addons_file then
+            addons_file:write("created");
+            addons_file:close()
+        end
+    else
+        addons_file:close()
+    end
+
+    local file = io.open(norisan_menu_mkfile, "r")
+    if not file then
+        os.execute('mkdir "' .. norisan_menu_folder .. '"')
+        file = io.open(norisan_menu_mkfile, "w")
+        if file then
+            file:write("created");
+            file:close()
+        end
+    else
+        file:close()
+    end
+end
+norisan_menu_create_folder_file()
+
+local function norisan_menu_save_json(path, tbl)
+
+    local data_to_save = {
+        x = tbl.x,
+        y = tbl.y,
+        move = tbl.move,
+        open = tbl.open,
+        layer = tbl.layer
+    }
+    local file = io.open(path, "w")
+    if file then
+        local str = json.encode(data_to_save)
+        file:write(str)
+        file:close()
+    end
+end
+
+local function norisan_menu_load_json(path)
+
+    local file = io.open(path, "r")
+    if file then
+        local content = file:read("*all")
+        file:close()
+        if content and content ~= "" then
+            local decoded, err = json.decode(content)
+            if decoded then
+                return decoded
+            end
+        end
+    end
+    return nil
+end
+
+function _G.norisan_menu_move_drag(frame, ctrl)
+    if not frame then
+        return
+    end
+
+    local current_frame_y = frame:GetY()
+    local current_frame_h = frame:GetHeight()
+    local base_button_h = 40
+
+    local y_to_save = current_frame_y
+
+    if current_frame_h > base_button_h and (_G["norisan"]["MENU"].open == 1) then
+        local items_area_h_calculated = current_frame_h - base_button_h
+        y_to_save = current_frame_y + items_area_h_calculated
+
+    end
+
+    _G["norisan"]["MENU"].x = frame:GetX()
+    _G["norisan"]["MENU"].y = y_to_save
+
+    norisan_menu_save_json(norisan_menu_settings, _G["norisan"]["MENU"])
+end
+
+function _G.norisan_menu_setting_frame_ctrl(setting, ctrl)
+    local ctrl_name = ctrl:GetName()
+
+    local frame_name = _G["norisan"]["MENU"].frame_name
+    local frame = ui.GetFrame(frame_name)
+
+    if ctrl_name == "layer_edit" then
+        local layer = tonumber(ctrl:GetText())
+        if layer then
+            _G["norisan"]["MENU"].layer = layer
+            frame:SetLayerLevel(layer)
+            norisan_menu_save_json(norisan_menu_settings, _G["norisan"]["MENU"])
+
+            local notice = _G["norisan"]["MENU"].lang == "Japanese" and "{ol}レイヤーを変更" or
+                               "{ol}Change Layer"
+            ui.SysMsg(notice)
+            _G.norisan_menu_create_frame()
+            setting:ShowWindow(0)
+            return
+        end
+    end
+
+    if ctrl_name == "def_setting" then
+
+        _G["norisan"]["MENU"].x = 1190
+        _G["norisan"]["MENU"].y = 30
+        _G["norisan"]["MENU"].move = true
+        _G["norisan"]["MENU"].open = 0
+        _G["norisan"]["MENU"].layer = 79
+        norisan_menu_save_json(norisan_menu_settings, _G["norisan"]["MENU"])
+        _G.norisan_menu_create_frame()
+        setting:ShowWindow(0)
+        return
+    end
+    if ctrl_name == "close" then
+        setting:ShowWindow(0)
+        return
+    end
+
+    local is_check = ctrl:IsChecked()
+    if ctrl_name == "move_toggle" then
+        if is_check == 1 then
+            _G["norisan"]["MENU"].move = false
+        else
+            _G["norisan"]["MENU"].move = true
+        end
+        frame:EnableMove(_G["norisan"]["MENU"].move == true and 1 or 0)
+        norisan_menu_save_json(norisan_menu_settings, _G["norisan"]["MENU"])
+        return
+    elseif ctrl_name == "open_toggle" then
+        _G["norisan"]["MENU"].open = is_check
+        norisan_menu_save_json(norisan_menu_settings, _G["norisan"]["MENU"])
+        _G.norisan_menu_create_frame()
+        return
+    end
+
+end
+
+function _G.norisan_menu_setting_frame(frame, ctrl)
+    local setting = ui.CreateNewFrame("chat_memberlist", "norisan_menu_setting", 0, 0, 0, 0)
+    AUTO_CAST(setting)
+
+    setting:SetTitleBarSkin("None")
+    setting:SetSkinName("chat_window")
+    setting:Resize(260, 135)
+    setting:SetLayerLevel(999)
+    setting:EnableHitTest(1)
+    setting:EnableMove(1)
+
+    setting:SetPos(frame:GetX() + 200, frame:GetY())
+    setting:ShowWindow(1)
+
+    local close = setting:CreateOrGetControl("button", "close", 0, 0, 30, 30)
+    AUTO_CAST(close)
+    close:SetImage("testclose_button")
+    close:SetGravity(ui.RIGHT, ui.TOP)
+    close:SetEventScript(ui.LBUTTONUP, "norisan_menu_setting_frame_ctrl");
+
+    local def_setting = setting:CreateOrGetControl("button", "def_setting", 10, 5, 150, 30)
+    AUTO_CAST(def_setting)
+    local notice = _G["norisan"]["MENU"].lang == "Japanese" and "{ol}デフォルトに戻す" or "{ol}Reset to default"
+    def_setting:SetText(notice)
+    def_setting:SetEventScript(ui.LBUTTONUP, "norisan_menu_setting_frame_ctrl");
+
+    local move_toggle = setting:CreateOrGetControl('checkbox', "move_toggle", 10, 35, 30, 30)
+    AUTO_CAST(move_toggle)
+    move_toggle:SetCheck(_G["norisan"]["MENU"].move == true and 0 or 1)
+    move_toggle:SetEventScript(ui.LBUTTONDOWN, 'norisan_menu_setting_frame_ctrl')
+    local notice = _G["norisan"]["MENU"].lang == "Japanese" and "{ol}チェックするとフレーム固定" or
+                       "{ol}Check to fix frame"
+    move_toggle:SetText(notice)
+
+    local open_toggle = setting:CreateOrGetControl('checkbox', "open_toggle", 10, 70, 30, 30)
+    AUTO_CAST(open_toggle)
+    open_toggle:SetCheck(_G["norisan"]["MENU"].open)
+    open_toggle:SetEventScript(ui.LBUTTONDOWN, 'norisan_menu_setting_frame_ctrl')
+    local notice = _G["norisan"]["MENU"].lang == "Japanese" and "{ol}チェックすると上開き" or
+                       "{ol}Check to open upward"
+    open_toggle:SetText(notice)
+
+    local layer_text = setting:CreateOrGetControl('richtext', 'layer_text', 10, 105, 50, 20)
+    AUTO_CAST(layer_text)
+    local notice = _G["norisan"]["MENU"].lang == "Japanese" and "{ol}レイヤー設定" or "{ol}Set Layer"
+    layer_text:SetText(notice)
+
+    local layer_edit = setting:CreateOrGetControl('edit', 'layer_edit', 130, 105, 70, 20)
+    AUTO_CAST(layer_edit)
+    layer_edit:SetFontName("white_16_ol")
+    layer_edit:SetTextAlign("center", "center")
+    layer_edit:SetText(_G["norisan"]["MENU"].layer or 79)
+    layer_edit:SetEventScript(ui.ENTERKEY, "norisan_menu_setting_frame_ctrl")
+end
+
+function _G.norisan_menu_toggle_items_display(frame, ctrl, open_dir)
+
+    local open_up = (open_dir == 1)
+
+    local menu_src = _G["norisan"]["MENU"]
+    local max_cols = 5
+    local item_w = 35
+    local item_h = 35
+    local y_off_down = 35
+
+    local items = {}
+    if menu_src then
+        for key, data in pairs(menu_src) do
+            if type(data) == "table" then
+                if key ~= "x" and key ~= "y" and key ~= "open" and key ~= "move" and data.name and data.func and
+                    ((data.image and data.image ~= "") or (data.icon and data.icon ~= "")) then
+                    table.insert(items, {
+                        key = key,
+                        data = data
+                    })
+                end
+            end
+        end
+    end
+
+    local num_items = #items
+
+    local num_rows = math.ceil(num_items / max_cols)
+
+    local items_h = num_rows * item_h
+    local frame_h_new = 40 + items_h
+    local frame_y_new = _G["norisan"]["MENU"].y or 30
+
+    if open_up then
+        frame_y_new = frame_y_new - items_h
+    end
+
+    local frame_w_new
+    if num_rows == 1 then
+        frame_w_new = math.max(40, num_items * item_w)
+    else
+        frame_w_new = math.max(40, max_cols * item_w)
+    end
+
+    frame:SetPos(frame:GetX(), frame_y_new)
+    frame:Resize(frame_w_new, frame_h_new)
+
+    for idx, entry in ipairs(items) do
+        local item_sidx = idx - 1
+        local data = entry.data
+        local key = entry.key
+        local col = item_sidx % max_cols
+        local x = col * item_w
+        local y = 0
+
+        if open_up then
+
+            local logical_row_from_bottom = math.floor(item_sidx / max_cols)
+
+            y = (frame_h_new - 40) - ((logical_row_from_bottom + 1) * item_h)
+        else
+
+            local row_down = math.floor(item_sidx / max_cols)
+            y = y_off_down + (row_down * item_h)
+        end
+
+        local ctrl_name = "menu_item_" .. key
+        local item_elem
+
+        if data.image and data.image ~= "" then
+            item_elem = frame:CreateOrGetControl('button', ctrl_name, x, y, item_w, item_h)
+            AUTO_CAST(item_elem);
+            item_elem:SetSkinName("None");
+            item_elem:SetText(data.image)
+        else
+            item_elem = frame:CreateOrGetControl('picture', ctrl_name, x, y, item_w, item_h)
+            AUTO_CAST(item_elem);
+            item_elem:SetImage(data.icon);
+            item_elem:SetEnableStretch(1)
+        end
+
+        if item_elem then
+            item_elem:SetTextTooltip("{ol}" .. data.name)
+            item_elem:SetEventScript(ui.LBUTTONUP, data.func)
+            item_elem:ShowWindow(1)
+        end
+    end
+
+    local main_btn = GET_CHILD(frame, "norisan_menu_pic")
+    if main_btn then
+        if open_up then
+            main_btn:SetPos(0, frame_h_new - 40)
+        else
+            main_btn:SetPos(0, 0)
+        end
+    end
+end
+
+function _G.norisan_menu_frame_open(frame, ctrl)
+    if not frame then
+        return
+    end
+
+    if frame:GetHeight() > 40 then
+
+        local children = {}
+        for i = 0, frame:GetChildCount() - 1 do
+            local child_obj = frame:GetChildByIndex(i)
+            if child_obj then
+                table.insert(children, child_obj)
+            end
+        end
+
+        for _, child_obj in ipairs(children) do
+            if child_obj:GetName() ~= "norisan_menu_pic" then
+
+                frame:RemoveChild(child_obj:GetName())
+            end
+        end
+
+        frame:Resize(40, 40)
+        frame:SetPos(frame:GetX(), _G["norisan"]["MENU"].y or 30)
+        local main_pic = GET_CHILD(frame, "norisan_menu_pic")
+        if main_pic then
+            main_pic:SetPos(0, 0)
+        end
+        return
+    end
+
+    local open_dir_val = _G["norisan"]["MENU"].open or 0
+    _G.norisan_menu_toggle_items_display(frame, ctrl, open_dir_val)
+end
+
+function _G.norisan_menu_create_frame()
+
+    _G["norisan"]["MENU"].lang = option.GetCurrentCountry()
+
+    local loaded_cfg = norisan_menu_load_json(norisan_menu_settings)
+
+    if loaded_cfg and loaded_cfg.layer ~= nil then
+        _G["norisan"]["MENU"].layer = loaded_cfg.layer
+    elseif _G["norisan"]["MENU"].layer == nil then
+        _G["norisan"]["MENU"].layer = 79
+    end
+
+    if loaded_cfg and loaded_cfg.move ~= nil then
+        _G["norisan"]["MENU"].move = loaded_cfg.move
+    elseif _G["norisan"]["MENU"].move == nil then
+        _G["norisan"]["MENU"].move = true
+    end
+
+    if loaded_cfg and loaded_cfg.open ~= nil then
+        _G["norisan"]["MENU"].open = loaded_cfg.open
+    elseif _G["norisan"]["MENU"].open == nil then
+        _G["norisan"]["MENU"].open = 0
+    end
+
+    local default_x = 1190
+    local default_y = 30
+
+    local final_x = default_x
+    local final_y = default_y
+
+    if _G["norisan"]["MENU"].x ~= nil then
+        final_x = _G["norisan"]["MENU"].x
+    end
+    if _G["norisan"]["MENU"].y ~= nil then
+        final_y = _G["norisan"]["MENU"].y
+    end
+
+    if loaded_cfg and type(loaded_cfg.x) == "number" then
+        final_x = loaded_cfg.x
+    end
+    if loaded_cfg and type(loaded_cfg.y) == "number" then
+        final_y = loaded_cfg.y
+    end
+
+    local map_ui = ui.GetFrame("map")
+    local screen_w = 1920
+    if map_ui and map_ui:IsVisible() then
+        screen_w = map_ui:GetWidth()
+    end
+
+    if final_x > 1920 and screen_w <= 1920 then
+        final_x = default_x
+        final_y = default_y
+    end
+
+    _G["norisan"]["MENU"].x = final_x
+    _G["norisan"]["MENU"].y = final_y
+
+    norisan_menu_save_json(norisan_menu_settings, _G["norisan"]["MENU"])
+
+    local frame_name = _G["norisan"]["MENU"].frame_name
+    local frame = ui.GetFrame(frame_name)
+
+    if frame then
+        AUTO_CAST(frame)
+        frame:RemoveAllChild()
+        frame:SetSkinName("None")
+        frame:SetTitleBarSkin("None")
+        frame:Resize(40, 40)
+        frame:SetLayerLevel(_G["norisan"]["MENU"].layer)
+        frame:EnableMove(_G["norisan"]["MENU"].move == true and 1 or 0)
+        frame:SetPos(_G["norisan"]["MENU"].x, _G["norisan"]["MENU"].y)
+        frame:SetEventScript(ui.LBUTTONUP, "norisan_menu_move_drag")
+
+        local norisan_menu_pic = frame:CreateOrGetControl('picture', "norisan_menu_pic", 0, 0, 35, 40)
+        AUTO_CAST(norisan_menu_pic)
+        norisan_menu_pic:SetImage("sysmenu_sys")
+        norisan_menu_pic:SetEnableStretch(1)
+        local notice = _G["norisan"]["MENU"].lang == "Japanese" and "{nl}{ol}右クリック: 設定" or
+                           "{nl}{ol}Right click: Settings"
+        norisan_menu_pic:SetTextTooltip("{ol}Addons Menu" .. notice)
+        norisan_menu_pic:SetEventScript(ui.LBUTTONUP, "norisan_menu_frame_open")
+        norisan_menu_pic:SetEventScript(ui.RBUTTONUP, "norisan_menu_setting_frame")
+
+        frame:ShowWindow(1)
+    end
+
 end
 
 --[[function muteki2_rebuild_CHANGE_COLORTONE(list, control, buff_id, num)
