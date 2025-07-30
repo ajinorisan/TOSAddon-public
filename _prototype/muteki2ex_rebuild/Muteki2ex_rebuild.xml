@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<uiframe name="muteki2ex" x="0" y="0" width="300" height="200" version="2">
+<uiframe name="muteki2ex_rebuild" x="0" y="0" width="300" height="200" version="2">
   <frame snapclient="true" snapframe="true" layout_gravity="center center" margin="0 0 200 0"/>
   <option visible="true" alwaysVisible="true" closebutton="false" useimageitem="true" autoopen="true" hideable="false"/>
   <input moveable="true" moveintitlebar="false" hittestframe="true"/>
