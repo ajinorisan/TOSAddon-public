@@ -16,6 +16,12 @@ function ITEM_POINT_EXTRACTOR_OPEN(frame)
 	local question = GET_CHILD(frame,"question")
 	question:SetTextTooltip(ClMsg(pointName.."_extract_tooltip"));
 	
+	if pointName == "ARCHEOLOGY_COIN" then
+		question:ShowWindow(0);
+	else
+		question:ShowWindow(1);
+	end
+
 	UPDATE_ITEM_POINT_EXTRACTOR_UI(frame)
 	ITEM_POINT_EXTRACTOR_SET_POINT(frame)
 end
@@ -24,14 +30,23 @@ function ITEM_POINT_EXTRACTOR_SET_POINT(frame)
 	local aObj = GetMyAccountObj()
 	local pointName = frame:GetUserValue("POINT_NAME")
 	local totalPoint = GET_CHILD_RECURSIVELY(frame,"totalPoint")
-	local totalValue = TryGetProp(aObj,pointName);
-	totalPoint:SetTextByKey("value",totalValue)
-
 	local addPoint = GET_CHILD_RECURSIVELY(frame,"addPoint")
+	local afterPoint = GET_CHILD_RECURSIVELY(frame,"afterPoint")
+	
+	local totalValue = 0;
 	local addValue = GET_TOTAL_ADD_POINT(frame)
+	
+	totalValue = TryGetProp(aObj,pointName);
+
+	--고고학 주화는 현재 아이템 개수로 출력한다.
+	if pointName == "ARCHEOLOGY_COIN" then
+		local player = GetMyPCObject();
+		totalValue = session.GetInvItemCountByType(11200475);
+	end
+	totalPoint:SetTextByKey("value",totalValue)
+	
 	addPoint:SetTextByKey("value",addValue)
 
-	local afterPoint = GET_CHILD_RECURSIVELY(frame,"afterPoint")
 	afterPoint:SetTextByKey("value",totalValue+addValue)
 	SET_MATERIAL_POINT_INFO_LIST(frame)
 end

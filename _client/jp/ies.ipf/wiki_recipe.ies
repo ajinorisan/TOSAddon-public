@@ -110,6 +110,8 @@ ClassID,WikiPoint,TeachPoint,AutoGet,ClassName,TargetClassName,TargetMapName,Ill
 9042,0,0,0,"R_Premium_boostToken06","R_Premium_boostToken06","","icon_item_recipe_misc1","제작서-x32 경험의 서","Recipe","{#5090ff}{ol}","{/}{/}{/}","WIKIPAGE_ITEM","재료를 만들 수 있는 제작서"
 9043,0,0,0,"R_Dungeon_Key02_NoTrade","R_Dungeon_Key02_NoTrade","","icon_item_recipe_misc1","제작서 - 레전드 레이드 포탈 스톤(거래불가)","Recipe","{#5090ff}{ol}","{/}{/}{/}","WIKIPAGE_ITEM","제작 시 여신의 증표(가비야) : 1 (215개)를 획득할 수 있습니다"
 9044,0,0,0,"R_BlessedStone_Misc","R_BlessedStone_Misc","","icon_item_recipe_misc1","제작서-축복받은 조각 x10","Recipe","{#5090ff}{ol}","{/}{/}{/}","WIKIPAGE_ITEM","재료를 만들 수 있는 제작서"
+9045,0,0,0,"R_Revenge_Potion","R_Revenge_Potion","","icon_item_recipe_misc1","제작서 - 복수의 포션","Recipe","{#5090ff}{ol}","{/}{/}{/}","WIKIPAGE_ITEM","포션을 만들 수 있는 제작서입니다."
+9046,0,0,0,"R_Perfection_Potion","R_Perfection_Potion","","icon_item_recipe_misc1","제작서 - 완벽의 포션","Recipe","{#5090ff}{ol}","{/}{/}{/}","WIKIPAGE_ITEM","포션을 만들 수 있는 제작서입니다."
 10006,10,5,0,"R_SWD01_109","R_SWD01_109","","icon_item_weapon_misc1","제작서-크리스","Recipe","{#5090ff}{ol}","{/}{/}{/}","WIKIPAGE_ITEM","장비를 제작할 수 있는 제작서입니다. 마우스 오른쪽 클릭으로 제작서를 모험일지에 등록할 수 있습니다."
 10008,10,5,0,"R_SWD01_116","R_SWD01_116","","icon_item_weapon_misc1","제작서-모플라","Recipe","{#5090ff}{ol}","{/}{/}{/}","WIKIPAGE_ITEM","장비를 제작할 수 있는 제작서입니다. 마우스 오른쪽 클릭으로 제작서를 모험일지에 등록할 수 있습니다."
 10010,10,5,0,"R_SWD02_101","R_SWD02_101","","icon_item_weapon_misc3","제작서-판토 소드","Recipe","{#5090ff}{ol}","{/}{/}{/}","WIKIPAGE_ITEM","장비를 제작할 수 있는 제작서입니다. 마우스 오른쪽 클릭으로 제작서를 모험일지에 등록할 수 있습니다."

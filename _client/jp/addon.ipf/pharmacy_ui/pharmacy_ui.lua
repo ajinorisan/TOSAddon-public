@@ -3,6 +3,9 @@ function PHARMACY_UI_ON_INIT(addon, frame)
     addon:RegisterMsg('PHARMACY_DISPENSE_FAILED', 'PHARMACY_UI_FAILED_ACTION')
     addon:RegisterMsg('PHARMACY_NEUTRALIZE_COMPLETE', 'PHARMACY_UI_COMPLETE_NEUTRALIZE')
 	addon:RegisterMsg('ON_UI_TUTORIAL_NEXT_STEP', 'PHARMACY_UI_TUTORIAL_CHECK')
+    addon:RegisterMsg('PHARMACY_END_WITH_CLOSE', 'ON_PHARMACY_END_WITH_CLOSE')
+    
+    
 end
 
 local function get_slot_index(x, y, size)
@@ -76,6 +79,7 @@ function PHARMACY_UI_OPEN(guid)
     
     local frame = ui.GetFrame('pharmacy_ui')
     if frame == nil then return end
+    local EndBtn = GET_CHILD_RECURSIVELY(frame, "EndBtn")
 
     local recipe_obj = GetIES(recipe:GetObject())
     local size = TryGetProp(recipe_obj, 'RecipeSize', 0)
@@ -87,6 +91,12 @@ function PHARMACY_UI_OPEN(guid)
     frame:SetUserValue('CUR_POS_X', 'None')
     frame:SetUserValue('CUR_POS_Y', 'None')
     frame:ShowWindow(1)
+
+    if use_lv == 470 then
+        EndBtn:ShowWindow(0)
+    else
+        EndBtn:ShowWindow(1)
+    end
 end
 
 function OPEN_PHARMACY_UI(frame)
@@ -178,6 +188,8 @@ function CLOSE_PHARMACY_UI(frame)
     end
     
     frame:StopUpdateScript('PHARMACY_UI_GRINDER_RUN')
+	frame:StopUpdateScript('MOVING_FRAME_SCRIPT')
+
     PHARMACY_UI_HOLD_ACTION(frame, 1)
     TUTORIAL_TEXT_CLOSE()
 
@@ -187,6 +199,7 @@ function CLOSE_PHARMACY_UI(frame)
 
         control.EnableControl(1);
     end
+
 end
 
 function PHARMACY_UI_SET_GOAL_AND_HURDLE(frame)
@@ -289,7 +302,7 @@ local function make_material_list_by_grade(frame)
         local obj = GetIES(inv_item:GetObject())
         local mat_type = TryGetProp(obj, 'StringArg2', 'None')
         local mat_cls = GetClass('pharmacy_material_type', mat_type)
-        if mat_cls ~= nil and TryGetProp(obj, 'StringArg', 'None') == strArg and TryGetProp(obj, 'NumberArg1', 0) == lv then
+        if mat_cls ~= nil and TryGetProp(obj, 'StringArg', 'None') == strArg and (TryGetProp(obj, 'NumberArg1', 0) == lv or TryGetProp(obj, 'NumberArg1', 0) == 470) then
             table.insert(list[1], inv_item:GetIESID())
             
             local poison = TryGetProp(mat_cls, 'PoisonPoint', 0)
@@ -394,7 +407,7 @@ function PHARMACY_UI_SET_NEUTRALIZER_LIST(frame)
     local inv_item_list = session.GetInvItemList()
     FOR_EACH_INVENTORY(inv_item_list, function(inv_item_list, inv_item, list, lv)
         local obj = GetIES(inv_item:GetObject())
-        if TryGetProp(obj, 'StringArg', 'None') == strArg and TryGetProp(obj, 'NumberArg1', 0) == lv then
+        if TryGetProp(obj, 'StringArg', 'None') == strArg and (TryGetProp(obj, 'NumberArg1', 0) == lv or TryGetProp(obj, 'NumberArg1', 0) == 470) then
             table.insert(list, inv_item:GetIESID())
         end
     end, false, neutralizer_list, use_lv)
@@ -702,6 +715,8 @@ function PHARMACY_UI_CLICK_DISPENSE_BTN(parent, ctrl)
     end
 
     PHARMACY_UI_GRINDER_CAP_CLOSE(frame)
+	frame:StopUpdateScript('MOVING_FRAME_SCRIPT')
+
 end
 
 function PHARMACY_UI_REQ_DISPENSE(parent, ctrl)
@@ -1012,6 +1027,11 @@ function PHARMACY_UI_GRINDER_CAP_OPEN_COMPLETE(frame)
     local dispense_btn = GET_CHILD_RECURSIVELY(frame, 'dispense_btn')
     dispense_btn:SetEnable(1)
     dispense_btn:ShowWindow(1)
+    dispense_btn:SetColorTone("FF3CAF6F")
+    dispense_btn:SetOffset(0, 29)
+    print(dispense_btn:GetOriginalX() , dispense_btn:GetOriginalY())
+
+	frame:RunUpdateScript('MOVING_FRAME_SCRIPT', 0, 0, 0, 1)
 end
 
 function PHARMACY_UI_GRINDER_CAP_CLOSE(frame)
@@ -1374,25 +1394,42 @@ function PHARMACY_UI_EXTRACTOR_START()
 end
 
 function PHARAMCY_UI_EXRACTOR_RUN(frame, elapsedTime)
+    local use_lv = frame:GetUserIValue('RECIPE_LV')
+
     local cur_time = elapsedTime
     local valve_time = shared_item_pharmacy.get_valve_speed()
     local fluid_time = shared_item_pharmacy.get_fluid_speed()
     local part_time = fluid_time * 2 / 3
     local start_term = fluid_time / 9
 
-    PHARMACY_UI_EXTRACTOR_VALVE_RUN(frame, cur_time, valve_time)
+    if use_lv == 470 then
+        PHARMACY_UI_EXTRACTOR_VALVE_RUN(frame, cur_time, valve_time)
 
-    cur_time = cur_time - valve_time
-    PHARMACY_UI_EXTRACTOR_FUNNEL_RUN(frame, cur_time, part_time, start_term)
+        cur_time = cur_time - valve_time
+        PHARMACY_UI_EXTRACTOR_FUNNEL_RUN(frame, cur_time, part_time, start_term)
+    
+        cur_time = cur_time - start_term
+        PHARMACY_UI_EXTRACTOR_FILTER_RUN(frame, cur_time, part_time, start_term)
+    
+        cur_time = cur_time - start_term
+        PHARMACY_UI_EXTRACTOR_PIPE_RUN(frame, cur_time, part_time, start_term)
+    
+        cur_time = cur_time - start_term
+        PHARMACY_UI_EXTRACTOR_FLASK_RUN(frame, cur_time, part_time)    
+    end
+    -- PHARMACY_UI_EXTRACTOR_VALVE_RUN(frame, cur_time, valve_time)
 
-    cur_time = cur_time - start_term
-    PHARMACY_UI_EXTRACTOR_FILTER_RUN(frame, cur_time, part_time, start_term)
+    -- cur_time = cur_time - valve_time
+    -- PHARMACY_UI_EXTRACTOR_FUNNEL_RUN(frame, cur_time, part_time, start_term)
 
-    cur_time = cur_time - start_term
-    PHARMACY_UI_EXTRACTOR_PIPE_RUN(frame, cur_time, part_time, start_term)
+    -- cur_time = cur_time - start_term
+    -- PHARMACY_UI_EXTRACTOR_FILTER_RUN(frame, cur_time, part_time, start_term)
 
-    cur_time = cur_time - start_term
-    PHARMACY_UI_EXTRACTOR_FLASK_RUN(frame, cur_time, part_time)
+    -- cur_time = cur_time - start_term
+    -- PHARMACY_UI_EXTRACTOR_PIPE_RUN(frame, cur_time, part_time, start_term)
+
+    -- cur_time = cur_time - start_term
+    -- PHARMACY_UI_EXTRACTOR_FLASK_RUN(frame, cur_time, part_time)
 
     if elapsedTime >= valve_time + fluid_time then
         ReserveScript('PHARMACY_UI_REWARD_POPUP()', 0.5)
@@ -1779,7 +1816,10 @@ function PHARMACY_UI_REWARD_POPUP()
     PHARMACY_UI_HOLD_ACTION(frame, 1)
     local reward_name = frame:GetUserValue('REWARD_NAME')
     local reward_count = frame:GetUserIValue('REWARD_COUNT')
-    PHARMACY_EXTRACT_FULLDARK_UI_OPEN(reward_name, reward_count)
+    local use_lv = frame:GetUserIValue('RECIPE_LV')
+    if use_lv == 470 then
+        PHARMACY_EXTRACT_FULLDARK_UI_OPEN(reward_name, reward_count)
+    end
 
     local tuto_prop = frame:GetUserValue('TUTO_PROP')
     local tuto_step = GetUITutoProg(tuto_prop)
@@ -1889,3 +1929,37 @@ end
 function PHARMACY_UI_HELP_POP(frame)
 	help.RequestAddHelp('TUTO_PHARMACY_1')
 end
+
+function PRESS_COMPLETE_BTN(frame, ctrl, argStr, argNum)
+
+    local yesscp = string.format('EXEC_PHARMACY_END()')
+    local msgbox = ui.MsgBox(ScpArgMsg('IsCompletePharamcy'), yesscp, "None")
+
+end
+
+function EXEC_PHARMACY_END()
+    local frame = ui.GetFrame('pharmacy_ui')
+    local recipe_guid = frame:GetUserValue('RECIPE_GUID')
+
+    session.ResetItemList()
+    session.AddItemID(recipe_guid, 1)
+    session.AddItemID(mat_guid, 1)
+    local resultlist = session.GetItemIDList()
+    item.DialogTransaction('PHARMACY_END', resultlist)
+end 
+
+function ON_PHARMACY_END_WITH_CLOSE(frame)
+    CLOSE_PHARMACY_UI(frame)
+end
+
+function MOVING_FRAME_SCRIPT(frame, runtime, ticktime)    
+    local dispense_btn = GET_CHILD_RECURSIVELY(frame, 'dispense_btn')
+    local runpos = runtime % 0.8;
+    if runpos > 0.4 then
+        dispense_btn:Move(1, 0)
+    else
+        dispense_btn:Move(-1, 0)
+    end
+    return 1;
+end
+-- dispense_btn:Move(10, 0)

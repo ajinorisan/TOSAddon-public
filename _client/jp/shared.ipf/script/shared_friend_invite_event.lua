@@ -4,7 +4,9 @@ local reward_list = nil
 
 local shared_friend_invite_table = {   
     START_TIME = '2025-04-15 00:00:00',
-    END_TIME = '2025-05-27 00:00:00'
+    END_TIME = '2025-06-04 10:00:00',  
+    PAPAYA_START_TIME = '2022-04-15 00:00:00',
+    PAPAYA_END_TIME = '2022-05-27 00:00:00'
 }
 
 -- 이벤트 종료시에 반환 값을 None으로 한다. (20240812)
@@ -41,5 +43,10 @@ function get_make_invite_event_reward(num)
 end
 
 function is_between_friend_invite_time()
-    return date_time.is_between_time(shared_friend_invite_table.START_TIME, shared_friend_invite_table.END_TIME);
+    local nation = GET_POPOBOOST_SERVER()
+    if nation == 1 then
+        return date_time.is_between_time(shared_friend_invite_table.PAPAYA_START_TIME, shared_friend_invite_table.PAPAYA_END_TIME);
+    else
+        return date_time.is_between_time(shared_friend_invite_table.START_TIME, shared_friend_invite_table.END_TIME);
+    end
 end

@@ -177,7 +177,8 @@ end
 
 make_shared_upgrade_acc_table()
 
-shared_upgrade_acc.is_valid_item = function(item)
+-- 무기/방어구/악세 조건 동일
+shared_upgrade_acc.is_valid_item = function(item)    
     if TryGetProp(item, 'EnableUpgrade', 'None') ~= 'YES' then
         return false, 'NotValidItem'
     end

@@ -893,7 +893,7 @@ function make_item_option_with_range(item)
 			local name = pair[1]
 			local min = tonumber(pair[2])
 			local max = tonumber(pair[3])
-			local txt = string.format(' - %s[%d-%d]', ClMsg(name), min, max)
+			local txt = string.format(' - %s[%s-%s]', ClMsg(name), GET_COMMAED_STRING(min), GET_COMMAED_STRING(max))
 			desc = desc .. txt .. '{nl}'
 		end
 	end
@@ -910,8 +910,8 @@ function use_option_scroll_tooltip(item)
 		for i = 1, #token do
 			local pair = StringSplit(token[i], '/')
 			local name = pair[1]
-			local value = pair[2]			
-			local txt = string.format(' - %s %d', ClMsg(name), value)
+			local value = tonumber(pair[2])
+			local txt = string.format(' - %s %s', ClMsg(name), GET_COMMAED_STRING(value))
 			desc = desc .. txt .. '{nl}'
 		end
 	end

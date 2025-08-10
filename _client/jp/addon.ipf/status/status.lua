@@ -1401,34 +1401,33 @@ function STATUS_ATTRIBUTE_VALUE_RANGE_NEW(pc, opc, frame, gboxctrl, attributeNam
         value = 0;
     else
         grayStyle = 0;
-        value = string.format("%d~%d", minVal, maxVal);
+        value = string.format("%s~%s", GET_COMMAED_STRING(minVal), GET_COMMAED_STRING(maxVal));
     end
-
 
     if opc ~= nil and opc[maxName] ~= maxVal then
         local colBefore = frame:GetUserConfig("BEFORE_STAT_COLOR");
         local colStr = frame:GetUserConfig("ADD_STAT_COLOR")
 
         local beforeValue = value;
-        beforeValue = string.format("%d~%d", opc[minName], opc[maxName]);
+        beforeValue = string.format("%s~%s", GET_COMMAED_STRING(opc[minName]), GET_COMMAED_STRING(opc[maxName]));
 
         if beforeValue ~= value then
-            stat:SetText(colBefore .. beforeValue .. ScpArgMsg("Auto_{/}__{/}") .. colStr .. value);
+            stat:SetText(colBefore .. GET_COMMAED_STRING(beforeValue) .. ScpArgMsg("Auto_{/}__{/}") .. colStr .. GET_COMMAED_STRING(value));
         else
-            stat:SetText(value);
+            stat:SetText(GET_COMMAED_STRING(value));
         end
     else
-        stat:SetText(value);
+        stat:SetText(GET_COMMAED_STRING(value));
     end
     
     if GetExProp(pc, 'event_atk') > 0 then
         value = GetExProp(pc, 'event_atk')
         if minName == 'MINPATK' or minName == 'MINMATK' then
-            stat:SetText(value);
+            stat:SetText(GET_COMMAED_STRING(value));
         end
 
         if minName == 'MAXPATK' or minName == 'MAXMATK' then
-            stat:SetText(value);
+            stat:SetText(GET_COMMAED_STRING(value));
         end
     end
     
@@ -1501,7 +1500,7 @@ function STATUS_ITEM_GEAR_SCORE(pc, opc, frame, gboxctrl, y)
     title:SetUseOrifaceRect(true)
     stat:SetUseOrifaceRect(true)
 
-    stat:SetText('{@sti8}' .. score);
+    stat:SetText('{@sti8}' .. GET_COMMAED_STRING(score));
 	
     if title:GetWidth() >= 350 then
 		title:AdjustFontSizeByWidth(350)
@@ -1732,7 +1731,6 @@ function STATUS_ATTRIBUTE_VALUE_NEW(pc, opc, frame, gboxctrl, attributeName, y)
         local colStr = frame:GetUserConfig("ADD_STAT_COLOR")
 
         local beforeGray, beforeValue = SET_VALUE_ZERO(opc[attributeName]);
-    
         if beforeValue ~= value then
             stat:SetText(colBefore .. beforeValue .. ScpArgMsg("Auto_{/}__{/}") .. colStr .. value);            
         else
@@ -1771,7 +1769,7 @@ function get_percent_format(attribute_name, value)
     local func = _G[func_name]
     
     if func == nil then
-        return value
+        return GET_COMMAED_STRING(value)
     end
 
     value = func(value)

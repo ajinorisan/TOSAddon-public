@@ -9,13 +9,14 @@
 	<option closebutton="false"/>
 	<sound opensound="window_mohum_open" closesound="window_mohum_close"/>
 	<script OpenScp="OPEN_PHARMACY_UI" CloseScp="CLOSE_PHARMACY_UI"/>
-	<userconfig POS_IMG="alchemy_chessman" GOAL_IMG="alchemy_question_mark" HURDLE_IMG="alchemy_question_obstacle" MOVE_IMG="alchemy_partition_move" EMPTY_POTION_IMG="alchemy_neutralization_portion" REWARD_POTION_IMG="alchemy_complete_portion" NEUTRALIZE_POTION_IMG="alchemy_neutralization_toxicity" MAT_REGISTER_SOUND="sys_pharmacy_grinder_equip" WHEEL_START_SOUND="sys_pharmacy_grinder_button" WHEEL_RUN_SOUND="sys_pharmacy_grinder_loop" MOVE_SOUND="sys_mouseover_percussion_1" ARRIVED_SOUND="exp_slot1_shot" EXTRACTOR_RUN_SOUND="sys_pharmacy_grinder_water"/>
+	<userconfig POS_IMG="alchemy_chessman" GOAL_IMG="alchemy_reward_arrow" HURDLE_IMG="alchemy_question_obstacle" MOVE_IMG="alchemy_partition_move" EMPTY_POTION_IMG="alchemy_neutralization_portion" REWARD_POTION_IMG="alchemy_complete_portion" NEUTRALIZE_POTION_IMG="alchemy_neutralization_toxicity" MAT_REGISTER_SOUND="sys_pharmacy_grinder_equip" WHEEL_START_SOUND="sys_pharmacy_grinder_button" WHEEL_RUN_SOUND="sys_pharmacy_grinder_loop" MOVE_SOUND="sys_mouseover_percussion_1" ARRIVED_SOUND="exp_slot1_shot" EXTRACTOR_RUN_SOUND="sys_pharmacy_grinder_water"/>
 	<controls>
 	<!-- head -->
 		<groupbox name="bg_main" rect="0 0 1790 852" margin="0 0 0 0" layout_gravity="center top" draw="true" hittestbox="false" resizebyparent="false" resizebyresolution="false" image="alchemy_notebg" skin="None"/>
 		<button name="close" rect="0 0 44 44" margin="0 5 85 0" layout_gravity="right top" LBtnUpScp="CLOSE_UI" clicksound="button_click_big" image="testclose_button" oversound="button_over" texttooltip="{@st59}비약 연성술 창을 닫습니다{/}"/>
 		<button name="help_btn" rect="0 0 44 44" margin="0 5 120 0" layout_gravity="right top" LBtnUpScp="PHARMACY_UI_HELP_POP" clicksound="button_click_big" image="testquesten_button" oversound="button_over" texttooltip="{@st59}비약 연성술 도움말을 보려면 클릭하세요{/}"/>
 		<groupbox name="main_gb" rect="0 0 1585 762" margin="90 30 0 0" layout_gravity="left top" draw="false" resizebyresolution="false" scrollbar="false" skin="test_weight_skin"/>
+		<button name="EndBtn" rect="0 0 200 50" margin="0 0 0 65" layout_gravity="center bottom" skin="test_red_button" caption="{@st66d}조제 종료" LBtnUpScp="PRESS_COMPLETE_BTN"/>
 		<!-- map and count -->
 		<groupbox name="map_count_bg" parent="main_gb" rect="0 0 630 716" margin="97 25 0 0" layout_gravity="left top" draw="true" resizebyresolution="false" scrollbar="false" skin="None" image="alchemy_parchment_bg"/>
 		<richtext name="recipe_remaintime" parent="map_count_bg" margin="0 40 0 0" rect="0 0 120 24" format="{@st43}{s18}남은 시간 ({@st47}{s18}%s{/}{/}){/}{/}" param1="value" param1_def="0" textalign="left top" resizebytext="true" spacey="0" maxwidth="0" fixwidth="false" updateparent="false" drawbackground="false" slideshow="false" layout_gravity="center top"/>

@@ -55,6 +55,8 @@ end
 shared_archeology.get_cost = function(lv)
     if lv == 470 then
         return 'Vibora_misc_Lv2', 5
+    elseif lv == 530 then
+        return 'Vibora_misc_Lv2', 10
     end
 
     return nil

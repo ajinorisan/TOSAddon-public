@@ -1019,6 +1019,8 @@ function EARTH_TOWER_INIT(frame, shopType)
     elseif string.find(shopType, 'Archeology_') ~= nil then
         title:SetText('{@st43}'..ScpArgMsg(shopType));
         close:SetTextTooltip(ScpArgMsg('ui_close'));
+
+        pointbuyBtn:ShowWindow(1)
     elseif shopType == "EVENT_2312_8TH_ANNIVERSARY" then
         if resetDatetime ~= nil then
             resetDatetime:SetText(ClMsg('EVENT_2312_8TH_SNIGO_SHOP'))
@@ -2366,6 +2368,9 @@ function EARTHTOWERSHOP_POINT_BUY_OPEN()
     elseif string.find(shopType, 'Certificate') ~= nil then
         ui.CloseFrame('earthtowershop')
         control.CustomCommand(pre_season_coin_shop[shopType],0);    
+    elseif shopType == "Archeology_Lv470" or shopType =="Archeology_Lv530" then
+        REQ_ITEM_POINT_EXTRACTOR_OPEN("ARCHEOLOGY_COIN")
+        ui.GetFrame('item_point_extractor'):SetMargin(575, 5, 0, 0)
     end
 end
 

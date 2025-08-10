@@ -37,7 +37,7 @@ function BLESSED_CUBE_CLOSE()
 end
 
 function BELSEED_CUBE_COUNT_UPDATE(frame)
-    local nation = config.GetServiceNation();
+    local nation = GET_POPOBOOST_SERVER();
 
     local cntBox = GET_CHILD_RECURSIVELY(frame, 'cntBox');
     local gachaCnt = GET_CHILD_RECURSIVELY(frame, 'gachaCnt');
@@ -46,7 +46,11 @@ function BELSEED_CUBE_COUNT_UPDATE(frame)
     local count =  TryGetProp(acc, "PAPAYA_BLESSED_GACHA_125284", -1);
 
 
+    if nation == 1 then
+        cntBox:ShowWindow(1)
+    else
         cntBox:ShowWindow(0)
+    end
 
     gachaCnt:SetTextByKey("count",count);
 end

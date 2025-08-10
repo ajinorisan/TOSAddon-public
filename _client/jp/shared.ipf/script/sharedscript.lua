@@ -2628,6 +2628,10 @@ function GET_COMMAED_STRING(num)
         return "0";
     end
     local retStr = "";
+    if tonumber(num) == nil then
+        -- 숫자가 아닌경우 그냥 리턴
+        return num;
+    end
     num = tonumber(num);
     if num >= 0 then
         retStr = GetCommaedString(num);
@@ -3573,6 +3577,114 @@ function JOB_BONEMANCER_C_PRE_CHECK(pc, jobCount)
     return 'NO'
 end
 
+function JOB_BONEMANCER_W_PRE_CHECK(pc, jobCount)
+    local aObj = nil
+    if IsServerSection() == 0 then
+        aObj = GetMyAccountObj();
+    else
+        aObj = GetAccountObj(pc);
+    end
+    
+    if aObj ~= nil then
+        local value = TryGetProp(aObj, 'UnlockQuest_Char2_27', 0)
+        if value == 1 then
+            return 'YES'
+        end
+    end
+
+    return 'NO'
+end
+
+function JOB_BLITZHUNTER_A_PRE_CHECK(pc, jobCount)
+    local aObj = nil
+    if IsServerSection() == 0 then
+        aObj = GetMyAccountObj();
+    else
+        aObj = GetAccountObj(pc);
+    end
+    
+    if aObj ~= nil then
+        local value = TryGetProp(aObj, 'UnlockQuest_Char3_27', 0)
+        if value == 1 then
+            return 'YES'
+        end
+    end
+
+    return 'NO'
+end
+
+function JOB_BLITZHUNTER_T_PRE_CHECK(pc, jobCount)
+    local aObj = nil
+    if IsServerSection() == 0 then
+        aObj = GetMyAccountObj();
+    else
+        aObj = GetAccountObj(pc);
+    end
+    
+    if aObj ~= nil then
+        local value = TryGetProp(aObj, 'UnlockQuest_Char5_21', 0)
+        if value == 1 then
+            return 'YES'
+        end
+    end
+
+    return 'NO'
+end
+
+function JOB_AETHERBLADER_C_PRE_CHECK(pc, jobCount)
+    local aObj = nil
+    if IsServerSection() == 0 then
+        aObj = GetMyAccountObj();
+    else
+        aObj = GetAccountObj(pc);
+    end
+    
+    if aObj ~= nil then
+        local value = TryGetProp(aObj, 'UnlockQuest_Char4_26', 0)
+        if value == 1 then
+            return 'YES'
+        end
+    end
+
+    return 'NO'
+end
+
+function JOB_AETHERBLADER_T_PRE_CHECK(pc, jobCount)
+    local aObj = nil
+    if IsServerSection() == 0 then
+        aObj = GetMyAccountObj();
+    else
+        aObj = GetAccountObj(pc);
+    end
+    
+    if aObj ~= nil then
+        local value = TryGetProp(aObj, 'UnlockQuest_Char5_22', 0)
+        if value == 1 then
+            return 'YES'
+        end
+    end
+
+    return 'NO'
+end
+
+function JOB_AETHERBLADER_W_PRE_CHECK(pc, jobCount)
+    local aObj = nil
+    if IsServerSection() == 0 then
+        aObj = GetMyAccountObj();
+    else
+        aObj = GetAccountObj(pc);
+    end
+    
+    if aObj ~= nil then
+        local value = TryGetProp(aObj, 'UnlockQuest_Char2_28', 0)
+        if value == 1 then
+            return 'YES'
+        end
+    end
+
+    return 'NO'
+end
+
 function JOB_SPEARMASTER_PRE_CHECK(pc, jobCount)
     local aObj
     if IsServerSection() == 0 then
@@ -4090,16 +4202,6 @@ function GET_AUTO_MEMBER_JOIN_GUILD_IDX(groupid, nation)
         elseif groupid == 3002 then
             return '1325061835325512'
         end
-    elseif nation == 'GLOBAL_JP' then
-        if groupid == 1202 then --사내 JPN
-            return '32461362823197'
-        elseif groupid == 1201 then --사내 JPN_LIVE
-            return '820338753567'
-        elseif groupid == 1007 then --라다
-            return '1295027129097010'
-        elseif groupid == 1008 then --달리아
-            return '1294769431133037'
-        end
     elseif nation == 'GLOBAL' then
         if groupid == 1201 then --사내 STM
             return '103371272880147'
@@ -4114,8 +4216,13 @@ function GET_AUTO_MEMBER_JOIN_GUILD_IDX(groupid, nation)
         elseif groupid == 1005 then
             return '578656648822807' 
         end    
+    elseif nation == 'PAPAYA' then
+        if groupid == 8001 then --베타 서버
+            return '559458145009985'
+        elseif groupid == 1002 then --사내 JPN_LIVE
+            return '1612240528618621'
+        end
     end
-
     return "0";
 end
 
@@ -4272,6 +4379,10 @@ function ENABLE_WARP_CHECK(pc)
 	if IsBuffApplied(pc, 'BountyHunt_BUFF') == 'YES' then
 		return false;
 	end
+
+    if IsBuffApplied(pc, 'Buff_GoldMolaMola_Battle') == 'YES' then
+        return false
+    end
 
     -- DisableWarp KeywordCheck
     local zone_name = "None";
@@ -4658,181 +4769,64 @@ function CHECK_FISHING_AND_COLONY_RESTRICT_TIME(self)
     return false;
 end
 
-
--- 봉쇄전, 베르니케, 주간 보스 레이드, 델무어 격전지 & 여신의 전언 순례자
--- @Desc : 국가별로 임시 이용 제한 요청 있을 경우 time 수정 진행 한다.
-function CHECK_INDUN_CONTENTS_RESTRICT_TIME_EACH_NATION(self)
-     -- 일본 서버통합으로 임시 탁본 불가 처리 start--
-    local nation = GetServerNation()
-    if nation ==  "GLOBAL_JP" then    
-        if date_time.is_between_time("2023-02-13 00:00:01", "2023-02-16 00:00:00") then
-            return true
-        end
-    elseif nation == "GLOBAL" then
-        -- if date_time.is_between_time("2023-02-06 00:01:00", "2023-02-15 23:59:00") then
-        --     return true
-        -- end
-    elseif nation == "TAIWAN" then
-        -- if date_time.is_between_time("2023-02-06 00:01:00", "2023-02-15 23:59:00") then
-        --     return true
-        -- end
-    end
-    return false
-end
-
--- 봉쇄전, 베르니케, 영웅담, 주간 보스 레이드, 델무어 격전지 & 여신의 전언 순례자
-function CHECK_INDUN_CONTENTS_RESTRICT_TIME(self)
-    local time = nil;
-    if IsServerSection() == 1 then time = GetDBTime();
-    else time = geTime.GetServerSystemTime(); end
-    if time ~= nil then
-        local month = time.wMonth;
-        local day = time.wDay;
-        local hour = time.wHour;
-        if IS_SEASON_SERVER(self) == "YES" then
-            if day >= 25 and day < 28 then
-                return true;
-            end
-            if day == 28 and hour < 12 then
-                return true;
-            end
-        else
-            if month == 7 then
-                if day >= 11 and day < 14 then
-                    return true;
-                end
-                if day == 14 and hour < 12 then
-                    return true;
-                end
-            end
-        end
-    end
-    return false;
-end
-
--- 주간 보스 레이드, 봉쇄전 입장 제한
-function CHECK_INDUN_WEEKLY_BLOCKADE_RESTRICT_TIME()
-    if IsServerSection() == 1 then
-        local time = GetDBTime();
-        if time ~= nil then
-            local month = time.wMonth;
-            local day = time.wDay;
-            local hour = time.wHour;
-            if month == 3 then
-                if day >= 6 and day <= 9 then
-                    return true;
-                end
-            end
-        end
-    end
-    return false;
-end
-
 -- 트오세 W 통합 제한 - 봉쇄전
 function CHECK_TOSW_BLOCKADE_RESTRICT_TIME(event_id)
-    --[[ if event_id == 503 or event_id == 504 or event_id == 505 then
-        return CHECK_TOSW_WEEKLY_CONTENTS_RESTRICT_TIME();        
-    end ]]
+    local nation = GetServerNation();
+
+    if CHECK_TOS_WEEKLY_CONTENTS_RESTRICT_TIME() == true then
+        return true;
+    end
 
     return false;
 end
 
+--미사용
 -- 트오세 W - 낚시, 콜로니전
 function CHECK_TOSW_FISHING_AND_COLONY_RESTRICT_TIME()
-    --[[ local time = nil;
-    if IsServerSection() == 1 then time = GetDBTime();
-    else time = geTime.GetServerSystemTime(); end
-    if time ~= nil then
-        return CHECK_TOSW_RESTRICT_TIME();
-    end ]]
     return false;
 end
 
--- 트오세 W - 주간 보스 레이드 제한.
-function CHECK_TOSW_WEEKLY_BOSS_RAID_RESTRICT_TIME()
-    return CHECK_TOSW_WEEKLY_CONTENTS_RESTRICT_TIME();
-end
+-- 트오세 W - 낚시, 팀배틀리그
+function CHECK_TOSW_FISHING_AND_TBL_RESTRICT_TIME()
+    local nation = GET_POPOBOOST_SERVER();
+    local start = '2023-02-17 00:00:00';
+    local finish = '2023-02-18 10:00:00';
 
-
--- 트오세 W - 베르니케 파편던전 PreCheck 에서 사용.
-function CHECK_TOSW_WEEKLY_CONTENTS_RESTRICT_TIME()
-    local start = '2025-02-17 00:00:00';
-    local finish = '2025-02-18 10:00:00';
-    local nation = GetServerNation();
-    if nation == "PAPAYA" then
-        start = '2024-10-07 00:00:00';
-        finish = '2024-10-11 10:00:00';
+    if nation == 3 then
+        start = '2025-07-07 00:00:00';
+        finish = '2025-07-15 23:59:59'
     end
+
     if date_time.is_between_time(start, finish) == true then
         return true;
     end
     return false;
 end
 
--- 트오세 W 통합 제한
-function CHECK_TOSW_RESTRICT_TIME()
-    --[[ local time;
-    if IsServerSection() == 1 then
-        time = GetDBTime();
-    elseif IsServerSection() ~= 1 then
-        time = geTime.GetServerSystemTime(); 
+-- 트오세 주보레, 봉쇄전, 길드미션 막기
+function CHECK_TOS_WEEKLY_CONTENTS_RESTRICT_TIME()
+    local nation = GET_POPOBOOST_SERVER();
+
+    local start = '2025-02-17 00:00:00';
+    local finish = '2025-02-18 10:00:00';
+    if nation == 1 then
+        start = '2025-03-03 00:00:00';
+        finish = '2025-03-05 10:00:00';
     end
 
-    if time ~= nil then
-        local month = time.wMonth;
-        if month == 9 then
-            local day = time.wDay;
-            local hour = time.wHour;
-            local nation = GetServerNation();
-            if nation == "GLOBAL" then
-                if day >= 4 and day <= 5 then
-                    if day == 5 and hour > 11 then
-                        return false;
-                    end
-                    return true;
-                end
-            elseif nation == "GLOBAL_JP" then
-                if day >= 4 and day <= 5 then
-                    if day == 5 and hour > 11 then
-                        return false;
-                    end
-                    return true;
-                end
-            elseif nation == "GLOBAL_KOR" then
-                if day >= 4 and day <= 5 then
-                    if day == 5 and hour > 11 then
-                        return false;
-                    end
-                    return true;
-                end
-            end
-        end
-    end
-    return false; ]]
+    if nation == 2 then
+        start = '2025-03-03 00:00:00';
+        finish = '2025-03-11 10:00:00';
 end
 
--- 트오세 W - 팀 배틀리그
-function CHECK_TOSW_TEAM_BATTLE_LEAGUE_RESTRICT_TIME()
-    --[[ local time;
-    if IsServerSection() == 1 then
-        time = GetDBTime();
-    elseif IsServerSection() ~= 1 then
-        time = geTime.GetServerSystemTime(); 
+    if nation == 3 then
+        start = '2025-07-14 00:00:00';
+        finish = '2025-07-15 23:59:59';
     end
 
-    if time ~= nil then
-        local month = time.wMonth;
-        if month == 9 then
-            local day = time.wDay;
-            local hour = time.wHour;
-            if day >= 4 and day <= 5 then
-                if day == 5 and hour > 11 then
-                    return false;
+    if date_time.is_between_time(start, finish) == true then
+                    return true;
                 end
-                return true;
-            end
-        end
-    end ]]
     return false;
 end
 

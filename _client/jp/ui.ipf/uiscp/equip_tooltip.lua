@@ -1240,7 +1240,7 @@ function DRAW_EQUIP_RANDOM_ICHOR(invitem, property_gbox, inner_yPos)
 				end
 				
 				if max > 0 and max > current_value and (keyboard.IsKeyPressed('LALT') == 1 or keyboard.IsKeyDown('LALT') == 1) then
-					strInfo = strInfo .. ' {@st66b}{#e28500}{ol}(' .. max .. ')'				
+					strInfo = strInfo .. ' {@st66b}{#e28500}{ol}(' .. GET_COMMAED_STRING(max) .. ')'				
 				end
 			else
 				local current_value = propItem[propValue]
@@ -3625,7 +3625,7 @@ function DRAW_EQUIP_RANDOM_EARRING_OPTION(invitem, property_gbox, inner_yPos)
 				end
 				
 				if max ~= nil and max ~= current_value and (keyboard.IsKeyPressed('LALT') == 1 or keyboard.IsKeyDown('LALT') == 1) then
-					strInfo = strInfo .. ' {@st66b}{#e28500}{ol}(' .. max .. ')'					
+					strInfo = strInfo .. ' {@st66b}{#e28500}{ol}(' .. GET_COMMAED_STRING(max) .. ')'					
 				end
 			else
 				local current_value = propItem[propValue]
@@ -3664,7 +3664,7 @@ function DRAW_EQUIP_SPECIAL_EARRING_OPTION(invitem, property_gbox, inner_yPos)
 			local lv = TryGetProp(invitem, 'EarringSpecialOptionLevelValue_' .. i, 0)
 			local text = ScpArgMsg('EarringSpecialOption{ctrl}{rank}{lv}', 'ctrl', ctrl, 'rank', rank, 'lv', lv)
 			if max ~= nil and lv < max and (keyboard.IsKeyPressed('LALT') == 1 or keyboard.IsKeyDown('LALT') == 1) then
-				text = text .. ' {@st66b}{#e28500}{ol}(' .. max .. ')'				
+				text = text .. ' {@st66b}{#e28500}{ol}(' .. GET_COMMAED_STRING(max) .. ')'				
 			end
 			inner_yPos = ADD_ITEM_PROPERTY_TEXT(property_gbox, text, 0, inner_yPos);			
 		end
@@ -3786,7 +3786,7 @@ function DRAW_EQUIP_GODDESS_ICOR(invitem, property_gbox, inner_yPos)
 				end
 				
 				if max > current_value and (keyboard.IsKeyPressed('LALT') == 1 or keyboard.IsKeyDown('LALT') == 1) then
-					strInfo = strInfo .. ' {@st66b}{#e28500}{ol}(' .. max .. ')'				
+					strInfo = strInfo .. ' {@st66b}{#e28500}{ol}(' .. GET_COMMAED_STRING(max) .. ')'				
 				end
 			else
 				local current_value = propItem[propValue]
@@ -3895,7 +3895,7 @@ function DRAW_EQUIP_BELT(invitem, property_gbox, inner_yPos)
 				end
 				
 				if i <= 4 and max ~= nil and max ~= current_value and (keyboard.IsKeyPressed('LALT') == 1 or keyboard.IsKeyDown('LALT') == 1) then
-					strInfo = strInfo .. ' {@st66b}{#e28500}{ol}(' .. max .. ')'					
+					strInfo = strInfo .. ' {@st66b}{#e28500}{ol}(' .. GET_COMMAED_STRING(max) .. ')'					
 				end
 			else
 				local current_value = propItem[propValue]

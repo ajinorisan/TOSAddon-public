@@ -165,8 +165,9 @@ function GET_MORE_EVENT_EXP(pc)
 	-- sumExp = sumExp + IsBuffAppliedEXP(pc, 'pet_mermaidpopo_buff'); -- 머메이드 포포
 	-- sumExp = sumExp + IsBuffAppliedEXP(pc, 'pet_mermaidpopo2_buff'); -- 머맨 포포
 	-- sumExp = sumExp + IsBuffAppliedEXP(pc, 'sticky_wild_honey'); -- 끈적끈적 야생 꿀
-
+	sumExp = sumExp + IsBuffAppliedEXP(pc, 'EVENT_2025_FISHING_CAT_BUFF'); -- 발렌타인 초코 5단계
 	sumExp = sumExp + IsBuffAppliedEXP(pc, 'EVENT_2102_STATUE_BUFF'); -- STM 딥디르비와 여신상 버프
+
 	if  TryGetProp(pc, 'Lv', 0) < 450 then
 	    sumExp = sumExp + IsBuffAppliedEXP(pc, 'ITEM_BUFF_2020ArborDay_ExpUP'); --2020 근본--
 	end

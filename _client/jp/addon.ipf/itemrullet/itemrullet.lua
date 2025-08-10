@@ -199,10 +199,14 @@ local function _GET_ADDITIONAL_ITEM(frame)
 		end
 	end
 
-	additionalInvItem = session.GetInvItemByType(additionalItemID);	
+	if not additionalInvItem then
+		additionalInvItem = session.GetInvItemByType(additionalItemID);	
+	end
+	
 	if additionalInvItem == nil or additionalInvItem:GetObject() == nil then
 		return nil, 0;
 	end
+
 	additionalItem = GetIES(additionalInvItem:GetObject());
 	return additionalItem, s_reinforceSeal.UpDownMax:GetNumber(), additionalInvItem;
 end
@@ -425,11 +429,15 @@ function REINFORCE_SEAL_EXECUTE(parent, ctrl)
 		clmsg = clmsg..'{nl}'..ClMsg('SealReinforceInfo');
 	end
 
-	local belonging = TryGetProp(targetSealObj, 'TeamBelonging', 0) == 1 or TryGetProp(materialSealObj, 'TeamBelonging', 0) == 1
-	 or TryGetProp(targetSealObj, 'CharacterBelonging', 0) == 1 or TryGetProp(materialSealObj, 'CharacterBelonging', 0) == 1
-	if belonging == true then
-		clmsg = clmsg..'{nl} {nl}'..ClMsg('SealReinforceInfo2');	
+	local teambelonging = TryGetProp(targetSealObj, 'TeamBelonging', 0) == 1 or TryGetProp(materialSealObj, 'TeamBelonging', 0) == 1
+	local CharacterBelonging = TryGetProp(targetSealObj, 'CharacterBelonging', 0) == 1 or TryGetProp(materialSealObj, 'CharacterBelonging', 0) == 1
+	if teambelonging and not CharacterBelonging then
+		clmsg = clmsg..'{nl} {nl}'..ClMsg('SealReinforceInfo3');	
 	end
+	if CharacterBelonging then
+		clmsg = clmsg..'{nl} {nl}'..ClMsg('SealReinforceInfo4');	
+	end
+
 
 	clmsg = clmsg..'{nl} {nl}'..ClMsg('ReallyReinforceSeal');
 

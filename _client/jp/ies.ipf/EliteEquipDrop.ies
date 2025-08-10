@@ -100,3 +100,5 @@ ClassID,minLv,maxLv,dropRatio,ClassName,Name,ServerMsg,EventCompositon,Dropable,
 100,420,450,2,"DAG04_127_1","바이보라 비전 - 입자 가속기","NO","NO","YES","Vulture[T]"
 101,420,450,2,"TMAC04_120_1","바이보라 비전 - 워해머","NO","NO","YES","Sledger"
 102,420,450,2,"TSW04_128_1","바이보라 비전 - 본 게일","NO","NO","YES","Bonemancer"
+103,420,450,2,"BOW04_127_1","바이보라 비전 - 서지 브링어","NO","NO","YES","BlitzHunter"
+104,420,450,2,"TSF04_130_1","바이보라 비전 - 에테리온","NO","NO","YES","AetherBlader"

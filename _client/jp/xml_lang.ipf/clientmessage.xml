@@ -401,7 +401,7 @@
 		<Class ClassID="2152" ClassName="OnlyGoddessGradeEquipment" Data="가디스 등급 장비에만 사용가능합니다."/>
 		<Class ClassID="2153" ClassName="UsingItemNow" Data="이미 아이템이 사용중입니다. 문제가 지속된다면 채널 이동이나 숙소 이동후 다시 시도해주세요."/>
 		<Class ClassID="2154" ClassName="YouCanReinforceOnly460Aether" Data="[Lv.460 에테르 젬 촉매제]로 상위 등급의 에테르젬을 강화 할 수 없습니다." />
-	<Class ClassID="2155" ClassName="RequireReinforceItem21" Data="+21 강화 수치에 도달한 아이템에만 가능합니다."/>
+		<Class ClassID="2155" ClassName="RequireReinforceItem21" Data="+21 강화 수치에 도달한 아이템에만 가능합니다."/>
 		<Class ClassID="2156" ClassName="JurateBlessing" Data="유라테의 축복"/>
 		<Class ClassID="2157" ClassName="CanNotRegCard" Data="해당 카드는 등록할 수 없습니다."/>
 		<Class ClassID="2158" ClassName="GreaterLevelofTargetCardThanSourceCard2" Data="이전 대상 카드의 레벨이 1 이여야 합니다."/>
@@ -428,6 +428,8 @@
 		<Class ClassID="2179" ClassName="JurateBlessing;Common_Divine_Protection_520" Data="유라테의 축복, 신의 가호"/>		
 		<Class ClassID="2180" ClassName="SealReinforceInfo2" Data="{s24}{#ff0000}주의!!{/}{/} 재료에 {#ff0000}귀속된 인장{/}이 존재합니다. 결과물도 {#ff0000}귀속{/}되게 됩니다."/>
 		<Class ClassID="2181" ClassName="WarningSealTeamBelonging" Data="{s24}{#ff0000}주의!!{/}{/} 귀속된 아이템입니다. 결과물도 {#ff0000}귀속{/}되게 됩니다."/>
+		<Class ClassID="2190" ClassName="SealReinforceInfo3" Data="{s24}{#ff0000}주의!!{/}{/} 재료에 {#ff0000}팀 귀속된 인장{/}이 존재합니다. 결과물도 {#ff0000}팀에 귀속{/}되게 됩니다."/>
+		<Class ClassID="2191" ClassName="SealReinforceInfo4" Data="{s24}{#ff0000}주의!!{/}{/} 재료에 {#ff0000}캐릭터 귀속된 인장{/}이 존재합니다. 결과물도 {#ff0000}캐릭터에 귀속{/}되게 됩니다."/>
 	</Category>	
 	<Category Name="ItemContents">
 		<Class ClassID="2200" ClassName="ClickSocketTargetItem" Data="소켓을 추가 할 아이템을 선택해주세요"/>
@@ -899,6 +901,7 @@
 		<Class ClassID="3524" ClassName="DoNotUseState" Data="사용할 수 없는 상태입니다."/>
 		<Class ClassID="3525" ClassName="GiveRewardLaunchingEvent" Data="런칭 기념 레벨 달성 보상이 지급되었습니다."/>
 		<Class ClassID="3526" ClassName="GiveRewardGreatEvent" Data="Great Restart Event 레벨 달성 보상이 지급되었습니다."/>
+		<Class ClassID="3527" ClassName="Archeology_Lv530" Data="[이벤트] 유물 상점"/>
 	</Category>
 	<Category Name="Item">
 		<Class ClassID="4001" ClassName="GetItem" Data="아이템 획득"/>
@@ -1774,7 +1777,7 @@
 		<Class ClassID="5230" ClassName="MATK;PATK" Data="마법, 물리 공격력"/>
 		<Class ClassID="5231" ClassName="CRTMATK;CRTATK" Data="마법, 물리 치명타 공격력"/>
 		<Class ClassID="5232" ClassName="Belt" Data="허리띠"/>
-		<Class ClassID="5233" ClassName="tooltip_Wrath" Data=" - 바바리안 모든 스킬 레벨 {img green_up_arrow 16 16}1{nl}　{nl}라쓰{nl}  - 워크라이 적용 범위 200으로 증가{nl}  - 워크라이 시전 시 범위 내 대상에게 메인슬롯에 장착된 주 무기 타입으로 공격{nl}  - 스킬 계수 [스킬레벨] * 906%, 타격 수 3"/>
+		<Class ClassID="5233" ClassName="tooltip_Wrath" Data=" - 바바리안 모든 스킬 레벨 {img green_up_arrow 16 16}1{nl}　{nl}라쓰{nl}  - 워크라이 적용 범위 200으로 증가{nl}  - 워크라이 시전 시 범위 내 대상에게 메인슬롯에 장착된 주 무기 타입으로 공격{nl}  - 스킬 계수 : 연타수를 제외한 [사이즘] 스킬의 계수(워크라이 스킬 레벨에 기반), 타격 수 6"/>
 		<Class ClassID="5234" ClassName="tooltip_Wrath_Lv4" Data="{nl} {nl}{@st66d}{s15} - 프렌지 중첩당 대미지 {img green_up_arrow 16 16}0.5%"/>
 		<Class ClassID="5235" ClassName="tooltip_StrongPower" Data=" - 라마 모든 스킬 레벨 {img green_up_arrow 16 16}1{nl}  - 라마 2랭크 스킬 최종 대미지 {img green_up_arrow 16 16}33% "/>
 		<Class ClassID="5236" ClassName="tooltip_StrongPower_Lv4" Data="{nl} {nl}{@st66d}{s15} - 근육 이동 발동 확률 추가 {img green_up_arrow 16 16}26%"/>
@@ -1836,6 +1839,13 @@
 		<Class ClassID="5294" ClassName="tooltip_Bonemancer" Data=" - 본맨서 모든 스킬 레벨 {img green_up_arrow 16 16}1{nl} {nl}{@st66d}{s15} - 본 피스트 최종 대미지 {img green_up_arrow 16 16}50%{nl}{@st66d}{s15} - 본 리퍼 최종 대미지 {img green_up_arrow 16 16}50%{nl}{@st66d}{s15} - 본 윕 최종 대미지 {img green_up_arrow 16 16}50%"/>
 		<Class ClassID="5295" ClassName="tooltip_Bonemancer_Lv4" Data="{nl} {nl}{@st66d}{s15}- 쐐기, 늑골, 등뼈 디버프의 스택 증가 시 50% 확률로 +1 추가 증가{nl}- 본 리인포스먼트 최종 대미지{img green_up_arrow 16 16}100%"/>
 		<Class ClassID="5296" ClassName="ITEM_goddess_seal_def_lv1;ITEM_goddess_seal_def_lv2" Data="받는 피해 감소 {img green_up_arrow 16 16}{value}%, 치유력 {img green_up_arrow 16 16}35%"/>
+		<Class ClassID="5297" ClassName="tooltip_BlitzHunter" Data=" - 블리츠 헌터 모든 스킬 레벨 {img green_up_arrow 16 16}1{nl} {nl}{@st66d}{s15} - 볼트 스트라이크 최종 대미지 {img green_up_arrow 16 16}10%{nl}{@st66d}{s15} - 볼트 체인 최종 대미지 {img green_up_arrow 16 16}10%{nl}{@st66d}{s15} - 템페스트 샷 최종 대미지 {img green_up_arrow 16 16}10%"/>
+		<Class ClassID="5298" ClassName="tooltip_BlitzHunter_Lv4" Data="{nl} {nl}{@st66d}{s15}- 라이트닝 로드 최종 대미지{img green_up_arrow 16 16}25%{nl}- 일렉트릭 서지 최종 대미지{img green_up_arrow 16 16}25%"/>
+		<Class ClassID="5299" ClassName="tooltip_AetherBlader" Data=" - 에테르 블레이더 모든 스킬 레벨 {img green_up_arrow 16 16}1{nl} {nl}{@st66d}{s15} - 프로스트 섀터 최종 대미지 {img green_up_arrow 16 16}50%{nl}{@st66d}{s15} - 프림베일 최종 대미지 {img green_up_arrow 16 16}50%"/>
+		<Class ClassID="5300" ClassName="tooltip_AetherBlader_Lv4" Data="{nl} {nl}{@st66d}{s15}- 아케인 콜랩스 최종 대미지{img green_up_arrow 16 16}100%"/>
+		<Class ClassID="5301" ClassName="ARCHEOLOGY_COIN_GAIN" Data="고고학 일반 유물 추가 획득"/>
+		<Class ClassID="5302" ClassName="ARCHEOLOGY_DETECTING" Data="탐지 범위 증가"/>
+		<Class ClassID="5303" ClassName="ARCHEOLOGY_COIN_extract" Data="고고학 주화 변환"/>
 	</Category>
 	<Category Name="PeriodicTitle">
 		<Class ClassID="6001" ClassName="TournamentChampion" Data="토너먼트 챔피언"/>
@@ -2583,6 +2593,8 @@
 		<Class ClassID="10655" ClassName="MaxKupoleRank" Data="더 이상 호감도를 상승 시킬 수 없습니다."/>
 		<Class ClassID="10656" ClassName="DropLimitItemCountOver" Data="최대 획득량에 도달하여 더 이상 획득하실 수 없습니다."/>
 		<Class ClassID="10657" ClassName="DropLimitItemCount" Data="{name} 획득 현황 : 획득수({now}/{limit})"/>
+
+		
 	</Category>
 	<Category Name="FoodTable">
 		<Class ClassID="20001" ClassName="IncreaseHP{Value}For{Time}Minute" Data="{Time}분 동안 HP가 {Value}% 증가합니다."/>
@@ -11097,6 +11109,11 @@
 		<Class ClassID="92323" ClassName="2001_Seollal_SEL_MSG2" Data="{#003399}설날에도 TOS와 함께!{/} [이벤트] 경자년 새해 황금 복주머니 수령하기"/>
 	<Class ClassID="92324" ClassName="GACHA_SITEM_GET_ALLMSG_PAPAYA2" Data="{s24}축하합니다!{nl}{PC} 님이  파파야 큐브에서 {ITEMNAME}{nl} 아이템을 획득하였습니다!"/>
 		<Class ClassID="92325" ClassName="GACHA_SITEM_GET_ALLMSG_COUNT_PAPAYA2" Data="{s24}축하드립니다!{nl}{PC} 님이 파파야 큐브에서 {ITEMNAME} 를(을) {COUNT}{nl}개 획득하셨습니다!"/>
+		
+		<Class ClassID="92339" ClassName="EVENT_ASSISTOR_QUEST_MSG_03" Data="[이벤트] 고고학 임무 받기"/>
+		<Class ClassID="92340" ClassName="EVENT_ASSISTOR_QUEST_MSG_02" Data="[이벤트] 유물 상점"/>
+		<Class ClassID="92441" ClassName="EVENT_ASSISTOR_QUEST_MSG_01" Data="[이벤트] 고고학에 대해서 묻기"/>
+		<Class ClassID="92442" ClassName="Arc_exhibition" Data="유물 등록"/>
 	</Category>
 	<Category Name="BattleText">
 		<Class ClassID="100001" ClassName="ADD_DAMAGE_{Auto_1}!" Data="추가 대미지 {Auto_1}!"/>
@@ -11208,6 +11225,7 @@
 		<Class ClassID="100121" ClassName="BountyMonMark" Data="수배자"/>
 		<Class ClassID="100122" ClassName="BountyBossMark" Data="수배자 보스"/>
 		<Class ClassID="100123" ClassName="BountyBattleSkipMSG" Data="수배자들이 나타났습니다!{nl}하지만 탈 것이 쫓아냈습니다.{nl} {nl}{icon}"/>
+		<Class ClassID="100124" ClassName="GoldMolaMolaStartMSG" Data="황금 개복치 사냥을 시작하시겠습니까?{nl} {nl}황금 개복치 사냥 중 빠른 이동 기능을 사용할 수 없습니다.{nl} {nl}[황금 개복치 등장] 버프는 소멸하며 다음 황금 개복치가 등장할 때 다시 부여됩니다."/>
 		<Class ClassID="100125" ClassName="Golpear_moving_Immune" Data="면역!"/>
 		<Class ClassID="100126" ClassName="AbnormalMoveInBountyHunt" Data="비정상적인 지역 이동이 감지되었습니다.{nl}바운티 헌트를 종료합니다."/>
 		<Class ClassID="100127" ClassName="DoingBountyBattle" Data="수배자를 모두 처치하거나 마족 상인을 떠나보내야 가능합니다."/>
@@ -11221,6 +11239,8 @@
 		<Class ClassID="100135" ClassName="Excnaged_AccountCount_Remind_Month" Data="팀당 월 {COUNT}번 교환 가능 합니다."/>
 		<Class ClassID="100136" ClassName="Kupole_Portion_Tooltip{LIST}" Data="장착 가능한 포션{nl}{LIST}{/}"/>
 		<Class ClassID="100137" ClassName="AlreadyKupole" Data="이미 획득 한 큐폴입니다."/>
+		<Class ClassID="100138" ClassName="AdvArcheologyBattleEncounter" Data="유물 도굴꾼이 나타났습니다!{nl}도굴꾼을 해치우세요!."/>
+		<Class ClassID="100139" ClassName="IsCompletePharamcy" Data="조제를 완료하고 비약을 획득하시겠습니까?"/>
 	</Category>
 	<Category Name="Party">
 		<Class ClassID="101001" ClassName="GULID_OUT" Data="길드 탈퇴"/>
@@ -16274,8 +16294,8 @@
 		<Class ClassID="302110" ClassName="EVENT_2006_SUMMER_SEL_MSG2" Data="{#0033FF}[Summer Festa]{/}[이벤트] 문어발 미끼 수령하기"/>
 		<Class ClassID="302111" ClassName="EVENT_2006_SUMMER_SEL_MSG3" Data="{#0033FF}[Summer Festa]{/} 이벤트 상점"/>
 		<Class ClassID="302112" ClassName="EVENT_2006_SUMMER_SEL_MSG4" Data="{#0033FF}[Summer Festa]{/} 이벤트 음식 교환권 상점"/>
-		<Class ClassID="302113" ClassName="SummerShop2006" Data="Summer Festa 이벤트 상점"/>
-		<Class ClassID="302114" ClassName="SummerFoodShop2006" Data="Summer Festa 이벤트 음식 교환권 상점"/>
+		<Class ClassID="302113" ClassName="SummerShop2006" Data="특별한 얼음 상점"/>
+		<Class ClassID="302114" ClassName="SummerFoodShop2006" Data="[이벤트] 음식 교환권 상점"/>
 		<Class ClassID="302115" ClassName="EVENT_2006_SUMMER_CAT_MSG1" Data="교환 가능 개수 1~{MAX}"/>
 		<Class ClassID="302116" ClassName="EVENT_2006_SUMMER_CHECK_MESSAGE1{COIN}{TIME1}{TIME2}" Data="[Summer Festa] 특별한 얼음 획득 현황{nl}콘텐츠 이용 {#3366FF}({COIN}/400개){/}{nl}1시간 접속 시 음식 교환권 10개 지급 {#3366FF}({TIME1}/50개){/}{nl}1시간 접속 시 특별한 얼음 20개 획득 {#3366FF}({TIME2}/100개){/}{nl}{#FF0000}※일일 획득량은 매일 오전 6시 초기화 됩니다.{/}"/>
 		<Class ClassID="302117" ClassName="EVENT_2006_SUMMER_CHECK_MESSAGE2{BAIT}{TICKET}{TRADE}" Data="[Summer Festa] 수박 낚시!{nl}[이벤트] 문어발 미끼 일일 수령 횟수 {#3366FF}({BAIT}/1회){/}{nl}[Summer Festa] 음식 교환권 일일 획득 개수 {#3366FF}({TICKET}/10개){/}{nl}이벤트 기간 중 [이벤트] 시원한 수박 교환 횟수 {#3366FF}({TRADE}/150회){/}{nl}{#FF0000}※일일 수령 횟수는 매일 오전 6시 초기화 됩니다.{nl}※이벤트 기간 중 [이벤트] 시원한 수박의 최대 교환 교환 횟수는 150개 이며,{nl}이후 교환 시 버프만 획득 가능합니다.{/}"/>
@@ -17020,6 +17040,8 @@
 		<Class ClassID="302901" ClassName="EVENT_GENENAL_GAIN_TEXT{WEEK}{WEEKMAX}{TOTAL}{TOTALMAX}" Data="{#3366FF}[TOS 백금화 획득현황]{/}{nl}주간 획득량({WEEK}/{WEEKMAX}){nl}총 획득량({TOTAL}/{TOTALMAX}){nl}{#FF0000}※ 주간 획득량은 매주 월요일 오전 6시에 초기화됩니다.{/}"/>
 		<Class ClassID="302902" ClassName="event_2502_spring" Data="[이벤트] TOS 백금화 상점"/>
 		<Class ClassID="302903" ClassName="event_2year" Data="[이벤트] TOS 백금화 상점"/>
+		<Class ClassID="302904" ClassName="event_2506_summer" Data="[이벤트] TOS 백금화 상점"/>
+		<Class ClassID="302906" ClassName="EVENT_2506_SUMMER_CHECK_MESSAGE{ICE}{BAIT}{TRADE}" Data="{#003399}[2025 Summer Festa 이벤트 현황]{/}{nl}{#3366FF}[이벤트] 특별한 얼음{/} {@st66d_y}{s18}주간{/}{/} 획득 ({ICE}/700){nl}{#3366FF}[이벤트] 문어발 미끼{/} 일일 무료 수령 횟수 ({BAIT}/1회){nl}{#3366FF}[이벤트] 수박 물고기{/} 교환 ({TRADE}/150개){nl}※ {@st66d_y}{s18}주간{/}{/} 획득량은 {@st66d_y}{s18}매주 월요일{/}{/} 오전 6시 초기화 됩니다.{nl}※ 이벤트 업적을 통한 획득은 {@st66d_y}{s18}주간{/}{/} 획득 제한에 포함되지 않습니다.{nl}※ [이벤트] 수박 물고기 교환 150 개 이후엔 이벤트 버프만 획득합니다."/>
 	</Category>
 	<Category Name="Account">
 		<Class ClassID="303001" ClassName="MaxAccountWarehouseCount" Data="팀 창고"/>
@@ -17978,10 +18000,13 @@
 		<Class ClassID="560076" ClassName="Beholder_Aprilfool" Data="{nl} {nl}사용 시 이모티콘을 흭득합니다.{nl} {nl}{#FF0000}사용 후 복구가 불가능합니다.{nl} {nl}{@st66d_y}이모티콘을 습득하시겠습니까?"/>
 		<Class ClassID="560077" ClassName="emoticonItem_summer_popo_1" Data="{nl} {nl}사용 시 이모티콘을 흭득합니다.{nl} {nl}{#FF0000}사용 후 복구가 불가능합니다.{nl} {nl}{@st66d_y}이모티콘을 습득하시겠습니까?"/>
 		<Class ClassID="560078" ClassName="emoticonItem_summer_popo_2" Data="{nl} {nl}사용 시 이모티콘을 흭득합니다.{nl} {nl}{#FF0000}사용 후 복구가 불가능합니다.{nl} {nl}{@st66d_y}이모티콘을 습득하시겠습니까?"/>
-		<Class ClassID="560079" ClassName="emoticonItem_2312_164" Data="{nl} {nl}사용한 캐릭터가 채팅 이모티콘을 흭득합니다.{nl} {nl}{#FF0000}사용 후 복구가 불가능합니다.{nl} {nl}{@st66d_y}이모티콘을 습득하시겠습니까?"/>
-		<Class ClassID="560080" ClassName="emoticonItem_2312_165" Data="{nl} {nl}사용한 캐릭터가 채팅 이모티콘을 흭득합니다.{nl} {nl}{#FF0000}사용 후 복구가 불가능합니다.{nl} {nl}{@st66d_y}이모티콘을 습득하시겠습니까?"/>
-		<Class ClassID="560081" ClassName="emoticonItem_2402_1" Data="{nl} {nl}사용한 캐릭터가 채팅 이모티콘을 흭득합니다.{nl} {nl}{#FF0000}사용 후 복구가 불가능합니다.{nl} {nl}{@st66d_y}이모티콘을 습득하시겠습니까?"/>
-		<Class ClassID="560082" ClassName="emoticonItem_2402_2" Data="{nl} {nl}사용한 캐릭터가 채팅 이모티콘을 흭득합니다.{nl} {nl}{#FF0000}사용 후 복구가 불가능합니다.{nl} {nl}{@st66d_y}이모티콘을 습득하시겠습니까?"/>
+		<Class ClassID="560079" ClassName="emoticonItem_2312_164" Data="{nl} {nl}사용 시 채팅 이모티콘을 흭득합니다.{nl} {nl}{#FF0000}사용 후 복구가 불가능합니다.{nl} {nl}{@st66d_y}이모티콘을 습득하시겠습니까?"/>
+		<Class ClassID="560080" ClassName="emoticonItem_2312_165" Data="{nl} {nl}사용 시 채팅 이모티콘을 흭득합니다.{nl} {nl}{#FF0000}사용 후 복구가 불가능합니다.{nl} {nl}{@st66d_y}이모티콘을 습득하시겠습니까?"/>
+		<Class ClassID="560081" ClassName="emoticonItem_2402_1" Data="{nl} {nl}사용 시 채팅 이모티콘을 흭득합니다.{nl} {nl}{#FF0000}사용 후 복구가 불가능합니다.{nl} {nl}{@st66d_y}이모티콘을 습득하시겠습니까?"/>
+		<Class ClassID="560082" ClassName="emoticonItem_2402_2" Data="{nl} {nl}사용 시 채팅 이모티콘을 흭득합니다.{nl} {nl}{#FF0000}사용 후 복구가 불가능합니다.{nl} {nl}{@st66d_y}이모티콘을 습득하시겠습니까?"/>
+		<Class ClassID="560083" ClassName="emoticon_00" Data="{nl} {nl}사용한 캐릭터가 채팅 이모티콘을 흭득합니다.{nl} {nl}{#FF0000}사용 후 복구가 불가능합니다.{nl} {nl}{@st66d_y}이모티콘을 습득하시겠습니까?"/>
+		<Class ClassID="560084" ClassName="emoticonItem_2503_176" Data="{nl} {nl}사용한 캐릭터가 채팅 이모티콘을 흭득합니다.{nl} {nl}{#FF0000}사용 후 복구가 불가능합니다.{nl} {nl}{@st66d_y}이모티콘을 습득하시겠습니까?"/>
+		<Class ClassID="560085" ClassName="emoticonItem_2503_177" Data="{nl} {nl}사용한 캐릭터가 채팅 이모티콘을 흭득합니다.{nl} {nl}{#FF0000}사용 후 복구가 불가능합니다.{nl} {nl}{@st66d_y}이모티콘을 습득하시겠습니까?"/>
 	</Category>
 	<Category Name="Gesture">
 		<Class ClassID="570000" ClassName="Already_Gesture" Data="이미 보유한 제스처입니다."/>
@@ -18892,6 +18917,7 @@
 		<Class ClassID="1005010" ClassName="EVENT_TOS_WHOLE_TOTAL_COIN" Data="TOS 주화"/>
 		<Class ClassID="1005011" ClassName="RadaCertificate" Data="여신의 증표(라다)"/>
 		<Class ClassID="1005012" ClassName="JurateCertificate" Data="여신의 증표(유라테)"/>
+		<Class ClassID="1005013" ClassName="ARCHEOLOGY_COIN" Data="고고학 주화"/>
 	</Category>
 	<Category Name="reputation">
 		<Class ClassID="1006000" ClassName="DAY_LIMIT_MSG" Data="일간"/>
@@ -19472,6 +19498,14 @@
 		<Class ClassID="1106113" ClassName="Bonemancer[S]" Data="본맨서[S]"/>
 		<Class ClassID="1106114" ClassName="Bonemancer[A]" Data="본맨서[A]"/>
 		<Class ClassID="1106115" ClassName="Bonemancer[C]" Data="본맨서[C]"/>
+		<Class ClassID="1106116" ClassName="BlitzHunter" Data="블리츠 헌터"/>
+		<Class ClassID="1106117" ClassName="BlitzHunter[A]" Data="블리츠 헌터[A]"/>
+		<Class ClassID="1106118" ClassName="BlitzHunter[T]" Data="블리츠 헌터[T]"/>
+		<Class ClassID="1106119" ClassName="Bonemancer[W]" Data="본맨서[W]"/>
+		<Class ClassID="1106120" ClassName="AetherBlader" Data="에테르 블레이더"/>
+		<Class ClassID="1106121" ClassName="AetherBlader[W]" Data="에테르 블레이더[W]"/>
+		<Class ClassID="1106122" ClassName="AetherBlader[C]" Data="에테르 블레이더[C]"/>
+		<Class ClassID="1106123" ClassName="AetherBlader[T]" Data="에테르 블레이더[T]"/>
 	</Category>
 	<Category Name="LifeContent">
 		<Class ClassID="1107001" ClassName="archeology" Data="고고학"/>

@@ -166,12 +166,12 @@ shared_item_pharmacy.get_reveal_cost = function(item)
 
     if TryGetProp(item, 'NumberArg1', 0) == 470 then
         local check = 0
-        -- local event_2112_6th_pt2_startTime = '2022-03-15 00:00:00'
-        -- local event_2112_6th_pt2_endTime = '2022-03-29 00:00:00'
+        local event_2112_6th_pt2_startTime = '2021-12-23 09:00:00'
+        local event_2112_6th_pt2_endTime = '2022-01-06 09:00:00'
     
-        -- if date_time.is_between_time(event_2112_6th_pt2_startTime, event_2112_6th_pt2_endTime) == true then
-        --     check = 1
-        -- end
+        if date_time.is_between_time(event_2112_6th_pt2_startTime, event_2112_6th_pt2_endTime) == true then
+            check = 1
+        end
 
         if check == 0 then
             return 'GabijaCertificate', 3000
@@ -179,6 +179,11 @@ shared_item_pharmacy.get_reveal_cost = function(item)
             return 'GabijaCertificate', 2100
         end
     end
+
+    if TryGetProp(item, 'NumberArg1', 0) == 530 then
+        return 'JurateCertificate', 5000
+    end
+
 
     return 'None', 0
 end
@@ -195,6 +200,11 @@ shared_item_pharmacy.enable_move_to = function(recipe_item, mat_item)
     local isTuto = 0
     if TryGetProp(recipe_item, 'ClassName', 'pharmacy_recipe_Tuto') == 'pharmacy_recipe_Tuto' then
         isTuto = 1
+    end
+
+    local isEvent = false;
+    if TryGetProp(recipe_item, 'NumberArg1', 0) == 530 then
+        isEvent = true;
     end
 
     local expire_time = 'None'
@@ -231,7 +241,7 @@ shared_item_pharmacy.enable_move_to = function(recipe_item, mat_item)
         end
     end
     
-    if TryGetProp(recipe_item, 'NumberArg1', 0) ~= TryGetProp(mat_item, 'NumberArg1', 1) then
+    if (not isEvent) and TryGetProp(recipe_item, 'NumberArg1', 0) ~= TryGetProp(mat_item, 'NumberArg1', 1) then
         return false
     end
     
@@ -245,7 +255,7 @@ shared_item_pharmacy.enable_move_to = function(recipe_item, mat_item)
             return false
         end
     end
-
+    
     return true
 end
 
@@ -375,10 +385,16 @@ shared_item_pharmacy.get_active_recipe_name = function(item)
 end
 
 -- 중화제 사용 가능 횟수
-shared_item_pharmacy.get_random_neutralize_count = function(size)
-    local max = math.max(1, math.floor(size / 4))
-    local min = math.max(1, max - 3)
-    return IMCRandom(min, max)
+shared_item_pharmacy.get_random_neutralize_count = function(size, lv)
+    -- 470일 경우 기존 로직
+    -- 그 이상이면 다른 로직 사용
+    if lv == 470 then
+        local max = math.max(1, math.floor(size / 4))
+        local min = math.max(1, max - 3)
+        return IMCRandom(min, max)    
+    end
+    -- 3으로 고정한다.
+    return 3
 end
 
 -- 독성 수치(cur/max)
@@ -418,6 +434,10 @@ shared_item_pharmacy.usable_neutralizer = function(recipe, mat)
 
     local recipe_lv = TryGetProp(recipe, 'NumberArg1', 0)
     local mat_lv = TryGetProp(mat, 'NumberArg1', 0)
+    --530 레시피의 경우에는 일단 다 사용 가능하게 한다.
+    if recipe_lv == 530 then
+        return true;
+    end
     if recipe_lv > mat_lv then
         return false
     end

@@ -702,8 +702,7 @@ function REMOVE_FROM_TREEGROUP(treegroupname)
 	ui.inventory.RemoveInvenGroupName(treegroupname);
 end
 
-function INVENTORY_ON_MSG(frame, msg, argStr, argNum)	
-	if msg == 'INV_ITEM_LIST_GET' or msg == 'RESET_ABILITY_UP' then
+function INVENTORY_ON_MSG(frame, msg, argStr, argNum)		if msg == 'INV_ITEM_LIST_GET' or msg == 'RESET_ABILITY_UP' then
         INVENTORY_LIST_GET(frame)
 		STATUS_EQUIP_SLOT_SET(frame);
 	end

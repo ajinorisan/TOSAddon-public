@@ -229,7 +229,7 @@ function C_PLAY_EFFECT_INFINITY_SPEARS(actor, obj, x, y, z)
     local time = 4000
     local tick = time / count / 1000 / count_2
     
-    eftName = 'GroundImpact_HolySpear_Blue_01'    
+    eftName = 'GroundImpact_HolySpear_Blue_02'    
     scl = 0.4
     lifeTime = 0
     local inverse = 25

@@ -6569,6 +6569,17 @@
 			<img name="bottomcore" imgrect="565 540 62 29"/>
 			<img name="bottomright" imgrect="628 540 55 29"/>
 		</skin>
+		<skin name="capybara_sayballoon" texture="\skin\say_balloon.tga">
+			<img name="topleft" imgrect="509 570 55 29"/>
+			<img name="topcore" imgrect="565 570 62 29"/>
+			<img name="topright" imgrect="628 570 55 29"/>
+			<img name="bodyleft" imgrect="509 600 55 28"/>
+			<img name="bodycore" imgrect="565 600 62 28"/>
+			<img name="bodyright" imgrect="628 600 55 28"/>
+			<img name="bottomleft" imgrect="509 629 55 29"/>
+			<img name="bottomcore" imgrect="565 629 62 29"/>
+			<img name="bottomright" imgrect="628 629 55 29"/>
+		</skin>
 	</skinlist>
 	<skinlist category="yiseul_buttons">
 		<skin name="worldmap2_btn_round" texture="\skin\worldmap2.tga">
@@ -11734,6 +11745,7 @@
 		<image name="alchemy_item_show" file="\skin\alchemy.tga" imgrect="1350 1516 515 576" CMM_Caption="아이템 획득 쇼"/>
 		<image name="alchemy_neutralization_toxicity" file="\skin\alchemy.tga" imgrect="766 1616 20 30" CMM_Caption="독성 포션 아이콘"/>
 		<image name="alchemy_question_obstacle" file="\skin\alchemy.tga" imgrect="774 1564 24 24" CMM_Caption="장애물"/>
+		<image name="alchemy_reward_arrow" file="\skin\alchemy.tga" imgrect="799 1564 24 24" CMM_Caption="보상 증가"/>
 		<image name="receive_complete_eng" file="\skin\attendance_sheet_skin.tga" imgrect="232 872 69 84" CMM_Caption="수령완료 마크_영문버전"/>
 		<image name="current_group_mark" file="\skin\party_search.tga" imgrect="194 302 16 16" CMM_Caption="현재 그룹"/>
 		<image name="pilgrim_group_invite_plus" file="\skin\party_search.tga" imgrect="353 315 60 60" CMM_Caption="그룹 추가 플러스 마크"/>
@@ -11744,7 +11756,9 @@
 		<image name="stamp_B_mark" file="\skin\stamp_tour.tga" imgrect="1575 650 97 74" CMM_Caption="스탬프 B"/>
 		<image name="popolion_roulette_title" file="\skin\popolion_roulette.tga" imgrect="0 0 637 466" CMM_Caption="포포리온 룰렛 타이틀"/>
 		<image name="Chat_Balloon_whiteday_icecream_deco" file="\skin\say_balloon.tga" imgrect="264 739 75 57" CMM_Caption="화이트데이 아이스크림"/>
-		<image name="whiteday_icecream_balloon_direction" file="\skin\say_balloon.tga" imgrect="745 153 82 75" CMM_Caption="과일 오렌지 말꼬리"/>
+		<image name="whiteday_icecream_balloon_direction" file="\skin\say_balloon.tga" imgrect="745 153 82 75" CMM_Caption="화이트데이 말꼬리"/>
+		<image name="Chat_Balloon_capybara_sayballoon_deco" file="\skin\say_balloon.tga" imgrect="263 781 75 57" CMM_Caption="카피바라 아이콘"/>
+		<image name="capybara_sayballoon_direction" file="\skin\say_balloon.tga" imgrect="745 229 82 75" CMM_Caption="카피바라 말꼬리"/>
 	</imagelist>
 	<imagelist category="yiseul_image">
 		<image name="AbillityReset_skin" file="\skin\paid_skin_title.tga" imgrect="0 330 316 165" CMM_Caption="특성 초기화"/>
@@ -14177,6 +14191,8 @@
 		<image name="emoticonItem_2503_177" file="\icon\emoticon\honeybee_yami.png" imgrect="0 0 128 128"/>
 		<image name="emoticonItem_2504_178" file="\icon\emoticon\popo_ura_hito1.png" imgrect="0 0 128 128"/>
 		<image name="emoticonItem_2504_179" file="\icon\emoticon\popo_ura_hito_2.png" imgrect="0 0 128 128"/>
+		<image name="emoticonItem_2506_180" file="\icon\emoticon\popo_historian_lucifer.png" imgrect="0 0 128 128"/>
+		<image name="emoticonItem_2506_181" file="\icon\emoticon\popo_historian_odel.png" imgrect="0 0 128 128"/>
 	</imagelist>
 	<imagelist category="itemtooltip_image">
 		<image name="circle_gem" file="\skin\tooltip_skin_3.tga" imgrect="805 228 30 30"/>
@@ -15038,6 +15054,8 @@
 		<image name="minimap_vulture" file="\icon\minimap_icon3.tga" imgrect="162 1137 80 80"/>
 		<image name="minimap_sledger" file="\icon\minimap_icon3.tga" imgrect="243 1137 80 80"/>
 		<image name="minimap_bonemancer" file="\icon\minimap_icon3.tga" imgrect="324 1137 80 80"/>
+		<image name="minimap_blitzhunter" file="\icon\minimap_icon3_2.tga" imgrect="162 0 80 80"/>
+		<image name="minimap_aetherblader" file="\icon\minimap_icon3.tga" imgrect="81 1214 80 80"/>
 	</imagelist>
 	<imagelist category="quest_tags">
 		<image name="quest_tag_1_MAIN" file="\icon\minimap_icon.tga" imgrect="61 31 16 16"/>
@@ -15547,6 +15565,8 @@
 		<image name="Dlg_port_santa_Teliavelis" file="\npcimg\santa_Teliavelis.png" imgrect="0 0 989 1124" CMM_Caption="산타 테리아베이스"/>
 		<image name="Dlg_port_redania" file="\npcimg\redania.png" imgrect="0 0 1210 900" CMM_Caption="레다니아"/>
 		<image name="Dlg_port_bonemancer" file="\npcimg\bonemancer_master.png" imgrect="0 0 900 1025" CMM_Caption="본맨서"/>
+		<image name="Dlg_port_blitzhunter" file="\npcimg\blitzhunter_master.png" imgrect="0 0 900 997" CMM_Caption="블리츠 헌터"/>
+		<image name="Dlg_port_aetherblader" file="\npcimg\aetherblader_master.png" imgrect="0 0 961 1050" CMM_Caption="에테르 블레이더"/>
 	</imagelist>
 	<imagelist category="Dlg_boss">
 		<image name="balloon_Skiaclipse" file="\skin\monster_Dlg.tga" imgrect="0 0 220 260" CMM_Caption="스키아클립스"/>
@@ -17261,6 +17281,12 @@
 		<image name="plate_achieve_Bonemancer_weekraid" file="\skin\user_title_skin2.tga" imgrect="856 340 214 34" CMM_Caption="본맨서 주보레 칭호"/>
 		<image name="plate_achieve_Bonemancer" file="\skin\user_title_skin2.tga" imgrect="1070 340 214 34" CMM_Caption="본맨서 칭호"/>
 		<image name="plate_achieve_jumpinup" file="\skin\user_title_skin2.tga" imgrect="0 374 214 34" CMM_Caption="포포부스트 jumpin up"/>
+		<image name="plate_achieve_BlitzHunter_weekraid" file="\skin\user_title_skin2.tga" imgrect="214 374 214 34" CMM_Caption="블리츠 헌터 주보레 칭호"/>
+		<image name="plate_achieve_BlitzHunter" file="\skin\user_title_skin2.tga" imgrect="428 374 214 34" CMM_Caption="블리츠 헌터 칭호"/>
+		<image name="plate_achieve_AetherBlader_weekraid" file="\skin\user_title_skin2.tga" imgrect="642 374 214 34" CMM_Caption="에테르 블레이더 주보레 칭호"/>
+		<image name="plate_achieve_AetherBlader" file="\skin\user_title_skin2.tga" imgrect="856 374 214 34" CMM_Caption="에테르 블레이더 칭호"/>
+		<image name="plate_achieve_First_Emperor" file="\skin\user_title_skin2.tga" imgrect="0 408 214 34" CMM_Caption="포포부스트 First_Emperor"/>
+		<image name="plate_achieve_EVENT_2506_SUMMER_TITLE" file="\skin\user_title_skin2.tga" imgrect="1069 374 214 34" CMM_Caption="25년 써머페스타"/>
 	</imagelist>
 	<imagelist category="skin_hair">
 		<image name="icon_skintone_01_m01" file="\skin\skinhair\icon_skintone_01_m01.png" imgrect="0 0 80 80" CMM_Caption="남성 01"/>

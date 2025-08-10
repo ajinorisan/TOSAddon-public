@@ -98,11 +98,13 @@ end
 -- hp 회복력
 function get_RHP_ratio_for_status(value)
     local applied_value = get_hp_recovery_ratio(nil, value)
+    applied_value = GET_COMMAED_STRING(applied_value)
     return value .. '{#00FF00} (' .. applied_value .. ')'
 end
 
 -- sp 회복력
 function get_RSP_ratio_for_status(value)     
+    value = GET_COMMAED_STRING(value)
     return value .. '{#66b3ff} (' .. value .. ')'
 end
 

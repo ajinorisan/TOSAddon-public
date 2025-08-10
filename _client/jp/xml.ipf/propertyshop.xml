@@ -161,6 +161,7 @@
 		<Item Script="None" Name="DRESS_ROOM_COLLECT_24" Count="1" Price="3000" DailyBuyLimit="0" AccountNeedProperty="ContentsTotalShop_2410_1"/>
 		<Item Script="None" Name="DRESS_ROOM_COLLECT_25" Count="1" Price="3000" DailyBuyLimit="0" AccountNeedProperty="ContentsTotalShop_2412_1"/>
 		<Item Script="None" Name="DRESS_ROOM_COLLECT_26" Count="1" Price="3000" DailyBuyLimit="0" AccountNeedProperty="ContentsTotalShop_2504_1"/>
+		<Item Script="None" Name="DRESS_ROOM_COLLECT_27" Count="1" Price="3000" DailyBuyLimit="0" AccountNeedProperty="ContentsTotalShop_2506_1"/>
 	</Shop>
 	<Shop Name="CONTENTS_TOTAL_SHOP_PAPAYA" PointScript="GET_CONTENTS_TOTAL_POINT">
 		<Item Script="None" Name="Gesture_CLOCK" Count="1" Price="5000" DailyBuyLimit="0" AccountNeedProperty="ContentsTotalShop_2109_1"/>

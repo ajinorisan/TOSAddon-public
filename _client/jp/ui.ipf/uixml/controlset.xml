@@ -7250,4 +7250,25 @@
 			<groupbox name="disable_shadow" rect="0 0 535 75" 	margin="0 0 0 0" layout_gravity="left top" draw="true" stretch="true" hittest="false" resizebyparent="false" scrollbar="false" skin="achievement_exchange_event_bg_shadow"/>
 		</controls>
 	</controlset>
+	<!-- archeology exhibition controlset -->
+	<controlset name="archeology_exhibition_item_slot" hittest="true" width="163" height="163" skin="test_frame_midle_light" stateskin="false" enabledrag="true">
+		<controls>
+			<groupbox name="default_box" rect="0 0 161 161" margin="0 0 0 0" hittest="false" layout_gravity="center center" skin="mon_card_hollow"/>
+			<picture name="default_image" parent="default_box" rect="0 0 161 161" margin="0 0 0 0" hittest="false" layout_gravity="center center" image="socket_slot_bg" imagealign="center center"/>
+			<groupbox name="archeology_exhibition_gbox" margin="0 0 0 0" rect="0 0 163 163" hittestbox="false" hittest="false" layout_gravity="left top" draw="false"/>
+			<picture name="archeology_exhibition_background" parent="archeology_exhibition_gbox" rect="0 0 163 163" margin="0 0 0 0" layout_gravity="left top"/>
+			<richtext name="archeology_exhibition_lv" parent="archeology_exhibition_gbox" layout_gravity="center top" textalign="center top" rect="0 0 70 20" margin="0 8 0 0" resizebytext="true"/>
+			<slot name="archeology_exhibition_slot" parent="archeology_exhibition_gbox" margin="0 15 0 0" rect="0 0 105 105" layout_gravity="center top"/>
+			<richtext name="archeology_exhibition_grade" parent="archeology_exhibition_slot" layout_gravity="left top" textalign="left top" fontname="black_18" rect="0 0 70 20" margin="0 55 0 0" resizebytext="true"/>
+			<richtext name="archeology_exhibition_name" parent="archeology_exhibition_gbox" margin="0 110 0 0" rect="0 0 163 15" layout_gravity="center top"/>
+			<picture name="gold_border" rect="0 0 161 161" margin="0 -2 0 0" hittest="false" layout_gravity="center center"/>
+		</controls>
+	</controlset>
+	<controlset name="archeology_exhibition_effect" hittest="true" width="489" height="50" skin="None" stateskin="false" enabledrag="true">
+		<controls>
+			<groupbox name="default_box" rect="0 0 489 50" margin="0 0 0 0" hittest="false" layout_gravity="center top" skin="mon_card_hollow"/>
+			<richtext name="archeology_exhibition_effect_tooltip" parent="default_box" layout_gravity="left top" textalign="left center" rect="0 0 400 20" margin="10 15 0 0" resizebytext="false" format="{@st66d}%s + {/}{@st66d_y}%s%s{/}" param1="name" param1_def="" param2="value" param2_def="" param3="sign" param3_def=""/>
+		</controls>
+	</controlset>
+
 </controlsetlist>

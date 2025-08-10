@@ -5151,6 +5151,11 @@ function SCR_Get_HEAL_PWR_VER2(self)
         value = value * (1 - reduce_ratio)
     end
 
+    -- if IsJoinColonyWarMap(self) == 1 then
+    --     local reduce_ratio = FINAL_DAMAGE_REDUCE_RATIO_PVP_COLONY / 100
+    --     value = value * (1 - reduce_ratio)
+    -- end
+
     if value < 1 then
     	value = 1;
     end
@@ -5160,10 +5165,14 @@ end
 
 -- 툴팁용 표기
 function GET_SHOW_HEAL_PWR(self, real_value)
+    if IsBuffApplied(self, "PatronSaint_Abil_Buff") == "YES" then
+        real_value = GetExProp(self, "ORI_HEAL_POWER")
+    end
+
     local atk = SCR_GET_DEFAULT_ATK_COMPARE(self)
     local byAttack = atk / 4
     
-    local byRateBuff = TryGetProp(self, "HEAL_PWR_RATE_BM", 0);     
+    local byRateBuff = TryGetProp(self, "HEAL_PWR_RATE_BM", 0);        
     local sum_of_heal_power = 0
     local byAbil = GetExProp(self, "ABIL_MACE_ADDHEAL") -- 클레릭: 치유력 특성
     if byAbil == nil then
@@ -5177,6 +5186,7 @@ function GET_SHOW_HEAL_PWR(self, real_value)
         seal_option = seal_option / 1000
         sum_of_heal_power = sum_of_heal_power + seal_option
     end
+
     if GetExProp(self, "ITEM_goddess_seal_lv1") > 0 then -- 보루타 인장 - 공용
         seal_option = GetExProp(self, "ITEM_goddess_seal_lv1")
         seal_option = seal_option / 1000
@@ -5188,18 +5198,21 @@ function GET_SHOW_HEAL_PWR(self, real_value)
         seal_option = seal_option / 1000
         sum_of_heal_power = sum_of_heal_power + seal_option
     end
-        
+
     real_value  = ((real_value - (byAttack * 0.6)) / 0.4)
-    
     real_value = ((real_value) + (byAttack * 0.6))
     real_value = real_value * (1 + sum_of_heal_power) 
-    
     real_value = real_value * (1 + byRateBuff)
-    
+
     if IsPVPServer() == 1 or IsPVPField() == 1 or IsJoinColonyWarMap() == 1 then
         local reduce_ratio = FINAL_DAMAGE_REDUCE_RATIO_PVP / 100
         real_value = real_value * (1 - reduce_ratio)
     end
+
+    -- if IsJoinColonyWarMap() == 1 then
+    --     local reduce_ratio = FINAL_DAMAGE_REDUCE_RATIO_PVP_COLONY / 100
+    --     real_value = real_value * (1 - reduce_ratio)
+    -- end
 
     if real_value < 1 then
     	real_value = 1;

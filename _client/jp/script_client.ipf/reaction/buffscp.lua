@@ -1968,6 +1968,15 @@ function BoneStorm_ColorBlend_Buff_LEAVE(actor, obj, buff)
     actor:GetEffect():ActorColorBlend(1, 1, 1, 1, 1, 0);
 end
 
+function Blitzkrieg_ColorBlend_Buff_ENTER(actor, obj, buff)
+    actor:SetAlwaysBattleState(true);    
+    actor:GetEffect():ActorColorBlend(1, 0/255, 191/255, 255/255, 1, 0);        
+end
+
+function Blitzkrieg_ColorBlend_Buff_LEAVE(actor, obj, buff)
+    actor:SetAlwaysBattleState(false);
+    actor:GetEffect():ActorColorBlend(1, 1, 1, 1, 1, 0);
+end
 
 
 function DOLL_LAIMA_BUFF_ENTER(actor, obj, buff)

@@ -115,15 +115,14 @@ function GET_USEJOB_TOOLTIP(invitem)
 		return GET_USEJOB_TOOLTIP_PET(invitem);
 	end
 
-	local usejob = TryGetProp(invitem,'UseJob')
-	if usejob == nil then
+	local usejob = TryGetProp(invitem, 'UseJob', "None")
+	if usejob == nil or usejob == "None" then
 		return '';
 	end
 
 	local usegender = TryGetProp(invitem,'UseGender')
 
 	local resultstr = ''	
-
 	if usejob == "All" then
 		resultstr =  ScpArgMsg("USEJOB_ALL")
 	else
@@ -241,15 +240,15 @@ function SET_DAMAGE_TEXT(parent, strArg, iconname, mindamage, maxdamage, index, 
 	if mindamage == maxdamage or maxdamage == 0 then
 		if reinforceAddValue ~= 0 then
 			--atkValueCtrl:SetText(mindamage..' '..color..'(+'..reinforceAddValue..'){/}');
-			atkValueCtrl:SetText(mindamage + reinforceAddValue);
+			atkValueCtrl:SetText(GET_COMMAED_STRING(mindamage + reinforceAddValue));
 		else
-			atkValueCtrl:SetText(mindamage);
+			atkValueCtrl:SetText(GET_COMMAED_STRING(mindamage));
 		end
 	else
 		if reinforceAddValue ~= 0 then
-			atkValueCtrl:SetText(mindamage + reinforceAddValue.." ~ "..maxdamage + reinforceAddValue);
+			atkValueCtrl:SetText(GET_COMMAED_STRING(mindamage + reinforceAddValue) .." ~ ".. GET_COMMAED_STRING(maxdamage + reinforceAddValue));
 		else
-			atkValueCtrl:SetText(mindamage.." ~ "..maxdamage);
+			atkValueCtrl:SetText(GET_COMMAED_STRING(mindamage) .." ~ ".. GET_COMMAED_STRING(maxdamage));
 		end
 	end
 
@@ -951,7 +950,7 @@ function SET_REINFORCE_TEXT(gBox, invitem, yPos, isEquiped, basicProp)
 
 		local reinforceUpValue = gBox:CreateOrGetControl('richtext', "REINFORCE_VALUE", 200, yPos, 200, 20);
 		reinforceUpValue = tolua.cast(reinforceUpValue, "ui::CRichText");
-		local valueText = string.format("{#004123}"..ScpArgMsg("PropUp").."%d", reinforceValue)
+		local valueText = string.format("{#004123}"..ScpArgMsg("PropUp").."%s", GET_COMMAED_STRING(reinforceValue))
 		reinforceUpValue:SetTextFixWidth(1);
 		reinforceUpValue:SetFormat("%s");
 		reinforceUpValue:AddParamInfo("ReinforceValue", "");
@@ -1133,9 +1132,9 @@ end
 function ABILITY_DESC(desc, basic, cur)
 
 	if basic == cur then
-		return string.format("%s  %d", desc ,cur);
+		return string.format("%s  %s", desc ,GET_COMMAED_STRING(cur));
 	else
-		return string.format("%s  {#00FF00}%d{/} (%d + {#00FF00}%d{/})", desc ,cur, basic, cur - basic);
+		return string.format("%s  {#00FF00}%s{/} (%s + {#00FF00}%s{/})", desc ,GET_COMMAED_STRING(cur), GET_COMMAED_STRING(basic), GET_COMMAED_STRING(cur - basic));
 	end
 end
 
@@ -1150,26 +1149,26 @@ function ABILITY_DESC_PLUS_OLD(desc, basic, cur, color)
 	end
 
 	if basic == cur then
-		return string.format(fontColor.."- %s + %d", desc, cur);
+		return string.format(fontColor.."- %s + %s", desc, GET_COMMAED_STRING(cur));
 	else
-		return string.format(fontColor.."- %s + %d", desc, cur);
+		return string.format(fontColor.."- %s + %s", desc, GET_COMMAED_STRING(cur));
 	end
 end
 
 function ABILITY_DESC_PLUS(desc, cur)   
 
     if cur < 0 then
-        return string.format(" - %s "..ScpArgMsg("PropDown").."%d", desc, math.abs(cur));
+        return string.format(" - %s "..ScpArgMsg("PropDown").."%s", desc, GET_COMMAED_STRING(math.abs(cur)));
     else
-    	return string.format(" - %s "..ScpArgMsg("PropUp").."%d", desc, math.abs(cur));
+    	return string.format(" - %s "..ScpArgMsg("PropUp").."%s", desc, GET_COMMAED_STRING(math.abs(cur)));
 	end
 end
 
 function AWAKEN_ABILITY_DESC_PLUS(desc, cur)   
     if tonumber(cur) < 0 then
-        return "{@st66b}{#64ff64}{ol}"..string.format(" %s "..ScpArgMsg("PropDown").."%d", desc, math.abs(cur));
+        return "{@st66b}{#64ff64}{ol}"..string.format(" %s "..ScpArgMsg("PropDown").."%s", desc, GET_COMMAED_STRING(math.abs(cur)));
     else
-    	return "{@st66b}{#64ff64}{ol}"..string.format(" %s "..ScpArgMsg("PropUp").."%d", desc, math.abs(cur));
+    	return "{@st66b}{#64ff64}{ol}"..string.format(" %s "..ScpArgMsg("PropUp").."%s", desc, GET_COMMAED_STRING(math.abs(cur)));
 	end
 
 end
@@ -1199,14 +1198,14 @@ function GET_OPTION_VALUE_OR_PERCECNT_STRING(optionName, optionValue)
 
 function ABILITY_DESC_NO_PLUS(desc, cur, is_max)
     if cur < 0 then
-        return string.format(" %s "..ScpArgMsg("PropDown").."%d", desc, math.abs(cur));
+        return string.format(" %s "..ScpArgMsg("PropDown").."%s", desc, GET_COMMAED_STRING(math.abs(cur)));
 	else
 		if is_max == 1 then
-			return string.format(" %s "..ScpArgMsg("PropUp").."%s", desc, '{@st66b}{#64ff64}{ol}'.. math.abs(cur));
+			return string.format(" %s "..ScpArgMsg("PropUp").."%s", desc, '{@st66b}{#64ff64}{ol}'.. GET_COMMAED_STRING(math.abs(cur)));
 		elseif is_max == 2 then
-			return string.format(" %s "..ScpArgMsg("PropUp").."%s", desc, '{@st66b}{#a349a4}{ol}'.. math.abs(cur));
+			return string.format(" %s "..ScpArgMsg("PropUp").."%s", desc, '{@st66b}{#a349a4}{ol}'.. GET_COMMAED_STRING(math.abs(cur)));
 		else
-			return string.format(" %s "..ScpArgMsg("PropUp").."%d", desc, math.abs(cur));
+			return string.format(" %s "..ScpArgMsg("PropUp").."%s", desc, GET_COMMAED_STRING(math.abs(cur)));
 		end    	
 	end
 end

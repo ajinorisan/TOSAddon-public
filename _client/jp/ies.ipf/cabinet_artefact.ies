@@ -69,3 +69,5 @@ ClassID,Upgrade,MakeCostSilver,MaxUpgrade,Basic,Category,ClassName,GetItemFunc,R
 68,0,10000,1,0,"Artefact","ep16angler_sword","GET_CABINET_ITEM_NAME","TX_REGISTER_CABINET_ITEM","TX_BRIQUET_GODDESS_ITEM","ep16angler_sword_cabinet","","강태공의 소드"
 69,0,10000,1,0,"Artefact","ep16angler_staff","GET_CABINET_ITEM_NAME","TX_REGISTER_CABINET_ITEM","TX_BRIQUET_GODDESS_ITEM","ep16angler_staff_cabinet","","강태공의 스태프"
 70,0,10000,1,0,"Artefact","ep16angler_shield","GET_CABINET_ITEM_NAME","TX_REGISTER_CABINET_ITEM","TX_BRIQUET_GODDESS_ITEM","ep16angler_shield_cabinet","","강태공의 실드"
+71,0,10000,1,0,"Artefact","ep17tospace_thsword","GET_CABINET_ITEM_NAME","TX_REGISTER_CABINET_ITEM","TX_BRIQUET_GODDESS_ITEM","ep17tospace_thsword_cabinet","","트리 오브 스페이스 키보드 투 핸드 소드"
+72,0,10000,1,0,"Artefact","ep17tospace_thmace","GET_CABINET_ITEM_NAME","TX_REGISTER_CABINET_ITEM","TX_BRIQUET_GODDESS_ITEM","ep17tospace_thmace_cabinet","","트리 오브 스페이스 베이스 투 핸드 메이스"

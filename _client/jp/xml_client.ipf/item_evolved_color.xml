@@ -17,4 +17,19 @@
 			<Color RGBA="255;127;0;200" Time="1.5"/>
 		</Node>
 	</Pattern>
+	<Pattern PatternName="EatherBlader_Color_White">
+		<Node Factor="1.5" TimeTerm="1" DiffusionType="Stop" ColorBlendType="Linear" Attach="Self" UseItemAura="YES">
+			<Color RGBA="247;242;242;70" Time="1"/>
+		</Node>
+	</Pattern>
+	<Pattern PatternName="EatherBlader_Color_Blue">
+		<Node Factor="1.5" TimeTerm="1" DiffusionType="Stop" ColorBlendType="Linear" Attach="Self" UseItemAura="YES">
+			<Color RGBA="35;39;252;70" Time="1"/>
+		</Node>
+	</Pattern>
+	<Pattern PatternName="EatherBlader_Color_Yellow">
+		<Node Factor="1.5" TimeTerm="1" DiffusionType="Stop" ColorBlendType="Linear" Attach="Self" UseItemAura="YES">
+			<Color RGBA="252;244;3;70" Time="1"/>
+		</Node>
+	</Pattern>
 </Aura>

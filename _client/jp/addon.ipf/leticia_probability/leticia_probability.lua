@@ -42,7 +42,7 @@ function GET_LIST_BY_FRAME_TYPE(frame)
         TopTab:ShowWindow(0)
     elseif TypeNum == 3 then
         table = GET_GODDESS_CUBE_PROBABILITY("Gacha_Blessed_CUBE_001")
-        TopTab:ShowWindow(1);
+        TopTab:ShowWindow(1); 
     else
         table = GET_STEP_GACHA_PROBABILITY_TABLE(Round);
         RounTab:ShowWindow(0)
@@ -119,7 +119,17 @@ function CREATE_LETICIA_PROBABILITY_SLOTS(parent, table)
     local topframe = parent:GetTopParentFrame();
     local TypeNum = topframe:GetUserIValue("Type")
 
-    parent:RemoveAllChild();
+    local cnt = parent:GetChildCount() - 1
+    local isDiffTable = false;
+    if cnt ~= #table then
+        isDiffTable = true;
+    end
+    
+    if not isDiffTable then
+        return;
+    end
+
+    parent:RemoveAllChild()
 
     local x = 10;
     local y = 0;
@@ -159,6 +169,7 @@ function CREATE_LETICIA_PROBABILITY_SLOTS(parent, table)
 
 
         local fullImage = GET_LEGENDEXPPOTION_ICON_IMAGE_FULL(ItemCls);
+
 
         local icon = pic:GetIcon()
         if icon ~= nil then

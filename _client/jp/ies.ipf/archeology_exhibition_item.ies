@@ -1,0 +1,9 @@
+ClassID,cost,EffectValues,exp,ClassName,desc,EffectScp,EffectTags
+1,2,2,0,"Event_Damaged_Zemina_Coin","일반 유물 추가 획득 2%","SCR_ADV_ARCHEOLOGY_APPLY_EFFECT_BY_TAGS","ARCHEOLOGY_COIN_GAIN"
+2,3,5,0,"Event_Crack_Zemina_Coin","일반 유물 추가 획득 5%","SCR_ADV_ARCHEOLOGY_APPLY_EFFECT_BY_TAGS","ARCHEOLOGY_COIN_GAIN"
+3,4,10,0,"Event_ReStore_Zemina_Coin","일반 유물 추가 획득 10%","SCR_ADV_ARCHEOLOGY_APPLY_EFFECT_BY_TAGS","ARCHEOLOGY_COIN_GAIN"
+4,0,0,0,"Event_Perfect_Zemina_Coin","일반 유물 추가 획득 0%","SCR_ADV_ARCHEOLOGY_APPLY_EFFECT_BY_TAGS","ARCHEOLOGY_COIN_GAIN"
+5,2,20,0,"Event_Damaged_archeology_compass","탐지 범위 증가 + 20","SCR_ADV_ARCHEOLOGY_APPLY_EFFECT_BY_TAGS","ARCHEOLOGY_DETECTING"
+6,3,50,0,"Event_Crack_archeology_compass","탐지 범위 증가 + 50","SCR_ADV_ARCHEOLOGY_APPLY_EFFECT_BY_TAGS","ARCHEOLOGY_DETECTING"
+7,4,100,0,"Event_ReStore_archeology_compass","탐지 범위 증가 + 100","SCR_ADV_ARCHEOLOGY_APPLY_EFFECT_BY_TAGS","ARCHEOLOGY_DETECTING"
+8,0,0,0,"Event_Perfect_archeology_compass","탐지 범위 증가 0%","SCR_ADV_ARCHEOLOGY_APPLY_EFFECT_BY_TAGS","ARCHEOLOGY_DETECTING"

@@ -1004,6 +1004,24 @@
 		<image name="icon_item_hairacc_bonemancer1" file="\icon\hairacc\icon_item_hairacc_bonemancer1.png" imgrect="0 0 256 256" CMM_Caption="본맨서의 뼈 장식"/>
 		<image name="icon_item_hairacc_bonemancer2" file="\icon\hairacc\icon_item_hairacc_bonemancer2.png" imgrect="0 0 256 256" CMM_Caption="본맨서의 복면"/>
 		<image name="icon_item_wing_bonemancer" file="\icon\payment\icon_item_wing_bonemancer.png" imgrect="0 0 256 256" CMM_Caption="본맨서의 뼈 날개"/>
+		<image name="icon_item_Unlock_blitzhunter" file="\icon\payment\icon_item_Unlock_blitzhunter.png" imgrect="0 0 256 256" CMM_Caption="블리츠 헌터 스페셜 클래스 해금권"/>
+		<image name="icon_item_blitzhunter_selectbox01" file="\icon\payment\icon_item_blitzhunter_selectbox01.png" imgrect="0 0 256 256" CMM_Caption="블리츠 헌터 해금권 상자"/>
+		<image name="icon_item_blitzhunter_selectbox02" file="\icon\payment\icon_item_blitzhunter_selectbox02.png" imgrect="0 0 256 256" CMM_Caption="블리츠 헌터 해금권 선택 상자"/>
+		<image name="icon_item_blitzhunter_selectbox03" file="\icon\payment\icon_item_blitzhunter_selectbox03.png" imgrect="0 0 256 256" CMM_Caption="블리츠 헌터 머리장식 선택 상자"/>
+		<image name="icon_item_archer_blitzhunter_m" file="\icon\equip\icon_item_archer_blitzhunter_m.png" imgrect="0 0 256 256" CMM_Caption="블리츠 헌터 코스튬(남)"/>
+		<image name="icon_item_archer_blitzhunter_f" file="\icon\equip\icon_item_archer_blitzhunter_f.png" imgrect="0 0 256 256" CMM_Caption="블리츠 헌터 코스튬(여)"/>
+		<image name="icon_item_hairacc_blitzhunter1" file="\icon\hairacc\icon_item_hairacc_blitzhunter1.png" imgrect="0 0 256 256" CMM_Caption="블리츠 헌터의 모자(여)"/>
+		<image name="icon_item_hairacc_blitzhunter2" file="\icon\hairacc\icon_item_hairacc_blitzhunter2.png" imgrect="0 0 256 256" CMM_Caption="블리츠 헌터의 모자(남)"/>
+		<image name="icon_item_wing_blitzhunter" file="\icon\payment\icon_item_wing_blitzhunter.png" imgrect="0 0 256 256" CMM_Caption="블리츠 헌터의 날개"/>
+		<image name="icon_leticia_bonemancerW_unlockbox" file="\icon\payment\icon_leticia_bonemancerW_unlockbox.png" imgrect="0 0 256 256" CMM_Caption="위저드 계열 본맨서 해금권 상자"/>
+		<image name="icon_item_aetherblader_selectbox01" file="\icon\payment\icon_item_aetherblader_selectbox01.png" imgrect="0 0 256 256" CMM_Caption="에테르 블레이더 해금권 상자"/>
+		<image name="icon_item_aetherblader_selectbox02" file="\icon\payment\icon_item_aetherblader_selectbox02.png" imgrect="0 0 256 256" CMM_Caption="에테르 블레이더 해금권 선택 상자"/>
+		<image name="icon_item_Unlock_aetherblader" file="\icon\payment\icon_item_Unlock_aetherblader.png" imgrect="0 0 256 256" CMM_Caption="에테르 블레이더 스페셜 클래스 해금권"/>
+		<image name="icon_item_cleric_aetherblader_m" file="\icon\equip\icon_item_cleric_aetherblader_m.png" imgrect="0 0 256 256" CMM_Caption="에테르 블레이더 코스튬(남)"/>
+		<image name="icon_item_cleric_aetherblader_f" file="\icon\equip\icon_item_cleric_aetherblader_f.png" imgrect="0 0 256 256" CMM_Caption="에테르 블레이더 코스튬(여)"/>
+		<image name="icon_item_hairacc_aetherblader" file="\icon\hairacc\icon_item_hairacc_aetherblader.png" imgrect="0 0 256 256" CMM_Caption="에테르 블레이더의 머리 장식"/>
+		<image name="icon_item_wing_aetherblader" file="\icon\payment\icon_item_wing_aetherblader.png" imgrect="0 0 256 256" CMM_Caption="에테르 블레이더의 날개"/>
+		<image name="icon_leticia_aetherbladerT_unlockbox" file="\icon\payment\icon_leticia_aetherbladerT_unlockbox.png" imgrect="0 0 256 256" CMM_Caption="스카우트 계열 에테르 블레이더 해금권 상자"/>
 	</imagelist>
 	<imagelist category="256_costume_icons">
 		<image name="icon_item_Alchemist_f" file="\icon\equip\Alchemist_f_icon.png" imgrect="0 0 256 256" CMM_Caption="알케미스트"/>
@@ -3838,6 +3856,7 @@
 		<image name="icon_item_misc_merregina_blackpearl_NoTrade" file="\icon\item\icon_item_misc_merregina_blackpearl_NoTrade.png" imgrect="0 0 256 256"/>
 		<image name="icon_item_cupole_recruit_ticket_recipe" file="\icon\item\icon_item_cupole_recruit_ticket_recipe.png" imgrect="0 0 256 256"/>
 		<image name="icon_item_cupole_recruit_ticket_recipe2" file="\icon\item\icon_item_cupole_recruit_ticket_recipe2.png" imgrect="0 0 256 256"/>
+		<image name="icon_item_event_archeology_coin" file="\icon\item\icon_item_event_archeology_coin.png" imgrect="0 0 128 128"/>
 	</imagelist>
 	<imagelist category="acc_item">
 		<image name="item_necklace_01" file="\icon\acc\item_necklace_1.png" imgrect="0 0 256 256" CMM_Caption="목걸이"/>
@@ -7257,6 +7276,8 @@
 		<image name="icon_item_secret_medicine_str_560" file="\icon\item\icon_item_secret_medicine_str_560.png" imgrect="0 0 128 128" CMM_Caption="비약 - 힘"/>
 		<image name="icon_item_secret_medicine_str_580" file="\icon\item\icon_item_secret_medicine_str_580.png" imgrect="0 0 128 128" CMM_Caption="비약 - 힘"/>
 		<image name="icon_item_secret_medicine_str_600" file="\icon\item\icon_item_secret_medicine_str_600.png" imgrect="0 0 128 128" CMM_Caption="비약 - 힘"/>
+		<image name="icon_item_secret_medicine_int_event" file="\icon\item\icon_item_secret_medicine_int_event.png" imgrect="0 0 128 128" CMM_Caption="비약 - 지능"/>
+		<image name="icon_item_secret_medicine_str_event" file="\icon\item\icon_item_secret_medicine_str_event.png" imgrect="0 0 128 128" CMM_Caption="비약 - 힘"/>
 		<image name="icon_item_h_desk" file="\icon\item\icon_item_h_desk.png" imgrect="0 0 256 256" CMM_Caption="비약 - 하우징 프랍 1"/>
 		<image name="icon_item_pharmacy_counteractive_1" file="\icon\item\icon_item_pharmacy_counteractive_1.png" imgrect="0 0 128 128" CMM_Caption="독성 중화제_하"/>
 		<image name="icon_item_pharmacy_counteractive_2" file="\icon\item\icon_item_pharmacy_counteractive_2.png" imgrect="0 0 128 128" CMM_Caption="독성 중화제_중"/>
@@ -7853,6 +7874,8 @@
 		<image name="icon_item_h_cube_wood_01_brown_set" file="\icon\housing\icon_item_h_cube_wood_01_brown_set.png" imgrect="0 0 256 256" CMM_Caption="[길드 하우징] 우드 큐브(갈색)_세트"/>
 		<image name="icon_item_h_cube_limestone_01_gray_set" file="\icon\housing\icon_item_h_cube_limestone_01_gray_set.png" imgrect="0 0 256 256" CMM_Caption="[길드 하우징] 석회암 큐브(회색)_세트"/>
 		<image name="icon_item_h_cube_limestone_01_beige_set" file="\icon\housing\icon_item_h_cube_limestone_01_beige_set.png" imgrect="0 0 256 256" CMM_Caption="[길드 하우징] 석회암 큐브(베이지색)_세트"/>
+		<image name="icon_item_p_h_barrack_archeology_exhibition" file="\icon\housing\icon_item_p_h_barrack_archeology_exhibition.png" imgrect="0 0 279 272" CMM_Caption="고고학 전시대"/>
+
 	</imagelist>
 	<imagelist category="payment">
 		<image name="icon_item_hpPotionPremium" file="\icon\payment\icon_item_hpPotionPremium.png" imgrect="0 0 256 256" CMM_Caption="HP포션"/>
@@ -10389,6 +10412,22 @@
 		<image name="icon_item_tosw2th_campanion_select_box" file="\icon\payment\icon_item_tosw2th_campanion_select_box.png" imgrect="0 0 256 256" CMM_Caption="[W 2주년] 컴패니언 선택 상자"/>
 		<image name="icon_item_tosw2th_costume_select_box" file="\icon\payment\icon_item_tosw2th_costume_select_box.png" imgrect="0 0 256 256" CMM_Caption="[W 2주년] 코스튬 선택 상자"/>
 		<image name="icon_item_tosw2th_hair_costume_select_box" file="\icon\payment\icon_item_tosw2th_hair_costume_select_box.png" imgrect="0 0 256 256" CMM_Caption="[W 2주년] 헤어악세서리 선택 상자"/>
+		<image name="icon_item_poposhop_1000p" file="\icon\payment\icon_item_poposhop_1000p.png" imgrect="0 0 256 256" CMM_Caption="W 2주년 포포샵 포인트 1000"/>
+		<image name="icon_item_hairacc_ep17tospace01" file="\icon\payment\icon_item_hairacc_ep17tospace01.png" imgrect="0 0 256 256" CMM_Caption="트리 오브 스페이스 머리 장식 A"/>
+		<image name="icon_item_hairacc_ep17tospace02" file="\icon\payment\icon_item_hairacc_ep17tospace02.png" imgrect="0 0 256 256" CMM_Caption="트리 오브 스페이스 머리 장식 B"/>
+		<image name="icon_item_costume_ep17tospace01_f" file="\icon\payment\icon_item_costume_ep17tospace01_f.png" imgrect="0 0 256 256" CMM_Caption="트리 오브 스페이스 코스튬 A(여)"/>
+		<image name="icon_item_costume_ep17tospace01_m" file="\icon\payment\icon_item_costume_ep17tospace01_m.png" imgrect="0 0 256 256" CMM_Caption="트리 오브 스페이스 코스튬 A(남)"/>
+		<image name="icon_item_costume_ep17tospace02_f" file="\icon\payment\icon_item_costume_ep17tospace02_f.png" imgrect="0 0 256 256" CMM_Caption="트리 오브 스페이스 코스튬 B(여)"/>
+		<image name="icon_item_costume_ep17tospace02_m" file="\icon\payment\icon_item_costume_ep17tospace02_m.png" imgrect="0 0 256 256" CMM_Caption="트리 오브 스페이스 코스튬 B(남)"/>		
+		<image name="icon_item_effect_ep17tospace01" file="\icon\payment\icon_item_effect_ep17tospace01.png" imgrect="0 0 256 256" CMM_Caption="트리 오브 스페이스 블랙홀"/>
+		<image name="icon_item_effect_ep17tospace02" file="\icon\payment\icon_item_effect_ep17tospace02.png" imgrect="0 0 256 256" CMM_Caption="트리 오브 스페이스 블랙홀 - 포포"/>
+		<image name="icon_item_selectbox_ep17tospace01" file="\icon\payment\icon_item_selectbox_ep17tospace01.png" imgrect="0 0 256 256" CMM_Caption="트리 오브 스페이스 코스튬 선택 상자 A"/>
+		<image name="icon_item_selectbox_ep17tospace02" file="\icon\payment\icon_item_selectbox_ep17tospace02.png" imgrect="0 0 256 256" CMM_Caption="트리 오브 스페이스 코스튬 선택 상자 B"/>
+		<image name="icon_item_thsword_ep17tospace" file="\icon\weapon\icon_item_thsword_ep17tospace.png" imgrect="0 0 256 256" CMM_Caption="트리 오브 스페이스 키보드 투 핸드 소드"/>
+		<image name="icon_item_thhammer_ep17tospace" file="\icon\weapon\icon_item_thhammer_ep17tospace.png" imgrect="0 0 256 256" CMM_Caption="트리 오브 스페이스 베이스 투 핸드 메이스"/>
+		<image name="icon_item_capybara_sayballoon_pic" file="\icon\payment\icon_item_capybara_sayballoon_pic.png" imgrect="0 0 256 256" CMM_Caption="카피바라 말풍선"/>
+		<image name="icon_item_capybara_sayballoon" file="\icon\payment\icon_item_capybara_sayballoon.png" imgrect="0 0 256 256" CMM_Caption="카피바라"/>
+		<image name="icon_item_hairpin_box" file="\icon\item\icon_item_hairpin_box.png" imgrect="0 0 256 256" CMM_Caption="벌헤어핀박스"/>
 	</imagelist>
 	<imagelist category="seal">
 		<image name="icon_seal_yellow_cc_A1" file="\icon\seal\seal_yellow_cc_A1.tga" imgrect="0 0 80 80"/>

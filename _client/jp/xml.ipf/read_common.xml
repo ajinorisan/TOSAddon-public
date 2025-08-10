@@ -443,4 +443,6 @@
 	<ReadXml Name="event_gamble_list"/>	
 	<ReadXml Name="limit_field_drop_item_list"/>		
 	<ReadXml Name="reward_tp3"/>
+	<ReadXml Name="archeology_exhibition_item"/>
+	<ReadXml Name="archeology_exhibition_exp"/>
 </Category>

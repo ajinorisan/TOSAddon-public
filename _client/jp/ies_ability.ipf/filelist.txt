@@ -1,10 +1,12 @@
 C:\Users\kohar\Desktop\TOSAddon_Tools-main\TOSAddon_Tools-main\client\jp\ies_ability.ipf\ability.ies
+C:\Users\kohar\Desktop\TOSAddon_Tools-main\TOSAddon_Tools-main\client\jp\ies_ability.ipf\ability_AetherBlader.ies
 C:\Users\kohar\Desktop\TOSAddon_Tools-main\TOSAddon_Tools-main\client\jp\ies_ability.ipf\ability_Alchemist.ies
 C:\Users\kohar\Desktop\TOSAddon_Tools-main\TOSAddon_Tools-main\client\jp\ies_ability.ipf\ability_Appraiser.ies
 C:\Users\kohar\Desktop\TOSAddon_Tools-main\TOSAddon_Tools-main\client\jp\ies_ability.ipf\ability_Archer.ies
 C:\Users\kohar\Desktop\TOSAddon_Tools-main\TOSAddon_Tools-main\client\jp\ies_ability.ipf\ability_Arditi.ies
 C:\Users\kohar\Desktop\TOSAddon_Tools-main\TOSAddon_Tools-main\client\jp\ies_ability.ipf\ability_Assassin.ies
 C:\Users\kohar\Desktop\TOSAddon_Tools-main\TOSAddon_Tools-main\client\jp\ies_ability.ipf\ability_Barbarian.ies
+C:\Users\kohar\Desktop\TOSAddon_Tools-main\TOSAddon_Tools-main\client\jp\ies_ability.ipf\ability_BlitzHunter.ies
 C:\Users\kohar\Desktop\TOSAddon_Tools-main\TOSAddon_Tools-main\client\jp\ies_ability.ipf\ability_Bokor.ies
 C:\Users\kohar\Desktop\TOSAddon_Tools-main\TOSAddon_Tools-main\client\jp\ies_ability.ipf\ability_Bonemancer.ies
 C:\Users\kohar\Desktop\TOSAddon_Tools-main\TOSAddon_Tools-main\client\jp\ies_ability.ipf\ability_Bulletmarker.ies

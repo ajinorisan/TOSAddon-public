@@ -723,7 +723,7 @@
         </EndScripts>
 	 	<KeyInput>
             <ToolScp Scp="SKL_KEY_DYNAMIC_CASTING" Client="YES" UseSleep="NO">
-                <Num Num="0" UseFunc="1" FuncTxt="local value = 1
+                <Num Num="0" UseFunc="0" FuncTxt="local value = 1
                     local abil = session.GetAbilityByName('Illusionist25');
                     if abil ~= nil then
                         local abilObj = GetIES(abil:GetObject());
@@ -743,7 +743,7 @@
                         end
                     end
                     return value"/>
-                <Num Num="0" UseFunc="1" FuncTxt="local value = 0  
+                <Num Num="1" UseFunc="0" FuncTxt="local value = 0  
                     local pc = GetMyPCObject()  
                     local abil = session.GetAbilityByName('Illusionist25');
                     if abil ~= nil then

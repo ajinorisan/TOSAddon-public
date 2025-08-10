@@ -9,3 +9,4 @@ ClassID,ClassName,Category,Type,Icon,StringCoin,IsNowSeason,InvIcon
 9,"EVENT_TOS_WHOLE_TOTAL_COIN","coin","essential","icon_item_Tos_Event_Coin","YES","NO",""
 10,"RadaCertificate","old_coin","essential","icon_item_season_coin_Rada","YES","NO","inventory_coin_rada_pic"
 11,"JurateCertificate","coin","essential","icon_item_season_coin_Jurate","YES","YES","inventory_coin_jurate_pic"
+12,"ARCHEOLOGY_COIN","POINT","","icon_item_demon_point","NO","NO",""

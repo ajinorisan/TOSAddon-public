@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSPY v2004 rel. 2 U (http://www.xmlspy.com) by imc (imc) -->
+<idspace id="archeology_exhibition_exp">
+	<Class ClassID="1" ClassName="1" Exp="0" MaxCost="3"/>
+	<Class ClassID="2" ClassName="2" Exp="1500" MaxCost="4"/>
+	<Class ClassID="3" ClassName="3" Exp="4000" MaxCost="5"/>
+	<Class ClassID="4" ClassName="4" Exp="7500" MaxCost="6"/>
+	<Class ClassID="5" ClassName="5" Exp="12500" MaxCost="7"/>
+</idspace>

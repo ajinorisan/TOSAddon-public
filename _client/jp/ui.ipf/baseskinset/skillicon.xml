@@ -467,6 +467,14 @@
 		<image name="icon_arch_PurificationProtocol" file="\icon\skill\archer\icon_arch_PurificationProtocol.png" imgrect="0 0 128 128" CMM_Caption="정화 프로토콜"/>
 		<image name="icon_buff_Purification" file="\icon\skill\archer\icon_arch_Purification.png" imgrect="0 0 128 128" CMM_Caption="입력: 정화"/>
 		<image name="icon_buff_Devastation" file="\icon\skill\archer\icon_arch_Devastation.png" imgrect="0 0 128 128" CMM_Caption="입력: 황폐화"/>
+		<image name="icon_arch_VoltStrike" file="\icon\skill\archer\icon_arch_VoltStrike.png" imgrect="0 0 128 128" CMM_Caption="볼트 스트라이크"/>
+		<image name="icon_arch_VoltChain" file="\icon\skill\archer\icon_arch_VoltChain.png" imgrect="0 0 128 128" CMM_Caption="볼트 체인"/>
+		<image name="icon_arch_TempestShot" file="\icon\skill\archer\icon_arch_TempestShot.png" imgrect="0 0 128 128" CMM_Caption="템페스트 샷"/>
+		<image name="icon_arch_LightningStep" file="\icon\skill\archer\icon_arch_LightningStep.png" imgrect="0 0 128 128" CMM_Caption="라이트닝 스텝"/>
+		<image name="icon_arch_Lightningrod" file="\icon\skill\archer\icon_arch_Lightningrod.png" imgrect="0 0 128 128" CMM_Caption="라이트닝 로드"/>
+		<image name="icon_arch_ElectricSurge" file="\icon\skill\archer\icon_arch_ElectricSurge.png" imgrect="0 0 128 128" CMM_Caption="일렉트릭 서지"/>
+		<image name="icon_arch_Blitzkrieg" file="\icon\skill\archer\icon_arch_Blitzkrieg.png" imgrect="0 0 128 128" CMM_Caption="블리츠크리그"/>
+		<image name="icon_arch_VolticCatharsis" file="\icon\skill\archer\icon_arch_VolticCatharsis.png" imgrect="0 0 128 128" CMM_Caption="볼틱 카타르시스"/>
 	</imagelist>
 	<imagelist category="cleric_skillicon">
 		<image name="icon_cler_Heal" file="\icon\skill\cleric\icon_cler_Heal.png" imgrect="0 0 128 128" CMM_Caption="힐"/>
@@ -924,6 +932,12 @@
 		<image name="icon_buff_fistreinforce" file="\icon\skill\warrior\icon_buff_fistreinforce.png" imgrect="0 0 128 128" CMM_Caption="쐐기 - 강화"/>
 		<image name="icon_buff_ribreinforce" file="\icon\skill\warrior\icon_buff_ribreinforce.png" imgrect="0 0 128 128" CMM_Caption="늑골 - 강화"/>
 		<image name="icon_buff_backbonereinforce" file="\icon\skill\warrior\icon_buff_backbonereinforce.png" imgrect="0 0 128 128" CMM_Caption="등뼈 - 강화"/>
+		<image name="icon_cler_AquaReave" file="\icon\skill\cleric\icon_cler_AquaReave.png" imgrect="0 0 128 128" CMM_Caption="아쿠아리브"/>
+		<image name="icon_cler_AquaRift" file="\icon\skill\cleric\icon_cler_AquaRift.png" imgrect="0 0 128 128" CMM_Caption="아쿠아 리프트"/>
+		<image name="icon_cler_Tidecall" file="\icon\skill\cleric\icon_cler_Tidecall.png" imgrect="0 0 128 128" CMM_Caption="타이드콜"/>
+		<image name="icon_cler_FrostShatter" file="\icon\skill\cleric\icon_cler_FrostShatter.png" imgrect="0 0 128 128" CMM_Caption="프로스트 섀터"/>
+		<image name="icon_cler_Frimveil" file="\icon\skill\cleric\icon_cler_Frimveil.png" imgrect="0 0 128 128" CMM_Caption="프림베일"/>
+		<image name="icon_cler_ArcaneCollapse" file="\icon\skill\cleric\icon_cler_ArcaneCollapse.png" imgrect="0 0 128 128" CMM_Caption="아케인 콜랩스"/>
 	</imagelist>
 	<imagelist category="scout_skillicon">
 		<image name="icon_scout_aggress" file="\icon\skill\scout\icon_scout_aggress.png" imgrect="0 0 128 128" CMM_Caption="인법뇌둔술"/>
@@ -1873,6 +1887,22 @@
 		<image name="ability_Warrior_Bonemancer8" file="\icon\icon_ability_warrior11.tga" imgrect="128 896 128 128" CMM_Caption="[아츠] 본 실드: 뼈의 결속력"/>
 		<image name="ability_Warrior_Bonemancer10" file="\icon\icon_ability_warrior11.tga" imgrect="384 896 128 128" CMM_Caption="[아츠] 본 리인포스먼트: 뼈의 공명"/>
 		<image name="ability_Warrior_Bonemancer9" file="\icon\icon_ability_warrior11.tga" imgrect="512 896 128 128" CMM_Caption="본맨서"/>
+		<image name="ability_archer_BlitzHunter10" file="\icon\icon_ability_archer11.tga" imgrect="384 512 128 128" CMM_Caption="블리츠 헌터: 볼틱 카타르시스"/>
+		<image name="ability_archer_BlitzHunter1" file="\icon\icon_ability_archer11.tga" imgrect="0 640 128 128" CMM_Caption="볼트 스트라이크: 강화"/>
+		<image name="ability_archer_BlitzHunter2" file="\icon\icon_ability_archer11.tga" imgrect="256 640 128 128" CMM_Caption="볼트 체인: 강화"/>
+		<image name="ability_archer_BlitzHunter3" file="\icon\icon_ability_archer11.tga" imgrect="512 640 128 128" CMM_Caption="템페스트 샷: 강화"/>
+		<image name="ability_archer_BlitzHunter4" file="\icon\icon_ability_archer11.tga" imgrect="640 512 128 128" CMM_Caption="라이트닝 로드: 강화"/>
+		<image name="ability_archer_BlitzHunter5" file="\icon\icon_ability_archer11.tga" imgrect="0 768 128 128" CMM_Caption="일렉트릭 서지: 강화"/>
+		<image name="ability_archer_BlitzHunter101" file="\icon\icon_ability_archer11.tga" imgrect="128 640 128 128" CMM_Caption="[아츠] 볼트 스트라이크: 상급 강화"/>
+		<image name="ability_archer_BlitzHunter102" file="\icon\icon_ability_archer11.tga" imgrect="384 640 128 128" CMM_Caption="[아츠] 볼트 체인: 상급 강화"/>
+		<image name="ability_archer_BlitzHunter103" file="\icon\icon_ability_archer11.tga" imgrect="640 640 128 128" CMM_Caption="[아츠] 템페스트 샷: 상급 강화"/>
+		<image name="ability_archer_BlitzHunter104" file="\icon\icon_ability_archer11.tga" imgrect="896 640 128 128" CMM_Caption="[아츠] 라이트닝 로드: 상급 강화"/>
+		<image name="ability_archer_BlitzHunter105" file="\icon\icon_ability_archer11.tga" imgrect="128 768 128 128" CMM_Caption="[아츠] 일렉트릭 서지: 상급 강화"/>
+		<image name="ability_archer_BlitzHunter6" file="\icon\icon_ability_archer11.tga" imgrect="512 512 128 128" CMM_Caption="[아츠] 라이트닝 스텝: 임펄스"/>
+		<image name="ability_archer_BlitzHunter7" file="\icon\icon_ability_archer11.tga" imgrect="640 512 128 128" CMM_Caption="라이트닝 로드: 볼틱 카타르시스"/>
+		<image name="ability_archer_BlitzHunter8" file="\icon\icon_ability_archer11.tga" imgrect="768 512 128 128" CMM_Caption="[아츠] 일렉트릭 서지: 아크 터미널"/>
+		<image name="ability_archer_BlitzHunter9" file="\icon\icon_ability_archer11.tga" imgrect="896 512 128 128" CMM_Caption="[아츠] 블리츠크리그: 증폭"/>
+		<image name="ability_archer_BlitzHunter11" file="\icon\icon_ability_archer11.tga" imgrect="256 768 128 128" CMM_Caption="볼트 체인: 보스 헌터"/>
 	</imagelist>
 	<imagelist category="abilityicon_wizard">
 		<image name="ability_Wizard_Wizard1" file="\icon\icon_ability_wizard01.tga" imgrect="0 0 128 128" CMM_Caption="슬리프-단잠"/>
@@ -3751,6 +3781,20 @@
 		<image name="ability_cleric_Sledger09" file="\icon\icon_ability_cleric10.tga" imgrect="512 0 128 128" CMM_Caption="[아츠] 빅뱅: 지면 폭발"/>
 		<image name="ability_cleric_Sledger10" file="\icon\icon_ability_cleric10.tga" imgrect="0 256 128 128" CMM_Caption="슬레지해머: 강화"/>
 		<image name="ability_cleric_Sledger11" file="\icon\icon_ability_cleric10.tga" imgrect="128 256 128 128" CMM_Caption="롤링 해머: 위치 선점"/>
+		<image name="ability_Wizard_AetherBlader1" file="\icon\icon_ability_cleric10.tga" imgrect="256 256 128 128" CMM_Caption="아쿠아리브: 강화"/>
+		<image name="ability_Wizard_AetherBlader2" file="\icon\icon_ability_cleric10.tga" imgrect="512 256 128 128" CMM_Caption="아쿠아 리프트: 강화"/>
+		<image name="ability_Wizard_AetherBlader3" file="\icon\icon_ability_cleric10.tga" imgrect="768 256 128 128" CMM_Caption="타이드콜: 강화"/>
+		<image name="ability_Wizard_AetherBlader4" file="\icon\icon_ability_cleric10.tga" imgrect="896 256 128 128" CMM_Caption="프로스트 섀터: 강화"/>
+		<image name="ability_Wizard_AetherBlader5" file="\icon\icon_ability_cleric10.tga" imgrect="128 384 128 128" CMM_Caption="프림베일: 강화"/>
+		<image name="ability_Wizard_AetherBlader6" file="\icon\icon_ability_cleric10.tga" imgrect="384 384 128 128" CMM_Caption="아케인 콜랩스: 강화"/>
+		<image name="ability_Wizard_AetherBlader101" file="\icon\icon_ability_cleric10.tga" imgrect="384 256 128 128" CMM_Caption="[아츠] 아쿠아리브: 상급 강화"/>
+		<image name="ability_Wizard_AetherBlader102" file="\icon\icon_ability_cleric10.tga" imgrect="640 256 128 128" CMM_Caption="[아츠] 아쿠아 리프트: 상급 강화"/>
+		<image name="ability_Wizard_AetherBlader103" file="\icon\icon_ability_cleric10.tga" imgrect="0 384 128 128" CMM_Caption="[아츠] 프로스트 섀터: 상급 강화"/>
+		<image name="ability_Wizard_AetherBlader104" file="\icon\icon_ability_cleric10.tga" imgrect="256 384 128 128" CMM_Caption="[아츠] 프림베일: 상급 강화"/>
+		<image name="ability_Wizard_AetherBlader105" file="\icon\icon_ability_cleric10.tga" imgrect="512 384 128 128" CMM_Caption="[아츠] 아케인 콜랩스: 상급 강화"/>
+		<image name="ability_Wizard_AetherBlader106" file="\icon\icon_ability_cleric10.tga" imgrect="896 384 128 128" CMM_Caption="[아츠] 프림베일: 프로즌 스탠스"/>
+		<image name="ability_Wizard_AetherBlader107" file="\icon\icon_ability_cleric10.tga" imgrect="768 384 128 128" CMM_Caption="프림베일: 콜드 에코"/>
+		<image name="ability_Wizard_AetherBlader108" file="\icon\icon_ability_cleric10.tga" imgrect="640 384 128 128" CMM_Caption="[아츠] 프로스트 섀터: 섀터라인"/>
 	</imagelist>
 	<imagelist category="abilityicon_common">
 		<image name="ability_common_DaggerMastery" file="\icon\icon_ability_common.tga" imgrect="0 0 128 128" CMM_Caption="단검 마스터리"/>

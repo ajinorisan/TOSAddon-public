@@ -48,7 +48,7 @@ function CRAETE_RERUN_TICKET_ITEM_LIST(frame, ticket)
     for i = 0, cnt - 1 do
         local iteminfocls = GetClassByIndexFromList(list, i);
         local Category = TryGetProp(iteminfocls, "Category", "None")
-        local itemClassName = TryGetProp(iteminfocls, "ClassName", "Name")
+        local itemClassName = TryGetProp(iteminfocls, "ItemName", "Name")
         if Category == CurrentCatrgory then
             local ctrl = itembox:CreateControlSet("rerunticket_item",itemClassName, row * offset[1] + 15, col * offset[2]);
             if ctrl then

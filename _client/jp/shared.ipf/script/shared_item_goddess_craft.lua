@@ -1095,7 +1095,15 @@ item_goddess_craft.is_able_to_unlock_scroll = function(scrollObj, itemObj)
 	local weapon = string.format('Goddess_Weapon_Lv%d', TryGetProp(scrollObj, 'NumberArg1', 0))
 
 	local stringArg = TryGetProp(itemObj, 'StringArg', 'None')
+	local popoboostProp = TryGetProp(itemObj, 'popoboost', 'None')
+	local UseLv = TryGetProp(itemObj, 'UseLv', 0)
+
 	if stringArg ~= armor and stringArg ~= weapon then
+		return false, 'NotValidItem'
+	end
+
+	-- 포포부스트 아이템이고, 레벨이 510 이하일 때 (계승 전 아이템일 때)
+	if popoboostProp > 0 and UseLv < 510 then
 		return false, 'NotValidItem'
 	end
     

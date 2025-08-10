@@ -54,11 +54,12 @@
 			<Class Name="Common_HoldAI" BuffID="160011" Desc="BuffID에 buff.xml에 있는 buff의 ClassID가 들어간다."/>
 			<Class Name="ENGINEER_TURRET_SLOW_DEBUFF" BuffID="695203" Desc="BuffID에 buff.xml에 있는 buff의 ClassID가 들어간다."/>
 			<Class Name="ENGINEER_TURRET_FREEZE_DEBUFF" BuffID="695204" Desc="BuffID에 buff.xml에 있는 buff의 ClassID가 들어간다."/>
-			<Class Name="SuperIce_Freeze" BuffID="800011" Desc="BuffID에 buff.xml에 있는 buff의 ClassID가 들어간다."/>			
-			<Class Name="SuperLightning_Paralysis" BuffID="800012" Desc="BuffID에 buff.xml에 있는 buff의 ClassID가 들어간다."/>			
+			<Class Name="SuperIce_Freeze" BuffID="800011" Desc="BuffID에 buff.xml에 있는 buff의 ClassID가 들어간다."/>
+			<Class Name="SuperLightning_Paralysis" BuffID="800012" Desc="BuffID에 buff.xml에 있는 buff의 ClassID가 들어간다."/>
 			<Class Name="ENGINEER_TURRET_STUN_DEBUFF" BuffID="695202" Desc="BuffID에 buff.xml에 있는 buff의 ClassID가 들어간다."/>
 			<Class Name="ENGINEER_MECHA_STUN_DEBUFF" BuffID="695206" Desc="BuffID에 buff.xml에 있는 buff의 ClassID가 들어간다."/>
 			<Class Name="ENGINEER_MECHA_SLOW_DEBUFF" BuffID="695207" Desc="BuffID에 buff.xml에 있는 buff의 ClassID가 들어간다."/>
+			<Class Name="FrostSatter_Debuff" BuffID="3290" Desc="BuffID에 buff.xml에 있는 buff의 ClassID가 들어간다."/>
 		</Category>
 		<Category Name="Skill">
 			<Class Name="KnockDown" SkillID="900000" Desc="넉다운은 스킬이 아니기 때문에, 900000번으로 할당하기로 정한다."/>
@@ -85,7 +86,7 @@
 			<Class Name="Chage_Debuff" BuffID="2184" Desc="BuffID에 buff.xml에 있는 buff의 ClassID가 들어간다."/>
 			<Class Name="Archer_SmokeBomb_Debuff" BuffID="87" Desc="BuffID에 buff.xml에 있는 buff의 ClassID가 들어간다."/>
 			<Class Name="CarveAustrasKoks_Debuff" BuffID="166" Desc="BuffID에 buff.xml에 있는 buff의 ClassID가 들어간다."/>
-			<Class Name="Lachrymator_Debuff" BuffID="228" Desc="BuffID에 buff.xml에 있는 buff의 ClassID가 들어간다."/>			
+			<Class Name="Lachrymator_Debuff" BuffID="228" Desc="BuffID에 buff.xml에 있는 buff의 ClassID가 들어간다."/>
 			<Class Name="Silence_Debuff" BuffID="2038" Desc="BuffID에 buff.xml에 있는 buff의 ClassID가 들어간다."/>
 			<Class Name="SprinkleSands_Debuff" BuffID="319" Desc="BuffID에 buff.xml에 있는 buff의 ClassID가 들어간다."/>
 			<Class Name="Blistering_Debuff" BuffID="1042" Desc="BuffID에 buff.xml에 있는 buff의 ClassID가 들어간다."/>
@@ -165,8 +166,8 @@
 	<Category Name="IgnoreMonsterTarget">
 		<!-- 몬스터에게는 점감을 적용하지 않을 버프 목록 -->
 		<Category Name="Buff">
-			<Class Name="SprinkleSands_Debuff" BuffID="319" Desc=""/>			
-		</Category>		
+			<Class Name="SprinkleSands_Debuff" BuffID="319" Desc=""/>
+		</Category>
 	</Category>
 	<!-- 마그네틱 포스 관련 comment 
   현재 설정 되어 있는 마그네틱 포스는 LifeTime이 3초이다. monskl_custom.lua의 SCR_MON_ATTRACT_MAGNETIC_TS_BORN_UPDATE()는 6번돈다. 즉 0.5초당 1번

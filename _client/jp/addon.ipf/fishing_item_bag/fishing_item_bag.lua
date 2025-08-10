@@ -142,7 +142,7 @@ function FISHING_ITEM_BAG_AUTO_RESIZING(slotset, slotIndex)
     local slotsetStartYPos = slotset:GetY();
     local slotsetCol = slotset:GetCol();
     local slotsetSpcY = slotset:GetSpcY();            
-    local slotRow = math.floor(slotIndex / slotsetCol) + 1;
+    local slotRow = math.max(1, math.floor(slotIndex / slotsetCol) + 1);
     local maxSlotBottomPos = slotsetStartYPos + slotset:GetSlotHeight() * slotRow + slotsetSpcY * (slotRow - 1);
 
     local topFrame = slotset:GetTopParentFrame();   
@@ -201,9 +201,32 @@ function FISHING_ITEM_BAG_SET_COUNT_BOX(frame, msg, argStr, argNum)
         countBox:ShowWindow(0);
         return;
     end
+
+    local countInfoText = GET_CHILD_RECURSIVELY(frame, "countInfoText");
+    if argNum == 1 then
+        local count_info_text = string.format("{@sti1}%s{/}", ClMsg("FishingItemBag_EventCountText"));
+        countInfoText:SetText(count_info_text);
+        curSuccessCount = string.format("{#00ddff}%s{/}", curSuccessCount);
+        maxSuccessCount = 5000;
+    else
+        local count_info_text = string.format("{@sti1}%s{/}", ClMsg("FishingItemBag_NormalCountText"));
+        countInfoText:SetText(count_info_text);
+    end
+
     countText:SetTextByKey('current', curSuccessCount);
     countText:SetTextByKey('max', maxSuccessCount);
     countBox:ShowWindow(1);
+
+    if msg == 'FISHING_SUCCESS_COUNT' then
+        local itemSlotset = GET_CHILD(frame, 'itemSlotset');    
+        if itemSlotset ~= nil then
+            local slotIndex = imcSlot:GetFilledSlotCount(itemSlotset);
+            local max_count = SCR_GET_MAX_FISHING_SUCCESS_COUNT(GetMyPCObject());            
+            if slotIndex ~= nil and slotIndex >= math.floor(max_count * 0.5) then
+                Fishing.ReqGetFishingItem();
+            end
+        end
+    end
 end
 
 function FISHING_ITEM_BAG_ENABLE_EXIT_BTN(enable)

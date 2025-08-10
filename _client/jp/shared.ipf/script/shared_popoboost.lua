@@ -79,12 +79,12 @@ local item_data = {
             piece_fierce_shoulder_high_NoTrade_Belonging = 1,
             piece_penetration_belt_high_Belonging = 1,
             selectbox_specialclass_allinone = 1,
-            Event_Roulette_Coin_PoPo_2503 = 5
+            Event_Roulette_Coin_PoPo_2506 = 5
         }
     },
     premium = {
         [0] = {
-            emoticonItem_2503_popo = 1,
+            emoticonItem_2506_popo = 1,
             class_unlock_achievement_select = 1,
             EVENT_2403_Friend_Invite_Coin = 8,
             misc_Ether_Gem_Socket_500_NoTrade = 4,
@@ -122,106 +122,103 @@ local item_data = {
             misc_pvp_mine2_NotLimit_10000 = 4,
         },
         [6] = {
-            Event_Roulette_Coin_PoPo_2503 = 5,
-            plate_achieve_Jumpin_UP = 1,
+            plate_achieve_First_Emperor = 1,
+            Event_Roulette_Coin_PoPo_2506 = 5,
             piece_GabijaEarring_select_job_NoTrade_Belonging = 1,
             JurateCertificateCoin_50000p = 5,
         }
     },
     papaya = {
         [0] = {
-            open_ticket_cabinet_goddess_lv3 = 5,
-            Event_JobexpCard_BOX = 2,
-            EVENT_RankReset_Point_Lv3 = 2,
-            Ability_Point_Stone_100000 = 25,
-            HiddenAbility_MasterPiece_Fragment_Event = 150
+            open_ticket_cabinet_goddess_lv3 = 4,
+            Event_JobexpCard_BOX = 1,
+            Event_Drug_RedApple20 = 20,
+            Event_Drug_BlueApple20 = 20,
+            Ability_Point_Stone_100000 = 20,
+            HiddenAbility_MasterPiece_Fragment_Event = 120
+            
         },
         [1] = {
-            open_ticket_cabinet_vibora_lv4 = 4,
-            EVENT_2403_Friend_Invite_Coin = 10,
-            misc_pvp_mine2_NotLimit_10000 = 5,
-            Exchange_Weapon_Book_500_1d = 5
+            open_ticket_cabinet_vibora_lv4 = 3,
+            Premium_boostToken05_14d = 1,
+            Exchange_Weapon_Book_500_1d = 4,
+            misc_pvp_mine2_NotLimit_10000 = 4
         },
         [2] = {
-            misc_ribbonRoze_NoTrade = 200,
-            misc_reinforce_percentUp_510_NoTrade = 85,
-            VakarineCertificateCoin_50000p = 3,
-            Ticket_Rozethemisterable_Auto_Enter_LimitTime = 3
+            misc_upinis_wing_NoTrade = 180,
+            misc_reinforce_percentUp_510_NoTrade = 70,
+            RadaCertificateCoin_50000p = 2,
+            Ticket_DreamyForest_Auto_Enter_LimitTime = 2
         },
         [3] = {
-            misc_ribbonRoze_NoTrade = 400,
-            misc_reinforce_percentUp_510_NoTrade = 170,
-            VakarineCertificateCoin_50000p = 4,
-            Ticket_Rozethemisterable_Auto_Enter_LimitTime = 3
+            misc_upinis_wing_NoTrade = 540,
+            misc_reinforce_percentUp_510_NoTrade = 205,
+            RadaCertificateCoin_50000p = 4,
+            Ticket_DreamyForest_Auto_Enter_LimitTime = 2
         },
         [4] = {
-            misc_slogutis_fragments_NoTrade = 320,
-            misc_upinis_wing_NoTrade = 320,
-            misc_reinforce_percentUp_510_NoTrade = 250,
-            RadaCertificateCoin_50000p = 6,
-            Ticket_DreamyForest_Auto_Enter_LimitTime = 3
+            misc_slogutis_fragments_NoTrade = 720,
+            misc_reinforce_percentUp_510_NoTrade = 270,
+            RadaCertificateCoin_50000p = 5,
+            Ticket_AbyssalObserver_Auto_Enter_LimitTime = 2,
         },
         [5] = {
-            misc_slogutis_fragments_NoTrade = 500,
-            misc_upinis_wing_NoTrade = 500,
-            misc_reinforce_percentUp_510_NoTrade = 400,
-            RadaCertificateCoin_50000p = 8,
-            Ticket_AbyssalObserver_Auto_Enter_LimitTime = 3
+            misc_merregina_blackpearl_NoTrade = 520,
+            misc_reinforce_percentUp_510_NoTrade = 205,
+            RadaCertificateCoin_50000p = 4,
+            Ticket_DespairIsland_Auto_Enter_LimitTime = 2,
         },
         [6] = {
-            piece_fierce_shoulder_high_NoTrade_Belonging = 2,
-            piece_penetration_belt_high_Belonging = 2,
-            JurateCertificateCoin_50000p = 4,
-            selectbox_specialclass_01 = 2,
-            Event_Roulette_Coin_PoPo_2503 = 7
+            piece_fierce_shoulder_high_NoTrade_Belonging = 1,
+            piece_penetration_belt_high_Belonging = 1,
+            selectbox_specialclass_allinone = 1,
+            Event_Roulette_Coin_PoPo_2506 = 5
         }
     },
     papaya_premium = {
         [0] = {
-            emoticonItem_2412_popo = 1,
-            class_unlock_achievement_select = 2,
-            misc_Ether_Gem_Socket_500_NoTrade = 5,
-            Piece_Gem_High_500 = 5,
-            lv500_aether_lvup_scroll_lv100 = 5
+            emoticonItem_2503_popo = 1,
+            class_unlock_achievement_select = 1,
+            EVENT_2403_Friend_Invite_Coin = 8,
+            misc_Ether_Gem_Socket_500_NoTrade = 4,
+            Piece_Gem_High_500 = 4,
+            lv500_aether_lvup_scroll_lv100 = 4
         },
         [1] = {
-            Gem_Select_Box_Color = 10,
-            misc_gemExpStone12_NoTrade = 10,
-            misc_pvp_mine2_NotLimit_10000 = 5,
-            Exchange_Weapon_Book_500 = 5
+            Gem_Select_Box_Color = 8,
+            misc_gemExpStone12_NoTrade = 8,
+            Exchange_Weapon_Book_500 = 4,
+            misc_pvp_mine2_NotLimit_10000 = 4
         },
         [2] = {
-            misc_ribbonRoze_NoTrade = 90,
-            misc_reinforce_percentUp_510_NoTrade = 40,
-            misc_Premium_reinforce_percentUp_460 = 20,
-            misc_pvp_mine2_NotLimit_10000 = 3
+            misc_upinis_wing_NoTrade = 75,
+            misc_reinforce_percentUp_510_NoTrade = 30,
+            misc_Premium_reinforce_percentUp_460 = 15,
+            misc_pvp_mine2_NotLimit_10000 = 43
         },
         [3] = {
-            misc_ribbonRoze_NoTrade = 180,
-            misc_reinforce_percentUp_510_NoTrade = 75,
-            misc_Premium_reinforce_percentUp_460 = 20,
-            misc_pvp_mine2_NotLimit_10000 = 3
+            misc_upinis_wing_NoTrade = 225,
+            misc_reinforce_percentUp_510_NoTrade = 85,
+            misc_Premium_reinforce_percentUp_460 = 15,
+            misc_pvp_mine2_NotLimit_10000 = 4
         },
         [4] = {
-            misc_slogutis_fragments_NoTrade = 140,
-            misc_upinis_wing_NoTrade = 140,
-            misc_reinforce_percentUp_510_NoTrade = 110,
-            misc_Premium_reinforce_percentUp_460 = 20,
-            misc_pvp_mine2_NotLimit_10000 = 3
+            misc_slogutis_fragments_NoTrade = 300,
+            misc_reinforce_percentUp_510_NoTrade = 115,
+            misc_Premium_reinforce_percentUp_460 = 15,
+            misc_pvp_mine2_NotLimit_10000 = 4,
         },
         [5] = {
-            misc_slogutis_fragments_NoTrade = 230,
-            misc_upinis_wing_NoTrade = 230,
-            misc_reinforce_percentUp_510_NoTrade = 175,
-            misc_Premium_reinforce_percentUp_460 = 20,
-            misc_pvp_mine2_NotLimit_10000 = 3
+            misc_merregina_blackpearl_NoTrade = 220,
+            misc_reinforce_percentUp_510_NoTrade = 85,
+            misc_Premium_reinforce_percentUp_460 = 15,
+            misc_pvp_mine2_NotLimit_10000 = 4,
         },
         [6] = {
-            Event_Roulette_Coin_PoPo_2503 = 7,
-            plate_achieve_jumpinup = 1,
-            piece_GabijaEarring_select_job_NoTrade_Belonging = 2,
-            JurateCertificateCoin_50000p = 4,
-            common_skill_enchant_jewal_480 = 15
+            Event_Roulette_Coin_PoPo_2506 = 5,
+            plate_achieve_First_Emperor = 1,
+            piece_GabijaEarring_select_job_NoTrade_Belonging = 1,
+            JurateCertificateCoin_50000p = 5,
         }
     }
 }
@@ -354,9 +351,9 @@ end
 function GET_BUFF_EXCEPTION_LIST()
     return get_cached("buff_except_list", function()
         return {
-            "raid_Rosethemisterable",
             "Raid_DreamyForest",
-            "Raid_AbyssalObserver"
+            "Raid_AbyssalObserver",
+            "raid_kivotos_island"
         }
     end, 3600) -- 1시간 캐싱
 end
@@ -412,9 +409,17 @@ function GET_TICKET_ITEM_LIST(AccProp)
             misc_Ether_Gem_Socket_480_NoTrade = 2,
             selectbox_Gem_High_480 = 2,
             lv480_aether_lvup_scroll_lv100 = 2,
-            Evnet2403_FriendInvite_Buff = 8
+            EVENT_2403_Friend_Invite_Coin = 8
         },
-
+        ["EVENT_POPOBOOST_SUMMER"] = {
+            emoticonItem_2506_popo = 1,
+            class_unlock_achievement_select = 1,
+            open_ticket_cabinet_vibora_lv4 = 2,
+            misc_Ether_Gem_Socket_480_NoTrade = 2,
+            selectbox_Gem_High_480 = 2,
+            lv480_aether_lvup_scroll_lv100 = 2,
+            EVENT_2403_Friend_Invite_Coin = 8
+        }
     }
     
     return ticket_item_list
@@ -426,12 +431,13 @@ end
 
 
 function POPOBOOST_CHECK_ELIGIBILITY(lv, gearscore)
-    if GET_POPOBOOST_SERVER() == 1 then
-        if lv >= 460 and lv <= 500 then
-            return true;
-        end
-        return false;
-    end
+    -- if GET_POPOBOOST_SERVER() == 1 then
+    -- if true then
+    --     if lv >= 460 and lv <= 500 then
+    --         return true;
+    --     end
+    --     return false;
+    -- end
     
     if lv >= 10 then
         return false;

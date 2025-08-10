@@ -111,5 +111,7 @@
 		<image name="c_archer_Vulture" file="\icon\class_archer2.tga" imgrect="0 0 100 100" CMM_Caption="벌쳐"/>
 		<image name="c_cleric_Sledger" file="\icon\class_cleric.tga" imgrect="200 400 100 100" CMM_Caption="슬레저"/>
 		<image name="c_warrior_Bonemancer" file="\icon\class_warrior2.tga" imgrect="100 0 100 100" CMM_Caption="본맨서"/>
+		<image name="c_archer_BlitzHunter" file="\icon\class_archer2.tga" imgrect="100 0 100 100" CMM_Caption="블리츠 헌터"/>
+		<image name="c_cleric_AetherBlader" file="\icon\class_cleric.tga" imgrect="300 400 100 100" CMM_Caption="에테르 블레이더"/>
 	</imagelist>
 </skinset>

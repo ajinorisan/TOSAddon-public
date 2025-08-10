@@ -16,6 +16,15 @@ function OPEN_BOUNTY_HUNT(frame)
 	ui.OpenFrame('inventory')
 	BOUNTYHUNT_INIT(frame)
 	INVENTORY_SET_CUSTOM_RBTNDOWN('BOUNTYHUNT_INVENTORY_RBTN_CLICK')
+
+	local pc = GetMyPCObject()
+	local gold_mola_btn = GET_CHILD_RECURSIVELY(frame, 'send_goldmola')
+
+	if IsBuffApplied(pc, 'Buff_GoldMolaMola_Encounter') == 'YES' then
+		gold_mola_btn:ShowWindow(1)
+	else
+		gold_mola_btn:ShowWindow(0)
+	end
 end
 
 function CLOSE_BOUNTY_HUNT(frame)
@@ -161,4 +170,40 @@ end
 function ON_BOUNTYHUNT_CLOSE(frame, msg, argStr, argNum)
 	local bountyhunt = ui.GetFrame('bountyhunt');
 	bountyhunt:ShowWindow(0);
+end
+
+
+
+function BOUNTYHUNT_EXECUTE_GOLD_MOLA(parent, ctrl)
+	local pc = GetMyPCObject()
+	if pc == nil then return end
+
+	if IsBuffApplied(pc, 'Buff_GoldMolaMola_Encounter') == 'NO' then
+		return
+	end
+
+	local yesscp = string.format('_BOUNTYHUNT_EXECUTE_GOLD_MOLA()')
+
+	local frame = parent:GetTopParentFrame();
+	local msgBoxCheckFlag = frame:GetUserValue("MSG_BOX_CHECK_FLAG");
+	local clMsg = 'GoldMolaMolaStartMSG';
+
+	local msgBox = ui.MsgBox(ScpArgMsg(clMsg), yesscp, 'None')
+	SET_MODAL_MSGBOX(msgBox);
+end
+
+
+
+function _BOUNTYHUNT_EXECUTE_GOLD_MOLA()
+	local frame = ui.GetFrame('bountyhunt')
+	if frame:IsVisible() == 0 then
+		return;
+	end
+
+	local pc = GetMyPCObject()
+	if pc == nil then return end
+
+
+	control.CustomCommand("GOLD_MOLAMOLA_START", 0)
+	CLOSE_BOUNTY_HUNT(frame)
 end
