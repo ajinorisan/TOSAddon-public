@@ -21,10 +21,11 @@
 -- v1.2.0 ウルトラワイド対応
 -- v1.2.1 読込早くした
 -- v1.2.2 桁区切り無しに
+-- v1.2.3 読み込み時バグってたの修正
 local addon_name = "always_status"
 local addon_name_lower = string.lower(addon_name)
 local author = "norisan"
-local ver = "1.2.2"
+local ver = "1.2.3"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -192,6 +193,7 @@ function ALWAYS_STATUS_ON_INIT(addon, frame)
     end
 
     frame:RunUpdateScript("always_status_original_frame_reduction", 1.0)
+    addon:RegisterMsg("GAME_START", "STATUS_INFO");
     addon:RegisterMsg("GAME_START_3SEC", "always_status_frame_init")
     g.setup_hook_and_event(addon, "STATUS_ONLOAD", "always_status_STATUS_ONLOAD", false);
 end
@@ -621,10 +623,13 @@ function always_status_frame_init()
         local pc = GetMyPCObject();
         local statframe = ui.GetFrame("status")
         local box = GET_CHILD_RECURSIVELY(statframe, "internalstatusBox")
+
         local key = char_settings.key
 
         for _, status in ipairs(status_list) do
+
             local display_settings = g.settings[tostring(key)]
+
             if display_settings[status] and display_settings[status] == 1 then
                 local title = frame:CreateOrGetControl("richtext", "title" .. status, 10, y)
                 AUTO_CAST(title)
@@ -648,7 +653,9 @@ function always_status_frame_init()
                     y = y + 20
                 else
                     local control_set = GET_CHILD_RECURSIVELY(box, status)
+
                     if control_set then -- 変更：control_setがnilの場合のエラーを避ける
+
                         local original_status = GET_CHILD_RECURSIVELY(control_set, "stat")
                         if status == "gear_score" then
                             title:SetText("{ol}{s16}" .. g.settings["color"][status] ..
