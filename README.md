@@ -30,10 +30,10 @@ Tree of Savior 用のアドオンを作成・改変しています。
     *   [Native Lang README](https://github.com/ajinorisan/TOSAddon-public/blob/main/native_lang/README.md)
 *   **アドオンマネージャー登録済**
 
-![キャプチャ241129](https://github.com/user-attachments/assets/653526e7-98ba-4dd6-9da8-9eed2611e5a5)
-
 <details>
-<summary>更新履歴 (Native Lang)</summary>
+<summary>紹介画像 & 更新履歴 (Native Lang)</summary>
+
+![キャプチャ241129](https://github.com/user-attachments/assets/653526e7-98ba-4dd6-9da8-9eed2611e5a5)
 
 *   v1.0.8 色々最適化。大分軽くなったはず。
 *   v1.0.7 右クリックメニューに個別翻訳付けた。
@@ -51,16 +51,31 @@ Tree of Savior 用のアドオンを作成・改変しています。
 
 ---
 
+### Market Favorite Rebuild
+
+`MarketFavorite` (ebiさん作) を少し改造。
+
+*   **アドオンマネージャー登録済**
+
+<details>
+<summary>更新履歴 (Market Favorite Rebuild)</summary>
+
+*   v2.0.2 公開。売れずに期限切れで戻ってきた商品の情報表示。
+
+</details>
+
+---
+
 ### Debuff Notice
 
 `separatedpcdebuff` (meldavyさん作) オマージュ。他のアドオンに干渉しないように修正し、少し目立つようにしました。
 
 *   **アドオンマネージャー登録済**
 
-![Image](https://github.com/user-attachments/assets/adfa0641-3ae3-4876-af79-156d7010ec86)
-
 <details>
-<summary>更新履歴 (My Debuff Notice)</summary>
+<summary>紹介画像 & 更新履歴 (My Debuff Notice)</summary>
+
+![Image](https://github.com/user-attachments/assets/adfa0641-3ae3-4876-af79-156d7010ec86)
 
 *   v1.0.1 秒数以外にデバフのカウントも表示
 *   v1.0.0 公開
@@ -75,10 +90,10 @@ Tree of Savior 用のアドオンを作成・改変しています。
 
 *   **アドオンマネージャー登録済**
 
-![Image](https://github.com/user-attachments/assets/1fc1f3de-9f44-4067-8038-b8e27cebddf5)
-
 <details>
-<summary>更新履歴 (Sub Map)</summary>
+<summary>紹介画像 & 更新履歴 (Sub Map)</summary>
+
+![Image](https://github.com/user-attachments/assets/1fc1f3de-9f44-4067-8038-b8e27cebddf5)
 
 *   v1.0.3 ウルトラワイドからのサイズ変更で位置バグってたの修正。
 *   v1.0.2 チャレンジのPTメンバーの位置取得修正。その他色々修正。
@@ -95,10 +110,10 @@ Tree of Savior 用のアドオンを作成・改変しています。
 
 *   **アドオンマネージャー登録済**
 
-![Image](https://github.com/user-attachments/assets/94bc4f68-70c7-4acb-98a6-030f7e779210)
-
 <details>
-<summary>更新履歴 (Characters Item Search)</summary>
+<summary>紹介画像 & 更新履歴 (Characters Item Search)</summary>
+
+![Image](https://github.com/user-attachments/assets/94bc4f68-70c7-4acb-98a6-030f7e779210)
 
 *   v1.0.1 クラスIDソート機能追加。レイヤーバグ修正。
 *   v1.0.0 公開
@@ -113,10 +128,10 @@ Tree of Savior 用のアドオンを作成・改変しています。
 
 *   **アドオンマネージャー登録済**
 
-![Image](https://github.com/user-attachments/assets/7d5d3e84-3eb1-48ba-9e9e-457e03e6a9c7)
-
 <details>
-<summary>更新履歴 (Pick Item Tracker)</summary>
+<summary>紹介画像 & 更新履歴 (Pick Item Tracker)</summary>
+
+![Image](https://github.com/user-attachments/assets/7d5d3e84-3eb1-48ba-9e9e-457e03e6a9c7)
 
 *   v1.0.0 公開
 
@@ -130,10 +145,10 @@ Tree of Savior 用のアドオンを作成・改変しています。
 
 *   **アドオンマネージャー登録済**
 
-![Image](https://github.com/user-attachments/assets/86603a1b-0b63-4041-816c-65c4638d5ef0)
-
 <details>
-<summary>更新履歴 (Vakarine Equip)</summary>
+<summary>紹介画像 & 更新履歴 (Vakarine Equip)</summary>
+
+![Image](https://github.com/user-attachments/assets/86603a1b-0b63-4041-816c-65c4638d5ef0)
 
 *   v1.0.5 機能追加
 *   v1.0.4 最適化。手動モード。JSRの起動ONOFF
@@ -152,10 +167,10 @@ Tree of Savior 用のアドオンを作成・改変しています。
 
 *   **アドオンマネージャー登録済**
 
-![TreeOfSavior_20240701_075957](https://github.com/ajinorisan/TOSAddon-public/assets/128560971/ebf8fcbd-57ec-4a0d-b378-593b514c2a29)
-
 <details>
-<summary>更新履歴 (Sub Slotset)</summary>
+<summary>紹介画像 & 更新履歴 (Sub Slotset)</summary>
+
+![TreeOfSavior_20240701_075957](https://github.com/ajinorisan/TOSAddon-public/assets/128560971/ebf8fcbd-57ec-4a0d-b378-593b514c2a29)
 
 *   v1.0.7 チームとキャラクター切替バグ修正
 *   v1.0.6 アドオンボタン修正。使えるエモーション判定部分修正。
@@ -176,10 +191,10 @@ Tree of Savior 用のアドオンを作成・改変しています。
 
 *   **アドオンマネージャー登録済**
 
-![TreeOfSavior_20241105_232034](https://github.com/user-attachments/assets/6cfca44e-a17c-4797-86c8-86f4af09928b)
-
 <details>
-<summary>更新履歴 (My Buffs Control)</summary>
+<summary>紹介画像 & 更新履歴 (My Buffs Control)</summary>
+
+![TreeOfSavior_20241105_232034](https://github.com/user-attachments/assets/6cfca44e-a17c-4797-86c8-86f4af09928b)
 
 *   v1.0.3 ローディング最適化
 *   v1.0.2 再修正
@@ -238,10 +253,10 @@ Tree of Savior 用のアドオンを作成・改変しています。
 
 *   **アドオンマネージャー登録済**
 
-![キャプチャ](https://github.com/ajinorisan/TOSAddon-public/assets/128560971/bfc1ce11-d1ae-4c00-8f32-4f779a985596)
-
 <details>
-<summary>更新履歴 (Relic Change)</summary>
+<summary>紹介画像 & 更新履歴 (Relic Change)</summary>
+
+![キャプチャ](https://github.com/ajinorisan/TOSAddon-public/assets/128560971/bfc1ce11-d1ae-4c00-8f32-4f779a985596)
 
 *   v1.0.0 公開
 
@@ -255,11 +270,11 @@ Tree of Savior 用のアドオンを作成・改変しています。
 
 *   **アドオンマネージャー登録済**
 
+<details>
+<summary>紹介画像 & 更新履歴 (Another Warehouse)</summary>
+
 ![TreeOfSavior_20240406_095855](https://github.com/ajinorisan/TOSAddon-public/assets/128560971/7170084a-c06c-405e-8db6-e340b69f84a0)
 ![TreeOfSavior_20240406_095858](https://github.com/ajinorisan/TOSAddon-public/assets/128560971/f285650f-7d8a-440c-923f-b8f103851868)
-
-<details>
-<summary>更新履歴 (Another Warehouse)</summary>
 
 *   v1.2.6 ローディング最適化
 *   v1.2.5 トークン判定をキャラチェン時に変更し高速化
@@ -299,10 +314,10 @@ Tree of Savior 用のアドオンを作成・改変しています。
 
 *   **アドオンマネージャー登録済**
 
-![キャプチャ](https://github.com/user-attachments/assets/0a5cb657-748d-490b-bc7d-c07daf48c76a)
-
 <details>
-<summary>更新履歴 (Skill Notice Free)</summary>
+<summary>紹介画像 & 更新履歴 (Skill Notice Free)</summary>
+
+![キャプチャ](https://github.com/user-attachments/assets/0a5cb657-748d-490b-bc7d-c07daf48c76a)
 
 *   v1.1.2 設定フレームの縦側ミスってたの修正
 *   v1.1.1 アドオンボタン回り修正。バフリスト検索機能追加。
@@ -326,10 +341,10 @@ Tree of Savior 用のアドオンを作成・改変しています。
 
 *   **アドオンマネージャー登録済**
 
-![キャプチャ](https://github.com/ajinorisan/TOSAddon-public/assets/128560971/bfe69b6d-22c6-4103-bc72-78c70462d77c)
-
 <details>
-<summary>更新履歴 (Skill Notice)</summary>
+<summary>紹介画像 & 更新履歴 (Skill Notice)</summary>
+
+![キャプチャ](https://github.com/ajinorisan/TOSAddon-public/assets/128560971/bfe69b6d-22c6-4103-bc72-78c70462d77c)
 
 *   v1.0.3 バイオレントバフ対応
 *   v1.0.1 エフェクト重ね掛けバグ修正
@@ -345,10 +360,10 @@ Tree of Savior 用のアドオンを作成・改変しています。
 
 *   **アドオンマネージャー登録済**
 
-![TreeOfSavior_20240327_170950](https://github.com/ajinorisan/TOSAddon-public/assets/128560971/c6ebb908-e3c4-40e5-affe-f546c1a788ca)
-
 <details>
-<summary>更新履歴 (Other Character Skill List)</summary>
+<summary>紹介画像 & 更新履歴 (Other Character Skill List)</summary>
+
+![TreeOfSavior_20240327_170950](https://github.com/ajinorisan/TOSAddon-public/assets/128560971/c6ebb908-e3c4-40e5-affe-f546c1a788ca)
 
 *   v1.1.9 イヤリング表示。
 *   v1.1.8 キャラ名左クリックでICC連携。
@@ -415,11 +430,12 @@ Tree of Savior 用のアドオンを作成・改変しています。
 
 *   **アドオンマネージャー登録済**
 
+<details>
+<summary>紹介画像 & 更新履歴 (Always Status)</summary>
+
 ![TreeOfSavior_20240413_155248](https://github.com/ajinorisan/TOSAddon-public/assets/128560971/e298d483-af49-4acd-b3d1-0aabaef96a0d)
 
-<details>
-<summary>更新履歴 (Always Status)</summary>
-
+*   v1.2.3 読込速度でバグってたの修正
 *   v1.2.2 区切り文字修正
 *   v1.2.1 ローディング最適化
 *   v1.2.0 ワイドモニター対応
@@ -453,10 +469,10 @@ Tree of Savior 用のアドオンを作成・改変しています。
 
 *   **アドオンマネージャー登録済**
 
-![キャプチャ](https://github.com/ajinorisan/TOSAddon-public/assets/128560971/a7d82d3f-1571-4e36-abb0-3d22e022d497)
-
 <details>
-<summary>更新履歴 (Indun List Viewer)</summary>
+<summary>紹介画像 & 更新履歴 (Indun List Viewer)</summary>
+
+![キャプチャ](https://github.com/ajinorisan/TOSAddon-public/assets/128560971/a7d82d3f-1571-4e36-abb0-3d22e022d497)
 
 *   v1.2.8 indun panelとの連携のための修正
 *   v1.2.7 レイド残り回数取得安定化修正
@@ -497,10 +513,10 @@ Tree of Savior 用のアドオンを作成・改変しています。
 
 *   **アドオンマネージャー登録済**
 
-![キャプチャ](https://github.com/ajinorisan/TOSAddon-public/assets/128560971/4b60df27-6c56-4c4b-91df-b93bf9bdac12)
-
 <details>
-<summary>更新履歴 (Auto Pet Summon)</summary>
+<summary>紹介画像 & 更新履歴 (Auto Pet Summon)</summary>
+
+![キャプチャ](https://github.com/ajinorisan/TOSAddon-public/assets/128560971/4b60df27-6c56-4c4b-91df-b93bf9bdac12)
 
 *   v1.0.6 アイコン表示不評だったので、システムメッセージのみに変更
 *   v1.0.5 画面上部アイコン表示廃止
@@ -520,10 +536,10 @@ Tree of Savior 用のアドオンを作成・改変しています。
 
 *   **アドオンマネージャー登録済**
 
-![キャプチャ](https://github.com/ajinorisan/TOSAddon-public/assets/128560971/53358c33-2e73-4b33-a200-dc2c52320172)
-
 <details>
-<summary>更新履歴 (Market Voucher)</summary>
+<summary>紹介画像 & 更新履歴 (Market Voucher)</summary>
+
+![キャプチャ](https://github.com/ajinorisan/TOSAddon-public/assets/128560971/53358c33-2e73-4b33-a200-dc2c52320172)
 
 *   v1.1.0 売り買い表示。セーブデータ初期化されます
 *   v1.0.9 ローディング最適化
@@ -543,10 +559,10 @@ Tree of Savior 用のアドオンを作成・改変しています。
 
 *   **アドオンマネージャー登録済**
 
-![TreeOfSavior_20231125_175607](https://github.com/ajinorisan/TOSAddon-public/assets/128560971/5e4ffa67-033a-46ef-bcd4-f430955b0382)
-
 <details>
-<summary>更新履歴 (Goddess Icor Manager)</summary>
+<summary>紹介画像 & 更新履歴 (Goddess Icor Manager)</summary>
+
+![TreeOfSavior_20231125_175607](https://github.com/ajinorisan/TOSAddon-public/assets/128560971/5e4ffa67-033a-46ef-bcd4-f430955b0382)
 
 *   v1.1.3 バグ修正
 *   v1.1.2 保存時更にバグってたの修正
@@ -573,10 +589,10 @@ Tree of Savior 用のアドオンを作成・改変しています。
 
 *   **アドオンマネージャー登録済**
 
-![キャプチャ1](https://github.com/ajinorisan/TOSAddon-public/assets/128560971/c24764ff-2fc3-40e2-8dde-b1b310bcb8ec)
-
 <details>
-<summary>更新履歴 (Boss Direction)</summary>
+<summary>紹介画像 & 更新履歴 (Boss Direction)</summary>
+
+![キャプチャ1](https://github.com/ajinorisan/TOSAddon-public/assets/128560971/c24764ff-2fc3-40e2-8dde-b1b310bcb8ec)
 
 *   v1.0.6 レダニア本体判別機能追加
 *   v1.0.5 クエストボス等でのバグ修正（のつもり）
@@ -596,10 +612,10 @@ Tree of Savior 用のアドオンを作成・改変しています。
 
 *   **アドオンマネージャー登録済**
 
-![monstercardchang](https://github.com/ajinorisan/TOSAddon-public/assets/128560971/8ee9eb49-5a70-4dbf-ae1b-af1f8dab083a)
-
 <details>
-<summary>更新履歴 (Monster Card Change)</summary>
+<summary>紹介画像 & 更新履歴 (Monster Card Change)</summary>
+
+![monstercardchang](https://github.com/ajinorisan/TOSAddon-public/assets/128560971/8ee9eb49-5a70-4dbf-ae1b-af1f8dab083a)
 
 *   v1.0.5 必要最低数運用に変更。色毎着脱設定追加。
 *   v1.0.3 各ボタン運用見直し
@@ -616,11 +632,12 @@ Tree of Savior 用のアドオンを作成・改変しています。
 
 *   **アドオンマネージャー登録済**
 
+<details>
+<summary>紹介画像 & 更新履歴 (Let's Go Home)</summary>
+
 ![tempsnip](https://github.com/ajinorisan/TOSAddon-public/assets/128560971/4801f830-2cfd-4cec-9190-326a91208f1e)
 
-<details>
-<summary>更新履歴 (Let's Go Home)</summary>
-
+*   v1.1.1 ショートカット変更。バックスラッシュ+右SHIFTに変更
 *   v1.1.0 ローディング最適化
 *   v1.0.9 ウルトラワイド対応
 *   v1.0.8 チャンネルチェンジ時フリーズ修正（のつもり）
@@ -641,10 +658,10 @@ Tree of Savior 用のアドオンを作成・改変しています。
 
 *   **アドオンマネージャー登録済**
 
-![jobchange](https://github.com/ajinorisan/TOSAddon-public/assets/128560971/a7e14178-aae9-47ac-8b67-caa307b63976)
-
 <details>
-<summary>更新履歴 (Job Change Helper)</summary>
+<summary>紹介画像 & 更新履歴 (Job Change Helper)</summary>
+
+![jobchange](https://github.com/ajinorisan/TOSAddon-public/assets/128560971/a7e14178-aae9-47ac-8b67-caa307b63976)
 
 *   v1.0.4 装着不可装備スキップ
 *   v1.0.3 ジョブ専用コスチュームバグ修正
@@ -661,10 +678,10 @@ Tree of Savior 用のアドオンを作成・改変しています。
 
 *   **アドオンマネージャー登録済**
 
-![TreeOfSavior_20241125_002654](https://github.com/user-attachments/assets/0f7f6d25-4352-4bb4-bc85-4c1370d898f5)
-
 <details>
-<summary>更新履歴 (Boss Gauge)</summary>
+<summary>紹介画像 & 更新履歴 (Boss Gauge)</summary>
+
+![TreeOfSavior_20241125_002654](https://github.com/user-attachments/assets/0f7f6d25-4352-4bb4-bc85-4c1370d898f5)
 
 *   v1.0.2 HP%表記重複修正
 *   v1.0.1 公開
@@ -679,10 +696,10 @@ Tree of Savior 用のアドオンを作成・改変しています。
 
 *   **アドオンマネージャー登録済**
 
-![cchelper](https://github.com/ajinorisan/TOSAddon-public/assets/128560971/5f184a1b-fd24-4d17-a701-86a491f3dd42)
-
 <details>
-<summary>更新履歴 (Character Change Helper)</summary>
+<summary>紹介画像 & 更新履歴 (Character Change Helper)</summary>
+
+![cchelper](https://github.com/ajinorisan/TOSAddon-public/assets/128560971/5f184a1b-fd24-4d17-a701-86a491f3dd42)
 
 *   v1.3.4 セーブデータのジョブバグってたの修正
 *   v1.3.3 コード全体見直し。mcc殺した。ペット登録可能に
@@ -730,10 +747,10 @@ Tree of Savior 用のアドオンを作成・改変しています。
 
 *   **アドオンマネージャー登録済**
 
-![indun](https://github.com/ajinorisan/TOSAddon-public/assets/128560971/4c644bf1-0458-46e9-b2fd-4d38126d8a0a)
-
 <details>
-<summary>更新履歴 (Indun Panel)</summary>
+<summary>紹介画像 & 更新履歴 (Indun Panel)</summary>
+
+![indun](https://github.com/ajinorisan/TOSAddon-public/assets/128560971/4c644bf1-0458-46e9-b2fd-4d38126d8a0a)
 
 *   v1.6.3 傭兵団チャレ券オーバーバイの場合にUIおかしかったの修正。フィールドの仕様も修正。チャレンジ券の切替時分かりやすく
 *   v1.6.2 傭兵団コインのチャレ券を分裂券に交換をワンボタンで。
@@ -802,10 +819,10 @@ Tree of Savior 用のアドオンを作成・改変しています。
 
 *   **アドオンマネージャー登録済**
 
-![ancient](https://github.com/ajinorisan/TOSAddon-public/assets/128560971/b215523d-37b4-4ded-8fe9-d4f260584f0e)
-
 <details>
-<summary>更新履歴 (Ancient AutoSet)</summary>
+<summary>紹介画像 & 更新履歴 (Ancient AutoSet)</summary>
+
+![ancient](https://github.com/ajinorisan/TOSAddon-public/assets/128560971/b215523d-37b4-4ded-8fe9-d4f260584f0e)
 
 *   v1.0.7 お知らせをチャットのみに。プリセット機能付けた
 *   v1.0.6 アドマネ導入時設定ファイル作成バグ修正
@@ -824,10 +841,10 @@ Tree of Savior 用のアドオンを作成・改変しています。
 
 *   **アドオンマネージャー登録済**
 
-![agm](https://github.com/ajinorisan/TOSAddon-public/assets/128560971/942bdd97-4d57-4e06-b5db-224fb7c35d52)
-
 <details>
-<summary>更新履歴 (Aethergem Manager)</summary>
+<summary>紹介画像 & 更新履歴 (Aethergem Manager)</summary>
+
+![agm](https://github.com/ajinorisan/TOSAddon-public/assets/128560971/942bdd97-4d57-4e06-b5db-224fb7c35d52)
 
 *   v1.1.5 CCHelper連携バグ修正。コード最適化。
 *   v1.1.4 LV/種類混合付け替え対応
@@ -853,10 +870,10 @@ Tree of Savior 用のアドオンを作成・改変しています。
 
 *   **アドオンマネージャー登録済**
 
-![repair](https://github.com/ajinorisan/TOSAddon-public/assets/128560971/0acba715-6613-4151-a274-4e6dee587397)
-
 <details>
-<summary>更新履歴 (Auto Repair)</summary>
+<summary>紹介画像 & 更新履歴 (Auto Repair)</summary>
+
+![repair](https://github.com/ajinorisan/TOSAddon-public/assets/128560971/0acba715-6613-4151-a274-4e6dee587397)
 
 *   v1.1.5 アドオンボタン回りを修正し、他アドオンとの共通コードに
 *   v1.1.4 僭越ながら独自のアドオンボタン実装。自動補充チェック付けた。
@@ -908,10 +925,10 @@ Tree of Savior 用のアドオンを作成・改変しています。
 *   **アドオンマネージャー登録済**
 *   **Special thanks:** menimaniさん
 
-![kill](https://github.com/ajinorisan/TOSAddon-public/assets/128560971/3308e640-c373-445c-8b3d-206b21334cb8)
-
 <details>
-<summary>更新履歴 (KL count)</summary>
+<summary>紹介画像 & 更新履歴 (KL count)</summary>
+
+![kill](https://github.com/ajinorisan/TOSAddon-public/assets/128560971/3308e640-c373-445c-8b3d-206b21334cb8)
 
 *   v1.1.7 アドオンボタン共通化。マップインフォのバグ修正。
 *   v1.1.6 ウルトラワイド対応。ログインID毎データ作成。
@@ -1004,10 +1021,10 @@ Tree of Savior 用のアドオンを作成・改変しています。
 
 *   **アドオンマネージャー登録済**
 
-![mini](https://github.com/ajinorisan/TOSAddon-public/assets/128560971/842d9c77-e9c5-44c1-8a3a-abc4a38e243a)
-
 <details>
-<summary>機能一覧 & 更新履歴 (Mini Addons)</summary>
+<summary>紹介画像 & 更新履歴 (Mini Addons)</summary>
+
+![mini](https://github.com/ajinorisan/TOSAddon-public/assets/128560971/842d9c77-e9c5-44c1-8a3a-abc4a38e243a)
 
 **機能リスト (一部):**
 1. PT招待確認削除
@@ -1129,10 +1146,10 @@ Tree of Savior 用のアドオンを作成・改変しています。
 
 *   **アドオンマネージャー登録済**
 
-![guild](https://github.com/ajinorisan/TOSAddon-public/assets/128560971/21897f75-b18e-4a42-ab88-0ee30397857d)
-
 <details>
-<summary>更新履歴 (Guild Event Warp)</summary>
+<summary>紹介画像 & 更新履歴 (Guild Event Warp)</summary>
+
+![guild](https://github.com/ajinorisan/TOSAddon-public/assets/128560971/21897f75-b18e-4a42-ab88-0ee30397857d)
 
 *   v1.0.5 ワイドモニター対応
 *   v1.0.4 UIデザイン変更
@@ -1229,6 +1246,4 @@ Tree of Savior 用のアドオンを作成・改変しています。
 3.  **ゲーム起動:**
     *   Tree of Savior を起動すればアドオンが読み込まれます。
 
-**(注: 上記パスは標準的なインストール先です。環境に合わせて読み替えてください。)**
-
----
+**(注: 上記パスは標準的なインストール先です。環境に合わせて読み替えてください。)**```
