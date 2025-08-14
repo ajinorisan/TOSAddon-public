@@ -1,18 +1,21 @@
 # Native Lang Addon for Tree of Savior (v1.1.0)
 
 **Recommended Addon Version: v1.1.0** (Older versions are not supported)
+**Required Python Executable: v0.0.5**
 
 **推奨アドオンバージョン: v1.1.0** (古いバージョンはサポート対象外です)
+**必須Python実行ファイル: v0.0.5**
 
 **권장 애드온 버전: v1.1.0** (이전 버전은 지원되지 않습니다)
+**필수 Python 실행 파일: v0.0.5**
 
 ---
 
-**English:** Automatically translates in-game text (chat, names, shops) using Google Translate. Requires Google Chrome. Click below for details in your language.
+**English:** Automatically translates in-game text (chat, names, shops) using Google Translate. **This addon requires a separate `.exe` file to function.** Click below for details in your language.
 
-**日本語:** チャット、キャラクター名、露店名などをGoogle翻訳で自動翻訳します。Google Chromeが必要です。詳細は各言語をクリックしてください。
+**日本語:** チャット、キャラクター名、露店名などをGoogle翻訳で自動翻訳します。**このアドオンの動作には、別途 `.exe` ファイルが必要です。**詳細は各言語をクリックしてください。
 
-**한국어:** 채팅, 캐릭터 이름, 상점 이름 등을 Google 번역을 사용하여 자동으로 번역합니다. Google Chrome이 필요합니다. 자세한 내용은 해당 언어를 클릭하십시오.
+**한국어:** 채팅, 캐릭터 이름, 상점 이름 등을 Google 번역을 사용하여 자동으로 번역합니다. **이 애드온이 작동하려면 별도의 `.exe` 파일이 필요합니다.** 자세한 내용은 해당 언어를 클릭하십시오。
 
 ---
 
