@@ -19,10 +19,11 @@
 -- v1.3.2 agm連携のトコ修正した
 -- v1.3.3 コード全体見直し。mcc殺した。ペット登録可能に
 -- v1.3.4 セーブデータのジョブバグってたの修正
+-- v1.3.5 JSON作るのバグってたの修正したつもり。カード装着画面閉じる時間調整
 local addon_name = "CC_HELPER"
 local addon_name_lower = string.lower(addon_name)
 local author = "norisan"
-local ver = "1.3.4"
+local ver = "1.3.5"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -31,8 +32,6 @@ local g = _G["ADDONS"][author][addon_name]
 
 local acutil = require("acutil")
 local json = require('json')
-
-local active_id = session.loginInfo.GetAID()
 
 function g.mkdir_new_folder()
     local function create_folder(folder_path, file_path)
@@ -120,10 +119,31 @@ function cc_helper_load_settings()
         share_settings.all_agm = 0
     end
     g.share_settings = share_settings
-
     g.save_json(g.settings_path, g.share_settings)
 
-    g.cid_settings_path = string.format('../addons/%s/%s.json', addon_name_lower, g.cid)
+    local old_settings = g.load_json(g.old_settings_path)
+
+    if old_settings then
+        print("古い形式の設定ファイルを発見しました。新しい形式に移行します...")
+        g.save_json(g.cid_settings_path, old_settings)
+
+        local new_file_check = io.open(g.cid_settings_path, "r")
+        if new_file_check then
+            new_file_check:close()
+
+            print("新しい設定ファイルの作成に成功しました。古いファイルを削除します。")
+
+            local success, err = os.remove(g.old_settings_path)
+
+            if not success then
+                print(string.format("古い設定ファイルの削除に失敗しました: %s", tostring(err)))
+            end
+
+        else
+            print(
+                "警告：新しい設定ファイルの作成に失敗しました。古いファイルは、削除しませんでした。")
+        end
+    end
 
     local settings = g.load_json(g.cid_settings_path)
 
@@ -245,22 +265,43 @@ function CC_HELPER_ON_INIT(addon, frame)
     g.REGISTER = {}
 
     if g.get_map_type() == "City" then
-
-        cc_helper_load_settings()
+        g.old_settings_path = string.format('../addons/%s/%s.json', addon_name_lower, g.cid)
+        g.cid_settings_path = string.format('../addons/%s/%s/%s.json', addon_name_lower, g.active_id, g.cid)
+        addon:RegisterMsg("GAME_START", "cc_helper_load_settings")
 
         g.setup_hook_and_event(addon, "ACCOUNTWAREHOUSE_CLOSE", "cc_helper_ACCOUNTWAREHOUSE_CLOSE", true)
         g.setup_hook_and_event(addon, "INVENTORY_CLOSE", "cc_helper_settings_close", true)
         g.setup_hook_and_event(addon, "UI_TOGGLE_INVENTORY", "cc_helper_invframe_init", true)
         g.setup_hook_and_event(addon, "INVENTORY_OPEN", "cc_helper_invframe_init", true)
+        g.setup_hook_and_event(addon, "AETHERGEM_MGR_SAVE_SETTINGS", "cc_helper_AETHERGEM_MGR_SAVE_SETTINGS", true)
 
-        -- acutil.setupEvent(addon, "ACCOUNTWAREHOUSE_CLOSE", "cc_helper_ACCOUNTWAREHOUSE_CLOSE")
-        -- acutil.setupEvent(addon, "INVENTORY_CLOSE", "cc_helper_settings_close")
-        -- acutil.setupEvent(addon, "UI_TOGGLE_INVENTORY", "cc_helper_invframe_init")
-        -- acutil.setupEvent(addon, "INVENTORY_OPEN", "cc_helper_invframe_init")
         addon:RegisterMsg("OPEN_DLG_ACCOUNTWAREHOUSE", "cc_helper_accountwarehouse_init")
-        -- addon:RegisterMsg("GAME_START", "cc_helper_function_check")
+
     end
 
+end
+
+function cc_helper_AETHERGEM_MGR_SAVE_SETTINGS(my_frame, my_msg)
+    local agm_g = _G["ADDONS"]["norisan"]["AETHERGEM_MGR"]
+    local agm_settings = agm_g.settings
+
+    if agm_settings then
+
+        if agm_settings[tostring(g.cid)] then
+            local use_index = agm_settings[tostring(g.cid)]["use_index"]
+            if use_index then
+                local preset_data = agm_settings[tostring(use_index)]
+                if preset_data then
+                    for slot_number, gem_id in pairs(preset_data) do
+                        g.settings[tostring(g.cid)]["gem" .. slot_number].clsid = gem_id
+                        --[[print(string.format("スロット %s には、ジェムID %d がセットされています。",
+                            slot_number, gem_id))]]
+                    end
+                end
+            end
+        end
+    end
+    cc_helper_save_settings()
 end
 
 function cc_helper_invframe_init()
@@ -531,9 +572,31 @@ function cc_helper_setting_frame_init()
 
     function cc_helper_setting_copy(frame, ctrl, str, num)
 
-        local copy_settings_location = string.format('../addons/%s/%s_copy.json', addon_name_lower, active_id)
-        local copy_settings = g.load_json(copy_settings_location)
-        g.copy_settings = copy_settings
+        local old_copy_path = string.format('../addons/%s/%s_copy.json', addon_name_lower, g.active_id)
+        local new_copy_path = string.format('../addons/%s/%s/%s_copy.json', addon_name_lower, g.active_id, g.active_id)
+
+        local old_copy_settings = g.load_json(old_copy_path)
+
+        if old_copy_settings then
+            print("古い形式のコピー設定ファイルを発見。移行します...")
+
+            g.save_json(new_copy_path, old_copy_settings)
+
+            local new_copy_file_check = io.open(new_copy_path, "r")
+            if new_copy_file_check then
+                new_copy_file_check:close()
+
+                print("新しいコピー設定ファイルの作成に成功。古いファイルを削除します。")
+
+                os.remove(old_copy_path)
+
+            else
+                print(
+                    "警告：新しいコピー設定ファイルの作成に失敗。古いファイルは削除しませんでした。")
+            end
+        end
+
+        g.copy_settings = g.load_json(new_copy_path)
 
         local context = ui.CreateContextMenu("MAPFOG_CONTEXT", "{ol}Copy source", 0, 0, 0, 0)
         ui.AddContextMenuItem(context, "-----", "")
@@ -560,7 +623,7 @@ function cc_helper_setting_frame_init()
 
     function cc_helper_setting_save(frame, ctrl, str, num)
 
-        local copy_settings_location = string.format('../addons/%s/%s_copy.json', addon_name_lower, active_id)
+        local copy_settings_location = string.format('../addons/%s/%s_copy.json', addon_name_lower, g.active_id)
         local copy_settings = g.load_json(copy_settings_location)
         if not copy_settings then
             copy_settings = {}
@@ -591,7 +654,7 @@ function cc_helper_setting_frame_init()
                             "{ol}Save this character settings for copying")
 
     function cc_helper_setting_delete(frame, ctrl, str, num)
-        local copy_settings_location = string.format('../addons/%s/%s_copy.json', addon_name_lower, active_id)
+        local copy_settings_location = string.format('../addons/%s/%s_copy.json', addon_name_lower, g.active_id)
         local copy_settings = g.load_json(copy_settings_location)
         if not copy_settings then
             copy_settings = {}
@@ -861,7 +924,7 @@ function cc_helper_create_slot(frame, name, x, y, width, height, skin, text, cls
     if string.find(name, "gem") and g.settings[g.cid].agm_use == 0 then
         slot:ShowWindow(0)
     elseif string.find(name, "gem") and g.settings[g.cid].agm_use == 1 then
-        local agm_json = string.format('../addons/%s/%s.json', "aethergem_mgr", active_id)
+        local agm_json = string.format('../addons/%s/%s.json', "aethergem_mgr", g.active_id)
         local settings = g.load_json(agm_json)
         local agm_tbl = settings
         if agm_tbl ~= nil then
@@ -1236,7 +1299,7 @@ function cc_helper_putitem(frame, in_btn, try, step)
         if g.delay > 0.3 then
             g.delay = 0.3
         end
-        print(g.delay)
+
         in_btn:RunUpdateScript("cc_helper_unequip_card", g.delay)
     elseif step == 3 then
 
@@ -1255,8 +1318,8 @@ function cc_helper_putitem(frame, in_btn, try, step)
         in_btn:RunUpdateScript("cc_helper_gem_inv_to_warehouse_reserve", 0.1)
     elseif step == 7 then
         in_btn:SetUserValue("STEP", 7)
-
-        cc_helper_end_of_operation(in_btn)
+        in_btn:RunUpdateScript("cc_helper_end_of_operation", 0.1)
+        -- cc_helper_end_of_operation(in_btn)
     end
 end
 
@@ -1557,12 +1620,13 @@ function cc_helper_in_btn_aethergem_mgr(in_btn)
                     local icon = equip_slot:GetIcon()
                     if icon then
                         local icon_info = icon:GetInfo()
-                        local type = icon_info.type
-                        local equip_item = session.GetEquipItemByType(type)
+                        local gem_type = icon_info.type
+                        local equip_item = session.GetEquipItemByType(gem_type)
                         local gem_id = equip_item:GetEquipGemID(2)
 
                         for i = 1, 4 do
                             local gemKey = "gem" .. i
+
                             if gem_id == g.settings[g.cid][gemKey].clsid then
                                 cc_helper_msgbox_frame(in_btn)
                                 return
@@ -1924,8 +1988,8 @@ function cc_helper_end_of_operation(btn)
     end
     local monstercardslot = ui.GetFrame("monstercardslot")
     if monstercardslot:IsVisible() == 1 then
-        MONSTERCARDSLOT_CLOSE(monstercardslot)
-        -- monstercardslot:RunUpdateScript("MONSTERCARDSLOT_CLOSE", 1.0)
+        -- MONSTERCARDSLOT_CLOSE(monstercardslot)
+        monstercardslot:RunUpdateScript("MONSTERCARDSLOT_CLOSE", 0.5)
     end
 
     ui.SysMsg("{ol}[CCH]End of Operation")
@@ -2045,10 +2109,12 @@ function cc_helper_take_item(frame, out_btn, str, step)
         out_btn:RunUpdateScript("cc_helper_equip_card", 0.1)
     elseif step == 4 then
         out_btn:SetUserValue("STEP", 4)
-        cc_helper_take_agm_reserve(out_btn)
+        out_btn:RunUpdateScript("cc_helper_take_agm_reserve", 0.1)
+        -- cc_helper_take_agm_reserve(out_btn)
     elseif step == 5 then
         out_btn:SetUserValue("STEP", 5)
-        cc_helper_out_btn_agm_reserve(out_btn)
+        out_btn:RunUpdateScript("cc_helper_out_btn_agm_reserve", 0.1)
+        -- cc_helper_out_btn_agm_reserve(out_btn)
     elseif step == 6 then
         out_btn:SetUserValue("STEP", 6)
         out_btn:RunUpdateScript("cc_helper_out_btn_equip", 0.1)
@@ -2563,7 +2629,7 @@ function cc_helper_equip_take_warehouse_item(out_btn)
         return 1
     end
 end
---[[g.settings_path = string.format('../addons/%s/%s/settings_250621.json', addon_name_lower, active_id)
+--[[g.settings_path = string.format('../addons/%s/%s/settings_250621.json', addon_name_lower, g.active_id)
 
 function g.mkdir_new_folder()
     local folder_path = string.format("../addons/%s", addon_name_lower)

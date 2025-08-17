@@ -61,10 +61,11 @@
 -- v1.6.1 閉じてる時に出すアイコン選べる様に。ilvと一部統合。
 -- v1.6.2 チャレ券4枚で分裂券作って入場まで。アイコンバグ修正。
 -- v1.6.3 傭兵団チャレ券オーバーバイの場合にUIおかしかったの修正。フィールドの仕様も修正。チャレンジ券の切替時分かりやすく
+-- v1.6.4 CCボタン右クリックでOCSL表示機能、傭兵団コイン商店の開き方修正
 local addonName = "indun_panel"
 local addon_name_lower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.6.3"
+local ver = "1.6.4"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -299,17 +300,45 @@ function indun_panel_frame_init()
     AUTO_CAST(ccbtn)
     ccbtn:SetSkinName("None")
     ccbtn:SetText("{img barrack_button_normal 30 30}")
-    if type(_G["indun_list_viewer_title_frame_open"]) ~= "function" or type(_G["INSTANTCC_APPS_TRY_MOVE_BARRACK"]) ~=
-        "function" then
-        ccbtn:SetEventScript(ui.LBUTTONUP, "APPS_TRY_MOVE_BARRACK")
-        ccbtn:SetTextTooltip(g.lang == "Japanese" and "{ol}バラックに戻ります" or "{ol}Return to Barracks")
-    else
-        ccbtn:SetEventScript(ui.LBUTTONUP, "indun_list_viewer_title_frame_open")
-        ccbtn:SetTextTooltip("{ol}[ILV]open")
+
+    local lbutton_action = "APPS_TRY_MOVE_BARRACK"
+    local rbutton_action = nil
+    local tooltip_parts = {}
+
+    local lbutton_tooltip = nil
+
+    if type(_G["INSTANTCC_APPS_TRY_MOVE_BARRACK"]) == "function" then
+        lbutton_action = "INSTANTCC_APPS_TRY_MOVE_BARRACK"
+        lbutton_tooltip = "[InstantCC] Open"
+    end
+
+    if type(_G["indun_list_viewer_title_frame_open"]) == "function" then
+        lbutton_action = "indun_list_viewer_title_frame_open"
+        lbutton_tooltip = "Left-Click: [ILV] Open"
         local indun_list_viewer = ui.GetFrame("indun_list_viewer")
         if indun_list_viewer:IsVisible() == 1 then
             indun_list_viewer:ShowWindow(0)
         end
+    end
+
+    if lbutton_tooltip then
+        table.insert(tooltip_parts, lbutton_tooltip)
+    end
+
+    if type(_G["other_character_skill_list_frame_open"]) == "function" then
+        rbutton_action = "other_character_skill_list_frame_open"
+        table.insert(tooltip_parts, "Right-Click: [OCSL] Open")
+    end
+
+    ccbtn:SetEventScript(ui.LBUTTONUP, lbutton_action)
+    if rbutton_action then
+        ccbtn:SetEventScript(ui.RBUTTONUP, rbutton_action)
+    end
+
+    if #tooltip_parts > 0 then
+        ccbtn:SetTextTooltip("{ol}" .. table.concat(tooltip_parts, "{nl}"))
+    else
+        ccbtn:SetTextTooltip(g.lang == "Japanese" and "{ol}バラックに戻ります" or "{ol}Return to Barracks")
     end
 
     local x = 115
@@ -411,7 +440,9 @@ function indun_panel_frame_init()
                 pvp_mine:SetText("{img pvpmine_shop_btn_total 29 29}")
                 pvp_mine:SetTextTooltip(g.lang == "Japanese" and "{ol}傭兵団ショップ" or "{ol}Mercenary Shop")
                 pvp_mine:SetEventScript(ui.LBUTTONDOWN, "INDUN_PANEL_EARTHTOWERSHOP_CLOSE_RESTART")
-                pvp_mine:SetEventScript(ui.LBUTTONUP, "REQ_PVP_MINE_SHOP_OPEN")
+                -- pvp_mine:SetEventScript(ui.LBUTTONUP, "REQ_PVP_MINE_SHOP_OPEN")
+                pvp_mine:SetEventScript(ui.LBUTTONUP, "MINIMIZED_PVPMINE_SHOP_BUTTON_CLICK")
+                -- MINIMIZED_PVPMINE_SHOP_BUTTON_CLICK
             elseif key_name == "market" then
                 if g.get_map_type() == "City" then
                     local market = frame:CreateOrGetControl("button", "market", x, 5, 29, 29);
@@ -690,17 +721,44 @@ function indun_panel_init(frame)
     AUTO_CAST(ccbtn)
     ccbtn:SetSkinName("None")
     ccbtn:SetText("{img barrack_button_normal 30 30}")
-    if type(_G["indun_list_viewer_title_frame_open"]) ~= "function" or type(_G["INSTANTCC_APPS_TRY_MOVE_BARRACK"]) ~=
-        "function" then
-        ccbtn:SetEventScript(ui.LBUTTONUP, "APPS_TRY_MOVE_BARRACK")
-        ccbtn:SetTextTooltip(g.lang == "Japanese" and "{ol}バラックに戻ります" or "{ol}Return to Barracks")
-    else
-        ccbtn:SetEventScript(ui.LBUTTONUP, "indun_list_viewer_title_frame_open")
-        ccbtn:SetTextTooltip("{ol}[ILV]open")
+    local lbutton_action = "APPS_TRY_MOVE_BARRACK"
+    local rbutton_action = nil
+    local tooltip_parts = {}
+
+    local lbutton_tooltip = nil
+
+    if type(_G["INSTANTCC_APPS_TRY_MOVE_BARRACK"]) == "function" then
+        lbutton_action = "INSTANTCC_APPS_TRY_MOVE_BARRACK"
+        lbutton_tooltip = "[InstantCC] Open"
+    end
+
+    if type(_G["indun_list_viewer_title_frame_open"]) == "function" then
+        lbutton_action = "indun_list_viewer_title_frame_open"
+        lbutton_tooltip = "Left-Click: [ILV] Open"
         local indun_list_viewer = ui.GetFrame("indun_list_viewer")
         if indun_list_viewer:IsVisible() == 1 then
             indun_list_viewer:ShowWindow(0)
         end
+    end
+
+    if lbutton_tooltip then
+        table.insert(tooltip_parts, lbutton_tooltip)
+    end
+
+    if type(_G["other_character_skill_list_frame_open"]) == "function" then
+        rbutton_action = "other_character_skill_list_frame_open"
+        table.insert(tooltip_parts, "Right-Click: [OCSL] Open")
+    end
+
+    ccbtn:SetEventScript(ui.LBUTTONUP, lbutton_action)
+    if rbutton_action then
+        ccbtn:SetEventScript(ui.RBUTTONUP, rbutton_action)
+    end
+
+    if #tooltip_parts > 0 then
+        ccbtn:SetTextTooltip("{ol}" .. table.concat(tooltip_parts, "{nl}"))
+    else
+        ccbtn:SetTextTooltip(g.lang == "Japanese" and "{ol}バラックに戻ります" or "{ol}Return to Barracks")
     end
 
     function indun_panel_frame_base_position(frame, ctrl, str, num)
@@ -1008,7 +1066,8 @@ function indun_panel_init(frame)
     pvp_mine:SetText("{img pvpmine_shop_btn_total 29 29}")
     pvp_mine:SetTextTooltip(g.lang == "Japanese" and "{ol}傭兵団ショップ" or "{ol}Mercenary Shop")
     pvp_mine:SetEventScript(ui.LBUTTONDOWN, "INDUN_PANEL_EARTHTOWERSHOP_CLOSE_RESTART")
-    pvp_mine:SetEventScript(ui.LBUTTONUP, "REQ_PVP_MINE_SHOP_OPEN")
+    -- pvp_mine:SetEventScript(ui.LBUTTONUP, "REQ_PVP_MINE_SHOP_OPEN")
+    pvp_mine:SetEventScript(ui.LBUTTONUP, "MINIMIZED_PVPMINE_SHOP_BUTTON_CLICK")
     if g.get_map_type() == "City" then
         local craft = frame:CreateOrGetControl("button", "craft", 360, 5, 29, 29);
         AUTO_CAST(craft)
