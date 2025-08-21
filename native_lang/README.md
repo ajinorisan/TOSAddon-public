@@ -63,7 +63,7 @@
 
 1.  **外部プログラムアーカイブのダウンロード:**
     *   リリースページまたはリポジトリから **`native_lang-v0.0.6.tar`** をダウンロードしてください。
-    *   **重要:** バージョン `0.0.5` の `.tar` ファイルにのみ必要な外部プログラムが含まれています。**最新のアドオンバージョン (v1.1.1 など) を使用する場合でも、この外部プログラム (v0.0.6の.tar) は必須です。**
+    *   **重要:** バージョン `0.0.6` の `.tar` ファイルにのみ必要な外部プログラムが含まれています。**最新のアドオンバージョン (v1.1.1 など) を使用する場合でも、この外部プログラム (v0.0.6の.tar) は必須です。**
 
 2.  **ウイルス対策ソフトの警告:**
     *   ウイルス対策ソフトが `.tar` ファイルまたは展開された `.exe` ファイルを脅威として検出する可能性があります (誤検出)。続行するには、**一時的にウイルス対策ソフトを無効にする**か、除外設定を追加する必要がある場合があります。**自己責任で行ってください。**
@@ -116,7 +116,7 @@ This addon requires an external program (`native_lang-v0.0.6.exe`) included in t
 
 1.  **Download the External Program Archive:**
     *   Download **`native_lang-v0.0.6.tar`** from the release page or repository.
-    *   **Important:** Only version `0.0.5` of the `.tar` file contains the necessary external program. **This external program is required even if you use a newer addon version (like v1.1.1).**
+    *   **Important:** Only version `0.0.6` of the `.tar` file contains the necessary external program. **This external program is required even if you use a newer addon version (like v1.1.1).**
 
 2.  **Antivirus Warning:**
     *   Your antivirus software might flag the `.tar` file or the extracted `.exe` file as a potential threat (false positive). You may need to **temporarily disable your antivirus** or add an exception for the file to proceed. **Do this at your own risk.**
@@ -169,7 +169,7 @@ Please note that this is a personal project, and support may be limited. Use at 
 
 1.  **외부 프로그램 아카이브 다운로드:**
     *   릴리스 페이지 또는 저장소에서 **`native_lang-v0.0.6.tar`** 파일을 다운로드하십시오.
-    *   **중요:** 버전 `0.0.5`의 `.tar` 파일에만 필요한 외부 프로그램이 포함되어 있습니다. **최신 애드온 버전 (v1.1.1 등)을 사용하는 경우에도 이 외부 프로그램 (v0.0.6 .tar)은 필수입니다.**
+    *   **중요:** 버전 `0.0.6`의 `.tar` 파일에만 필요한 외부 프로그램이 포함되어 있습니다. **최신 애드온 버전 (v1.1.1 등)을 사용하는 경우에도 이 외부 프로그램 (v0.0.6 .tar)은 필수입니다.**
 
 2.  **백신 경고:**
     *   백신 소프트웨어가 `.tar` 파일 또는 추출된 `.exe` 파일을 위협으로 탐지할 수 있습니다 (오탐지). 계속하려면 **일시적으로 백신을 비활성화**하거나 예외를 추가해야 할 수 있습니다. **자신의 책임 하에 수행하십시오.**
