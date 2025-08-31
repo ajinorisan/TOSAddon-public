@@ -71,10 +71,11 @@
 -- v1.7.1 エフェクト関係のバグ修正。NOTICE_ON_MSGのバグ修正。
 -- v1.7.2 アドオンボタン回り修正。どこでもメンバーインフォ修正。バフリスト検索機能
 -- v1.7.3 PTメンバーの死亡をニコチャットでお知らせ機能
+-- v1.7.4 フレームの分類分け、ペットリング非表示、コロニーの街へ移動のタイマー修正（IMCが直せよ）
 local addon_name = "MINI_ADDONS"
 local addon_name_lower = string.lower(addon_name)
 local author = "norisan"
-local ver = "1.7.3"
+local ver = "1.7.4"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -156,7 +157,8 @@ local DEFAULT_SETTINGS = {
         use = 0,
         guild_notice = 0
     },
-    chat_recv = 0
+    chat_recv = 0,
+    pet_ring = 0
 }
 
 local SETTINGS_NAME = {"other_effect", "my_effect", "boss_effect", "channel_info", "pc_name", "quest_hide",
@@ -165,7 +167,7 @@ local SETTINGS_NAME = {"other_effect", "my_effect", "boss_effect", "channel_info
                        "auto_cast", "coin_use", "auto_gacha", "skill_enchant", "party_info", "relic_gauge",
                        "raid_check", "coin_count", "bgm", "vakarine", "weekly_boss_reward", "solodun_reward",
                        "cupole_portion", "goodbye_ragana", "status_upgrade", "icor_status_search", "velnice",
-                       "separated_buff", "group_chat", "memberinfo", "baubas_call", "pt_buff", "chat_recv"}
+                       "separated_buff", "group_chat", "memberinfo", "baubas_call", "pt_buff", "chat_recv", "pet_ring"}
 
 local COIN_ITEM = {869001, 11200350, 11200303, 11200302, 11200301, 11200300, 11200299, 11200298, 11200297, 11200161,
                    11200160, 11200159, 11200158, 11200157, 11200156, 11200155, 11030215, 11030214, 11030213, 11030212,
@@ -368,6 +370,11 @@ local SUB_FRAME_SETTINGS = {
         text_jp = "セパレートバフフレームの周りを綺麗にします",
         text_kr = "분리형 버프 프레임 주변을 없앱니다",
         text_en = "Eliminate around separate buff frame"
+    }, {
+        name = "pet_ring",
+        text_jp = "ペットリングフレームを非表示にします",
+        text_kr = "펫 링 프레임을 숨깁니다",
+        text_en = "Hides the pet ring frame"
     }},
     autos = {{
         name = "coin_use",
@@ -541,7 +548,7 @@ function mini_addons_RESTART_ON_MSG(my_frame, my_msg)
     if msg == 'RESTART_HERE' and (BitGet(num, 12) == 1 or BitGet(num, 14) == 1) then
         -- if msg == 'RESTART_HERE' then
         local restart_frame = ui.GetFrame("restart")
-
+        restart_frame:ShowWindow(1)
         for i = 1, 5 do
             local resButtonObj = GET_CHILD(frame, "restart" .. i .. "btn", 'ui::CButton');
             if resButtonObj then
@@ -626,55 +633,109 @@ function MINI_ADDONS_FRAME_MOVE()
 
 end
 
-g.solodun_reward = false
-function MINI_ADDONS_ON_INIT(addon, frame)
-    local start_time = os.clock() -- ★処理開始前の時刻を記録★
-    g.addon = addon
-    g.frame = frame
-    g.cid = info.GetCID(session.GetMyHandle())
-    g.lang = option.GetCurrentCountry()
-    -- g.lang = "en"
-
-    g.REGISTER = {}
-
-    g.corony_count = nil
-
-    if not g.settings then
-        MINI_ADDONS_LOAD_SETTINGS()
+function mini_addons_SHOW_PET_RINGCOMMAND(my_frame, my_msg)
+    local actor = g.get_event_args(my_msg)
+    if g.settings.pet_ring == 1 then
+        return
+    else
+        g.FUNCS["SHOW_PET_RINGCOMMAND"](actor)
     end
+end
+
+--[[function mini_addons_UPDATE_QUESTINFOSET_2(my_frame, my_msg)
+    --	local warpFrame = ui.GetFrame('questwarp');
+    --	for i=0, QUESTWARP_MAX_BTN-1 do
+    --		warpFrame:SetUserValue("QUEST_WARP_CLASSNAME_"..i, "None");
+    --	end
+
+    local frame, msg, check, updateQuestID = g.get_event_args(my_msg)
+    print(totring(updateQuestID))
+    if UI_CHECK_NOT_PVP_MAP() == 0 then
+        frame:ShowWindow(0);
+        return;
+    end
+
+    local cnt = quest.GetCheckQuestCount();
+    local customCnt = geQuest.GetCustomQuestCount();
+    if cnt + customCnt > 0 then
+        frame:ShowWindow(1);
+    else
+        frame:ShowWindow(0);
+    end
+
+    if updateQuestID ~= nil and updateQuestID > 0 then
+        local GroupCtrl = GET_CHILD(frame, "member", "ui::CGroupBox");
+        UPDATE_QUESTINFOSET_2_BY_TYPE(GroupCtrl, msg, updateQuestID);
+        QUESTINFOSET_2_AUTO_ALIGN(frame, GroupCtrl);
+        return;
+    end
+
+    if msg == 'GAME_START' then
+        PC_ENTER_QUESTINFO(frame);
+    end
+
+    -- 모든 자식 리스트를 지우고,
+    local GroupCtrl = GET_CHILD(frame, "member", "ui::CGroupBox");
+    GroupCtrl:DeleteAllControl();
+
+    -- 새로 만든다.
+
+    for i = cnt - 1, 0, -1 do
+        local questID = quest.GetCheckQuest(i);
+        local questcls = GetClassByType("QuestProgressCheck", questID);
+        MAKE_QUEST_INFO_C(GroupCtrl, questcls, msg);
+    end
+    --[[for i = 0, cnt - 1 do
+        local questID = quest.GetCheckQuest(i);
+        local questcls = GetClassByType("QuestProgressCheck", questID);
+        MAKE_QUEST_INFO_C(GroupCtrl, questcls, msg);
+    end]]
+
+--[[if customCnt > 0 then
+        QUESTINFOSET_2_MAKE_CUSTOM(frame, true);
+    end
+
+    QUESTINFOSET_2_AUTO_ALIGN(frame, GroupCtrl);
+    QUEST_PARTY_MEMBER_PROP_UPDATE(frame);
+end]]
+
+--[[function mini_addons_GAME_START_3SEC(frame, msg, str, num)
 
     if g.settings.chat_recv == 1 then
         local chat_option = ui.GetFrame("chat_option")
         local resurrectCheck_party = GET_CHILD_RECURSIVELY(chat_option, "resurrectCheck_party")
         AUTO_CAST(resurrectCheck_party)
         resurrectCheck_party:SetCheck(1)
-        g.setup_hook_and_event(addon, "DRAW_CHAT_MSG", "MINI_ADDONS_DRAW_CHAT_MSG", true)
+        g.setup_hook_and_event(g.addon, "DRAW_CHAT_MSG", "MINI_ADDONS_DRAW_CHAT_MSG", true)
     end
 
-    g.setup_hook_and_event(addon, "CHAT_RBTN_POPUP", "MINI_ADDONS_CHAT_RBTN_POPUP", false)
-    g.setup_hook_and_event(addon, "POPUP_GUILD_MEMBER", "MINI_ADDONS_POPUP_GUILD_MEMBER", false)
-    g.setup_hook_and_event(addon, "CONTEXT_PARTY", "MINI_ADDONS_CONTEXT_PARTY", false)
-    g.setup_hook_and_event(addon, "SHOW_PC_CONTEXT_MENU", "MINI_ADDONS_SHOW_PC_CONTEXT_MENU", false)
-    g.setup_hook_and_event(addon, "POPUP_DUMMY", "MINI_ADDONS_POPUP_DUMMY", false)
-    g.setup_hook_and_event(addon, "POPUP_FRIEND_COMPLETE_CTRLSET", "MINI_ADDONS_POPUP_FRIEND_COMPLETE_CTRLSET", false)
+    g.setup_hook_and_event(g.addon, "CHAT_RBTN_POPUP", "MINI_ADDONS_CHAT_RBTN_POPUP", false)
+    g.setup_hook_and_event(g.addon, "POPUP_GUILD_MEMBER", "MINI_ADDONS_POPUP_GUILD_MEMBER", false)
+    g.setup_hook_and_event(g.addon, "CONTEXT_PARTY", "MINI_ADDONS_CONTEXT_PARTY", false)
+    g.setup_hook_and_event(g.addon, "SHOW_PC_CONTEXT_MENU", "MINI_ADDONS_SHOW_PC_CONTEXT_MENU", false)
+    g.setup_hook_and_event(g.addon, "POPUP_DUMMY", "MINI_ADDONS_POPUP_DUMMY", false)
+    g.setup_hook_and_event(g.addon, "POPUP_FRIEND_COMPLETE_CTRLSET", "MINI_ADDONS_POPUP_FRIEND_COMPLETE_CTRLSET", false)
 
     g.call = {}
-    g.setup_hook_and_event(addon, "NOTICE_ON_MSG", "MINI_ADDONS_NOTICE_ON_MSG_baubas", true)
+    g.setup_hook_and_event(g.addon, "NOTICE_ON_MSG", "MINI_ADDONS_NOTICE_ON_MSG_baubas", true)
 
-    g.setup_hook_and_event(addon, "SYS_OPTION_OPEN", "MINI_ADDONS_SYS_OPTION_OPEN", true)
+    g.setup_hook_and_event(g.addon, "SYS_OPTION_OPEN", "MINI_ADDONS_SYS_OPTION_OPEN", true)
 
-    g.setup_hook_and_event(addon, "WEEKLY_BOSS_RANK_UPDATE", "MINI_ADDONS_WEEKLY_BOSS_RANK_UPDATE", true)
+    g.setup_hook_and_event(g.addon, "WEEKLY_BOSS_RANK_UPDATE", "MINI_ADDONS_WEEKLY_BOSS_RANK_UPDATE", true)
+
+    -- g.setup_hook_and_event(g.addon, "UPDATE_QUESTINFOSET_2", "mini_addons_UPDATE_QUESTINFOSET_2", false)
 
     if g.settings.group_chat == 1 then
         g.settings.group_name = g.settings.group_name or {}
 
-        g.setup_hook_and_event(addon, "CREATE_NEW_GROUPCHAT", "MINI_ADDONS_CREATE_NEW_GROUPCHAT", true)
+        g.setup_hook_and_event(g.addon, "CREATE_NEW_GROUPCHAT", "MINI_ADDONS_CREATE_NEW_GROUPCHAT", true)
         if next(g.settings.group_name) then
-            addon:RegisterMsg("GAME_START_3SEC", "MINI_ADDONS_CHAT_CREATE_OR_UPDATE_GROUP_LIST_3SEC")
-            g.setup_hook_and_event(addon, "CHAT_GROUPLIST_SELECT_LISTTYPE",
+            -- g.addon:RegisterMsg("GAME_START_3SEC", "MINI_ADDONS_CHAT_CREATE_OR_UPDATE_GROUP_LIST_3SEC")
+            MINI_ADDONS_CHAT_CREATE_OR_UPDATE_GROUP_LIST_3SEC(frame, msg, str, num)
+            g.setup_hook_and_event(g.addon, "CHAT_GROUPLIST_SELECT_LISTTYPE",
                 "MINI_ADDONS_CHAT_GROUPLIST_SELECT_LISTTYPE", true)
-            g.setup_hook_and_event(addon, "CHAT_GROUPLIST_OPTION_OK", "MINI_ADDONS_CHAT_GROUPLIST_OPTION_OK", true)
-            g.setup_hook_and_event(addon, "GROUPCHAT_OUT", "MINI_ADDONS_GROUPCHAT_OUT", true)
+            g.setup_hook_and_event(g.addon, "CHAT_GROUPLIST_OPTION_OK", "MINI_ADDONS_CHAT_GROUPLIST_OPTION_OK", true)
+            g.setup_hook_and_event(g.addon, "GROUPCHAT_OUT", "MINI_ADDONS_GROUPCHAT_OUT", true)
         end
     end
 
@@ -682,43 +743,45 @@ function MINI_ADDONS_ON_INIT(addon, frame)
     local keyword = TryGetProp(map, 'Keyword', 'None')
     local keyword_table = StringSplit(keyword, '')
     if table.find(keyword_table, 'IsRaidField') > 0 and g.settings.vakarine == 1 then
-        addon:RegisterMsg('GAME_START', "MINI_ADDONS_VAKARINE_NOTICE")
+        -- g.addon:RegisterMsg('GAME_START', "MINI_ADDONS_VAKARINE_NOTICE")
+        MINI_ADDONS_VAKARINE_NOTICE(frame, msg, str, num)
     end
 
     g.SetupHook(MINI_ADDONS_EARTHTOWERSHOP_CHANGECOUNT_NUM_CHANGE, "EARTHTOWERSHOP_CHANGECOUNT_NUM_CHANGE")
     g.SetupHook(MINI_ADDONS_INDUNENTER_REQ_UNDERSTAFF_ENTER_ALLOW, "INDUNENTER_REQ_UNDERSTAFF_ENTER_ALLOW")
     g.SetupHook(MINI_ADDONS_INDUN_EDITMSGBOX_FRAME_OPEN, "INDUN_EDITMSGBOX_FRAME_OPEN")
     if g.settings.velnice.use == 1 then
-        addon:RegisterMsg("SOLO_D_TIMER_TEXT_GAUGE_UPDATE", "MINI_ADDONS_SOLO_D_TIMER_UPDATE_TEXT_GAUGE")
+        g.addon:RegisterMsg("SOLO_D_TIMER_TEXT_GAUGE_UPDATE", "MINI_ADDONS_SOLO_D_TIMER_UPDATE_TEXT_GAUGE")
         g.velnice = 0
     end
 
     -- IMCのON_PARTYINFO_BUFFLIST_UPDATEを削除
     g.SetupHook(mini_addons_basefunction_old, "ON_PARTYINFO_BUFFLIST_UPDATE")
-    addon:RegisterMsg("PARTY_BUFFLIST_UPDATE", "MINI_ADDONS_ON_PARTYINFO_BUFFLIST_UPDATE")
-    addon:RegisterMsg("PARTY_INST_UPDATE", "MINI_ADDONS_ON_PARTYINFO_INST_UPDATE")
+    g.addon:RegisterMsg("PARTY_BUFFLIST_UPDATE", "MINI_ADDONS_ON_PARTYINFO_BUFFLIST_UPDATE")
+    g.addon:RegisterMsg("PARTY_INST_UPDATE", "MINI_ADDONS_ON_PARTYINFO_INST_UPDATE")
 
-    g.SetupHook(MINI_ADDONS_CHAT_SYSTEM, "CHAT_SYSTEM")
     g.SetupHook(MINI_ADDONS_UPDATE_CURRENT_CHANNEL_TRAFFIC, "UPDATE_CURRENT_CHANNEL_TRAFFIC")
 
-    g.setup_hook_and_event(addon, "NOTICE_ON_MSG", "MINI_ADDONS_NOTICE_ON_MSG", false)
+    g.setup_hook_and_event(g.addon, "NOTICE_ON_MSG", "MINI_ADDONS_NOTICE_ON_MSG", false)
 
     g.SetupHook(MINI_ADDONS_CHAT_TEXT_LINKCHAR_FONTSET, "CHAT_TEXT_LINKCHAR_FONTSET")
 
     g.SetupHook(MINI_ADDONS_INVENTORY_TOTAL_LIST_GET, 'INVENTORY_TOTAL_LIST_GET')
 
     g.SetupHook(MINI_ADDONS_COMMON_EQUIP_UPGRADE_PROGRESS, "COMMON_EQUIP_UPGRADE_PROGRESS")
-    acutil.setupEvent(addon, "COMMON_EQUIP_UPGRADE_OPEN", "MINI_ADDONS_COMMON_EQUIP_UPGRADE_OPEN")
+    acutil.setupEvent(g.addon, "COMMON_EQUIP_UPGRADE_OPEN", "MINI_ADDONS_COMMON_EQUIP_UPGRADE_OPEN")
 
-    acutil.setupEvent(addon, "MARKET_SELL_UPDATE_REG_SLOT_ITEM", "MINI_ADDONS_MARKET_SELL_UPDATE_REG_SLOT_ITEM")
-    acutil.setupEvent(addon, "OPEN_WORLDMAP2_MINIMAP", "MINI_ADDONS_OPEN_WORLDMAP2_MINIMAP")
+    acutil.setupEvent(g.addon, "MARKET_SELL_UPDATE_REG_SLOT_ITEM", "MINI_ADDONS_MARKET_SELL_UPDATE_REG_SLOT_ITEM")
+    acutil.setupEvent(g.addon, "OPEN_WORLDMAP2_MINIMAP", "MINI_ADDONS_OPEN_WORLDMAP2_MINIMAP")
 
-    local frame = ui.GetFrame("cupole_external_addon")
-    frame:SetEventScript(ui.LBUTTONUP, "MINI_ADDONS_CUPOLE_PORTION_FRAME_SAVE")
-    acutil.setupEvent(addon, "TOGGLE_CUPOLE_EXTERNAL_ADDON", "MINI_ADDONS_TOGGLE_CUPOLE_EXTERNAL_ADDON")
+    local cupole_external_addon = ui.GetFrame("cupole_external_addon")
+    cupole_external_addon:SetEventScript(ui.LBUTTONUP, "MINI_ADDONS_CUPOLE_PORTION_FRAME_SAVE")
+    -- g.addon:RegisterMsg('CUPOLE_EQUIP_COMPLELTE', 'MINI_ADDONS_TOGGLE_CUPOLE_EXTERNAL_ADDON');
+    acutil.setupEvent(g.addon, "TOGGLE_CUPOLE_EXTERNAL_ADDON", "MINI_ADDONS_TOGGLE_CUPOLE_EXTERNAL_ADDON")
+    MINI_ADDONS_TOGGLE_CUPOLE_EXTERNAL_ADDON(frame, msg, str, num)
 
-    local frame = ui.GetFrame("buff_separatedlist")
-    local gbox = GET_CHILD_RECURSIVELY(frame, "gbox")
+    local buff_separatedlist = ui.GetFrame("buff_separatedlist")
+    local gbox = GET_CHILD_RECURSIVELY(buff_separatedlist, "gbox")
     AUTO_CAST(gbox)
     if g.settings.separated_buff == 1 then
         gbox:SetSkinName("None")
@@ -728,70 +791,80 @@ function MINI_ADDONS_ON_INIT(addon, frame)
     end
 
     if g.settings.raid_record == 1 then
-        acutil.setupEvent(addon, "RAID_RECORD_INIT", "MINI_ADDONS_RAID_RECORD_INIT")
+        acutil.setupEvent(g.addon, "RAID_RECORD_INIT", "MINI_ADDONS_RAID_RECORD_INIT")
     end
 
     if g.settings.my_effect == 1 then
-        addon:RegisterMsg("GAME_START_3SEC", "MINI_ADDONS_MY_EFFECT_SETTING")
+
+        -- g.addon:RegisterMsg("GAME_START_3SEC", "MINI_ADDONS_MY_EFFECT_SETTING")
+        MINI_ADDONS_MY_EFFECT_SETTING(frame, msg, str, num)
     end
 
     if g.settings.boss_effect == 1 then
-        addon:RegisterMsg("GAME_START_3SEC", "MINI_ADDONS_BOSS_EFFECT_SETTING")
+        -- g.addon:RegisterMsg("GAME_START_3SEC", "MINI_ADDONS_BOSS_EFFECT_SETTING")
+        MINI_ADDONS_BOSS_EFFECT_SETTING(frame, msg, str, num)
     end
 
     if g.settings.other_effect == 1 then
-        addon:RegisterMsg("GAME_START_3SEC", "MINI_ADDONS_OTHER_EFFECT_SETTING")
+        -- g.addon:RegisterMsg("GAME_START_3SEC", "MINI_ADDONS_OTHER_EFFECT_SETTING")
+        MINI_ADDONS_OTHER_EFFECT_SETTING(frame, msg, str, num)
     end
 
     if g.settings.equip_info == 1 then
-        acutil.setupEvent(addon, "SHOW_INDUNENTER_DIALOG", "MINI_ADDONS_SHOW_INDUNENTER_DIALOG")
+        acutil.setupEvent(g.addon, "SHOW_INDUNENTER_DIALOG", "MINI_ADDONS_SHOW_INDUNENTER_DIALOG")
     end
 
     if g.settings.automatch_layer == 1 then
-        acutil.setupEvent(addon, "INDUNENTER_AUTOMATCH_TYPE", "MINI_ADDONS_INDUNENTER_AUTOMATCH_TYPE")
+        acutil.setupEvent(g.addon, "INDUNENTER_AUTOMATCH_TYPE", "MINI_ADDONS_INDUNENTER_AUTOMATCH_TYPE")
     elseif g.settings.automatch_layer == 0 then
-        local ideframe = ui.GetFrame("indunenter")
-        ideframe:SetLayerLevel(100)
+        local indunenter = ui.GetFrame("indunenter")
+        indunenter:SetLayerLevel(100)
     end
 
     if g.settings.quest_hide == 1 then
-        addon:RegisterMsg("GAME_START", "MINI_ADDONS_QUESTINFO_HIDE_RESERVE")
-        acutil.setupEvent(addon, "INVENTORY_OPEN", "MINI_ADDONS_QUESTINFO_HIDE_RESERVE")
-        acutil.setupEvent(addon, "INVENTORY_CLOSE", "MINI_ADDONS_QUESTINFO_HIDE_RESERVE")
+        -- g.addon:RegisterMsg("GAME_START", "MINI_ADDONS_QUESTINFO_HIDE_RESERVE")
+        MINI_ADDONS_QUESTINFO_HIDE_RESERVE(frame, msg, str, num)
+        acutil.setupEvent(g.addon, "INVENTORY_OPEN", "MINI_ADDONS_QUESTINFO_HIDE_RESERVE")
+        acutil.setupEvent(g.addon, "INVENTORY_CLOSE", "MINI_ADDONS_QUESTINFO_HIDE_RESERVE")
     end
 
-    local restart_frame = ui.GetFrame("restart")
-    restart_frame:SetUserValue("COLONY_TIMER_RUNNING", "0")
+    local restart = ui.GetFrame("restart")
+    restart:SetUserValue("COLONY_TIMER_RUNNING", "0")
     if g.settings.restart_move == 1 then
-        addon:RegisterMsg("RESTART_HERE", "MINI_ADDONS_FRAME_MOVE")
-        addon:RegisterMsg("RESTART_CONTENTS_HERE", "MINI_ADDONS_FRAME_MOVE")
-        acutil.setupEvent(addon, "RESTART_CONTENTS_ON_HERE", "MINI_ADDONS_RESTART_CONTENTS_ON_HERE")
-        -- addon:RegisterMsg('RESTART_ON_MSG', 'mini_addons_RESTART_ON_MSG')
-        g.setup_hook_and_event(addon, "RESTART_ON_MSG", "mini_addons_RESTART_ON_MSG", false)
+        g.addon:RegisterMsg("RESTART_HERE", "MINI_ADDONS_FRAME_MOVE")
+        g.addon:RegisterMsg("RESTART_CONTENTS_HERE", "MINI_ADDONS_FRAME_MOVE")
+        acutil.setupEvent(g.addon, "RESTART_CONTENTS_ON_HERE", "MINI_ADDONS_RESTART_CONTENTS_ON_HERE")
+        g.setup_hook_and_event(g.addon, "RESTART_ON_MSG", "mini_addons_RESTART_ON_MSG", false)
         g.mouse = false
     end
 
     if g.settings.dialog_ctrl == 1 then
-        addon:RegisterMsg("DIALOG_CHANGE_SELECT", "MINI_ADDONS_DIALOG_CHANGE_SELECT")
+        g.addon:RegisterMsg("DIALOG_CHANGE_SELECT", "MINI_ADDONS_DIALOG_CHANGE_SELECT")
     end
 
     if g.settings.pc_name == 1 then
         -- addon:RegisterMsg("FPS_UPDATE", "MINI_ADDONS_PCNAME_REPLACE")
-        acutil.setupEvent(addon, 'HEADSUPDISPLAY_ON_MSG', "MINI_ADDONS_PCNAME_REPLACE")
+        acutil.setupEvent(g.addon, 'HEADSUPDISPLAY_ON_MSG', "MINI_ADDONS_PCNAME_REPLACE")
     end
 
-    acutil.setupEvent(addon, "CONFIG_ENABLE_AUTO_CASTING", "MINI_ADDONS_CONFIG_ENABLE_AUTO_CASTING")
+    acutil.setupEvent(g.addon, "CONFIG_ENABLE_AUTO_CASTING", "MINI_ADDONS_CONFIG_ENABLE_AUTO_CASTING")
     if g.settings.auto_cast == 1 then
-        addon:RegisterMsg("GAME_START_3SEC", "MINI_ADDONS_SET_ENABLE_AUTO_CASTING_3SEC")
+        -- g.addon:RegisterMsg("GAME_START_3SEC", "MINI_ADDONS_SET_ENABLE_AUTO_CASTING_3SEC")
+        MINI_ADDONS_SET_ENABLE_AUTO_CASTING_3SEC(frame, msg, str, num)
     end
 
     if g.settings.channel_info == 1 then
-        addon:RegisterMsg("GAME_START_3SEC", "MINI_ADDONS_GAME_START_CHANNEL_LIST")
+        -- g.addon:RegisterMsg("GAME_START_3SEC", "MINI_ADDONS_GAME_START_CHANNEL_LIST")
+        MINI_ADDONS_GAME_START_CHANNEL_LIST(frame, msg, str, num)
     end
 
+    g.setup_hook_and_event(g.addon, "SHOW_PET_RINGCOMMAND", "mini_addons_SHOW_PET_RINGCOMMAND", false)
+
+    -- SHOW_PET_RINGCOMMAND
     if g.settings.relic_gauge == 1 then
-        addon:RegisterMsg("GAME_START", "MINI_ADDONS_CHARBASE_RELIC")
-        addon:RegisterMsg("RP_UPDATE", "MINI_ADDONS_CHARBASE_RELIC")
+        -- g.addon:RegisterMsg("GAME_START", "MINI_ADDONS_CHARBASE_RELIC")
+        MINI_ADDONS_CHARBASE_RELIC(frame, msg, str, num)
+        g.addon:RegisterMsg("RP_UPDATE", "MINI_ADDONS_CHARBASE_RELIC")
     end
 
     if g.settings.raid_check == 1 then
@@ -801,12 +874,12 @@ function MINI_ADDONS_ON_INIT(addon, frame)
     end
 
     if g.settings.party_info == 1 then
-        local piframe = ui.GetFrame('partyinfo')
-        local tooltip = piframe:CreateOrGetControl("richtext", "tooltip", 0, 0, 170, 60)
+        local partyinfo = ui.GetFrame('partyinfo')
+        local tooltip = partyinfo:CreateOrGetControl("richtext", "tooltip", 0, 0, 170, 60)
         AUTO_CAST(tooltip)
         tooltip:SetText("{s30}                             ")
         tooltip:SetTextTooltip("{ol}Right-click to switch display for mouse mode")
-        acutil.setupEvent(addon, "SET_PARTYINFO_ITEM", "MINI_ADDONS_SET_PARTYINFO_ITEM")
+        acutil.setupEvent(g.addon, "SET_PARTYINFO_ITEM", "MINI_ADDONS_SET_PARTYINFO_ITEM")
         g.partyinfo = 0
     end
 
@@ -828,48 +901,53 @@ function MINI_ADDONS_ON_INIT(addon, frame)
         inventory_accpropinv:SetEventScript(ui.RBUTTONDOWN, "mini_addons_reputation_shop_close")
 
         if g.settings.solodun_reward == 1 and not g.solodun_reward then
-            addon:RegisterMsg("GAME_START_3SEC", "mini_addons_SOLODUNGEON_RANKINGPAGE_GET_REWARD")
+            -- g.addon:RegisterMsg("GAME_START_3SEC", "mini_addons_SOLODUNGEON_RANKINGPAGE_GET_REWARD")
+            mini_addons_SOLODUNGEON_RANKINGPAGE_GET_REWARD(frame, msg, str, num)
         end
 
         if g.settings.goodbye_ragana == 1 then
-            addon:RegisterMsg("GAME_START", "mini_addons_ragana_remove_timer")
+            -- g.addon:RegisterMsg("GAME_START", "mini_addons_ragana_remove_timer")
+            mini_addons_ragana_remove_timer(frame, msg, str, num)
         end
 
         if g.settings.weekly_boss_reward == 1 then
-            addon:RegisterMsg("GAME_START_3SEC", "MINI_ADDONS_WEEKLY_BOSS_REWARD")
+            -- g.addon:RegisterMsg("GAME_START_3SEC", "MINI_ADDONS_WEEKLY_BOSS_REWARD")
+            MINI_ADDONS_WEEKLY_BOSS_REWARD(frame, msg, str, num)
 
         end
 
         if g.settings.coin_use == 1 then
-            addon:RegisterMsg('INV_ITEM_ADD', "MINI_ADDONS_INV_ICON_USE")
-            addon:RegisterMsg('INV_ITEM_REMOVE', 'MINI_ADDONS_INV_ICON_USE')
+            g.addon:RegisterMsg('INV_ITEM_ADD', "MINI_ADDONS_INV_ICON_USE")
+            g.addon:RegisterMsg('INV_ITEM_REMOVE', 'MINI_ADDONS_INV_ICON_USE')
         end
 
         if g.settings.market_display == 1 then
-            addon:RegisterMsg("GAME_START", "MINIMIZED_TOTAL_SHOP_BUTTON_CLICK")
+            -- g.addon:RegisterMsg("GAME_START", "MINIMIZED_TOTAL_SHOP_BUTTON_CLICK")
+            MINIMIZED_TOTAL_SHOP_BUTTON_CLICK(frame, msg, str, num)
         end
 
         if g.settings.skill_enchant == 1 then
-            acutil.setupEvent(addon, "COMMON_SKILL_ENCHANT_MAT_SET", "MINI_ADDONS_COMMON_SKILL_ENCHANT_MAT_SET")
-            acutil.setupEvent(addon, "SUCCESS_COMMON_SKILL_ENCHANT", "MINI_ADDONS_SUCCESS_COMMON_SKILL_ENCHANT")
+            acutil.setupEvent(g.addon, "COMMON_SKILL_ENCHANT_MAT_SET", "MINI_ADDONS_COMMON_SKILL_ENCHANT_MAT_SET")
+            acutil.setupEvent(g.addon, "SUCCESS_COMMON_SKILL_ENCHANT", "MINI_ADDONS_SUCCESS_COMMON_SKILL_ENCHANT")
         end
 
         if g.settings.auto_gacha == 1 then
-            addon:RegisterMsg('FIELD_BOSS_WORLD_EVENT_START', 'MINI_ADDONS_GP_DO_OPEN')
-            addon:RegisterMsg('FIELD_BOSS_WORLD_EVENT_END', 'MINI_ADDONS_FIELD_BOSS_WORLD_EVENT_END')
+            g.addon:RegisterMsg('FIELD_BOSS_WORLD_EVENT_START', 'MINI_ADDONS_GP_DO_OPEN')
+            g.addon:RegisterMsg('FIELD_BOSS_WORLD_EVENT_END', 'MINI_ADDONS_FIELD_BOSS_WORLD_EVENT_END')
         end
 
         MINI_ADDONS_GP_FULL_BET()
 
         if g.settings.bgm == 1 then
-            addon:RegisterMsg("FPS_UPDATE", "MINI_ADDONS_BGM_PLAY_LIST")
-            addon:RegisterMsg("GAME_START", "MINI_ADDONS_BGM_PLAY")
+            g.addon:RegisterMsg("FPS_UPDATE", "MINI_ADDONS_BGM_PLAY_LIST")
+            -- g.addon:RegisterMsg("GAME_START", "MINI_ADDONS_BGM_PLAY")
+            MINI_ADDONS_BGM_PLAY(frame, msg, str, num)
         end
     elseif mapCls.MapType ~= "City" then
         ui.CloseFrame("bgmplayer_reduction")
-        local max_frame = ui.GetFrame("bgmplayer")
-        local play_btn = GET_CHILD_RECURSIVELY(max_frame, "playStart_btn")
-        MINIADDONS_BGMPLAYER_PLAY(max_frame, play_btn)
+        local bgmplayer = ui.GetFrame("bgmplayer")
+        local play_btn = GET_CHILD_RECURSIVELY(bgmplayer, "playStart_btn")
+        MINIADDONS_BGMPLAYER_PLAY(bgmplayer, play_btn)
 
         inventory_accpropinv:SetEventScript(ui.RBUTTONUP, "None")
         inventory_accpropinv:SetEventScript(ui.RBUTTONDOWN, "None")
@@ -877,7 +955,8 @@ function MINI_ADDONS_ON_INIT(addon, frame)
 
     if g.settings.mini_btn == 1 then
         if mapCls.MapType ~= "Field" and mapCls.MapType ~= "City" then
-            addon:RegisterMsg("GAME_START", "MINI_ADDONS_MINIMIZED_CLOSE")
+            -- g.addon:RegisterMsg("GAME_START", "MINI_ADDONS_MINIMIZED_CLOSE")
+            MINI_ADDONS_MINIMIZED_CLOSE(frame, msg, str, num)
         end
     end
 
@@ -891,18 +970,320 @@ function MINI_ADDONS_ON_INIT(addon, frame)
 
     if not _G["norisan"]["MENU"][addon_name_lower] or _G["norisan"]["MENU"].frame_name == addon_name_lower then
         _G["norisan"]["MENU"].frame_name = addon_name_lower
+        g.addon:RegisterMsg("GAME_START", "norisan_menu_create_frame")
+    end
+
+    g.addon:RegisterMsg("FPS_UPDATE", "MINI_ADDONS_FPS_UPDATE")
+
+    -- g.addon:RegisterMsg("GAME_START_3SEC", "mini_addons_toggle_sound_set")
+    mini_addons_toggle_sound_set(frame, msg, str, num)
+
+    -- g.addon:RegisterMsg("GAME_START_3SEC", "mini_addons_toggle_quest_set")
+    mini_addons_toggle_quest_set(frame, msg, str, num)
+
+end]]
+
+function g.setup_hook_and_event_notargs(my_addon, origin_func_name, my_func_name, bool)
+
+    g.FUNCS = g.FUNCS or {}
+    if not g.FUNCS[origin_func_name] then
+        g.FUNCS[origin_func_name] = _G[origin_func_name]
+    end
+
+    local origin_func = g.FUNCS[origin_func_name]
+
+    local function hooked_function(...)
+
+        local original_results
+
+        if bool == true then
+            original_results = {origin_func(...)}
+        end
+
+        imcAddOn.BroadMsg(origin_func_name, ...)
+
+        if original_results then
+            return table.unpack(original_results)
+        else
+            return
+        end
+    end
+
+    _G[origin_func_name] = hooked_function
+
+    if not g.REGISTER[origin_func_name .. my_func_name] then
+        g.REGISTER[origin_func_name .. my_func_name] = true
+        my_addon:RegisterMsg(origin_func_name, my_func_name)
+    end
+end
+
+function mini_addons_GAME_START_3SEC(frame, msg, str, num)
+
+    local addon = g.addon
+    ----------------------------------------------------------------
+    -- 1. チャット / 右クリックメニュー / ポップアップ関連
+    ----------------------------------------------------------------
+    if g.settings.chat_recv == 1 then
+        local chat_option = ui.GetFrame("chat_option")
+        local resurrectCheck_party = GET_CHILD_RECURSIVELY(chat_option, "resurrectCheck_party")
+        AUTO_CAST(resurrectCheck_party)
+        resurrectCheck_party:SetCheck(1)
+        g.setup_hook_and_event_notargs(addon, "DRAW_CHAT_MSG", "MINI_ADDONS_DRAW_CHAT_MSG", true)
+    end
+
+    if g.settings.group_chat == 1 then
+        g.settings.group_name = g.settings.group_name or {}
+        g.setup_hook_and_event_notargs(addon, "CREATE_NEW_GROUPCHAT", "MINI_ADDONS_CREATE_NEW_GROUPCHAT", true)
+        if next(g.settings.group_name) then
+            MINI_ADDONS_CHAT_CREATE_OR_UPDATE_GROUP_LIST_3SEC(frame, msg, str, num)
+            g.setup_hook_and_event_notargs(addon, "CHAT_GROUPLIST_SELECT_LISTTYPE",
+                "MINI_ADDONS_CHAT_GROUPLIST_SELECT_LISTTYPE", true)
+            g.setup_hook_and_event(addon, "CHAT_GROUPLIST_OPTION_OK", "MINI_ADDONS_CHAT_GROUPLIST_OPTION_OK", true)
+            g.setup_hook_and_event(addon, "GROUPCHAT_OUT", "MINI_ADDONS_GROUPCHAT_OUT", true)
+        end
+    end
+
+    g.setup_hook_and_event(addon, "CHAT_RBTN_POPUP", "MINI_ADDONS_CHAT_RBTN_POPUP", false)
+    g.setup_hook_and_event(addon, "POPUP_GUILD_MEMBER", "MINI_ADDONS_POPUP_GUILD_MEMBER", false)
+    g.setup_hook_and_event(addon, "CONTEXT_PARTY", "MINI_ADDONS_CONTEXT_PARTY", false)
+    g.setup_hook_and_event(addon, "SHOW_PC_CONTEXT_MENU", "MINI_ADDONS_SHOW_PC_CONTEXT_MENU", false)
+    g.setup_hook_and_event(addon, "POPUP_DUMMY", "MINI_ADDONS_POPUP_DUMMY", false)
+    g.setup_hook_and_event(addon, "POPUP_FRIEND_COMPLETE_CTRLSET", "MINI_ADDONS_POPUP_FRIEND_COMPLETE_CTRLSET", false)
+    g.SetupHook(MINI_ADDONS_CHAT_TEXT_LINKCHAR_FONTSET, "CHAT_TEXT_LINKCHAR_FONTSET")
+
+    if g.settings.dialog_ctrl == 1 then
+        addon:RegisterMsg("DIALOG_CHANGE_SELECT", "MINI_ADDONS_DIALOG_CHANGE_SELECT")
+    end
+
+    ----------------------------------------------------------------
+    -- 2. レイド / ダンジョン / コンテンツ関連
+    ----------------------------------------------------------------
+    g.call = {}
+    g.setup_hook_and_event(addon, "NOTICE_ON_MSG", "MINI_ADDONS_NOTICE_ON_MSG_baubas", true)
+    g.setup_hook_and_event(addon, "WEEKLY_BOSS_RANK_UPDATE", "MINI_ADDONS_WEEKLY_BOSS_RANK_UPDATE", true)
+    g.SetupHook(MINI_ADDONS_INDUNENTER_REQ_UNDERSTAFF_ENTER_ALLOW, "INDUNENTER_REQ_UNDERSTAFF_ENTER_ALLOW")
+    g.SetupHook(MINI_ADDONS_INDUN_EDITMSGBOX_FRAME_OPEN, "INDUN_EDITMSGBOX_FRAME_OPEN")
+
+    if g.settings.velnice.use == 1 then
+        addon:RegisterMsg("SOLO_D_TIMER_TEXT_GAUGE_UPDATE", "MINI_ADDONS_SOLO_D_TIMER_UPDATE_TEXT_GAUGE")
+        g.velnice = 0
+    end
+
+    if g.settings.raid_record == 1 then
+        acutil.setupEvent(addon, "RAID_RECORD_INIT", "MINI_ADDONS_RAID_RECORD_INIT")
+    end
+
+    if g.settings.equip_info == 1 then
+        acutil.setupEvent(addon, "SHOW_INDUNENTER_DIALOG", "MINI_ADDONS_SHOW_INDUNENTER_DIALOG")
+    end
+
+    if g.settings.automatch_layer == 1 then
+        acutil.setupEvent(addon, "INDUNENTER_AUTOMATCH_TYPE", "MINI_ADDONS_INDUNENTER_AUTOMATCH_TYPE")
+    elseif g.settings.automatch_layer == 0 then
+        local indunenter = ui.GetFrame("indunenter")
+        indunenter:SetLayerLevel(100)
+    end
+
+    if session.weeklyboss.GetNowWeekNum() == 0 then
+        weekly_boss.RequestWeeklyBossNowWeekNum()
+    end
+
+    ----------------------------------------------------------------
+    -- 3. UI / 表示調整 / エフェクト関連
+    ----------------------------------------------------------------
+    g.SetupHook(MINI_ADDONS_UPDATE_CURRENT_CHANNEL_TRAFFIC, "UPDATE_CURRENT_CHANNEL_TRAFFIC")
+    g.SetupHook(MINI_ADDONS_INVENTORY_TOTAL_LIST_GET, 'INVENTORY_TOTAL_LIST_GET')
+    g.SetupHook(MINI_ADDONS_COMMON_EQUIP_UPGRADE_PROGRESS, "COMMON_EQUIP_UPGRADE_PROGRESS")
+    acutil.setupEvent(addon, "COMMON_EQUIP_UPGRADE_OPEN", "MINI_ADDONS_COMMON_EQUIP_UPGRADE_OPEN")
+    acutil.setupEvent(addon, "MARKET_SELL_UPDATE_REG_SLOT_ITEM", "MINI_ADDONS_MARKET_SELL_UPDATE_REG_SLOT_ITEM")
+    acutil.setupEvent(addon, "OPEN_WORLDMAP2_MINIMAP", "MINI_ADDONS_OPEN_WORLDMAP2_MINIMAP")
+
+    local cupole_external_addon = ui.GetFrame("cupole_external_addon")
+    cupole_external_addon:SetEventScript(ui.LBUTTONUP, "MINI_ADDONS_CUPOLE_PORTION_FRAME_SAVE")
+    acutil.setupEvent(addon, "TOGGLE_CUPOLE_EXTERNAL_ADDON", "MINI_ADDONS_TOGGLE_CUPOLE_EXTERNAL_ADDON")
+    MINI_ADDONS_TOGGLE_CUPOLE_EXTERNAL_ADDON(frame, msg, str, num)
+
+    local buff_separatedlist = ui.GetFrame("buff_separatedlist")
+    local gbox = GET_CHILD_RECURSIVELY(buff_separatedlist, "gbox")
+    AUTO_CAST(gbox)
+    if g.settings.separated_buff == 1 then
+        gbox:SetSkinName("None")
+    else
+        gbox:SetSkinName("chat_window")
+    end
+
+    if g.settings.my_effect == 1 then
+        MINI_ADDONS_MY_EFFECT_SETTING(frame, msg, str, num)
+    end
+    if g.settings.boss_effect == 1 then
+        MINI_ADDONS_BOSS_EFFECT_SETTING(frame, msg, str, num)
+    end
+    if g.settings.other_effect == 1 then
+        MINI_ADDONS_OTHER_EFFECT_SETTING(frame, msg, str, num)
+    end
+
+    if g.settings.quest_hide == 1 then
+        MINI_ADDONS_QUESTINFO_HIDE_RESERVE(frame, msg, str, num)
+        acutil.setupEvent(addon, "INVENTORY_OPEN", "MINI_ADDONS_QUESTINFO_HIDE_RESERVE")
+        acutil.setupEvent(addon, "INVENTORY_CLOSE", "MINI_ADDONS_QUESTINFO_HIDE_RESERVE")
+    end
+
+    local restart = ui.GetFrame("restart")
+    restart:SetUserValue("COLONY_TIMER_RUNNING", "0")
+    if g.settings.restart_move == 1 then
+        addon:RegisterMsg("RESTART_HERE", "MINI_ADDONS_FRAME_MOVE")
+        addon:RegisterMsg("RESTART_CONTENTS_HERE", "MINI_ADDONS_FRAME_MOVE")
+        acutil.setupEvent(addon, "RESTART_CONTENTS_ON_HERE", "MINI_ADDONS_RESTART_CONTENTS_ON_HERE")
+        g.setup_hook_and_event(addon, "RESTART_ON_MSG", "mini_addons_RESTART_ON_MSG", false)
+        g.mouse = false
+    end
+
+    if g.settings.pc_name == 1 then
+        acutil.setupEvent(addon, 'HEADSUPDISPLAY_ON_MSG', "MINI_ADDONS_PCNAME_REPLACE")
+    end
+
+    if g.settings.channel_info == 1 then
+        MINI_ADDONS_GAME_START_CHANNEL_LIST(frame, msg, str, num)
+    end
+
+    if g.settings.relic_gauge == 1 then
+        MINI_ADDONS_CHARBASE_RELIC(frame, msg, str, num)
+        addon:RegisterMsg("RP_UPDATE", "MINI_ADDONS_CHARBASE_RELIC")
+    end
+
+    if g.settings.party_info == 1 then
+        local partyinfo = ui.GetFrame('partyinfo')
+        local tooltip = partyinfo:CreateOrGetControl("richtext", "tooltip", 0, 0, 170, 60)
+        AUTO_CAST(tooltip)
+        tooltip:SetText("{s30}                             ")
+        tooltip:SetTextTooltip("{ol}Right-click to switch display for mouse mode")
+        acutil.setupEvent(addon, "SET_PARTYINFO_ITEM", "MINI_ADDONS_SET_PARTYINFO_ITEM")
+        g.partyinfo = 0
+    end
+
+    ----------------------------------------------------------------
+    -- 4. パーティ / バフ / ペット関連
+    ----------------------------------------------------------------
+    g.SetupHook(mini_addons_basefunction_old, "ON_PARTYINFO_BUFFLIST_UPDATE")
+    addon:RegisterMsg("PARTY_BUFFLIST_UPDATE", "MINI_ADDONS_ON_PARTYINFO_BUFFLIST_UPDATE")
+    addon:RegisterMsg("PARTY_INST_UPDATE", "MINI_ADDONS_ON_PARTYINFO_INST_UPDATE")
+    g.setup_hook_and_event(addon, "SHOW_PET_RINGCOMMAND", "mini_addons_SHOW_PET_RINGCOMMAND", false)
+
+    ----------------------------------------------------------------
+    -- 5. 自動化 / QoL (生活の質向上) 関連
+    ----------------------------------------------------------------
+    acutil.setupEvent(addon, "CONFIG_ENABLE_AUTO_CASTING", "MINI_ADDONS_CONFIG_ENABLE_AUTO_CASTING")
+    if g.settings.auto_cast == 1 then
+        MINI_ADDONS_SET_ENABLE_AUTO_CASTING_3SEC(frame, msg, str, num)
+    end
+
+    if g.settings.raid_check == 1 then
+        g.settings.raid_check = 0
+        MINI_ADDONS_SAVE_SETTINGS()
+    end
+
+    mini_addons_toggle_sound_set(frame, msg, str, num)
+    mini_addons_toggle_quest_set(frame, msg, str, num)
+
+    ----------------------------------------------------------------
+    -- 6. 街限定の機能
+    ----------------------------------------------------------------
+    local map = GetClass('Map', session.GetMapName())
+    local inv = ui.GetFrame("inventory")
+    local inventory_accpropinv = GET_CHILD_RECURSIVELY(inv, "inventory_accpropinv")
+    AUTO_CAST(inventory_accpropinv)
+
+    if map.MapType == "City" then
+        inventory_accpropinv:SetEventScript(ui.RBUTTONUP, "mini_addons_REPUTATION_SHOP_OPEN_context")
+        inventory_accpropinv:SetEventScript(ui.RBUTTONDOWN, "mini_addons_reputation_shop_close")
+
+        if g.settings.solodun_reward == 1 and not g.solodun_reward then
+            mini_addons_SOLODUNGEON_RANKINGPAGE_GET_REWARD(frame, msg, str, num)
+        end
+        if g.settings.goodbye_ragana == 1 then
+            mini_addons_ragana_remove_timer(frame, msg, str, num)
+        end
+        if g.settings.weekly_boss_reward == 1 then
+            MINI_ADDONS_WEEKLY_BOSS_REWARD(frame, msg, str, num)
+        end
+        if g.settings.coin_use == 1 then
+            addon:RegisterMsg('INV_ITEM_ADD', "MINI_ADDONS_INV_ICON_USE")
+            addon:RegisterMsg('INV_ITEM_REMOVE', 'MINI_ADDONS_INV_ICON_USE')
+        end
+        if g.settings.market_display == 1 then
+            MINIMIZED_TOTAL_SHOP_BUTTON_CLICK(frame, msg, str, num)
+        end
+        if g.settings.skill_enchant == 1 then
+            acutil.setupEvent(addon, "COMMON_SKILL_ENCHANT_MAT_SET", "MINI_ADDONS_COMMON_SKILL_ENCHANT_MAT_SET")
+            acutil.setupEvent(addon, "SUCCESS_COMMON_SKILL_ENCHANT", "MINI_ADDONS_SUCCESS_COMMON_SKILL_ENCHANT")
+        end
+        if g.settings.auto_gacha == 1 then
+            addon:RegisterMsg('FIELD_BOSS_WORLD_EVENT_START', 'MINI_ADDONS_GP_DO_OPEN')
+            addon:RegisterMsg('FIELD_BOSS_WORLD_EVENT_END', 'MINI_ADDONS_FIELD_BOSS_WORLD_EVENT_END')
+        end
+        MINI_ADDONS_GP_FULL_BET()
+        if g.settings.bgm == 1 then
+            addon:RegisterMsg("FPS_UPDATE", "MINI_ADDONS_BGM_PLAY_LIST")
+            MINI_ADDONS_BGM_PLAY(frame, msg, str, num)
+        end
+    else -- 街以外のマップ
+        ui.CloseFrame("bgmplayer_reduction")
+        local bgmplayer = ui.GetFrame("bgmplayer")
+        local play_btn = GET_CHILD_RECURSIVELY(bgmplayer, "playStart_btn")
+        MINIADDONS_BGMPLAYER_PLAY(bgmplayer, play_btn)
+        inventory_accpropinv:SetEventScript(ui.RBUTTONUP, "None")
+        inventory_accpropinv:SetEventScript(ui.RBUTTONDOWN, "None")
+    end
+
+    ----------------------------------------------------------------
+    -- 7. その他 / システムメニュー / 定期更新
+    ----------------------------------------------------------------
+    local keyword = TryGetProp(map, 'Keyword', 'None')
+    local keyword_table = StringSplit(keyword, '')
+    if table.find(keyword_table, 'IsRaidField') > 0 and g.settings.vakarine == 1 then
+        MINI_ADDONS_VAKARINE_NOTICE(frame, msg, str, num)
+    end
+
+    if g.settings.mini_btn == 1 then
+        if map.MapType ~= "Field" and map.MapType ~= "City" then
+            MINI_ADDONS_MINIMIZED_CLOSE(frame, msg, str, num)
+        end
+    end
+
+    local menu_data = {
+        name = "Mini Addons",
+        icon = "sysmenu_jal",
+        func = "MINI_ADDONS_SETTING_FRAME_INIT",
+        image = ""
+    }
+    _G["norisan"]["MENU"][addon_name] = menu_data
+    if not _G["norisan"]["MENU"][addon_name_lower] or _G["norisan"]["MENU"].frame_name == addon_name_lower then
+        _G["norisan"]["MENU"].frame_name = addon_name_lower
         addon:RegisterMsg("GAME_START", "norisan_menu_create_frame")
     end
 
     addon:RegisterMsg("FPS_UPDATE", "MINI_ADDONS_FPS_UPDATE")
 
-    addon:RegisterMsg("GAME_START_3SEC", "mini_addons_toggle_sound_set")
+end
 
-    addon:RegisterMsg("GAME_START_3SEC", "mini_addons_toggle_quest_set")
+g.solodun_reward = false
+function MINI_ADDONS_ON_INIT(addon, frame)
 
-    local end_time = os.clock() -- ★処理終了後の時刻を記録★
-    local elapsed_time = end_time - start_time
-    -- CHAT_SYSTEM(string.format("MINI_ADDONS_ON_INIT: %.4f seconds", elapsed_time))
+    g.addon = addon
+    g.frame = frame
+    g.cid = info.GetCID(session.GetMyHandle())
+    g.lang = option.GetCurrentCountry()
+    g.REGISTER = {}
+    g.corony_count = nil
+
+    if not g.settings then
+        addon:RegisterMsg('GAME_START', "MINI_ADDONS_LOAD_SETTINGS")
+    end
+
+    g.setup_hook_and_event_notargs(g.addon, "CHAT_SYSTEM", "MINI_ADDONS_CHAT_SYSTEM", false)
+
+    addon:RegisterMsg("GAME_START_3SEC", "mini_addons_GAME_START_3SEC")
+
 end
 
 local last_time = 0
@@ -1199,10 +1580,11 @@ end
 
 function MINI_ADDONS_SOLO_D_TIMER_UPDATE_TEXT_GAUGE(frame, msg, argStr)
 
-    local argument_list = StringSplit(argStr, "")
+    local argument_list = StringSplit(argStr, ";")
     local ui_msg = argument_list[1]
     local waveMsg = argument_list[2]
     local current_wave = tonumber(argument_list[3])
+
     if g.velnice ~= current_wave and current_wave ~= 1 then
 
         local frame = ui.GetFrame("solo_d_timer")
@@ -1769,8 +2151,8 @@ function MINI_ADDONS_CHAT_GROUP_CONTEXT(frame, ctrl, str, num)
 end
 
 -- グループチャットリストの表示を更新・管理するメイン関数
-function MINI_ADDONS_CHAT_GROUPLIST_SELECT_LISTTYPE(my_frame, my_msg)
-    local list_type = g.get_event_args(my_msg)
+function MINI_ADDONS_CHAT_GROUPLIST_SELECT_LISTTYPE(my_frame, my_msg, ...)
+    local list_type = ...
     if list_type ~= 3 then -- グループチャットタブ以外では処理しない
         return
     end
@@ -1869,7 +2251,6 @@ function MINI_ADDONS_GROUPCHAT_OUT(frame)
     CHAT_GROUPLIST_SELECT_LISTTYPE(3) -- リストを再描画
 end
 
--- 新しいグループチャットが作成された際のトリガー
 function MINI_ADDONS_CREATE_NEW_GROUPCHAT()
     -- 少し待ってからリストを更新する（UI生成を待つため）
     ReserveScript(string.format("CHAT_GROUPLIST_SELECT_LISTTYPE(%d)", 3), 1.0)
@@ -2555,31 +2936,6 @@ function MINI_ADDONS_WEEKLY_BOSS_RANK_UPDATE()
 
 end
 
---[[function mini_addons_COLONY_WAR_RESTART_UPDATE(frame)
-
-    local current_count = frame:GetUserIValue("MY_TIMER_COUNT")
-
-    local target_btn_name = "restart8btn"
-    local target_btn = GET_CHILD(frame, target_btn_name)
-
-    if not target_btn then
-        return 0
-    end
-
-    local text = "{@st66b}" .. ScpArgMsg("ReturnCity{SEC}", "SEC", current_count) .. "{/}"
-    target_btn:SetText(text)
-
-    current_count = current_count - 1
-
-    if current_count >= 0 then
-        frame:SetUserValue("MY_TIMER_COUNT", current_count)
-        return 1
-    else
-
-        return 0
-    end
-end]]
-
 function mini_addons_toggle_quest_set(frame, ctrl)
     local chaseinfo = ui.GetFrame("chaseinfo")
     local openMark_quest = GET_CHILD_RECURSIVELY(chaseinfo, "openMark_quest")
@@ -2771,7 +3127,7 @@ function MINI_ADDONS_TOGGLE_CUPOLE_EXTERNAL_ADDON()
         g.settings.cupole_portion.def_y = frame:GetY()
         MINI_ADDONS_SAVE_SETTINGS()
     end
-
+    -- print(tostring(g.settings.cupole_portion.use))
     if g.settings.cupole_portion.use == 1 then
         frame:ShowWindow(0)
     elseif frame:IsVisible() == 1 then
@@ -2779,9 +3135,6 @@ function MINI_ADDONS_TOGGLE_CUPOLE_EXTERNAL_ADDON()
             frame:SetPos(g.settings.cupole_portion.def_x, g.settings.cupole_portion.def_y)
         else
             frame:SetPos(g.settings.cupole_portion.x, g.settings.cupole_portion.y)
-            -- frame:SetMargin(g.settings.cupole_portion.x, 0, 0, 0)
-            -- local margin = frame:GetMargin()
-            -- print(margin.left .. ":" .. margin.top .. ":" .. margin.right .. ":" .. margin.bottom)
         end
         frame:ShowWindow(1)
     end
@@ -3236,9 +3589,6 @@ function MINI_ADDONS_ISCHECK(frame, ctrl, argStr, argNum)
     local is_checked = ctrl:IsChecked()
     local ctrl_name = ctrl:GetName()
 
-    -- 設定名の一覧をシンプルなリスト（配列）として定義
-
-    -- リストをループして、クリックされたコントロール名と一致するかを探す
     for _, setting_name in ipairs(SETTINGS_NAME) do
         if ctrl_name == setting_name then
 
@@ -4178,7 +4528,7 @@ end
 function MINI_ADDONS_DIALOG_CHANGE_SELECT(frame, msg, argStr, argNum)
     local frame = ui.GetFrame("dialogselect")
     local dframe = ui.GetFrame("dialog")
-
+    -- print(tostring(frame:GetName()) .. ":" .. tostring(msg) .. ":" .. tostring(argStr) .. ":" .. tostring(argNum))
     -- 倉庫
     if argStr == tostring("WAREHOUSE_DLG") or argStr == tostring("ORSHA_WAREHOUSE_DLG") or argStr ==
         tostring("WAREHOUSE_FEDIMIAN_DLG") and msg == ("DIALOG_CHANGE_SELECT") then
@@ -4522,18 +4872,21 @@ function MINI_ADDONS_NOTICE_ON_MSG(frame, origin_func_name)
     g.FUNCS["NOTICE_ON_MSG"](frame, msg, str, num)
 end
 
-function MINI_ADDONS_CHAT_SYSTEM(msg, color)
+function MINI_ADDONS_CHAT_SYSTEM(my_frame, my_msg, ...)
 
+    local msg, color = ...
     if g.settings.chat_system == 1 then
         if msg == "&lt완벽함&gt 효과가 사라졌습니다." or msg ==
             "&lt완벽함&gt 효과가 발동되었습니다." or msg == "@dicID_^*$ETC_20220830_069434$*^" or msg ==
             "@dicID_^*$ETC_20220830_069435$*^" or msg == "[__m2util] is loaded" or msg == "[adjustlayer] is loaded" or
             msg == "[extendcharinfo] is loaded" or msg == "[ICC]Attempt to CC." or
-            string.find(msg, "StartBlackMarketBetween") then
+            string.find(msg, "StartBlackMarketBetween") or string.find(msg, "[__m2util] is loaded") or
+            string.find(msg, "[adjustlayer] is loaded") or string.find(msg, "MapMate") then
             return
         end
+
     end
-    session.ui.GetChatMsg():AddSystemMsg(msg, true, 'System', color)
+    session.ui.GetChatMsg():AddSystemMsg(msg, true, 'System', "FFFF00")
 end
 
 function MINI_ADDONS_UPDATE_CURRENT_CHANNEL_TRAFFIC(frame)
