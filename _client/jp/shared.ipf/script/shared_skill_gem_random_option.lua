@@ -11,15 +11,21 @@ local random_option_group_name = nil
 local option_count_by_level = nil -- 레벨에 따른 최대 옵션 개수
 
 function make_skill_gem_random_option()
+    local level_list = {480, 540} -- 레벨별로 랜덤 옵션이 다르다.
+    local level_option_count = {1, 1}
+
     skill_gem_list_with_ctrl_type = {} -- 어떤 스킬젬이 어떤 클래스 것 인지
 
     item_skill_gem_random_option_list = {}
     random_option_group_name = {}
     option_range = {}
-    option_range[480] = {}
     option_count_by_level = {}
 
-    option_count_by_level[480] = 1
+    for i = 1, #level_list do
+        local level = level_list[i]
+        option_range[level] = {}
+        option_count_by_level[level] = level_option_count[i]
+    end
 
     random_option_group_name['AllRace_Atk'] = 'ATK'         -- 모든 종족 대상 공격력    
     random_option_group_name['Add_Damage_Atk'] = 'ATK'      -- 추가 대미지 
@@ -56,61 +62,85 @@ function make_skill_gem_random_option()
     random_option_group_name['Iron_Def'] = 'DEF'
     random_option_group_name['MiddleSize_Def'] = 'DEF'
 
-    local max
+    local max = {}
 
-    max = 321
+    max = {321, 481} -- lv480, lv540
     local set_list = {'AllMaterialType_Atk', 'AllRace_Atk'}
+
     for k, v in pairs(set_list) do
-        option_range[480][v] = max
+        for i = 1, #max do
+            local level = level_list[i]
+            option_range[level][v] = max[i]
+        end
+
         table.insert(item_skill_gem_random_option_list, v)
     end
 
-    max = 377
-    set_list = {'ADD_CLOTH', 'ADD_LEATHER', 'ADD_IRON', 'ADD_SMALLSIZE', 'ADD_MIDDLESIZE', 'ADD_LARGESIZE', 'ADD_GHOST', 'ADD_FORESTER', 'ADD_WIDLING', 'ADD_VELIAS', 'ADD_PARAMUNE', 'ADD_KLAIDA'}
+    max = {377, 565}
+    set_list = {'ADD_CLOTH', 'ADD_LEATHER', 'ADD_IRON', 'ADD_GHOST', 'ADD_SMALLSIZE', 'ADD_MIDDLESIZE', 'ADD_LARGESIZE', 
+                    'ADD_FORESTER', 'ADD_WIDLING', 'ADD_VELIAS', 'ADD_PARAMUNE', 'ADD_KLAIDA'}
     for k, v in pairs(set_list) do
-        option_range[480][v] = max
+        for i = 1, #max do
+            local level = level_list[i]
+            option_range[level][v] = max[i]
+        end
         table.insert(item_skill_gem_random_option_list, v)
     end
 
-    max = 565
+    max = {565, 847}
     set_list = {'Add_Damage_Atk'}
     for k, v in pairs(set_list) do
-        option_range[480][v] = max
+        for i = 1, #max do
+            local level = level_list[i]
+            option_range[level][v] = max[i]
+        end
         table.insert(item_skill_gem_random_option_list, v)
     end
 
-    max = 56
+    max = {56, 84}
     set_list = {'STR', 'DEX', 'CON', 'INT', 'MNA'}
     for k, v in pairs(set_list) do
-        option_range[480][v] = max
+        for i = 1, #max do
+            local level = level_list[i]
+            option_range[level][v] = max[i]
+        end
         table.insert(item_skill_gem_random_option_list, v)
     end
 
-    max = 188
+    max = {188, 282}
     set_list = {'CRTHR', 'BLK_BREAK', 'BLK', 'ADD_HR', 'ADD_DR', 'CRTDR'}
     for k, v in pairs(set_list) do
-        option_range[480][v] = max
+        for i = 1, #max do
+            local level = level_list[i]
+            option_range[level][v] = max[i]
+        end
         table.insert(item_skill_gem_random_option_list, v)
     end
 
-    max = 565
+    max = {565, 847}
     set_list = {'ResAdd_Damage'}
     for k, v in pairs(set_list) do
-        option_range[480][v] = max
+        for i = 1, #max do
+            local level = level_list[i]
+            option_range[level][v] = max[i]
+        end
         table.insert(item_skill_gem_random_option_list, v)
     end
 
-    max = 377
+    max = {377, 565}
     set_list = {'Cloth_Def', 'Leather_Def', 'Iron_Def', 'MiddleSize_Def'}
     for k, v in pairs(set_list) do
-        option_range[480][v] = max
+        for i = 1, #max do
+            local level = level_list[i]
+            option_range[level][v] = max[i]
+        end
         table.insert(item_skill_gem_random_option_list, v)
     end
    
     local list, cnt = GetClassList('Item')
     for i = 0, cnt - 1 do
         local cls = GetClassByIndexFromList(list, i);
-        if TryGetProp(cls, 'StringArg', 'None') == 'SkillGem' and TryGetProp(cls, 'StringArg2', 'None')=='None' then
+        if TryGetProp(cls, 'StringArg', 'None') == 'SkillGem' and TryGetProp(cls, 'StringArg2', 'None') =='None' then
             local class_name = TryGetProp(cls, 'ClassName', 'None')
             if class_name ~= 'None' then
                 local skill_name = TryGetProp(cls, 'SkillName', 'None')

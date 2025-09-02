@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- edited with XMLSPY v2004 rel. 3 U (http://www.xmlspy.com) by imc (imc) -->
-<!-- edited with XMLSpy v2008 sp1 (http://www.altova.com) by MintPC (Mi) -->
+<!-- edited with XMLSpy v2011 sp1 (http://www.altova.com) by End User (free.org) -->
 <skinset name="Base">
 	<imagelist>
 		<image name="c_warrior_swordsman" file="\icon\class_warrior.tga" imgrect="0 0 100 100" CMM_Caption="소드맨"/>
@@ -113,5 +113,6 @@
 		<image name="c_warrior_Bonemancer" file="\icon\class_warrior2.tga" imgrect="100 0 100 100" CMM_Caption="본맨서"/>
 		<image name="c_archer_BlitzHunter" file="\icon\class_archer2.tga" imgrect="100 0 100 100" CMM_Caption="블리츠 헌터"/>
 		<image name="c_cleric_AetherBlader" file="\icon\class_cleric.tga" imgrect="300 400 100 100" CMM_Caption="에테르 블레이더"/>
+		<image name="c_wizard_Hermit" file="\icon\class_wizard.tga" imgrect="300 400 100 100" CMM_Caption="허밋"/>
 	</imagelist>
 </skinset>

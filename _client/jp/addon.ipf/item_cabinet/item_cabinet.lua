@@ -2189,7 +2189,7 @@ function ITEM_CABINET_UPGRADE_RELICGEM_TAB(parent,ctrl)
 	GET_CHILD_RECURSIVELY(frame,"slot"):ShowWindow(0);
 	GET_CHILD_RECURSIVELY(frame,"slot2"):ShowWindow(0);
 	GET_CHILD_RECURSIVELY(frame,"relic_upgradeBg"):ShowWindow(0);
-	
+
 	if index ==0 then
 		GET_CHILD_RECURSIVELY(frame,"enchantbtn"):ShowWindow(1);
 		GET_CHILD_RECURSIVELY(frame,"pricetxt"):ShowWindow(1);
@@ -2668,7 +2668,7 @@ function ITEM_CABINET_REG_MATERIAL(frame, slot)
 
 	local itemCls = GetClassByType('Item', itemObj.ClassID);
 	local aObj = GetMyPCObject();
-	
+
 	if GetMyPCObject() == nil then
 		return;
 	end
@@ -2722,12 +2722,13 @@ function ITEM_CABINET_REG_MATERIAL(frame, slot)
 		end
 		local materialCls = GetClass("Item", _name);
 		local item_name = itemCls.ClassName
+		item_name = string.gsub(item_name, "_NoTrade", "")
 		if TryGetProp(itemObj, 'GroupName', 'None')	== 'Icor' then
 			item_name = TryGetProp(itemObj, 'InheritanceItemName', 'None')
 		end
 		
-		if TryGetProp(materialCls ,'ClassName', 'None') == item_name then 			
-			if g_materialItem[index].count > 1 then				
+		if TryGetProp(materialCls ,'ClassName', 'None') == item_name then 	
+			if g_materialItem[index].count > 1 then		
 				ITEM_CABINET_INPUT_MATERIAL_CNT_BOX(invItem, index, itemID, slot);
 				return;
 			else

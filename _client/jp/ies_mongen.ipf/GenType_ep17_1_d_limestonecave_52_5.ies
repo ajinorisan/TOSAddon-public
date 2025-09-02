@@ -9,5 +9,5 @@ ClassID,GenType,Lv,Range,GenRange,RespawnTime,MaxPop,Minimap,Hide,UseAIOufOfPC,A
 24,24,0,40,9999,0,30,0,0,0,0,0,0,"ep17_1_wood_goblin_green","","","","","","","","","","","NO","YES","NO","Monster","","","","Attack"
 25,25,1,100,-1,60000,1,2,0,0,0,0,0,"statue_vakarine","여신 바카리네의 상","","","","STOUP_CAMP","","","WARP_EP17_D_LIMESTONE_52_5","STOUP_CAMP","STOUP_CAMP","","YES","NO","Neutral","","","",""
 26,26,0,40,30,0,15,0,0,0,0,0,0,"ep17_1_Redania_Scout","","","","","","","","","","","NO","YES","NO","Monster","","","","Attack"
-31,31,1,20,-1,60000,1,2,1,0,0,0,0,"HiddenTrigger","","","","","MON_DUMMY","","","EP17_1_LIMESTONECAVE_MQ22_TRIGGER","EP17_1_LIMESTONECAVE_MQ22_TRIGGER","","NO","YES","NO","Neutral","","","",""
+31,31,1,20,-1,60000,1,0,1,0,0,0,0,"HiddenTrigger","","","","","MON_DUMMY","","","EP17_1_LIMESTONECAVE_MQ22_TRIGGER","EP17_1_LIMESTONECAVE_MQ22_TRIGGER","","NO","YES","NO","Neutral","","","",""
 32,32,1,40,1,60000,1,1,0,0,0,0,0,"Hiddennpc_Q2","잔혹한 레다니아","","","","","","PORTAL_GREEN","GODDESS_RAID_REDANIA_PORTAL","","","NO","YES","NO","Neutral","","","",""

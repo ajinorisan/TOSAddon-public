@@ -12,7 +12,7 @@ local function make_shared_upgrade_equip_table()
 
     material_table = {}    
 
-    for i = 1, 8 do
+    for i = 1, 9 do
         material_table['EP16_penetration_belt_' .. i .. '_high'] = {}
         material_table['EP16_penetration_belt_' .. i .. '_high']['JurateCertificate'] = 5000
         material_table['EP16_penetration_belt_' .. i .. '_high']['misc_BlessedStone_1'] = 2
@@ -22,18 +22,30 @@ local function make_shared_upgrade_equip_table()
         material_table['NoTrade_EP16_penetration_belt_' .. i .. '_high']['JurateCertificate'] = 5000
         material_table['NoTrade_EP16_penetration_belt_' .. i .. '_high']['misc_BlessedStone_1'] = 2
         material_table['NoTrade_EP16_penetration_belt_' .. i .. '_high']['misc_ore28'] = 300
+
+
+
+        material_table['EP17_penetration_belt_' .. i .. '_high'] = {}
+        material_table['EP17_penetration_belt_' .. i .. '_high']['AustejaCertificate'] = 5000
+        material_table['EP17_penetration_belt_' .. i .. '_high']['misc_BlessedStone_2'] = 2
+        material_table['EP17_penetration_belt_' .. i .. '_high']['misc_ore29'] = 300
+
+        material_table['NoTrade_EP17_penetration_belt_' .. i .. '_high'] = {}
+        material_table['NoTrade_EP17_penetration_belt_' .. i .. '_high']['AustejaCertificate'] = 5000
+        material_table['NoTrade_EP17_penetration_belt_' .. i .. '_high']['misc_BlessedStone_2'] = 2
+        material_table['NoTrade_EP17_penetration_belt_' .. i .. '_high']['misc_ore29'] = 300
     end
 
-    for i = 1, 6 do
+    for i = 1, 7 do
         material_table['EP16_fierce_shoulder_' .. i .. '_high'] = {}
-        material_table['EP16_fierce_shoulder_' .. i .. '_high']['JurateCertificate'] = 5000
-        material_table['EP16_fierce_shoulder_' .. i .. '_high']['misc_BlessedStone_1'] = 2
-        material_table['EP16_fierce_shoulder_' .. i .. '_high']['misc_ore28'] = 300
+        material_table['EP16_fierce_shoulder_' .. i .. '_high']['AustejaCertificate'] = 5000
+        material_table['EP16_fierce_shoulder_' .. i .. '_high']['misc_BlessedStone_2'] = 2
+        material_table['EP16_fierce_shoulder_' .. i .. '_high']['misc_ore29'] = 300
 
         material_table['NoTrade_EP16_fierce_shoulder_' .. i .. '_high'] = {}
-        material_table['NoTrade_EP16_fierce_shoulder_' .. i .. '_high']['JurateCertificate'] = 5000
-        material_table['NoTrade_EP16_fierce_shoulder_' .. i .. '_high']['misc_BlessedStone_1'] = 2
-        material_table['NoTrade_EP16_fierce_shoulder_' .. i .. '_high']['misc_ore28'] = 300
+        material_table['NoTrade_EP16_fierce_shoulder_' .. i .. '_high']['AustejaCertificate'] = 5000
+        material_table['NoTrade_EP16_fierce_shoulder_' .. i .. '_high']['misc_BlessedStone_2'] = 2
+        material_table['NoTrade_EP16_fierce_shoulder_' .. i .. '_high']['misc_ore29'] = 300
     end
 
     local item_list = {
@@ -76,12 +88,57 @@ local function make_shared_upgrade_equip_table()
         material_table[name]['misc_ore28'] = 100
     end
 
-    
+    item_list = {
+                        "EP17_RAID_SWORD",
+                        "EP17_RAID_THSWORD",
+                        "EP17_RAID_STAFF",
+                        "EP17_RAID_THBOW",
+                        "EP17_RAID_BOW",
+                        "EP17_RAID_MACE",
+                        "EP17_RAID_THMACE",
+                        "EP17_RAID_SHIELD",
+                        "EP17_RAID_SPEAR",
+                        "EP17_RAID_THSPEAR",
+                        "EP17_RAID_DAGGER",
+                        "EP17_RAID_THSTAFF",
+                        "EP17_RAID_PISTOL",
+                        "EP17_RAID_RAPIER",
+                        "EP17_RAID_CANNON",
+                        "EP17_RAID_MUSKET",
+                        "EP17_RAID_TRINKET",
+                        "EP17_RAID_CLOTH_TOP",
+                        "EP17_RAID_CLOTH_LEG",
+                        "EP17_RAID_CLOTH_FOOT",
+                        "EP17_RAID_CLOTH_HAND",
+                        "EP17_RAID_LEATHER_TOP",
+                        "EP17_RAID_LEATHER_LEG",
+                        "EP17_RAID_LEATHER_FOOT",
+                        "EP17_RAID_LEATHER_HAND",
+                        "EP17_RAID_PLATE_TOP",
+                        "EP17_RAID_PLATE_LEG",
+                        "EP17_RAID_PLATE_FOOT",
+                        "EP17_RAID_PLATE_HAND"
+                    }   
+                    
+    for i = 1, #item_list do
+        local name = item_list[i]
+        material_table[name] = {}
+        material_table[name]['AustejaCertificate'] = 2000
+        material_table[name]['misc_BlessedStone_2'] = 1
+        material_table[name]['misc_ore29'] = 100
+        
+        local cls = GetClass('Item', name)
+        if TryGetProp(cls, 'GroupName', 'None') == 'Armor' then
+            material_table[name]['misc_boss_202509_armor_NoTrade'] = 2
+        else
+            material_table[name]['misc_boss_202509_weapon_NoTrade'] = 2
+        end
+    end
 end
 
 make_shared_upgrade_equip_table()
 
-shared_upgrade_equip.is_valid_item = function(item)
+shared_upgrade_equip.is_valid_item = function(item)    
     if TryGetProp(item, 'UpgradeRank', 0) >= 20 then
         return false, 'AlreadyMaxGrade'
     end
@@ -120,20 +177,23 @@ shared_upgrade_equip.get_value = function(item, _rank)
     local ret = {}
 
     local use_lv = TryGetProp(item, 'UseLv', 0)    
-    if use_lv >= 510 and use_lv <= 530 then
-        local rank = TryGetProp(item, 'UpgradeRank', 0)
-        if _rank ~= nil then
-            rank = _rank
-        end
-
-        local value = rank * 5 
-        table.insert(ret, {'ALLSTAT', value})
+    if use_lv < 510 then
+        table.insert(ret, {'None', 0})
         return ret
-    elseif use_lv >= 540 and use_lv <= 560 then
-        
     end
 
-    table.insert(ret, {'None', 0})
+    local rank = TryGetProp(item, 'UpgradeRank', 0)
+    if _rank ~= nil then
+        rank = _rank
+    end
+    local cls = GetClassByType('upgrade_item_value', use_lv)
+    if cls == nil then
+        table.insert(ret, {'None', 0})
+        return ret
+    end
+
+    local value = TryGetProp(cls, 'Value_' .. rank, 0)
+    table.insert(ret, {'ALLSTAT', value})
     return ret
 end
 

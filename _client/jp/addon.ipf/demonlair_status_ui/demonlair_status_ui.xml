@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSPY v2004 rel. 3 U (http://www.xmlspy.com) by imc (imc) -->
+<uiframe name="demonlair_status_ui" x="20" y="340" width="760" height="480" hud="true">
+	<frame layout_gravity="right top" margin="0 340 20 0" scale_align="right top"/>
+	<option visible="false" closebutton="false" hideable="false" alwaysVisible="false"/>
+	<sound opensound="win_open" closesound="win_close"/>
+	<draw drawframe="false" drawtitlebar="false"/>
+	<layer layerlevel="79"/>
+	<input moveable="true" hittestframe="true" moveintitlebar="false"/>
+	<script OpenScp="OPEN_DEMONLAIR_STATUS_UI" CloseScp="CLOSE_DEMONLAIR_STATUS_UI"/>
+	<controls>
+		<groupbox name="gbox" rect="0 0 760 480" margin="0 0 0 0" draw="false" layout_gravity="left top" image="None" hittestbox="false" scrollbar="false"/>
+		<groupbox name="gbox_fianl_boss" parent="gbox" rect="0 0 373 480" margin="4 4 0 0" draw="false" layout_gravity="left top" image="bgm_simple_bg" hittestbox="false"/>
+		<groupbox name="gbox_final_boss_inner" parent="gbox_fianl_boss" rect="0 0 373 50" margin="0 0 0 0" draw="false" layout_gravity="left top" image="bgm_simple_bg" hittestbox="false"/>
+		<richtext name="text_fianl_boss_title" rect="0 0 373 30" parent="gbox_final_boss_inner" margin="0 0 0 0" layout_gravity="center center" caption="최종 보스 버프 현황" fontname="mint_18_b_ol"/>
+		<groupbox name="gbox_fianl_boss_buff" parent="gbox_fianl_boss" rect="0 0 373 420" margin="0 50 0 0" draw="false" layout_gravity="left top" skin="None" hittestbox="false"/>
+
+		<groupbox name="gbox_user_select" parent="gbox" rect="0 0 373 480" margin="373 4 0 0" draw="false" layout_gravity="left top" image="bgm_simple_bg" hittestbox="false"/>
+		<groupbox name="gbox_user_select_inner" parent="gbox_user_select" rect="0 0 373 50" margin="0 0 0 0" draw="false" layout_gravity="left top" image="bgm_simple_bg" hittestbox="false"/>
+		<richtext name="text_user_select_title" rect="0 0 373 30" parent="gbox_user_select_inner" margin="0 0 0 0" layout_gravity="center center" caption="버프/패널티 선택 현황" fontname="mint_18_b_ol"/>
+		<button name="close_btn" rect="0 0 34 34" parent="gbox_user_select_inner" margin="320 5 0 0" layout_gravity="left top" image="bgm_cancel_simple" stretch="true" LBtnUpScp="CLOSE_DEMONLAIR_STATUS_UI" clicksound="button_click_big" oversound="button_over"/>
+		<groupbox name="gbox_user_select_list" parent="gbox_user_select" rect="0 0 373 420" margin="0 50 0 0" draw="false" layout_gravity="left top" skin="None" hittestbox="false"/>
+	</controls>
+</uiframe>

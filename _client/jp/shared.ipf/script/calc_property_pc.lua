@@ -3289,6 +3289,11 @@ function SCR_Get_Sta_Jump(self)
         value = 0
     end
 
+    if IsBuffApplied(self, "RIDE_PET_RIDEPET_36") == "YES" then
+        value = 0
+    end
+
+
     return value;
 end
 
@@ -5109,6 +5114,13 @@ function SCR_Get_HEAL_PWR_VER2(self)
     
     local value = math.floor(defaultValue + byLevel + byStat)
     
+    local byItem = GetSumOfEquipItem(self, "HEAL_PWR");
+    if byItem == nil then
+        byItem = 0;
+    end
+
+    value = value + byItem;
+
     local byBuff = TryGetProp(self, "HEAL_PWR_BM", 0);
     value = value + byBuff;
     
@@ -5554,4 +5566,68 @@ function ENABLE_TO_USE_SKILL_STATE(self, skill)
 	end
 
 	return true
+end
+
+-- done, 해당 함수 내용은 cpp로 이전되었습니다.
+function SCR_GET_core_option_vibora(pc)
+    local byItem = GetSumOfEquipItem(pc, "core_option_vibora");
+    if byItem == nil then
+        byItem = 0;
+    end
+    
+    local byBuff = TryGetProp(pc, "core_option_vibora_BM");
+    if byBuff == nil then
+        byBuff = 0;
+    end
+
+    local value = byItem + byBuff;
+    return math.floor(value);
+end
+
+-- done, 해당 함수 내용은 cpp로 이전되었습니다.
+function SCR_GET_core_option_ausirine(pc)
+    local byItem = GetSumOfEquipItem(pc, "core_option_ausirine");
+    if byItem == nil then
+        byItem = 0;
+    end
+    
+    local byBuff = TryGetProp(pc, "core_option_ausirine_BM");
+    if byBuff == nil then
+        byBuff = 0;
+    end
+
+    local value = byItem + byBuff;
+    return math.floor(value);
+end
+
+-- done, 해당 함수 내용은 cpp로 이전되었습니다.
+function SCR_GET_core_option_gabija(pc)
+    local byItem = GetSumOfEquipItem(pc, "core_option_gabija");
+    if byItem == nil then
+        byItem = 0;
+    end
+    
+    local byBuff = TryGetProp(pc, "core_option_gabija_BM");
+    if byBuff == nil then
+        byBuff = 0;
+    end
+
+    local value = byItem + byBuff;
+    return math.floor(value);
+end
+
+-- done, 해당 함수 내용은 cpp로 이전되었습니다.
+function SCR_GET_core_option_jurate(pc)
+    local byItem = GetSumOfEquipItem(pc, "core_option_jurate");
+    if byItem == nil then
+        byItem = 0;
+    end
+    
+    local byBuff = TryGetProp(pc, "core_option_jurate_BM");
+    if byBuff == nil then
+        byBuff = 0;
+    end
+
+    local value = byItem + byBuff;
+    return math.floor(value);
 end

@@ -18,4 +18,4 @@ ClassID,GenType,Lv,Range,GenRange,RespawnTime,MaxPop,Minimap,Hide,UseAIOufOfPC,A
 30,30,0,40,30,0,15,0,0,0,0,0,0,"ep17_1_Redania_Scout","","","","","","","","","","","NO","YES","NO","Monster","","","","Attack"
 32,1001,0,30,9999,0,30,0,0,0,0,0,0,"ep17_1_rocktanon","","","","","","","","","","","NO","YES","NO","Monster","","","","Attack"
 33,1002,1,40,40,15000,2,0,0,0,1,0,0,"Stone01","UnvisibleName","","","","","","","LIMESTONE_52_3_MQ_8_MOSS","","","NO","YES","NO","Neutral","AttachEffect/F_sys_trigger_point_yellow/1/BOT","","",""
-34,34,1,20,-1,60000,1,2,1,0,0,0,0,"HiddenTrigger","","","","","MON_DUMMY","","","","EP17_1_LIMESTONECAVE_MQ21_TRIGGER","","NO","YES","NO","Neutral","","","",""
+34,34,1,20,-1,60000,1,0,1,0,0,0,0,"HiddenTrigger","","","","","MON_DUMMY","","","","EP17_1_LIMESTONECAVE_MQ21_TRIGGER","","NO","YES","NO","Neutral","","","",""

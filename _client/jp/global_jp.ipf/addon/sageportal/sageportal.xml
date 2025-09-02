@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSPY v2004 rel. 2 U (http://www.xmlspy.com) by IMC (IMCGames Co., Ltd) -->
+<uiframe name="sageportal" x="0" y="0" width="470" height="609" create="open">
+	<draw drawnotitlebar="false" drawtitlebar="false"/>
+	<skin frameskin=" "/>
+	<frame title="" fullheight="true" fasthide="true" layout_gravity="left top" open="pip" margin="-470 0 0 0"/>
+	<input maxwidth="1280" moveable="false"/>
+	<layer layerlevel="80"/>
+	<option closebutton="false"/>
+	<script OpenScp="SAGEPORTAL_OPEN_INIT"/>
+	<sound opensound="window_open" closesound="window_close"/>
+	<controls>
+		<richtext name="richtext_1" rect="0 0 120 24" margin="10 15 0 0" layout_gravity="center top" caption="{@st43}ポータル" drawbackground="false" fixwidth="false" fontname="white_16_ol" maxwidth="0" resizebytext="true" slideshow="false" spacey="0" textalign="left top" updateparent="false"/>
+	</controls>
+</uiframe>

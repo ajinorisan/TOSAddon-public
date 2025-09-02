@@ -32,6 +32,7 @@ C:\Users\kohar\Desktop\TOSAddon_Tools-main\TOSAddon_Tools-main\client\jp\ies_abi
 C:\Users\kohar\Desktop\TOSAddon_Tools-main\TOSAddon_Tools-main\client\jp\ies_ability.ipf\ability_Fletcher.ies
 C:\Users\kohar\Desktop\TOSAddon_Tools-main\TOSAddon_Tools-main\client\jp\ies_ability.ipf\ability_FrostMage.ies
 C:\Users\kohar\Desktop\TOSAddon_Tools-main\TOSAddon_Tools-main\client\jp\ies_ability.ipf\ability_Hackapell.ies
+C:\Users\kohar\Desktop\TOSAddon_Tools-main\TOSAddon_Tools-main\client\jp\ies_ability.ipf\ability_Hermit.ies
 C:\Users\kohar\Desktop\TOSAddon_Tools-main\TOSAddon_Tools-main\client\jp\ies_ability.ipf\ability_Highlander.ies
 C:\Users\kohar\Desktop\TOSAddon_Tools-main\TOSAddon_Tools-main\client\jp\ies_ability.ipf\ability_Hoplite.ies
 C:\Users\kohar\Desktop\TOSAddon_Tools-main\TOSAddon_Tools-main\client\jp\ies_ability.ipf\ability_Hunter.ies

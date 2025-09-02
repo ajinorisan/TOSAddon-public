@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- edited with XMLSPY v2004 rel. 3 U (http://www.xmlspy.com) by imc (imc) -->
-<!-- edited with XMLSpy v2008 sp1 (http://www.altova.com) by MintPC (Mi) -->
+<!-- edited with XMLSpy v2011 sp1 (http://www.altova.com) by End User (free.org) -->
 <skinset name="Base">
 	<imagelist category="wizard_skillicon">
 		<image name="icon_wizar_energyBolt" file="\icon\skill\wizard\icon_wizar_energyBolt.png" imgrect="0 0 128 128" CMM_Caption="에너지볼트"/>
@@ -232,6 +232,39 @@
 		<image name="icon_wizar_Flood" file="\icon\skill\wizard\icon_wizar_Flood.png" imgrect="0 0 128 128" CMM_Caption="쇄도"/>
 		<image name="icon_wizar_Nightmare" file="\icon\skill\wizard\icon_wizar_Nightmare.png" imgrect="0 0 128 128" CMM_Caption="악몽"/>
 		<image name="icon_wizar_IllusionArmor" file="\icon\skill\wizard\icon_wizar_IllusionArmor.png" imgrect="0 0 128 128" CMM_Caption="환영 갑옷"/>
+		<image name="icon_wizar_FallingStarlight" file="\icon\skill\wizard\icon_wizar_FallingStarlight.png" imgrect="0 0 128 128" CMM_Caption="별빛 낙하"/>
+		<image name="icon_wizar_StellarRebound" file="\icon\skill\wizard\icon_wizar_StellarRebound.png" imgrect="0 0 128 128" CMM_Caption="별의 회귀"/>
+		<image name="icon_wizar_LunarBrand" file="\icon\skill\wizard\icon_wizar_LunarBrand.png" imgrect="0 0 128 128" CMM_Caption="달빛 낙인"/>
+		<image name="icon_wizar_TwilightVeil" file="\icon\skill\wizard\icon_wizar_TwilightVeil.png" imgrect="0 0 128 128" CMM_Caption="황혼의 장막"/>
+		<image name="icon_wizar_ConstellationResidueField" file="\icon\skill\wizard\icon_wizar_ConstellationResidueField.png" imgrect="0 0 128 128" CMM_Caption="별자리 잔류장"/>
+		<image name="icon_wizar_Eclipse" file="\icon\skill\wizard\icon_wizar_Eclipse.png" imgrect="0 0 128 128" CMM_Caption="월식"/>
+		<image name="icon_wizar_JudgementoftheCosmos" file="\icon\skill\wizard\icon_wizar_JudgementoftheCosmos.png" imgrect="0 0 128 128" CMM_Caption="천체의 심판"/>
+		<image name="icon_wizar_AttractionOfTheMoon" file="\icon\skill\wizard\icon_wizar_AttractionOfTheMoon.png" imgrect="0 0 128 128" CMM_Caption="달의 이끌림"/>
+		<image name="icon_wizar_StarlightBlessing" file="\icon\skill\wizard\icon_wizar_StarlightBlessing.png" imgrect="0 0 128 128" CMM_Caption="별빛의 축복"/>
+		<image name="icon_wizar_hermit10" file="\icon\skill\wizard\icon_wizar_hermit10.png" imgrect="0 0 128 128" CMM_Caption="코즈믹 코어"/>
+		<image name="icon_wizar_hermit11" file="\icon\skill\wizard\icon_wizar_hermit11.png" imgrect="0 0 128 128" CMM_Caption="별빛 침식"/>
+		<image name="icon_wizar_hermit12" file="\icon\skill\wizard\icon_wizar_hermit12.png" imgrect="0 0 128 128" CMM_Caption="개기월식"/>
+		<image name="icon_wizar_hermit100" file="\icon\skill\wizard\icon_wizar_hermit100.png" imgrect="0 0 128 128" CMM_Caption="우주의 흐름"/>
+		<image name="ability_Wizard_Hermit1" file="\icon\icon_ability_wizard10.tga" imgrect="0 256 128 128" CMM_Caption="별빛 낙하: 강화"/>
+		<image name="ability_Wizard_Hermit2" file="\icon\icon_ability_wizard10.tga" imgrect="256 256 128 128" CMM_Caption="별의 회귀: 강화"/>
+		<image name="ability_Wizard_Hermit3" file="\icon\icon_ability_wizard10.tga" imgrect="512 256 128 128" CMM_Caption="달빛 낙인: 강화"/>
+		<image name="ability_Wizard_Hermit4" file="\icon\icon_ability_wizard10.tga" imgrect="768 256 128 128" CMM_Caption="황혼의 장막: 강화"/>
+		<image name="ability_Wizard_Hermit5" file="\icon\icon_ability_wizard10.tga" imgrect="0 384 128 128" CMM_Caption="별자리 잔류장: 강화"/>
+		<image name="ability_Wizard_Hermit6" file="\icon\icon_ability_wizard10.tga" imgrect="256 384 128 128" CMM_Caption="월식: 강화"/>
+		<image name="ability_Wizard_Hermit7" file="\icon\icon_ability_wizard10.tga" imgrect="512 384 128 128" CMM_Caption="천체의 심판: 강화"/>
+		<image name="ability_Wizard_Hermit100" file="\icon\icon_ability_wizard10.tga" imgrect="384 512 128 128" CMM_Caption="우주의 흐름"/>
+		<image name="ability_Wizard_Hermit101" file="\icon\icon_ability_wizard10.tga" imgrect="128 256 128 128" CMM_Caption="[아츠] 별빛 낙하: 상급 강화"/>
+		<image name="ability_Wizard_Hermit102" file="\icon\icon_ability_wizard10.tga" imgrect="384 256 128 128" CMM_Caption="[아츠] 별의 회귀: 상급 강화"/>
+		<image name="ability_Wizard_Hermit103" file="\icon\icon_ability_wizard10.tga" imgrect="640 256 128 128" CMM_Caption="[아츠] 달빛 낙인: 상급 강화"/>
+		<image name="ability_Wizard_Hermit104" file="\icon\icon_ability_wizard10.tga" imgrect="896 256 128 128" CMM_Caption="[아츠] 황혼의 장막: 상급 강화"/>
+		<image name="ability_Wizard_Hermit105" file="\icon\icon_ability_wizard10.tga" imgrect="128 384 128 128" CMM_Caption="[아츠] 별자리 잔류장: 상급 강화"/>
+		<image name="ability_Wizard_Hermit106" file="\icon\icon_ability_wizard10.tga" imgrect="384 384 128 128" CMM_Caption="[아츠] 월식: 상급 강화"/>
+		<image name="ability_Wizard_Hermit107" file="\icon\icon_ability_wizard10.tga" imgrect="640 384 128 128" CMM_Caption="[아츠] 천체의 심판: 상급 강화"/>
+		<image name="ability_Wizard_Hermit8" file="\icon\icon_ability_wizard10.tga" imgrect="768 384 128 128" CMM_Caption="별빛 낙하: 집중 낙하"/>
+		<image name="ability_Wizard_Hermit9" file="\icon\icon_ability_wizard10.tga" imgrect="896 384 128 128" CMM_Caption="달빛 낙인: 공명"/>
+		<image name="ability_Wizard_Hermit10" file="\icon\icon_ability_wizard10.tga" imgrect="256 512 128 128" CMM_Caption="[아츠] 천체의 심판: 코즈믹 코어"/>
+		<image name="ability_Wizard_Hermit11" file="\icon\icon_ability_wizard10.tga" imgrect="0 512 128 128" CMM_Caption="별자리 잔류장: 별빛 침식"/>
+		<image name="ability_Wizard_Hermit12" file="\icon\icon_ability_wizard10.tga" imgrect="128 512 128 128" CMM_Caption="[아츠] 월식: 개기월식"/>
 	</imagelist>
 	<imagelist category="archer_skillicon">
 		<image name="icon_arch_doubleShot" file="\icon\skill\archer\icon_arch_doubleShot.png" imgrect="0 0 128 128" CMM_Caption="멀티샷"/>

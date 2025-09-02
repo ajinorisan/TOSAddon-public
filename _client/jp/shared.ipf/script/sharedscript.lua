@@ -2,8 +2,8 @@
 
 local json = require('json')
 
-SEASON_COIN_NAME = 'JurateCertificate'
-SEASON_COIN_PREFIX_NAME = 'JurateCertificateCoin'
+SEASON_COIN_NAME = 'AustejaCertificate'
+SEASON_COIN_PREFIX_NAME = 'AustejaCertificateCoin'
 
 function replace(text, to_be_replaced, replace_with)
 	local retText = text
@@ -917,8 +917,9 @@ function GET_LAST_UI_OPEN_POS(etc)
     return mapname, x, y, z, uiname
 end
 
-
-function IS_NO_EQUIPITEM(equipItem) -- No_~ 시리즈 아이템인지.
+-- done, 해당 함수 내용은 cpp로 이전되었습니다. 변경 사항이 있다면 반드시 프로그램팀에 알려주시기 바랍니다.
+function IS_NO_EQUIPITEM(equipItem)
+    -- No_~ 시리즈 아이템인지.
 
     local clsName = equipItem.ClassName;
 
@@ -969,7 +970,8 @@ function GET_REMOVE_GEM_PRICE(itemlv, taxRate)
         if cls.Lv == itemlv then
             local price = cls.RemoveSocketPrice
             if taxRate ~= nil then
-                price = tonumber(CALC_PRICE_WITH_TAX_RATE(price, taxRate)) -- 젬 추출 세금
+                price = tonumber(CALC_PRICE_WITH_TAX_RATE(price, taxRate))
+                -- 젬 추출 세금
             end
             return price
         end
@@ -1927,7 +1929,8 @@ function GET_MAP_ACHI_NAME(mapName)
 
     local name = ScpArgMsg("Auto_{Auto_1}_TamSaJa", "Auto_1", mapName);
     local desc = ScpArgMsg("Auto_{Auto_1}_Jiyeogeul_MoDu_TamSaHayeossSeupNiDa.", "Auto_1", mapName);
-    local desctitle = name -- 임시. 나중에 맵 업적 달성시 보상및 칭호에 대한 데이터 세팅 이루어 지면 바꾸자.
+    local desctitle = name
+    -- 임시. 나중에 맵 업적 달성시 보상및 칭호에 대한 데이터 세팅 이루어 지면 바꾸자.
     local reward = "None"
     return desc, name, desctitle, reward;
 
@@ -1953,9 +1956,11 @@ function GET_EXP_RATIO(myLevel, monLevel, highLv, monster)
     if levelGap > standardLevel then
         local penaltyRatio = 0.0;
         if pcLv < monLv then
-	        penaltyRatio = 0.05;	-- 고레벨 몬스터 사냥 시 페널티
+            penaltyRatio = 0.05;
+            -- 고레벨 몬스터 사냥 시 페널티
         else
-	    	penaltyRatio = 0.02;	-- 저레벨 몬스터 사냥 시 페널티
+            penaltyRatio = 0.02;
+            -- 저레벨 몬스터 사냥 시 페널티
         end
 
         local lvRatio = 1 -((levelGap - standardLevel) * penaltyRatio);
@@ -1983,9 +1988,11 @@ function GET_EXP_RATIO_INDUN(myLevel, indunLevel, highLv)
     if levelGap > standardLevel then
         local penaltyRatio = 0.0;
         if pcLv < indunLv then
-	        penaltyRatio = 0.05;	-- 고레벨 몬스터 사냥 시 페널티
+            penaltyRatio = 0.05;
+            -- 고레벨 몬스터 사냥 시 페널티
         else
-	    	penaltyRatio = 0.05;	-- 저레벨 몬스터 사냥 시 페널티
+            penaltyRatio = 0.05;
+            -- 저레벨 몬스터 사냥 시 페널티
         end
 
         local lvRatio = 1 -((levelGap - standardLevel) * penaltyRatio);
@@ -2348,9 +2355,11 @@ function CHECK_CHANGE_JOB_CONDITION(cls, haveJobNameList, haveJobGradeList)
 
 
         local sList = StringSplit(cls["ChangeJobCondition" .. i], ";");
-        local conditionCount = #sList / 2;  -- 해당직업 전직조건 체크갯수
+        local conditionCount = #sList / 2;
+        -- 해당직업 전직조건 체크갯수
 
-        local completeCount = 0;            -- 전직조건에 몇개나 만족하는지
+        local completeCount = 0;
+        -- 전직조건에 몇개나 만족하는지
         for j = 1, conditionCount do
             -- 직업가지고있고 요구레벨보다 높은지 체크
             for n = 0, #haveJobNameList do
@@ -2701,7 +2710,8 @@ function IS_ENABLE_EQUIP_GEM(targetItem, gemType, targetItemInvItem)
                 curCnt = curCnt + 1;
             end
         end
-    else -- server
+    else
+        -- server
         for i = 0, maxSocket - 1 do
             if GetItemSocketInfo(targetItem, i) == gemType then
                 curCnt = curCnt + 1;
@@ -2913,7 +2923,8 @@ function GET_INDUN_SILVER_RATIO(myLevel, indunLevel)
     local levelGap = math.abs(pcLv - dungeonLv);
 
     if levelGap > standardLevel then
-    	local penaltyRatio = 0.02;	-- 저레벨 인던 사냥 시 실버 페널티--
+        local penaltyRatio = 0.02;
+        -- 저레벨 인던 사냥 시 실버 페널티--
         local lvRatio = 1 -((levelGap - standardLevel) * penaltyRatio);
         value = value * lvRatio;
     end
@@ -3685,6 +3696,42 @@ function JOB_AETHERBLADER_W_PRE_CHECK(pc, jobCount)
     return 'NO'
 end
 
+function JOB_HERMIT_W_PRE_CHECK(pc, jobCount)
+    local aObj = nil
+    if IsServerSection() == 0 then
+        aObj = GetMyAccountObj();
+    else
+        aObj = GetAccountObj(pc);
+    end
+    
+    if aObj ~= nil then
+        local value = TryGetProp(aObj, 'UnlockQuest_Char2_29', 0)
+        if value == 1 then
+            return 'YES'
+        end
+    end
+
+    return 'NO'
+end
+
+function JOB_HERMIT_C_PRE_CHECK(pc, jobCount)
+    local aObj = nil
+    if IsServerSection() == 0 then
+        aObj = GetMyAccountObj();
+    else
+        aObj = GetAccountObj(pc);
+    end
+    
+    if aObj ~= nil then
+        local value = TryGetProp(aObj, 'UnlockQuest_Char4_27', 0)
+        if value == 1 then
+            return 'YES'
+        end
+    end
+
+    return 'NO'
+end
+
 function JOB_SPEARMASTER_PRE_CHECK(pc, jobCount)
     local aObj
     if IsServerSection() == 0 then
@@ -4186,43 +4233,49 @@ function GET_GUILD_MEMBER_JOIN_AUTO_GUILD_IDX()
 end
 
 function GET_AUTO_MEMBER_JOIN_GUILD_IDX(groupid, nation)
-    groupid = tonumber(groupid)
+    -- groupid = tonumber(groupid)
 
-    if nation == "KOR" or nation == 'GLOBAL_KOR' then        
-        if groupid == 1006 then -- qa
-            return "518402552627671";
-        elseif groupid == 9001 then -- 테스트
-            return "125675038049103";
-        elseif groupid == 8002 then -- 스테이지
-            return "347819336532015";
-        elseif groupid == 1001 then -- 아우슈리네
-            return "1137006692273513";
-        elseif groupid == 1002 then -- 바이보라
-            return "1137058231881971";
-        elseif groupid == 3002 then
-            return '1325061835325512'
-        end
-    elseif nation == 'GLOBAL' then
-        if groupid == 1201 then --사내 STM
-            return '103371272880147'
-        elseif groupid == 1101 then --사내 JPN_LIVE
-            return '29025388986425'
-        elseif groupid == 1001 then --아래부턴 라이브
-            return '506544147923578'
-        elseif groupid == 1003 then 
-            return '377991481786398'
-        elseif groupid == 1004 then 
-            return '693014448046952'
-        elseif groupid == 1005 then
-            return '578656648822807' 
-        end    
-    elseif nation == 'PAPAYA' then
-        if groupid == 8001 then --베타 서버
-            return '559458145009985'
-        elseif groupid == 1002 then --사내 JPN_LIVE
-            return '1612240528618621'
-        end
+    local str = nation .. '_' .. groupid
+    local cls = GetClass("growth_support_guild", str)
+    if cls ~= nil then
+        return TryGetProp(cls, 'IDX', '0')
     end
+    
+    -- if nation == "KOR" or nation == 'GLOBAL_KOR' then        
+    --     if groupid == 1006 then -- qa
+    --         return "518402552627671";
+    --     elseif groupid == 9001 then -- 테스트
+    --         return "125675038049103";
+    --     elseif groupid == 8002 then -- 스테이지
+    --         return "347819336532015";
+    --     elseif groupid == 1001 then -- 아우슈리네
+    --         return "1137006692273513";
+    --     elseif groupid == 1002 then -- 바이보라
+    --         return "1137058231881971";
+    --     elseif groupid == 3002 then
+    --         return '1325061835325512'
+    --     end
+    -- elseif nation == 'GLOBAL' then
+    --     if groupid == 1201 then --사내 STM
+    --         return '103371272880147'
+    --     elseif groupid == 1101 then --사내 JPN_LIVE
+    --         return '29025388986425'
+	-- 	elseif groupid == 1001 then --아래부턴 라이브
+    --         return '506544147923578'
+	-- 	elseif groupid == 1003 then 
+    --         return '377991481786398'
+    --     elseif groupid == 1004 then 
+    --         return '693014448046952'
+    --     elseif groupid == 1005 then
+    --         return '578656648822807' 
+    --     end    
+    -- elseif nation == 'PAPAYA' then
+    --     if groupid == 8001 then --베타 서버
+    --         return '559458145009985'
+    --     elseif groupid == 1002 then 
+    --         return '1612240528618621'
+    --     end
+    -- end
     return "0";
 end
 
@@ -4369,6 +4422,10 @@ function GET_EQUIP_GROUP_NAME(item)
 
     if name == 'NECK' or name == 'RING' then
         return 'Acc'
+    end
+
+    if name == 'Core' then
+        return 'Core'
     end
 
     return 'None'
@@ -4807,8 +4864,8 @@ end
 function CHECK_TOS_WEEKLY_CONTENTS_RESTRICT_TIME()
     local nation = GET_POPOBOOST_SERVER();
 
-    local start = '2025-02-17 00:00:00';
-    local finish = '2025-02-18 10:00:00';
+    local start = '2025-07-01 00:00:00';
+    local finish = '2025-07-02 10:00:00';
     if nation == 1 then
         start = '2025-03-03 00:00:00';
         finish = '2025-03-05 10:00:00';
@@ -4820,8 +4877,8 @@ function CHECK_TOS_WEEKLY_CONTENTS_RESTRICT_TIME()
 end
 
     if nation == 3 then
-        start = '2025-07-14 00:00:00';
-        finish = '2025-07-15 23:59:59';
+        start = '2025-07-01 00:00:00';
+        finish = '2025-07-02 10:00:00';    
     end
 
     if date_time.is_between_time(start, finish) == true then
@@ -4941,14 +4998,14 @@ function M_NUMBER_FORMAT(num)
     if num >= 1000000 then
         local n = num / 1000000
         local mod = num % 1000000
-        if mod > 0 then
+        if mod >= 0 then
             n = string.format('%.2f', n)
         end
         
         return n .. 'M'
     end
 
-    return num
+    return GET_COMMAED_STRING(num)
 end
 
 function IS_ABLE_TO_JOIN_GUILD_EVENT(pc, cls)
@@ -5015,3 +5072,35 @@ function _GET_SORTED_CONSUME_ITEM_LIST(item_list, need_count)
 
     return take_item
 end 
+
+function GET_BORUTA_REWARD(event_id)
+    local reward = {}
+    local nation = config.GetServiceNation()
+    local list, cnt = GetClassList('boruta_reward')
+    local weekNum = session.boruta_ranking.GetNowWeekNum()
+    local max_rank = 0
+    for i = 0, cnt - 1 do
+        local cls = GetClassByIndexFromList(list, i)
+        if cls ~= nil and cls.eventID == event_id and cls.Nation == nation then
+            local start = TryGetProp(cls, 'start_season', 0)
+            local end_season = TryGetProp(cls, 'end_season', 0)
+            if start <= weekNum and end_season >= weekNum then
+                local rank = TryGetProp(cls, 'rank', 0)
+                reward[rank] = ''
+                if max_rank < rank then
+                    max_rank = rank
+                end
+                for j = 1, 20 do
+                    local item_name = TryGetProp(cls, 'item_' .. j, 'None')                    
+                    if item_name ~= 'None' then
+                        reward[rank] = item_name .. ';' .. reward[rank]
+                    else
+                        break
+                    end
+                end
+            end
+        end
+    end
+    
+    return reward, max_rank
+end

@@ -241,3 +241,68 @@ function IS_ABLE_TO_USE_520_JURATE_OPTION_SCROLL(item, scroll)
 
     return true
 end
+
+
+function IS_ABLE_TO_USE_AUSTEJA_OPTION_RESET_SCROLL(item, scroll)
+	if TryGetProp(scroll, 'StringArg', 'None') ~= 'austeja_option_reset_scroll' then
+        return false, 'DontUseItem'
+    end 
+
+	if IS_AUSTEJA_OPTION_EQUIPMENT(item) == false then
+		return false, 'DontUseItem'
+	end
+
+    if TryGetProp(item, 'UseLv', 0) == TryGetProp(scroll, 'NumberArg1', 0) then
+        return true
+    end
+
+	return false, 'DontUseItem'
+end
+
+function IS_AUSTEJA_OPTION_EQUIPMENT(item)
+	local item_list = {
+        'EP17_RAID_CLOTH_TOP', 'EP17_RAID_CLOTH_LEG', 'EP17_RAID_CLOTH_FOOT', 'EP17_RAID_CLOTH_HAND',
+        'EP17_RAID_LEATHER_TOP', 'EP17_RAID_LEATHER_LEG', 'EP17_RAID_LEATHER_FOOT', 'EP17_RAID_LEATHER_HAND',
+        'EP17_RAID_PLATE_TOP', 'EP17_RAID_PLATE_LEG', 'EP17_RAID_PLATE_FOOT', 'EP17_RAID_PLATE_HAND',
+	}
+	
+	local exist = false
+
+	for i = 1, #item_list do
+		if item_list[i] == TryGetProp(item, 'ClassName', 'None') then
+			if TryGetProp(item, 'AustejaOption', 'None') ~= 'None' then
+				return true
+			end
+		end
+	end
+
+	return exist
+end
+
+
+function IS_ABLE_TO_USE_540_AUSTEJA_OPTION_SCROLL(item, scroll)
+	local item_list = {
+        'EP17_RAID_CLOTH_TOP', 'EP17_RAID_CLOTH_LEG', 'EP17_RAID_CLOTH_FOOT', 'EP17_RAID_CLOTH_HAND',
+        'EP17_RAID_LEATHER_TOP', 'EP17_RAID_LEATHER_LEG', 'EP17_RAID_LEATHER_FOOT', 'EP17_RAID_LEATHER_HAND',
+        'EP17_RAID_PLATE_TOP', 'EP17_RAID_PLATE_LEG', 'EP17_RAID_PLATE_FOOT', 'EP17_RAID_PLATE_HAND',
+	}
+
+    if TryGetProp(scroll, 'StringArg', 'None') ~= 'austeja_option_scroll' then
+        return false, 'DontUseItem'
+    end
+
+    if TryGetProp(item, 'AustejaOption', 'None') ~= 'None' then
+        return false, 'DontUseItem'
+    end
+    
+	local name = TryGetProp(item, 'ClassName', 'None')
+	if table.find(item_list, name) == 0 then
+		return false, 'DontUseItem'
+	end
+
+    if TryGetProp(scroll, 'NumberArg1', 0) ~= TryGetProp(item, 'UseLv', 0) then
+        return false, 'DontUseItem'
+    end
+
+    return true
+end

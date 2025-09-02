@@ -16,7 +16,7 @@
 		<image name="inGame_JPN_E2" file="\event_banner\inGame_JPN_E2.png" imgrect="0 0 480 180"/>
 		<image name="inGame_JPN_E3" file="\event_banner\inGame_JPN_E3.png" imgrect="0 0 480 180"/>
 		<image name="inGame_JPN_E4" file="\event_banner\inGame_JPN_E4.png" imgrect="0 0 480 180"/>
-		<image name="inGame_JPN_E5" file="\event_banner\inGame_JPN_E5.png" imgrect="0 0 480 180"/>
+		<image name="inGame_JPN_E5" file="\event_banner\inGame_JPN_E5.jpg" imgrect="0 0 480 180"/>
 		<image name="inGame_JPN_E6" file="\event_banner\inGame_JPN_E6.jpg" imgrect="0 0 480 180"/>
 		<image name="inGame_JPN_E7" file="\event_banner\inGame_JPN_E7.jpg" imgrect="0 0 480 180"/>
 		<image name="inGame_JPN_E8" file="\event_banner\inGame_JPN_E8.jpg" imgrect="0 0 480 180"/>

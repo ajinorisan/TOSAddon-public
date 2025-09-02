@@ -200,7 +200,7 @@ local function DUCTILITY_ITEM_OPTION_REWRITE(frame,item_obj,index,addval,isPrein
 		if isPreindex == 0 then
 			local val = item_obj[prop_value]+addval
 			local add_str = string.format('%s %s',ScpArgMsg("PropRight"), ScpArgMsg("PropUp"))
-			local new_text = origin_text..add_str..tostring(val)..ClMsg("ExpectedValAfterDuctility")
+			local new_text = origin_text..add_str..tostring(GET_COMMAED_STRING(val))..ClMsg("ExpectedValAfterDuctility")
 			return new_text
 		else
 			return origin_text

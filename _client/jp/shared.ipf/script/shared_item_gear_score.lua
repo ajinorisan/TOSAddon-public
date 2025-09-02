@@ -131,6 +131,14 @@ function GET_BELT_GEAR_SCORE(item)
                 score = score + 100
             end
         end
+    elseif lv == 540 then
+        score = 1200
+        for i = 5, MAX_RANDOM_OPTION_COUNT do
+            local name = TryGetProp(item, 'RandomOption_' .. i)            
+            if name ~= 'None' then
+                score = score + 100
+            end
+        end
     end
 
     local high = 0
@@ -406,7 +414,7 @@ function GET_GEAR_SCORE(item, pc)
                 if gem_id ~= 0 and gem_id ~= 643817 then
                     local gem_cls = GetClassByType('Item', gem_id)
                     if gem_cls ~= nil then
-                        local gem_type = TryGetProp(gem_cls, 'GemType', 'None')                                
+                        local gem_type = TryGetProp(gem_cls, 'GroupName', 'None')                                
                         if gem_type == 'Gem_High_Color' then
                             gem_lv = math.ceil(gem_lv * 0.15)                        
                         end

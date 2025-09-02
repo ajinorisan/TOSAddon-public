@@ -740,6 +740,7 @@ function INVENTORY_ON_MSG(frame, msg, argStr, argNum)		if msg == 'INV_ITEM_LIST_
 		INVENTORY_WEIGHT_UPDATE(frame);
 		--INVENTORY_SLOTCOUNT_UPDATE(frame);
 		DRAW_SEASON_COIN(frame)
+		UPDATE_CORE_MANAGER_ICON(frame)
     end
 
 	if msg == 'INV_ITEM_CHANGE_COUNT' then
@@ -3235,18 +3236,25 @@ function SET_EQUIP_LIST_ANIM(frame, equipItemList, iconFunc, ...)
 
 				local itemSlotSet = GET_CHILD_RECURSIVELY(frame, 'itemslotset')
 				local child = GET_CHILD_RECURSIVELY(itemSlotSet, spotName.."ANIM");	
-
-				if  child  ~=  nil  then	
+				if child ~= nil then	
 					local slot = tolua.cast(child, 'ui::CAnimPicture');
 					local slotGbox = slot:GetParent()
 					local tabIndex = 0
 					if slotGbox:GetName() == "gbox_Dressed" then
 						tabIndex = 1
 					end
-
 					EQUIP_TAB_BTN(frame, nil, "equip", tabIndex)
-
 					slot:PlayAnimation();
+				end
+
+				if spotName == "CORE" then
+					local core_manager_pic = GET_CHILD_RECURSIVELY(itemSlotSet, "core_manager")
+					local is_visible = tonumber(equipItem:GetIESID()) == 0
+					if is_visible == true then
+						core_manager_pic:ShowWindow(1)
+					else
+						core_manager_pic:ShowWindow(0)
+					end
 				end
 			end		
 		end
@@ -3264,6 +3272,25 @@ function SET_EQUIP_LIST(frame, equipItemList, iconFunc, ...)
 				SET_EQUIP_SLOT(frame, i, equipItemList, "_INV_EQUIP_LIST_SET_ICON");
 			end
 		end
+	end
+	frame:Invalidate();
+end
+
+function UPDATE_CORE_MANAGER_ICON(frame)
+	local item_slot_set = GET_CHILD_RECURSIVELY(frame, 'itemslotset')
+	local equip_item_list = session.GetEquipItemList()
+	for i = 0, equip_item_list:Count() - 1 do
+		local equip_item = equip_item_list:GetEquipItemByIndex(i);
+		local spot_name = item.GetEquipSpotName(equip_item.equipSpot);
+		if spot_name ~= nil and spot_name == "CORE" then
+			local core_manager_pic = GET_CHILD_RECURSIVELY(item_slot_set, "core_manager")
+			local is_visible = tonumber(equip_item:GetIESID()) == 0
+			if is_visible == true then
+				core_manager_pic:ShowWindow(1)
+			else
+				core_manager_pic:ShowWindow(0)
+			end
+		end		
 	end
 	frame:Invalidate();
 end

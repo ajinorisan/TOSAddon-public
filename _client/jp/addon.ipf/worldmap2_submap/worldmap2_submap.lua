@@ -221,6 +221,11 @@ end
 -- DRAW
 function WORLDMAP2_SUBMAP_DRAW_BASE(frame)
     local mapName = WORLDMAP2_SUBMAP_EPISODE()
+
+    if mapName == "None" then
+        return;
+    end
+
     local mapData = GetClass("worldmap2_data", mapName)
     
 	local submapPic = AUTO_CAST(frame:GetChild("submap_pic"))
@@ -312,7 +317,7 @@ end
 
 function WORLDMAP2_SUBMAP_DRAW(frame)
     local episode = WORLDMAP2_SUBMAP_EPISODE()
-	local list = SCR_GET_XML_IES("worldmap2_submap_data", "Episode", episode)
+    local list = SCR_GET_XML_IES("worldmap2_submap_data", "Episode", episode)
 	for i = 1, #list do
 		WORLDMAP2_SUBMAP_DRAW_ZONE(frame, list[i])
 	end
@@ -321,9 +326,9 @@ end
 function WORLDMAP2_SUBMAP_DRAW_ZONE(frame, cls)
 
 	-- 던전 존이면서 대표존이 아닌 경우 리턴
-	if cls.DungeonName ~= "None" and cls.DungeonName ~= cls.MapName then
+    if cls.DungeonName ~= "None" and cls.DungeonName ~= cls.MapName then
 		return
-	end
+    end
 
 	local mapName = cls.MapName
 	local x = cls.Coordinate_X
@@ -365,12 +370,24 @@ function WORLDMAP2_SUBMAP_DRAW_ZONE(frame, cls)
     end
 
     zoneBtn:SetImage(iconName)
+    --ep16-2 이후에서부터는 덜 허전해보이게 (?) 이전 에피소드의 맵까지 같이 보여주고 있다. 
+    --그런 장식용 더미 맵들은 회색으로 칠해준다.
+    local className = cls.ClassName;
+    if string.match(className, "Dummy$") then
+        local icon_colortone = "AAAAAAAA"
+        zoneBtn:SetColorTone(icon_colortone)
+        zoneBtn:SetUserValue("IS_DUMMY", "true");
+    end
 
     -- 버튼 크기에 따른 마진값 조정
     if direction == "left" then
         zoneSet:SetMargin(x - zoneSet:GetWidth()/2 + ui.GetSkinImageSize(iconName).x/2, y, 0, 0)
-    else
+    elseif direction == "right" then
         zoneSet:SetMargin(x + zoneSet:GetWidth()/2 - ui.GetSkinImageSize(iconName).x/2, y, 0, 0)
+    elseif direction == "top" then
+        zoneSet:SetMargin(x , y - zoneSet:GetHeight() + ui.GetSkinImageSize(iconName).y/2 , 0, 0)
+    elseif direction == "bot" then
+        zoneSet:SetMargin(x , y - zoneSet:GetHeight() + ui.GetSkinImageSize(iconName).y/2 , 0, 0)
     end
     
     -- 버튼 (클릭 이벤트)
@@ -541,9 +558,15 @@ end
 function WORLDMAP2_SUBMAP_ZONE_BTN_CLICK(frame, ctrl, argStr, argNum)
     local mapName = ctrl:GetUserValue("MAP_NAME")
     local episode = GET_EPISODE_BY_MAPNAME(mapName)
+    local isDummy = ctrl:GetUserValue("IS_DUMMY")
 
     if episode == nil then
         return
+    end
+
+    --비활성화된 더미 맵은 클릭 금지.
+    if isDummy == "true" then
+        return;
     end
 
     -- 컨트롤 좌클릭: 존 체크

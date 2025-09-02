@@ -57,3 +57,4 @@ ClassID,ClassName,Name,ShowEffect,EffectName
 4755,"TOSW_YELLOW_EFFECT","W 통합 1주년 반짝반짝(옐로)","NO","BodyAura_Twinkle_Yellow_01"
 4756,"EFFECT_KerrBlackHole_BUFF","토스 스페이스1","NO","BodyAura_KerrBlackHole_Blue_01"
 4757,"EFFECT_KerrBlackHolePopo_BUFF","토스 스페이스2","NO","BodyAura_KerrBlackHolePopo_Blue_01"
+4758,"EP17POSTMAN_EFFECT","흩날리는 편지 봉투","NO","BodyAura_LetterEnvelope_Mixed_01"

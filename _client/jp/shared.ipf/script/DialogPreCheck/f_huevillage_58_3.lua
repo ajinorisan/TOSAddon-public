@@ -71,3 +71,19 @@ function SCR_HUEVILLAGE_58_3_SQ01_NPC03_PRE_DIALOG(pc, dialog)
     end
     return 'YES'
 end
+
+function SCR_HUEVILLAGE_58_3_SQ01_CLEAR(self)
+    if self ~= nil then
+		local quest_check = SCR_QUEST_CHECK(self, "HUEVILLAGE_58_3_SQ01");
+		if quest_check == "COMPLETE" then
+			local class_name = TryGetProp(arg_obj, "ClassName", "None");
+				local item_name = "COLLECT_101";
+				local tx = TxBegin(self);
+				if tx ~= nil then
+					TxGiveItem(tx, item_name, 1, "HUEVILLAGE_58_3_SQ01");
+					TxCommit(tx);
+				end
+
+		end
+    end
+end

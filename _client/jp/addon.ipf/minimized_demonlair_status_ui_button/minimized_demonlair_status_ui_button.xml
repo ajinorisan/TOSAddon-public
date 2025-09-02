@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSPY v2004 rel. 3 U (http://www.xmlspy.com) by IMC (IMCGames Co., Ltd) -->
+<uiframe name="minimized_demonlair_status_ui_button" x="0" y="0" width="80" height="80">
+	<frame layout_gravity="right top" margin="0 400 10 0"/>
+	<layer layerlevel="60"/>
+	<draw drawtitlebar="false" drawframe="false"/>
+	<option visible="true" closebutton="false" useimageitem="true" piptype="right" autoopen="true" hideable="false"/>
+	<controls>
+		<picture name="btn_open" rect="0 0 45 45" margin="0 0 0 10" stretch="true" layout_gravity="center top" LBtnUpScp="MINIMIZED_DEMONLAIR_STATUS_UI_BUTTON_OPEN" MouseOnAnim="btn_mouseover" MouseOffAnim="btn_mouseoff" clickrgn="0 0 52 52" clicksound="button_click_3" image="minimap_dungeon" oversound="button_over" textalign="right bottom" texttooltip="{@st59}마족 소굴 상태 창{/}"/>
+	</controls>
+</uiframe>

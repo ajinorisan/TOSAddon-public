@@ -2490,3 +2490,12 @@ function REDANIA_BEESWAX_DEBUFF_CLIENT_LEAVE(actor, obj, buff)
         actor:SetUserValue("BEESWAX_DEBUFF", 0);
     end
 end
+
+function DEMONLAIR_ASHARK_DEMON_MUTANT_ENTER(actor, obj, buff)
+    actor:SetAuraInfo("Elite_Boss_Buff");
+    actor:GetTitle():UpdateCaption();
+end
+
+function DEMONLAIR_ASHARK_DEMON_MUTANT_LEAVE(actor, obj, buff)
+    actor:SetAuraInfo("None");
+end

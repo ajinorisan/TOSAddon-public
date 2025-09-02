@@ -897,7 +897,12 @@ function SCR_Get_MON_CRTATK(self)
     
     local byStat = (stat * 2) + (math.floor(stat / 10) * (byLevel * 0.05));
     
-    local value = byLevel + byStat;
+    local byBuff = TryGetProp(self, "CRTATK_BM")
+    if byBuff == nil then
+        byBuff = 0
+    end
+
+    local value = byLevel + byStat + byBuff;
     
     local zone_name = GetZoneName(self)
     local prefix = 'field_monster_status_' .. zone_name

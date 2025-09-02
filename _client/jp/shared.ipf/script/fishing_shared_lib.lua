@@ -99,7 +99,7 @@ function SCR_PRE_FISHING_ROD(self, argstring, argnum1, argnum2)
                 return 0;
             end
             
-            local checkRet, errLog = SCR_FISHING_PRE_CHECK(self, 1);
+            local checkRet, errLog = SCR_FISHING_PRE_CHECK(self);
             if checkRet ~= 'SUCCESS' then
                 return 0;
             end

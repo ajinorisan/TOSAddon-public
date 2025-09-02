@@ -53,25 +53,26 @@
 			<button name="popoBtn" margin="0 58 0 0" rect="0 0 40 40" parent="mainBox" layout_gravity="right top" image="popoboost_minimized_button" stretch="false"/>
 			<groupbox name="detailBox" margin="50 95 0 0" rect="0 0 330 330" hittestbox="false" skin="test_frame_low" layout_gravity="left top"/>
 			<!--1 line-->
-			<slot name="EARRING" margin="-125 47 0 0" rect="0 0 45 45" parent="detailBox" movepop="false" oversound="button_cursor_over_3" dropsound="icon_get_down" picksound="icon_pick_up" skin="earring_slot" DropScp="None" texttooltip="{@st59}귀걸이{/}" layout_gravity="center top"/>
-			<slot name="HAT" margin="-76 47 0 0" rect="0 0 45 45" parent="detailBox" movepop="false" oversound="button_cursor_over_3" dropsound="icon_get_down" picksound="icon_pick_up" skin="hat" DropScp="None" texttooltip="{@st59}헤어 코스튬1{/}" layout_gravity="center top"/>
-			<slot name="HAT_T" margin="-28 47 0 0" rect="0 0 45 45" parent="detailBox" movepop="false" oversound="button_cursor_over_3" dropsound="icon_get_down" picksound="icon_pick_up" skin="hat" DropScp="None" texttooltip="{@st59}헤어 코스튬2{/}" layout_gravity="center top"/>
-			<slot name="HAT_L" margin="20 47 0 0" rect="0 0 45 45" parent="detailBox" movepop="false" oversound="button_cursor_over_3" dropsound="icon_get_down" picksound="icon_pick_up" skin="hat" DropScp="None" texttooltip="{@st59}헤어 코스튬3{/}" layout_gravity="center top"/>
-			<slot name="HAIR" margin="68 47 0 0" rect="0 0 45 45" parent="detailBox" movepop="false" oversound="button_cursor_over_3" dropsound="icon_get_down" picksound="icon_pick_up" skin="wig_slot" DropScp="None" texttooltip="{@st59}가발{/}" layout_gravity="center top"/>
-			<slot name="LENS" margin="116 47 0 0" rect="0 0 45 45" parent="detailBox" movepop="false" oversound="button_cursor_over_3" dropsound="icon_get_down" picksound="icon_pick_up" skin="lens_slot" DropScp="None" texttooltip="{@st59}렌즈{/}" layout_gravity="center top"/>
+			<slot name="EARRING" margin="-122 47 0 0" rect="0 0 45 45" parent="detailBox" movepop="false" oversound="button_cursor_over_3" dropsound="icon_get_down" picksound="icon_pick_up" skin="earring_slot" DropScp="None" texttooltip="{@st59}귀걸이{/}" layout_gravity="center top"/>
+			<slot name="HAT" margin="-73 47 0 0" rect="0 0 45 45" parent="detailBox" movepop="false" oversound="button_cursor_over_3" dropsound="icon_get_down" picksound="icon_pick_up" skin="hat" DropScp="None" texttooltip="{@st59}헤어 코스튬1{/}" layout_gravity="center top"/>
+			<slot name="HAT_T" margin="-25 47 0 0" rect="0 0 45 45" parent="detailBox" movepop="false" oversound="button_cursor_over_3" dropsound="icon_get_down" picksound="icon_pick_up" skin="hat" DropScp="None" texttooltip="{@st59}헤어 코스튬2{/}" layout_gravity="center top"/>
+			<slot name="HAT_L" margin="23 47 0 0" rect="0 0 45 45" parent="detailBox" movepop="false" oversound="button_cursor_over_3" dropsound="icon_get_down" picksound="icon_pick_up" skin="hat" DropScp="None" texttooltip="{@st59}헤어 코스튬3{/}" layout_gravity="center top"/>
+			<slot name="HAIR" margin="71 47 0 0" rect="0 0 45 45" parent="detailBox" movepop="false" oversound="button_cursor_over_3" dropsound="icon_get_down" picksound="icon_pick_up" skin="wig_slot" DropScp="None" texttooltip="{@st59}가발{/}" layout_gravity="center top"/>
+			<slot name="LENS" margin="119 47 0 0" rect="0 0 45 45" parent="detailBox" movepop="false" oversound="button_cursor_over_3" dropsound="icon_get_down" picksound="icon_pick_up" skin="lens_slot" DropScp="None" texttooltip="{@st59}렌즈{/}" layout_gravity="center top"/>
 			<!--2 line-->
-			<slot name="SEAL" margin="-125 98 0 0" rect="0 0 45 45" parent="detailBox" movepop="false" oversound="button_cursor_over_3" dropsound="icon_get_down" picksound="icon_pick_up" skin="seal_slot" DropScp="None" texttooltip="{@st59}인장{/}" layout_gravity="center top"/>
-			<slot name="SHOULDER" margin="-76 98 0 0" rect="0 0 45 45" parent="detailBox" movepop="false" oversound="button_cursor_over_3" dropsound="icon_get_down" picksound="icon_pick_up" skin="shoulder_slot" DropScp="None" texttooltip="{@st59}어깨보호구{/}" layout_gravity="center top"/>
-			<slot name="BELT" margin="-28 98 0 0" rect="0 0 45 45" parent="detailBox" movepop="false" oversound="button_cursor_over_3" dropsound="icon_get_down" picksound="icon_pick_up" skin="belt_slot" DropScp="None" texttooltip="{@st59}허리띠{/}" layout_gravity="center top"/>
-			<slot name="NECK" margin="20 98 0 0" rect="0 0 45 45" parent="detailBox" movepop="false" oversound="button_cursor_over_3" dropsound="icon_get_down" picksound="icon_pick_up" skin="necklace" DropScp="None" texttooltip="{@st59}목걸이{/}" layout_gravity="center top"/>
-			<slot name="RING1" margin="68 98 0 0" rect="0 0 45 45" parent="detailBox" movepop="false" oversound="button_cursor_over_3" dropsound="icon_get_down" picksound="icon_pick_up" skin="ring" DropScp="None" texttooltip="{@st59}팔찌1{/}" layout_gravity="center top"/>
-			<slot name="RING2" margin="116 98 0 0" rect="0 0 45 45" parent="detailBox" movepop="false" oversound="button_cursor_over_3" dropsound="icon_get_down" picksound="icon_pick_up" skin="ring" DropScp="None" texttooltip="{@st59}팔찌2{/}" layout_gravity="center top"/>
+			<slot name="SEAL" margin="-122 98 0 0" rect="0 0 45 45" parent="detailBox" movepop="false" oversound="button_cursor_over_3" dropsound="icon_get_down" picksound="icon_pick_up" skin="seal_slot" DropScp="None" texttooltip="{@st59}인장{/}" layout_gravity="center top"/>
+			<slot name="SHOULDER" margin="-73 98 0 0" rect="0 0 45 45" parent="detailBox" movepop="false" oversound="button_cursor_over_3" dropsound="icon_get_down" picksound="icon_pick_up" skin="shoulder_slot" DropScp="None" texttooltip="{@st59}어깨보호구{/}" layout_gravity="center top"/>
+			<slot name="BELT" margin="-25 98 0 0" rect="0 0 45 45" parent="detailBox" movepop="false" oversound="button_cursor_over_3" dropsound="icon_get_down" picksound="icon_pick_up" skin="belt_slot" DropScp="None" texttooltip="{@st59}허리띠{/}" layout_gravity="center top"/>
+			<slot name="NECK" margin="23 98 0 0" rect="0 0 45 45" parent="detailBox" movepop="false" oversound="button_cursor_over_3" dropsound="icon_get_down" picksound="icon_pick_up" skin="necklace" DropScp="None" texttooltip="{@st59}목걸이{/}" layout_gravity="center top"/>
+			<slot name="RING1" margin="71 98 0 0" rect="0 0 45 45" parent="detailBox" movepop="false" oversound="button_cursor_over_3" dropsound="icon_get_down" picksound="icon_pick_up" skin="ring" DropScp="None" texttooltip="{@st59}팔찌1{/}" layout_gravity="center top"/>
+			<slot name="RING2" margin="119 98 0 0" rect="0 0 45 45" parent="detailBox" movepop="false" oversound="button_cursor_over_3" dropsound="icon_get_down" picksound="icon_pick_up" skin="ring" DropScp="None" texttooltip="{@st59}팔찌2{/}" layout_gravity="center top"/>
 
 			<!-- Middle Right-->
-			<slot name="SHIRT" margin="-90 150 0 0" rect="0 0 55 55" parent="detailBox" movepop="false" oversound="button_cursor_over_3" dropsound="icon_get_down" picksound="icon_pick_up" skin="shirt" DropScp="None" texttooltip="{@st59}상의{/}" layout_gravity="center top"/>
-			<slot name="PANTS" margin="-30 150 0 0" rect="0 0 55 55" parent="detailBox" movepop="false" oversound="button_cursor_over_3" dropsound="icon_get_down" picksound="icon_pick_up" skin="pants" DropScp="None" texttooltip="{@st59}하의{/}" layout_gravity="center top"/>
-			<slot name="GLOVES" margin="30 150 0 0" rect="0 0 55 55" parent="detailBox" movepop="false" oversound="button_cursor_over_3" dropsound="icon_get_down" picksound="icon_pick_up" skin="gloves" DropScp="None" texttooltip="{@st59}장갑{/}" layout_gravity="center top"/>
-			<slot name="BOOTS" margin="90 150 0 0" rect="0 0 55 55" parent="detailBox" movepop="false" oversound="button_cursor_over_3" dropsound="icon_get_down" picksound="icon_pick_up" skin="boots" DropScp="None" texttooltip="{@st59}신발{/}" layout_gravity="center top"/>
+			<slot name="CORE" margin="-120 150 0 0" rect="0 0 55 55" parent="detailBox" movepop="false" oversound="button_cursor_over_3" dropsound="icon_get_down" picksound="icon_pick_up" skin="core_slot" DropScp="None" texttooltip="{@st59}코어{/}" layout_gravity="center top"/>
+			<slot name="SHIRT" margin="-60 150 0 0" rect="0 0 55 55" parent="detailBox" movepop="false" oversound="button_cursor_over_3" dropsound="icon_get_down" picksound="icon_pick_up" skin="shirt" DropScp="None" texttooltip="{@st59}상의{/}" layout_gravity="center top"/>
+			<slot name="PANTS" margin="0 150 0 0" rect="0 0 55 55" parent="detailBox" movepop="false" oversound="button_cursor_over_3" dropsound="icon_get_down" picksound="icon_pick_up" skin="pants" DropScp="None" texttooltip="{@st59}하의{/}" layout_gravity="center top"/>
+			<slot name="GLOVES" margin="60 150 0 0" rect="0 0 55 55" parent="detailBox" movepop="false" oversound="button_cursor_over_3" dropsound="icon_get_down" picksound="icon_pick_up" skin="gloves" DropScp="None" texttooltip="{@st59}장갑{/}" layout_gravity="center top"/>
+			<slot name="BOOTS" margin="120 150 0 0" rect="0 0 55 55" parent="detailBox" movepop="false" oversound="button_cursor_over_3" dropsound="icon_get_down" picksound="icon_pick_up" skin="boots" DropScp="None" texttooltip="{@st59}신발{/}" layout_gravity="center top"/>
 		
 			<!--3 line-->
 			<slot name="ARK" margin="-84 217 0 0" rect="0 0 45 45" parent="detailBox" movepop="false" oversound="button_cursor_over_3" dropsound="icon_get_down" picksound="icon_pick_up" skin="ark_slot" DropScp="None" texttooltip="{@st59}아크{/}" layout_gravity="center top"/>
@@ -468,6 +469,12 @@
 			<richtext name="set_item" margin="0 5 0 0" rect="0 0 190 30" format="{@st41b}{s18}  랜덤 옵션" layout_gravity="left top" fixwidth="true" hittest="false" fontname="brown_16"/>
             <labelline name="labelline2" margin="0 31 0 0" rect="0 0 390 3" skin="labelline_def_2" layout_gravity="center top"/>
 			<groupbox name="property_gbox" rect="0 0 410 0" layout_gravity="left top" margin="0 46 0 0" skin="bg" hittest="false" draw="false" updateparent="true" scrollbar="false"/>
+		</controls>
+	</controlset>
+	<controlset name="tooltip_equip_property_core" hittest="true" width="410" height="0">
+		<controls>
+			<labelline name="labelline" margin="0 0 0 0" rect="0 0 390 3" skin="labelline_def_2" layout_gravity="center top"/>
+			<groupbox name="property_gbox" margin="0 15 0 0" rect="0 0 410 0" layout_gravity="left top" skin="bg" hittest="false" draw="false" updateparent="true" scrollbar="false"/>
 		</controls>
 	</controlset>
         <controlset name="tooltip_equip_property_fixed" hittest="true" width="410" height="0">
@@ -2015,7 +2022,7 @@
 			<groupbox name="gbox_Equipped" rect="0 0 280 330" margin="0 38 0 0" layout_gravity="right top" draw="false" hittestbox="false" resizebyparent="false" skin="None" tabname="tab_Equipped"/>
 			<groupbox name="gbox_Dressed" rect="0 0 280 330" margin="0 48 0 0" layout_gravity="right top" draw="false" hittestbox="false" resizebyparent="false" skin="None" tabname="tab_Dressed"/>
 			<picture name="shihouette" rect="0 0 170 306" margin="0 10 0 0" layout_gravity="left top" hittest="true" image="inventory_F" oversound="button_cursor_over_3" stretch="true"/>
-			<!-- left -->
+			<!-- left -->			
 			<slot name="HAT_bg" parent="gbox_Dressed" rect="0 0 50 50" margin="-52 0 0 0" layout_gravity="center top" draw="true" skin="market_hairacc_1" hittestbox="true"/>
 			<slot name="HAT_T_bg" parent="gbox_Dressed" rect="0 0 50 50" margin="0 0 0 0" layout_gravity="center top" draw="true" skin="market_hairacc_2" hittestbox="true"/>
 			<slot name="HAT_L_bg" parent="gbox_Dressed" rect="0 0 50 50" margin="52 0 0 0" layout_gravity="center top" draw="true" skin="market_hairacc_3" hittestbox="true"/>
@@ -2044,17 +2051,20 @@
 			<slot name="LH_SUB_bg" parent="SW_bg" rect="0 0 60 60" margin="31 5 0 0" layout_gravity="center top" draw="true" hittestbox="true" skin="lh"/>
 			<slot name="RH_SUB" parent="SW_bg" rect="0 0 60 60" margin="-31 5 0 0" layout_gravity="center top" DropScp="STATUS_SLOT_DROP" dropsound="icon_get_down" movepop="false" oversound="button_cursor_over_3" picksound="icon_pick_up" draw="false" hittestbox="false" skin="rh" texttooltip="{@st59}왼손{/}"/>
 			<slot name="LH_SUB" parent="SW_bg" rect="0 0 60 60" margin="31 5 0 0" layout_gravity="center top" DropScp="STATUS_SLOT_DROP" dropsound="icon_get_down" movepop="false" oversound="button_cursor_over_3" picksound="icon_pick_up" draw="false" hittestbox="false" skin="lh" texttooltip="{@st59}오른손{/}"/>
-			<slot name="BELT_bg" parent="gbox_Equipped" rect="0 0 50 50" margin="23 126 0 0" layout_gravity="center top" draw="true" skin="belt_slot" hittestbox="true"/>
-			<slot name="BELT" parent="gbox_Equipped" rect="0 0 50 50" margin="23 126 0 0" layout_gravity="center top" DropScp="STATUS_SLOT_DROP" dropsound="icon_get_down" movepop="false" oversound="button_cursor_over_3" picksound="icon_pick_up" draw="false" skin="belt_slot" hittestbox="false" texttooltip="{@st59}허리띠{/}"/>
-			<slot name="ARK_bg" parent="gbox_Equipped" rect="0 0 50 50" margin="-87 126 0 0" layout_gravity="center top" draw="true" hittestbox="true" skin="ark_slot"/>
-			<slot name="ARK" parent="gbox_Equipped" rect="0 0 50 50" margin="-87 126 0 0" layout_gravity="center top" DropScp="STATUS_SLOT_DROP" dropsound="icon_get_down" movepop="false" oversound="button_cursor_over_3" picksound="icon_pick_up" draw="false" hittestbox="false" skin="lh" texttooltip="{@st59}아크{/}"/>
-			<slot name="RELIC_bg" parent="gbox_Equipped" rect="0 0 50 50" margin="78 126 0 0" layout_gravity="center top" draw="true" hittestbox="true" skin="relic_slot"/>
-			<slot name="RELIC" parent="gbox_Equipped" rect="0 0 50 50" margin="78 126 0 0" layout_gravity="center top" DropScp="STATUS_SLOT_DROP" dropsound="icon_get_down" movepop="false" oversound="button_cursor_over_3" picksound="icon_pick_up" draw="false" hittestbox="false" skin="relic_slot" texttooltip="{@st59}성물{/}"/>
-			<slot name="EARRING_bg" parent="gbox_Equipped" rect="0 0 50 50" margin="-110 8 0 0" layout_gravity="center top" draw="true" hittestbox="true" skin="earring_slot"/>
-			<slot name="EARRING" parent="gbox_Equipped" rect="0 0 50 50" margin="-110 8 0 0" layout_gravity="center top" DropScp="STATUS_SLOT_DROP" dropsound="icon_get_down" movepop="false" oversound="button_cursor_over_3" picksound="icon_pick_up" draw="false" hittestbox="false" skin="lh" texttooltip="{@st59}귀걸이{/}"/>
-			<slot name="SHOULDER_bg" parent="gbox_Equipped" rect="0 0 50 50" margin="-32 126 0 0" layout_gravity="center top" draw="true" hittestbox="true" skin="shoulder_slot"/>
-			<slot name="SHOULDER" parent="gbox_Equipped" rect="0 0 50 50" margin="-32 126 0 0" layout_gravity="center top" DropScp="STATUS_SLOT_DROP" dropsound="icon_get_down" movepop="false" oversound="button_cursor_over_3" picksound="icon_pick_up" draw="false" hittestbox="false" skin="shoulder_slot" texttooltip="{@st59}어깨보호구{/}"/>
 
+			<slot name="CORE_bg" parent="gbox_Equipped" rect="0 0 50 50" margin="-110 126 0 0" layout_gravity="center top" draw="true" hittestbox="true" skin="core_slot"/>
+			<slot name="CORE" parent="gbox_Equipped" rect="0 0 50 50" margin="-110 126 0 0" layout_gravity="center top" DropScp="STATUS_SLOT_DROP" dropsound="icon_get_down" movepop="false" oversound="button_cursor_over_3" picksound="icon_pick_up" draw="false" hittestbox="false" skin="lh" texttooltip="{@st59}코어{/}"/>
+			<picture name="core_manager" parent="gbox_Equipped" rect="0 0 27 27" margin="-127 155 0 0" layout_gravity="center top" textalign="center center" LBtnUpScp="DO_TEMPEST_CORE_MANAGER_OPEN" MouseOnAnim="btn_mouseover" MouseOffAnim="btn_mouseoff" clicksound="button_click_big" image="core_open" oversound="button_over" hittest="true" stretch="true" texttooltip="{@st59}코어 관리{/}"/>
+			<slot name="ARK_bg" parent="gbox_Equipped" rect="0 0 50 50" margin="-58 126 0 0" layout_gravity="center top" draw="true" hittestbox="true" skin="ark_slot"/>
+			<slot name="ARK" parent="gbox_Equipped" rect="0 0 50 50" margin="-58 126 0 0" layout_gravity="center top" DropScp="STATUS_SLOT_DROP" dropsound="icon_get_down" movepop="false" oversound="button_cursor_over_3" picksound="icon_pick_up" draw="false" hittestbox="false" skin="lh" texttooltip="{@st59}아크{/}"/>			
+			<slot name="SHOULDER_bg" parent="gbox_Equipped" rect="0 0 50 50" margin="-6 126 0 0" layout_gravity="center top" draw="true" hittestbox="true" skin="shoulder_slot"/>
+			<slot name="SHOULDER" parent="gbox_Equipped" rect="0 0 50 50" margin="-6 126 0 0" layout_gravity="center top" DropScp="STATUS_SLOT_DROP" dropsound="icon_get_down" movepop="false" oversound="button_cursor_over_3" picksound="icon_pick_up" draw="false" hittestbox="false" skin="shoulder_slot" texttooltip="{@st59}어깨보호구{/}"/>
+			<slot name="BELT_bg" parent="gbox_Equipped" rect="0 0 50 50" margin="46 126 0 0" layout_gravity="center top" draw="true" skin="belt_slot" hittestbox="true"/>
+			<slot name="BELT" parent="gbox_Equipped" rect="0 0 50 50" margin="46 126 0 0" layout_gravity="center top" DropScp="STATUS_SLOT_DROP" dropsound="icon_get_down" movepop="false" oversound="button_cursor_over_3" picksound="icon_pick_up" draw="false" skin="belt_slot" hittestbox="false" texttooltip="{@st59}허리띠{/}"/>
+			<slot name="RELIC_bg" parent="gbox_Equipped" rect="0 0 50 50" margin="98 126 0 0" layout_gravity="center top" draw="true" hittestbox="true" skin="relic_slot"/>
+			<slot name="RELIC" parent="gbox_Equipped" rect="0 0 50 50" margin="98 126 0 0" layout_gravity="center top" DropScp="STATUS_SLOT_DROP" dropsound="icon_get_down" movepop="false" oversound="button_cursor_over_3" picksound="icon_pick_up" draw="false" hittestbox="false" skin="relic_slot" texttooltip="{@st59}성물{/}"/>
+			<picture name="relic_manager" parent="gbox_Equipped" rect="0 0 27 27" margin="115 155 0 0" layout_gravity="center top" textalign="center center" LBtnUpScp="DO_RELICMANAGER_BUTTON" MouseOnAnim="btn_mouseover" MouseOffAnim="btn_mouseoff" clicksound="button_click_big" image="relic_open" oversound="button_over" hittest="true" stretch="true" texttooltip="{@st59}성물 관리{/}"/>
+			
 			<!-- Middle Right -->
 			<slot name="OUTER_bg" parent="gbox_Dressed" rect="0 0 50 50" margin="-26 108 0 0" layout_gravity="center top" draw="true" hittestbox="true" skin="market_costume"/>
 			<slot name="GLOVES_bg" parent="gbox_Equipped" rect="0 0 60 60" margin="26 62 0 0" layout_gravity="center top" draw="true" hittestbox="true" skin="gloves"/>
@@ -2077,13 +2087,15 @@
 			<slot name="EFFECTCOSTUME" parent="gbox_Dressed" rect="0 0 50 50" margin="26 162 0 0" layout_gravity="center top" DropScp="STATUS_SLOT_DROP" dropsound="icon_get_down" movepop="false" oversound="button_cursor_over_3" picksound="icon_pick_up" draw="false" hittestbox="false" skin="effect_slot" texttooltip="{@st59}이펙트 코스튬{/}"/>
 			<slot name="DOLL" parent="gbox_Dressed" rect="0 0 50 50" margin="78 162 0 0" layout_gravity="center top" DropScp="STATUS_SLOT_DROP" dropsound="icon_get_down" movepop="false" oversound="button_cursor_over_3" picksound="icon_pick_up" draw="false" hittestbox="false" skin="doll_slot" texttooltip="{@st59}인형{/}"/>
 			<slot name="ARMBAND" parent="gbox_Dressed" rect="0 0 50 50" margin="26 108 0 0" layout_gravity="center top" DropScp="STATUS_SLOT_DROP" dropsound="icon_get_down" movepop="false" oversound="button_cursor_over_3" picksound="icon_pick_up" draw="false" hittestbox="false" skin="armband" texttooltip="{@st59}암밴드{/}"/>
+
+			<slot name="EARRING_bg" parent="gbox_Equipped" rect="0 0 50 50" margin="-110 8 0 0" layout_gravity="center top" draw="true" hittestbox="true" skin="earring_slot"/>
+			<slot name="EARRING" parent="gbox_Equipped" rect="0 0 50 50" margin="-110 8 0 0" layout_gravity="center top" DropScp="STATUS_SLOT_DROP" dropsound="icon_get_down" movepop="false" oversound="button_cursor_over_3" picksound="icon_pick_up" draw="false" hittestbox="false" skin="lh" texttooltip="{@st59}귀걸이{/}"/>
 			<slot name="RING1" parent="gbox_Equipped" rect="0 0 50 50" margin="-58 8 0 0" layout_gravity="center top" DropScp="STATUS_SLOT_DROP" dropsound="icon_get_down" movepop="false" oversound="button_cursor_over_3" picksound="icon_pick_up" draw="false" skin="ring" texttooltip="{@st59}팔찌1{/}" hittestbox="false"/>
 			<slot name="NECK" parent="gbox_Equipped" rect="0 0 50 50" margin="-6 8 0 0" layout_gravity="center top" DropScp="STATUS_SLOT_DROP" dropsound="icon_get_down" movepop="false" oversound="button_cursor_over_3" picksound="icon_pick_up" draw="false" hittestbox="false" skin="necklace" texttooltip="{@st59}목걸이{/}"/>
 			<slot name="RING2" parent="gbox_Equipped" rect="0 0 50 50" margin="46 8 0 0" layout_gravity="center top" DropScp="STATUS_SLOT_DROP" dropsound="icon_get_down" movepop="false" oversound="button_cursor_over_3" picksound="icon_pick_up" draw="false" hittestbox="false" skin="ring" texttooltip="{@st59}팔찌2{/}"/>
 			<slot name="SEAL" parent="gbox_Equipped" rect="0 0 50 50" margin="98 8 0 0" layout_gravity="center top" DropScp="STATUS_SLOT_DROP" dropsound="icon_get_down" movepop="false" oversound="button_cursor_over_3" picksound="icon_pick_up" draw="false" hittestbox="false" skin="seal_slot" texttooltip="{@st59}인장{/}"/>
 			<picture name="weapon_swap_1" parent="gbox_Equipped" rect="0 0 34 21" margin="-20 247 0 0" layout_gravity="center top" textalign="center center" LBtnUpScp="DO_WEAPON_SWAP_1" MouseOnAnim="btn_mouseover" MouseOffAnim="btn_mouseoff" clicksound="button_click_big" caption="{@st202}{s14}1{/}{/}" format="{@st202}{s14}1{/}{/}" image="swap_slot3_clicked" oversound="button_over" hittest="true" stretch="true" texttooltip="{@st59}해당 번호로 장비를 장착합니다(Alt+Z){/}"/>
-			<picture name="weapon_swap_2" parent="gbox_Equipped" rect="0 0 34 21" margin="10 247 0 0" layout_gravity="center top" textalign="center center" LBtnUpScp="DO_WEAPON_SWAP_2" MouseOnAnim="btn_mouseover" MouseOffAnim="btn_mouseoff" clicksound="button_click_big" caption="{@st202}{s14}2{/}{/}" format="{@st202}{s14}2{/}{/}" image="swap_slot3_cursoron" oversound="button_over" hittest="true" stretch="true" texttooltip="{@st59}해당 번호로 장비를 장착합니다(Alt+Z){/}"/>
-			<picture name="relic_manager" parent="gbox_Equipped" rect="0 0 27 27" margin="95 155 0 0" layout_gravity="center top" textalign="center center" LBtnUpScp="DO_RELICMANAGER_BUTTON" MouseOnAnim="btn_mouseover" MouseOffAnim="btn_mouseoff" clicksound="button_click_big" image="relic_open" oversound="button_over" hittest="true" stretch="true" texttooltip="{@st59}성물 관리{/}"/>
+			<picture name="weapon_swap_2" parent="gbox_Equipped" rect="0 0 34 21" margin="10 247 0 0" layout_gravity="center top" textalign="center center" LBtnUpScp="DO_WEAPON_SWAP_2" MouseOnAnim="btn_mouseover" MouseOffAnim="btn_mouseoff" clicksound="button_click_big" caption="{@st202}{s14}2{/}{/}" format="{@st202}{s14}2{/}{/}" image="swap_slot3_cursoron" oversound="button_over" hittest="true" stretch="true" texttooltip="{@st59}해당 번호로 장비를 장착합니다(Alt+Z){/}"/>			
 			<picture name="HAT_Visible" parent="HAT" rect="0 0 20 20" margin="0 0  0 0" layout_gravity="left top" LBtnUpScp="INV_HAT_VISIBLE_STEATE_SET" image="inven_hat_layer_on" oversound="button_cursor_over_3" hittest="true" stretch="true" texttooltip="{@st59}보이기/안보이기{/}"/>
 			<picture name="HAT_T_Visible" parent="HAT_T" rect="0 0 20 20" margin="0 0  0 0" layout_gravity="left top" LBtnUpScp="INV_HAT_VISIBLE_STEATE_SET" image="inven_hat_layer_on" oversound="button_cursor_over_3" hittest="true" stretch="true" texttooltip="{@st59}보이기/안보이기{/}"/>
 			<picture name="HAT_L_Visible" parent="HAT_L" rect="0 0 20 20" margin="0 0  0 0" layout_gravity="left top" LBtnUpScp="INV_HAT_VISIBLE_STEATE_SET" image="inven_hat_layer_on" oversound="button_cursor_over_3" hittest="true" stretch="true" texttooltip="{@st59}보이기/안보이기{/}"/>
@@ -2480,6 +2492,12 @@
 			<edit name="itemcount" parent="gbox" rect="0 0 100 30" margin="10 0 0 0" layout_gravity="center top" textalign="center center" fontname="white_18_ol" numbermode="true" skin="test_weight_skin" typingscp="UPDATE_EARTHTOWERSHOP_CHANGECOUNT" EnterKeyScp="None" param1="value" param1_def="0"/>
 			<button name="upBtn" parent="gbox" stretch="true" rect="0 0 60 60" margin="75 1 0 0" layout_gravity="center top" image="test_up_w_btn" oversound="button_over" LBtnUpScp="EARTHTOWERSHOP_UPBTN"/>
 			<button name="downBtn" parent="gbox" stretch="true" rect="0 0 60 60" margin="75 16 0 0" layout_gravity="center top" image="test_down_w_btn" oversound="button_over" LBtnUpScp="EARTHTOWERSHOP_DOWNBTN"/>
+			<groupbox name="sale" rect="0 0 38 130" margin="22 20 0 0" layout_gravity="left center" draw="true" hittestbox="true" skin="None"/>
+				<picture name="bigbar" rect="0 0 37 92" margin="0 0 0 0" parent="sale" layout_gravity="center top" image="SaleBigBar" stretch="false"/>
+				<picture name="smallbar" rect="0 0 37 38" margin="0 92 0 0" parent="sale" layout_gravity="center top" image="SaleSmallBar" stretch="false"/>
+				<picture name="salefire" rect="0 0 37 111" margin="0 0 0 0" parent="sale" layout_gravity="center top" image="SaleFire20"/>
+				<picture name="saletext" rect="0 0 37 17" margin="0 15 0 0" parent="sale" layout_gravity="center top" image="SaleText" stretch="false"/>
+				<picture name="salenum" rect="0 0 37 23" margin="0 36 0 0" parent="sale" layout_gravity="center top" image="Sale20" stretch="false"/>
 		</controls>
 	</controlset>
 	<controlset name="craftRecipe_alchemist" hittest="true" width="470" height="60" skin="test_skin_01" hittestset="true" draw="true" stateskin="false">
@@ -5965,6 +5983,16 @@
 			<picture name="pc_pos" rect="0 0 38 38" margin="0 0 0 0" layout_gravity="center center" image="worldmap2_map_pc" imagealign="center center" stretch="false" hittest="true" LBtnUpScp="WORLDMAP2_MAINMAP_MOVE_MYPOS" texttooltip="내 캐릭터의 위치를 불러옵니다." oversound="button_cursor_over_2" clicksound="button_click_4"/>
 		</controls>
 	</controlset>
+	<controlset name="change_hard_button_set" hittest="true" width="158" height="132">
+		<controls>
+			<button name="change_hard_btn" rect="0 0 158 112" margin="0 0 0 0" layout_gravity="center center" image="worldmap2_arrow_right" LBtnDownScp="OPEN_WORLDMAP2_CHANGE_HARD_EPISODE_FROM_MAINMAP" oversound="button_cursor_over_2" clicksound="button_click_4"/>
+	</controls>
+	</controlset>
+	<controlset name="change_normal_button_set" hittest="true" width="158" height="132">
+		<controls>
+			<button name="change_normal_btn" rect="0 0 158 112" margin="0 0 0 0" layout_gravity="center center" image="worldmap2_arrow_left" LBtnDownScp="OPEN_WORLDMAP2_CHANGE_NORMAL_EPISODE_FROM_MAINMAP" oversound="button_cursor_over_2" clicksound="button_click_4"/>
+	</controls>
+	</controlset>
 	<controlset name="submap_zone_left_set" hittest="true" width="300" height="100">
 		<controls>
 			<button name="zone_btn" rect="0 0 60 60" margin="0 0 0 0" layout_gravity="right center" image="worldmap2_map_zone_btn" LBtnUpScp="WORLDMAP2_SUBMAP_ZONE_BTN_CLICK"/>
@@ -5981,6 +6009,24 @@
 			<richtext name="zone_text_fieldboss" rect="0 0 240 50" margin="0 -30 22 0" layout_gravity="right center" textalign="left center" resizebytext="false" omitbywidth="true" ellipsistexttooltip="true" visible="false"/>
 			<richtext name="zone_text_bottom" rect="0 0 240 50" margin="0 10 22 0" layout_gravity="right center" textalign="left center" resizebytext="false" omitbywidth="true" ellipsistexttooltip="true"/>
 			<richtext name="zone_text_top" rect="0 0 240 50" margin="0 -10 22 0" layout_gravity="right center" textalign="left center" resizebytext="false" omitbywidth="true" ellipsistexttooltip="true"/>
+		</controls>
+	</controlset>
+		<controlset name="submap_zone_top_set" hittest="true" width="300" height="100">
+		<controls>
+			<button name="zone_btn" rect="0 0 60 60" margin="0 0 0 0" layout_gravity="left center" image="worldmap2_map_zone_btn" LBtnUpScp="WORLDMAP2_SUBMAP_ZONE_BTN_CLICK"/>
+			<picture name="zone_pc_pos" rect="0 0 38 38" margin="-3 -30 0 0" layout_gravity="left center" image="worldmap2_map_pc" imagealign="center center"/>
+			<richtext name="zone_text_fieldboss" rect="0 0 240 50" margin="0 -30 22 0" layout_gravity="right center" textalign="left center" resizebytext="false" omitbywidth="true" ellipsistexttooltip="true" visible="false"/>
+			<richtext name="zone_text_bottom" rect="0 0 240 50" margin="0 0 22 0" layout_gravity="left top" textalign="left center" resizebytext="false" omitbywidth="true" ellipsistexttooltip="true"/>
+			<richtext name="zone_text_top" rect="0 0 240 50" margin="0 0 22 0" layout_gravity="left top" textalign="left top" resizebytext="false" omitbywidth="true" ellipsistexttooltip="true"/>
+		</controls>
+	</controlset>
+	<controlset name="submap_zone_bot_set" hittest="true" width="300" height="100">
+		<controls>
+			<button name="zone_btn" rect="0 0 60 60" margin="0 0 0 0" layout_gravity="left center" image="worldmap2_map_zone_btn" LBtnUpScp="WORLDMAP2_SUBMAP_ZONE_BTN_CLICK"/>
+			<picture name="zone_pc_pos" rect="0 0 38 38" margin="-3 -30 0 0" layout_gravity="left center" image="worldmap2_map_pc" imagealign="center center"/>
+			<richtext name="zone_text_fieldboss" rect="0 0 240 50" margin="0 -30 22 0" layout_gravity="right center" textalign="left center" resizebytext="false" omitbywidth="true" ellipsistexttooltip="true" visible="false"/>
+			<richtext name="zone_text_bottom" rect="0 0 240 50" margin="0 10 22 0" layout_gravity="left bottom" textalign="left bottom" resizebytext="false" omitbywidth="true" ellipsistexttooltip="true"/>
+			<richtext name="zone_text_top" rect="0 0 240 50" margin="0 -10 22 0" layout_gravity="left bottom" textalign="left center" resizebytext="false" omitbywidth="true" ellipsistexttooltip="true"/>
 		</controls>
 	</controlset>
 	<controlset name="submap_city_left_set" hittest="true" width="300" height="120">
@@ -7250,6 +7296,55 @@
 			<groupbox name="disable_shadow" rect="0 0 535 75" 	margin="0 0 0 0" layout_gravity="left top" draw="true" stretch="true" hittest="false" resizebyparent="false" scrollbar="false" skin="achievement_exchange_event_bg_shadow"/>
 		</controls>
 	</controlset>
+	<!-- tempest core manager -->
+	<controlset name="tempest_core_liberation_material_info" hittest="true" width="1170" height="60" hittestset="true" draw="true" skin="" stateskin="false">
+		<controls>
+			<groupbox name="gbox" rect="0 0 1170 60" margin="0 0 0 0" layout_gravity="center center" draw="true" skin="test_skin_01_btn" hittest="true" LBtnUpScp="LBUTNUP_SCP_TEMPEST_CORE_LIBERATION_MATERIAL"/>
+			<slot name="slot" parent="gbox" margin="10 0 0 0" rect="0 0 55 55" layout_gravity="left center" stretch="true" enabledrop="false" enabledrag="false" hittest="false"/>
+			<richtext name="name" parent="gbox" rect="0 0 430 60" margin="70 0 0 0" layout_gravity="left center" format="{@st43}{s18}%s" param1="name" param1_def="[Lv.540] 에테르 크리스탈" drawbackground="false" fixwidth="true" fontname="white_18_ol" textalign="center center" hittest="false"/>
+			<richtext name="point" parent="gbox" rect="0 0 300 60" margin="500 0 0 0" layout_gravity="left center" format="{@st43}{s18}%s" param1="point" param1_def="1000" drawbackground="false" fixwidth="true" fontname="white_18_ol" textalign="center center" hittest="false"/>
+			<richtext name="amount" parent="gbox" rect="0 0 300 60" margin="820 0 0 0" layout_gravity="left center" format="{@st43}{s18}%s" param1="amount" param1_def="1" drawbackground="false" fixwidth="true" fontname="white_18_ol" textalign="center center" hittest="false"/>
+		</controls>
+	</controlset>
+	<controlset name="tempest_core_liberation_material_detail_info" hittest="true" width="565" height="60" hittestset="true" draw="true" skin="" stateskin="false">
+		<controls>
+			<groupbox name="gbox" rect="0 0 565 60" margin="0 0 0 0" layout_gravity="center center" draw="true" skin="test_skin_01_btn" hittest="true"/>
+			<slot name="slot" parent="gbox" margin="10 0 0 0" rect="0 0 55 55" layout_gravity="left center" hittest="false" stretch="true"/>
+			<richtext name="name" parent="gbox" rect="0 0 200 60" margin="70 0 0 0" layout_gravity="left center" format="{@st43}{s18}%s" param1="name" param1_def="재료" drawbackground="false" fixwidth="true" fontname="white_18_ol" textalign="left center" hittest="false" ellipsistexttooltip="true"/>
+			<richtext name="point" parent="gbox" rect="0 0 90 60" margin="270 0 0 0" layout_gravity="left center" format="{@st43}{s18}%s" param1="point" param1_def="1000" drawbackground="false" fixwidth="true" fontname="white_18_ol" textalign="center center" hittest="false"/>
+			<richtext name="amount" parent="gbox" rect="0 0 60 60" margin="380 0 0 0" layout_gravity="left center" format="{@st43}{s18}%s" param1="amount" param1_def="1" drawbackground="false" fixwidth="true" fontname="white_18_ol" textalign="center center" hittest="false"/>
+			<edit name="use_count" parent="gbox" rect="0 0 60 30" margin="450 15 0 0" texttooltip="{@st59}사용할 개수를 입력합니다.{/}" typingscp="TEMPEST_CORE_MANAGER_LIBERATION_MATERIAL_DETAIL_EDIT_TYPINGSCP" textalign="center center" layout_gravity="left top" fontname="white_18_ol" maxlen="10" OffsetForDraw="10 -3" xmargin="10"/>
+			<button name="up_btn" parent="gbox" stretch="false" rect="0 0 30 20" margin="525 10 0 0" layout_gravity="left top" image="god_btn_up" oversound="button_over" LBtnUpScp="SCP_TEMPEST_CORE_LIBERATION_MATERIAL_DETAIL_UP_BTN" hittest="true"/>
+			<button name="down_btn" parent="gbox" stretch="false" rect="0 0 30 20" margin="525 30 0 0" layout_gravity="left top" image="god_btn_down" oversound="button_over" LBtnUpScp="SCP_TEMPEST_CORE_LIBERATION_MATERIAL_DETAIL_DOWN_BTN" hittest="true"/>
+		</controls>
+	</controlset>
+	<controlset name="tempest_core_liberation_info" hittest="true" width="590" height="60" hittestset="true" draw="true" skin="" stateskin="false">
+		<controls>
+			<groupbox name="gbox" rect="0 0 590 60" margin="0 0 0 0" layout_gravity="center center" draw="true" skin="test_skin_01_btn" hittest="true"/>
+			<slot name="slot" parent="gbox" margin="10 0 0 0" rect="0 0 55 55" layout_gravity="left center" hittest="false" stretch="true"/>
+			<richtext name="name" parent="gbox" rect="0 0 180 60" margin="70 0 0 0" layout_gravity="left center" format="{@st43}{s18}%s" param1="name" param1_def="재료" drawbackground="false" fixwidth="true" fontname="white_18_ol" textalign="left center" hittest="false" ellipsistexttooltip="true"/>
+			<richtext name="point" parent="gbox" rect="0 0 90 60" margin="250 0 0 0" layout_gravity="left center" format="{@st43}{s18}%s" param1="point" param1_def="1000" drawbackground="false" fixwidth="true" fontname="white_18_ol" textalign="center center" hittest="false"/>
+			<richtext name="amount" parent="gbox" rect="0 0 60 60" margin="360 0 0 0" layout_gravity="left center" format="{@st43}{s18}%s" param1="amount" param1_def="1" drawbackground="false" fixwidth="true" fontname="white_18_ol" textalign="center center" hittest="false"/>
+			<edit name="use_count" parent="gbox" rect="0 0 60 30" margin="450 15 0 0" texttooltip="{@st59}사용할 개수를 입력합니다.{/}" typingscp="TEMPEST_CORE_MANAGER_LIBERATION_EDIT_TYPINGSCP" textalign="center center" layout_gravity="left top" fontname="white_18_ol" maxlen="10" OffsetForDraw="10 -3" xmargin="10"/>
+			<button name="up_btn" parent="gbox" stretch="false" rect="0 0 30 20" margin="525 10 0 0" layout_gravity="left top" image="god_btn_up" oversound="button_over" LBtnUpScp="SCP_TEMPEST_CORE_LIBERATION_UP_BTN" hittest="true"/>
+			<button name="down_btn" parent="gbox" stretch="false" rect="0 0 30 20" margin="525 30 0 0" layout_gravity="left top" image="god_btn_down" oversound="button_over" LBtnUpScp="SCP_TEMPEST_CORE_LIBERATION_DOWN_BTN" hittest="true"/>
+		</controls>
+	</controlset>
+	<controlset name="tempest_core_liberation_option_info" hittest="true" width="450" height="30" hittestset="true" draw="true" skin="" stateskin="false">
+		<controls>
+			<groupbox name="gbox" rect="0 0 450 30" margin="0 0 0 0" layout_gravity="center center" draw="true" skin="test_skin_01_btn" hittest="true"/>
+			<picture name="pic" parent="gbox" rect="0 0 450 30" margin="0 0 0 0" draw="true" hittestbox="false" layout_gravity="left top" stretch="true" />
+			<richtext name="option" parent="gbox" rect="0 0 450 30" margin="0 0 0 0" layout_gravity="left center" format="{@st43}{s18}%s" param1="option" param1_def="옵션" drawbackground="false" fixwidth="true" fontname="white_18_ol" textalign="center center" hittest="false" ellipsistexttooltip="true"/>
+		</controls>
+	</controlset>
+	<controlset name="tempest_core_decomposition_info" hittest="true" width="450" height="60" hittestset="true" draw="true" skin="" stateskin="false">
+		<controls>
+			<groupbox name="gbox" rect="0 0 450 60" margin="0 0 0 0" layout_gravity="center center" draw="true" skin="test_skin_01_btn" hittest="true"/>
+			<slot name="slot" parent="gbox" margin="20 0 0 0" rect="0 0 55 55" layout_gravity="left center" hittest="false" stretch="true"/>
+			<richtext name="name" parent="gbox" rect="0 0 240 60" margin="80 0 0 0" layout_gravity="left center" format="{@st43}{s18}%s" param1="name" param1_def="재료" drawbackground="false" fixwidth="true" fontname="white_18_ol" textalign="center center" hittest="false" ellipsistexttooltip="true"/>
+			<richtext name="count" parent="gbox" rect="0 0 90 60" margin="320 0 0 0" layout_gravity="left center" format="{@st43}{s18}%s" param1="count" param1_def="0" drawbackground="false" fixwidth="true" fontname="white_18_ol" textalign="center center" hittest="false"/>
+		</controls>
+	</controlset>
 	<!-- archeology exhibition controlset -->
 	<controlset name="archeology_exhibition_item_slot" hittest="true" width="163" height="163" skin="test_frame_midle_light" stateskin="false" enabledrag="true">
 		<controls>
@@ -7270,5 +7365,42 @@
 			<richtext name="archeology_exhibition_effect_tooltip" parent="default_box" layout_gravity="left top" textalign="left center" rect="0 0 400 20" margin="10 15 0 0" resizebytext="false" format="{@st66d}%s + {/}{@st66d_y}%s%s{/}" param1="name" param1_def="" param2="value" param2_def="" param3="sign" param3_def=""/>
 		</controls>
 	</controlset>
-
+	<!-- demonlair -->
+	<controlset name="demonlair_final_boss_buff_info" hittest="true" width="350" height="70" hittestset="true" draw="true" skin="" stateskin="false">
+		<controls>
+			<groupbox name="gbox" rect="0 0 350 70" margin="0 0 0 0" layout_gravity="center center" draw="true" skin="market_listbase" hittest="true" LBtnUpScp="None"/>
+			<slot name="slot" parent="gbox" margin="10 0 0 0" rect="0 0 55 55" layout_gravity="left center" stretch="true" enabledrop="false" enabledrag="false" hittest="false"/>
+			<richtext name="name" parent="gbox" rect="0 0 280 30" margin="70 10 0 0" layout_gravity="left top" format="{s18}%s" param1="name" param1_def="버프 이름" drawbackground="false" fixwidth="true" fontname="orange_18_b_ol_ds" textalign="center center" hittest="false"/>
+			<richtext name="desc" parent="gbox" rect="0 0 280 30" margin="70 40 0 0" layout_gravity="left top" format="{@st42_red}%s{/}" param1="desc" param1_def="버프 설명" drawbackground="false" fixwidth="true" fontname="brown_16" textalign="center center" hittest="false"/>
+		</controls>
+	</controlset>
+	<controlset name="demonlair_user_select_info" hittest="true" width="320" height="420" hittestset="true" draw="true" skin="" stateskin="false">
+		<controls>
+			<groupbox name="gbox" rect="0 0 320 420" margin="0 0 0 0" layout_gravity="left top" draw="true" skin="market_listbase" hittest="true" LBtnUpScp="None" scrollbar="false"/>
+			<richtext name="title" parent="gbox" rect="0 0 320 30" margin="0 10 0 0" layout_gravity="center top" format="{s20}%s" param1="name" param1_def="선택지" drawbackground="false" fixwidth="true" fontname="mint_18_b_ol" textalign="center center" hittest="false"/>
+			<picture name="buff_icon" parent="gbox" rect="0 0 120 120" margin="25 60 0 0" layout_gravity="left top" image="socket_slot_bg" imagealign="center center"/>
+			<picture name="penalty_icon" parent="gbox" rect="0 0 120 120" margin="0 60 25 0" layout_gravity="right top" image="socket_slot_bg" imagealign="center center"/>
+			<richtext name="buff_name" parent="gbox" rect="0 0 120 100" margin="25 190 0 0" layout_gravity="left top" format="{@st56}%s(%s단계){/}" param1="buff_name" param1_def="버프 이름" param2="buff_step" param2_def="" drawbackground="false" fixwidth="true" fontname="orange_16_b_ol" textalign="center center" hittest="false"/>
+			<richtext name="penalty_name" parent="gbox" rect="0 0 120 100" margin="175 190 0 0" layout_gravity="left top" format="{@st56}%s(%s단계){/}" param1="penalty_name" param1_def="패널티 이름" param2="penalty_step" param2_def="" drawbackground="false" fixwidth="true" fontname="orange_16_b_ol" textalign="center center" hittest="false"/>
+			<richtext name="buff_desc" parent="gbox" rect="0 0 300 100" margin="0 270 0 0" layout_gravity="center top" format="{@st42_green}%s{/}" param1="buff_desc" param1_def="버프 선택지 설명" drawbackground="false" fixwidth="true" fontname="orange_16_b_ol" textalign="center center" hittest="false"/>
+			<richtext name="penalty_desc" parent="gbox" rect="0 0 300 100" margin="0 320 0 0" layout_gravity="center top" format="{@st42_red}%s{/}" param1="penalty_desc" param1_def="패널티 선택지 설명" drawbackground="false" fixwidth="true" fontname="orange_16_b_ol" textalign="center center" hittest="false"/>
+			<button name="select" parent="gbox" rect="0 0 110 35" margin="0 370 0 0" layout_gravity="center top" skin="hero_btn_green" stretch="true" LBtnUpScp="DEMONLAIR_USER_SELECT_BTN" clicksound="button_click_big" oversound="button_over" format="{@st41b}{s18}%s" param1="value" param1_def="선택"/>
+		</controls>
+	</controlset>
+	<controlset name="demonlair_user_select_group" hittest="true" width="960" height="420" hittestset="true" draw="true" skin="" stateskin="false">
+		<controls>
+			<groupbox name="gbox" rect="0 0 960 420" margin="0 0 0 0" layout_gravity="left top" draw="false" skin="None" hittest="true" LBtnUpScp="None" scrollbar="false"/>
+			<controlset name="select_1" parent="gbox" rect="0 0 320 420" margin="3 0 0 0" type="demonlair_user_select_info" layout_gravity="left top" hittestbox="false" scrollbar="false"/>
+			<controlset name="select_2" parent="gbox" rect="0 0 320 420" margin="328 0 0 0" type="demonlair_user_select_info" layout_gravity="left top" hittestbox="false" scrollbar="false"/>
+			<controlset name="select_3" parent="gbox" rect="0 0 320 420" margin="653 0 0 0" type="demonlair_user_select_info" layout_gravity="left top" hittestbox="false" scrollbar="false"/>
+		</controls>
+	</controlset>
+	<controlset name="demonlair_user_select_stauts_info" hittest="true" width="350" height="70" hittestset="true" draw="true" skin="" stateskin="false">
+		<controls>
+			<groupbox name="gbox" rect="0 0 350 70" margin="0 0 0 0" layout_gravity="center center" draw="true" skin="market_listbase" hittest="true" LBtnUpScp="None"/>
+			<picture name="icon" parent="gbox" margin="10 0 0 0" rect="0 0 55 55" layout_gravity="left center" stretch="true" enabledrop="false" enabledrag="false" hittest="false"/>
+			<richtext name="name" parent="gbox" rect="0 0 280 30" margin="70 10 0 0" layout_gravity="left top" format="{s18}%s" param1="name" param1_def="선택지 이름" drawbackground="false" fixwidth="true" fontname="orange_18_b_ol_ds" textalign="center center" hittest="false"/>
+			<richtext name="step" parent="gbox" rect="0 0 280 30" margin="70 40 0 0" layout_gravity="left top" format="{@st42_red}%s단계{/}" param1="step" param1_def="" drawbackground="false" fixwidth="true" fontname="brown_16" textalign="center center" hittest="false"/>
+		</controls>
+	</controlset>
 </controlsetlist>

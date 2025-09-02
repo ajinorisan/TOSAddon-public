@@ -1366,7 +1366,7 @@ function DRAW_EQUIP_FIXED_ICHOR(invitem, inheritanceItem, property_gbox, inner_y
                     end
                 end
             else
-                local strInfo = ABILITY_DESC_PLUS(ScpArgMsg(propName), propValue);
+				local strInfo = ABILITY_DESC_PLUS(ScpArgMsg(propName), propValue)
                 inner_yPos = ADD_ITEM_PROPERTY_TEXT(property_gbox, strInfo, 0, inner_yPos);
             end
         end
@@ -4154,4 +4154,114 @@ function DRAW_EQUIP_UPGRADE_OPTION(invitem, property_gbox, inner_yPos)
 	end
 
 	return inner_yPos
+end
+
+function ITEM_TOOLTIP_CORE(tooltipframe, invitem, strarg, usesubframe)
+	if invitem.ClassType ~= 'CORE' then return end
+
+	tolua.cast(tooltipframe, "ui::CTooltipFrame");
+	local mainframename = 'equip_main'
+	local ypos = 0
+
+	ypos = DRAW_EQUIP_COMMON_TOOLTIP_SMALL_IMG(tooltipframe, invitem, mainframename); -- 장비라면 공통적으로 그리는 툴팁들
+
+	ypos = DRAW_CORE_PROPERTY(tooltipframe, invitem, nil, ypos, mainframename, false);			
+	
+	ypos = DRAW_EQUIP_DESC(tooltipframe, invitem, ypos, mainframename) -- 각종 설명문	
+
+	ypos = DRAW_EQUIP_TRADABILITY(tooltipframe, invitem, ypos, mainframename); 	-- 거래 제한
+
+	ypos = ypos + 3;
+    ypos = DRAW_TOGGLE_EQUIP_DESC(tooltipframe, invitem, ypos, mainframename); -- 설명문 토글 여부
+
+    local gBox = GET_CHILD(tooltipframe, mainframename,'ui::CGroupBox')
+    gBox:Resize(gBox:GetWidth(), ypos)
+end
+
+function DRAW_CORE_PROPERTY(tooltipframe, invitem, inheritanceItem, yPos, mainframename, drawLableline)	
+	local gBox = GET_CHILD(tooltipframe, mainframename, 'ui::CGroupBox')
+	gBox:RemoveChild('tooltip_equip_property_core');
+
+    -- 컨트롤셋 생성
+    local tooltip_equip_property_CSet = gBox:CreateOrGetControlSet('tooltip_equip_property_core', 'tooltip_equip_property_core', 0, yPos);
+    
+    -- 라벨라인 처리 (아이커 아이템 툴팁)
+    local labelline = GET_CHILD(tooltip_equip_property_CSet, 'labelline');
+    if drawLableline == false then
+        tooltip_equip_property_CSet:SetOffset(tooltip_equip_property_CSet:GetX(), tooltip_equip_property_CSet:GetY() - 10);
+        labelline:ShowWindow(0);
+    else
+        labelline:ShowWindow(1);
+    end
+
+    local inner_yPos = 0;
+	local property_gbox = GET_CHILD(tooltip_equip_property_CSet, 'property_gbox', 'ui::CGroupBox');
+		
+	inner_yPos = DRAW_EQUIP_FIXED_ICHOR(invitem, inheritanceItem, property_gbox, inner_yPos) -- 고정 아이커		
+
+	inner_yPos = DRAW_EQUIP_CORE_ITEM(invitem, property_gbox, inner_yPos)
+
+    -- 아무것도 못그렸으면 컨트롤셋 지우고 리턴
+    if inner_yPos == 0 then
+        gBox:RemoveChild('tooltip_equip_property_core')
+        return yPos
+    end
+    
+	tooltip_equip_property_CSet:Resize(tooltip_equip_property_CSet:GetWidth(),tooltip_equip_property_CSet:GetHeight() + property_gbox:GetHeight() + property_gbox:GetY());
+
+	gBox:Resize(gBox:GetWidth(),gBox:GetHeight() + tooltip_equip_property_CSet:GetHeight())
+	return tooltip_equip_property_CSet:GetHeight() + tooltip_equip_property_CSet:GetY();
+end
+
+function ABILITY_DESC_NO_PLUS2(desc, cur)
+	cur = GET_COMMAED_STRING(tostring(cur))
+    return string.format(" %s "..ScpArgMsg("PropUp").."%s", desc, cur);
+end
+
+function DRAW_EQUIP_CORE_ITEM(invitem, property_gbox, inner_yPos)
+	local init_yPos = inner_yPos;
+	
+    for i = 1, item_tempest_core.get_max_option_count() do
+        local propGroupName = "RandomOptionGroup_"..i;
+        local propName = "RandomOption_"..i;
+        local propValue = "RandomOptionValue_"..i;
+        local clientMessage = 'None'
+
+        local propItem = invitem
+
+        if propItem[propGroupName] == 'ATK' then
+            clientMessage = 'ItemRandomOptionGroupATK'
+        elseif propItem[propGroupName] == 'DEF' then
+            clientMessage = 'ItemRandomOptionGroupDEF'
+        elseif propItem[propGroupName] == 'UTIL_WEAPON' then
+            clientMessage = 'ItemRandomOptionGroupUTIL'
+        elseif propItem[propGroupName] == 'UTIL_ARMOR' then
+            clientMessage = 'ItemRandomOptionGroupUTIL'
+        elseif propItem[propGroupName] == 'UTIL_SHILED' then
+            clientMessage = 'ItemRandomOptionGroupUTIL'
+        elseif propItem[propGroupName] == 'STAT' then
+			clientMessage = 'ItemRandomOptionGroupSTAT'		
+		elseif propItem[propGroupName] == 'SPECIAL' then
+			clientMessage = 'ItemRandomOptionGroupSPECIAL'		
+		end
+        
+		local strInfo = nil
+		if propItem[propValue] ~= 0 and propItem[propName] ~= "None" then			
+			local cls_msg = ScpArgMsg(propItem[propName])
+			local opName = string.format("%s %s", ClMsg(clientMessage), cls_msg)
+			local current_value = propItem[propValue]
+
+			strInfo = ABILITY_DESC_NO_PLUS2(opName, current_value, 0)            
+		else
+			strInfo = " {img core_option_sealed_" .. i .. "}"
+        end
+
+		inner_yPos = ADD_ITEM_PROPERTY_TEXT(property_gbox, strInfo, 0, inner_yPos);
+    end
+
+    if init_yPos < inner_yPos then
+        inner_yPos = ADD_ITEM_PROPERTY_TEXT(property_gbox, " ", 0, inner_yPos);
+    end
+
+    return inner_yPos
 end

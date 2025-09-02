@@ -49,6 +49,8 @@
 		<image name="login_img4" file="fixframe\loginui_title\login_img4.jpg" imgrect="0 0 2960 1662"/>
 		<image name="login_img6f" file="fixframe\loginui_title\login_img6f.png" imgrect="0 0 1920 1078"/>
 		<image name="login_img6w" file="fixframe\loginui_title\login_img6w.png" imgrect="0 0 2558 1080"/>
+		<image name="login_img7f" file="fixframe\loginui_title\login_img7f.jpg" imgrect="0 0 2960 1662"/>
+		<image name="login_img7w" file="fixframe\loginui_title\login_img7w.jpg" imgrect="0 0 3937 1662"/>
 		<image name="logo" file="\skin\login_barrack.tga" imgrect="0 328 167 37"/>
 		<image name="project_R1" file="\skin\login_barrack.tga" imgrect="202 0 310 240"/>
 		<image name="button_normal" file="\skin\button.tga" imgrect="0 40 142 34"/>

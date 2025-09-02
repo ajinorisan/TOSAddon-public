@@ -1,7 +1,7 @@
 -- shared_item_goddess_reinforce.lua, 가디스 장비 강화 관련 
 -- item_goddess_reinforce.xml
 
-local equip_end_lv = 530
+local equip_end_lv = 540
 local popoboost_item_lv = 510;
 
 item_goddess_reinforce = {}  -- namespace
@@ -526,9 +526,13 @@ function setting_lv_material_armor(mat_list_by_lv, lv)
 			misc_reinforce_1 = "misc_upinis_wing_NoTrade" 
 			misc_BlessedStone = 'misc_BlessedStone_1'
 		elseif lv == 520 then
-			seasonCoin = "JurateCertificate" -- 다음 세대
-			misc_reinforce_1 = "misc_boss_CrystalGolem_NoTrade" -- 다음 세대 
+			seasonCoin = "JurateCertificate" 
+			misc_reinforce_1 = "misc_boss_CrystalGolem_NoTrade" 
 			misc_BlessedStone = 'misc_BlessedStone_1'
+		elseif lv == 540 then
+			seasonCoin = "AustejaCertificate" 
+			misc_reinforce_1 = "misc_boss_202509_armor_NoTrade" 
+			misc_BlessedStone = 'misc_BlessedStone_2'
 		end
 
 		mat_list_by_lv[lv]['armor'][6][seasonCoin] = 450
@@ -753,9 +757,13 @@ function setting_lv_material_weapon(mat_list_by_lv, lv)
 			misc_reinforce_1 = "misc_slogutis_fragments_NoTrade" -- 다음 세대 
 			misc_BlessedStone = 'misc_BlessedStone_1'
 		elseif lv == 520 then
-			seasonCoin = "JurateCertificate" -- 다음 세대
-			misc_reinforce_1 = "misc_boss_DarkNeringa_NoTrade" -- 다음 세대 
+			seasonCoin = "JurateCertificate" 
+			misc_reinforce_1 = "misc_boss_DarkNeringa_NoTrade"
 			misc_BlessedStone = 'misc_BlessedStone_1'
+		elseif lv == 540 then
+			seasonCoin = "AustejaCertificate" -- 다음 세대
+			misc_reinforce_1 = "misc_boss_202509_weapon_NoTrade" -- 다음 세대 
+			misc_BlessedStone = 'misc_BlessedStone_2'
 		end
 
 		mat_list_by_lv[lv]['weapon'][6][seasonCoin] = 450
@@ -1139,6 +1147,8 @@ function setting_lv_misc_material(mat_list_by_lv, lv, group)
 			misc1 = "misc_ore28" 
 		elseif lv == 530 then
 			misc1 = "misc_ore28" 
+		elseif lv == 540 then
+			misc1 = "misc_ore29" 
 		end
 
 		mat_list_by_lv[lv][group][1][misc1] = 26

@@ -49,6 +49,10 @@ function make_parameter_list()
 	parameter_list[510] = {} 
 	parameter_list[510]['Acc'] = 530 -- 네빌티스 -> 칼렌티스
 
+	parameter_list[520] = {} -- 520 -> 540 으로 계승
+	parameter_list[520]['Weapon'] = 540
+	parameter_list[520]['Armor'] = 540
+
 end
 make_parameter_list()
 
@@ -284,6 +288,43 @@ function setting_lv520_inherit_target_list(list_by_lv)
 
 end
 
+function setting_lv540_inherit_target_list(list_by_lv)
+	list_by_lv[540]['Weapon'] = {
+		'EP17_RAID_SWORD',
+		'EP17_RAID_THSWORD',
+		'EP17_RAID_STAFF',
+		'EP17_RAID_THBOW',
+		'EP17_RAID_BOW',
+		'EP17_RAID_MACE',
+		'EP17_RAID_THMACE',
+		'EP17_RAID_SHIELD',
+		'EP17_RAID_SPEAR',
+		'EP17_RAID_THSPEAR',
+		'EP17_RAID_DAGGER',
+		'EP17_RAID_THSTAFF',
+		'EP17_RAID_PISTOL',
+		'EP17_RAID_RAPIER',
+		'EP17_RAID_CANNON',
+		'EP17_RAID_MUSKET',
+		'EP17_RAID_TRINKET',
+	}
+
+	list_by_lv[540]['Armor'] = {
+		'EP17_RAID_CLOTH_TOP',
+		'EP17_RAID_CLOTH_LEG',
+		'EP17_RAID_CLOTH_FOOT',
+		'EP17_RAID_CLOTH_HAND',
+		'EP17_RAID_LEATHER_TOP',
+		'EP17_RAID_LEATHER_LEG',
+		'EP17_RAID_LEATHER_FOOT',
+		'EP17_RAID_LEATHER_HAND',
+		'EP17_RAID_PLATE_TOP',
+		'EP17_RAID_PLATE_LEG',
+		'EP17_RAID_PLATE_FOOT',
+		'EP17_RAID_PLATE_HAND',
+	}
+
+end
 
 function setting_lv470_acc_inherit_target_list(list_by_lv)
 	list_by_lv[470]['Neck'] = {
@@ -365,6 +406,7 @@ function make_goddess_inherit_target_list()
 	item_goddess_inherit_target_list[510] = {}
 	item_goddess_inherit_target_list[520] = {}
 	item_goddess_inherit_target_list[530] = {}
+	item_goddess_inherit_target_list[540] = {}
 
 	local list_by_lv = {}
 
@@ -378,6 +420,7 @@ function make_goddess_inherit_target_list()
 	list_by_lv[510] = {}
 	list_by_lv[520] = {}
 	list_by_lv[530] = {}
+	list_by_lv[540] = {}
 
 	list_by_lv[120]['Weapon'] = {}
 	list_by_lv[120]['Armor'] = {}
@@ -418,6 +461,10 @@ function make_goddess_inherit_target_list()
 	list_by_lv[530]['Neck'] = {}
 	list_by_lv[530]['Ring'] = {}
 	setting_lv530_acc_inherit_target_list(list_by_lv)
+
+	list_by_lv[540]['Weapon'] = {}
+	list_by_lv[540]['Armor'] = {}	
+	setting_lv540_inherit_target_list(list_by_lv)
 
 	for lv, _ in pairs(item_goddess_inherit_target_list) do
 		if list_by_lv[lv]['Weapon'] ~= nil then
@@ -724,6 +771,17 @@ item_goddess_craft.get_basic_random_option_value = function(mat_item)
 
 				table.insert(option_list, 'MiddleSize_Def')
 				table.insert(option_value, 565)
+			elseif lv == 540 then  -- 520 에서 계승하는 경우
+				table.insert(option_list, 'AllRace_Atk')
+				table.insert(option_value, 649) -- 1.148374
+
+				table.insert(option_list, 'CON')
+				table.insert(option_value, 143) -- 1.146788991
+				table.insert(option_list, 'CRTHR') 
+				table.insert(option_value, 478) -- 1.149171271
+
+				table.insert(option_list, 'MiddleSize_Def')
+				table.insert(option_value, 649) -- 1.148373984
 			end
 		elseif group_name == 'Weapon' or group_name == 'SubWeapon' or class_type == 'Shield' then
 			if lv == 480 then -- 460에서 계승 하는 경우
@@ -762,7 +820,19 @@ item_goddess_craft.get_basic_random_option_value = function(mat_item)
 
 				table.insert(option_list, 'MiddleSize_Def')
 				table.insert(option_value, 1060)
-			end			
+			elseif lv == 540 then -- 520 에서 계승하는 경우
+				table.insert(option_list, 'AllRace_Atk')
+				table.insert(option_value, 1156)
+
+				table.insert(option_list, 'CON')
+				table.insert(option_value, 268)
+
+				table.insert(option_list, 'CRTHR')
+				table.insert(option_value, 893)
+
+				table.insert(option_list, 'MiddleSize_Def')
+				table.insert(option_value, 1219)
+			end
 		end		
 	end
 

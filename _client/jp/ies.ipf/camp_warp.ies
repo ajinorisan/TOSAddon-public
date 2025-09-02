@@ -112,3 +112,4 @@ ClassID,ClassName,Name,Zone,City,Group,WarpOpenQuest
 11066,"WARP_EP15_2_D_NICOPOLIS_1","비밀실험실","ep15_2_d_nicopolis_1","c_orsha","키렌 지방","EP15_2_D_NICOPOLIS_1_MQ_1"
 11067,"WARP_EP17_D_LIMESTONE_52_1","테브린 종유동 1구역","ep17_1_d_limestonecave_52_1","c_Klaipe","키렌 지방","EP17_1_LIMESTONECAVE_MQ16"
 11068,"WARP_EP17_D_LIMESTONE_52_5","테브린 종유동 5구역","ep17_1_d_limestonecave_52_5","c_Klaipe","키렌 지방","EP17_1_LIMESTONECAVE_MQ16"
+11069,"WARP_EP17_2_F_KATYN_12","레타스 개울가","ep17_2_f_katyn_12","c_Klaipe","키렌 지방","EP17_2_KATYN_10_MQ2"

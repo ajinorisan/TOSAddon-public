@@ -3979,7 +3979,7 @@ function GODDESS_MGR_SOCKET_REQ_GEM_REMOVE(parent, btn)
 
 		local msg_cls_name = ''
 
-		if TryGetProp(gem_cls, 'GemType', 'None') == 'Gem_High_Color' then
+		if TryGetProp(gem_cls, 'GroupName', 'None') == 'Gem_High_Color' then
 			msg_cls_name = 'ReallyRemoveGem_AetherGem'
 			clmsg = "[" .. item_name .. "]" .. ScpArgMsg(msg_cls_name) .. tostring(price)
 		else
@@ -4393,7 +4393,7 @@ local function IS_NEED_TO_SHOW_GODDESS_RECIPE(frame, recipeCls, checkGroup, chec
 	return true
 end
 
-local function GODDESS_MAKE_MAKE_CTRLSET(recipeBox, recipeCls, checkGroup, checkMaterial, checkGroupName, checkEquipable, checkHaveMaterial)
+local function GODDESS_MAKE_MAKE_CTRLSET(recipeBox, recipeCls, checkGroup, checkMaterial, checkGroupName, checkEquipable, checkHaveMaterial)	
 	local frame = ui.GetFrame('goddess_equip_manager')
 	if IS_NEED_TO_SHOW_GODDESS_RECIPE(frame, recipeCls, checkGroup, checkMaterial, checkGroupName, checkEquipable, checkHaveMaterial) == false then
 		return
@@ -4415,8 +4415,9 @@ local function GODDESS_MAKE_MAKE_CTRLSET(recipeBox, recipeCls, checkGroup, check
 	tradeBtn:SetEventScript(ui.LBUTTONUP, 'GODDESS_MGR_MAKE_EXEC')
 
 	local itemIcon = GET_CHILD(ctrlset, 'itemIcon')
-	itemIcon:SetImage(targetItem.Icon)
+	itemIcon:SetImage(targetItem.Icon)	
 	SET_ITEM_TOOLTIP_BY_NAME(itemIcon, targetItem.ClassName)
+	itemIcon:SetTooltipStrArg('team_belonging') -- 팀 귀속용 str arg	
 
 	local itemName = GET_CHILD(ctrlset, 'itemName')
 	itemName:SetTextByKey('value', targetItem.Name)
@@ -4472,7 +4473,7 @@ local function GODDESS_MAKE_MAKE_CTRLSET(recipeBox, recipeCls, checkGroup, check
 				icon = CreateIcon(slot)
 			end
 			icon:SetImage(matItemCls.Icon)
-			icon:SetColorTone('33333333')
+			icon:SetColorTone('33333333')			
 		end
 	end
 

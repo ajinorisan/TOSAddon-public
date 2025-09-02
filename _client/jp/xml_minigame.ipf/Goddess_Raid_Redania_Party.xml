@@ -48,7 +48,7 @@
                     </ToolScp>
                 </StartScpList>
                 <ObjList>
-                    <Obj Type="Monster" MonType="160182" Pos="-55.33#2.00#-89.28" genCount="1" genTime="20000" autoGen="0" objectKey="0"/>
+                    <Obj Type="Monster" MonType="160085" Pos="-55.33#2.00#-89.28" genCount="1" genTime="20000" autoGen="0" objectKey="0"/>
                     <Obj Type="Monster" MonType="160065" Pos="9.22#2.00#-24.73" genCount="1" genTime="20000" autoGen="0" objectKey="1"/>
                 </ObjList>
                 <StageEvents>

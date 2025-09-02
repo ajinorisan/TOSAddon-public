@@ -251,10 +251,10 @@ function SORT_BY_AETHER_GEM_LEVEL(a, b)
 	local gem_level_b = 0;
 	local object_a = GetIES(a:GetObject());
 	local object_b = GetIES(b:GetObject());
-	if TryGetProp(object_a, "GemType", "None") == "Gem_High_Color" then
+	if TryGetProp(object_a, "GroupName", "None") == "Gem_High_Color" then
 		gem_level_a = get_current_aether_gem_level(object_a);
 	end
-	if TryGetProp(object_b, "GemType", "None") == "Gem_High_Color" then
+	if TryGetProp(object_b, "GroupName", "None") == "Gem_High_Color" then
 		gem_level_b = get_current_aether_gem_level(object_b);
 	end
 	return gem_level_a > gem_level_b;
@@ -342,7 +342,7 @@ function AETHER_GEM_REINFORCE_CREATE_GEM_INFO(frame, inv_item, is_equip)
 	local item_object = GetIES(inv_item:GetObject());
 	local item_class = GetClassByType("Item", inv_item.type);
 	if item_object ~= nil and item_class ~= nil then
-		if TryGetProp(item_object, "GemType", "None") ~= "Gem_High_Color" then
+		if TryGetProp(item_object, "GroupName", "None") ~= "Gem_High_Color" then
 			ui.SysMsg(ClMsg("IsNotAetherGem"));
 			return;
 		end
@@ -388,7 +388,7 @@ function AETHER_GEM_REINFORCE_CREATE_GEM_INFO_BY_EQUIP(frame, slot, is_equip)
 	local gem_class_id = slot:GetUserIValue("gem_class_id");
 	local item_class = GetClassByType("Item", gem_class_id);
 	if item_class ~= nil then
-		if TryGetProp(item_class, "GemType", "None") ~= "Gem_High_Color" then
+		if TryGetProp(item_class, "GroupName", "None") ~= "Gem_High_Color" then
 			ui.SysMsg(ClMsg("IsNotAetherGem"));
 			return;
 		end

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSPY v2004 rel. 2 U (http://www.xmlspy.com) by imc (imc) -->
+<tooltipset>
+	<tooltip name="premium" width="400" height="280">
+		<controls>
+			<groupbox name="gbox" rect="0 0 400 270"/>
+			<labelline name="labelline_1" margin="10 35 0 0" rect="0 0 385 2" skin="labelline_def" layout_gravity="left top"/>
+		</controls>
+	</tooltip>
+</tooltipset>

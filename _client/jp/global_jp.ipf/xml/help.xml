@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSPY v2004 rel. 2 U (http://www.xmlspy.com) by imc (imc) -->
+<!-- Category -  도움말 유형
+Move
+Item
+-->
+<idspace id="Help">
+	<Class OverrideType="REMOVE" ClassID="205" ClassName="TUTO_FLUTING"/>
+	<Class ClassID="351" ClassName="TUTO_GUILD_BATTLE" DBSave="NO" BasicHelp="NO"/>
+</idspace>

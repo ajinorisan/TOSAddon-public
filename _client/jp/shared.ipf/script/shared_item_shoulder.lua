@@ -56,7 +56,7 @@ local function make_item_shoulder_option_range()
     -- end
 
     local start = 480
-    local end_level = 510
+    local end_level = 540
 
     while start <= end_level do
         max_option_group_count[start] = 2    -- 최대 2개의 옵션 그룹을 가질 수 있음
@@ -87,6 +87,9 @@ local function make_item_shoulder_option_range()
             elseif start == 510 then
                 item_shoulder_option_range[start][1]['LOW'][option_name] = {108, 150}
                 item_shoulder_option_range[start][1]['HIGH'][option_name] = {140, 180}
+            elseif start == 540 then
+                item_shoulder_option_range[start][1]['LOW'][option_name] = {150, 195} 
+                item_shoulder_option_range[start][1]['HIGH'][option_name] = {195, 234} -- max 표기를 위해 필요함
             end
             option_group_number_by_option_name[start][option_name] = 1
         end
@@ -97,9 +100,9 @@ local function make_item_shoulder_option_range()
         if start == 480 then
             option_group[start][2]['LOW'] = {'CRTATK', 'CRTMATK', 'CRTDR', 'CRTHR', 'BLK', 'ADD_DR', 'SDR', 'MHP', 'RHP'}
             option_group[start][2]['HIGH'] = {'CRTATK', 'CRTMATK', 'CRTDR', 'CRTHR', 'BLK', 'ADD_DR', 'SDR', 'MHP', 'RHP'}        
-        elseif start == 510 then
+        elseif start >= 510 then
             option_group[start][2]['LOW'] = {'CRTATK', 'CRTMATK', 'CRTDR', 'CRTHR', 'BLK', 'ADD_DR', 'MHP', 'RHP'}
-            option_group[start][2]['HIGH'] = {'CRTATK', 'CRTMATK', 'CRTDR', 'CRTHR', 'BLK', 'ADD_DR', 'MHP', 'RHP'}    
+            option_group[start][2]['HIGH'] = {'CRTATK', 'CRTMATK', 'CRTDR', 'CRTHR', 'BLK', 'ADD_DR', 'MHP', 'RHP'}
         else
             option_group[start][2]['LOW'] = {'CRTATK', 'CRTMATK', 'CRTDR', 'CRTHR', 'BLK', 'ADD_DR', 'SDR', 'MHP', 'RHP'}
             option_group[start][2]['HIGH'] = {'CRTATK', 'CRTMATK', 'CRTDR', 'CRTHR', 'BLK', 'ADD_DR', 'SDR', 'MHP', 'RHP'}        
@@ -154,6 +157,24 @@ local function make_item_shoulder_option_range()
             item_shoulder_option_range[start][2]['HIGH']['ADD_DR'] = {2500, 3750}
             item_shoulder_option_range[start][2]['HIGH']['MHP'] = {8000, 12000}
             item_shoulder_option_range[start][2]['HIGH']['RHP'] = {2500, 3750}
+        elseif start == 540 then
+            item_shoulder_option_range[start][2]['LOW']['CRTATK'] = {6250, 8125}
+            item_shoulder_option_range[start][2]['LOW']['CRTMATK'] = {6250, 8125}
+            item_shoulder_option_range[start][2]['LOW']['CRTDR'] = {3125, 4063}
+            item_shoulder_option_range[start][2]['LOW']['CRTHR'] = {3125, 4063}
+            item_shoulder_option_range[start][2]['LOW']['BLK'] = {3125, 4063}
+            item_shoulder_option_range[start][2]['LOW']['ADD_DR'] = {3125, 4063}
+            item_shoulder_option_range[start][2]['LOW']['MHP'] = {10000, 13000}
+            item_shoulder_option_range[start][2]['LOW']['RHP'] = {3125, 4063}
+            
+            item_shoulder_option_range[start][2]['HIGH']['CRTATK'] = {8125, 9750} 
+            item_shoulder_option_range[start][2]['HIGH']['CRTMATK'] = {8125, 9750} 
+            item_shoulder_option_range[start][2]['HIGH']['CRTDR'] = {4063, 4875}
+            item_shoulder_option_range[start][2]['HIGH']['CRTHR'] = {4063, 4875}
+            item_shoulder_option_range[start][2]['HIGH']['BLK'] = {4063, 4875}
+            item_shoulder_option_range[start][2]['HIGH']['ADD_DR'] = {4063, 4875}
+            item_shoulder_option_range[start][2]['HIGH']['MHP'] = {13000, 15600}
+            item_shoulder_option_range[start][2]['HIGH']['RHP'] = {4063, 4875}
         end
     
         -- for i = 1, #option_name_list do
@@ -161,7 +182,7 @@ local function make_item_shoulder_option_range()
         --     item_shoulder_option_range[start][2]['HIGH'][_name] = get_special_option_factor_range(_name, start)
         -- end
         
-        for k, option_name in pairs(option_group[start][2]['HIGH']) do
+        for k, option_name in pairs(option_group[start][2]['LOW']) do
             option_group_number_by_option_name[start][option_name] = 2
         end
 
@@ -170,7 +191,7 @@ local function make_item_shoulder_option_range()
         if start == 480 then
             candidate_option_count[start]['LOW'] = 2
             candidate_option_count[start]['HIGH'] = 2
-        elseif start == 510 then
+        elseif start >= 510 then
             candidate_option_count[start]['LOW'] = 2
             candidate_option_count[start]['HIGH'] = 0
         end
@@ -427,6 +448,19 @@ shared_item_shoulder.get_reroll_cost_table = function(item)
         cost_count = 400 * math.pow(1.04, count)
         cost_count = cost_count * 1.5
         cost_list['misc_ore28'] = math.floor(cost_count)
+        valid = true
+    elseif lv == 540 then
+        local cost_count = 1 + math.floor(count / 3)
+        cost_count = cost_count * 1.1
+        cost_list['misc_BlessedStone_2'] = math.floor(cost_count)
+
+        cost_count = 500 * math.pow(1.04, count)
+        cost_count = cost_count * 1.3
+        cost_list['AustejaCertificate'] = math.floor(cost_count)
+
+        cost_count = 400 * math.pow(1.04, count)        
+        cost_count = cost_count * 1.3
+        cost_list['misc_ore29'] = math.floor(cost_count)
         valid = true
     end
 

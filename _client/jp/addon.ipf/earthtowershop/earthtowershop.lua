@@ -34,6 +34,11 @@ local g_account_prop_shop_table =
         ['coinName'] = 'dummy_JurateCertificate',
         ['propName'] = 'JurateCertificate',
     },
+    ['AustejaCertificate'] = 
+    {
+        ['coinName'] = 'dummy_AustejaCertificate',
+        ['propName'] = 'AustejaCertificate',
+    },
     ['TeamBattleLeagueShop'] = 
     {
         ['coinName'] = 'dummy_TeamBattleCoin',
@@ -88,6 +93,7 @@ table.insert(shop_list, 'GabijaCertificate')
 table.insert(shop_list, 'VakarineCertificate')
 table.insert(shop_list, 'RadaCertificate')
 table.insert(shop_list, 'JurateCertificate')
+table.insert(shop_list, 'AustejaCertificate')
 local shop_data = {}
 local function _CLEAR_INFO(groupName, cls)
     shop_data = nil;
@@ -660,6 +666,12 @@ function REQ_JurateCertificate_SHOP_OPEN()
     ui.OpenFrame('earthtowershop');
 end
 
+function REQ_AustejaCertificate_SHOP_OPEN()
+    local frame = ui.GetFrame("earthtowershop");
+    frame:SetUserValue("SHOP_TYPE", 'AustejaCertificate');
+    ui.OpenFrame('earthtowershop');
+end
+
 
 
 function REQ_MASSIVE_CONTENTS_SHOP1_OPEN()
@@ -1229,9 +1241,11 @@ function EXCHANGE_CREATE_TREE_PAGE(tree, slotHeight, groupName, classType, cls, 
 
     local ctrlset = page:CreateOrGetControlSet('earthTowerRecipe', cls.ClassName, 10, 10);
     local groupbox = ctrlset:CreateOrGetControl('groupbox', pageCtrlName, 0, 0, 530, 200);
+    local sale = GET_CHILD_RECURSIVELY(ctrlset, "sale")
     groupbox:SetSkinName("None")
     groupbox:EnableHitTest(0);
     groupbox:ShowWindow(1);
+    sale:ShowWindow(0);
     tree:Add(hParent, groupbox);    
     tree:SetNodeFont(hParent,"brown_18_b")
 
@@ -1240,7 +1254,9 @@ function EXCHANGE_CREATE_TREE_PAGE(tree, slotHeight, groupName, classType, cls, 
     GBOX_AUTO_ALIGN(groupbox, 0, 0, 10, true, false);
     groupbox:SetUserValue("HEIGHT_SIZE", groupbox:GetUserIValue("HEIGHT_SIZE") + ctrlset:GetHeight())
     groupbox:Resize(groupbox:GetWidth(), groupbox:GetUserIValue("HEIGHT_SIZE"));
-    
+
+    SET_ITEM_SALE_STATE(ctrlset, cls)
+
     local maxSlotHeight = page:GetUserIValue("MAX_SLOT_HEIGHT");
     if maxSlotHeight == nil then
         maxSlotHeight = ctrlset:GetHeight()
@@ -2357,6 +2373,7 @@ pre_season_coin_shop['GabijaCertificate'] = 'REQ_PREV_SEASON_COIN_SHOP_OPEN'
 pre_season_coin_shop['VakarineCertificate'] = 'REQ_SEASON_COIN_SHOP_OPEN'
 pre_season_coin_shop['RadaCertificate'] = 'REQ_RadaCertificate_COIN_SHOP_OPEN'
 pre_season_coin_shop['JurateCertificate'] = 'REQ_JurateCertificate_COIN_SHOP_OPEN'
+pre_season_coin_shop['AustejaCertificate'] = 'REQ_AustejaCertificate_COIN_SHOP_OPEN'
 
 function EARTHTOWERSHOP_POINT_BUY_OPEN()
     local frame = ui.GetFrame('earthtowershop')
@@ -2456,5 +2473,30 @@ function REQ_BOUNTYHUNT_NPC_TRADE_SHOP_CLOSE()
     local shoptype = frame:GetUserValue("SHOP_TYPE")
     if string.find(shoptype, 'BOUNTY_NPC_TRADE_SHOP_') ~= nil then
         ui.CloseFrame('earthtowershop')
+    end
+end
+
+function SET_ITEM_SALE_STATE(ctrlset, cls)
+    -- SaleVal 값에 따른 UI 변경 로직
+    local salebox = GET_CHILD_RECURSIVELY(ctrlset, "sale")
+    local SaleVal = tonumber(TryGetProp(cls, "SaleVal", 0))
+    if cls and SaleVal > 0 then
+        --sale의 값은 10 단위로 10~70까지만 사용 가능하다.
+        local salefire = GET_CHILD(salebox, "salefire")
+        local salenum = GET_CHILD(salebox, "salenum")
+        local firetext = "SaleFire"..SaleVal
+        local numtext = "Sale"..SaleVal
+        salefire:SetImage(firetext)
+        salenum:SetImage(numtext)
+
+        --salefire 위치 조절
+        if SaleVal == 10 then
+            salefire:SetMargin(0, 86, 0, 0)
+        else
+            salefire:SetMargin(0, 2, 0, 0)
+        end 
+        salebox:ShowWindow(1)
+    else
+        salebox:ShowWindow(0)
     end
 end

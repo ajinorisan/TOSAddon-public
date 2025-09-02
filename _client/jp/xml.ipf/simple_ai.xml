@@ -1,6 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- edited with XMLSPY v2004 rel. 2 U (http://www.xmlspy.com) by imc (imc) -->
 <AIList>
+    <AI Name="DemonLair_Ashark_Explosion_Core_AI" ActiveMessageMapInBattle="1">
+        <List>
+            <ToolScp Scp="S_AI_CUSTOM_SCRIPT" Client="NO" UseSleep="YES">
+                <Str Str="SCR_DEMONLAIR_ASHARK_EXPLOSION_CORE_SIMPLE_AI"/>
+                <Num Num="100"/>
+            </ToolScp>
+        </List>
+        <StartList>
+            <ToolScp Scp="EnableAIOutOfPC" Client="NO" UseSleep="NO"/>
+        </StartList>
+    </AI>
 	<AI Name="EVENT_W_MOON_RABBIT_MAGIC_CIRCLE" UpdateMS="1000" ActiveMessageMapInBattle="1">
 		<List>
 			<ToolScp Scp="SAI_FUNC2_DIRECT" Client="NO" UseSleep="NO">
@@ -13684,6 +13695,16 @@
             </ToolScp>
         </List>
     </AI>
+    <AI Name="LAIMARA_OWL_SOUL_AI" UpdateMS="100" ActiveMessageMapInBattle="1">
+        <List>
+            <ToolScp Scp="SAI_FUNC2_DIRECT" Client="NO" UseSleep="NO">
+                <Str Str="SCR_LAIMARA_OWL_SOUL_AI"/>
+            </ToolScp>
+        </List>
+        <StartList>
+            <ToolScp Scp="EnableAIOutOfPC" Client="NO" UseSleep="NO"/>
+        </StartList>
+    </AI>
     <AI Name="LEGEND_RAID_STAGE2_COLOR_ANI" ActiveMessageMapInBattle="1">
         <List>
             <ToolScp Scp="S_AI_CUSTOM_SCRIPT" Client="NO" UseSleep="YES">
@@ -24723,6 +24744,16 @@ if self.HP == 0 then return 1; else return 0; end;">
                 <Num Num="0"/>
             </ToolScp>
         </List>
+    </AI>
+    <AI Name="VELIORA_EXPLOSION_ILLUSION_AI" UpdateMS="100" ActiveMessageMapInBattle="1">
+        <List>
+            <ToolScp Scp="SAI_FUNC2_DIRECT" Client="NO" UseSleep="NO">
+                <Str Str="SCR_LAIMARA_EXPLOSION_ILLUSION_AI"/>
+            </ToolScp>
+        </List>
+        <StartList>
+            <ToolScp Scp="EnableAIOutOfPC" Client="NO" UseSleep="NO"/>
+        </StartList>
     </AI>
     <AI Name="VELNIAS541_BOSS_AI" ActiveMessageMapInBattle="1">
         <List>

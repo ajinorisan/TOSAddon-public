@@ -193,6 +193,22 @@ end
 
 -- 맵 UI 접근 함수
 
+-- EP16_1 이전 에피소드 맵 -> EP16_2 이후 에피소드 맵
+function OPEN_WORLDMAP2_CHANGE_HARD_EPISODE_FROM_MAINMAP(frame, ctrl, argStr, argNum)
+    local worldmap2 = ui.GetFrame('worldmap2_mainmap')
+    worldmap2:SetUserValue("current_episode", "hard");
+    CLOSE_WORLDMAP2_MAINMAP(worldmap2)
+    OPEN_WORLDMAP2_MAINMAP(worldmap2)
+end
+
+-- EP16_2 이전 에피소드 맵 -> EP16_1 이후 에피소드 맵
+function OPEN_WORLDMAP2_CHANGE_NORMAL_EPISODE_FROM_MAINMAP(frame, ctrl, argStr, argNum)
+    local worldmap2 = ui.GetFrame('worldmap2_mainmap')
+    worldmap2:SetUserValue("current_episode", "normal");
+    CLOSE_WORLDMAP2_MAINMAP(worldmap2)
+    OPEN_WORLDMAP2_MAINMAP(worldmap2)
+end
+
 -- 메인맵 -> 서브맵
 function OPEN_WORLDMAP2_SUBMAP_FROM_MAINMAP(frame, ctrl, argStr, argNum)
 	WORLDMAP2_SUBMAP_SET_EPISODE(ctrl:GetUserValue("EPISODE"))

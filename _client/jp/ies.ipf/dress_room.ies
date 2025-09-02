@@ -113,3 +113,7 @@ ClassID,ClassName,Thema,ItemClassName,Group
 164,"dress_costume_ep17tospace01_f","ep17tospace_theme","costume_ep17tospace01_f","dress_room_blessed_cube"
 165,"dress_costume_ep17tospace02_m","ep17tospace_theme","costume_ep17tospace02_m","dress_room_blessed_cube"
 166,"dress_costume_ep17tospace02_f","ep17tospace_theme","costume_ep17tospace02_f","dress_room_blessed_cube"
+167,"dress_costume_ep17postman01_m","ep17postman_theme","costume_ep17postman01_m","dress_room_blessed_cube"
+168,"dress_costume_ep17postman01_f","ep17postman_theme","costume_ep17postman01_f","dress_room_blessed_cube"
+169,"dress_costume_ep17postman02_m","ep17postman_theme","costume_ep17postman02_m","dress_room_blessed_cube"
+170,"dress_costume_ep17postman02_f","ep17postman_theme","costume_ep17postman02_f","dress_room_blessed_cube"

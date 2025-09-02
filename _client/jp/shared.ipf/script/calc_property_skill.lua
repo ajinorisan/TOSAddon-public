@@ -15916,6 +15916,12 @@ function SCR_COMMON_COOLDOWN_DECREASE(pc, skill, basicCoolDown)
         rada_cooldown = 1 - rada_cooldown / 100        
         basicCoolDown = basicCoolDown * rada_cooldown
     end
+
+    rada_cooldown = GetExProp(pc, 'austeja_cooldown')
+    if rada_cooldown > 0 then
+        rada_cooldown = 1 - rada_cooldown / 100        
+        basicCoolDown = basicCoolDown * rada_cooldown
+    end
     
     -- 여신의 전언: 불꽃의 기억 쿨다운 감소
     local earring_raid_cooldown = GetExProp(pc, 'earring_raid_cooldown')
@@ -21079,4 +21085,98 @@ function SCR_GET_ArcaneCollapse_Ratio(skill)
     end
 
     return count
+end
+
+-- done, 해당 함수 내용은 cpp로 이전되었습니다. 변경 사항이 있다면 반드시 프로그램팀에 알려주시기 바랍니다.
+function SCR_GET_FallingStarlight_Ratio(skill)
+    local count = 5
+    local pc = GetSkillOwner(skill)
+    if pc ~= nil then
+        count = GET_PVP_TARGET_COUNT(pc, count)
+    end
+
+    local abil = GetAbility(pc, "Hermit8")
+    if abil ~= nil and TryGetProp(abil, "ActiveState", 0) == 1 then
+        count = 1
+    end
+
+    return count
+end
+
+-- done, 해당 함수 내용은 cpp로 이전되었습니다. 변경 사항이 있다면 반드시 프로그램팀에 알려주시기 바랍니다.
+function SCR_GET_StellarRebound_Ratio(skill)
+    local count = 5
+    local pc = GetSkillOwner(skill)
+    if pc ~= nil then
+        count = GET_PVP_TARGET_COUNT(pc, count)
+    end
+
+    return count
+end
+
+-- done, 해당 함수 내용은 cpp로 이전되었습니다. 변경 사항이 있다면 반드시 프로그램팀에 알려주시기 바랍니다.
+function SCR_GET_LunarBrand_Ratio(skill)
+    local count = 1
+    local pc = GetSkillOwner(skill)
+    if pc ~= nil then
+        count = GET_PVP_TARGET_COUNT(pc, count)
+    end
+
+    return count
+end
+
+-- done, 해당 함수 내용은 cpp로 이전되었습니다. 변경 사항이 있다면 반드시 프로그램팀에 알려주시기 바랍니다.
+function SCR_GET_TwilightVeil_Ratio(skill)
+    local count = 5
+    local pc = GetSkillOwner(skill)
+    if pc ~= nil then
+        count = GET_PVP_TARGET_COUNT(pc, count)
+    end
+
+    return count
+end
+
+-- done, 해당 함수 내용은 cpp로 이전되었습니다. 변경 사항이 있다면 반드시 프로그램팀에 알려주시기 바랍니다.
+function SCR_GET_ConstellationResidueField_Ratio(skill)
+    local count = 10
+    local pc = GetSkillOwner(skill)
+    if pc ~= nil then
+        count = GET_PVP_TARGET_COUNT(pc, count)
+    end
+
+    return count
+end
+
+-- done, 해당 함수 내용은 cpp로 이전되었습니다. 변경 사항이 있다면 반드시 프로그램팀에 알려주시기 바랍니다.
+function SCR_GET_Eclipse_Ratio(skill)
+    local count = 10
+    local pc = GetSkillOwner(skill)
+    if pc ~= nil then
+        count = GET_PVP_TARGET_COUNT(pc, count)
+    end
+
+    return count
+end
+
+-- done, 해당 함수 내용은 cpp로 이전되었습니다. 변경 사항이 있다면 반드시 프로그램팀에 알려주시기 바랍니다.
+function SCR_GET_JudgementoftheCosmos_Ratio(skill)
+    local count = 15
+    local pc = GetSkillOwner(skill)
+    if pc ~= nil then
+        count = GET_PVP_TARGET_COUNT(pc, count)
+    end
+
+    return count
+end
+
+-- done, 해당 함수 내용은 cpp로 이전되었습니다. 변경 사항이 있다면 반드시 프로그램팀에 알려주시기 바랍니다.
+function SCR_Get_SkillFactor_LunarBrand(skill)
+    local pc = GetSkillOwner(skill)
+    local value = SCR_Get_SkillFactor_Reinforce_Ability(skill)
+    local abil = GetAbility(pc, "Hermit9")
+    if abil ~= nil and TryGetProp(abil, "ActiveState", 0) == 1 then
+        value = value * 0.5
+    end
+    
+    return math.floor(value)
 end

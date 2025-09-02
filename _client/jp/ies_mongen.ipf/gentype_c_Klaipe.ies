@@ -92,5 +92,4 @@ ClassID,GenType,Lv,Range,GenRange,RespawnTime,MaxPop,Minimap,Hide,UseAIOufOfPC,A
 5501,10133,1,40,1,60000,1,1,0,0,0,0,0,"npc_vanquisher","[뱅퀴셔 마스터]{nl}다니엘류스","","","","","","","NPC_VANQUISHER","","","NO","YES","NO","Neutral","","","",""
 6001,10201,1,40,1,60000,1,1,0,0,0,0,0,"npc_sledger","[슬레저 마스터]{nl}애나 쿠셀라","","","","","","","NPC_SLEDGER","","","NO","YES","NO","Neutral","","","",""
 5292,10125,1,60,1,60000,1,2,0,0,0,0,0,"gacha_machine","여신의 축복","","","","","","","BLESSED_CUBE","","","NO","YES","NO","Neutral","","","",""
-5238,5238,1,1,-1,1,1,2,0,0,0,100,0,"npc_sailor_m","[이벤트]{nl}썸머 페스타 안내원","","","","","","","EVENT_2006_SUMMER_NPC","","","NO","YES","NO","Neutral","","","",""
-5239,5239,1,1,-1,1,1,2,0,0,0,100,0,"event_2001_cat","낚시터 고양이","","","","","","","EVENT_2006_SUMMER_CAT","","","NO","YES","NO","Neutral","","","",""
+6100,6100,1,40,1,1,1,2,0,0,0,0,0,"Tos_Coin_Shop_NPC","[이벤트] 가을 달맞이 NPC","","","","","","","EVENT_2509_KUPOLE","","","NO","YES","NO","Neutral","","","",""

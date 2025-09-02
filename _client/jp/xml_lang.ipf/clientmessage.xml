@@ -425,12 +425,20 @@
 		<Class ClassID="2176" ClassName="lv520_jurate_option_reset_scroll" Data="[Lv.520] 유라테의 축복 초기화 스크롤"/>
 		<Class ClassID="2177" ClassName="lv520_jurate_option_scroll" Data="빛나는 속성 주문서 - [유라테의 축복]"/>
 		<Class ClassID="2178" ClassName="JurateBlessing;Common_Infinity_Spears_520" Data="유라테의 축복, 무한의 창"/>
-		<Class ClassID="2179" ClassName="JurateBlessing;Common_Divine_Protection_520" Data="유라테의 축복, 신의 가호"/>		
+		<Class ClassID="2179" ClassName="JurateBlessing;Common_Divine_Protection_520" Data="유라테의 축복, 신의 가호"/>
 		<Class ClassID="2180" ClassName="SealReinforceInfo2" Data="{s24}{#ff0000}주의!!{/}{/} 재료에 {#ff0000}귀속된 인장{/}이 존재합니다. 결과물도 {#ff0000}귀속{/}되게 됩니다."/>
 		<Class ClassID="2181" ClassName="WarningSealTeamBelonging" Data="{s24}{#ff0000}주의!!{/}{/} 귀속된 아이템입니다. 결과물도 {#ff0000}귀속{/}되게 됩니다."/>
+		<Class ClassID="2182" ClassName="lv540_austeja_option_reset_scroll" Data="[Lv.540] 아우스테야의 축복 초기화 스크롤"/>
+		<Class ClassID="2183" ClassName="lv540_austeja_option_scroll" Data="빛나는 속성 주문서 - [아우스테야의 축복]"/>
+		<Class ClassID="2184" ClassName="lv540_belt_option_scroll" Data="빛나는 속성 주문서 - [아우스테야] 상급 통찰의 허리띠"/>
+		<Class ClassID="2185" ClassName="lv540_shoulder_option_scroll" Data="빛나는 속성 주문서 - [아우스테야] 상급 맹렬의 어깨보호구"/>
+		<Class ClassID="2186" ClassName="lv540_belt_option_scroll2" Data="빛나는 속성 주문서 II - [아우스테야] 상급 통찰의 허리띠"/>
+		<Class ClassID="2187" ClassName="lv540_shoulder_option_scroll2" Data="빛나는 속성 주문서 II - [아우스테야] 상급 맹렬의 어깨보호구"/>
+		<Class ClassID="2188" ClassName="lv540_belt_option_reset_scroll" Data="속성 초기화 주문서 - [아우스테야] 상급 통찰의 허리띠"/>
+		<Class ClassID="2189" ClassName="lv540_shoulder_option_reset_scroll" Data="속성 초기화 주문서 - [아우스테야] 상급 맹렬의 어깨보호구"/>
 		<Class ClassID="2190" ClassName="SealReinforceInfo3" Data="{s24}{#ff0000}주의!!{/}{/} 재료에 {#ff0000}팀 귀속된 인장{/}이 존재합니다. 결과물도 {#ff0000}팀에 귀속{/}되게 됩니다."/>
 		<Class ClassID="2191" ClassName="SealReinforceInfo4" Data="{s24}{#ff0000}주의!!{/}{/} 재료에 {#ff0000}캐릭터 귀속된 인장{/}이 존재합니다. 결과물도 {#ff0000}캐릭터에 귀속{/}되게 됩니다."/>
-	</Category>	
+	</Category>
 	<Category Name="ItemContents">
 		<Class ClassID="2200" ClassName="ClickSocketTargetItem" Data="소켓을 추가 할 아이템을 선택해주세요"/>
 		<Class ClassID="2201" ClassName="ThisItemCannotPlusSocket" Data="이 아이템은 소켓을 추가할 수 없습니다."/>
@@ -642,7 +650,7 @@
 		<Class ClassID="2427" ClassName="IsNotRegistered" Data="미등록"/>
 		<Class ClassID="2428" ClassName="LevelOfRegisterGem" Data="등록하려는 젬의 레벨"/>
 		<Class ClassID="2429" ClassName="CantEquipGemCuzRandomOption" Data="추가적인 옵션이 부여된 스킬 젬은 가디스 등급 이상 장비에만 장착 가능합니다."/>
-		<Class ClassID="2430" ClassName="FreeUnEquipGem" Data="{#0000ff}또한, 가디스 등급 이상 장비에만 장착 가능하며 젬 추출시 소멸되지 않습니다.{nl}파편화시에 1개의 {@st66d}{s15}[Lv.480] 광채나는 스킬 젬 파편{/}{/}을 획득할 수 있습니다.{nl}파편화는 {@st66d}{s15}파이로맨서 마스터 NPC{/}{/}에게서 가능합니다.{nl}"/>
+		<Class ClassID="2430" ClassName="FreeUnEquipGem" Data="{#0000ff}또한, 가디스 등급 이상 장비에만 장착 가능하며 젬 추출시 소멸되지 않습니다.{nl}파편화시에 1개의 {@st66d}{s15}[Lv.{level}] 광채나는 스킬 젬 파편{/}{/}을 획득할 수 있습니다.{nl}파편화는 {@st66d}{s15}파이로맨서 마스터 NPC{/}{/}에게서 가능합니다.{nl}"/>
 		<Class ClassID="2431" ClassName="ReallyDoCraftByConvert2{item1}{item2}" Data="{#0001ff}[{item1}]{/}을/를{nl}{#0001ff}[{item2}]{/}로{nl}정말 변경 하시겠습니까?{nl} {nl}{#ff0100}(계열 변경 시 가디스 아이커 옵션이 계승시 초기값으로 변경됩니다.){/}"/>
 		<Class ClassID="2432" ClassName="ReallyDoCraftByConvertArmor2{item1}{item2}" Data="{#0001ff}[{item1}]{/}을/를{nl}{#0001ff}[{item2}]{/}로{nl}정말 변경 하시겠습니까?{nl} {nl}{#ff0100}(계열 변경 시 각성, 고정 아이커 옵션이 사라지며 가디스 아이커 옵션이 계승시 초기값으로 변경됩니다.){/}"/>
 		<Class ClassID="2433" ClassName="CantUseCabinetCuzCopiedGem" Data="거래가 불가능한 스킬 젬은 등록할 수 없습니다."/>
@@ -678,6 +686,8 @@
 		<Class ClassID="2466" ClassName="rada_coin_shop" Data="여신의 증표(라다) 상점"/>
 		<Class ClassID="2467" ClassName="OptionResetScrollWarning" Data="아이템 변경사항 안내{nl} {nl} - {#FF0000}부여된 속성이 사라집니다.{/}"/>
 		<Class ClassID="2468" ClassName="TreeDayPlayerCount" Data="지금까지 [식목일] 비료를 총 {count}개 사용했습니다."/>
+		<Class ClassID="2469" ClassName="jurate_coin_shop" Data="여신의 증표(유라테) 상점"/>
+		<Class ClassID="2470" ClassName="austeja_coin_shop" Data="여신의 증표(아우스테야) 상점"/>
 	</Category>
 	<Category Name="ClassContents">
 		<Class ClassID="2500" ClassName="FullWeeklyGainClassResetExp" Data="주간 획득 가능한 클래스 변경 포인트를 모두 달성하였습니다."/>
@@ -873,6 +883,15 @@
 		<Class ClassID="3129" ClassName="OnlyUseHavingZeroCount_Raid_Count" Data="[{Raid}] 입장 가능 횟수가 {count} 미만인 경우에만 사용 가능합니다."/>
 		<Class ClassID="3130" ClassName="InvitationEventReward" Data="Invitation Event Reward"/>
 		<Class ClassID="3131" ClassName="OnlyUseHavingZeroCount_Level" Data="[Lv.{count}] 분열 특이점 입장 가능 횟수가 0 인 경우에만 사용 가능합니다."/>
+		<Class ClassID="3132" ClassName="TempestCoreMgrSmelting_UseCount" Data="재료를 사용하지 않았습니다."/>
+		<Class ClassID="3133" ClassName="TempestCoreMgrSmelting_NeedPoint" Data="{name} 생성에 필요한 포인트가 부족합니다."/>
+		<Class ClassID="3134" ClassName="TempestCoreMgrSmelting_Request" Data="{@st66d_y}{name} x {count}개{/} 제련을 진행하시겠습니까?{nl} {nl}제련에 사용된 {@st42}{s18}{#ff0000}여분의 재료{/}{/}{/}는 절대 {@st42}{s18}{#ff0000}반환{/}{/}{/}되지 않습니다."/>
+		<Class ClassID="3135" ClassName="TempestCoreMgrLiberation_NoReg" Data="등록할 수 없는 아이템입니다."/>
+		<Class ClassID="3136" ClassName="TempestCoreMgrLiberation_NeedPoint" Data="해방에 필요한 포인트가 부족합니다."/>
+		<Class ClassID="3137" ClassName="TempestCoreMgrLiberation_Slot" Data="코어 아이템을 슬롯에 올려주세요."/>
+		<Class ClassID="3138" ClassName="TempestCoreMgrLiberation_Request" Data="정말 해방 하시겠습니까?{nl} {nl}해방에 사용된 {@st42}{s18}{#ff0000}재료{/}{/}{/}는 절대 {@st42}{s18}{#ff0000}반환{/}{/}{/}되지 않습니다."/>
+		<Class ClassID="3139" ClassName="TempestCoreMgrDecompose_Request" Data="정말 분해 하시겠습니까?{nl} {nl}분해된 {@st42}{s18}{#ff0000}코어{/}{/}{/}는 {@st42}{s18}{#ff0000}복구{/}{/}{/}할 수 없습니다."/>
+		<Class ClassID="3140" ClassName="TempestCoreMgrLiberation_NeedPoint2" Data="요구되는 해방 포인트와 재료의 포인트가 일치하지 않습니다."/>
 	</Category>
 	<Category Name="ItemPuzzle">
 		<Class ClassID="3501" ClassName="WouldYouSelectThisCombinationAsAlchemystryTarget?" Data="이 조합을 연금 대상으로 선택합니까?"/>
@@ -1544,7 +1563,11 @@
 		<Class ClassID="4645" ClassName="EP15_RAID_PISTOL" Data="마신의 피스톨"/>
 		<Class ClassID="4646" ClassName="EP15_RAID_DAGGER" Data="마신의 대거"/>
 		<Class ClassID="4647" ClassName="EP15_RAID_MACE" Data="마신의 메이스"/>
+		<Class ClassID="4648" ClassName="CORE" Data="코어"/>
 		<Class ClassID="4649" ClassName="Reputation_GoddessCard_Box" Data="명성도 가디스 카드 선택 봉투"/>
+		<Class ClassID="4650" ClassName="CoreEffect" Data="{#0044aa}코어 특수 효과{/}"/>
+		<Class ClassID="4651" ClassName="CoreSealed" Data="{@st41}{#0044aa}봉인됨{/}{/}"/>
+		<Class ClassID="4652" ClassName="Result_AustejaCertificate" Data="여신의 증표(아우스테야) : {count1} → {count2}"/>
 	</Category>
 	<Category Name="ItemTooltip">
 		<Class ClassID="5001" ClassName="CoolDown : {Sec} Sec" Data="재사용 대기시간 : {Sec}초"/>
@@ -1846,6 +1869,15 @@
 		<Class ClassID="5301" ClassName="ARCHEOLOGY_COIN_GAIN" Data="고고학 일반 유물 추가 획득"/>
 		<Class ClassID="5302" ClassName="ARCHEOLOGY_DETECTING" Data="탐지 범위 증가"/>
 		<Class ClassID="5303" ClassName="ARCHEOLOGY_COIN_extract" Data="고고학 주화 변환"/>
+		<Class ClassID="5304" ClassName="austeja_option" Data="{@st47}{s15}{#FFFFEE}[아우스테야의 축복]{/}{/}{/}"/>
+		<Class ClassID="5305" ClassName="austeja_option_end" Data="{@st47}{s15}{#FFFFEE}위의 옵션은 아우스테야 시즌에서만 유효한 옵션입니다.{/}{/}{/}"/>
+		<Class ClassID="5306" ClassName="austeja_allskillup" Data="- 모든 직업 스킬 레벨{#8000FF}{level}{/}증가"/>
+		<Class ClassID="5307" ClassName="austeja_cooldown" Data="- 재사용 대기시간{#8000FF}{level}%{/}감소"/>
+		<Class ClassID="5308" ClassName="austeja_lostlife" Data="- 잃은 생명력 10%당 받는 피해{#8000FF}{level}%{/}감소(최대 90%)"/>
+		<Class ClassID="5309" ClassName="austeja_criup" Data="- 치명타 발생 확률{#8000FF}{level}%{/}증가"/>
+		<Class ClassID="5310" ClassName="austeja_speedup" Data="- 이동속도{#8000FF}{level}{/}증가"/>
+		<Class ClassID="5311" ClassName="tooltip_Hermit" Data=" - 허밋 모든 스킬 레벨 {img green_up_arrow 16 16}1{nl} {nl}{@st66d}{s15} - 별자리 잔류장 최종 대미지 {img green_up_arrow 16 16}50%{nl}{@st66d}{s15} - 월식 최종 대미지 {img green_up_arrow 16 16}50%"/>
+		<Class ClassID="5312" ClassName="tooltip_Hermit_Lv4" Data="{nl} {nl}{@st66d}{s15}- 천체의 심판 최종 대미지{img green_up_arrow 16 16}100%"/>
 	</Category>
 	<Category Name="PeriodicTitle">
 		<Class ClassID="6001" ClassName="TournamentChampion" Data="토너먼트 챔피언"/>
@@ -2593,8 +2625,7 @@
 		<Class ClassID="10655" ClassName="MaxKupoleRank" Data="더 이상 호감도를 상승 시킬 수 없습니다."/>
 		<Class ClassID="10656" ClassName="DropLimitItemCountOver" Data="최대 획득량에 도달하여 더 이상 획득하실 수 없습니다."/>
 		<Class ClassID="10657" ClassName="DropLimitItemCount" Data="{name} 획득 현황 : 획득수({now}/{limit})"/>
-
-		
+	<Class ClassID="10658" ClassName="NotEnoughItem2" Data="추가 보상권 아이템이 부족합니다"/>
 	</Category>
 	<Category Name="FoodTable">
 		<Class ClassID="20001" ClassName="IncreaseHP{Value}For{Time}Minute" Data="{Time}분 동안 HP가 {Value}% 증가합니다."/>
@@ -3085,7 +3116,13 @@
 		<Class ClassID="21487" ClassName="NewEpisodeLockMsg_Episode_16_2" Data="{@st59}해당 에피소드의 클리어 보상은 추후 공개될 예정입니다.{nl}{#FFFF00}[Episode16-2]{/}의 퀘스트 시작은 {#FFFF00}라이마의 성소{/}의 {#FFFF00}라이마 NPC{/}로부터 시작할 수 있습니다."/>
 		<Class ClassID="21488" ClassName="TP_Newbie" Data="초심자"/>
 		<Class ClassID="21489" ClassName="NewEpisodeLockMsg_Episode_17_1" Data="{@st59}해당 에피소드의 클리어 보상은 추후 공개될 예정입니다.{nl}{#FFFF00}[Episode17-1]{/}의 퀘스트 시작은 {#FFFF00}라이마의 성소{/}의 {#FFFF00}라이마 NPC{/}로부터 시작할 수 있습니다."/>
-		</Category>
+		<Class ClassID="21490" ClassName="StatusTooltipMsgCoreOptionJurate" Data="방어구 재질이 유체인 대상에게 %만큼 최종 대미지 증가"/>
+		<Class ClassID="21491" ClassName="StatusTooltipMsgCoreOptionVibora" Data="방어구 재질이 천인 대상에게 %만큼 최종 대미지 증가"/>
+		<Class ClassID="21492" ClassName="StatusTooltipMsgCoreOptionAusirine" Data="방어구 재질이 가죽인 대상에게 %만큼 최종 대미지 증가"/>
+		<Class ClassID="21493" ClassName="StatusTooltipMsgCoreOptionGabija" Data="방어구 재질이 판금인 대상에게 %만큼 최종 대미지 증가"/>
+		<Class ClassID="21494" ClassName="NewEpisodeLockMsg_Episode_17_2" Data="{@st59}해당 에피소드의 클리어 보상은 추후 공개될 예정입니다.{nl}{#FFFF00}[Episode17-2]{/}의 퀘스트 시작은 {#FFFF00}라이마의 성소{/}의 {#FFFF00}라이마 NPC{/}로부터 시작할 수 있습니다."/>
+<Class ClassID="21495" ClassName="TP_LimitSell" Data="한정 판매"/>
+	</Category>
 	<Category Name="ChatText">
 		<Class ClassID="22001" ClassName="Guard" Data="방어"/>
 		<Class ClassID="22002" ClassName="FrontShot!" Data="전방 사격!"/>
@@ -11109,11 +11146,26 @@
 		<Class ClassID="92323" ClassName="2001_Seollal_SEL_MSG2" Data="{#003399}설날에도 TOS와 함께!{/} [이벤트] 경자년 새해 황금 복주머니 수령하기"/>
 	<Class ClassID="92324" ClassName="GACHA_SITEM_GET_ALLMSG_PAPAYA2" Data="{s24}축하합니다!{nl}{PC} 님이  파파야 큐브에서 {ITEMNAME}{nl} 아이템을 획득하였습니다!"/>
 		<Class ClassID="92325" ClassName="GACHA_SITEM_GET_ALLMSG_COUNT_PAPAYA2" Data="{s24}축하드립니다!{nl}{PC} 님이 파파야 큐브에서 {ITEMNAME} 를(을) {COUNT}{nl}개 획득하셨습니다!"/>
-		
+		<Class ClassID="92326" ClassName="Goddess_Raid_Laimara_Party" Data="침묵의 숲 라이마라: 가디스(파티)"/>
+		<Class ClassID="92327" ClassName="Goddess_Raid_Laimara_Auto" Data="침묵의 숲 라이마라: 가디스(자동 매칭)"/>
+		<Class ClassID="92328" ClassName="Goddess_Raid_Laimara_Solo" Data="침묵의 숲 라이마라: 가디스(1인)"/>
+		<Class ClassID="92329" ClassName="Goddess_Raid_Veliora_Party" Data="침묵의 숲 벨리오라: 가디스(파티)"/>
+		<Class ClassID="92330" ClassName="Goddess_Raid_Veliora_Auto" Data="침묵의 숲 벨리오라: 가디스(자동 매칭)"/>
+		<Class ClassID="92331" ClassName="Goddess_Raid_Veliora_Solo" Data="침묵의 숲 벨리오라: 가디스(1인)"/>	
 		<Class ClassID="92339" ClassName="EVENT_ASSISTOR_QUEST_MSG_03" Data="[이벤트] 고고학 임무 받기"/>
 		<Class ClassID="92340" ClassName="EVENT_ASSISTOR_QUEST_MSG_02" Data="[이벤트] 유물 상점"/>
 		<Class ClassID="92441" ClassName="EVENT_ASSISTOR_QUEST_MSG_01" Data="[이벤트] 고고학에 대해서 묻기"/>
 		<Class ClassID="92442" ClassName="Arc_exhibition" Data="유물 등록"/>
+		<Class ClassID="92332" ClassName="EP17_2_KATYN_10_MQ2_NPC_SELECT_DLG1" Data="이상 현상을 조사하기 위해 왔습니다"/>
+		<Class ClassID="92333" ClassName="EP17_2_KATYN_10_MQ2_NPC_SELECT_DLG2" Data="수락한다"/>
+		<Class ClassID="92334" ClassName="EP17_2_KATYN_10_MQ2_NPC_SELECT_DLG3" Data="..."/>
+		<Class ClassID="92335" ClassName="EP17_2_KATYN_10_MQ3_NPC_SELECT_DLG1" Data="그나저나 이 상황은..."/>
+		<Class ClassID="92336" ClassName="EP17_2_KATYN_10_MQ3_NPC_SELECT_DLG2" Data="거미 괴물?"/>
+		<Class ClassID="92337" ClassName="EP17_2_KATYN_10_MQ3_NPC_SELECT_DLG3" Data="그렇다면 당신의 마을도..."/>
+		<Class ClassID="92338" ClassName="EP17_2_KATYN_10_MQ3_NPC_SELECT_DLG4" Data="수락한다"/>
+		<Class ClassID="92443" ClassName="GUILD_FOREST_SILENCE_BROADCAST_DEAD_RECORED" Data="길드원들이 아라크네 자매를 제압했습니다{nl}봉쇄전 기록 : {MIN} 분 {SEC} 초"/>
+		<Class ClassID="92444" ClassName="GUILD_FOREST_SILENCE_BROADCAST_BORN" Data="길드원들이 아라크네 자매와 대적합니다."/>
+		<Class ClassID="92445" ClassName="GUILD_FOREST_SILENCE_BROADCAST_DEAD" Data="길드원들이 아라크네 자매를 제압했습니다."/>
 	</Category>
 	<Category Name="BattleText">
 		<Class ClassID="100001" ClassName="ADD_DAMAGE_{Auto_1}!" Data="추가 대미지 {Auto_1}!"/>
@@ -11742,6 +11794,7 @@
 		<Class ClassID="102523" ClassName="GuildQuestClearCountNextReset" Data="※다음 주간 클리어 횟수는 초기화 일자는 {#FF0000}{date}{/} 입니다. 만약 초기화 일자가 지났는데도 초기화되지 않았다면 다시 길드타워와 상호작용을 해주세요."/>
 		<Class ClassID="102524" ClassName="BlackMarketNoticeDBCoinError" Data="입찰 진행중 코인의 변동이 발생하여 작업에 실패하였습니다. 잠시 후 다시 시도해 주세요."/>
 		<Class ClassID="102525" ClassName="papaya_event_msg1" Data="어이쿠, 꼬마 아이가 네게 장난을 치는 모양이야!"/>
+		<Class ClassID="102526" ClassName="papaya_jackpot" Data="잭팟! 이번 매치는 3배의 코인을 드립니다!"/>
 	</Category>
 	<Category Name="EqupClasses">
 		<Class ClassID="103001" ClassName="THSword" Data="양손검"/>
@@ -12396,7 +12449,19 @@
 		<Class ClassID="111372" ClassName="DEBUFF_ATK_SKILLFACTOR" Data="디버프 스킬 계수"/>
 		<Class ClassID="111373" ClassName="seal_skill_factor1" Data="스킬 공격력(무한의 창)"/>
 		<Class ClassID="111374" ClassName="seal_skill_factor2" Data="방어력(신의 가호)"/>
-		</Category>
+		<Class ClassID="111375" ClassName="core_option_vibora" Data="바이보라의 설창(%)"/>
+		<Class ClassID="111376" ClassName="core_option_vibora_BM" Data="바이보라의 설창(%)"/>
+		<Class ClassID="111377" ClassName="core_option_vibora_status" Data="{#ff4040}바이보라의 설창(%)"/>
+		<Class ClassID="111378" ClassName="core_option_ausirine" Data="아우슈리네의 진뢰(%)"/>
+		<Class ClassID="111379" ClassName="core_option_ausirine_BM" Data="아우슈리네의 진뢰(%)"/>
+		<Class ClassID="111380" ClassName="core_option_ausirine_status" Data="{#ff4040}아우슈리네의 진뢰(%)"/>
+		<Class ClassID="111381" ClassName="core_option_gabija" Data="가비야의 홍련(%)"/>
+		<Class ClassID="111382" ClassName="core_option_gabija_BM" Data="가비야의 홍련(%)"/>
+		<Class ClassID="111383" ClassName="core_option_gabija_status" Data="{#ff4040}가비야의 홍련(%)"/>
+		<Class ClassID="111384" ClassName="core_option_jurate" Data="유라테의 격류(%)"/>
+		<Class ClassID="111385" ClassName="core_option_jurate_BM" Data="유라테의 격류(%)"/>
+		<Class ClassID="111386" ClassName="core_option_jurate_status" Data="{#ff4040}유라테의 격류(%)"/>
+	</Category>
 	<Category Name="Quest">
 		<Class ClassID="112001" ClassName="VeryEasy" Data="매우 쉬움"/>
 		<Class ClassID="112002" ClassName="Easy" Data="쉬움"/>
@@ -16966,7 +17031,7 @@
 		<Class ClassID="302822" ClassName="EVENT_2401_NEW_YEAR_01" Data="[이벤트 던전] 신년 이벤트 던전 입장"/>
 		<Class ClassID="302823" ClassName="EVENT_2401_NEWYEAR_ANNOCUNCE{DG_CNT}{COIN_CNT}{TIME}" Data="[2024 신년 이벤트]{nl}[이벤트 던전] 신년 이벤트 던전 입장 횟수 ({DG_CNT}/6)회{nl}[주간] 이벤트 주화 획득량({COIN_CNT}/600)개{nl}{#3366FF}※ 이벤트 던전 입장횟수와 코인 획득량은 매주 {TIME}에 초기화됩니다.{/}"/>
 		<Class ClassID="302824" ClassName="EVENT_2402_NEWYEAR" Data="[이벤트] 설날 상점"/>
-		<Class ClassID="302825" ClassName="EVENT_2402_NEWYEAR_ANNOCUNCE{COIN_CNT}{TIME}" Data="[풍성한 설날]{nl}[일일] 이벤트 주화 획득량 : ({#0066FF}{COIN_CNT}{/}/100){nl}{#0066FF}※ 일일 이벤트 주화 획득량은 매일 {TIME}에 초기화됩니다.{/}"/>
+		<Class ClassID="302825" ClassName="EVENT_2402_NEWYEAR_ANNOCUNCE{COIN_CNT}" Data="[주간] 이벤트 주화 획득량 : ({#0066FF}{COIN_CNT}{/}/700){nl}{#0066FF}※ 주간 이벤트 주화 획득량은 매주 월요일에 초기화 됩니다.{/}"/>
 		<Class ClassID="302826" ClassName="EVENT_2402_NEWYEAR_ANNOCUNCE_MON_LEADER_GEN" Data="대장 몬스터가 출현했습니다!"/>
 		<Class ClassID="302827" ClassName="EVENT_2403_FRIEND_INVITE_EVNET_1" Data="초대 코드 발급/조회"/>
 		<Class ClassID="302828" ClassName="EVENT_2403_FRIEND_INVITE_EVNET_2" Data="친구 초대 이벤트 미션 확인/보상받기"/>
@@ -17041,7 +17106,10 @@
 		<Class ClassID="302902" ClassName="event_2502_spring" Data="[이벤트] TOS 백금화 상점"/>
 		<Class ClassID="302903" ClassName="event_2year" Data="[이벤트] TOS 백금화 상점"/>
 		<Class ClassID="302904" ClassName="event_2506_summer" Data="[이벤트] TOS 백금화 상점"/>
+		<Class ClassID="302905" ClassName="EVENT_2506_VALENTAIN" Data="[이벤트] 발렌타인 상점"/>
 		<Class ClassID="302906" ClassName="EVENT_2506_SUMMER_CHECK_MESSAGE{ICE}{BAIT}{TRADE}" Data="{#003399}[2025 Summer Festa 이벤트 현황]{/}{nl}{#3366FF}[이벤트] 특별한 얼음{/} {@st66d_y}{s18}주간{/}{/} 획득 ({ICE}/700){nl}{#3366FF}[이벤트] 문어발 미끼{/} 일일 무료 수령 횟수 ({BAIT}/1회){nl}{#3366FF}[이벤트] 수박 물고기{/} 교환 ({TRADE}/150개){nl}※ {@st66d_y}{s18}주간{/}{/} 획득량은 {@st66d_y}{s18}매주 월요일{/}{/} 오전 6시 초기화 됩니다.{nl}※ 이벤트 업적을 통한 획득은 {@st66d_y}{s18}주간{/}{/} 획득 제한에 포함되지 않습니다.{nl}※ [이벤트] 수박 물고기 교환 150 개 이후엔 이벤트 버프만 획득합니다."/>
+		<Class ClassID="302907" ClassName="event_2506_summer_papaya" Data="[이벤트] TOS 백금화 상점"/>
+		<Class ClassID="302908" ClassName="event_2509_autumn" Data="[이벤트] TOS 백금화 상점"/>
 	</Category>
 	<Category Name="Account">
 		<Class ClassID="303001" ClassName="MaxAccountWarehouseCount" Data="팀 창고"/>
@@ -17483,6 +17551,7 @@
 		<Class ClassID="510502" ClassName="FieldBossCanEnter" Data="잠시 후 보스 협동전이 시작됩니다."/>	
 		<Class ClassID="510503" ClassName="RadaCertificate_shop" Data="여신의 증표(라다) 상점"/>
 		<Class ClassID="510504" ClassName="JurateCertificate_shop" Data="여신의 증표(유라테) 상점"/>
+		<Class ClassID="510505" ClassName="AustejaCertificate_shop" Data="여신의 증표(아우스테야) 상점"/>
 	</Category>		
 	<Category Name="FishRubbing">
 		<Class ClassID="510600" ClassName="FishRubbingMSG1" Data="그는 좋은 물고기였습니다."/>
@@ -18918,6 +18987,7 @@
 		<Class ClassID="1005011" ClassName="RadaCertificate" Data="여신의 증표(라다)"/>
 		<Class ClassID="1005012" ClassName="JurateCertificate" Data="여신의 증표(유라테)"/>
 		<Class ClassID="1005013" ClassName="ARCHEOLOGY_COIN" Data="고고학 주화"/>
+		<Class ClassID="1005014" ClassName="AustejaCertificate" Data="여신의 증표(아우스테야)"/>
 	</Category>
 	<Category Name="reputation">
 		<Class ClassID="1006000" ClassName="DAY_LIMIT_MSG" Data="일간"/>
@@ -19381,6 +19451,7 @@
 		<Class ClassID="1105005" ClassName="EquipmentProcessing_RerollItem" Data="아이템 옵션 재설정"/>
 		<Class ClassID="1105006" ClassName="EquipmentProcessing_AethergemTransfer" Data="에테르 젬 강화레벨 이전"/>
 		<Class ClassID="1105007" ClassName="EquipmentProcessing_DuctilityItem" Data="아이템 옵션 연성"/>
+		<Class ClassID="1105008" ClassName="EquipmentProcessing_TempestCoreManager" Data="코어 관리"/>
 	</Category>
 	<Category Name="Job">
 		<Class ClassID="1106001" ClassName="Warrior" Data="소드맨"/>
@@ -19506,6 +19577,9 @@
 		<Class ClassID="1106121" ClassName="AetherBlader[W]" Data="에테르 블레이더[W]"/>
 		<Class ClassID="1106122" ClassName="AetherBlader[C]" Data="에테르 블레이더[C]"/>
 		<Class ClassID="1106123" ClassName="AetherBlader[T]" Data="에테르 블레이더[T]"/>
+		<Class ClassID="1106124" ClassName="Hermit" Data="허밋"/>
+		<Class ClassID="1106125" ClassName="Hermit[W]" Data="허밋[W]"/>
+		<Class ClassID="1106126" ClassName="Hermit[C]" Data="허밋[C]"/>
 	</Category>
 	<Category Name="LifeContent">
 		<Class ClassID="1107001" ClassName="archeology" Data="고고학"/>
@@ -19526,6 +19600,24 @@
 	<Category Name="Cupole">
 		<Class ClassID="1110001" ClassName="Likeability_up" Data="재료 아이템을 소모하여 호감도를 상승시킵니다. 계속하시겠습니까?"/>
 		<Class ClassID="1110002" ClassName="QuestionKupoleGacha{COUNT}" Data="큐폴 영입 {COUNT}회를 진행하시겠습니까?"/>
+	</Category>
+	<Category Name="DemonLair">
+		<Class ClassID="1120000" ClassName="DemonLair_Help" Data="마족 소굴에 대하여"/>
+		<Class ClassID="1120001" ClassName="DemonLair_Enter" Data="마족 소굴로 진입"/>
+		<Class ClassID="1120002" ClassName="DemonLair_StepSetting" Data="난이도 설정"/>
+		<Class ClassID="1120003" ClassName="DemonLair_Step1" Data="1단계 진행"/>
+		<Class ClassID="1120004" ClassName="DemonLair_Step2" Data="2단계 진행"/>
+		<Class ClassID="1120005" ClassName="DemonLair_Step3" Data="3단계 진행"/>
+		<Class ClassID="1120006" ClassName="DemonLair_Step4" Data="4단계 진행"/>
+		<Class ClassID="1120007" ClassName="DemonLair_Step5" Data="5단계 진행"/>
+		<Class ClassID="1120008" ClassName="DemonLair_Step6" Data="6단계 진행"/>
+		<Class ClassID="1120009" ClassName="DemonLair_Ashark" Data="마족 소굴 : 아샤크"/>
+		<Class ClassID="1120010" ClassName="DemonLair_Ashark_AreaNpcPreCheck_Msg" Data="{area_number}구역 이전 구역을 모두 클리어한 다음에 진행할 수 있습니다."/>
+		<Class ClassID="1120011" ClassName="DemonLair_Ashark_BonusArea_Buff_Msg" Data="{buff_name} 버프가 적용됩니다."/>
+		<Class ClassID="1120012" ClassName="DemonLair_Ashark_UserSelectInfo_Title" Data="선택지 {number}"/>
+		<Class ClassID="1120013" ClassName="DemonLair_Ashark_UserSelect_BonusAreaUnactive_Penalty_Msg" Data="보너스 구역 비활성화 패널티로 인해 보너스 구역을 시작할 수 없습니다."/>
+		<Class ClassID="1120014" ClassName="DemonLair_Ashark_FinalBoss_BuffRemove_Msg" Data="{area_number}구역 보스를 처치하여서 [{buff_name}]이 해제되었습니다."/>
+		<Class ClassID="1120015" ClassName="DemonLair_Ashark_BonusArea_Reward_Msg" Data="{reward_item_name}을 추가로 더 획득합니다."/>
 	</Category>
 	<Category Name="WebService">
 		<Class ClassID="1999998" ClassName="WebService_" Data="서버에 접속이 원활하지 않습니다."/>

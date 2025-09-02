@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSPY v2004 rel. 2 U (http://www.xmlspy.com) by imc (imc) -->
+<idspace id="ChatAlias">
+	<Category>
+		<Class ClassID="7" ClassName="/party" Alias="/PT招待"/>
+		<Class ClassID="8" ClassName="/friend" Alias="/フレンド追加"/>
+		<Class ClassID="9" ClassName="/block" Alias="/ブロック"/>
+		<Class ClassID="11" ClassName="/guild" Alias="/ギルド招待"/>
+		<Class ClassID="15" ClassName="/cpattack" Alias="/いけ"/>
+		<Class ClassID="16" ClassName="/comeon" Alias="/おいで"/>
+		<Class ClassID="17" ClassName="/uicallscp_event1706" Alias="/修行者の道"/>
+	</Category>
+</idspace>

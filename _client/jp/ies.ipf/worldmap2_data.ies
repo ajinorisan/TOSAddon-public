@@ -25,3 +25,6 @@ ClassID,Coordinate_X,Coordinate_Y,Ordinal,ClassName,Name,CityName,Type,ImageName
 205,540,-400,24,"sub_episode5","흰 나무 숲","","sub_episode","","worldmap2_submap_sq_05",""
 206,-130,-210,25,"sub_episode6","니코폴리스","","sub_episode","","worldmap2_submap_sq_06",""
 207,510,-110,26,"sub_episode7","기념구","","sub_episode","","worldmap2_submap_sq_07",""
+301,560,-270,27,"EP16_2","Episode16-2","","hard","worldmap2_btn_epi_09_2","worldmap2_submap_09_2","worldmap2_icon_Sepi_09_2"
+302,-570,220,28,"EP17_1","Episode17-1","","hard","worldmap2_btn_epi_09_1","worldmap2_submap_09_1","worldmap2_icon_Sepi_09_1"
+303,-465,-30,29,"EP17_2","Episode17-2","","hard","worldmap2_btn_epi_03","worldmap2_submap_03","worldmap2_icon_Sepi_03"

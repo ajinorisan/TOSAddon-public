@@ -1106,6 +1106,22 @@ function STATUS_INFO()
     
     y = returnY + 10;    
 
+    returnY = STATUS_ATTRIBUTE_BOX_TITLE(pc, opc, frame, gboxctrl, ScpArgMsg("CoreEffect"), y);
+    if returnY ~= y then
+        y = returnY + 5;
+    end
+
+    returnY = STATUS_ATTRIBUTE_VALUE_NEW(pc, opc, frame, gboxctrl, "core_option_vibora", y);
+    if returnY ~= y then y = returnY + 3; end
+    returnY = STATUS_ATTRIBUTE_VALUE_NEW(pc, opc, frame, gboxctrl, "core_option_ausirine", y);
+    if returnY ~= y then y = returnY + 3; end
+    returnY = STATUS_ATTRIBUTE_VALUE_NEW(pc, opc, frame, gboxctrl, "core_option_gabija", y);
+    if returnY ~= y then y = returnY + 3; end
+    returnY = STATUS_ATTRIBUTE_VALUE_NEW(pc, opc, frame, gboxctrl, "core_option_jurate", y);
+    if returnY ~= y then y = returnY + 3; end
+
+    y = returnY + 10;    
+
     -- Property Name은  calc_property_pc.lua 에서 SCR_GET_Cloth_ATK 와 일치
 
     -- STATUS_ATTRIBUTE_VALUE_RANGE(pc, opc, frame, gboxctrl, "PATK", "MINPATK", "MAXPATK");
@@ -1568,6 +1584,10 @@ color_attribute['high_lighting_res'] = 'high_lighting_res_status'
 color_attribute['high_poison_res'] = 'high_poison_res_status'
 color_attribute['high_laceration_res'] = 'high_laceration_res_status'
 color_attribute['portion_expansion'] = 'portion_expansion_status'
+color_attribute['core_option_jurate'] = 'core_option_jurate_status'
+color_attribute['core_option_vibora'] = 'core_option_vibora_status'
+color_attribute['core_option_ausirine'] = 'core_option_ausirine_status'
+color_attribute['core_option_gabija'] = 'core_option_gabija_status'
 
 local all_attribute_list = {}
 all_attribute_list['Leather_Def'] = 1
@@ -1655,11 +1675,11 @@ function GET_SPECIAL_OPTION_VALUE(pc, name)
     return value, tooltip_text
 end
 
-function STATUS_ATTRIBUTE_VALUE_NEW(pc, opc, frame, gboxctrl, attributeName, y)               
+function STATUS_ATTRIBUTE_VALUE_NEW(pc, opc, frame, gboxctrl, attributeName, y)                   
     local controlSet = gboxctrl:CreateOrGetControlSet('status_stat', attributeName, 0, y);
     tolua.cast(controlSet, "ui::CControlSet");
     local title = GET_CHILD(controlSet, "title", "ui::CRichText");
-    if color_attribute[attributeName] ~= nil then        
+    if color_attribute[attributeName] ~= nil then                
         title:SetText(ScpArgMsg(color_attribute[attributeName]));
     else
         title:SetText(ScpArgMsg(attributeName));
@@ -1670,7 +1690,7 @@ function STATUS_ATTRIBUTE_VALUE_NEW(pc, opc, frame, gboxctrl, attributeName, y)
     if special_option_list[attributeName] ~= nil then        
         s_value, s_tooltip = GET_SPECIAL_OPTION_VALUE(pc, attributeName)
     end
-
+    
     local enable_zero = false
     if attributeName == 'SR' then
         title:SetTextTooltip(ScpArgMsg("StatusTooltipMsg2"))
@@ -1695,7 +1715,15 @@ function STATUS_ATTRIBUTE_VALUE_NEW(pc, opc, frame, gboxctrl, attributeName, y)
     elseif attributeName == 'AllMaterialType_Atk' then
         title:SetTextTooltip(ScpArgMsg('StatusTooltipMsgAllMaterialTypeAtk'))
     elseif attributeName == 'AllRace_Atk' then
-        title:SetTextTooltip(ScpArgMsg('StatusTooltipMsgAllMaterialTypeAtk'))        
+        title:SetTextTooltip(ScpArgMsg('StatusTooltipMsgAllMaterialTypeAtk'))
+    elseif attributeName == 'core_option_jurate' then
+        title:SetTextTooltip(ScpArgMsg('StatusTooltipMsgCoreOptionJurate'))
+    elseif attributeName == 'core_option_vibora' then    
+        title:SetTextTooltip(ScpArgMsg('StatusTooltipMsgCoreOptionVibora'))
+    elseif attributeName == 'core_option_ausirine' then
+        title:SetTextTooltip(ScpArgMsg('StatusTooltipMsgCoreOptionAusirine'))
+    elseif attributeName == 'core_option_gabija' then
+        title:SetTextTooltip(ScpArgMsg('StatusTooltipMsgCoreOptionGabija'))
     elseif s_tooltip ~= nil then        
         title:SetTextTooltip(s_tooltip)
     end
@@ -1720,17 +1748,17 @@ function STATUS_ATTRIBUTE_VALUE_NEW(pc, opc, frame, gboxctrl, attributeName, y)
         end
     end
 
-    if enable_zero == false and 1 == grayStyle then
+    if enable_zero == false and 1 == grayStyle then        
         stat:SetText('');
         controlSet:Resize(controlSet:GetWidth(), stat:GetHeight());
         return y + controlSet:GetHeight();
     end
-
+    
     if opc ~= nil and special_option_list[attributeName] == nil and opc[attributeName] ~= value then        
         local colBefore = frame:GetUserConfig("BEFORE_STAT_COLOR");
         local colStr = frame:GetUserConfig("ADD_STAT_COLOR")
 
-        local beforeGray, beforeValue = SET_VALUE_ZERO(opc[attributeName]);
+        local beforeGray, beforeValue = SET_VALUE_ZERO(opc[attributeName]);        
         if beforeValue ~= value then
             stat:SetText(colBefore .. beforeValue .. ScpArgMsg("Auto_{/}__{/}") .. colStr .. value);            
         else

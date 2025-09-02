@@ -26,3 +26,4 @@ ClassID,ClassName,DungeonType,SubType,RedButtonText,RedButtonScp,Button1Text,But
 26,"BridgeWailingParty","BridgeWailing","Party","입장하기","REQ_BRIDGE_WAILING_ENTER","","","","","",""
 27,"SeasonChallenge","SeasonChallenge","Party","입장하기","REQ_CHALLENGE_AUTO_UI_OPEN","","","","","",""
 28,"SeasonEarringRaid","SeasonEarringRaid","Party","입장하기","REQ_EARRING_RAID_UI_OPEN","","","","","",""
+29,"DemonLair","DemonLair","Party","입장하기","REQ_DEMON_LAIR_UI_OPEN","","","","","",""

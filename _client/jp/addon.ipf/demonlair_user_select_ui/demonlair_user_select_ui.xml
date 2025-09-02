@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSPY v2004 rel. 3 U (http://www.xmlspy.com) by imc (imc) -->
+<uiframe name="demonlair_user_select_ui" x="0" y="0" width="1010" height="530" hud="true">
+	<frame layout_gravity="center center" margin="10 0 0 0" scale_align="center center"/>
+	<option visible="false" closebutton="false" hideable="false" alwaysVisible="false"/>
+	<sound opensound="win_open" closesound="win_close"/>
+	<draw drawframe="false" drawtitlebar="false"/>
+	<layer layerlevel="100"/>
+	<input moveable="false" hittestframe="true" moveintitlebar="false"/>
+	<script OpenScp="OPEN_DEMONLAIR_USER_SELECT_UI" CloseScp="CLOSE_DEMONLAIR_USER_SELECT_UI"/>
+	<userconfig MIN_PAGE="1" MAX_PAGE="5"/>
+	<controls>
+		<groupbox name="gbox" rect="0 0 1000 530" margin="0 0 0 0" draw="false" layout_gravity="left top" image="bgm_simple_bg" hittestbox="false" scrollbar="true"/>
+		<groupbox name="gbox_title" parent="gbox" rect="0 0 1000 50" margin="0 0 0 0" draw="false" layout_gravity="left top" image="bgm_simple_bg" hittestbox="false" scrollbar="true"/>
+		<richtext name="text_title" rect="0 0 200 50" parent="gbox_title" margin="0 0 0 0" layout_gravity="center center" format="%s" fontname="white_20_ol" param1="title" param1_def="버프/패널티 선택"/>
+		<button name="btn_random" rect="0 0 120 40" margin="10 5 0 0" layout_gravity="left top" skin="test_red_button" clicksound="button_click_big" format="{@st41b}{s18}%s" param1="value" param1_def="랜덤 선택" texttooltip="{@st59}버프/패널티를 랜덤하게 선택합니다." MouseOffAnim="btn_mouseoff" MouseOnAnim="btn_mouseover" LBtnUpScp="DEMONLAIR_USER_SELECT_RANDOM_BTN"/>
+		<richtext name="text_time" rect="0 0 200 50" parent="gbox_title" margin="830 0 0 0" layout_gravity="left center" format="남은 시간 : %s초" fontname="yellow_18_ol" param1="time" param1_def="30"/>
+		<groupbox name="gbox_info" parent="gbox" rect="0 0 1010 430" margin="0 50 0 0" draw="false" layout_gravity="left top" image="None" hittestbox="false" scrollbar="true"/>
+		<richtext name="text_page" rect="0 0 100 50" parent="gbox" margin="0 0 0 20" layout_gravity="center bottom" format="%s구역" fontname="yellow_18_ol" param1="page" param1_def="1"/>
+		<button name="btn_left_page" parent="gbox" rect="0 0 10 10" margin="-50 0 0 23" layout_gravity="center bottom" image="button_left_select" LBtnUpScp="DEMONLAIR_USER_SELECT_LEFT_BTN" stretch="true"/>
+		<button name="btn_right_page" parent="gbox" rect="0 0 10 10" margin="50 0 0 23" layout_gravity="center bottom" image="button_right_select" LBtnUpScp="DEMONLAIR_USER_SELECT_RIGHT_BTN" stretch="true"/>
+	</controls>
+</uiframe>

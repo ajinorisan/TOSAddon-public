@@ -126,6 +126,10 @@ function get_ratio_success_aether_gem_equip(self, level)
 end
 
 function get_aether_gem_max_level(item)
+    if TryGetProp(item, 'GroupName', 'None') ~= 'Gem_High_Color' then
+        return 0
+    end
+
     local use_level = TryGetProp(item, "NumberArg1",0);
     local pivot = 460    
     local diff = (use_level - pivot) / 20
@@ -137,9 +141,8 @@ end
 -- by gem item
 function is_max_aether_gem_level(item)
     if item == nil then return false; end
-    local max_level = get_aether_gem_max_level(item);
+    local max_level = get_aether_gem_max_level(item);    
     local use_level = TryGetProp(item, "NumberArg1",0);
-
     local cur_level = TryGetProp(item, "AetherGemLevel", 1);
     if cur_level >= max_level then return true;
     else return false; end
@@ -241,6 +244,11 @@ function get_aether_gem_reinforce_count_by_level(self, level)
 end
 
 function is_valid_transfer_aether_gem(left, right)
+    if TryGetProp(left, 'GroupName', 'None') ~= 'Gem_High_Color' 
+    or TryGetProp(right, 'GroupName', 'None') ~= 'Gem_High_Color' then
+        return false, 'None'
+    end
+
     local left_grade = TryGetProp(left, 'NumberArg1', 0)
     local right_grade = TryGetProp(right, 'NumberArg1', 0)
 
@@ -315,6 +323,10 @@ end
 
 -- lv480_aether_lvup_scroll_lv100
 function IS_ABLE_TO_USE_AETHER_LVUP_SCROLL(item, scroll)
+    if TryGetProp(item, 'GroupName', 'None') ~= 'Gem_High_Color' then
+        return false, 'NotValidItem'
+    end
+
     if TryGetProp(scroll, 'StringArg', 'None') ~= 'aether_reinforce_scroll' then
         return false, 'DontUseItem'
     end 
@@ -337,7 +349,7 @@ function IS_ABLE_TO_CONVERT_AETHER_GEM(aether, scroll)
         return false, 'NotValidItem'
     end
     
-    if TryGetProp(aether, 'GemType', 'None') ~= 'Gem_High_Color' then
+    if TryGetProp(aether, 'GroupName', 'None') ~= 'Gem_High_Color' then
         return false, 'NotValidItem'
     end
 

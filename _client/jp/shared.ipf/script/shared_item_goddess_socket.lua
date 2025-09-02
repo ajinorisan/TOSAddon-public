@@ -2,7 +2,7 @@
 
 
 local parameter_list = nil
-local end_lv = 520
+local end_lv = 540
 function make_parameter_list()
 	if parameter_list ~= nil then
 		return
@@ -29,6 +29,10 @@ function make_parameter_list()
 	parameter_list[520] = {} 
 	parameter_list[520]['MAX_NORMAL_SOCKET_COUNT'] = 2 -- 색상 젬 소켓 최대 개수
 	parameter_list[520]['MAX_AETHER_SOCKET_COUNT'] = 1 -- 에테르 젬 소켓 최대 개수	
+
+	parameter_list[540] = {} 
+	parameter_list[540]['MAX_NORMAL_SOCKET_COUNT'] = 2 -- 색상 젬 소켓 최대 개수
+	parameter_list[540]['MAX_AETHER_SOCKET_COUNT'] = 1 -- 에테르 젬 소켓 최대 개수	
 end
 make_parameter_list()
 
@@ -105,6 +109,10 @@ function setting_lv_normal_socket_material(mat_list_by_lv, lv)
 		mat_list_by_lv[lv][2][season_coin] = 1575
 	elseif lv == 520 then
 		season_coin = 'JurateCertificate'
+		mat_list_by_lv[lv][1][season_coin] = 675
+		mat_list_by_lv[lv][2][season_coin] = 1575
+	elseif lv == 540 then
+		season_coin = 'AustejaCertificate'
 		mat_list_by_lv[lv][1][season_coin] = 675
 		mat_list_by_lv[lv][2][season_coin] = 1575
 	end
@@ -384,8 +392,8 @@ end
 
 -- 스킬 젬 추출 패널티 제거 케어 기간 입력
 function IS_GEM_EXTRACT_CARE_DATE()
-    local startTimeStr = "2021-07-27 09:00:00"
-    local endTimeStr = "2021-08-10 10:59:59"
+    local startTimeStr = "2022-04-14 09:00:00"
+    local endTimeStr = "2022-04-28 08:59:59"
 	
 	return date_time.is_between_time(startTimeStr, endTimeStr)
 end

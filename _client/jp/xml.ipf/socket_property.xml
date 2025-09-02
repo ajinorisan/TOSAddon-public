@@ -3392,8 +3392,8 @@
     <Level Level="1" PropList_TopLeg="OptDesc/스윙 해머[S] 스킬 레벨 + 1" PropList_TopLeg_Penalty="None" PropList_MainOrSubWeapon="None" PropList_MainOrSubWeapon_Penalty="None" PropList_HandOrFoot="OptDesc/스윙 해머[S] 스킬 레벨 + 1" PropList_HandOrFoot_Penalty="None" />
   </Item>
   <Item Name="GEM_Sledger_BigBang_Swordman">
-    <Level Level="0" PropList_TopLeg="OptDesc/빅뱅 스킬[S] 레벨 + 1" PropList_TopLeg_Penalty="None" PropList_MainOrSubWeapon="None" PropList_MainOrSubWeapon_Penalty="None" PropList_HandOrFoot="OptDesc/빅뱅[S] 스킬 레벨 + 1" PropList_HandOrFoot_Penalty="None" />
-    <Level Level="1" PropList_TopLeg="OptDesc/빅뱅 스킬[S] 레벨 + 1" PropList_TopLeg_Penalty="None" PropList_MainOrSubWeapon="None" PropList_MainOrSubWeapon_Penalty="None" PropList_HandOrFoot="OptDesc/빅뱅[S] 스킬 레벨 + 1" PropList_HandOrFoot_Penalty="None" />
+    <Level Level="0" PropList_TopLeg="OptDesc/빅뱅[S] 스킬 레벨 + 1" PropList_TopLeg_Penalty="None" PropList_MainOrSubWeapon="None" PropList_MainOrSubWeapon_Penalty="None" PropList_HandOrFoot="OptDesc/빅뱅[S] 스킬 레벨 + 1" PropList_HandOrFoot_Penalty="None" />
+    <Level Level="1" PropList_TopLeg="OptDesc/빅뱅[S] 스킬 레벨 + 1" PropList_TopLeg_Penalty="None" PropList_MainOrSubWeapon="None" PropList_MainOrSubWeapon_Penalty="None" PropList_HandOrFoot="OptDesc/빅뱅[S] 스킬 레벨 + 1" PropList_HandOrFoot_Penalty="None" />
   </Item>
   <Item Name="GEM_Sledger_Sledgehammer_Swordman">
     <Level Level="0" PropList_TopLeg="OptDesc/슬레지해머[S] 스킬 레벨 + 1" PropList_TopLeg_Penalty="None" PropList_MainOrSubWeapon="None" PropList_MainOrSubWeapon_Penalty="None" PropList_HandOrFoot="OptDesc/슬레지해머[S] 스킬 레벨 + 1" PropList_HandOrFoot_Penalty="None" />
@@ -3614,5 +3614,61 @@
   <Item Name="GEM_AetherBlader_ArcaneCollapse_Scout">
     <Level Level="0" PropList_TopLeg="OptDesc/아케인 콜랩스[T] 스킬 레벨 + 1" PropList_TopLeg_Penalty="None" PropList_MainOrSubWeapon="None" PropList_MainOrSubWeapon_Penalty="None" PropList_HandOrFoot="OptDesc/아케인 콜랩스[T] 스킬 레벨 + 1" PropList_HandOrFoot_Penalty="None" />
     <Level Level="1" PropList_TopLeg="OptDesc/아케인 콜랩스[T] 스킬 레벨 + 1" PropList_TopLeg_Penalty="None" PropList_MainOrSubWeapon="None" PropList_MainOrSubWeapon_Penalty="None" PropList_HandOrFoot="OptDesc/아케인 콜랩스[T] 스킬 레벨 + 1" PropList_HandOrFoot_Penalty="None" />
+  </Item>
+  <Item Name="GEM_Hermit_FallingStarlight_Wizard">
+    <Level Level="0" PropList_TopLeg="OptDesc/별빛 낙하[W] 스킬 레벨 + 1" PropList_TopLeg_Penalty="None" PropList_MainOrSubWeapon="None" PropList_MainOrSubWeapon_Penalty="None" PropList_HandOrFoot="OptDesc/별빛 낙하[W] 스킬 레벨 + 1" PropList_HandOrFoot_Penalty="None" />
+    <Level Level="1" PropList_TopLeg="OptDesc/별빛 낙하[W] 스킬 레벨 + 1" PropList_TopLeg_Penalty="None" PropList_MainOrSubWeapon="None" PropList_MainOrSubWeapon_Penalty="None" PropList_HandOrFoot="OptDesc/별빛 낙하[W] 스킬 레벨 + 1" PropList_HandOrFoot_Penalty="None" />
+  </Item>
+  <Item Name="GEM_Hermit_StellarRebound_Wizard">
+    <Level Level="0" PropList_TopLeg="OptDesc/별의 회귀[W] 스킬 레벨 + 1" PropList_TopLeg_Penalty="None" PropList_MainOrSubWeapon="None" PropList_MainOrSubWeapon_Penalty="None" PropList_HandOrFoot="OptDesc/별의 회귀[W] 스킬 레벨 + 1" PropList_HandOrFoot_Penalty="None" />
+    <Level Level="1" PropList_TopLeg="OptDesc/별의 회귀[W] 스킬 레벨 + 1" PropList_TopLeg_Penalty="None" PropList_MainOrSubWeapon="None" PropList_MainOrSubWeapon_Penalty="None" PropList_HandOrFoot="OptDesc/별의 회귀[W] 스킬 레벨 + 1" PropList_HandOrFoot_Penalty="None" />
+  </Item>
+  <Item Name="GEM_Hermit_LunarBrand_Wizard">
+    <Level Level="0" PropList_TopLeg="OptDesc/달빛 낙인[W] 스킬 레벨 + 1" PropList_TopLeg_Penalty="None" PropList_MainOrSubWeapon="None" PropList_MainOrSubWeapon_Penalty="None" PropList_HandOrFoot="OptDesc/달빛 낙인[W] 스킬 레벨 + 1" PropList_HandOrFoot_Penalty="None" />
+    <Level Level="1" PropList_TopLeg="OptDesc/달빛 낙인[W] 스킬 레벨 + 1" PropList_TopLeg_Penalty="None" PropList_MainOrSubWeapon="None" PropList_MainOrSubWeapon_Penalty="None" PropList_HandOrFoot="OptDesc/달빛 낙인[W] 스킬 레벨 + 1" PropList_HandOrFoot_Penalty="None" />
+  </Item>
+  <Item Name="GEM_Hermit_TwilightVeil_Wizard">
+    <Level Level="0" PropList_TopLeg="OptDesc/황혼의 장막[W] 스킬 레벨 + 1" PropList_TopLeg_Penalty="None" PropList_MainOrSubWeapon="None" PropList_MainOrSubWeapon_Penalty="None" PropList_HandOrFoot="OptDesc/황혼의 장막[W] 스킬 레벨 + 1" PropList_HandOrFoot_Penalty="None" />
+    <Level Level="1" PropList_TopLeg="OptDesc/황혼의 장막[W] 스킬 레벨 + 1" PropList_TopLeg_Penalty="None" PropList_MainOrSubWeapon="None" PropList_MainOrSubWeapon_Penalty="None" PropList_HandOrFoot="OptDesc/황혼의 장막[W] 스킬 레벨 + 1" PropList_HandOrFoot_Penalty="None" />
+  </Item>
+  <Item Name="GEM_Hermit_ConstellationResidueField_Wizard">
+    <Level Level="0" PropList_TopLeg="OptDesc/별자리 잔류장[W] 스킬 레벨 + 1" PropList_TopLeg_Penalty="None" PropList_MainOrSubWeapon="None" PropList_MainOrSubWeapon_Penalty="None" PropList_HandOrFoot="OptDesc/별자리 잔류장[W] 스킬 레벨 + 1" PropList_HandOrFoot_Penalty="None" />
+    <Level Level="1" PropList_TopLeg="OptDesc/별자리 잔류장[W] 스킬 레벨 + 1" PropList_TopLeg_Penalty="None" PropList_MainOrSubWeapon="None" PropList_MainOrSubWeapon_Penalty="None" PropList_HandOrFoot="OptDesc/별자리 잔류장[W] 스킬 레벨 + 1" PropList_HandOrFoot_Penalty="None" />
+  </Item>
+  <Item Name="GEM_Hermit_Eclipse_Wizard">
+    <Level Level="0" PropList_TopLeg="OptDesc/월식[W] 스킬 레벨 + 1" PropList_TopLeg_Penalty="None" PropList_MainOrSubWeapon="None" PropList_MainOrSubWeapon_Penalty="None" PropList_HandOrFoot="OptDesc/월식[W] 스킬 레벨 + 1" PropList_HandOrFoot_Penalty="None" />
+    <Level Level="1" PropList_TopLeg="OptDesc/월식[W] 스킬 레벨 + 1" PropList_TopLeg_Penalty="None" PropList_MainOrSubWeapon="None" PropList_MainOrSubWeapon_Penalty="None" PropList_HandOrFoot="OptDesc/월식[W] 스킬 레벨 + 1" PropList_HandOrFoot_Penalty="None" />
+  </Item>
+  <Item Name="GEM_Hermit_JudgementoftheCosmos_Wizard">
+    <Level Level="0" PropList_TopLeg="OptDesc/천체의 심판[W] 스킬 레벨 + 1" PropList_TopLeg_Penalty="None" PropList_MainOrSubWeapon="None" PropList_MainOrSubWeapon_Penalty="None" PropList_HandOrFoot="OptDesc/천체의 심판[W] 스킬 레벨 + 1" PropList_HandOrFoot_Penalty="None" />
+    <Level Level="1" PropList_TopLeg="OptDesc/천체의 심판[W] 스킬 레벨 + 1" PropList_TopLeg_Penalty="None" PropList_MainOrSubWeapon="None" PropList_MainOrSubWeapon_Penalty="None" PropList_HandOrFoot="OptDesc/천체의 심판[W] 스킬 레벨 + 1" PropList_HandOrFoot_Penalty="None" />
+  </Item>
+  <Item Name="GEM_Hermit_FallingStarlight_Cleric">
+    <Level Level="0" PropList_TopLeg="OptDesc/별빛 낙하[C] 스킬 레벨 + 1" PropList_TopLeg_Penalty="None" PropList_MainOrSubWeapon="None" PropList_MainOrSubWeapon_Penalty="None" PropList_HandOrFoot="OptDesc/별빛 낙하[C] 스킬 레벨 + 1" PropList_HandOrFoot_Penalty="None" />
+    <Level Level="1" PropList_TopLeg="OptDesc/별빛 낙하[C] 스킬 레벨 + 1" PropList_TopLeg_Penalty="None" PropList_MainOrSubWeapon="None" PropList_MainOrSubWeapon_Penalty="None" PropList_HandOrFoot="OptDesc/별빛 낙하[C] 스킬 레벨 + 1" PropList_HandOrFoot_Penalty="None" />
+  </Item>
+  <Item Name="GEM_Hermit_StellarRebound_Cleric">
+    <Level Level="0" PropList_TopLeg="OptDesc/별의 회귀[C] 스킬 레벨 + 1" PropList_TopLeg_Penalty="None" PropList_MainOrSubWeapon="None" PropList_MainOrSubWeapon_Penalty="None" PropList_HandOrFoot="OptDesc/별의 회귀[C] 스킬 레벨 + 1" PropList_HandOrFoot_Penalty="None" />
+    <Level Level="1" PropList_TopLeg="OptDesc/별의 회귀[C] 스킬 레벨 + 1" PropList_TopLeg_Penalty="None" PropList_MainOrSubWeapon="None" PropList_MainOrSubWeapon_Penalty="None" PropList_HandOrFoot="OptDesc/별의 회귀[C] 스킬 레벨 + 1" PropList_HandOrFoot_Penalty="None" />
+  </Item>
+  <Item Name="GEM_Hermit_LunarBrand_Cleric">
+    <Level Level="0" PropList_TopLeg="OptDesc/달빛 낙인[C] 스킬 레벨 + 1" PropList_TopLeg_Penalty="None" PropList_MainOrSubWeapon="None" PropList_MainOrSubWeapon_Penalty="None" PropList_HandOrFoot="OptDesc/달빛 낙인[C] 스킬 레벨 + 1" PropList_HandOrFoot_Penalty="None" />
+    <Level Level="1" PropList_TopLeg="OptDesc/달빛 낙인[C] 스킬 레벨 + 1" PropList_TopLeg_Penalty="None" PropList_MainOrSubWeapon="None" PropList_MainOrSubWeapon_Penalty="None" PropList_HandOrFoot="OptDesc/달빛 낙인[C] 스킬 레벨 + 1" PropList_HandOrFoot_Penalty="None" />
+  </Item>
+  <Item Name="GEM_Hermit_TwilightVeil_Cleric">
+    <Level Level="0" PropList_TopLeg="OptDesc/황혼의 장막[C] 스킬 레벨 + 1" PropList_TopLeg_Penalty="None" PropList_MainOrSubWeapon="None" PropList_MainOrSubWeapon_Penalty="None" PropList_HandOrFoot="OptDesc/황혼의 장막[C] 스킬 레벨 + 1" PropList_HandOrFoot_Penalty="None" />
+    <Level Level="1" PropList_TopLeg="OptDesc/황혼의 장막[C] 스킬 레벨 + 1" PropList_TopLeg_Penalty="None" PropList_MainOrSubWeapon="None" PropList_MainOrSubWeapon_Penalty="None" PropList_HandOrFoot="OptDesc/황혼의 장막[C] 스킬 레벨 + 1" PropList_HandOrFoot_Penalty="None" />
+  </Item>
+  <Item Name="GEM_Hermit_ConstellationResidueField_Cleric">
+    <Level Level="0" PropList_TopLeg="OptDesc/별자리 잔류장[C] 스킬 레벨 + 1" PropList_TopLeg_Penalty="None" PropList_MainOrSubWeapon="None" PropList_MainOrSubWeapon_Penalty="None" PropList_HandOrFoot="OptDesc/별자리 잔류장[C] 스킬 레벨 + 1" PropList_HandOrFoot_Penalty="None" />
+    <Level Level="1" PropList_TopLeg="OptDesc/별자리 잔류장[C] 스킬 레벨 + 1" PropList_TopLeg_Penalty="None" PropList_MainOrSubWeapon="None" PropList_MainOrSubWeapon_Penalty="None" PropList_HandOrFoot="OptDesc/별자리 잔류장[C] 스킬 레벨 + 1" PropList_HandOrFoot_Penalty="None" />
+  </Item>
+  <Item Name="GEM_Hermit_Eclipse_Cleric">
+    <Level Level="0" PropList_TopLeg="OptDesc/월식[C] 스킬 레벨 + 1" PropList_TopLeg_Penalty="None" PropList_MainOrSubWeapon="None" PropList_MainOrSubWeapon_Penalty="None" PropList_HandOrFoot="OptDesc/월식[C] 스킬 레벨 + 1" PropList_HandOrFoot_Penalty="None" />
+    <Level Level="1" PropList_TopLeg="OptDesc/월식[C] 스킬 레벨 + 1" PropList_TopLeg_Penalty="None" PropList_MainOrSubWeapon="None" PropList_MainOrSubWeapon_Penalty="None" PropList_HandOrFoot="OptDesc/월식[C] 스킬 레벨 + 1" PropList_HandOrFoot_Penalty="None" />
+  </Item>
+  <Item Name="GEM_Hermit_JudgementoftheCosmos_Cleric">
+    <Level Level="0" PropList_TopLeg="OptDesc/천체의 심판[C] 스킬 레벨 + 1" PropList_TopLeg_Penalty="None" PropList_MainOrSubWeapon="None" PropList_MainOrSubWeapon_Penalty="None" PropList_HandOrFoot="OptDesc/천체의 심판[C] 스킬 레벨 + 1" PropList_HandOrFoot_Penalty="None" />
+    <Level Level="1" PropList_TopLeg="OptDesc/천체의 심판[C] 스킬 레벨 + 1" PropList_TopLeg_Penalty="None" PropList_MainOrSubWeapon="None" PropList_MainOrSubWeapon_Penalty="None" PropList_HandOrFoot="OptDesc/천체의 심판[C] 스킬 레벨 + 1" PropList_HandOrFoot_Penalty="None" />
   </Item>
 </SocketProperty>

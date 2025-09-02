@@ -72,5 +72,4 @@ ClassID,GenType,Lv,Range,GenRange,RespawnTime,MaxPop,Minimap,Hide,UseAIOufOfPC,A
 5504,5504,1,40,1,60000,1,1,0,0,0,0,0,"npc_vulture","[벌처 마스터]{nl}구스타프 디젤","","","","","","","NPC_VULTURE","","","NO","YES","NO","Neutral","","","",""
 5505,5505,1,40,1,60000,1,1,0,0,0,0,0,"npc_blitzhunter","[블리츠 헌터 마스터]{nl}라이제스","","","","","","","NPC_BLITZHUNTER","","","NO","YES","NO","Neutral","","","",""
 5261,5261,1,60,1,60000,1,1,0,0,0,0,0,"gacha_machine","여신의 축복","","","","","","","BLESSED_CUBE","","","NO","YES","NO","Neutral","","","",""
-5214,5214,1,1,1,1,1,2,0,0,0,0,0,"npc_sailor_m","[이벤트]{nl}썸머 페스타 안내원","","","","","","","EVENT_2006_SUMMER_NPC","","","NO","YES","NO","Neutral","","","",""
-5239,5239,1,1,-1,1,1,2,0,0,0,100,0,"event_2001_cat","낚시터 고양이","","","","","","","EVENT_2006_SUMMER_CAT","","","NO","YES","NO","Neutral","","","",""
+6100,6100,1,40,1,1,1,2,0,0,0,0,0,"Tos_Coin_Shop_NPC","[이벤트] 가을 달맞이 NPC","","","","","","","EVENT_2509_KUPOLE","","","NO","YES","NO","Neutral","","","",""

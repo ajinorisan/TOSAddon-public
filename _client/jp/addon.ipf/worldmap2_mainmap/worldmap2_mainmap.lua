@@ -92,20 +92,80 @@ function WORLDMAP2_MAINMAP_DRAW_BASE(frame)
 end
 
 function WORLDMAP2_MAINMAP_DRAW(frame)
-	local list, cnt = GetClassList("worldmap2_data")
+    local list, cnt = GetClassList("worldmap2_data")
+    
+    --현재 플레이어가 보려는 에피소드 타입 확인.
+    local current_episode = frame:GetUserValue("current_episode");
+
 	for i = 0, cnt-1 do
 		local cls = GetClassByIndexFromList(list, i)
 
-		if cls.Type == "city" then
-			WORLDMAP2_MAINMAP_DRAW_CITY(frame, cls)
-		end
-		if cls.Type == "episode" then
-			WORLDMAP2_MAINMAP_DRAW_EPISODE(frame, cls)
-		end
-		if cls.Type == "sub_episode" then
-			WORLDMAP2_MAINMAP_DRAW_SUB_EPISODE(frame, cls)
-		end
+        --hard 설정 되어 있으면, ep16_2부터 맵을 보여준다.
+        if current_episode == "hard" then
+            if cls.Type == "hard" then
+                WORLDMAP2_MAINMAP_DRAW_HARD_EPISODE(frame, cls)
+            end
+        else
+
+            if cls.Type == "city" then
+                WORLDMAP2_MAINMAP_DRAW_CITY(frame, cls)
+            end
+
+            if cls.Type == "episode" then
+                WORLDMAP2_MAINMAP_DRAW_EPISODE(frame, cls)
+            end
+
+            if cls.Type == "sub_episode" then
+                WORLDMAP2_MAINMAP_DRAW_SUB_EPISODE(frame, cls)
+            end
+        end
     end
+    
+    if current_episode == "hard" then
+        WORLDMAP2_MAINMAP_DRAW_CHANGE_NORMAL_EPISODE_BUTTON(frame);
+    else 
+        WORLDMAP2_MAINMAP_DRAW_CHANGE_HARD_EPISODE_BUTTON(frame)
+    end
+end
+
+function WORLDMAP2_MAINMAP_DRAW_CHANGE_HARD_EPISODE_BUTTON(frame)
+
+	local key = "change_hard_button"
+	local x = 820
+	local y = 30
+
+    frame:RemoveChild("change_normal_button")
+
+	local buttonSet = frame:CreateOrGetControlSet("change_hard_button_set", key, ui.CENTER_HORZ, ui.CENTER_VERT, x, y, 0, 0)
+	local button = AUTO_CAST(buttonSet:GetChild("change_hard_btn"))
+
+    local icon_colortone = "FF9966FF"
+    button:SetColorTone(icon_colortone)
+
+    -- 버튼
+	--subEpisodeBtn:SetText("{@st100lblue_16}2PAGE")
+	--subEpisodeBtn:SetTextOffset(0, -11)
+    button:AdjustFontSizeByWidth(120)
+end
+
+function WORLDMAP2_MAINMAP_DRAW_CHANGE_NORMAL_EPISODE_BUTTON(frame)
+
+	local key = "change_normal_button"
+	local x = -820
+	local y = 30
+
+    frame:RemoveChild("change_hard_button")
+
+	local buttonSet = frame:CreateOrGetControlSet("change_normal_button_set", key, ui.CENTER_HORZ, ui.CENTER_VERT, x, y, 0, 0)
+	local button = AUTO_CAST(buttonSet:GetChild("change_normal_btn"))
+
+    local icon_colortone = "FF9966FF"
+    button:SetColorTone(icon_colortone)
+
+    -- 버튼
+	-- subEpisodeBtn:SetText("{@st100lblue_16}1PAGE")
+	-- subEpisodeBtn:SetTextOffset(0, -11)
+    button:AdjustFontSizeByWidth(120)
 end
 
 function WORLDMAP2_MAINMAP_DRAW_COLONY(frame)
@@ -221,10 +281,91 @@ function WORLDMAP2_MAINMAP_DRAW_EPISODE(frame, mapData)
 	-- 이미지
     episodeImg:SetImage(imageName)
     episodeImg:SetUserValue("EPISODE", episode)
+    -- local icon_colortone = "DDDDDDDD"
+    -- episodeImg:SetColorTone(icon_colortone)
 
     -- 버튼
-	episodeBtn:SetMargin(0, 2 + imageSize.y/2, 0, 0)
-	episodeBtn:SetText("{@st100white_16}"..mapData.Name)
+    episodeBtn:SetMargin(0, 2 + imageSize.y/2, 0, 0)
+    
+    local current_episode = frame:GetUserValue("current_episode");
+    if current_episode == "hard" then
+        episodeBtn:SetText("{@st100orange_16}"..mapData.Name)
+    else
+        episodeBtn:SetText("{@st100white_16}"..mapData.Name)
+    end
+	episodeBtn:SetTextOffset(0, 4)
+	
+	if config.GetServiceNation() == 'KOR' or config.GetServiceNation() == 'GLOBAL_KOR' then
+        episodeBtn:AdjustFontSizeByWidth(100)
+	else
+		episodeBtn:AdjustFontSizeByWidth(200)
+	end
+    episodeBtn:SetUserValue("EPISODE", episode)
+
+	-- 내 위치 표기
+	local myPosImg = AUTO_CAST(episodeSet:GetChild("pc_pos"))
+	local myMapName, myEpisode = GET_MY_POSITION()
+
+    if myEpisode == episode then
+        frame:SetUserValue("MY_POS", episode)
+        myPosImg:SetMargin(-2, -4 -imageSize.y/2, 0, 0)
+        myPosImg:ShowWindow(1)
+	else
+		myPosImg:ShowWindow(0)
+    end
+
+    -- 마지막 워프 위치 표기
+    local lobbyImg = AUTO_CAST(episodeSet:GetChild("last_warp_pos"))
+    local lobbyEpisode = GET_MY_LAST_WARP_EPISODE()
+
+    if lobbyEpisode ~= nil and lobbyEpisode == episode then
+        lobbyImg:SetMargin(20 -imageSize.x/2, 30 -imageSize.y/2, 0, 0)
+        lobbyImg:ShowWindow(1)
+    else
+        lobbyImg:ShowWindow(0)
+    end
+
+    -- 필드보스 표기
+    local fieldBossText = frame:CreateOrGetControl('richtext', 'fieldboss_text_'..episode, 0, 0, 100, 100)
+
+    fieldBossText:SetGravity(ui.CENTER_HORZ, ui.CENTER_VERT)
+    fieldBossText:SetMargin(x + 3, y + 32 + imageSize.y/2, 0, 0)
+    fieldBossText:ShowWindow(0)
+end
+
+function WORLDMAP2_MAINMAP_DRAW_HARD_EPISODE(frame, mapData)
+	local episode = mapData.ClassName
+	local x = mapData.Coordinate_X
+	local y = mapData.Coordinate_Y
+
+	local imageName = mapData.ImageName
+	local imageSize = ui.GetSkinImageSize(imageName)
+
+	local episodeSet = frame:CreateOrGetControlSet("episode_set", episode, ui.CENTER_HORZ, ui.CENTER_VERT, x, y, 0, 0)
+	local episodeImg = AUTO_CAST(episodeSet:GetChild("episode_img"))
+	local episodeBtn = AUTO_CAST(episodeSet:GetChild("episode_btn"))
+
+	-- 사이즈 조정
+	if config.GetServiceNation() == 'KOR' or config.GetServiceNation() == 'GLOBAL_KOR' then
+		episodeSet:Resize(imageSize.x + 60, imageSize.y + 60)
+	else
+		episodeSet:Resize(imageSize.x + 100, imageSize.y + 100)
+	end
+	-- 이미지
+    episodeImg:SetImage(imageName)
+    episodeImg:SetUserValue("EPISODE", episode)
+    -- local icon_colortone = "DDDDDDDD"
+    -- episodeImg:SetColorTone(icon_colortone)
+
+    -- 버튼
+    episodeBtn:SetMargin(0, 2 + imageSize.y/2, 0, 0)
+    
+    local current_episode = frame:GetUserValue("current_episode");
+    if current_episode == "hard" then
+        episodeBtn:SetText("{@st100orange_16}"..mapData.Name)
+    else
+        episodeBtn:SetText("{@st100white_16}"..mapData.Name)
+    end
 	episodeBtn:SetTextOffset(0, 4)
 	
 	if config.GetServiceNation() == 'KOR' or config.GetServiceNation() == 'GLOBAL_KOR' then
@@ -317,7 +458,13 @@ function WORLDMAP2_MAINMAP_DRAW_COLONY_CITY(frame, mapName, episode, colonyData)
 end
 
 function WORLDMAP2_MAINMAP_DRAW_COLONY_EPISODE(frame, mapName, episode, colonyData)
-    local controlSet = AUTO_CAST(frame:GetChild(episode))
+
+    local ctrl = frame:GetChild(episode);
+    if ctrl == nil then
+        return;
+    end
+
+    local controlSet = AUTO_CAST(ctrl)
     local count = controlSet:GetUserValue("COLONY_COUNT")
 
     if count == "None" then
@@ -341,7 +488,12 @@ function WORLDMAP2_MAINMAP_DRAW_COLONY_EPISODE(frame, mapName, episode, colonyDa
 end
 
 function WORLDMAP2_MAINMAP_DRAW_COLONY_SUB_EPISODE(frame, mapName, episode, colonyData)
+
     local controlSet = AUTO_CAST(frame:GetChild(episode))
+    if controlSet == nil then
+        return;
+    end
+    
     local count = controlSet:GetUserValue("COLONY_COUNT")
 
     if count == "None" then

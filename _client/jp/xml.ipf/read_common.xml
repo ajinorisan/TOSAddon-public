@@ -1,4 +1,4 @@
-﻿<!-- edited with XMLSPY v2004 rel. 2 U (http://www.xmlspy.com) by imc (imc) -->
+<!-- edited with XMLSPY v2004 rel. 2 U (http://www.xmlspy.com) by imc (imc) -->
 <Category>
 	<ReadXml Name="bonescale"/>
 	<ReadXml Name="item_goddess_reinforce"/>
@@ -9,6 +9,7 @@
 	<ReadXml Name="item_goddess_reinforce_510"/>
 	<ReadXml Name="item_goddess_reinforce_520"/>
 	<ReadXml Name="item_goddess_reinforce_530"/>
+	<ReadXml Name="item_goddess_reinforce_540"/>
 	<ReadXml Name="pharmacy_material_type"/>	
 	<ReadXml Name="skill_Simony"/>
 	<ReadXml Name="archeology_property"/>
@@ -405,7 +406,7 @@
 	<ReadXml Name="tribulation_system_reward_list"/>
 	<ReadXml Name="class_tree_recommend"/>
 	<ReadXml Name="enchant_skill_list"/>	
-	<ReadXml Name="upgrade_equip_item"/>	
+	<ReadXml Name="upgrade_equip_item"/>
 	<ReadXml Name="guide_mission\guide_main"/>
 	<ReadXml Name="guide_mission\guide_submission"/>
 	<ReadXml Name="tpitem_season"/>		
@@ -440,9 +441,16 @@
 	<ReadXml Name="friend_invite"/>	
 	<ReadXml Name="cupole_pickuplist"/>
 	<ReadXml Name="rerunticket"/>
-	<ReadXml Name="event_gamble_list"/>	
-	<ReadXml Name="limit_field_drop_item_list"/>		
+	<ReadXml Name="event_gamble_list"/>
+	<ReadXml Name="limit_field_drop_item_list"/>
+	<ReadXml Name="tempest_core_unsealing_material"/>
+	<ReadXml Name="tempest_core_unsealing_item_list"/>
+	<ReadXml Name="tempest_core_item_list"/>
 	<ReadXml Name="reward_tp3"/>
 	<ReadXml Name="archeology_exhibition_item"/>
+	<ReadXml Name="upgrade_item_value"/>
 	<ReadXml Name="archeology_exhibition_exp"/>
+	<ReadXml Name="boruta_reward"/>
+	<ReadXml Name="growth_support_guild"/>
+	<ReadXml Name="demonlair_user_select_info"/>
 </Category>
