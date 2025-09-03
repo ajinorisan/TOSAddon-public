@@ -73,10 +73,11 @@
 -- v1.7.3 PTメンバーの死亡をニコチャットでお知らせ機能
 -- v1.7.4 フレームの分類分け、ペットリング非表示、コロニーの街へ移動のタイマー修正（IMCが直せよ）
 -- v1.7.5 コロニーの街へ移動のタイマー再修正、追加チャットフレームの移動制限削除、デイリクエストを別窓表示。グルチャ系を直したつもり
+-- v1.7.6 250902大型アプデ対応。アウステヤコイン。indunpanelからオートズーム機能移行
 local addon_name = "MINI_ADDONS"
 local addon_name_lower = string.lower(addon_name)
 local author = "norisan"
-local ver = "1.7.5"
+local ver = "1.7.6"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -162,7 +163,11 @@ local DEFAULT_SETTINGS = {
     pet_ring = 0,
     daily_quest = 1,
     chat_frame = 1,
-    restart_colony = 0
+    restart_colony = 0,
+    auto_zoom = {
+        use = 0,
+        zoom = 336
+    }
 }
 
 local SETTINGS_NAME = {"other_effect", "my_effect", "boss_effect", "channel_info", "pc_name", "quest_hide",
@@ -172,13 +177,14 @@ local SETTINGS_NAME = {"other_effect", "my_effect", "boss_effect", "channel_info
                        "raid_check", "coin_count", "bgm", "vakarine", "weekly_boss_reward", "solodun_reward",
                        "cupole_portion", "goodbye_ragana", "status_upgrade", "icor_status_search", "velnice",
                        "separated_buff", "group_chat", "memberinfo", "baubas_call", "pt_buff", "chat_recv", "pet_ring",
-                       "daily_quest", "chat_frame", "restart_colony"}
+                       "daily_quest", "chat_frame", "restart_colony", "auto_zoom"}
 
 local COIN_ITEM = {869001, 11200350, 11200303, 11200302, 11200301, 11200300, 11200299, 11200298, 11200297, 11200161,
                    11200160, 11200159, 11200158, 11200157, 11200156, 11200155, 11030215, 11030214, 11030213, 11030212,
                    11030211, 11030210, 11030201, 11035673, 11035670, 11035668, 11030394, 11030240, 646076, 11035672,
                    11035669, 11035667, 11035457, 11035426, 11035409, 11201239, 11201238, 11201237, 11201236, 11201235,
-                   11201234, 11201233, 11201232}
+                   11201234, 11201233, 11201232, 11202008, 11202007, 11202006, 11202005, 11202004, 11202003, 11202002,
+                   11202001}
 
 -- メイン設定ウィンドウに表示するカテゴリボタンの定義
 local CATEGORY_BUTTONS = {{
@@ -205,6 +211,11 @@ local CATEGORY_BUTTONS = {{
 
 -- メイン設定ウィンドウに表示する主要なチェックボックスの定義
 local MAIN_FRAME_SETTINGS = {{
+    name = "auto_zoom",
+    text_jp = "{#FF0000}New!{/}{/}{ol}マップ切り替え時に自動でズーム",
+    text_kr = "{#FF0000}New!{/}{/}{ol}맵 이동 시 자동으로 지도를 확대합니다",
+    text_en = "{#FF0000}New!{/}{/}{ol}Automatically zooms the map when changing maps"
+}, {
     name = "restart_colony",
     text_jp = "{#FF0000}New!{/}{/}{ol}コロニー死亡時の30秒タイマーを修正",
     text_kr = "{#FF0000}New!{/}{/}{ol}콜로니 사망 시 30초 타이머 수정",
@@ -423,6 +434,412 @@ local SUB_FRAME_SETTINGS = {
         text_en = "Equip Refining, Automate weapon/armor enhancement"
     }}
 }
+
+function MINI_ADDONS_subframe_close(frame, ctrl)
+    local sub_frame = ui.GetFrame(addon_name_lower .. "sub_frame")
+    sub_frame:ShowWindow(0)
+end
+
+function MINI_ADDONS_subframe_open(frame, ctrl, str)
+    local sub_frame = ui.CreateNewFrame("notice_on_pc", addon_name_lower .. "sub_frame", 0, 0, 0, 0)
+    AUTO_CAST(sub_frame)
+    sub_frame:SetSkinName("test_frame_low")
+    sub_frame:SetLayerLevel(94)
+    sub_frame:EnableHittestFrame(1)
+    sub_frame:ShowTitleBar(0)
+    sub_frame:RemoveAllChild()
+
+    local title = sub_frame:CreateOrGetControl("richtext", "title", 30, 10)
+    AUTO_CAST(title)
+    local clean_str = string.gsub(str, "{ol}", "")
+    title:SetText("{@st66b18}" .. clean_str)
+
+    local gbox = sub_frame:CreateOrGetControl("groupbox", "gbox", 10, 30, 0, 0)
+    AUTO_CAST(gbox)
+    gbox:SetSkinName("bg")
+
+    local close = sub_frame:CreateOrGetControl("button", "close", 0, 0, 30, 30)
+    AUTO_CAST(close)
+    close:SetGravity(ui.RIGHT, ui.TOP)
+    close:SetSkinName("None")
+    close:SetText("{img testclose_button 30 30}")
+    close:SetEventScript(ui.LBUTTONUP, "MINI_ADDONS_subframe_close")
+
+    local ctrl_name = ctrl:GetName()
+    local y = 10
+    local x = 0
+
+    -- クリックされたボタン名に対応する設定データを取得
+    local settings_data = SUB_FRAME_SETTINGS[ctrl_name] or {}
+
+    -- 共通のUI生成ループ
+    for _, setting in ipairs(settings_data) do
+        -- checkキーにg.settingsから動的に値を取得する
+        local check_value
+        if setting.name == "cupole_portion" or setting.name == "baubas_call" or setting.name == "velnice" then
+            check_value = g.settings[setting.name].use
+        elseif setting.name == "my_effect" or setting.name == "boss_effect" then
+            check_value = g.settings[setting.name] or 0
+        else
+            check_value = g.settings[setting.name]
+        end
+
+        local checkbox = gbox:CreateOrGetControl('checkbox', setting.name, 10, y, 25, 25)
+        AUTO_CAST(checkbox)
+        checkbox:SetCheck(check_value)
+        checkbox:SetEventScript(ui.LBUTTONUP, "MINI_ADDONS_ISCHECK")
+
+        local text = g.lang == "Japanese" and ("{ol}" .. setting.text_jp) or g.lang == "kr" and
+                         ("{ol}" .. setting.text_kr) or ("{ol}" .. setting.text_en)
+        checkbox:SetText(text)
+
+        local tooltip_text = g.lang == "Japanese" and "{ol}チェックすると有効化" or g.lang == "kr" and
+                                 "{ol}체크 시 활성화" or "{ol}Check to enable"
+        checkbox:SetTextTooltip(tooltip_text)
+
+        local text_width = checkbox:GetWidth()
+        if x < text_width then
+            x = text_width
+        end
+
+        -- チェックボックスの隣に特殊なUIを追加する処理
+        if setting.name == "baubas_call" then
+            local baubas_call_btn = gbox:CreateOrGetControl('button', 'baubas_call_btn', text_width + 15, y - 5, 50, 30)
+            AUTO_CAST(baubas_call_btn)
+            if g.settings.baubas_call.guild_notice == 0 or not g.settings.baubas_call.guild_notice then
+                baubas_call_btn:SetText("{ol}{#FFFFFF}OFF")
+                baubas_call_btn:SetSkinName("test_gray_button")
+                g.settings.baubas_call.guild_notice = 0
+                MINI_ADDONS_SAVE_SETTINGS()
+            else
+                baubas_call_btn:SetText("{ol}{#FFFFFF}ON")
+                baubas_call_btn:SetSkinName("test_red_button")
+            end
+            local tooltip_text = g.lang == "Japanese" and "{ol}ギルドチャットへのお知らせ切替え" or
+                                     g.lang == "kr" and "{ol}길드 채팅으로 알림 전환" or
+                                     "{ol}Notification switch to guild chat"
+            baubas_call_btn:SetTextTooltip(tooltip_text)
+            baubas_call_btn:SetEventScript(ui.LBUTTONUP, "MINI_ADDONS_baubas_call_switch")
+            local btn_width = baubas_call_btn:GetWidth()
+            if x < text_width + 15 + btn_width then
+                x = text_width + 15 + btn_width
+            end
+
+        elseif setting.name == "other_effect" or setting.name == "my_effect" or setting.name == "boss_effect" then
+            local edit_name = setting.name .. "_edit"
+            local edit_ctrl = gbox:CreateOrGetControl('edit', edit_name, text_width + 15, y, 60, 25)
+            AUTO_CAST(edit_ctrl)
+            local event_name = "MINI_ADDONS_" .. string.upper(setting.name) .. "_EDIT"
+            edit_ctrl:SetEventScript(ui.ENTERKEY, event_name)
+            edit_ctrl:SetTextTooltip("{ol}1~100")
+            edit_ctrl:SetFontName("white_16_ol")
+            edit_ctrl:SetTextAlign("center", "center")
+
+            local transparency_value
+            if setting.name == "other_effect" then
+                transparency_value = config.GetOtherEffectTransparency()
+            elseif setting.name == "my_effect" then
+                transparency_value = config.GetMyEffectTransparency()
+            elseif setting.name == "boss_effect" then
+                transparency_value = config.GetBossMonsterEffectTransparency()
+            end
+            local num_value = math.floor(transparency_value * 0.392156862745 + 0.5)
+            edit_ctrl:SetText("{ol}" .. num_value)
+            if x < text_width + 15 + 60 then
+                x = text_width + 15 + 60
+            end
+
+        elseif setting.name == "auto_gacha" then
+            local auto_gacha_btn = gbox:CreateOrGetControl('button', 'auto_gacha_btn', text_width + 15, y - 5, 50, 30)
+            AUTO_CAST(auto_gacha_btn)
+            if g.settings.auto_gacha_start == 0 or g.settings.auto_gacha_start == nil then
+                auto_gacha_btn:SetText("{ol}{#FFFFFF}OFF")
+                auto_gacha_btn:SetSkinName("test_gray_button")
+                g.settings.auto_gacha_start = 0
+                MINI_ADDONS_SAVE_SETTINGS()
+            else
+                auto_gacha_btn:SetText("{ol}{#FFFFFF}ON")
+                auto_gacha_btn:SetSkinName("test_red_button")
+            end
+            local tooltip_text = g.lang == "Japanese" and
+                                     "{ol}ONにすると自動でガチャスタートします。切替にCC必要です" or
+                                     g.lang == "kr" and
+                                     "{ol}ON으로 설정하면 자동으로 가챠가 시작됩니다. 전환 시 CC 필요합니다" or
+                                     "{ol}When turned on, the gacha starts automatically.CC required for switching"
+            auto_gacha_btn:SetTextTooltip(tooltip_text)
+            auto_gacha_btn:SetEventScript(ui.LBUTTONUP, "MINI_ADDONS_GP_AUTOSTART_OPERATION")
+            if x < text_width + 15 + 50 then
+                x = text_width + 15 + 50
+            end
+
+        elseif setting.name == "weekly_boss_reward" then
+            if not g.settings.reward_switch then
+                g.settings.reward_switch = 1
+                MINI_ADDONS_SAVE_SETTINGS()
+            end
+            local switch_btn = gbox:CreateOrGetControl('button', 'switch', text_width + 15, y, 80, 25)
+            AUTO_CAST(switch_btn)
+            if g.settings.reward_switch == 1 then
+                switch_btn:SetText(g.lang == "Japanese" and "{ol}先週分" or g.lang == "kr" and "{ol}지난 주분" or
+                                       "{ol}last week")
+            else
+                switch_btn:SetText(g.lang == "Japanese" and "{ol}今週分" or g.lang == "kr" and "{ol}이번 주분" or
+                                       "{ol}this week")
+            end
+            switch_btn:SetEventScript(ui.LBUTTONUP, "MINI_ADDONS_WEEKLY_BOSS_REWARD_SWITCH")
+            local tooltip_text =
+                g.lang == "Japanese" and "{ol}ダメージ報酬受取り週切替" or g.lang == "kr" and
+                    "{ol}데미지 보상 수령 주차 변경" or "{ol}Switch Damage Reward Receipt Week"
+            switch_btn:SetTextTooltip(tooltip_text)
+            if x < text_width + 15 + 80 then
+                x = text_width + 15 + 80
+            end
+        end
+        y = y + 30
+    end
+
+    sub_frame:Resize(x + 65, y + 45)
+    gbox:Resize(sub_frame:GetWidth() - 20, sub_frame:GetHeight() - 40)
+
+    local screen_width = ui.GetClientInitialWidth()
+    local screen_height = ui.GetClientInitialHeight()
+    local width = sub_frame:GetWidth()
+    sub_frame:SetPos((screen_width - width) / 2 + 250, screen_height / 2 - 200)
+
+    sub_frame:ShowWindow(1)
+end
+
+function MINI_ADDONS_SETTING_FRAME_INIT(frame_arg, ctrl_arg, str_arg, num_arg)
+    local frame = ui.GetFrame("mini_addons")
+    if frame:GetWidth() > 100 and str_arg == "false" then
+        frame:Resize(0, 0)
+        frame:ShowWindow(0)
+        return
+    end
+
+    frame:SetSkinName("test_frame_low")
+    frame:SetLayerLevel(93)
+    frame:EnableHittestFrame(1)
+    frame:ShowTitleBar(0)
+    frame:RemoveAllChild()
+    frame:SetEventScript(ui.RBUTTONUP, "MINI_ADDONS_FRAME_CLOSE")
+
+    local title = frame:CreateOrGetControl("richtext", "title", 30, 10)
+    AUTO_CAST(title)
+    title:SetText("{@st66b18}Mini Addons")
+
+    local close = frame:CreateOrGetControl("button", "close", 0, 5, 30, 30)
+    AUTO_CAST(close)
+    close:SetGravity(ui.RIGHT, ui.TOP)
+    close:SetSkinName("None")
+    close:SetText("{img testclose_button 30 30}")
+    close:SetEventScript(ui.LBUTTONUP, "MINI_ADDONS_FRAME_CLOSE")
+
+    local gbox = frame:CreateOrGetControl("groupbox", "gbox", 10, 30, 0, 0)
+    AUTO_CAST(gbox)
+    gbox:SetSkinName("bg")
+
+    local y = 10
+    local x = 0
+
+    for _, category in ipairs(CATEGORY_BUTTONS) do
+        local button = gbox:CreateOrGetControl("button", category.name, 40, y, 0, 25)
+        AUTO_CAST(button)
+        button:SetSkinName("None")
+
+        local temp_text = g.lang == "Japanese" and ("{ol}" .. category.text_jp) or g.lang == "kr" and
+                              ("{ol}" .. category.text_kr) or ("{ol}" .. category.text_en)
+        button:SetText(temp_text)
+        button:SetTextAlign('left', 'center')
+        button:SetEventScript(ui.LBUTTONUP, "MINI_ADDONS_subframe_open")
+        button:SetEventScriptArgString(ui.LBUTTONUP, temp_text)
+        button:SetEventScript(ui.RBUTTONUP, "MINI_ADDONS_subframe_close")
+
+        if x < button:GetWidth() then
+            x = button:GetWidth()
+        end
+        y = y + 30
+    end
+
+    y = y + 10
+
+    for _, setting in ipairs(MAIN_FRAME_SETTINGS) do
+
+        local check_value
+        if setting.name == "velnice" then
+            check_value = g.settings.velnice.use
+        elseif setting.name == "auto_zoom" then
+            check_value = g.settings.auto_zoom.use
+        else
+            check_value = g.settings[setting.name]
+        end
+
+        local checkbox = gbox:CreateOrGetControl('checkbox', setting.name, 10, y, 25, 25)
+        AUTO_CAST(checkbox)
+        checkbox:SetCheck(check_value)
+        checkbox:SetEventScript(ui.LBUTTONUP, "MINI_ADDONS_ISCHECK")
+
+        local temp_text = g.lang == "Japanese" and ("{ol}" .. setting.text_jp) or g.lang == "kr" and
+                              ("{ol}" .. setting.text_kr) or ("{ol}" .. setting.text_en)
+        checkbox:SetText(temp_text)
+
+        local tooltip_text = g.lang == "Japanese" and "{ol}チェックすると有効化" or g.lang == "kr" and
+                                 "{ol}체크 시 활성화" or "{ol}Check to enable"
+        checkbox:SetTextTooltip(tooltip_text)
+
+        local text_width = checkbox:GetWidth()
+        if x < text_width then
+            x = text_width
+        end
+
+        if setting.name == "party_buff" then
+            local party_buff_btn = gbox:CreateOrGetControl("button", "party_buff_btn", text_width + 15, y - 5, 50, 30)
+            AUTO_CAST(party_buff_btn)
+            party_buff_btn:SetText("{ol}{#FFFFFF}bufflist")
+            local tooltip_text =
+                g.lang == "Japanese" and "表示するバフを選択できます" or g.lang == "kr" and
+                    "표시할 버프를 선택할 수 있습니다" or "You can choose which buffs to display"
+            party_buff_btn:SetTextTooltip(tooltip_text)
+            party_buff_btn:SetSkinName("test_red_button")
+            party_buff_btn:SetEventScript(ui.LBUTTONUP, "MINI_ADDONS_BUFFLIST_FRAME_INIT")
+
+            local pt_buff_check = gbox:CreateOrGetControl('checkbox', "pt_buff", text_width + 15 + 70, y, 25, 25)
+            AUTO_CAST(pt_buff_check)
+            pt_buff_check:SetCheck(g.settings.pt_buff or 0)
+            pt_buff_check:SetEventScript(ui.LBUTTONUP, "MINI_ADDONS_ISCHECK")
+            local tooltip_text =
+                g.lang == "Japanese" and "チェックすると初見バフ非表示" or g.lang == "kr" and
+                    "체크하면 첫눈에 반한 버프 숨기기" or "First-time buffs hidden when checked"
+            pt_buff_check:SetTextTooltip(tooltip_text)
+
+            local combined_width = text_width + 15 + 70 + pt_buff_check:GetWidth()
+            if x < combined_width then
+                x = combined_width
+            end
+        elseif setting.name == "auto_zoom" then
+            local edit_name = setting.name .. "_edit"
+            local edit_ctrl = gbox:CreateOrGetControl('edit', edit_name, text_width + 15, y, 60, 25)
+            AUTO_CAST(edit_ctrl)
+
+            edit_ctrl:SetEventScript(ui.ENTERKEY, "mini_addons_autozoom_edit")
+            edit_ctrl:SetTextTooltip("{ol}1~700 Default 336")
+            edit_ctrl:SetFontName("white_16_ol")
+            edit_ctrl:SetTextAlign("center", "center")
+            edit_ctrl:SetText("{ol}" .. g.settings.auto_zoom.zoom)
+            if x < text_width + 15 + 60 then
+                x = text_width + 15 + 60
+            end
+
+        end
+        y = y + 30
+    end
+
+    local description = gbox:CreateOrGetControl("richtext", "description", 10, y + 5)
+    AUTO_CAST(description)
+    local temp_text = g.lang == "Japanese" and
+                          "{ol}{#FFA500}※一部機能の有効/無効の切替はキャラクターチェンジが必要です" or
+                          g.lang == "kr" and
+                          "{ol}{#FFA500}※일부 기능의 활성화/비활성화 전환은 캐릭터 변경이 필요합니다" or
+                          "{ol}{#FFA500}※Character change is required to enable or disable some functions"
+    description:SetText(temp_text)
+
+    local text_width = description:GetWidth()
+    if x < text_width then
+        x = text_width
+    end
+    y = y + 30
+
+    frame:Resize(x + 65, y + 45)
+    gbox:Resize(frame:GetWidth() - 20, frame:GetHeight() - 40)
+
+    local screen_width = ui.GetClientInitialWidth()
+    local screen_height = ui.GetClientInitialHeight()
+    frame:SetPos((screen_width - frame:GetWidth()) / 2, (screen_height - frame:GetHeight()) / 2)
+
+    frame:ShowWindow(1)
+end
+
+function MINI_ADDONS_ISCHECK(frame, ctrl, argStr, argNum)
+    local is_checked = ctrl:IsChecked()
+    local ctrl_name = ctrl:GetName()
+
+    for _, setting_name in ipairs(SETTINGS_NAME) do
+        if ctrl_name == setting_name then
+
+            if setting_name == "cupole_portion" or setting_name == "velnice" or setting_name == "baubas_call" or
+                setting_name == "auto_zoom" then
+
+                g.settings[setting_name] = g.settings[setting_name] or {}
+                g.settings[setting_name].use = is_checked
+            else
+                g.settings[setting_name] = is_checked
+            end
+
+            -- 特定の機能に対する即時処理
+            if setting_name == "bgm" then
+                if is_checked == 0 then
+                    local max_frame = ui.GetFrame("bgmplayer")
+                    local play_btn = GET_CHILD_RECURSIVELY(max_frame, "playStart_btn")
+                    BGMPLAYER_PLAY(max_frame, play_btn)
+                end
+            elseif setting_name == "quest_hide" then
+                if is_checked == 0 then
+                    MINI_ADDONS_QUESTINFO_SHOW()
+                else
+                    MINI_ADDONS_QUESTINFO_HIDE_RESERVE()
+                end
+            elseif setting_name == "daily_quest" then
+                local q7quest = ui.GetFrame("mini_addons_q7quest")
+                if is_checked == 0 then
+
+                    if q7quest then
+                        ui.DestroyFrame("mini_addons_q7quest")
+                    end
+                else
+                    if q7quest then
+                        ui.DestroyFrame("mini_addons_q7quest")
+                    end
+                    mini_addons_quest_update()
+                end
+            end
+
+            break
+        end
+    end
+
+    MINI_ADDONS_SAVE_SETTINGS()
+end
+
+function mini_addons_autozoom_edit(frame, ctrl)
+
+    local value = tonumber(ctrl:GetText())
+
+    if value < 1 or value > 700 then
+        local errorMsg =
+            g.lang == "Japanese" and "無効な値です。1から700の間で設定してください。" or
+                "Invalid value please set between 1 and 700"
+        ui.SysMsg(errorMsg)
+        ctrl:SetText("336")
+        g.settings.auto_zoom.zoom = 336
+
+    else
+        if value ~= g.settings.auto_zoom.zoom then
+            ui.SysMsg("Auto Zoom setting set to " .. value)
+            g.settings.auto_zoom.zoom = value
+        end
+    end
+
+    MINI_ADDONS_SAVE_SETTINGS()
+    ctrl:RunUpdateScript("mini_addons_autozoom", 1.0)
+end
+
+function mini_addons_autozoom(ctrl)
+
+    if g.settings.auto_zoom.use == 1 then
+        camera.CustomZoom(tonumber(g.settings.auto_zoom.zoom))
+    end
+    return 0
+end
 
 local active_id = session.loginInfo.GetAID()
 g.settings_path = string.format("../addons/%s/%s.json", addon_name_lower, active_id .. "_1")
@@ -722,6 +1139,15 @@ function mini_addons_quest_update(frame, msg, str, num)
             last_part = text:match(".*{nl}(.-)$") or ""
         end
 
+        if last_part == "" then
+            local q7quest = ui.GetFrame("mini_addons_q7quest")
+            if q7quest then
+                AUTO_CAST(q7quest)
+                q7quest:ShowWindow(0)
+                return
+            end
+        end
+
         local groupQuest_title = GET_CHILD(_Q_7, "groupQuest_title")
         local text = groupQuest_title:GetText()
         local pattern = "{#ffe792}(.-) %-"
@@ -850,6 +1276,11 @@ end
 
 function mini_addons_GAME_START(frame, msg, str, num)
 
+    local functionName = "AUTOMAPCHANGE_CAMERA_ZOOM"
+    if _G[functionName] and type(_G[functionName]) == "function" then
+        _G[functionName] = nil
+    end
+
     local cupole_external_addon = ui.GetFrame("cupole_external_addon")
     if cupole_external_addon then
         cupole_external_addon:SetEventScript(ui.LBUTTONUP, "MINI_ADDONS_CUPOLE_PORTION_FRAME_SAVE")
@@ -865,6 +1296,8 @@ function mini_addons_GAME_START(frame, msg, str, num)
 end
 
 function mini_addons_GAME_START_3SEC(frame, msg, str, num)
+
+    mini_addons_autozoom()
 
     if g.settings.chat_recv == 1 then
         local chat_option = ui.GetFrame("chat_option")
@@ -1198,9 +1631,9 @@ function MINI_ADDONS_ON_INIT(addon, frame)
     g.REGISTER = {}
     g.corony_count = nil
 
-    if not g.settings then
-        addon:RegisterMsg('GAME_START', "MINI_ADDONS_LOAD_SETTINGS")
-    end
+    -- if not g.settings then
+    addon:RegisterMsg('GAME_START', "MINI_ADDONS_LOAD_SETTINGS")
+    -- end
 
     g.setup_hook_and_event_before_after(g.addon, "CHAT_SYSTEM", "MINI_ADDONS_CHAT_SYSTEM", false)
 
@@ -3198,317 +3631,6 @@ function MINI_ADDONS_baubas_call_switch(frame, ctrl, str, num)
     MINI_ADDONS_SETTING_FRAME_INIT(frame, ctrl, "true", num)
 end
 
-function MINI_ADDONS_subframe_close(frame, ctrl)
-    local sub_frame = ui.GetFrame(addon_name_lower .. "sub_frame")
-    sub_frame:ShowWindow(0)
-end
-
-function MINI_ADDONS_subframe_open(frame, ctrl, str)
-    local sub_frame = ui.CreateNewFrame("notice_on_pc", addon_name_lower .. "sub_frame", 0, 0, 0, 0)
-    AUTO_CAST(sub_frame)
-    sub_frame:SetSkinName("test_frame_low")
-    sub_frame:SetLayerLevel(94)
-    sub_frame:EnableHittestFrame(1)
-    sub_frame:ShowTitleBar(0)
-    sub_frame:RemoveAllChild()
-
-    local title = sub_frame:CreateOrGetControl("richtext", "title", 30, 10)
-    AUTO_CAST(title)
-    local clean_str = string.gsub(str, "{ol}", "")
-    title:SetText("{@st66b18}" .. clean_str)
-
-    local gbox = sub_frame:CreateOrGetControl("groupbox", "gbox", 10, 30, 0, 0)
-    AUTO_CAST(gbox)
-    gbox:SetSkinName("bg")
-
-    local close = sub_frame:CreateOrGetControl("button", "close", 0, 0, 30, 30)
-    AUTO_CAST(close)
-    close:SetGravity(ui.RIGHT, ui.TOP)
-    close:SetSkinName("None")
-    close:SetText("{img testclose_button 30 30}")
-    close:SetEventScript(ui.LBUTTONUP, "MINI_ADDONS_subframe_close")
-
-    local ctrl_name = ctrl:GetName()
-    local y = 10
-    local x = 0
-
-    -- クリックされたボタン名に対応する設定データを取得
-    local settings_data = SUB_FRAME_SETTINGS[ctrl_name] or {}
-
-    -- 共通のUI生成ループ
-    for _, setting in ipairs(settings_data) do
-        -- checkキーにg.settingsから動的に値を取得する
-        local check_value
-        if setting.name == "cupole_portion" or setting.name == "baubas_call" or setting.name == "velnice" then
-            check_value = g.settings[setting.name].use
-        elseif setting.name == "my_effect" or setting.name == "boss_effect" then
-            check_value = g.settings[setting.name] or 0
-        else
-            check_value = g.settings[setting.name]
-        end
-
-        local checkbox = gbox:CreateOrGetControl('checkbox', setting.name, 10, y, 25, 25)
-        AUTO_CAST(checkbox)
-        checkbox:SetCheck(check_value)
-        checkbox:SetEventScript(ui.LBUTTONUP, "MINI_ADDONS_ISCHECK")
-
-        local text = g.lang == "Japanese" and ("{ol}" .. setting.text_jp) or g.lang == "kr" and
-                         ("{ol}" .. setting.text_kr) or ("{ol}" .. setting.text_en)
-        checkbox:SetText(text)
-
-        local tooltip_text = g.lang == "Japanese" and "{ol}チェックすると有効化" or g.lang == "kr" and
-                                 "{ol}체크 시 활성화" or "{ol}Check to enable"
-        checkbox:SetTextTooltip(tooltip_text)
-
-        local text_width = checkbox:GetWidth()
-        if x < text_width then
-            x = text_width
-        end
-
-        -- チェックボックスの隣に特殊なUIを追加する処理
-        if setting.name == "baubas_call" then
-            local baubas_call_btn = gbox:CreateOrGetControl('button', 'baubas_call_btn', text_width + 15, y - 5, 50, 30)
-            AUTO_CAST(baubas_call_btn)
-            if g.settings.baubas_call.guild_notice == 0 or not g.settings.baubas_call.guild_notice then
-                baubas_call_btn:SetText("{ol}{#FFFFFF}OFF")
-                baubas_call_btn:SetSkinName("test_gray_button")
-                g.settings.baubas_call.guild_notice = 0
-                MINI_ADDONS_SAVE_SETTINGS()
-            else
-                baubas_call_btn:SetText("{ol}{#FFFFFF}ON")
-                baubas_call_btn:SetSkinName("test_red_button")
-            end
-            local tooltip_text = g.lang == "Japanese" and "{ol}ギルドチャットへのお知らせ切替え" or
-                                     g.lang == "kr" and "{ol}길드 채팅으로 알림 전환" or
-                                     "{ol}Notification switch to guild chat"
-            baubas_call_btn:SetTextTooltip(tooltip_text)
-            baubas_call_btn:SetEventScript(ui.LBUTTONUP, "MINI_ADDONS_baubas_call_switch")
-            local btn_width = baubas_call_btn:GetWidth()
-            if x < text_width + 15 + btn_width then
-                x = text_width + 15 + btn_width
-            end
-
-        elseif setting.name == "other_effect" or setting.name == "my_effect" or setting.name == "boss_effect" then
-            local edit_name = setting.name .. "_edit"
-            local edit_ctrl = gbox:CreateOrGetControl('edit', edit_name, text_width + 15, y, 60, 25)
-            AUTO_CAST(edit_ctrl)
-            local event_name = "MINI_ADDONS_" .. string.upper(setting.name) .. "_EDIT"
-            edit_ctrl:SetEventScript(ui.ENTERKEY, event_name)
-            edit_ctrl:SetTextTooltip("{ol}1~100")
-            edit_ctrl:SetFontName("white_16_ol")
-            edit_ctrl:SetTextAlign("center", "center")
-
-            local transparency_value
-            if setting.name == "other_effect" then
-                transparency_value = config.GetOtherEffectTransparency()
-            elseif setting.name == "my_effect" then
-                transparency_value = config.GetMyEffectTransparency()
-            elseif setting.name == "boss_effect" then
-                transparency_value = config.GetBossMonsterEffectTransparency()
-            end
-            local num_value = math.floor(transparency_value * 0.392156862745 + 0.5)
-            edit_ctrl:SetText("{ol}" .. num_value)
-            if x < text_width + 15 + 60 then
-                x = text_width + 15 + 60
-            end
-
-        elseif setting.name == "auto_gacha" then
-            local auto_gacha_btn = gbox:CreateOrGetControl('button', 'auto_gacha_btn', text_width + 15, y - 5, 50, 30)
-            AUTO_CAST(auto_gacha_btn)
-            if g.settings.auto_gacha_start == 0 or g.settings.auto_gacha_start == nil then
-                auto_gacha_btn:SetText("{ol}{#FFFFFF}OFF")
-                auto_gacha_btn:SetSkinName("test_gray_button")
-                g.settings.auto_gacha_start = 0
-                MINI_ADDONS_SAVE_SETTINGS()
-            else
-                auto_gacha_btn:SetText("{ol}{#FFFFFF}ON")
-                auto_gacha_btn:SetSkinName("test_red_button")
-            end
-            local tooltip_text = g.lang == "Japanese" and
-                                     "{ol}ONにすると自動でガチャスタートします。切替にCC必要です" or
-                                     g.lang == "kr" and
-                                     "{ol}ON으로 설정하면 자동으로 가챠가 시작됩니다. 전환 시 CC 필요합니다" or
-                                     "{ol}When turned on, the gacha starts automatically.CC required for switching"
-            auto_gacha_btn:SetTextTooltip(tooltip_text)
-            auto_gacha_btn:SetEventScript(ui.LBUTTONUP, "MINI_ADDONS_GP_AUTOSTART_OPERATION")
-            if x < text_width + 15 + 50 then
-                x = text_width + 15 + 50
-            end
-
-        elseif setting.name == "weekly_boss_reward" then
-            if not g.settings.reward_switch then
-                g.settings.reward_switch = 1
-                MINI_ADDONS_SAVE_SETTINGS()
-            end
-            local switch_btn = gbox:CreateOrGetControl('button', 'switch', text_width + 15, y, 80, 25)
-            AUTO_CAST(switch_btn)
-            if g.settings.reward_switch == 1 then
-                switch_btn:SetText(g.lang == "Japanese" and "{ol}先週分" or g.lang == "kr" and "{ol}지난 주분" or
-                                       "{ol}last week")
-            else
-                switch_btn:SetText(g.lang == "Japanese" and "{ol}今週分" or g.lang == "kr" and "{ol}이번 주분" or
-                                       "{ol}this week")
-            end
-            switch_btn:SetEventScript(ui.LBUTTONUP, "MINI_ADDONS_WEEKLY_BOSS_REWARD_SWITCH")
-            local tooltip_text =
-                g.lang == "Japanese" and "{ol}ダメージ報酬受取り週切替" or g.lang == "kr" and
-                    "{ol}데미지 보상 수령 주차 변경" or "{ol}Switch Damage Reward Receipt Week"
-            switch_btn:SetTextTooltip(tooltip_text)
-            if x < text_width + 15 + 80 then
-                x = text_width + 15 + 80
-            end
-        end
-        y = y + 30
-    end
-
-    sub_frame:Resize(x + 65, y + 45)
-    gbox:Resize(sub_frame:GetWidth() - 20, sub_frame:GetHeight() - 40)
-
-    local screen_width = ui.GetClientInitialWidth()
-    local screen_height = ui.GetClientInitialHeight()
-    local width = sub_frame:GetWidth()
-    sub_frame:SetPos((screen_width - width) / 2 + 250, screen_height / 2 - 200)
-
-    sub_frame:ShowWindow(1)
-end
-
-function MINI_ADDONS_SETTING_FRAME_INIT(frame_arg, ctrl_arg, str_arg, num_arg)
-    local frame = ui.GetFrame("mini_addons")
-    if frame:GetWidth() > 100 and str_arg == "false" then
-        frame:Resize(0, 0)
-        frame:ShowWindow(0)
-        return
-    end
-
-    frame:SetSkinName("test_frame_low")
-    frame:SetLayerLevel(93)
-    frame:EnableHittestFrame(1)
-    frame:ShowTitleBar(0)
-    frame:RemoveAllChild()
-    frame:SetEventScript(ui.RBUTTONUP, "MINI_ADDONS_FRAME_CLOSE")
-
-    local title = frame:CreateOrGetControl("richtext", "title", 30, 10)
-    AUTO_CAST(title)
-    title:SetText("{@st66b18}Mini Addons")
-
-    local close = frame:CreateOrGetControl("button", "close", 0, 5, 30, 30)
-    AUTO_CAST(close)
-    close:SetGravity(ui.RIGHT, ui.TOP)
-    close:SetSkinName("None")
-    close:SetText("{img testclose_button 30 30}")
-    close:SetEventScript(ui.LBUTTONUP, "MINI_ADDONS_FRAME_CLOSE")
-
-    local gbox = frame:CreateOrGetControl("groupbox", "gbox", 10, 30, 0, 0)
-    AUTO_CAST(gbox)
-    gbox:SetSkinName("bg")
-
-    local y = 10
-    local x = 0
-
-    -- カテゴリボタンを定義データから生成
-    for _, category in ipairs(CATEGORY_BUTTONS) do
-        local button = gbox:CreateOrGetControl("button", category.name, 40, y, 0, 25)
-        AUTO_CAST(button)
-        button:SetSkinName("None")
-
-        local temp_text = g.lang == "Japanese" and ("{ol}" .. category.text_jp) or g.lang == "kr" and
-                              ("{ol}" .. category.text_kr) or ("{ol}" .. category.text_en)
-        button:SetText(temp_text)
-        button:SetTextAlign('left', 'center')
-        button:SetEventScript(ui.LBUTTONUP, "MINI_ADDONS_subframe_open")
-        button:SetEventScriptArgString(ui.LBUTTONUP, temp_text)
-        button:SetEventScript(ui.RBUTTONUP, "MINI_ADDONS_subframe_close")
-
-        if x < button:GetWidth() then
-            x = button:GetWidth()
-        end
-        y = y + 30
-    end
-
-    y = y + 10
-
-    -- メインのチェックボックスを定義データから生成
-    for _, setting in ipairs(MAIN_FRAME_SETTINGS) do
-        -- checkキーにg.settingsから動的に値を取得する
-        local check_value
-        if setting.name == "velnice" then
-            check_value = g.settings.velnice.use
-        else
-            check_value = g.settings[setting.name]
-        end
-
-        local checkbox = gbox:CreateOrGetControl('checkbox', setting.name, 10, y, 25, 25)
-        AUTO_CAST(checkbox)
-        checkbox:SetCheck(check_value)
-        checkbox:SetEventScript(ui.LBUTTONUP, "MINI_ADDONS_ISCHECK")
-
-        local temp_text = g.lang == "Japanese" and ("{ol}" .. setting.text_jp) or g.lang == "kr" and
-                              ("{ol}" .. setting.text_kr) or ("{ol}" .. setting.text_en)
-        checkbox:SetText(temp_text)
-
-        local tooltip_text = g.lang == "Japanese" and "{ol}チェックすると有効化" or g.lang == "kr" and
-                                 "{ol}체크 시 활성화" or "{ol}Check to enable"
-        checkbox:SetTextTooltip(tooltip_text)
-
-        local text_width = checkbox:GetWidth()
-        if x < text_width then
-            x = text_width
-        end
-
-        if setting.name == "party_buff" then
-            local party_buff_btn = gbox:CreateOrGetControl("button", "party_buff_btn", text_width + 15, y - 5, 50, 30)
-            AUTO_CAST(party_buff_btn)
-            party_buff_btn:SetText("{ol}{#FFFFFF}bufflist")
-            local tooltip_text =
-                g.lang == "Japanese" and "表示するバフを選択できます" or g.lang == "kr" and
-                    "표시할 버프를 선택할 수 있습니다" or "You can choose which buffs to display"
-            party_buff_btn:SetTextTooltip(tooltip_text)
-            party_buff_btn:SetSkinName("test_red_button")
-            party_buff_btn:SetEventScript(ui.LBUTTONUP, "MINI_ADDONS_BUFFLIST_FRAME_INIT")
-
-            local pt_buff_check = gbox:CreateOrGetControl('checkbox', "pt_buff", text_width + 15 + 70, y, 25, 25)
-            AUTO_CAST(pt_buff_check)
-            pt_buff_check:SetCheck(g.settings.pt_buff or 0)
-            pt_buff_check:SetEventScript(ui.LBUTTONUP, "MINI_ADDONS_ISCHECK")
-            local tooltip_text =
-                g.lang == "Japanese" and "チェックすると初見バフ非表示" or g.lang == "kr" and
-                    "체크하면 첫눈에 반한 버프 숨기기" or "First-time buffs hidden when checked"
-            pt_buff_check:SetTextTooltip(tooltip_text)
-
-            local combined_width = text_width + 15 + 70 + pt_buff_check:GetWidth()
-            if x < combined_width then
-                x = combined_width
-            end
-        end
-        y = y + 30
-    end
-
-    -- 注意書きを追加
-    local description = gbox:CreateOrGetControl("richtext", "description", 10, y + 5)
-    AUTO_CAST(description)
-    local temp_text = g.lang == "Japanese" and
-                          "{ol}{#FFA500}※一部機能の有効/無効の切替はキャラクターチェンジが必要です" or
-                          g.lang == "kr" and
-                          "{ol}{#FFA500}※일부 기능의 활성화/비활성화 전환은 캐릭터 변경이 필요합니다" or
-                          "{ol}{#FFA500}※Character change is required to enable or disable some functions"
-    description:SetText(temp_text)
-
-    local text_width = description:GetWidth()
-    if x < text_width then
-        x = text_width
-    end
-    y = y + 30
-
-    frame:Resize(x + 65, y + 45)
-    gbox:Resize(frame:GetWidth() - 20, frame:GetHeight() - 40)
-
-    local screen_width = ui.GetClientInitialWidth()
-    local screen_height = ui.GetClientInitialHeight()
-    frame:SetPos((screen_width - frame:GetWidth()) / 2, (screen_height - frame:GetHeight()) / 2)
-
-    frame:ShowWindow(1)
-end
-
 function MINI_ADDONS_WEEKLY_BOSS_REWARD_SWITCH(frame, ctrl, str, num)
     if g.settings.reward_switch == 1 then
         g.settings.reward_switch = 0
@@ -3519,57 +3641,6 @@ function MINI_ADDONS_WEEKLY_BOSS_REWARD_SWITCH(frame, ctrl, str, num)
     end
     MINI_ADDONS_SAVE_SETTINGS()
     MINI_ADDONS_SETTING_FRAME_INIT(frame, ctrl, "true", num)
-end
-
-function MINI_ADDONS_ISCHECK(frame, ctrl, argStr, argNum)
-    local is_checked = ctrl:IsChecked()
-    local ctrl_name = ctrl:GetName()
-
-    for _, setting_name in ipairs(SETTINGS_NAME) do
-        if ctrl_name == setting_name then
-
-            -- 特定のチェックボックスはネストしたテーブルに保存する
-            if setting_name == "cupole_portion" or setting_name == "velnice" or setting_name == "baubas_call" then
-                g.settings[setting_name] = g.settings[setting_name] or {}
-                g.settings[setting_name].use = is_checked
-            else
-                g.settings[setting_name] = is_checked
-            end
-
-            -- 特定の機能に対する即時処理
-            if setting_name == "bgm" then
-                if is_checked == 0 then
-                    local max_frame = ui.GetFrame("bgmplayer")
-                    local play_btn = GET_CHILD_RECURSIVELY(max_frame, "playStart_btn")
-                    BGMPLAYER_PLAY(max_frame, play_btn)
-                end
-            elseif setting_name == "quest_hide" then
-                if is_checked == 0 then
-                    MINI_ADDONS_QUESTINFO_SHOW()
-                else
-                    MINI_ADDONS_QUESTINFO_HIDE_RESERVE()
-                end
-            elseif setting_name == "daily_quest" then
-                local q7quest = ui.GetFrame("mini_addons_q7quest")
-                if is_checked == 0 then
-
-                    if q7quest then
-                        ui.DestroyFrame("mini_addons_q7quest")
-                    end
-                else
-                    if q7quest then
-                        ui.DestroyFrame("mini_addons_q7quest")
-                    end
-                    mini_addons_quest_update()
-                end
-            end
-
-            -- 一致するものを見つけたら、ループを抜ける
-            break
-        end
-    end
-
-    MINI_ADDONS_SAVE_SETTINGS()
 end
 
 function MINI_ADDONS_FRAME_MOVE_RESERVE(frame, ctrl, str, num)
