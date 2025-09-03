@@ -12,10 +12,11 @@
 -- v1.1.3 セッティングファイルがnullになるの修正
 -- v1.1.4 acutil止めた。独自のアドオンボタン実装。僭越。自動補充チェック付けた。
 -- v1.1.5 アドオンボタン回りを修正し、他アドオンとの共通コードに
+-- v1.1.6 250902大型アップデート対応
 local addon_name = "AUTO_REPAIR"
 local addon_name_lower = string.lower(addon_name)
 local author = "norisan"
-local ver = "1.1.5"
+local ver = "1.1.6"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -129,10 +130,10 @@ function g.get_event_args(origin_func_name)
 end
 
 -- ここを変更すればいつまでも使えそう。知らんけど。
-local repair_item_classid = 11201325
-local repair_item_name = "QuestReward_repairPotion_530"
-local repair_tradeshop_item = "JurateCertificate_13"
-local shop_type = "JurateCertificate"
+local repair_item_classid = 11202000
+local repair_item_name = "QuestReward_repairPotion_540"
+local repair_tradeshop_item = "AustejaCertificate_14"
+local shop_type = "AustejaCertificate"
 
 function AUTO_REPAIR_ON_INIT(addon, frame)
 
