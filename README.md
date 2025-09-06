@@ -399,6 +399,7 @@ Tree of Savior 用のアドオンを作成・改変しています。
 <details>
 <summary>更新履歴 (Quickslot Operate)</summary>
 
+*   v1.2.2 新レイド対応
 *   v1.2.1 ボタンの機能振り分け見直し。スロット入れ替え時にバグってたの修正。quickslot.RequestSave()で固定出来た。
 *   v1.2.0 RSHIFTでのショトカを切替式に。コントローラでも使える様に。1キャラで複数セット保存出来る様に。
 *   v1.1.9 バグ修正。
