@@ -12,6 +12,7 @@ Tree of Savior 用のアドオンを作成・改変しています。
 **不具合報告・連絡先**
 
 *   Twitter: [@ToSJP_rada](https://twitter.com/ToSJP_rada) までお気軽にどうぞ。
+*   Discord: [https://discord.gg/9aAjGCPj](https://discord.gg/9aAjGCPj) までお気軽にどうぞ。
 
 **ひとこと**
 
