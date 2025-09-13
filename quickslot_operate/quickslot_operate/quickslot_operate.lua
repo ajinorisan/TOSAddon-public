@@ -20,10 +20,11 @@
 -- v1.1.9 やっぱバグってた。直したつもり
 -- v1.2.0 RSHIFTのショトカを切替式に。ジョイスティックでも使える様に。セット保存を1キャラで色々出来る様に
 -- v1.2.1 ボタンの機能振り分け見直し。スロット入れ替え時にバグってたの修正。quickslot.RequestSave()で固定出来た。
+-- v1.2.2 250902新レイド対応
 local addon_name = "quickslot_operate"
 local addon_name_lower = string.lower(addon_name)
 local author = "norisan"
-local ver = "1.2.1"
+local ver = "1.2.2"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -128,7 +129,8 @@ function g.load_json(path)
 end
 
 local raid_list = {
-    Paramune = {623, 667, 666, 665, 674, 673, 675, 680, 679, 681, 707, 708, 710, 711, 709, 712},
+    Paramune = {623, 667, 666, 665, 674, 673, 675, 680, 679, 681, 707, 708, 710, 711, 709, 712, 722, 723, 724, 725, 726,
+                727},
     Klaida = {686, 685, 687, 716, 717, 718},
     Velnias = {689, 688, 690, 669, 635, 628, 696, 695, 697},
     Forester = {672, 671, 670},
@@ -136,7 +138,7 @@ local raid_list = {
 }
 
 -- ies.ipf/indun.ies レイド番号で探せ 
-local zone_id_list = {11261, 11250, 11263, 11266, 11252, 11256, 11230, 11208, 11270, 11276, 11277, 11278}
+local zone_id_list = {11261, 11250, 11263, 11266, 11252, 11256, 11230, 11208, 11270, 11276, 11277, 11278, 11285, 11286}
 -- 11267=ドラグーン 11230=ギルティネ 11257=バウバス
 local guild_eventmap = {11267, 11230, 11257}
 

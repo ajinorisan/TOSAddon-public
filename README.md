@@ -1164,6 +1164,7 @@ Tree of Savior 用のアドオンを作成・改変しています。
 
 ![guild](https://github.com/ajinorisan/TOSAddon-public/assets/128560971/21897f75-b18e-4a42-ab88-0ee30397857d)
 
+*   v1.0.6 2509大型アプデ対応。閉じる機能追加
 *   v1.0.5 ワイドモニター対応
 *   v1.0.4 UIデザイン変更
 *   v1.0.3 TPショップ表示時復帰処理

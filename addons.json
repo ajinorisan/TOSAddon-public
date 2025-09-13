@@ -343,7 +343,7 @@
 		"name" : "Guild Event Warp",
 		"file" : "guildeventwarp",
 		"extension" : "ipf",
-		"fileVersion" : "v1.0.5",
+		"fileVersion" : "v1.0.6",
 		"releaseTag" : "guildeventwarp",
 		"unicode" : "⛄",
 		"description" : "Wide monitor supported<br>画面右上の小さいボタンから封鎖戦のMAP1Chにワープ<br>Warp to MAP1Ch of the blockade battle from the small button in the upper right corner of the screen.<br>화면 우측 상단의 작은 버튼으로 봉쇄전 MAP1Ch로 워프",
