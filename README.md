@@ -277,6 +277,7 @@ Tree of Savior 用のアドオンを作成・改変しています。
 ![TreeOfSavior_20240406_095855](https://github.com/ajinorisan/TOSAddon-public/assets/128560971/7170084a-c06c-405e-8db6-e340b69f84a0)
 ![TreeOfSavior_20240406_095858](https://github.com/ajinorisan/TOSAddon-public/assets/128560971/f285650f-7d8a-440c-923f-b8f103851868)
 
+*   v1.2.7 製造書に製造物アイコンを表示。MAX超えて預けられるバグ修正。
 *   v1.2.6 ローディング最適化
 *   v1.2.5 トークン判定をキャラチェン時に変更し高速化
 *   v1.2.4 セット取り出しスロット増設。整理機能追加。

@@ -24,10 +24,11 @@
 -- v1.2.4 セット取り出しスロットを増やした。整理も出来る様に。
 -- v1.2.5 トークン判定を減らした。
 -- v1.2.6 読込早くした。トークン使ってない時の挙動少し変更
+-- v1.2.7 製造書に製造後のアイコンを表示。倉庫にMAXを超えて入れられるバグ修正
 local addonName = "ANOTHER_WAREHOUSE"
 local addonNameLower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.2.6"
+local ver = "1.2.7"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -38,6 +39,24 @@ local acutil = require("acutil")
 local json = require('json')
 local os = require("os")
 local base = {}
+
+local function ts(...)
+
+    local num_args = select('#', ...)
+
+    if num_args == 0 then
+        return
+    end
+
+    local string_parts = {}
+
+    for i = 1, num_args do
+        local arg = select(i, ...)
+        table.insert(string_parts, tostring(arg))
+    end
+
+    print(table.concat(string_parts, "\t"))
+end
 
 local function IsBlackListedTabName(name)
     return name == 'Quest'
@@ -72,6 +91,73 @@ local active_id = session.loginInfo.GetAID()
 g.settingsFileLoc = string.format('../addons/%s/%s/settings.json', addonNameLower, active_id)
 g.settings_base_location = string.format('../addons/%s/settings.json', addonNameLower)
 
+function g.save_json(path, tbl)
+    local file = io.open(path, "w")
+    if file then
+        local str = json.encode(tbl)
+        file:write(str)
+        file:close()
+    end
+end
+
+function g.load_json(path)
+    local file = io.open(path, "r")
+    if not file then
+        return nil, "Error opening file: " .. path
+    end
+
+    local content = file:read("*all")
+    file:close()
+
+    if not content or content == "" then
+        return nil, "File content is empty or could not be read: " .. path
+    end
+
+    local decoded_table, decode_err = json.decode(content)
+
+    if not decoded_table then
+        return nil, decode_err
+    end
+
+    return decoded_table, nil
+end
+
+function g.setup_hook_and_event(my_addon, origin_func_name, my_func_name, bool)
+
+    g.FUNCS = g.FUNCS or {}
+    if not g.FUNCS[origin_func_name] then
+        g.FUNCS[origin_func_name] = _G[origin_func_name]
+    end
+
+    local origin_func = g.FUNCS[origin_func_name]
+
+    local function hooked_function(...)
+
+        local original_results
+
+        if bool == true then
+            original_results = {origin_func(...)}
+        end
+
+        g.ARGS = g.ARGS or {}
+        g.ARGS[origin_func_name] = {...}
+        imcAddOn.BroadMsg(origin_func_name)
+
+        if original_results then
+            return table.unpack(original_results)
+        else
+            return
+        end
+    end
+
+    _G[origin_func_name] = hooked_function
+
+    if not g.REGISTER[origin_func_name .. my_func_name] then
+        g.REGISTER[origin_func_name .. my_func_name] = true
+        my_addon:RegisterMsg(origin_func_name, my_func_name)
+    end
+end
+
 function g.SetupHook(func, baseFuncName)
     local addonUpper = string.upper(addonName)
     local replacementName = addonUpper .. "_BASE_" .. baseFuncName
@@ -84,9 +170,11 @@ end
 
 function another_warehouse_load_settings()
 
-    local settings = acutil.loadJSON(g.settingsFileLoc)
+    -- local settings = acutil.loadJSON(g.settingsFileLoc)
+    local settings = g.load_json(g.settingsFileLoc)
     if not settings then
-        local base_settings = acutil.loadJSON(g.settings_base_location)
+        -- local base_settings = acutil.loadJSON(g.settings_base_location)
+        local base_settings = g.load_json(g.settings_base_location)
 
         if base_settings then
             settings = base_settings
@@ -122,7 +210,8 @@ end
 
 function another_warehouse_save_settings()
 
-    acutil.saveJSON(g.settingsFileLoc, g.settings);
+    -- acutil.saveJSON(g.settingsFileLoc, g.settings);
+    g.save_json(g.settingsFileLoc, g.settings);
 
 end
 function another_warehouse_setting_file_organize()
@@ -403,7 +492,7 @@ function ANOTHER_WAREHOUSE_ON_INIT(addon, frame)
     local start_time = os.clock() -- ★処理開始前の時刻を記録★
     g.addon = addon
     g.frame = frame
-
+    g.REGISTER = {}
     g.cid = info.GetCID(session.GetMyHandle())
 
     local scp_frame = ui.GetFrame("another_warehouse_scp_frame")
@@ -429,7 +518,8 @@ function ANOTHER_WAREHOUSE_ON_INIT(addon, frame)
         end
 
         g.token = g.token or false
-        acutil.setupEvent(addon, 'APPS_TRY_MOVE_BARRACK', "another_warehouse_APPS_TRY_MOVE_BARRACK")
+        -- acutil.setupEvent(addon, 'APPS_TRY_MOVE_BARRACK', "another_warehouse_APPS_TRY_MOVE_BARRACK")
+        g.setup_hook_and_event(addon, 'APPS_TRY_MOVE_BARRACK', "another_warehouse_APPS_TRY_MOVE_BARRACK", true)
         if not g.token then
             scp_frame:RunUpdateScript("another_warehouse_accountwarehouse_init_reserve", 0.1)
             g.count = 1
@@ -482,8 +572,10 @@ function another_warehouse_accountwarehouse_init(frame)
     addon:RegisterMsg('ESCAPE_PRESSED', 'another_warehouse_accountwarehouse_close');
 
     -- addon:RegisterMsg("ACCOUNT_WAREHOUSE_ITEM_LIST", "another_warehouse_accountwarehouse_open");
-    acutil.setupEvent(addon, 'ACCOUNTWAREHOUSE_OPEN', "another_warehouse_accountwarehouse_open")
-    acutil.setupEvent(addon, 'ACCOUNTWAREHOUSE_CLOSE', "another_warehouse_accountwarehouse_close")
+    -- acutil.setupEvent(addon, 'ACCOUNTWAREHOUSE_OPEN', "another_warehouse_accountwarehouse_open")
+    g.setup_hook_and_event(addon, 'ACCOUNTWAREHOUSE_OPEN', "another_warehouse_accountwarehouse_open", true)
+    -- acutil.setupEvent(addon, 'ACCOUNTWAREHOUSE_CLOSE', "another_warehouse_accountwarehouse_close")
+    g.setup_hook_and_event(addon, 'ACCOUNTWAREHOUSE_CLOSE', "another_warehouse_accountwarehouse_close", true)
     -- addon:RegisterMsg("OPEN_DLG_ACCOUNTWAREHOUSE", "another_warehouse_base_accountwarehouse_open")
 
     local functionName = "YAACCOUNTINVENTORY_ON_INIT" -- チェックしたい関数の名前を文字列として指定します
@@ -1522,13 +1614,18 @@ function another_warehouse_item_put(frame)
                     else
                         another_warehouse_checkvalid(guid)
                     end]]
-                    another_warehouse_checkvalid(guid)
-                    item.PutItemToWarehouse(IT_ACCOUNT_WAREHOUSE, guid, tostring(count),
-                        warehouseFrame:GetUserIValue("HANDLE"), goal_index)
-                    another_warehouse_item_put_to(guid, count, goal_index, clsID, invcount)
-                    g.putitemtbl[clsID] = nil
+                    local check = another_warehouse_checkvalid(guid)
+                    -- ts(check)
+                    if check then
+                        item.PutItemToWarehouse(IT_ACCOUNT_WAREHOUSE, guid, tostring(count),
+                            warehouseFrame:GetUserIValue("HANDLE"), goal_index)
+                        another_warehouse_item_put_to(guid, count, goal_index, clsID, invcount)
+                        g.putitemtbl[clsID] = nil
+                        return 1
+                    else
+                        return 0
+                    end
 
-                    return 1
                 end
             end
         end
@@ -1882,11 +1979,12 @@ function another_warehouse_setting_frame_init(frame, ctrl, argStr, argNum)
     local WHM_SettingsFileLoc = string.format('../addons/%s/settings.json', 'warehousemanager')
     local WHM_settings = {}
 
-    local err = acutil.loadJSON(WHM_SettingsFileLoc, WHM_settings)
+    -- local err = acutil.loadJSON(WHM_SettingsFileLoc, WHM_settings)
+    local err = g.load_json(WHM_SettingsFileLoc, WHM_settings)
 
     if err == nil then
         -- 設定ファイル読み込み失敗時処理
-        CHAT_SYSTEM(string.format("[%s] cannot load setting files", 'warehousemanager'))
+        -- CHAT_SYSTEM(string.format("[%s] cannot load setting files", 'warehousemanager'))
         return
     end
 
@@ -1937,10 +2035,11 @@ function another_warehouse_data_transfer()
         local WHM_SettingsFileLoc = string.format('../addons/%s/settings.json', 'warehousemanager')
         local WHM_settings = {}
 
-        local settings, err = acutil.loadJSON(WHM_SettingsFileLoc, WHM_settings)
+        -- local settings, err = acutil.loadJSON(WHM_SettingsFileLoc, WHM_settings)
+        local settings, err = g.load_json(WHM_SettingsFileLoc, WHM_settings)
         if err then
             -- 設定ファイル読み込み失敗時処理
-            CHAT_SYSTEM(string.format("[%s] cannot load setting files", 'warehousemanager'))
+            -- CHAT_SYSTEM(string.format("[%s] cannot load setting files", 'warehousemanager'))
         end
 
         local clsid = 0
@@ -1987,7 +2086,8 @@ function another_warehouse_data_transfer_char()
         -- print(tostring(WHM_char_SettingsFileLoc))
         local WHM_char_settings = {}
 
-        local settings, err = acutil.loadJSON(WHM_char_SettingsFileLoc, WHM_char_settings)
+        -- local settings, err = acutil.loadJSON(WHM_char_SettingsFileLoc, WHM_char_settings)
+        local settings, err = g.load_json(WHM_char_SettingsFileLoc, WHM_char_settings)
         if err then
             -- 設定ファイル読み込み失敗時処理
             -- CHAT_SYSTEM(string.format("[%s] cannot load setting files", 'WarehouseManagerキャラ設定'))
@@ -2547,13 +2647,13 @@ function another_warehouse_checkvalid(iesid)
     if maxcount <= itemcnt then
 
         ui.SysMsg(ClMsg('CannotPutBecauseMaxSlot'));
-        return;
+        return false
     end
     if true == invItem.isLockState then
 
         ui.SysMsg(ClMsg("MaterialItemIsLock"));
 
-        return;
+        return false
     end
 
     local itemCls = GetClassByType("Item", obj.ClassID);
@@ -2561,7 +2661,7 @@ function another_warehouse_checkvalid(iesid)
 
         ui.MsgBox(ScpArgMsg("IT_ISNT_REINFORCEABLE_ITEM"));
 
-        return;
+        return false
     end
 
     local enableTeamTrade = TryGetProp(itemCls, "TeamTrade");
@@ -2569,10 +2669,10 @@ function another_warehouse_checkvalid(iesid)
 
         ui.SysMsg(ClMsg("ItemIsNotTradable"));
 
-        return;
+        return false
 
     end
-
+    return true
 end
 
 function another_warehouse_putitem(iesid, count)
@@ -2589,20 +2689,23 @@ function another_warehouse_putitem(iesid, count)
     else
         another_warehouse_checkvalid(iesid)
     end]]
-    another_warehouse_checkvalid(iesid)
-    local frame = ui.GetFrame("accountwarehouse")
+    local check = another_warehouse_checkvalid(iesid)
+    -- ts(check)
+    if check then
+        local frame = ui.GetFrame("accountwarehouse")
 
-    -- item.PutItemToWarehouse(IT_ACCOUNT_WAREHOUSE, iesid, tostring(math.min(count or invItem.count, invItem.count)),
-    -- frame:GetUserIValue("HANDLE"))
+        -- item.PutItemToWarehouse(IT_ACCOUNT_WAREHOUSE, iesid, tostring(math.min(count or invItem.count, invItem.count)),
+        -- frame:GetUserIValue("HANDLE"))
 
-    item.PutItemToWarehouse(IT_ACCOUNT_WAREHOUSE, iesid, tostring(math.min(count or invItem.count, invItem.count)),
-        frame:GetUserIValue("HANDLE"), goal_index)
-    local gbox_warehouse = GET_CHILD_RECURSIVELY(frame, "gbox_warehouse");
-    if gbox_warehouse ~= nil then
-        gbox_warehouse:UpdateData();
-        -- gbox_warehouse:SetCurLine(0);
-        -- gbox_warehouse:InvalidateScrollBar();
-        frame:Invalidate();
+        item.PutItemToWarehouse(IT_ACCOUNT_WAREHOUSE, iesid, tostring(math.min(count or invItem.count, invItem.count)),
+            frame:GetUserIValue("HANDLE"), goal_index)
+        local gbox_warehouse = GET_CHILD_RECURSIVELY(frame, "gbox_warehouse");
+        if gbox_warehouse ~= nil then
+            gbox_warehouse:UpdateData();
+            -- gbox_warehouse:SetCurLine(0);
+            -- gbox_warehouse:InvalidateScrollBar();
+            frame:Invalidate();
+        end
     end
 end
 
@@ -2904,6 +3007,7 @@ function another_warehouse_insert_item_to_tree(frame, tree, invItem, itemCls, ba
 
     -- 슬롯셋 없으면 만들기
     local slotsetname = another_warehouse_get_slotset_name(baseidcls)
+
     local slotsetnode = tree:FindByValue(treegroup, slotsetname);
     if tree:IsExist(slotsetnode) == 0 then
         local slotsettitle = 'ssettitle_' .. baseidcls.ClassName;
@@ -2964,6 +3068,24 @@ function another_warehouse_insert_item_to_tree(frame, tree, invItem, itemCls, ba
         icon:SetTooltipArg("accountwarehouse", invItem.type, invItem:GetIESID());
         SET_ITEM_TOOLTIP_TYPE(icon, itemCls.ClassID, itemCls, "accountwarehouse");
 
+        if baseidcls.TreeGroup == "Recipe" then
+            local cls_name = itemCls.ClassName
+            cls_name = string.gsub(cls_name, "R_", "")
+            local item_cls = GetClass("Item", cls_name);
+            -- ts(item_cls)
+            if item_cls then
+                local image = GET_ITEM_ICON_IMAGE(item_cls)
+
+                local recipe_pic = slot:CreateOrGetControl('picture', 'recipe_pic' .. cls_name, 0, 0, 25, 25)
+                AUTO_CAST(recipe_pic)
+                recipe_pic:SetEnableStretch(1)
+                recipe_pic:SetGravity(ui.LEFT, ui.TOP)
+                recipe_pic:SetImage(image)
+                recipe_pic:SetTooltipArg("accountwarehouse", invItem.type, invItem:GetIESID());
+                SET_ITEM_TOOLTIP_TYPE(recipe_pic, item_cls.ClassID, item_cls, "accountwarehouse");
+            end
+        end
+
         if invItem.hasLifeTime == true or TryGetProp(obj, 'ExpireDateTime', 'None') ~= 'None' then
             ICON_SET_ITEM_REMAIN_LIFETIME(icon, IT_ACCOUNT_WAREHOUSE);
             slot:SetFrontImage('clock_inven');
@@ -2976,6 +3098,7 @@ function another_warehouse_insert_item_to_tree(frame, tree, invItem, itemCls, ba
     end
     -- INV_ICON_SETINFO(frame, slot, invItem, nil, nil, nil);
     _DRAW_ITEM(invItem, slot, nil)
+
     SET_SLOTSETTITLE_COUNT(tree, baseidcls, 1)
     if (g.settings.enabledrag) then
         slot:EnableDrag(1)
