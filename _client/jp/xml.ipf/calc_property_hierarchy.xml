@@ -7,10 +7,6 @@
 		<Child Name="STR_Bonus"/>
 		<Child Name="STR_ADD"/>
 		<Child Name="STR_TEMP"/>
-		<Child Name="ALLSTAT_STAT"/>
-		<Child Name="ALLSTAT_ADD"/>
-		<Child Name="ALLSTAT_BM"/>
-		<Child Name="ALLSTAT_ITEM_BM"/>
 	</hierarchy>
 	<hierarchy Name="DEX">
 		<Child Name="DEX_JOB"/>
@@ -18,10 +14,6 @@
 		<Child Name="DEX_Bonus"/>
 		<Child Name="DEX_ADD"/>
 		<Child Name="DEX_TEMP"/>
-		<Child Name="ALLSTAT_STAT"/>
-		<Child Name="ALLSTAT_ADD"/>
-		<Child Name="ALLSTAT_BM"/>
-		<Child Name="ALLSTAT_ITEM_BM"/>
 	</hierarchy>
 	<hierarchy Name="CON">
 		<Child Name="CON_JOB"/>
@@ -29,10 +21,6 @@
 		<Child Name="CON_Bonus"/>
 		<Child Name="CON_ADD"/>
 		<Child Name="CON_TEMP"/>
-		<Child Name="ALLSTAT_STAT"/>
-		<Child Name="ALLSTAT_ADD"/>
-		<Child Name="ALLSTAT_BM"/>
-		<Child Name="ALLSTAT_ITEM_BM"/>
 	</hierarchy>
 	<hierarchy Name="MNA">
 		<Child Name="MNA_JOB"/>
@@ -40,10 +28,6 @@
 		<Child Name="MNA_Bonus"/>
 		<Child Name="MNA_ADD"/>
 		<Child Name="MNA_TEMP"/>
-		<Child Name="ALLSTAT_STAT"/>
-		<Child Name="ALLSTAT_ADD"/>
-		<Child Name="ALLSTAT_BM"/>
-		<Child Name="ALLSTAT_ITEM_BM"/>
 	</hierarchy>
 	<hierarchy Name="INT">
 		<Child Name="INT_JOB"/>
@@ -51,14 +35,6 @@
 		<Child Name="INT_Bonus"/>
 		<Child Name="INT_ADD"/>
 		<Child Name="INT_TEMP"/>
-		<Child Name="ALLSTAT_STAT"/>
-		<Child Name="ALLSTAT_ADD"/>
-		<Child Name="ALLSTAT_BM"/>
-		<Child Name="ALLSTAT_ITEM_BM"/>
-	</hierarchy>
-	<hierarchy Name="ALLSTAT">
-		<Child Name="ALLSTAT_STAT"/>
-		<Child Name="ALLSTAT_ADD"/>
 	</hierarchy>
 	<hierarchy Name="STR_ADD">
 		<Child Name="STR_BM"/>
@@ -80,10 +56,6 @@
 		<Child Name="INT_BM"/>
 		<Child Name="INT_ITEM_BM"/>
 	</hierarchy>
-	<hierarchy Name="ALLSTAT_ADD">
-		<Child Name="ALLSTAT_BM"/>
-		<Child Name="ALLSTAT_ITEM_BM"/>
-	</hierarchy>
 	<hierarchy Name="MINPATK">
 		<Child Name="STR"/>
 		<Child Name="PATK_BM"/>
@@ -95,11 +67,7 @@
 		<Child Name="PATK_MAIN_RATE_BM"/>
 		<Child Name="MINPATK_MAIN_RATE_BM"/>
 		<Child Name="MAXPATK"/>
-		<Child Name="PATKADJ_RATE_BM"/>
-		<Child Name="PATK_RATE_MUL_BM"/>
-		<Child Name="EQUIP_PATK"/>
-		<Child Name="EQUIP_PATK_MAIN"/>
-		</hierarchy>
+	</hierarchy>
 	<hierarchy Name="MAXPATK">
 		<Child Name="STR"/>
 		<Child Name="PATK_BM"/>
@@ -110,10 +78,7 @@
 		<Child Name="MAXPATK_RATE_BM"/>
 		<Child Name="PATK_MAIN_RATE_BM"/>
 		<Child Name="MAXPATK_MAIN_RATE_BM"/>
-		<Child Name="PATK_RATE_MUL_BM"/>
-		<Child Name="EQUIP_PATK"/>
-		<Child Name="EQUIP_PATK_MAIN"/>
-		</hierarchy>
+	</hierarchy>
 	<hierarchy Name="MINPATK_SUB">
 		<Child Name="STR"/>
 		<Child Name="PATK_BM"/>
@@ -125,10 +90,6 @@
 		<Child Name="PATK_SUB_RATE_BM"/>
 		<Child Name="MINPATK_SUB_RATE_BM"/>
 		<Child Name="MAXPATK_SUB"/>
-		<Child Name="PATKADJ_SUB_RATE_BM"/>
-		<Child Name="PATK_RATE_MUL_BM"/>
-		<Child Name="EQUIP_PATK"/>
-		<Child Name="EQUIP_PATK_SUB"/>
 	</hierarchy>
 	<hierarchy Name="MAXPATK_SUB">
 		<Child Name="STR"/>
@@ -140,9 +101,6 @@
 		<Child Name="MAXPATK_RATE_BM"/>
 		<Child Name="PATK_SUB_RATE_BM"/>
 		<Child Name="MAXPATK_SUB_RATE_BM"/>
-		<Child Name="PATK_RATE_MUL_BM"/>
-		<Child Name="EQUIP_PATK"/>
-		<Child Name="EQUIP_PATK_SUB"/>
 	</hierarchy>
 	<hierarchy Name="HR">
 		<Child Name="STR"/>
@@ -167,7 +125,6 @@
 	</hierarchy>
 	<hierarchy Name="CRTMATK">
 		<Child Name="MNA"/>
-		<Child Name="INT"/>
 		<Child Name="CRTMATK_BM"/>
 	</hierarchy>
 	<hierarchy Name="MHP">
@@ -210,40 +167,29 @@
 	</hierarchy>
 	<hierarchy Name="MINMATK">
 		<Child Name="INT"/>
-		<Child Name="MNA"/>
 		<Child Name="MATK_BM"/>
 		<Child Name="MINMATK_BM"/>
 		<Child Name="MATK_RATE_BM"/>
 		<Child Name="MINMATK_RATE_BM"/>
 		<Child Name="MAXMATK"/>
-		<Child Name="MATKADJ_RATE_BM"/>
-		<Child Name="MATK_RATE_MUL_BM"/>
-		<Child Name="EQUIP_MATK"/>
-		</hierarchy>
+	</hierarchy>
 	<hierarchy Name="MAXMATK">
 		<Child Name="INT"/>
-		<Child Name="MNA"/>
 		<Child Name="MATK_BM"/>
 		<Child Name="MAXMATK_BM"/>
 		<Child Name="MATK_RATE_BM"/>
 		<Child Name="MAXMATK_RATE_BM"/>
-		<Child Name="MATK_RATE_MUL_BM"/>
-		<Child Name="EQUIP_MATK"/>
-		</hierarchy>
-	<hierarchy Name="ADD_OverHeat">
+	</hierarchy>
+	<hierarchy Name="ADDOVERHEAT">
 		<Child Name="INT"/>
 	</hierarchy>
 	<hierarchy Name="DEF">
-		<Child Name="CON"/>
 		<Child Name="DEF_BM"/>
-		<Child Name="DEF_RATE_MUL_BM"/>
 		<Child Name="DEF_RATE_BM"/>
 	</hierarchy>
 	<hierarchy Name="MDEF">
-		<Child Name="CON"/>
 		<Child Name="MDEF_BM"/>
 		<Child Name="MDEF_RATE_BM"/>
-		<Child Name="MDEF_RATE_MUL_BM"/>
 	</hierarchy>
 	<hierarchy Name="RHPTIME">
 		<Child Name="RHPTIME_BM"/>
@@ -285,7 +231,6 @@
 	<hierarchy Name="CRTDR">
 		<Child Name="CRTDR_BM"/>
 		<Child Name="CRTDR_RATE_BM"/>
-		<Child Name="CRTDR_RATE_MUL_BM"/>
 	</hierarchy>
 	<hierarchy Name="BLKABLE">
 		<Child Name="BLKABLE_BM"/>
@@ -366,75 +311,6 @@
 	<hierarchy Name="Fire_Atk">
 		<Child Name="Fire_Atk_BM"/>
 	</hierarchy>
-	<hierarchy Name="Add_Damage_Atk">
-		<Child Name="Fire_Atk_BM"/>
-		<Child Name="Ice_Atk_BM"/>
-		<Child Name="Poison_Atk_BM"/>
-		<Child Name="Lightning_Atk_BM"/>
-		<Child Name="Soul_Atk_BM"/>
-		<Child Name="Earth_Atk_BM"/>
-		<Child Name="Holy_Atk_BM"/>
-		<Child Name="Dark_Atk_BM"/>
-		<Child Name="Add_Damage_Atk_BM"/>
-		<Child Name="MINPATK"/>
-		<Child Name="MAXPATK"/>
-		<Child Name="MINMATK"/>
-		<Child Name="MAXMATK"/>
-	</hierarchy>
-	<hierarchy Name="MiddleSize_Def">
-		<Child Name="MiddleSize_Def_BM"/>
-	</hierarchy>
-	<hierarchy Name="AllMaterialType_Def">
-		<Child Name="AllMaterialType_Def_BM"/>
-		<Child Name="Leather_Def"/>
-		<Child Name="Leather_Def_BM"/>
-		<Child Name="Cloth_Def"/>
-		<Child Name="Cloth_Def_BM"/>
-		<Child Name="Iron_Def"/>
-		<Child Name="Iron_Def_BM"/>
-	</hierarchy>
-	<hierarchy Name="AllMaterialType_Atk">
-		<Child Name="AllMaterialType_Atk_BM"/>
-		<Child Name="Cloth_Atk"/>
-		<Child Name="Cloth_Atk_BM"/>
-		<Child Name="Leather_Atk"/>
-		<Child Name="Leather_Atk_BM"/>
-		<Child Name="Iron_Atk"/>
-		<Child Name="Iron_Atk_BM"/>
-		<Child Name="Ghost_Atk"/>
-		<Child Name="Ghost_Atk_BM"/>		
-	</hierarchy>
-	<hierarchy Name="AllSize_Atk">
-		<Child Name="AllSize_Atk_BM"/>
-		<Child Name="SmallSize_Atk"/>
-		<Child Name="SmallSize_Atk_BM"/>
-		<Child Name="MiddleSize_Atk"/>
-		<Child Name="MiddleSize_Atk_BM"/>
-		<Child Name="LargeSize_Atk"/>
-		<Child Name="LargeSize_Atk_BM"/>
-	</hierarchy>
-	<hierarchy Name="AllRace_Atk">
-		<Child Name="AllRace_Atk_BM"/>
-		<Child Name="Widling_Atk"/>
-		<Child Name="Widling_Atk_BM"/>
-		<Child Name="Paramune_Atk"/>
-		<Child Name="Paramune_Atk_BM"/>
-		<Child Name="Forester_Atk"/>
-		<Child Name="Forester_Atk_BM"/>
-		<Child Name="Velnias_Atk"/>
-		<Child Name="Velnias_Atk_BM"/>
-		<Child Name="Klaida_Atk"/>
-		<Child Name="Klaida_Atk_BM"/>
-	</hierarchy>	
-	<hierarchy Name="Leather_Def">
-		<Child Name="Leather_Def_BM"/>
-	</hierarchy>
-	<hierarchy Name="Cloth_Def">
-		<Child Name="Cloth_Def_BM"/>
-	</hierarchy>
-	<hierarchy Name="Iron_Def">
-		<Child Name="Iron_Def_BM"/>
-	</hierarchy>
 	<hierarchy Name="Ice_Atk">
 		<Child Name="Ice_Atk_BM"/>
 	</hierarchy>
@@ -495,9 +371,6 @@
 	<hierarchy Name="LargeSize_Atk">
 		<Child Name="LargeSize_Atk_BM"/>
 	</hierarchy>
-	<hierarchy Name="BOSS_ATK">
-		<Child Name="BOSS_ATK_BM"/>
-	</hierarchy>
 	<hierarchy Name="Aries_Atk">
 		<Child Name="Aries_Atk_BM"/>
 	</hierarchy>
@@ -506,42 +379,6 @@
 	</hierarchy>
 	<hierarchy Name="Strike_Atk">
 		<Child Name="Strike_Atk_BM"/>
-	</hierarchy>
-	<hierarchy Name="Arrow_Atk">
-		<Child Name="Arrow_Atk_BM"/>
-	</hierarchy>
-	<hierarchy Name="Cannon_Atk">
-		<Child Name="Cannon_Atk_BM"/>
-	</hierarchy>
-	<hierarchy Name="Gun_Atk">
-		<Child Name="Gun_Atk_BM"/>
-	</hierarchy>
-	<hierarchy Name="Magic_Melee_Atk">
-		<Child Name="Magic_Melee_Atk_BM"/>
-	</hierarchy>
-	<hierarchy Name="Magic_Fire_Atk">
-		<Child Name="Magic_Fire_Atk_BM"/>
-	</hierarchy>
-	<hierarchy Name="Magic_Ice_Atk">
-		<Child Name="Magic_Ice_Atk_BM"/>
-	</hierarchy>
-	<hierarchy Name="Magic_Lightning_Atk">
-		<Child Name="Magic_Lightning_Atk_BM"/>
-	</hierarchy>
-	<hierarchy Name="Magic_Earth_Atk">
-		<Child Name="Magic_Earth_Atk_BM"/>
-	</hierarchy>
-	<hierarchy Name="Magic_Poison_Atk">
-		<Child Name="Magic_Poison_Atk_BM"/>
-	</hierarchy>
-	<hierarchy Name="Magic_Dark_Atk">
-		<Child Name="Magic_Dark_Atk_BM"/>
-	</hierarchy>
-	<hierarchy Name="Magic_Holy_Atk">
-		<Child Name="Magic_Holy_Atk_BM"/>
-	</hierarchy>
-	<hierarchy Name="Magic_Soul_Atk">
-		<Child Name="Magic_Soul_Atk_BM"/>
 	</hierarchy>
 	<hierarchy Name="DefAries">
 		<Child Name="DefAries_BM"/>
@@ -554,9 +391,6 @@
 	</hierarchy>
 	<hierarchy Name="ResFire">
 		<Child Name="ResFire_BM"/>
-	</hierarchy>
-	<hierarchy Name="ResAdd_Damage">
-		<Child Name="ResAdd_Damage_BM"/>
 	</hierarchy>
 	<hierarchy Name="ResIce">
 		<Child Name="ResIce_BM"/>
@@ -653,21 +487,5 @@
 	</hierarchy>
 	<hierarchy Name="CastingSpeed">
 		<Child Name="CastingSpeed_BM"/>
-	</hierarchy>
-	<hierarchy Name="MaxHateCount">
-		<Child Name="MaxHateCount_BM"/>
-	</hierarchy>
-	<hierarchy Name="core_option_vibora">
-		<Child Name="core_option_vibora_BM"/>
-	</hierarchy>
-	<hierarchy Name="core_option_ausirine">
-		<Child Name="core_option_ausirine_BM"/>
-	</hierarchy>
-	<hierarchy Name="core_option_gabija">
-		<Child Name="core_option_gabija_BM"/>
-	</hierarchy>
-
-	<hierarchy Name="core_option_jurate">
-		<Child Name="core_option_jurate_BM"/>
 	</hierarchy>
 </property>

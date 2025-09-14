@@ -1,5 +1,5 @@
 -- 낚시 사전 체크 --
-function SCR_FISHING_PRE_CHECK(pc, argnum2)
+function SCR_FISHING_PRE_CHECK(pc)
     local isWater = 0;
     for i = 1, 5 do
         local fx, fy, fz = GetFrontPos(pc, i * 5);
@@ -8,7 +8,7 @@ function SCR_FISHING_PRE_CHECK(pc, argnum2)
             isWater = 1;
         end
     end
-
+    
     if isWater ~= 1 then
         -- 물가를 향해서 사용해주세요. --
         SendAddOnMsg(pc, "NOTICE_Dm_Fishing", ScpArgMsg("PleaseUseItForTheWater"), 5);
@@ -20,13 +20,12 @@ function SCR_FISHING_PRE_CHECK(pc, argnum2)
         SendSysMsg(pc, 'CanNotBattleState');
         return "FAIL", "BattleState";
     end
---    if argnum2 == 0 then
-    -- 낚시 성공 최대 횟수를 초과했습니다 --
-        if CheckFishingSuccessCount(pc) == 0 and argnum2 == 0 then
-            SendSysMsg(pc, 'ExceedFishingSuccessCount');
-            return "FAIL", "FishingSuccessCountIsFull";
-        end
---    end
+    
+    if CheckFishingSuccessCount(pc) == 0 then
+        -- 낚시 성공 최대 횟수를 초과했습니다 --
+        SendSysMsg(pc, 'ExceedFishingSuccessCount');
+        return "FAIL", "FishingSuccessCountIsFull";
+    end
     
     if IsFullFishingItemBag(pc) == 1 then
         -- 살림통이 꽉 찼습니다 --
@@ -49,16 +48,18 @@ function SCR_FISHING_PRE_CHECK(pc, argnum2)
             end
         end
     end
+    
     return "SUCCESS", nil;
 end
 
+
 -- 낚싯대 --
 function SCR_PRE_FISHING_ROD(self, argstring, argnum1, argnum2)
-    -- 낚시 중이라면 살림통을 부른다 --
+    -- 낚시 중이라면 사용 불가 --
     if IsFishingState(self) == 1 then
-        ExecClientScp(self,"FISHING_ITEM_BAG_TOGGLE_UI()")
-		return 0;
+        return 0;
     end
+    
 --    local list, cnt = SelectObjectByClassName(self, 300, "FishingPlace");
     local list, cnt = GetWorldObjectList(self, "MON", 300);
     if cnt >= 1 then
@@ -117,15 +118,20 @@ function SCR_PRE_FISHING_ROD(self, argstring, argnum1, argnum2)
     return 0;
 end
 
+
 function SCR_USE_FISHING_ROD(self, argObj, argstring, arg1, arg2, itemID)
     if IsFishingState(self) == 1 then
-        ExecClientScp(self,"FISHING_ITEM_BAG_TOGGLE_UI()")
-		return 0;
+        return;
     end
+    
     local fishingPlace = GetHandle(argObj);
+    
     local scriptString = string.format("FISHING_OPEN_UI(%d, %d)", fishingPlace, itemID)
+    
     ExecClientScp(self, scriptString)
 end
+
+
 
 -- 떡밥 --
 function SCR_PRE_SPREAD_BAIT(self, argstring, argnum1, argnum2)
@@ -162,10 +168,12 @@ function SCR_PRE_SPREAD_BAIT(self, argstring, argnum1, argnum2)
             
             return GetHandle(fishingPlace);
         end
+        
         -- 조금 더 물가에 가까이 다가가 시도해주세요. --
         SendAddOnMsg(self, "NOTICE_Dm_Fishing", ScpArgMsg("PleaseComeALittleCloserAndTry"), 5);
         return 0;
     end
+    
     -- 이곳은 낚시터가 아닙니다. 낚시터에서 사용해주세요. --
     SendAddOnMsg(self, "NOTICE_Dm_Fishing", ScpArgMsg("ThisIsNotAFishingSpotPleaseUseItAtTheFishingSpot"), 5);
     return 0;
@@ -210,6 +218,8 @@ function SCR_USE_SPREAD_BAIT(self, argObj, argstring, arg1, arg2, itemID)
     end
 end
 
+
+
 -- 낚시 모닥불 --
 function SCR_PRE_FISHING_FIRE(self, argstring, argnum1, argnum2)
 --    local list, cnt = SelectObjectByClassName(self, 300, "FishingPlace");
@@ -235,10 +245,12 @@ function SCR_PRE_FISHING_FIRE(self, argstring, argnum1, argnum2)
                 end
             end
         end
+        
         -- 조금 더 물가에 가까이 다가가 시도해주세요. --
         SendAddOnMsg(self, "NOTICE_Dm_Fishing", ScpArgMsg("PleaseComeALittleCloserAndTry"), 5);
         return 0;
     end
+    
     -- 이곳은 낚시터가 아닙니다. 낚시터에서 사용해주세요. --
     SendAddOnMsg(self, "NOTICE_Dm_Fishing", ScpArgMsg("ThisIsNotAFishingSpotPleaseUseItAtTheFishingSpot"), 5);
     return 0;
@@ -281,6 +293,8 @@ function SCR_FISHING_FIRE_LEAVE(self, pc)
     end
 end
 
+
+
 -- 물고기 --
 function SCR_PRE_FISH_BASIC(self, argstring, argnum1, argnum2)
     if SCR_PRECHECK_CONSUME(self) == 0 then
@@ -318,6 +332,7 @@ function SCR_USE_FISH_BASIC(self, argObj, argstring, arg1, arg2, itemID)
 --    
 --    -- HP, SP 회복량 증가 버프 --
 --    AddBuff(self, self, "FISH_RHP_RSP", 1, 0, 600000, 1);
+    
     LookAt(self, argObj);
     local result1 = DOTIMEACTION_R(self, ScpArgMsg("GrillingFishAndEating"), 'fishing_BBQ', 5.0);
     if result1 == 1 then
@@ -334,6 +349,8 @@ function SCR_USE_FISH_BASIC(self, argObj, argstring, arg1, arg2, itemID)
     end
 end
 
+
+
 -- 미끼 검사 --
 function IS_PASTE_BAIT_ITEM(itemClassID)
     local itemClass = GetClassList("Item");
@@ -343,8 +360,11 @@ function IS_PASTE_BAIT_ITEM(itemClassID)
             return 1;
         end
     end
+    
     return 0;
 end
+
+
 
 -- 최대 낚시 성공 횟수 --
 function SCR_GET_MAX_FISHING_SUCCESS_COUNT(pc, upgradeCnt)
@@ -363,10 +383,6 @@ end
 
 -- 살림통 업그레이드할 때 소모될 tp --
 function GET_FISHING_ITEM_BAG_UPGRADE_COST(pc, currentExpandCount)
-    if IS_SEASON_SERVER(pc) == 'YES' then
-        return 0
-    end
-
     if currentExpandCount == nil then
         return 0;   -- 0 반환하면 업그레이드 안시켜주게 해놓을 거에요
     end
@@ -388,5 +404,6 @@ function GET_FISHING_ITEM_BAG_UPGRADE_COST(pc, currentExpandCount)
         cost = cost * (2 ^ currentExpandCount); -- 업그레이드를 한 번 할 때 마다 2배씩 늘음, 20.. 40.. 80..
         return cost;
     end
+    
     return 0;
 end

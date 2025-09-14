@@ -1,362 +1,5 @@
--- sharedscript.lua
-
-local json = require('json')
-
-SEASON_COIN_NAME = 'AustejaCertificate'
-SEASON_COIN_PREFIX_NAME = 'AustejaCertificateCoin'
-
-function replace(text, to_be_replaced, replace_with)
-	local retText = text
-	local strFindStart, strFindEnd = string.find(text, to_be_replaced)	
-    if strFindStart ~= nil then
-		local nStringCnt = string.len(text)		
-		retText = string.sub(text, 1, strFindStart-1) .. replace_with ..  string.sub(text, strFindEnd+1, nStringCnt)		
-    else
-        retText = text
-	end
-	
-    return retText
-end
-
-function is_goddess_moru(item)
-    if string.find(TryGetProp(item, 'StringArg', 'None'), 'Certificate') ~= nil and TryGetProp(item, 'NumberArg1', 0) > 0 then
-        return true
-    end
-
-    return false
-end
-
-function shuffle(tbl)
-    local ret = {}
-    for k, v in pairs(tbl) do
-        table.insert(ret, v)
-    end
-
-    for i = #ret, 2, -1 do
-      local j = math.random(i)
-      ret[i], ret[j] = ret[j], ret[i]
-    end
-
-    return ret
-end
-
-function shuffle2(tbl)
-    local ret = {}
-    for k, v in pairs(tbl) do
-        table.insert(ret, v)
-    end
-
-    for i = #ret, 2, -1 do
-        local j = math.random(i)
-        ret[i], ret[j] = ret[j], ret[i]
-    end
-
-    for i = #ret, 2, -1 do
-        local j = math.random(i)
-        ret[i], ret[j] = ret[j], ret[i]
-    end
-    
-    return ret
-end
-
-function starts_with(str, prefix)
-    local f = string.find(str, prefix)
-    if f == nil then
-        return false
-    end
-
-    if f == 1 then
-        return true
-    end
-
-    return false
-end
-
------------- 랜덤 옵션 관련 ----------------------------------------------------------------
--------------------------------------------------------------------------------------------
-ITEM_POINT_MULTIPLE = 10
-ITEM_ATK_POINT_MULTIPLE = 20
-
--- 랜덤 옵션 등장 정보 - item_random.xml
-
-g_random_option_range_table = nil  -- 옵션별 min ~ max가 저장된 테이블
-g_skip_option = {}  -- 과거 연산식이 적용되는 옵션, 이 옵션이 나오는 경우, 과거 로직을 돌린다.
-g_skip_option['RES_FIRE'] = 1
-g_skip_option['RES_ICE'] = 1
-g_skip_option['RES_POISON'] = 1
-g_skip_option['RES_LIGHTNING'] = 1
-g_skip_option['RES_EARTH'] = 1
-g_skip_option['RES_SOUL'] = 1
-g_skip_option['RES_HOLY'] = 1
-g_skip_option['RES_DARK'] = 1
-g_skip_option['ADD_FIRE'] = 1
-g_skip_option['ADD_ICE'] = 1
-g_skip_option['ADD_POISON'] = 1
-g_skip_option['ADD_LIGHTNING'] = 1
-g_skip_option['ADD_EARTH'] = 1
-g_skip_option['ADD_HOLY'] = 1
-g_skip_option['ADD_DARK'] = 1
-g_skip_option['ADD_SOUL'] = 1
-
--- 비중(weight) 값을 고정하고 변하지 않도록 한다. (새로운 아이템 슬롯이 추가되면 변경될 수도 있다)
-total_equip_weight = 0            -- 전체 비중의 합
-random_equip_weight = {}
-random_equip_weight['RING1'] = 0.4        -- 반지1
-random_equip_weight['RING2'] = 0.4        -- 반지2
-random_equip_weight['NECK'] = 0.6         -- 목걸이
-random_equip_weight['NECK_SET'] = 1.4     -- 장신구 세트
-random_equip_weight['SEAL'] = 1           -- 인장
-random_equip_weight['ARK'] = 2            -- 아크
-random_equip_weight['SHIRT'] = 0.8        -- 상의
-random_equip_weight['PANTS'] = 0.8       -- 하의
-random_equip_weight['GLOVES'] = 0.8       -- 장갑
-random_equip_weight['BOOTS'] = 0.8        -- 신발
-random_equip_weight['Weapon'] = 1.5       -- 한손 무기
-random_equip_weight['SubWeapon'] = 1.5    -- 보조무기
-random_equip_weight['ARMOR_SET'] = 1      -- 방어구 세트
-
--- 랜덤 옵션 부여가 가능한 parts 리스트
-random_option_equip_list = {}
-random_option_equip_list['SHIRT'] = 1
-random_option_equip_list['PANTS'] = 1
-random_option_equip_list['GLOVES'] = 1
-random_option_equip_list['BOOTS'] = 1
-random_option_equip_list['Weapon'] = 1
-random_option_equip_list['SubWeapon'] = 1
-random_option_equip_list['Shield'] = 1
-random_option_equip_list['Trinket'] = 1
-random_option_equip_list['THWeapon'] = 1
--- end of 랜덤 옵션 부여가 가능한 parts 리스트
-
--- 비중 합 연산식
-for k, v in pairs(random_equip_weight) do
-    total_equip_weight = total_equip_weight + v    
-end
-
--- 이 3개는 비중 합 연산식 보다 아래에 위치해야 한다!!!!!    --------------
-random_equip_weight['Shield'] = 1.5
-random_equip_weight['Trinket'] = 0.75
-random_equip_weight['THWeapon'] = 2.25
-------------------------------------------------------------------------
-
--- 옵션별 추가 멀티플, 해당 멀티플 수치가 바뀌면, calc_battle_status.lua 에도 동기화 해야 함
--- shared를 못쓰는 이유 : shared의 초기화보다 이 파일이 먼저 실행됨. 서버 시작시에 테이블 세팅이 필요하기에 가장 먼지 실행되어야 함
-local random_option_multiple ={}
-random_option_multiple[ITEM_POINT_MULTIPLE] = {'CRTHR', 'CRTDR', 'BLK_BREAK', 'BLK', 'ADD_HR', 'ADD_DR', 'RHP'}
-random_option_multiple[ITEM_ATK_POINT_MULTIPLE] = { 'MSP',
-    'ADD_CLOTH', 'ADD_LEATHER', 'ADD_IRON', 'ADD_SMALLSIZE', 'ADD_MIDDLESIZE',
-    'ADD_LARGESIZE', 'ADD_GHOST', 'ADD_FORESTER', 'ADD_WIDLING', 'ADD_VELIAS', 
-    'ADD_PARAMUNE', 'ADD_KLAIDA', 'MiddleSize_Def',
-    'Cloth_Def', 'Leather_Def', 'Iron_Def'}
-random_option_multiple[30] = {'ResAdd_Damage', 'Add_Damage_Atk'}
-random_option_multiple[3] = {'LootingChance', 'STR', 'DEX', 'CON', 'INT', 'MNA', 'RSP'}
-random_option_multiple[0.7] = {'MSTA'}
--- end of 옵션별 추가 멀티플
-
-local base_lv = 430
-
--- item_lv, option_name, equip_group의 랜덤옵션 수치(min, max) 테이블을 생성한다.
-function init_random_option_range_table_for_lv(item_lv)
-    -- item_lv : option_name : equip_group : min/max(range)    
-    if g_random_option_range_table[item_lv] == nil then
-        g_random_option_range_table[item_lv] = {}
-    end
-
-    local once = false
-    local log = false
-
-    for multiple, option_list in pairs(random_option_multiple) do
-        local total = multiple * (item_lv + (item_lv - base_lv)) -- ratio 조절 부분        
-        for _, option_name in pairs(option_list) do            
-            local str = option_name
-            local str_equip = '\t'
-            for equip, _ in pairs(random_option_equip_list) do
-                
-                if log == true then
-                    str_equip = str_equip .. '\t' .. equip
-                end
-                
-                local before_weight = random_equip_weight[equip] * 1000000
-                if item_lv >= 460 then
-                    if equip == 'Trinket' or equip == 'THWeapon' then
-                        before_weight = 1.5 * 1000000
-                    end
-                end
-
-                local weight = tonumber(string.format('%.8f', ((before_weight/1000000) / total_equip_weight)))
-                local max_value = math.ceil(total * weight)
-                local min_value = math.ceil(max_value * 0.3)
-                if min_value <= 0 then
-                    min_value = 1
-                end
-                
-                if g_random_option_range_table[item_lv][option_name] == nil then
-                    g_random_option_range_table[item_lv][option_name] = {}
-                end
-                
-                if g_random_option_range_table[item_lv][option_name][equip] == nil then
-                    g_random_option_range_table[item_lv][option_name][equip] = {}
-                end
-
-                g_random_option_range_table[item_lv][option_name][equip][1] = min_value
-                g_random_option_range_table[item_lv][option_name][equip][2] = max_value
-                
-                if log == true then
-                    str = str .. '\t' .. max_value
-                end
-            end            
-            if once == false and log == true then
-                print(str_equip)
-                once = true
-            end
-
-            if log == true then
-                print(str)
-            end
-        end        
-    end
-end
-
--- 초기 정보 (min, max) 세팅 함수 ----------------------------------------------
-local function init_random_option_range_table()
-    if g_random_option_range_table ~= nil then
-        return
-    end
-
-    g_random_option_range_table = {}
-
-    -- 여기 아래에 레벨별로 추가해 준다.
-    init_random_option_range_table_for_lv(430)
-    init_random_option_range_table_for_lv(440)
-    init_random_option_range_table_for_lv(460)
-    init_random_option_range_table_for_lv(470)
-    init_random_option_range_table_for_lv(490)
-end
--- end of 초기 정보 (min, max) 세팅 함수 ----------------------------------------------
-
------------------------------------------------------------------------
------------------------------------------------------------------------
---  랜덤 옵션 정보 세팅
-init_random_option_range_table()
------------------------------------------------------------------------
------------------------------------------------------------------------
-
--- 아이템 등급에 따른 min 비율을 가져온다.
-function get_item_grade_ratio(grade)
-    local ret = 0.2
-
-    if grade == 3 then  -- 레어 등급은 min은 max의 20%
-        ret = 0.2
-    elseif grade == 4 then
-        ret = 0.8       -- 유니크 등급 min은 max의 80%
-    elseif grade == 5 then
-        ret = 0.8       -- 레전드 등급 min은 max의 80%
-    elseif grade == 6 then
-        ret = 0.5       -- 가디스 등급 min은 max의 50%
-    end
-
-    if ret > 0.8 then
-        ret = 0.8
-    end
-
-    return ret
-end
-
--- UseLv >= 430 이상 아이템의 랜덤옵션 값을 가져온다.
-function GET_RANDOM_OPTION_VALUE_VER2(item, option_name)
-    local equipGroup = TryGetProp(item, 'EquipGroup', 'None');
-    local equip_group = equipGroup
-    if equip_group == 'None' then
-        equip_group = TryGetProp(item, 'ClassType', 'None');  
-    end 
-    local item_lv = TryGetProp(item, 'UseLv', 1)
-
-    if equip_group == 'SubWeapon' and TryGetProp(item, 'ClassType', 'None') == 'Trinket' then
-        equip_group = 'Trinket'
-    end
-
-    if g_random_option_range_table[item_lv] == nil then
-        return nil, nil
-    elseif g_random_option_range_table[item_lv][option_name] == nil then
-        return nil, nil
-    elseif g_random_option_range_table[item_lv][option_name][equip_group] == nil then
-        return nil, nil
-    else
-        local item_grade = TryGetProp(item, 'ItemGrade', 1)
-        local grade_ratio = get_item_grade_ratio(item_grade)  -- 아이템 등급에 따른 min 비율
-        local max = g_random_option_range_table[item_lv][option_name][equip_group][2]
-        local min = math.ceil(max * grade_ratio)
-        return min, max
-    end
-end
-
-function GET_RANDOM_OPTION_VALUE_BY_LEVEL(item, lv, option_name)
-    local equipGroup = TryGetProp(item, 'EquipGroup', 'None');
-
-    if equipGroup == 'Weapon' or equipGroup == 'THWeapon' or equipGroup == 'SubWeapon' then
-        equipGroup = 'Weapon'
-    elseif equipGroup == 'SHIRT' or equipGroup == 'PANTS' or equipGroup == 'BOOTS' or equipGroup == 'GLOVES' then
-        equipGroup = 'SHIRT'
-    end
-
-    if g_random_option_range_table[lv] == nil then
-        return nil, nil
-    elseif g_random_option_range_table[lv][option_name] == nil then
-        return nil, nil
-    elseif g_random_option_range_table[lv][option_name][equipGroup] == nil then
-        return nil, nil
-    else
-        local item_grade = TryGetProp(item, 'ItemGrade', 1)
-        local grade_ratio = get_item_grade_ratio(item_grade)  -- 아이템 등급에 따른 min 비율
-        local max = g_random_option_range_table[lv][option_name][equipGroup][2]
-        local min = math.ceil(max * grade_ratio)
-        return min, max
-    end
-end
-
-icor_clsType_list = {}
-icor_clsType_list['Shirt'] = 'TOP04_157'
-icor_clsType_list['Pants'] = 'LEG04_157'
-icor_clsType_list['Boots'] = 'FOOT04_157'
-icor_clsType_list['Gloves'] = 'HAND04_159'
-icor_clsType_list['Sword'] = 'SWD04_125'
-icor_clsType_list['THSword'] = 'TSW04_125'
-icor_clsType_list['Staff'] = 'STF04_126'
-icor_clsType_list['THBow'] = 'TBW04_125'
-icor_clsType_list['Bow'] = 'BOW04_125'
-icor_clsType_list['Mace'] = 'MAC04_128'
-icor_clsType_list['THMace'] = 'TMAC04_117'
-icor_clsType_list['Shield'] = 'SHD04_121'
-icor_clsType_list['Spear'] = 'SPR04_126'
-icor_clsType_list['THSpear'] = 'TSP04_127'
-icor_clsType_list['Dagger'] = 'DAG04_122'
-icor_clsType_list['THStaff'] = 'TSF04_128'
-icor_clsType_list['Pistol'] = 'PST04_121'
-icor_clsType_list['Rapier'] = 'RAP04_123'
-icor_clsType_list['Cannon'] = 'CAN04_117'
-icor_clsType_list['Musket'] = 'MUS04_117'
-icor_clsType_list['Trinket'] = 'TRK04_104'
-
-function GET_RANDOM_OPTION_NAME_BY_CLSTYPE(item)
-    local itemClsType = TryGetProp(item, 'ClassType', 'None')
-    return icor_clsType_list[itemClsType]
-end
-
-
------------- end of 랜덤 옵션 관련 ---------------------------------------------------------
--------------------------------------------------------------------------------------------
-
 random_item = { }
 date_time = { }
-account_warehouse = {} 
-skill_gem_list = nil
-skill_gem_class_name_list = nil
-skill_gem_ctrltype_list = nil
-skill_gem_list_cube = nil
-
-unpack = unpack or table.unpack
-
-MAX_VIBORA_OPTION_COUNT = 3 
 
 random_item.is_sealed_random_item = function(itemobj)
     if IS_EQUIP(itemobj) == false then
@@ -419,7 +62,7 @@ end
 date_time.get_lua_datetime = function(_year, _month, _day, _hour, _min, _sec)
     if _year == nil or _month == nil or _day == nil or _hour == nil or _min == nil or _sec == nil then
         return nil
-	end
+    end
     return os.time { year = _year, month = _month, day = _day, hour = _hour, min = _min, sec = _sec }
 end
 
@@ -439,13 +82,6 @@ end
 -- 루아 타임으로 현재시간을 가져온다.
 date_time.get_lua_now_datetime_str = function()
     local ret = date_time.lua_datetime_to_str(date_time.get_lua_now_datetime())
-
-    --2024-12-19 수정 Dev #144340
-    --윈도우 시간대 변경 시 용증 부스트 툴팁이 같이 변경되는 현상 해결
-    --클라이언트에서는 서버에 접속한 시간을 기준으로 측정.
-    if IsServerSection() == 0 then
-        return date_time.add_time(geTime.GetConnectServerDateTimeStr(), imcTime.GetAppTime() - geTime.GetConnectServerApptime())
-    end
     return ret
 end
 
@@ -470,29 +106,6 @@ date_time.is_between_time = function(start_datetime, end_datetime)
         return false
     end
 end
-
--- start_datetime, end_datetime = yyyy-mm-dd hh:mm:ss (string)
--- 특정 시간(time , string)이 start, end 사이에 존재하는가
-date_time.is_this_time_between_time = function(start_datetime, time, end_datetime)
-    if start_datetime == nil or end_datetime == nil or start_datetime == 'None' or end_datetime == 'None' then
-        return false
-    end
-
-    local lua_start_datetime = date_time.get_lua_datetime_from_str(start_datetime)
-    local lua_end_datetime = date_time.get_lua_datetime_from_str(end_datetime)
-
-    if lua_start_datetime == nil or lua_end_datetime == nil then
-        return false
-    end
-
-    local now = date_time.get_lua_datetime_from_str(time)
-    if lua_start_datetime <= now and now <= lua_end_datetime then
-        return true
-    else
-        return false
-    end
-end
-
 
 -- 루아 시간을 yyyy-mm-dd hh:mm:ss 로 변환한다
 date_time.lua_datetime_to_str = function(lua_datetime)
@@ -524,54 +137,6 @@ date_time.add_time = function(pivot, sec)
 
     local ret_str = string.format('%04d-%02d-%02d %02d:%02d:%02d', year, month, day, hour, min, sec)
     return ret_str
-end
-
--- a_str가 b_str보다 같거나 크다면 true
-date_time.is_later_than = function(a_str, b_str)    
-    local a = date_time.get_lua_datetime_from_str(a_str)
-    local b = date_time.get_lua_datetime_from_str(b_str)    
-    if a >= b then
-        return true
-    else
-        return false
-    end
-end
-
--- 문자열로 남은 시간을 계산한다
-date_time.get_diff_sec = function(str_end, str_start)
-    local end_time = date_time.get_lua_datetime_from_str(str_end)
-    local start_time = date_time.get_lua_datetime_from_str(str_start)
-
-    return end_time - start_time
-end
-
--- 레티샤 시작 시간과 종료 시간을 가져온다 yyyy-mm-dd hh:mm:ss 
-function get_leticia_start_and_end_time_num()    
-	local startTime = TryGetProp(GetClassByType('reward_tp', 1), "StartTime", "None")
-    local endTime = TryGetProp(GetClassByType('reward_tp', 1), "EndTime", "None")
-
-    if IsServerSection() == 1 then
-        if GetServiceNation() == 'PAPAYA' then
-            startTime = TryGetProp(GetClassByType('reward_tp', 10), "StartTime", "None")
-            endTime = TryGetProp(GetClassByType('reward_tp', 10), "EndTime", "None")
-        end
-    else
-        if config.GetServiceNation() == 'PAPAYA' then
-            startTime = TryGetProp(GetClassByType('reward_tp', 10), "StartTime", "None")
-            endTime = TryGetProp(GetClassByType('reward_tp', 10), "EndTime", "None")
-        end
-    end
-
-	return startTime, endTime
-end
-
--- 추가 팀창고 개수
-account_warehouse.get_max_tab = function()
-    return 4
-end
-
-account_warehouse.get_max_slot_per_tab = function()
-    return 70
 end
 
 function is_balance_patch_care_period()    
@@ -610,57 +175,6 @@ function get_balance_patch_care_ratio()
     end
 end
 
--- 스킬젬 합성
-function make_skill_gem_list()
-    local idx = 0
-    if skill_gem_list == nil then        
-        skill_gem_list = {}                
-        local clsList, count =  GetClassList("Item")        
-        for idx = 0, count - 1 do
-            local cls = GetClassByIndexFromList(clsList, idx)            
-            if cls ~= nil then                
-                if TryGetProp(cls, 'StringArg', 'None') == 'SkillGem' and TryGetProp(cls, 'SkillName', 'None') ~= 'None' and TryGetProp(cls, 'StringArg2', 'None')=='None' then                   
-
-                    local gem_job = TryGetProp(GetClass('Skill', TryGetProp(cls, 'SkillName', 'None')), 'Job', 'None')
-                    local gem_ctrlType = TryGetProp(GetClassByStrProp('Job', 'JobName', gem_job), 'CtrlType', "None")
-                    
-                    if skill_gem_list[gem_ctrlType] == nil then
-                        skill_gem_list[gem_ctrlType] = {}
-                    end
-
-                    table.insert(skill_gem_list[gem_ctrlType], TryGetProp(cls, 'ClassName', 'None'))
-
-                end
-            end
-        end
-    end
-end
-
-make_skill_gem_list()
-
-
- -- 스킬젬 큐브
- function make_skill_gem_list_cube()
-     local idx = 0
-     if skill_gem_list_cube == nil then        
-         skill_gem_list_cube = {}                
-         local clsList, count =  GetClassList("Item")       
-         for idx = 0, count - 1 do
-             local cls = GetClassByIndexFromList(clsList, idx)            
-             if cls ~= nil then                
-                 if TryGetProp(cls, 'StringArg', 'None') == 'SkillGem' and TryGetProp(cls, 'SkillName', 'None') ~= 'None' and TryGetProp(cls, 'StringArg2', 'None')=='None' then                 
-                    table.insert(skill_gem_list_cube, TryGetProp(cls, 'ClassName', 'None'))
-                end
-             end
-         end
-     end
- end
-
- make_skill_gem_list_cube()
-
-function GET_SKILL_GEM_LIST_BY_CTRLTYPE(ctrl)
-    return skill_gem_list[ctrl]
-end
 
 function SCR_QUEST_LINK_FIRST(pc, questname)
     return SCR_QUEST_LINK_FIRST_SUB(pc, { questname }, { }, { })
@@ -821,6 +335,100 @@ function IS_KOR_TEST_SERVER()
     end
     return false
 end
+function IS_SEASON_SERVER(pc)
+
+    if pc ~= nil then
+        if IsServerObj(pc) == 1 then
+            if IsIndun(pc) == 1 then
+                local etc = GetETCObject(pc)
+                local serverGroupID = TryGetProp(etc, "MyWorldID");
+
+                -- Test Server
+                -- if GetServerNation() == "KOR" and serverGroupID == 1550 then
+                --  return "NO";
+                -- else
+                --  return "YES";
+                -- end
+
+                -- Live Server
+                if GetServerNation() == "KOR" and(serverGroupID == 3001 or serverGroupID == 8801) then
+                    return "YES";
+                else
+                    return "NO";
+                end
+            else
+                -- Test Server
+                -- if (GetServerNation() == "KOR" and GetServerGroupID() == 1550) then
+                --  return "YES"
+                -- else
+                --  return "NO"
+                -- end
+
+                -- Live Server
+                if (GetServerNation() == "KOR" and(GetServerGroupID() == 3001 or GetServerGroupID() == 8801)) then
+                    return "YES"
+                else
+                    return "NO"
+                end
+            end
+        else
+            if session.world.IsIntegrateServer() == true then
+                local pcEtc = GetMyEtcObject();
+
+                local serverGroupID = TryGetProp(pcEtc, "MyWorldID");
+
+                -- Test Server
+                -- if GetServerNation() == "KOR" and serverGroupID == 1550 then
+                --  return "NO";
+                -- else
+                --  return "YES";
+                -- end
+
+                -- Live Server
+                if GetServerNation() == "KOR" and(serverGroupID == 3001 or serverGroupID == 8801) then
+                    return "NO";
+                else
+                    return "YES";
+                end
+            else
+                -- Test Server
+                -- if (GetServerNation() == "KOR" and GetServerGroupID() == 1550) then
+                --  return 'YES'
+                -- end
+
+                -- Live Server
+                if (GetServerNation() == "KOR" and(GetServerGroupID() == 3001 or GetServerGroupID() == 8801)) then
+                    return "YES"
+                else
+                    return "NO"
+                end
+            end
+        end
+    else
+        -- Test Server
+        -- if (GetServerNation() == "KOR" and GetServerGroupID() == 1550) then
+        --  return 'YES'
+        -- end
+
+        -- Live Server
+        if (GetServerNation() == "KOR" and(GetServerGroupID() == 3001 or GetServerGroupID() == 8801)) then
+            return 'YES'
+        end
+    end
+
+
+    -- Test Server
+    -- if (GetServerNation() == "KOR" and GetServerGroupID() == 1550) then
+    --  return 'YES'
+    -- end
+
+    -- Live Server
+    -- if (GetServerNation() == "KOR" and ( GetServerGroupID() == 3001 or GetServerGroupID() == 8801)) then
+    --   return 'YES'
+    -- end
+
+    return 'NO'
+end
 
 function IMC_LOG(code, stringinfo)
     imclog(code, stringinfo);
@@ -917,9 +525,8 @@ function GET_LAST_UI_OPEN_POS(etc)
     return mapname, x, y, z, uiname
 end
 
--- done, 해당 함수 내용은 cpp로 이전되었습니다. 변경 사항이 있다면 반드시 프로그램팀에 알려주시기 바랍니다.
-function IS_NO_EQUIPITEM(equipItem)
-    -- No_~ 시리즈 아이템인지.
+
+function IS_NO_EQUIPITEM(equipItem) -- No_~ 시리즈 아이템인지.
 
     local clsName = equipItem.ClassName;
 
@@ -970,8 +577,7 @@ function GET_REMOVE_GEM_PRICE(itemlv, taxRate)
         if cls.Lv == itemlv then
             local price = cls.RemoveSocketPrice
             if taxRate ~= nil then
-                price = tonumber(CALC_PRICE_WITH_TAX_RATE(price, taxRate))
-                -- 젬 추출 세금
+                price = tonumber(CALC_PRICE_WITH_TAX_RATE(price, taxRate)) -- 젬 추출 세금
             end
             return price
         end
@@ -1579,7 +1185,7 @@ function SCR_DATE_TO_YHOUR_BASIC_2000(yy, mm, dd, hh)
     nonleapyears = math.floor((yy - 2000) / 100)
     nonnonleapyears = math.floor((yy - 1600) / 400)
 
-    if ((math.fmod(yy, 4) == 0) and mm < 3) then
+    if ((math.mod(yy, 4) == 0) and mm < 3) then
         leapyears = leapyears - 1
     end
 
@@ -1607,7 +1213,7 @@ function SCR_DATE_TO_YMIN_BASIC_2000(yy, mm, dd, hh, min)
     nonleapyears = math.floor((yy - 2000) / 100)
     nonnonleapyears = math.floor((yy - 1600) / 400)
 
-    if ((math.fmod(yy, 4) == 0) and mm < 3) then
+    if ((math.mod(yy, 4) == 0) and mm < 3) then
         leapyears = leapyears - 1
     end
 
@@ -1686,7 +1292,7 @@ function SCR_DATE_TO_YDAY_BASIC_2000(yy, mm, dd)
     nonleapyears = math.floor((yy - 2000) / 100)
     nonnonleapyears = math.floor((yy - 1600) / 400)
 
-    if ((math.fmod(yy, 4) == 0) and mm < 3) then
+    if ((math.mod(yy, 4) == 0) and mm < 3) then
         leapyears = leapyears - 1
     end
 
@@ -1925,12 +1531,11 @@ function GET_CLS_GROUP(idSpace, groupName)
 end
 
 
-function GET_MAP_ACHI_NAME(mapName)
+function GET_MAP_ACHI_NAME(mapCls)
 
-    local name = ScpArgMsg("Auto_{Auto_1}_TamSaJa", "Auto_1", mapName);
-    local desc = ScpArgMsg("Auto_{Auto_1}_Jiyeogeul_MoDu_TamSaHayeossSeupNiDa.", "Auto_1", mapName);
-    local desctitle = name
-    -- 임시. 나중에 맵 업적 달성시 보상및 칭호에 대한 데이터 세팅 이루어 지면 바꾸자.
+    local name = ScpArgMsg("Auto_{Auto_1}_TamSaJa", "Auto_1", mapCls.Name);
+    local desc = ScpArgMsg("Auto_{Auto_1}_Jiyeogeul_MoDu_TamSaHayeossSeupNiDa.", "Auto_1", mapCls.Name);
+    local desctitle = name -- 임시. 나중에 맵 업적 달성시 보상및 칭호에 대한 데이터 세팅 이루어 지면 바꾸자.
     local reward = "None"
     return desc, name, desctitle, reward;
 
@@ -1956,11 +1561,9 @@ function GET_EXP_RATIO(myLevel, monLevel, highLv, monster)
     if levelGap > standardLevel then
         local penaltyRatio = 0.0;
         if pcLv < monLv then
-            penaltyRatio = 0.05;
-            -- 고레벨 몬스터 사냥 시 페널티
+	        penaltyRatio = 0.05;	-- 고레벨 몬스터 사냥 시 페널티
         else
-            penaltyRatio = 0.02;
-            -- 저레벨 몬스터 사냥 시 페널티
+	    	penaltyRatio = 0.02;	-- 저레벨 몬스터 사냥 시 페널티
         end
 
         local lvRatio = 1 -((levelGap - standardLevel) * penaltyRatio);
@@ -1988,11 +1591,9 @@ function GET_EXP_RATIO_INDUN(myLevel, indunLevel, highLv)
     if levelGap > standardLevel then
         local penaltyRatio = 0.0;
         if pcLv < indunLv then
-            penaltyRatio = 0.05;
-            -- 고레벨 몬스터 사냥 시 페널티
+	        penaltyRatio = 0.05;	-- 고레벨 몬스터 사냥 시 페널티
         else
-            penaltyRatio = 0.05;
-            -- 저레벨 몬스터 사냥 시 페널티
+	    	penaltyRatio = 0.05;	-- 저레벨 몬스터 사냥 시 페널티
         end
 
         local lvRatio = 1 -((levelGap - standardLevel) * penaltyRatio);
@@ -2077,7 +1678,7 @@ function GET_MS_TXT(sec)
     local appTime = imcTime.GetAppTime();
     local m, s = GET_MS(sec);
     local colon = ":";
-    if math.fmod(math.floor(appTime * 2.0), 2) == 1 then
+    if math.mod(math.floor(appTime * 2.0), 2) == 1 then
         colon = " ";
     end
 
@@ -2203,9 +1804,7 @@ function StringSplit(str, delimStr)
         _tempStr = dic.getTranslatedStr(str);
     end
 
-    local try_count = 1
-
-    for try_count = 1, 1000 do 
+    while true do
         if _tempStr == nil then
             break
         end
@@ -2225,17 +1824,6 @@ function StringSplit(str, delimStr)
             break;
         end
     end
-
-    if try_count >= 1000 then
-        local ret = {}
-        if str == nil then
-            ret[1] = ''
-        else
-            ret[1] = str
-        end
-        return ret
-    end 
-
     return _result;
 end
 
@@ -2309,19 +1897,16 @@ function CHANGE_BOSSDROPLIST(self, equipDropList)
     ChangeClassValue(self, 'EquipDropType', equipDropList);
 end
 
-function GET_RECIPE_REQITEM_CNT(cls, propname,pc)
-    local recipeType = TryGetProp(cls, 'RecipeType', 'None')
-    if recipeType == 'None' then
-        recipeType = 'Drag'
-    end
-    
+function GET_RECIPE_REQITEM_CNT(cls, propname)
+
+    local recipeType = cls.RecipeType;
     if recipeType == "Anvil" or recipeType == "Grill" then
         return cls[propname .. "_Cnt"], TryGet(cls, propname .. "_Level");
-    elseif recipeType == "Drag" or recipeType == "Upgrade" then        
-        return TryGetProp(cls, propname .. "_Cnt", 0), TryGetProp(cls, propname .. "_Level", 0);
+    elseif recipeType == "Drag" or recipeType == "Upgrade" then
+        return cls[propname .. "_Cnt"], TryGet(cls, propname .. "_Level");
     end
 
-    return 0, 0;
+    return 0;
 
 end
 
@@ -2355,11 +1940,9 @@ function CHECK_CHANGE_JOB_CONDITION(cls, haveJobNameList, haveJobGradeList)
 
 
         local sList = StringSplit(cls["ChangeJobCondition" .. i], ";");
-        local conditionCount = #sList / 2;
-        -- 해당직업 전직조건 체크갯수
+        local conditionCount = #sList / 2;  -- 해당직업 전직조건 체크갯수
 
-        local completeCount = 0;
-        -- 전직조건에 몇개나 만족하는지
+        local completeCount = 0;            -- 전직조건에 몇개나 만족하는지
         for j = 1, conditionCount do
             -- 직업가지고있고 요구레벨보다 높은지 체크
             for n = 0, #haveJobNameList do
@@ -2420,19 +2003,6 @@ function NUM_KILO_CHANGE(num)
         str = string.sub(str, 1, -2)
     end
     return str
-end
-
-function STR_KILO_CHANGE(num)
-    local padding = 3 - string.len(num) % 3
-    if padding == 3 then
-        padding = 0
-    end
-    for i = 1,padding do
-        num = '0' .. num
-    end
-    num = string.gsub(num,"[0-9][0-9][0-9]",function(w) return w..',' end)
-    num = string.sub(num,padding+1,string.len(num) - 1)
-    return num
 end
 
 function SCR_POSSIBLE_UI_OPEN_CHECK(pc, questIES, subQuestZoneList, chType)
@@ -2519,7 +2089,7 @@ function SCR_POSSIBLE_UI_OPEN_CHECK(pc, questIES, subQuestZoneList, chType)
             ret = "OPEN"
             return ret, subQuestZoneList
         end
-    elseif questIES.QuestMode == "MAIN" or questIES.QuestMode == "SUB" or questIES.QuestMode == 'REPEAT' or questIES.PossibleUI_Notify == 'UNCOND' then
+    elseif questIES.QuestMode == "MAIN" or questIES.PossibleUI_Notify == 'UNCOND' then
         ret = "OPEN"
         return ret, subQuestZoneList
     end
@@ -2599,8 +2169,7 @@ function GET_COMMA_SEPARATED_STRING_FOR_HIGH_VALUE(num)
     local retStr = "";
     local numValue = num;
 
-    for i = 1, 1000 do
-        -- 무한루프 방지용 --
+	for i = 1, 1000 do	-- 무한루프 방지용 --
         local tempValue = numValue % 1000;
         if string.len(tempValue) < 3 then
             for j = 1, 3 - string.len(tempValue) do
@@ -2631,27 +2200,7 @@ end
 
 -- 이 함수는 이제 사용하지 말 것 --
 -- 그래도 혹시 어디서 참조할지 몰라서 남겨두긴 함 --
-function GET_COMMAED_STRING(num)    
-    -- unsigned long 범위내에서 가능하게 수정함
-    if num == nil or num == 'None' then
-        return "0";
-    end
-    local retStr = "";
-    if tonumber(num) == nil then
-        -- 숫자가 아닌경우 그냥 리턴
-        return num;
-    end
-    num = tonumber(num);
-    if num >= 0 then
-        retStr = GetCommaedString(num);
-    else
-        retStr = '-' .. GetCommaedString(- num);
-    end
-    return retStr;
-end
-
-function GET_COMMAED_STRING2(num)
-    -- unsigned long 범위내에서 가능하게 수정함
+function GET_COMMAED_STRING(num) -- unsigned long 범위내에서 가능하게 수정함
     if num == nil then
         return "0";
     end
@@ -2664,8 +2213,6 @@ function GET_COMMAED_STRING2(num)
     end
     return retStr;
 end
-
-
 
 function GET_NOT_COMMAED_NUMBER(commaedString)
     local retStr = "";
@@ -2710,8 +2257,7 @@ function IS_ENABLE_EQUIP_GEM(targetItem, gemType, targetItemInvItem)
                 curCnt = curCnt + 1;
             end
         end
-    else
-        -- server
+    else -- server
         for i = 0, maxSocket - 1 do
             if GetItemSocketInfo(targetItem, i) == gemType then
                 curCnt = curCnt + 1;
@@ -2767,15 +2313,10 @@ function SCR_REINFORCE_COUPON()
     return couponList
 end
 
-function SCR_REINFORCE_COUPON_PRECHECK(pc, price, moruItem, target_item)
+function SCR_REINFORCE_COUPON_PRECHECK(pc, price)
     local retCouponList = { };
     local couponList = SCR_REINFORCE_COUPON()
     local couponValueList = { }
-    
-    if is_goddess_moru(moruItem) == true or TryGetProp(target_item, 'StringArg', 'None') == 'Moru_goddess' then    
-        return price, retCouponList
-    end
-
     for i = 1, #couponList do
         local itemIES = GetClass('Item', couponList[i])
         if itemIES ~= nil then
@@ -2923,8 +2464,7 @@ function GET_INDUN_SILVER_RATIO(myLevel, indunLevel)
     local levelGap = math.abs(pcLv - dungeonLv);
 
     if levelGap > standardLevel then
-        local penaltyRatio = 0.02;
-        -- 저레벨 인던 사냥 시 실버 페널티--
+    	local penaltyRatio = 0.02;	-- 저레벨 인던 사냥 시 실버 페널티--
         local lvRatio = 1 -((levelGap - standardLevel) * penaltyRatio);
         value = value * lvRatio;
     end
@@ -2945,8 +2485,134 @@ function IMCLOG_CONTENT_SPACING(tag, ...)
     ImcContentLog(tag, logMsg)
 end
 
-function GET_DATE_BY_DATE_STRING(dateString)
-    -- yyyy-mm-dd hh:mm:ss
+function SCR_TEXT_HIGHLIGHT(dialogClassName, text)
+    local targetZoneWordList = { }
+    local targetMonWordList = { }
+
+    local exceptList, exceptcnt = GetClassList("DialogExceptionText");
+    local exceptdialog = { }
+    local exceptword = { }
+    for i = 0, exceptcnt - 1 do
+        local cls = GetClassByIndexFromList(exceptList, i);
+        local clstype = TryGetProp(cls, 'Type', 'None')
+        local clsword = TryGetProp(cls, 'Word', 'None')
+        local clsdialog = TryGetProp(cls, 'Dialog', 'None')
+        if clstype == 'WORD' then
+            exceptdialog[#exceptdialog + 1] = clsdialog
+            exceptword[#exceptword + 1] = SCR_STRING_CUT(clsword)
+        end
+    end
+
+    local exceptIndex = table.find(exceptdialog, dialogClassName)
+
+    --    if #TEXT_ZONENAMELIST == 0 then
+    --        local maplist, mapcnt  = GetClassList("Map");
+    --        for i = 0 , mapcnt - 1 do
+    --            local cls = GetClassByIndexFromList(maplist, i);
+    --            local zoneName = TryGetProp(cls,'Name', 'None')
+    --            if zoneName ~= 'None' and table.find(TEXT_ZONENAMELIST, zoneName) == 0 then
+    --                TEXT_ZONENAMELIST[#TEXT_ZONENAMELIST + 1] = zoneName
+    --            end
+    --        end
+    --
+    --        local arealist, areacnt  = GetClassList("Map_Area");
+    --        for i = 0 , areacnt - 1 do
+    --            local cls = GetClassByIndexFromList(arealist, i);
+    --            local zoneName = TryGetProp(cls,'Name', 'None')
+    --            if zoneName ~= 'None' and table.find(TEXT_ZONENAMELIST, zoneName) == 0 then
+    --                TEXT_ZONENAMELIST[#TEXT_ZONENAMELIST + 1] = zoneName
+    --            end
+    --        end
+    --    end
+
+    local maxi1 = #TEXT_ZONENAMELIST
+    for i = 1, maxi1 do
+        local findIndex = string.find(text, TEXT_ZONENAMELIST[i])
+        if findIndex ~= nil then
+            local beforeChar = string.sub(text, findIndex - 1, findIndex - 1)
+            local beforeNum = string.byte(beforeChar)
+            if findIndex == 1 or beforeChar == ' ' or(beforeNum >= 33 and beforeNum <= 47) or(beforeNum >= 58 and beforeNum <= 64) or(beforeNum >= 91 and beforeNum <= 96) or(beforeNum >= 123 and beforeNum <= 126) then
+                if exceptIndex == 0 then
+                    targetZoneWordList[#targetZoneWordList + 1] = TEXT_ZONENAMELIST[i]
+                else
+                    if table.find(exceptword[exceptIndex], TEXT_ZONENAMELIST[i]) == 0 then
+                        targetZoneWordList[#targetZoneWordList + 1] = TEXT_ZONENAMELIST[i]
+                    end
+                end
+            end
+        end
+    end
+
+    --    if #TEXT_MONNAMELIST == 0 then
+    --        local monlist, moncnt  = GetClassList("Monster");
+    --        for i = 0 , moncnt - 1 do
+    --            local cls = GetClassByIndexFromList(monlist, i);
+    --            local monName = TryGetProp(cls,'Name', 'None')
+    --            if monName ~= 'None' and table.find(TEXT_ZONENAMELIST, monName) == 0 then
+    --                TEXT_MONNAMELIST[#TEXT_MONNAMELIST + 1] = monName
+    --            end
+    --        end
+    --    end
+
+
+    local maxi2 = #TEXT_MONNAMELIST
+    for i = 1, maxi2 do
+        local findIndex = string.find(text, TEXT_MONNAMELIST[i])
+        if findIndex ~= nil then
+            local beforeChar = string.sub(text, findIndex - 1, findIndex - 1)
+            local beforeNum = string.byte(beforeChar)
+            if findIndex == 1 or beforeChar == ' ' or(beforeNum >= 33 and beforeNum <= 47) or(beforeNum >= 58 and beforeNum <= 64) or(beforeNum >= 91 and beforeNum <= 96) or(beforeNum >= 123 and beforeNum <= 126) then
+                if exceptIndex == 0 then
+                    targetMonWordList[#targetMonWordList + 1] = TEXT_MONNAMELIST[i]
+                else
+                    if table.find(exceptword[exceptIndex], TEXT_MONNAMELIST[i]) == 0 then
+                        targetMonWordList[#targetMonWordList + 1] = TEXT_MONNAMELIST[i]
+                    end
+                end
+            end
+        end
+    end
+
+    if #targetZoneWordList > 0 then
+        for i = 1, #targetZoneWordList - 1 do
+            for r = i + 1, #targetZoneWordList do
+                if string.len(targetZoneWordList[i]) < string.len(targetZoneWordList[r]) then
+                    local tempStr = targetZoneWordList[i]
+                    targetZoneWordList[i] = targetZoneWordList[r]
+                    targetZoneWordList[r] = tempStr
+                end
+            end
+        end
+    end
+
+    if #targetMonWordList > 0 then
+        for i = 1, #targetMonWordList - 1 do
+            for r = i + 1, #targetMonWordList do
+                if string.len(targetMonWordList[i]) < string.len(targetMonWordList[r]) then
+                    local tempStr = targetMonWordList[i]
+                    targetMonWordList[i] = targetMonWordList[r]
+                    targetMonWordList[r] = tempStr
+                end
+            end
+        end
+    end
+
+    if #targetZoneWordList > 0 then
+        for i = 1, #targetZoneWordList do
+            text = string.gsub(text, targetZoneWordList[i], '{#003399}' .. targetZoneWordList[i] .. '{/}')
+        end
+    end
+
+    if #targetMonWordList > 0 then
+        for i = 1, #targetMonWordList do
+            text = string.gsub(text, targetMonWordList[i], '{#003399}' .. targetMonWordList[i] .. '{/}')
+        end
+    end
+
+    return text
+end
+
+function GET_DATE_BY_DATE_STRING(dateString) -- yyyy-mm-dd hh:mm:ss
     local tIndex = string.find(dateString, ' ');
     if tIndex == nil then
         return -1;
@@ -3053,108 +2719,39 @@ function SCR_MAIN_QUEST_WARP_CHECK(pc, questState, questIES, questName)
         sObj = GetSessionObject(pc, 'ssn_klapeda')
     end
 
-    if sObj == nil then
-        return 'NO'
-    end
-
     local clsList, cnt = GetClassList("mainquest_startnpcwarp");
     for i = 0, cnt - 1 do
         local tQuest = GetClassByIndexFromList(clsList, i);
+
         local tQuestState
-        local preQuestState = {}
-        local preQuestStateCheck = {}
         if IsServerSection(pc) == 1 then
             tQuestState = SCR_QUEST_CHECK(pc, tQuest.ClassName)
-            if tQuest.CheckQuestName ~= "None" then
-                local sList1 = StringSplit(tQuest.CheckQuestName, ';')
-                local sList2 = StringSplit(tQuest.CheckQuestState, ';')
-                if #sList1 > 0 then
-                    for j = 1, #sList1 do
-                        preQuestState[#preQuestState+1] = SCR_QUEST_CHECK(pc, sList1[j])
-                        preQuestStateCheck[#preQuestStateCheck+1] = sList2[j]
-                    end
-                end
-            end
         else
             if pc.Lv == nil then
                 pc = GetMyPCObject()
             end
             tQuestState = SCR_QUEST_CHECK_C(pc, tQuest.ClassName)
-            if tQuest.CheckQuestName ~= "None" then
-                local sList1 = StringSplit(tQuest.CheckQuestName, ';')
-                local sList2 = StringSplit(tQuest.CheckQuestState, ';')
-                if #sList1 > 0 then
-                    for j = 1, #sList1 do
-                        preQuestState[#preQuestState+1] = SCR_QUEST_CHECK_C(pc, sList1[j])
-                        preQuestStateCheck[#preQuestStateCheck+1] = sList2[j]
-                    end
-                end
-            end
         end
 
         if tQuestState == 'POSSIBLE' then
             local tquestIES = GetClass('QuestProgressCheck', tQuest.ClassName)
+            if pc.Lv < 100 then
                 if tquestIES.QStartZone ~= 'None' and sObj.QSTARTZONETYPE ~= 'None' and tquestIES.QStartZone ~= sObj.QSTARTZONETYPE then
                 elseif tQuest.ClassName == questName then
-                if tQuest.CheckQuestName ~= "None" then
-                    if #preQuestState > 1 then
-                        local flag = 0
-                        for j = 1, #preQuestState do
-                            if preQuestState[j] == preQuestStateCheck[j] then
-                                flag = flag + 1
-                            end
-                        end
-                        if flag > 0 then
-                            return 'YES'
-                        else
-                            return 'NO'
-                        end
-                    else
-                        if preQuestState[1] == preQuestStateCheck[1] then
                     return 'YES'
-                        else
-                            return 'NO'
-                        end
-                    end
-                else
-                    return 'YES'
-                end
                 elseif tquestIES.QStartZone ~= 'None' and sObj.QSTARTZONETYPE ~= 'None' and tquestIES.QStartZone == sObj.QSTARTZONETYPE then
                     return 'NO'
                 end
-        end
-        if tQuest.ClassName == questName then
-            if tQuest.CheckQuestName ~= "None" then
-                if #preQuestState > 1 then
-                    local flag = 0
-                    for j = 1, #preQuestState do
-                        if preQuestState[j] == preQuestStateCheck[j] then
-                            flag = flag + 1
-                        end
-                    end
-                    if flag > 0 then
-                        return 'YES'
             else
                 return 'NO'
             end
-                else
-                    if preQuestState[1] == preQuestStateCheck[1] then
-                        return 'YES'
-                    else
-                        return 'NO'
-                    end
         end
---                if preQuestState == preQuestStateCheck then
---                print(questName, tQuest.ClassName, 'in')
---                    return 'YES'
---                else
---                    return 'NO'
---                end
-            else
+
+        if tQuest.ClassName == questName then
             return 'YES'
         end
     end
-    end
+
     return 'NO'
 end
 
@@ -3287,498 +2884,6 @@ function JOB_NAKMUAY_PRE_CHECK(pc, jobCount)
     return 'NO'
 end
 
-function JOB_LUCHADOR_PRE_CHECK(pc, jobCount)
-
-        local aObj
-        if IsServerSection() == 0 then
-            aObj = GetMyAccountObj();
-        else
-            aObj = GetAccountObj(pc);
-        end
-        
-        if aObj ~= nil then
-            local value = TryGetProp(aObj, 'UnlockQuest_Char1_23', 0)
-            if value == 1 or IS_KOR_TEST_SERVER() == true then
-                return 'YES'
-            end
-        end
-
-    return 'NO'
-end
-
-function JOB_HWARANG_PRE_CHECK(pc, jobCount)
-
-    local aObj
-    if IsServerSection() == 0 then
-        aObj = GetMyAccountObj();
-    else
-        aObj = GetAccountObj(pc);
-    end
-    
-    if aObj ~= nil then
-        local value = TryGetProp(aObj, 'UnlockQuest_Char3_22', 0)
-        if value == 1 or IS_KOR_TEST_SERVER() == true then
-            return 'YES'
-        end
-    end
-
-    return 'NO'
-end
-
-function JOB_KERAUNOS_PRE_CHECK(pc, jobCount)
-
-    local aObj
-    if IsServerSection() == 0 then
-        aObj = GetMyAccountObj();
-    else
-        aObj = GetAccountObj(pc);
-    end
-    
-    if aObj ~= nil then
-        local value = TryGetProp(aObj, 'UnlockQuest_Char2_24', 0)
-        if value == 1 or IS_KOR_TEST_SERVER() == true then
-            return 'YES'
-        end
-    end
-
-    return 'NO'
-end
-
-function JOB_LAMA_PRE_CHECK(pc, jobCount)
-    if jobCount == nil then
-        jobCount = GetTotalJobCount(pc);
-    end
-    if jobCount >= 2 then
-        local aObj
-        if IsServerSection() == 0 then
-            aObj = GetMyAccountObj();
-        else
-            aObj = GetAccountObj(pc);
-        end
-        
-        if aObj ~= nil then
-            local value = TryGetProp(aObj, 'UnlockQuest_Char4_22', 0)
-            if value == 1 or IS_KOR_TEST_SERVER() == true then
-                return 'YES'
-            end
-        end
-    end
-
-    return 'NO'
-end
-
-function JOB_Pontifex_PRE_CHECK(pc, jobCount)    
-    local aObj = nil
-    if IsServerSection() == 0 then
-        aObj = GetMyAccountObj();
-    else
-        aObj = GetAccountObj(pc);
-    end
-    
-    if aObj ~= nil then
-        local value = TryGetProp(aObj, 'UnlockQuest_Char4_23', 0)
-        if value == 1 then
-            return 'YES'
-        end
-    end
-
-    return 'NO'
-end
-
-function JOB_JAGUAR_PRE_CHECK(pc, jobCount)
-    if jobCount == nil then
-        jobCount = GetTotalJobCount(pc);
-    end
-    if jobCount >= 2 then
-        local aObj
-        if IsServerSection() == 0 then
-            aObj = GetMyAccountObj();
-        else
-            aObj = GetAccountObj(pc);
-        end
-        
-        if aObj ~= nil then
-            local value = TryGetProp(aObj, 'UnlockQuest_Char5_18', 0)
-            if value == 1 or IS_KOR_TEST_SERVER() == true then
-                return 'YES'
-            end
-        end 
-    end
-
-    return 'NO'
-end
-
-function JOB_DESPERADO_PRE_CHECK(pc, jobCount)
-    local aObj = nil
-    if IsServerSection() == 0 then
-        aObj = GetMyAccountObj();
-    else
-        aObj = GetAccountObj(pc);
-    end
-    
-    if aObj ~= nil then
-        local value = TryGetProp(aObj, 'UnlockQuest_Char5_19', 0)
-        if value == 1 then
-            return 'YES'
-        end
-    end
-
-    return 'NO'
-end
-
-function JOB_ILLUSIONIST_PRE_CHECK(pc, jobCount)
-    local aObj = nil
-    if IsServerSection() == 0 then
-        aObj = GetMyAccountObj();
-    else
-        aObj = GetAccountObj(pc);
-    end
-    
-    if aObj ~= nil then
-        local value = TryGetProp(aObj, 'UnlockQuest_Char2_25', 0)
-        if value == 1 then
-            return 'YES'
-        end
-    end
-
-    return 'NO'
-end
-
-function JOB_VULTURE_W_PRE_CHECK(pc, jobCount)
-    local aObj = nil
-    if IsServerSection() == 0 then
-        aObj = GetMyAccountObj();
-    else
-        aObj = GetAccountObj(pc);
-    end
-    
-    if aObj ~= nil then
-        local value = TryGetProp(aObj, 'UnlockQuest_Char2_26', 0)
-        if value == 1 then
-            return 'YES'
-        end
-    end
-
-    return 'NO'
-end
-
-function JOB_VULTURE_A_PRE_CHECK(pc, jobCount)
-    local aObj = nil
-    if IsServerSection() == 0 then
-        aObj = GetMyAccountObj();
-    else
-        aObj = GetAccountObj(pc);
-    end
-    
-    if aObj ~= nil then
-        local value = TryGetProp(aObj, 'UnlockQuest_Char3_25', 0)
-        if value == 1 then
-            return 'YES'
-        end
-    end
-
-    return 'NO'
-end
-
-function JOB_VULTURE_T_PRE_CHECK(pc, jobCount)
-    local aObj = nil
-    if IsServerSection() == 0 then
-        aObj = GetMyAccountObj();
-    else
-        aObj = GetAccountObj(pc);
-    end
-    
-    if aObj ~= nil then
-        local value = TryGetProp(aObj, 'UnlockQuest_Char5_20', 0)
-        if value == 1 then
-            return 'YES'
-        end
-    end
-
-    return 'NO'
-end
-
-function JOB_SLEDGER_C_PRE_CHECK(pc, jobCount)
-    local aObj = nil
-    if IsServerSection() == 0 then
-        aObj = GetMyAccountObj();
-    else
-        aObj = GetAccountObj(pc);
-    end
-    
-    if aObj ~= nil then
-        local value = TryGetProp(aObj, 'UnlockQuest_Char4_24', 0)
-        if value == 1 then
-            return 'YES'
-        end
-    end
-
-    return 'NO'
-end
-
-function JOB_SLEDGER_S_PRE_CHECK(pc, jobCount)
-    local aObj = nil
-    if IsServerSection() == 0 then
-        aObj = GetMyAccountObj();
-    else
-        aObj = GetAccountObj(pc);
-    end
-    
-    if aObj ~= nil then
-        local value = TryGetProp(aObj, 'UnlockQuest_Char1_27', 0)
-        if value == 1 then
-            return 'YES'
-        end
-    end
-
-    return 'NO'
-end
-
-function JOB_BONEMANCER_S_PRE_CHECK(pc, jobCount)
-    local aObj = nil
-    if IsServerSection() == 0 then
-        aObj = GetMyAccountObj();
-    else
-        aObj = GetAccountObj(pc);
-    end
-    
-    if aObj ~= nil then
-        local value = TryGetProp(aObj, 'UnlockQuest_Char1_28', 0)
-        if value == 1 then
-            return 'YES'
-        end
-    end
-
-    return 'NO'
-end
-
-function JOB_BONEMANCER_A_PRE_CHECK(pc, jobCount)
-    local aObj = nil
-    if IsServerSection() == 0 then
-        aObj = GetMyAccountObj();
-    else
-        aObj = GetAccountObj(pc);
-    end
-    
-    if aObj ~= nil then
-        local value = TryGetProp(aObj, 'UnlockQuest_Char3_26', 0)
-        if value == 1 then
-            return 'YES'
-        end
-    end
-
-    return 'NO'
-end
-
-function JOB_BONEMANCER_C_PRE_CHECK(pc, jobCount)
-    local aObj = nil
-    if IsServerSection() == 0 then
-        aObj = GetMyAccountObj();
-    else
-        aObj = GetAccountObj(pc);
-    end
-    
-    if aObj ~= nil then
-        local value = TryGetProp(aObj, 'UnlockQuest_Char4_25', 0)
-        if value == 1 then
-            return 'YES'
-        end
-    end
-
-    return 'NO'
-end
-
-function JOB_BONEMANCER_W_PRE_CHECK(pc, jobCount)
-    local aObj = nil
-    if IsServerSection() == 0 then
-        aObj = GetMyAccountObj();
-    else
-        aObj = GetAccountObj(pc);
-    end
-    
-    if aObj ~= nil then
-        local value = TryGetProp(aObj, 'UnlockQuest_Char2_27', 0)
-        if value == 1 then
-            return 'YES'
-        end
-    end
-
-    return 'NO'
-end
-
-function JOB_BLITZHUNTER_A_PRE_CHECK(pc, jobCount)
-    local aObj = nil
-    if IsServerSection() == 0 then
-        aObj = GetMyAccountObj();
-    else
-        aObj = GetAccountObj(pc);
-    end
-    
-    if aObj ~= nil then
-        local value = TryGetProp(aObj, 'UnlockQuest_Char3_27', 0)
-        if value == 1 then
-            return 'YES'
-        end
-    end
-
-    return 'NO'
-end
-
-function JOB_BLITZHUNTER_T_PRE_CHECK(pc, jobCount)
-    local aObj = nil
-    if IsServerSection() == 0 then
-        aObj = GetMyAccountObj();
-    else
-        aObj = GetAccountObj(pc);
-    end
-    
-    if aObj ~= nil then
-        local value = TryGetProp(aObj, 'UnlockQuest_Char5_21', 0)
-        if value == 1 then
-            return 'YES'
-        end
-    end
-
-    return 'NO'
-end
-
-function JOB_AETHERBLADER_C_PRE_CHECK(pc, jobCount)
-    local aObj = nil
-    if IsServerSection() == 0 then
-        aObj = GetMyAccountObj();
-    else
-        aObj = GetAccountObj(pc);
-    end
-    
-    if aObj ~= nil then
-        local value = TryGetProp(aObj, 'UnlockQuest_Char4_26', 0)
-        if value == 1 then
-            return 'YES'
-        end
-    end
-
-    return 'NO'
-end
-
-function JOB_AETHERBLADER_T_PRE_CHECK(pc, jobCount)
-    local aObj = nil
-    if IsServerSection() == 0 then
-        aObj = GetMyAccountObj();
-    else
-        aObj = GetAccountObj(pc);
-    end
-    
-    if aObj ~= nil then
-        local value = TryGetProp(aObj, 'UnlockQuest_Char5_22', 0)
-        if value == 1 then
-            return 'YES'
-        end
-    end
-
-    return 'NO'
-end
-
-function JOB_AETHERBLADER_W_PRE_CHECK(pc, jobCount)
-    local aObj = nil
-    if IsServerSection() == 0 then
-        aObj = GetMyAccountObj();
-    else
-        aObj = GetAccountObj(pc);
-    end
-    
-    if aObj ~= nil then
-        local value = TryGetProp(aObj, 'UnlockQuest_Char2_28', 0)
-        if value == 1 then
-            return 'YES'
-        end
-    end
-
-    return 'NO'
-end
-
-function JOB_HERMIT_W_PRE_CHECK(pc, jobCount)
-    local aObj = nil
-    if IsServerSection() == 0 then
-        aObj = GetMyAccountObj();
-    else
-        aObj = GetAccountObj(pc);
-    end
-    
-    if aObj ~= nil then
-        local value = TryGetProp(aObj, 'UnlockQuest_Char2_29', 0)
-        if value == 1 then
-            return 'YES'
-        end
-    end
-
-    return 'NO'
-end
-
-function JOB_HERMIT_C_PRE_CHECK(pc, jobCount)
-    local aObj = nil
-    if IsServerSection() == 0 then
-        aObj = GetMyAccountObj();
-    else
-        aObj = GetAccountObj(pc);
-    end
-    
-    if aObj ~= nil then
-        local value = TryGetProp(aObj, 'UnlockQuest_Char4_27', 0)
-        if value == 1 then
-            return 'YES'
-        end
-    end
-
-    return 'NO'
-end
-
-function JOB_SPEARMASTER_PRE_CHECK(pc, jobCount)
-    local aObj
-    if IsServerSection() == 0 then
-        aObj = GetMyAccountObj();
-    else
-        aObj = GetAccountObj(pc);
-    end
-    
-    if aObj ~= nil then
-        local value = TryGetProp(aObj, 'UnlockQuest_Char1_24', 0)
-        if value == 1 or IS_KOR_TEST_SERVER() == true then
-            return 'YES'
-        end
-    end
-
-    return 'NO'
-end
-
-function JOB_ENGINEER_PRE_CHECK(pc, jobCount)
-    local aObj
-    local nation = 'None'
-    if IsServerSection() == 0 then
-        aObj = GetMyAccountObj();
-        nation = config.GetServiceNation()
-    else
-        aObj = GetAccountObj(pc);
-        nation = GetServerNation()
-    end
-    
-    if aObj ~= nil then
-        if nation == 'PAPAYA' then
-            local start = '2023-07-18 18:00:00'
-            local finish = '2023-08-01 18:00:00'
-            if date_time.is_between_time(start, finish) == true then
-                return 'YES'
-            end
-        end
-
-        local value = TryGetProp(aObj, 'UnlockQuest_Char3_23', 0)
-        if value == 1 or IS_KOR_TEST_SERVER() == true then
-            return 'YES'
-        end
-    end
-
-    return 'NO'
-end
-
 
 function JOB_RUNECASTER_PRE_CHECK(pc, jobCount)
     if jobCount == nil then
@@ -3869,60 +2974,6 @@ function JOB_SHINOBI_PRE_CHECK(pc, jobCount)
             if value == 300 or IS_KOR_TEST_SERVER() == true then
                 return 'YES'
             end
-        end
-    end
-
-    return 'NO'
-end
-
-function JOB_WingedHussars_PRE_CHECK(pc, jobCount)
-    local aObj = nil
-    if IsServerSection() == 0 then
-        aObj = GetMyAccountObj();
-    else
-        aObj = GetAccountObj(pc);
-    end
-    
-    if aObj ~= nil then
-        local value = TryGetProp(aObj, 'UnlockQuest_Char1_25', 0)
-        if value == 1 then
-            return 'YES'
-        end
-    end
-
-    return 'NO'
-end
-
-function JOB_Vanquisher_PRE_CHECK(pc, jobCount)
-    local aObj = nil
-    if IsServerSection() == 0 then
-        aObj = GetMyAccountObj();
-    else
-        aObj = GetAccountObj(pc);
-    end
-    
-    if aObj ~= nil then
-        local value = TryGetProp(aObj, 'UnlockQuest_Char1_26', 0)
-        if value == 1 then
-            return 'YES'
-        end
-    end
-
-    return 'NO'
-end
-
-function JOB_BowMaster_PRE_CHECK(pc, jobCount)
-    local aObj = nil
-    if IsServerSection() == 0 then
-        aObj = GetMyAccountObj();
-    else
-        aObj = GetAccountObj(pc);
-    end
-    
-    if aObj ~= nil then
-        local value = TryGetProp(aObj, 'UnlockQuest_Char3_24', 0)
-        if value == 1 then
-            return 'YES'
         end
     end
 
@@ -4046,1061 +3097,4 @@ function GET_MODIFIED_PROPERTIES_STRING(item, invitem)
         str = str .. invitem:GetAdditionalModifiedString();
     end
     return str;
-end
-
-function IS_ABILRESET_ITEM(itemClsName)
-    local itemCls = GetClass('Item', itemClsName)
-    if itemCls ~= nil then
-        local strArg = TryGetProp(itemCls, 'StringArg', 'None')
-        local numArg1 = TryGetProp(itemCls, 'NumberArg1', -1)
-        local numArg2 = TryGetProp(itemCls, 'NumberArg2', -1)
-        if strArg == 'AbilityPointReset' and numArg1 == 0 and numArg2 == 0 then
-            return true
-        end
-    end
-
-    return false
-end
-
-function IS_ARTSRESET_ITEM(itemClsName)
-    local itemCls = GetClass('Item', itemClsName)
-    if itemCls ~= nil then
-        local strArg = TryGetProp(itemCls, 'StringArg', 'None')
-        local numArg1 = TryGetProp(itemCls, 'NumberArg1', -1)
-        local numArg2 = TryGetProp(itemCls, 'NumberArg2', -1)
-        if strArg == 'AbilityPointReset_Arts' then
-            return true
-        end
-    end
-
-    return false
-end
-
-function RANDOM_SHUFFLE(tbl)
-    for i = #tbl, 2, -1 do
-        local j = math.random(1, i);
-        tbl[i], tbl[j] = tbl[j], tbl[i];
-    end
-    return tbl
-end
-
-function CLMSG_DIALOG_CONVERT(npc,msg)
-	local name = TranslateDicID(npc.Name):gsub("{nl}"," ")
-	return string.format("%s*@*%s",name,msg)
-end
-
-function GET_ABILITY_POINT_EXTRACTOR_FEE(type)    
-    if IS_SEASON_SERVER() == 'YES' then
-        return 0
-    end
-
-    if type == 2 then
-        -- 특성 포인트 추출 수수료 퍼센트
-        return 5;
-    end
-
-    return 999999999;
-end
-
-function GET_ABILITY_POINT_EXTRACTOR_MIN_VALUE(type)
-    if type == 2 then
-        -- 특성 포인트 추출 스크롤 교환 최소 개 수
-        return 1000;
-    end
-
-    return 0;    
-end
-
--- 특성 포인트 추출 스크롤 교환 최소 잔여 포인트
-function GET_ABILITY_POINT_EXTRACTOR_MIN_REMAIN_POINT(type)
-    if type == 1 then
-        return 500000
-    elseif type == 2 then
-        return 1050000
-    end
-
-    return 0;    
-end
-
--- 합성 가능한 스킬젬인지 확인
-function CAN_COMPOSITION_SKILL_GEM(item)
-    if TryGetProp(item, 'StringArg', 'None') ~= 'SkillGem' then
-        return false, 0
-    end
-
-    local ret = IS_RANDOM_OPTION_SKILL_GEM(item)
-    if ret == true then
-        return false, 0
-    end
-
-    local level = TryGetProp(item, 'NumberArg1', 0)
-    local cls = GetClassByType('item_gem_composition', level)
-    if cls == nil then
-        return false, 0
-    end
-
-    return true, TryGetProp(item, 'NumberArg1', 0)
-end
-
--- 연성 가능한 스킬젬인지 확인
-function CAN_UPGRADE_SKILL_GEM(item)
-    if TryGetProp(item, 'StringArg', 'None') ~= 'SkillGem' then                
-        return false, 0
-    end
-
-    local level = TryGetProp(item, 'NumberArg1', 0)    
-    local cls = GetClassByType('item_gem_upgrade', level)    
-    if cls == nil then                        
-        return false, 0
-    end
-
-    return true, TryGetProp(item, 'NumberArg1', 0)
-end
-
-function GET_SKILL_GEM_CLASS_NAME(item)
-    local level = TryGetProp(item, 'NumberArg1', 0)    
-    local class_name = TryGetProp(item, 'ClassName', 'None')
-    if level == 0 then
-        return 'None'
-    elseif level == 1 then
-        local token = StringSplit(class_name, '_')
-        local concate = ''
-        local i = 2
-        for i = 2, #token do
-            if i == #token then
-                concate = concate .. token[i]
-            else
-                concate = concate .. token[i] .. '_'
-            end
-        end
-        return concate
-    else
-        local i = 3
-        for i = 3, #token do
-            if i == #token then
-                concate = concate .. token[i]
-            else
-                concate = concate .. token[i] .. '_'
-            end
-        end
-        return concate
-    end
-end
-
-function EXIST_NEXT_LEVEL_SKILL_GEM(item)
-    local name = GET_SKILL_GEM_CLASS_NAME(item)
-    if name == 'None' then
-        return false
-    end
-
-    local class_name = 'GEM_Lv' .. tostring(TryGetProp(item, 'NumberArg1', 0) + 1) .. '_' .. name        
-    if skill_gem_class_name_list[TryGetProp(item, 'NumberArg1', 0) + 1][class_name] == nil then   
-        return false
-    else
-        return true
-    end
-end
-
-function GET_NEXT_LEVEL_SKILL_GEM_CLASS_NAME(item)
-    local name = GET_SKILL_GEM_CLASS_NAME(item)    
-    if name == '' then
-        return 'None'
-    end
-
-    local class_name = 'GEM_Lv' .. tostring(TryGetProp(item, 'NumberArg1', 0) + 1) .. '_' .. name
-    return class_name
-end
-
-function ENABLE_GUILD_MEMBER_JOIN_AUTO(aObj)
-    if USE_GUILD_MEMBER_JOIN_AUTO == 0 then
-        return false;
-    end
-
-    local isJoinedGuild = TryGetProp(aObj, "EVENT_IS_JOINED_GUILD", 0);
-    local lastguildOutDay = TryGetProp(aObj, "LastGuildOutDay", "None");
-    local limit = TryGetProp(aObj, "GUILD_MEMBER_JOIN_AUTO_LIMIT", 0);
-    if isJoinedGuild == 0 and lastguildOutDay == "None" and limit == 0 then
-        return true;
-    end
-
-    return false;
-end
-
-function GET_GUILD_MEMBER_JOIN_AUTO_GUILD_IDX()
-    local nation = GetServerNation();
-    local groupid = GetServerGroupID();
-    return GET_AUTO_MEMBER_JOIN_GUILD_IDX(groupid, nation)      
-end
-
-function GET_AUTO_MEMBER_JOIN_GUILD_IDX(groupid, nation)
-    -- groupid = tonumber(groupid)
-
-    local str = nation .. '_' .. groupid
-    local cls = GetClass("growth_support_guild", str)
-    if cls ~= nil then
-        return TryGetProp(cls, 'IDX', '0')
-    end
-    
-    -- if nation == "KOR" or nation == 'GLOBAL_KOR' then        
-    --     if groupid == 1006 then -- qa
-    --         return "518402552627671";
-    --     elseif groupid == 9001 then -- 테스트
-    --         return "125675038049103";
-    --     elseif groupid == 8002 then -- 스테이지
-    --         return "347819336532015";
-    --     elseif groupid == 1001 then -- 아우슈리네
-    --         return "1137006692273513";
-    --     elseif groupid == 1002 then -- 바이보라
-    --         return "1137058231881971";
-    --     elseif groupid == 3002 then
-    --         return '1325061835325512'
-    --     end
-    -- elseif nation == 'GLOBAL' then
-    --     if groupid == 1201 then --사내 STM
-    --         return '103371272880147'
-    --     elseif groupid == 1101 then --사내 JPN_LIVE
-    --         return '29025388986425'
-	-- 	elseif groupid == 1001 then --아래부턴 라이브
-    --         return '506544147923578'
-	-- 	elseif groupid == 1003 then 
-    --         return '377991481786398'
-    --     elseif groupid == 1004 then 
-    --         return '693014448046952'
-    --     elseif groupid == 1005 then
-    --         return '578656648822807' 
-    --     end    
-    -- elseif nation == 'PAPAYA' then
-    --     if groupid == 8001 then --베타 서버
-    --         return '559458145009985'
-    --     elseif groupid == 1002 then 
-    --         return '1612240528618621'
-    --     end
-    -- end
-    return "0";
-end
-
-function SCR_IS_LEVEL_DUNGEON(pc)
-	if IsServerSection() == 1 then
-	    local cmd = GetMGameCmd(pc)
-		if cmd == nil then
-			return 'NO'
-		end
-	
-	    local mGameName = 'None'
-	    if cmd ~= nil then
-	        mGameName = cmd:GetMGameName()
-	    end
-	
-		local IndunCls = GetClassByStrProp('Indun', 'MGame', mGameName)
-		if IndunCls == nil then
-			return 'NO'
-		end
-	
-		local DungeonType
-		if IndunCls ~= nil then
-			DungeonType = TryGetProp(IndunCls, 'DungeonType', 'None')
-		end
-	
-		if DungeonType == 'Indun' or DungeonType == 'MissionIndun' then
-			return 'YES'
-		end
-	else 
-	    local mGameName = session.mgame.GetCurrentMGameName()
-		if mGameName == nil or mGameName == 'None' then
-			return 'NO'
-		end
-
-		local IndunCls = GetClassByStrProp('Indun', 'MGame', mGameName)
-		if IndunCls == nil then
-			return 'NO'
-		end
-	
-		local DungeonType
-		if IndunCls ~= nil then
-			DungeonType = TryGetProp(IndunCls, 'DungeonType', 'None')
-		end
-	
-		if DungeonType == 'Indun' or DungeonType == 'MissionIndun' then
-			return 'YES'
-		end
-	end
-
-	return 'NO'
-end
-
-
-function IS_TOS_HERO_ZONE(pc)
-	local keyword
-
-	if IsServerSection() == 1 then
-		local map = GetMapProperty(pc)
-		keyword = TryGetProp(map, "Keyword", "None")
-	else
-		local mapClassName = session.GetMapName()
-		if mapClassName ~= nil then
-			local clsList = GetClassList("Map")
-			if clsList ~= nil then
-				local cls = GetClassByNameFromList(clsList, mapClassName)
-				keyword = TryGetProp(cls, "Keyword", "None")
-			end
-		end
-	end
-
-	local split = SCR_STRING_CUT(keyword, ';')
-	
-	for i = 1, #split do
-		if split[i] == 'TOSHero' then
-			return 'YES'
-		end
-	end
-
-	return 'NO'
-end
-
-function IS_LEFT_SUBFRAME_ACC(item)
-    local str = TryGetProp(item, 'StringArg', 'None')
-    local ClsName = TryGetProp(item, 'ClassName', 'None')
-    local class_type = TryGetProp(item, 'ClassType', 'None')
-    if class_type == 'Ring' or class_type == 'Neck' then        
-        if TryGetProp(item, 'ItemGrade', 0) >= 6 then
-            return true
-        end
-    end
-
-    if str == 'Half_Acc_EP12' or str == 'Isdavi' or str == 'Acc_EP12' or (str == 'pvp_Mine' and nil ~= string.find(ClsName, 'PVP_EP12')) then
-        return true
-    else
-        return false
-    end
-end
-
--- 테섭 상점용(무조건 100실버로 할 것!)
-function GET_FIXEDPRICE(shopName)
-	local price = 0
-
-	if string.find(shopName, "Test_Kupole_") ~= nil then return 100 end
-
-	return price
-end
-
-function GET_EQUIP_GROUP_NAME(item)
-    local name = TryGetProp(item, 'EquipGroup', 'None')
-
-    if name == 'Weapon' or name == 'THWeapon' or name == 'SubWeapon' then
-        return 'Weapon'
-    end
-
-    if name == 'SHIRT' or name == 'PANTS' or name == 'BOOTS' or name == 'GLOVES' then
-        return 'Armor'
-    end
-
-    if name == 'Seal' then
-        return 'Seal'
-    end
-
-    if name == 'Ark' then
-        return 'Ark'
-    end
-
-    if name == 'Relic' then
-        return 'Relic'
-    end
-
-    if name == 'Earring' then
-        return 'Earring'
-    end
-
-    if name == 'BELT' then
-        return 'BELT'
-    end
-
-    if name == 'SHOULDER' then
-        return 'SHOULDER'
-    end
-
-    name = TryGetProp(item, 'DefaultEqpSlot', 'None')
-
-    if name == 'NECK' or name == 'RING' then
-        return 'Acc'
-    end
-
-    if name == 'Core' then
-        return 'Core'
-    end
-
-    return 'None'
-end
-
--- 각종 워프 기능을 이용 가능한 상태인지 검사. 워프 상점, 스크롤, 귀환석, 토큰 이동, 콘텐츠 현황판 이동 등
-function ENABLE_WARP_CHECK(pc)
-	if IsBuffApplied(pc, 'BountyHunt_BUFF') == 'YES' then
-		return false;
-	end
-
-    if IsBuffApplied(pc, 'Buff_GoldMolaMola_Battle') == 'YES' then
-        return false
-    end
-
-    -- DisableWarp KeywordCheck
-    local zone_name = "None";
-    if IsServerSection() == 0 then zone_name = GetZoneName();
-    else zone_name = GetZoneName(pc); end
-    if zone_name ~= "None" then
-        local map_class = GetClass("Map", zone_name);
-        if map_class ~= nil then
-            local keyword = TryGetProp(map_class, "Keyword", "None");
-            if keyword ~= "" and keyword ~= "None" then
-                local keyword_list = StringSplit(keyword, ';');
-                if keyword_list ~= nil and #keyword_list >= 1 then
-                    local index = table.find(keyword_list, "DisableWarp");
-                    if index ~= 0 then
-                        return false;
-	end
-                end
-            end
-        end
-    end
-	return true;
-end
-
-function TRIM_STRING_WITH_SPACING(str)
-	local words = {}
-	str = string.gsub(str,"　","")
-	
-	for word in str:gmatch("[%w\128-\255]+") do table.insert(words, word) end
-	str = ""
-	for k,v in pairs(words) do
-		str = str..v
-		if k ~= #words then
-			str = str.." "
-		end
-	end
-	return str
-end
-
-function GET_CHAR_COUNT(str)
-    str = string.gsub(str," ","")
-    local function GetAsciiLen(str)
-        local chars = {}
-        for char in str:gmatch("[%w\0-\128]") do 
-            table.insert(chars, char) 
-        end
-    
-        return #chars
-    end
-    local asciiLen = GetAsciiLen(str)
-    local unicodeLen = (string.len(str) - asciiLen)/3
-
-    return asciiLen + unicodeLen
-end
-
-function UQ_GET_JOB_SETTING_JOB(JobClassName) -- job_unlockquest.xml에서 cls를 가져온다
-    local JobNumLimt = 1000
-    local list, cnt = GetClassList("job_unlockquest")
-    if cnt == 0 or cnt == nil then return end
-    
-    local resultJob = nil
-    
-    if JobClassName == "ALL" then
-        local AllList = {}
-            for p  = 0, cnt - 1 do
-                local cls = GetClassByIndexFromList(list, p);
-                local clsID = TryGetProp(cls, "ClassID", 0)
-    
-                if clsID >= JobNumLimt then
-                    break
-                end
-    
-                if clsID < JobNumLimt then
-                    AllList[#AllList + 1] = cls                    
-                end
-            end    
-
-            return AllList
-        end        
-
-    for i  = 0, cnt - 1 do
-        local cls = GetClassByIndexFromList(list, i);
-        local clsID = TryGetProp(cls, "ClassID", 0)
-        local TargetJob = TryGetProp(cls, "TargetJob", "None")
-        if clsID >= JobNumLimt then
-            break
-        end
-        if TargetJob == JobClassName then
-            resultJob = cls
-            return resultJob;
-        end
-    end
-    
-    if resultJob == nil then
-        return nil;
-    end
-end
-
-_collection_item_list = nil;
-_collection_list_by_item = nil
-function make_collection_item_list()
-	if _collection_item_list == nil then
-        _collection_item_list = {};
-        _collection_list_by_item = {}
-	end
-
-	local list, cnt = GetClassList("Collection");
-	for i = 0, cnt - 1 do
-		local cls = GetClassByIndexFromList(list, i);
-		if cls ~= nil then
-			if TryGetProp(cls, "Journal", "FALSE") == "TRUE" then
-				for j = 1, 9 do
-					local prop_name = "ItemName_"..tostring(j);
-					local name = TryGetProp(cls, prop_name, "None");
-					local collection_name = TryGetProp(cls, 'Name', 'None')
-					if name ~= "None" then
-						_collection_item_list[name] = 1;
-						if _collection_list_by_item[name] == nil then
-							_collection_list_by_item[name] = {}
-						end
-
-						_collection_list_by_item[name][collection_name] = 1
-					end
-				end
-			end
-		end
-	end
-end
-
-make_collection_item_list()
-
-function is_collection_item(class_name)
-	if _collection_item_list == nil then
-		make_collection_item_list();
-	end
-
-	if _collection_item_list[class_name] == nil then return false;
-	else return true; end
-end
-
-function get_collection_name_by_item(item_name)
-    if _collection_item_list == nil then
-		make_collection_item_list();
-    end
-    
-    return _collection_list_by_item[item_name]
-end
-
-function TUTORIAL_CLEAR_CHECK(pc)
-    if true then
-        return true
-    end
-
-    local etc = nil
-    if IsServerSection() == 1 then
-        etc = GetETCObject(pc)
-    else
-        etc = GetMyEtcObject()
-    end
-
-    if etc == nil then
-        return false
-    end
-
-    local sObj = GetSessionObject(pc, 'ssn_klapeda')
-    if sObj == nil then
-        return false;
-    end
-
-    local startLog = TryGetProp(sObj, 'QSTARTZONETYPE', "None")
-
-    if startLog ~= "StartLine3" then
-        return true;
-    end
-
-    local clear_check = TryGetProp(etc, 'StartLine3_Clear', 0)
-    if clear_check < 300 then
-        return false
-    end
-
-    return true
-end
-
--- 기존 시나리오 퀘스트인지 체크
--- false : 기존 퀘스트
--- true : 신규 
-function TUTORIAL_QUEST_EXCEPTION(pc, QuestClassID)
-    local quest_ies = GetClass("QuestProgressCheck", QuestClassID)
-    local isStartLine3 = TryGetProp(quest_ies, "QStartZone", "None")
-    if isStartLine3 == "StartLine3" then
-        return true;
-    end
-    
-    return false
-end
-
-
-function TUTORIAL_QUEST_EXCEPTION_BY_TYPE(pc, QuestClassID)
-    local quest_ies = GetClassByType("QuestProgressCheck", tonumber(QuestClassID))
-    local isStartLine3 = TryGetProp(quest_ies, "QStartZone", "None")
-    if isStartLine3 == "StartLine3" then
-        return true;
-    end
-
-    return false
-end
-
-function GET_ITEM_EXPIRE_TIME(item)
-    local expire_datetime = TryGetProp(item, 'ExpireDateTime', 'None')
-    local expire_time = TryGetProp(item, 'ExpireTime', 'None')
-    if expire_datetime ~= 'None' then
-        return expire_datetime
-    elseif expire_time ~= 'None' then
-        return expire_time
-    else
-        return 'None'
-    end
-end
-
-function IS_BOUNTY_BATTLE_BUFF_APPLIED(pc)
-    if IsBuffApplied(pc, 'BountyHunt_Battle_BUFF') == "YES" then
-        return 1;
-    end
-
-    return 0;
-end
-
-function IS_JUMP_MAP_BUFF_APPLIED(pc)
-    if IsBuffApplied(pc, 'EVENT_2105_CAMPING_JUMP') == "YES" then
-        return 1;
-    end
-
-    return 0;
-end
-
-function IS_DEFAULT_COSTUME_LOCK(JobID)
-    local jobCls = GetClassByType("Job", JobID);
-    local defaultCostume = TryGetProp(jobCls, "DefaultCostume", "None")
-
-    local itemList = session.GetInvItemList();
-    local guidList = itemList:GetGuidList();
-
-    if defaultCostume ~= "None" then
-        for i = 0, guidList:Count() - 1 do
-            local guid = guidList:Get(i);
-            local invItem = itemList:GetItemByGuid(guid);
-            local itemObj = GetIES(invItem:GetObject());
-            if itemObj.ClassName == defaultCostume and invItem.isLockState == true then 
-                return 1;
-            end
-        end
-    end
-
-    return 0;
-end
-
-
-function save_json(path, tbl)
-	file,err = io.open(path, "w")
-	if err then return _,err end
-
-	local s = json.encode(tbl);
-	file:write(s);
-	file:close();
-end
-
-function load_json(path, tblMerge, ignoreError)
-	local file, err=io.open(path,"r");
-	local t = nil;
-
-	if (err) then
-		if (ignoreError) then
-			t = {};
-		else 
-			return _,err
-		end
-	else
-		local content = file:read("*all");
-		file:close();
-		t = json.decode(content);
-	end
-
-	if tblMerge then
-		t = merge_left(tblMerge, t)
-		save_json(path, t);
-	end
-
-	return t;
-end
-
-function merge_left(t1, t2)
-	for k, v in pairs(t2) do
-		if (type(v) == "table") and (type(t1[k] or false) == "table") then
-			merge_left(t1[k], t2[k])
-		else
-			t1[k] = v
-		end
-	end
-
-	return t1
-end
-
-function DELETE_ITEM_OPEN_WARNINGBOX_MSG(itemCls)
-	if itemCls.MarketCategory == 'Premium_Costume' and itemCls.StringArg == 'SilverGacha' then
-		return 1
-	end
-
-	if itemCls.MarketCategory == 'Card_CardLeg' or itemCls.MarketCategory == "Gem_High_Color" then
-		return 1
-    end
-    
-    return 0
-end
-
-function CONTENTS_ALERT_GET_CUTLINE(contentsID)
-    local contents_alert = GetClassByType('contents_alert_table', contentsID)
-    local indunInfoName = TryGetProp(contents_alert, "ShowIndunInfo")
-    local indunName = TryGetProp(contents_alert, "IndunName", "None")
-    local indunCls = GetClass("Indun", indunInfoName)
-    if indunCls == nil then
-        indunCls = GetClass("Indun", indunName)
-    end
-    
-    local gearScore = TryGetProp(indunCls, "GearScore")
-    local level = TryGetProp(indunCls, "Level")
-    if gearScore == 0 then
-        gearScore = TryGetProp(contents_alert, "GearScore")
-    end
-
-    return gearScore, level
-end
-
-function IS_DESTROYABLE_COSTUME_ITEM(item)
-    local name = TryGetProp(item, 'ClassName', 'None')
-    local cls = GetClass('recycle_shop', name)
-    if IsServerSection() == 1 then
-        if GetServerNation() == "PAPAYA" then
-            cls = GetClass('recycle_shop_papaya', name)
-        end
-    else
-        if config.GetServiceNation() == 'PAPAYA' then
-            cls = GetClass('recycle_shop_papaya', name)
-        end
-    end
-
-    if cls ~= nil then
-        if TryGetProp(item, 'TeamBelonging', 0) ~= 0 or TryGetProp(item, 'CharacterBelonging', 0) ~= 0 then
-            return true
-        end
-    end
-
-    return false
-end
-
--- 통합 서버 & 시즌 서버 컨텐츠 시간 제한
--- 낚시, 콜로니전
-function CHECK_FISHING_AND_COLONY_RESTRICT_TIME(self)
-    local time = nil;
-    if IsServerSection() == 1 then time = GetDBTime();
-    else time = geTime.GetServerSystemTime(); end
-    if time ~= nil then
-        local month = time.wMonth;
-        local day = time.wDay;
-        local hour = time.wHour;
-        if IS_SEASON_SERVER(self) == "YES" then
-            if month == 7 then
-                if day >= 18 and day < 28 then
-                    return true;
-                end
-                if day == 28 and hour < 12 then 
-                    return true;
-                end
-            end
-        else
-            if month == 7 then
-                if day >= 4 and day < 14 then
-                    return true;
-                end
-                if day == 14 and hour < 12 then 
-                    return true;
-                end
-            end
-        end
-    end
-    return false;
-end
-
--- 트오세 W 통합 제한 - 봉쇄전
-function CHECK_TOSW_BLOCKADE_RESTRICT_TIME(event_id)
-    local nation = GetServerNation();
-
-    if CHECK_TOS_WEEKLY_CONTENTS_RESTRICT_TIME() == true then
-        return true;
-    end
-
-    return false;
-end
-
---미사용
--- 트오세 W - 낚시, 콜로니전
-function CHECK_TOSW_FISHING_AND_COLONY_RESTRICT_TIME()
-    return false;
-end
-
--- 트오세 W - 낚시, 팀배틀리그
-function CHECK_TOSW_FISHING_AND_TBL_RESTRICT_TIME()
-    local nation = GET_POPOBOOST_SERVER();
-    local start = '2023-02-17 00:00:00';
-    local finish = '2023-02-18 10:00:00';
-
-    if nation == 3 then
-        start = '2025-07-07 00:00:00';
-        finish = '2025-07-15 23:59:59'
-    end
-
-    if date_time.is_between_time(start, finish) == true then
-        return true;
-    end
-    return false;
-end
-
--- 트오세 주보레, 봉쇄전, 길드미션 막기
-function CHECK_TOS_WEEKLY_CONTENTS_RESTRICT_TIME()
-    local nation = GET_POPOBOOST_SERVER();
-
-    local start = '2025-07-01 00:00:00';
-    local finish = '2025-07-02 10:00:00';
-    if nation == 1 then
-        start = '2025-03-03 00:00:00';
-        finish = '2025-03-05 10:00:00';
-    end
-
-    if nation == 2 then
-        start = '2025-03-03 00:00:00';
-        finish = '2025-03-11 10:00:00';
-end
-
-    if nation == 3 then
-        start = '2025-07-01 00:00:00';
-        finish = '2025-07-02 10:00:00';    
-    end
-
-    if date_time.is_between_time(start, finish) == true then
-                    return true;
-                end
-    return false;
-end
-
--- 트오세 W - 이벤트 제한
-function CHECK_TOSW_EVENT_RESTRICT_TIME(indun_class_name)
-    local time;
-    if IsServerSection() == 1 then
-        time = GetDBTime();
-    elseif IsServerSection() ~= 1 then
-        time = geTime.GetServerSystemTime();
-    end
-
-    if indun_class_name ~= "Evnet2023_SnigoDungeon" and indun_class_name ~= "Evnet2024_NewYear" then
-        return true;
-    end
-    
-    local TimeCheckFunc = function(day, hour, min, EndDay, EndHour, EndMin)
-        if day > EndDay then
-            return false;
-        elseif day == EndDay then
-            if hour > EndHour then
-                return false;
-            elseif hour == EndHour then
-                if min >= EndMin then
-                    return false;
-                end
-                return true;
-            end
-            return true;
-        else
-            return true;
-        end
-    end
-
-    if time ~= nil then
-        local year = time.wYear;
-        local month = time.wMonth;
-        if indun_class_name == "Evnet2023_SnigoDungeon" then
-            if year == 2024 and month == 1 then
-                local day = time.wDay;
-                local hour = time.wHour;
-                local min = time.wMin;
-                local nation = GetServerNation();
-                if nation == "GLOBAL" then
-                    local TimeBoolean = TimeCheckFunc(day, hour, min, 22, 6, 0);
-                    return TimeBoolean;
-                elseif nation == "GLOBAL_JP" then
-                    local TimeBoolean = TimeCheckFunc(day, hour, min, 22, 6, 0);
-                    return TimeBoolean;
-                elseif nation == "GLOBAL_KOR" then
-                    local TimeBoolean = TimeCheckFunc(day, hour, min, 22, 6, 0);
-                    return TimeBoolean;
-                elseif nation =="PAPAYA" then
-                    local TimeBoolean = TimeCheckFunc(day, hour, min, 23, 17, 30);
-                    return TimeBoolean;
-                elseif nation == "TWN" then
-                    local TimeBoolean = TimeCheckFunc(day, hour, min, 29, 6, 0);
-                    return TimeBoolean;
-                end
-            end
-        elseif indun_class_name == "Evnet2024_NewYear" then
-            if year == 2024 and month == 2 then
-                local day = time.wDay;
-                local hour = time.wHour;
-                local min = time.wMin;
-                local nation = GetServerNation();
-                if nation == "GLOBAL" then
-                    local TimeBoolean = TimeCheckFunc(day, hour, min, 5, 6, 0);
-                    return TimeBoolean;
-                elseif nation == "GLOBAL_JP" then
-                    local TimeBoolean = TimeCheckFunc(day, hour, min, 5, 6, 0);
-                    return TimeBoolean;
-                elseif nation == "GLOBAL_KOR" then
-                    local TimeBoolean = TimeCheckFunc(day, hour, min, 5, 6, 0);
-                    return TimeBoolean;
-                elseif nation =="PAPAYA" then
-                    --[[ if day >= 23 then
-                        if hour == 17 then
-                            if min >= 30 then
-                                return false;
-                            end
-                        elseif hour > 17 then
-                            return false;
-                        end
-                        return true;
-                    end ]]
-                elseif nation == "TWN" then
-                    --[[ if day >= 29 then
-                        if hour >= 6 then
-                            return false;
-                        end
-                        return true;
-                    end ]]
-                end
-            end
-        end
-    end
-    return true;
-end
-
--- 사용한 tp 값에 따른 아이템 구입 가능 조건 체크
--- ex) 플레이어의 사용 tp가 0일 때만 살 수 있는 아이템을 구입할 때 현재 플레이어의 사용 tp가 0이 맞으면 true 반환
-function IS_USED_MEDAL_CHECK(item, usedTP)
-	if item.SubCategory == 'TP_FirstBuy' and usedTP == 0 then
-		return true;
-	end
-	return false;
-end
-
-function M_NUMBER_FORMAT(num)    
-    num = tonumber(num)
-    if num >= 1000000 then
-        local n = num / 1000000
-        local mod = num % 1000000
-        if mod >= 0 then
-            n = string.format('%.2f', n)
-        end
-        
-        return n .. 'M'
-    end
-
-    return GET_COMMAED_STRING(num)
-end
-
-function IS_ABLE_TO_JOIN_GUILD_EVENT(pc, cls)
-    local limit = TryGetProp(cls, 'PlayerLv', 0);
-    if TryGetProp(cls, "BlockMission", "NO") == "YES" then
-        limit = PC_MAX_LEVEL;
-    end
-    if pc.Lv < limit then
-        return false
-    else
-        return true
-    end
-end
-
-
-function GET_BLACK_MARKET_COIN_NAME()
-    return SEASON_COIN_NAME 
-end
-
-function GET_BLACK_MARKET_RETURN_ITEM_ID()
--- CertificateCoin_1000000p
-    return 1000000, '11201238'  -- 뒤에서 부터 1번    
-end
-
--- client only
-function _GET_SORTED_CONSUME_ITEM_LIST(item_list, need_count)
-    local now_count = 0
-
-    local take_item = {}
-    local index = 2
-    for i = 1, #item_list do
-        local name = item_list[i]
-        local count = session.GetInvItemByName(name)
-        local remain_count = need_count - now_count
-        count = math.min(remain_count, count)
-        take_item[name] = count
-        now_count = now_count + count
-        if now_count >= need_count then            
-            break
-        end
-
-        index = i
-    end
-    
-    if now_count < need_count then
-        local cls = nil
-        if index == 1 then
-            cls = GetClass('Item', item_list[index])
-        else
-            cls = GetClass('Item', item_list[index - 1])
-        end
-
-        return nil
-    end
-
-    local check_count = 0
-    for k, v in pairs(take_item) do
-        check_count = check_count + v
-    end
-
-    if check_count ~= need_count then        
-        return nil
-    end
-
-    return take_item
-end 
-
-function GET_BORUTA_REWARD(event_id)
-    local reward = {}
-    local nation = config.GetServiceNation()
-    local list, cnt = GetClassList('boruta_reward')
-    local weekNum = session.boruta_ranking.GetNowWeekNum()
-    local max_rank = 0
-    for i = 0, cnt - 1 do
-        local cls = GetClassByIndexFromList(list, i)
-        if cls ~= nil and cls.eventID == event_id and cls.Nation == nation then
-            local start = TryGetProp(cls, 'start_season', 0)
-            local end_season = TryGetProp(cls, 'end_season', 0)
-            if start <= weekNum and end_season >= weekNum then
-                local rank = TryGetProp(cls, 'rank', 0)
-                reward[rank] = ''
-                if max_rank < rank then
-                    max_rank = rank
-                end
-                for j = 1, 20 do
-                    local item_name = TryGetProp(cls, 'item_' .. j, 'None')                    
-                    if item_name ~= 'None' then
-                        reward[rank] = item_name .. ';' .. reward[rank]
-                    else
-                        break
-                    end
-                end
-            end
-        end
-    end
-    
-    return reward, max_rank
 end

@@ -1,19 +1,21 @@
 ---- lib_config.lua
+
 function UPDATE_CONTROL_MODE()
+
 	SetLockKeyboardSelectMode(0);
 	local controlmodeType = tonumber(config.GetXMLConfig("ControlMode"));
+
 	SetChangeUIMode(controlmodeType);
 
-	if controlmodeType == 1 then --조이패드
+	if controlmodeType == 1 then
+		--조이패드
 		SetJoystickMode(1)
 		UI_MODE_CHANGE(1)
-		if housing.IsEditMode() == true then
-			ui.SysMsg(ClMsg("Housing_Restricted_To_Use_When_Using_Joypad"));
-		end
-	elseif controlmodeType == 2 then --키보드		
+	elseif controlmodeType == 2 then
+		--키보드
 		SetJoystickMode(0)
 		UI_MODE_CHANGE(2)
-	elseif controlmodeType == 3 then -- 마우스
+	elseif controlmodeType == 3 then
 		SetLockKeyboardSelectMode(1);
 		SetJoystickMode(0);
 		UI_MODE_CHANGE(2)
@@ -40,21 +42,9 @@ function UPDATE_CONTROL_MODE()
         end
 
 		local fluting_keyboard = ui.GetFrame('fluting_keyboard');
-		if fluting_keyboard ~= nil and FLUTING_KEYBOARD_UPDATE_HOTKEYNAME ~= nil then
+        if fluting_keyboard ~= nil and FLUTING_KEYBOARD_UPDATE_HOTKEYNAME ~= nil then
 		    FLUTING_KEYBOARD_UPDATE_HOTKEYNAME(fluting_keyboard);
 		    fluting_keyboard:Invalidate();
-		end
-
-		local instrument_keyboard = ui.GetFrame('instrument_keyboard');
-		if instrument_keyboard ~= nil and INSTRUMENT_KEYBOARD_UPDATE_HOTKEYNAME ~= nil then
-			INSTRUMENT_KEYBOARD_UPDATE_HOTKEYNAME(instrument_keyboard);
-			instrument_keyboard:Invalidate();
-		end
-
-		local monsterquickslot = ui.GetFrame('monsterquickslot');
-		if monsterquickslot ~= nil and MONSTERQUICKSLOT_UPDATE_HOTKEYNAME ~= nil then
-		    MONSTERQUICKSLOT_UPDATE_HOTKEYNAME(monsterquickslot);
-		    monsterquickslot:Invalidate();
         end
 	end
 end
@@ -112,27 +102,4 @@ end
 function UPDATE_ENABLE_RENDERSHADOW(value)
 	config.SetRenderShadow(tonumber(value));
 	imcperfOnOff.EnableRenderShadow(tonumber(value));
-end
-
-function UPDATE_MAINTAIN_TARGETEDSKILL_UI(value)
-	config.MaintainTargetedSkillUI(tonumber(value));
-end
-
-function UPDATE_SHOW_COIN_GET_GAUGE(value)
-	if tonumber(value) == 1 then
-		ui.OpenFrame('coin_get_gauge')
-	else
-		ui.CloseFrame('coin_get_gauge')
-	end
-end
-
-function UPDATE_SHOW_TUTORIALNOTE(value)
-end
-
-function GET_PVP_MINE_COIN_MSG_STATE(pc, msg_type)
-	if config.GetXMLStrConfig('ShowCoinGetGauge') == "0" then				
-		return 1
-	else		
-		return 0
-	end
 end

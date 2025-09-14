@@ -34,27 +34,6 @@ function ON_ATTENDANCE_RESULT(frame, msg, argStr, argNum)
 	frame:ShowWindow(1);
 end
 
-function CAHGE_ATTENDANCE_PERIOD_BOX(frame, PeriodType)
-	local periodText1 = GET_CHILD_RECURSIVELY(frame, 'periodText1');	
-	local dayBox = GET_CHILD_RECURSIVELY(frame, 'dayBox');	
-	local dayBox_2 = GET_CHILD_RECURSIVELY(frame, 'dayBox_2');	
-	local width = 350;
-	local width_2 = 208;
-
-	if PeriodType == "OnlyEnd" then
-		periodText1:ShowWindow(0);
-		dayBox:Resize(width - 100, dayBox:GetHeight());
-		dayBox_2:Resize(width_2 - 100, dayBox_2:GetHeight());
-
-	else
-		periodText1:ShowWindow(1);
-		dayBox:Resize(width, dayBox:GetHeight());
-		dayBox_2:Resize(width_2, dayBox_2:GetHeight());
-
-	end
-
-end
-
 function ATTENDANCE_INIT_COMMON_INFO(frame, attendanceID)
 	local attendanceCls = GetClassByType('TPEventAttendance', attendanceID);
 	if attendanceID == nil then
@@ -68,9 +47,7 @@ function ATTENDANCE_INIT_COMMON_INFO(frame, attendanceID)
 
 	local titleText = GET_CHILD_RECURSIVELY(frame, 'titleText');
 	titleText:SetTextByKey('name', attendanceCls.Name);
-	
-	local PeriodType = TryGetProp(attendanceCls, "PeriodType", "None");
-	CAHGE_ATTENDANCE_PERIOD_BOX(frame, PeriodType)
+
 	local periodText1 = GET_CHILD_RECURSIVELY(frame, 'periodText1');	
 	local dateStr = string.format('%04d.%02d.%02d', attendanceData.startTime.wYear, attendanceData.startTime.wMonth, attendanceData.startTime.wDay);
 	periodText1:SetText(dateStr);
@@ -79,21 +56,13 @@ function ATTENDANCE_INIT_COMMON_INFO(frame, attendanceID)
 	dateStr = string.format('%04d.%02d.%02d', attendanceData.endTime.wYear, attendanceData.endTime.wMonth, attendanceData.endTime.wDay);
 	periodText2:SetTextByKey('date', dateStr);
 
-
 	local infoText = GET_CHILD_RECURSIVELY(frame, 'infoText');
-	local newCharInfoText = GET_CHILD_RECURSIVELY(frame, 'newCharInfoText');
 	if attendanceID == 3 then
-		dateStr = ScpArgMsg("Attendance_infoText_1")..'{nl}'..ScpArgMsg("Attendance_infoText_2")..'{nl}'..ScpArgMsg("Attendance_infoText_3");
-		newCharInfoStr = ScpArgMsg("Attendance_infoText_4");
-	elseif attendanceID == 145 then
-		dateStr = ScpArgMsg("PAPAYA_Attendance_infoText_1")..'{nl}'..ScpArgMsg("Attendance_infoText_1")..'{nl}'..ScpArgMsg("Attendance_infoText_2");
-		newCharInfoStr = "";
+		dateStr = ScpArgMsg("Attendance_infoText_1")..'{nl}'..ScpArgMsg("Attendance_infoText_2")..'{nl}'..ScpArgMsg("Attendance_infoText_3");		
 	else
 		dateStr = ScpArgMsg("Attendance_infoText_1")..'{nl}'..ScpArgMsg("Attendance_infoText_2");
-		newCharInfoStr = "";
 	end
 	infoText:SetText(dateStr);
-	newCharInfoText:SetText(newCharInfoStr);
 
 	local diffDays = imcTime.GetDifDaysFromNow(attendanceData.startTime);
 	frame:SetUserValue('TODAY_DAY_OFFSET', diffDays);
@@ -140,22 +109,20 @@ function ATTENDANCE_INIT_REWARD(frame, attendanceID)
 			end
 
             -- item info
-			local itemName = itemList[1];
-			local itemCls = GetClass('Item', itemList[1]); -- 일단 한 개만 줄거라고 하셔서 이렇게 처리함            
-			if itemCls ~= nil then
-				local itemPic = GET_CHILD(ctrlSet, 'itemPic');
-				itemPic:SetImage(itemCls.Icon);
-	
-				if string.find(itemName, 'Enchant_Jewel') ~= nil then
-					local rewardClassName = attendanceClassData:GetRewardClassName();
-					if rewardClassName ~= nil then
-						SET_ITEM_TOOLTIP_BY_CLASSID(itemPic, itemName, 'RewardAttendance', rewardClassName);
-					end
-				elseif itemName ~= MONEY_NAME then
-					SET_ITEM_TOOLTIP_BY_NAME(itemPic, itemName);
+            local itemName = itemList[1];
+            local itemCls = GetClass('Item', itemList[1]); -- 일단 한 개만 줄거라고 하셔서 이렇게 처리함            
+            local itemPic = GET_CHILD(ctrlSet, 'itemPic');
+            itemPic:SetImage(itemCls.Icon);
+
+			if itemName ~= MONEY_NAME and itemName ~= 'Event_Unique_Enchant_Jewel' then
+				SET_ITEM_TOOLTIP_BY_NAME(itemPic, itemName);
+			else
+				local rewardClassName = attendanceClassData:GetRewardClassName();
+				if rewardClassName ~= nil then
+					SET_ITEM_TOOLTIP_BY_CLASSID(itemPic, itemName, 'RewardAttendance', rewardClassName);
 				end
-				itemPic:SetTooltipOverlap(1);
 			end
+			itemPic:SetTooltipOverlap(1);
 
             local cntText = GET_CHILD(ctrlSet, 'cntText');
             cntText:SetTextByKey('cnt', cntList[1]);
@@ -190,22 +157,10 @@ function ATTENDANCE_INIT_REWARD(frame, attendanceID)
 	local rewardBox = GET_CHILD_RECURSIVELY(frame, 'rewardBox');
 	rewardBox:Resize(rewardBox:GetOriginalWidth(), rewardBox:GetOriginalHeight() + (offsetY * HeightCnt));	
 
-	local bgBoxMargin = bgBox:GetMargin();
-	frame:Resize(frame:GetOriginalWidth(), bgBox:GetHeight() + bgBoxMargin.top);
-	
-	local periodText1 = GET_CHILD_RECURSIVELY(frame, "periodText1");
-	local periodText2 = GET_CHILD_RECURSIVELY(frame, "periodText2");
-	local periodText1_margin =  periodText1:GetMargin();
-	periodText1_margin.right = periodText2:GetWidth() +5
-	
 end
 
 function ATTENDANCE_TOGGLE_VAKARINE_UI()
 	local vakarineCls = GetClass('TPEventAttendance', 'VakarinePackage');
-	if config.GetServiceNation() == "GLOBAL" then
-		vakarineCls = GetClass('TPEventAttendance', 'SteamNewRank');
-	end
-
 	local frame = ui.GetFrame('attendance');
 	if frame ~= nil and frame:IsVisible() == 1 then
 		ui.CloseFrame('attendance');
@@ -214,7 +169,7 @@ function ATTENDANCE_TOGGLE_VAKARINE_UI()
 	ON_ATTENDANCE_RESULT(frame, '', '', vakarineCls.ClassID);
 end
 
-function GET_PROGRESS_ATTENDANCE_CHECK()
+function ATTENDANCE_OPEN_CHECK()
 	local list, cnt = GetClassList('TPEventAttendance');
 	if list == nil then
 		return false;
@@ -227,6 +182,10 @@ function GET_PROGRESS_ATTENDANCE_CHECK()
 	end
 
 	return false;
+end
+
+function ATTENDANCE_LIST_TOGGLE_UI()
+	LISTSELECT_UI_CREATE("attendance")
 end
 
 -- 해당하는 출석 UI창 출력
@@ -270,44 +229,32 @@ function ATTENDANCE_GIVE_REWARD(AttendanceID)
 end
 
 -- 받아야 하는 보상이 있을 경우 호출
-function ATTENDANCE_REWARD_CHECK_UI_ON(frame, argStr, argNum, argNum2)	
-	if session.world.IsIntegrateServer() == false then
-		ReserveScript("ATTENDANCE_LIST_TOGGLE_UI()", 2);
-	end
-	
-	-- if argNum2 == 0 then
-	-- 	-- 마을이 아닐 경우 출석 보상 확인 안내 말풍선 UI 생성
-	-- 	-- 로딩창이 닫힌후 UI 보여주도록 딜레이 줌
-	-- 	ReserveScript("ATTENDANCE_REWARD_BALLOON_CREATE()", 1);
-	-- elseif argNum2 == 1 then
-	-- 	-- 마을일 경우 출석 보상 확인 list UI 출력
-	-- 	-- 로딩창이 닫힌후 UI 보여주도록 딜레이 줌
-	-- 	ReserveScript("ATTENDANCE_LIST_TOGGLE_UI()", 1);
-	-- end
-end
+function ATTENDANCE_REWARD_CHECK_UI_ON(frame, argStr, argNum, argNum2)
+	if argNum2 == 0 then
+		-- 마을이 아닐 경우 출석 보상 확인 안내 말풍선 UI 생성
+		local sysFrame = ui.GetFrame("sysmenu");
+		if sysFrame == nil then
+			return;
+		end
+		
+		local systemBtn = sysFrame:GetChild("system");
+		if systemBtn ~= nil then
+			local helpBalloon = MAKE_BALLOON_FRAME(ScpArgMsg('attendance'), 0, 0, nil, nil);
+			helpBalloon:ShowWindow(1);
+	        local margin = systemBtn:GetMargin();
+	        local x = margin.right;
+	        local y = margin.bottom;        
+			x = x + (systemBtn:GetWidth() / 2);
+			y = y + systemBtn:GetHeight() - 5;
+	        helpBalloon:SetGravity(ui.RIGHT, ui.BOTTOM);
+	        helpBalloon:SetMargin(0, 0, x, y);
+			helpBalloon:SetDuration(7);
+			helpBalloon:SetLayerLevel(105);
+		end
 
-function ATTENDANCE_REWARD_BALLOON_CREATE()
-	local sysFrame = ui.GetFrame("sysmenu");
-	if sysFrame == nil then
-		return;
-	end
-	
-	local systemBtn = sysFrame:GetChild("system");
-	if systemBtn ~= nil then
-		local helpBalloon = MAKE_BALLOON_FRAME(ScpArgMsg('attendance'), 0, 0, nil, nil);
-		helpBalloon:ShowWindow(1);
-		local margin = systemBtn:GetMargin();
-		local x = margin.right;
-		local y = margin.bottom;        
-		x = x + (systemBtn:GetWidth() / 2);
-		y = y + systemBtn:GetHeight() - 5;
-		helpBalloon:SetGravity(ui.RIGHT, ui.BOTTOM);
-		helpBalloon:SetMargin(0, 0, x, y);
-		helpBalloon:SetDuration(7);
-		helpBalloon:SetLayerLevel(105);
+	elseif argNum2 == 1 then
+		-- 마을일 경우 출석 보상 확인 list UI 출력
+		ATTENDANCE_LIST_TOGGLE_UI();
 	end
 end
 
-function ATTENDANCE_LIST_TOGGLE_UI()
-	LISTSELECT_UI_CREATE("attendance")
-end

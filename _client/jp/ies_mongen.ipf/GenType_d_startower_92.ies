@@ -22,4 +22,3 @@ ClassID,GenType,Lv,Range,GenRange,RespawnTime,MaxPop,Minimap,Hide,UseAIOufOfPC,A
 23,23,0,40,25,0,7,0,0,0,1,0,0,"vesperia","","","","","","","","","","","NO","YES","NO","Monster","","","",""
 27,27,1,40,1,60000,1,0,0,0,1,0,0,"HiddenTrigger3","UnvisibleName","","","","","","","","D_STARTOWER_92_MQ_30_TRIGGER","","NO","YES","NO","Neutral","","","",""
 28,28,1,40,200,10000,22,0,0,0,1,0,0,"rootcrystal_02","","","","","MON_TORCH","","","","","","NO","YES","NO","RootCrystal","","","",""
-29,29,1,40,1,60000,1,1,0,0,0,0,0,"npc_hermit","[허밋 마스터]{nl}세이라","","","","","","","NPC_HERMIT","","","NO","YES","NO","Neutral","","","",""

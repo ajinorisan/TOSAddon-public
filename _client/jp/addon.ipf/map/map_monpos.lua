@@ -31,20 +31,52 @@ function MAP_MON_MINIMAP(frame, msg, argStr, argNum, info)
 		return;
 	end
 
-	local SIZE = 40;
-	if info.isDot == true then
-		SIZE = 14;
+	local mapprop = session.GetCurrentMapProp();
+
+	local isPC = info.type == 0;
+	local monCls = nil;
+	if false == isPC then
+		monCls = GetClassByType("Monster", info.type);
+	end
+
+	-- 인던일 경우 일반 몬스터의 아이콘을 dot로 변경한다.
+	local isDotIcon = false;
+	if session.world.IsIntegrateServer() == true or
+	 session.world.IsIntegrateIndunServer() == true or
+	 session.IsMissionMap() == true or
+	 session.world.IsDungeon() == true then      
+		isDotIcon = true;
+    end
+
+	local width;
+	local height;
+	if isPC then
+		width = 40;
+		height = 40;
+	else
+		if monCls.MonRank == "Boss" then
+			width = 200;
+			height = 200;
+		else
+			if isDotIcon == true then
+				width = 14;
+				height = 14;
+			else 
+				width = 40;
+				height = 40;
+			end
+		end
 	end
 
 	local ctrlName = "_MONPOS_" .. info.handle;
-	monPic = frame:CreateOrGetControl('picture', ctrlName, 0, 0, SIZE, SIZE);
+	monPic = frame:CreateOrGetControl('picture', ctrlName, 0, 0, width, height);
 	tolua.cast(monPic, "ui::CPicture");
 	if false == monPic:HaveUpdateScript("_MONPIC_AUTOUPDATE") then
-		monPic:RunUpdateScript("_MONPIC_AUTOUPDATE", 1);
+		monPic:RunUpdateScript("_MONPIC_AUTOUPDATE", 0);
 	end
 
-	monPic:SetUserValue("W", SIZE);
-	monPic:SetUserValue("H", SIZE);
+	monPic:SetUserValue("W", width);
+	monPic:SetUserValue("H", height);
 	monPic:SetUserValue("HANDLE", info.handle);
 	monPic:SetUserValue("EXTERN", "YES");
 	monPic:SetUserValue("EXTERN_PIC", "YES");
@@ -57,39 +89,48 @@ function MAP_MON_MINIMAP(frame, msg, argStr, argNum, info)
 		monPic:SetScale(dd, dd);
 	end
 
-	local imgName = GET_MAP_MON_MINIMAP_IMAGENAME(info)
-	monPic:SetImage(imgName);
-	monPic:SetEnableStretch(1);
-	monPic:ShowWindow(1);
-
-	MAP_MON_MINIMAP_SETPOS(frame, info);
-end
-
-function GET_MAP_MON_MINIMAP_IMAGENAME(info)
-	local isPC = info.type == 0;
 	if isPC then
-		return GET_JOB_ICON(info.job);
-	end
-	if info.useIcon == true then
-		if info.isDot == true then
-			return "monster_notice_dot"
+		monPic:SetEnableStretch(1);
+		monPic:ShowWindow(1);
+
+		local myTeam = GET_MY_TEAMID();
+		local outLineColor;
+		if myTeam == info.teamID then
+			outLineColor = "CCFFFFFF";
 		else
-			if info.changeIconName ~= "None" then
-				return info.changeIconName
+			outLineColor = "CCCC0000";
+		end
+
+
+		local imgName = GET_JOB_ICON(info.job);
+		monPic:SetImage(imgName);
+		monPic:ShowWindow(1);
+
+	else
+		if monCls.MonRank ~= "Boss" then
+			local myTeam = GET_MY_TEAMID();
+			if info.useIcon == true then
+				if isDotIcon == true then
+					monPic:SetImage('monster_notice_dot')
+				else
+					monPic:SetImage(monCls.Icon);
+				end
+			else
+				if info.teamID == 0 then
+					monPic:SetImage("fullyellow");
+				elseif info.teamID ~= myTeam then
+					monPic:SetImage("fullred");
+				else
+					monPic:SetImage("fullblue");
+				end
 			end
-			local monCls = GetClassByType("Monster", info.type);
-			return monCls.MinimapIcon
+			
+			monPic:SetEnableStretch(1);
+			monPic:ShowWindow(1);
 		end
 	end
-	
-	local myTeam = GET_MY_TEAMID();
-	if info.teamID == 0 then
-		return "fullyellow";
-	elseif info.teamID ~= myTeam then
-		return "fullred";
-	else
-		return "fullblue";
-	end
+
+	MAP_MON_MINIMAP_SETPOS(frame, info);
 end
 
 function MAP_MON_MINIMAP_SETPOS(frame, info)
@@ -147,6 +188,7 @@ function ON_MON_MINIMAP_END(frame, msg, argStr, handle)
 end
 
 function _MONPIC_AUTOUPDATE(ctrl)
+
 	local handle = ctrl:GetUserIValue("HANDLE");	
 	local actor = world.GetActor(handle);
 	if actor ~= nil then
@@ -171,4 +213,17 @@ function _MONPIC_AUTOUPDATE(ctrl)
 	end
 
 	return 1;
+end
+
+function MAP_MON_MINIMAP_START(frame, msg, argStr, type)
+
+	local bossCls = GetClassByType("Monster", type);
+	
+	local bossIntro = ui.GetFrame("bossintro");
+	bossIntro:ShowWindow(1);
+	bossIntro:SetDuration(3);
+	bossIntro:SetTextByKey("BossName", bossCls.Name);
+	bossIntro:SetTextByKey("BossIntroMsg", ClMsg("BossMonsterAppearedInField"));
+	
+
 end

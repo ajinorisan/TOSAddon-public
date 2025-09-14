@@ -1,33 +1,19 @@
-local PC_MAX_MSPD = 60
-
-
-function GET_PVP_TARGET_COUNT(self, count)
-    if IsPVPField(self) == 1 and count > 2 then
-        count = math.floor((math.max(0, count-2) ^ 0.5)) + math.min(2, count)
-    end
-
-    return count
-end
-
-
-function SCR_GET_JOB_STAT_RATIO(pc, statName)
+﻿function SCR_GET_JOB_STAT_RATIO(pc, statName)
 	local stat = 0;
 	if statName == nil then
 		return 1;
-    end
-    
-    local jobList = GetJobHistoryList(pc);
-    if jobList ~= nil then
+	end
+	
+	local jobList = GetJobHistoryList(pc);
+	if jobList ~= nil then
 		local totalStatRatio = 0;
-        local jobCount = #jobList;
-        for i = 1, jobCount do
-            local jobClass = GetClassByType('Job', jobList[i]);
+		local jobCount = #jobList;
+		for i = 1, jobCount do
+			local jobClass = GetClassByType('Job', jobList[i]);
 			if jobClass ~= nil then
-                local tempStatName = statName
-			    tempStatName = SCR_GET_JOB_STAT_CHANGE(pc, TryGetProp(jobClass, "ClassName", "None"), statName, jobClass[statName])
-                totalStatRatio = totalStatRatio + jobClass[tempStatName];
-            end
-        end
+				totalStatRatio = totalStatRatio + jobClass[statName];
+			end
+		end
 		
 		local statRatio = totalStatRatio / jobCount;
 	    local lv = TryGetProp(pc, "Lv", 1);
@@ -35,45 +21,6 @@ function SCR_GET_JOB_STAT_RATIO(pc, statName)
 	end
 	
 	return math.floor(stat);
-end
-
-function SCR_GET_JOB_STAT_CHANGE(pc, jobClassName, statName, statrate)
-    local tempStatName = statName
-    local propName = "CHANGE_STAT_"..jobClassName
-    
-    if GetExProp(pc ,propName) == 0 then
-        return tempStatName
-    else
-        local abilCleric24 = GetAbility(pc, "Cleric24") -- 물리로 변경
-        local abilCleric36 = GetAbility(pc, "Cleric36") -- 마법으로 변경
-        if abilCleric24 ~= nil and TryGetProp(abilCleric24, "ActiveState", 0) == 1 then
-            if tempStatName == "STR" then
-                tempStatName = "INT"
-            elseif tempStatName == "DEX" then
-                tempStatName = "MNA"
-            end
-
-            if tempStatName == "INT" and statrate > 0 then
-                tempStatName = "STR"
-            elseif tempStatName == "MNA" and statrate > 0 then
-                tempStatName = "DEX"
-            end
-        elseif abilCleric36 ~= nil and TryGetProp(abilCleric36, "ActiveState", 0) == 1 then
-            if tempStatName == "INT"  then
-                tempStatName = "STR"
-            elseif tempStatName == "MNA" then
-                tempStatName = "DEX"
-            end
-
-            if tempStatName == "STR" and statrate > 0 then
-                tempStatName = "INT"
-            elseif tempStatName == "DEX" and statrate > 0 then
-                tempStatName = "MNA"
-            end
-        end
-    end
-    
-    return tempStatName
 end
 
 function SCR_GET_JOB_STR(pc)
@@ -178,13 +125,7 @@ function SCR_GET_ADDSTAT(self, stat)
 end
 
 function SCR_GET_JOB_DEFAULT_STAT(pc, prop)
-    local jobObj = nil
-    if IsServerObj(pc) == 1 then
-        jobObj = GetJobObject(pc);
-    else
-        jobObj = GetJobObject();
-    end
-
+    local jobObj = GetJobObject(pc);
     local jobCtrlType = TryGetProp(jobObj, 'CtrlType')
     if jobCtrlType ~= nil then
 		local stat = 1;
@@ -204,13 +145,7 @@ function SCR_GET_JOB_DEFAULT_STAT(pc, prop)
 end
 
 function SCR_GET_JOB_RATIO_STAT(pc, prop)
-    local jobObj = nil
-    if IsServerObj(pc) == 1 then
-        jobObj = GetJobObject(pc);
-    else
-        jobObj = GetJobObject();
-    end
-
+    local jobObj = GetJobObject(pc);
     local jobCtrlType = TryGetProp(jobObj, 'CtrlType')
     if jobCtrlType ~= nil then
 		local ctrlTypeRate = 100;
@@ -238,7 +173,6 @@ function SCR_GET_STR(self)
     -- self.STR_ADD : 장비, 버프 등 가변적인 스탯 --
     -- GetExProp(self, "STR_TEMP") : 임시로 지정한 추가 스탯 (아마도 PVP 보정용?) --
     -- rewardProperty : 퀘스트 등에서 보상으로 지급한 스탯 (현재는 지급되는 곳 없음?) --
-    -- ALLSTAT : 올 스탯 증가 --
     
     local statString = "STR";
     
@@ -268,7 +202,7 @@ function SCR_GET_STR(self)
     if byTemp == nil then
         byTemp = 0;
     end
-
+    
     local rewardProperty = GET_REWARD_PROPERTY(self, statString);
     
     local value = defaultStat + byJob + byStat + byBonus + byAdd + byTemp + rewardProperty;
@@ -297,13 +231,8 @@ function SCR_GET_ADDSTR(self)
     if byItemBuff == nil then
         byItemBuff = 0
     end
-
-    local byAllStat = TryGetProp(self, "ALLSTAT");
-    if byAllStat == nil then
-        byAllStat = 0;
-    end
-
-    local value = byItem + byBuff + byItemBuff + byAllStat;
+    
+    local value = byItem + byBuff + byItemBuff;
     
     return math.floor(value);
 end
@@ -367,12 +296,7 @@ function SCR_GET_ADDDEX(self)
         byItemBuff = 0
     end
     
-    local byAllStat = TryGetProp(self, "ALLSTAT");
-    if byAllStat == nil then
-        byAllStat = 0;
-    end
-
-    local value = byItem + byBuff + byItemBuff + byAllStat;
+    local value = byItem + byBuff + byItemBuff;
     
     return math.floor(value);
 end
@@ -407,7 +331,7 @@ function SCR_GET_CON(self)
     if byTemp == nil then
         byTemp = 0;
     end
-
+    
     local rewardProperty = GET_REWARD_PROPERTY(self, statString);
     
     local byEnchant = 0;
@@ -415,17 +339,17 @@ function SCR_GET_CON(self)
     if enchantCount > 0 then
         local enchantStatString = "MNA";
         
-        --local enchantByJob = TryGetProp(self, enchantStatString.."_JOB");
-        --local enchantByBonus = TryGetProp(self, enchantStatString.."_Bonus");
-        --local enchantByTemp = GetExProp(self, enchantStatString.."_TEMP");
-        local enchantByStat = TryGetProp(self, enchantStatString);
+        local enchantByJob = TryGetProp(self, enchantStatString.."_JOB");
+        local enchantByStat = TryGetProp(self, enchantStatString.."_STAT");
+        local enchantByBonus = TryGetProp(self, enchantStatString.."_Bonus");
+        local enchantByTemp = GetExProp(self, enchantStatString.."_TEMP");
         local enchantRewardProp = GET_REWARD_PROPERTY(self, statString);
-
-        byEnchant = ((enchantByStat + enchantRewardProp) / 20) * enchantCount;
+        
+        byEnchant = ((enchantByJob + enchantByStat + enchantByBonus + enchantByTemp + enchantRewardProp) / 20) * enchantCount;
     end
     
-    local value = defaultStat + byJob + byStat + byBonus + byAdd + byTemp + byEnchant + rewardProperty;
-    
+    local value = defaultStat + byJob + byStat + byBonus + byAdd + byTemp + rewardProperty + byEnchant;
+	
     if value < 1 then
         value = 1;
     end
@@ -450,13 +374,8 @@ function SCR_GET_ADDCON(self)
     if byItemBuff == nil then
         byItemBuff = 0
     end
-
-    local byAllStat = TryGetProp(self, "ALLSTAT");
-    if byAllStat == nil then
-        byAllStat = 0;
-    end
     
-    local value = byItem + byBuff + byItemBuff + byAllStat;
+    local value = byItem + byBuff + byItemBuff;
     
     return math.floor(value);
 end
@@ -490,7 +409,7 @@ function SCR_GET_INT(self)
     if byTemp == nil then
         byTemp = 0;
     end
-
+    
     local rewardProperty = GET_REWARD_PROPERTY(self, statString);
     
     local value = defaultStat + byJob + byStat + byBonus + byAdd + byTemp + rewardProperty;
@@ -519,13 +438,8 @@ function SCR_GET_ADDINT(self)
     if byItemBuff == nil then
         byItemBuff = 0
     end
-
-    local byAllStat = TryGetProp(self, "ALLSTAT");
-    if byAllStat == nil then
-        byAllStat = 0;
-    end
     
-    local value = byItem + byBuff + byItemBuff + byAllStat;
+    local value = byItem + byBuff + byItemBuff;
     
     return math.floor(value);
 end
@@ -561,7 +475,7 @@ function SCR_GET_MNA(self)
     end
     
     local rewardProperty = GET_REWARD_PROPERTY(self, statString);
-    
+	
     local value = defaultStat + byJob + byStat + byBonus + byAdd + byTemp + rewardProperty;
     
     if value < 1 then
@@ -588,13 +502,8 @@ function SCR_GET_ADDMNA(self)
     if byItemBuff == nil then
         byItemBuff = 0
     end
-
-    local byAllStat = TryGetProp(self, "ALLSTAT");
-    if byAllStat == nil then
-        byAllStat = 0;
-    end
     
-    local value = byItem + byBuff + byItemBuff + byAllStat;
+    local value = byItem + byBuff + byItemBuff;
     
     return math.floor(value);
 end
@@ -637,46 +546,6 @@ function SCR_GET_ADDLUCK(self)
     return math.floor(value);
 end
 
--- done, 해당 함수 내용은 cpp로 이전되었습니다. 변경 사항이 있다면 반드시 프로그램팀에 알려주시기 바랍니다.
-function SCR_GET_ALLSTAT(self)
-    local byStat = TryGetProp(self, "ALLSTAT_STAT");
-    if byStat == nil then
-        byStat = 0;
-    end
-    
-    local byAdd = TryGetProp(self, "ALLSTAT_ADD");
-    if byAdd == nil then
-        byAdd = 0;
-    end
-    
-    local value = math.floor(byStat + byAdd);
-    return math.max(0, value);
-end
-
--- done, 해당 함수 내용은 cpp로 이전되었습니다. 변경 사항이 있다면 반드시 프로그램팀에 알려주시기 바랍니다.
-function SCR_GET_ADDALLSTAT(self)
-    local statString = "ALLSTAT";
-    
-    local byItem = GetSumOfEquipItem(self, statString);
-    if byItem == nil then
-        byItem = 0;
-    end
-
-    local byBuff = TryGetProp(self, statString.."_BM");
-    if byBuff == nil then
-        byBuff = 0
-    end
-
-    local byItemBuff = TryGetProp(self, statString.."_ITEM_BM");
-    if byItemBuff == nil then
-        byItemBuff = 0
-    end
-
-    local value = byItem + byBuff + byItemBuff;
-
-    return math.floor(value);
-end
-
 function SCR_Get_RefreshHP(self)
     local valueMHP = TryGetProp(self, MHP)
     if valueMHP == nil then
@@ -703,7 +572,7 @@ function SCR_Get_MHP(self)
     
     local byLevel = math.floor(jobMHP + ((lv - 1) * 80 * jobRate));
     local byStat = math.floor(((stat * 0.003) + (math.floor(stat / 10) * 0.01)) * byLevel);
-
+    
     local byBonus = TryGetProp(self, "MHP_Bonus");
     if byBonus == nil then
         byBonus = 0;
@@ -755,15 +624,13 @@ function SCR_Get_MSP(self)
         lv = 1;
     end
     
-    local stat = TryGetProp(self, "MNA", 1);    
+    local stat = TryGetProp(self, "MNA");
     if stat == nil then
         stat = 1;
     end
     
     local byLevel = math.floor(jobMSP + ((lv - 1) * 18 * jobRate));
-    local byStat = math.floor(((stat * 0.005) + (math.floor(stat / 10) * 0.015)) * byLevel);                    
-    --local byStat = math.floor(((stat * 0.003) + (math.floor(stat / 10) * 0.01)) * byLevel)
-    byStat = math.floor(byStat / 15)
+--    local byStat = math.floor(((stat * 0.005) + (math.floor(stat / 10) * 0.015)) * byLevel);
     
     local byBonus = TryGetProp(self, "MSP_Bonus");
     if byBonus == nil then
@@ -778,7 +645,7 @@ function SCR_Get_MSP(self)
     local rewardProperty = GET_REWARD_PROPERTY(self, "MSP");
     
 --    local value = byLevel + byStat + byBonus + byItem + rewardProperty;
-    local value = byLevel + byBonus + byItem + rewardProperty + byStat;    
+    local value = byLevel + byBonus + byItem + rewardProperty;
 --    local value = defaultMSP + byBonus + byItem + rewardProperty;
     
     local byBuff = TryGetProp(self, "MSP_BM");
@@ -802,8 +669,7 @@ function SCR_Get_MSP(self)
     return math.floor(value);
 end
 
--- done, 해당 함수 내용은 cpp로 이전되었습니다. 변경 사항이 있다면 반드시 프로그램팀에 알려주시기 바랍니다.
-function SCR_Get_DEFAULT_MINPATK(self)
+function SCR_Get_MINPATK(self)
     local defaultValue = 20;
 
     local lv = TryGetProp(self, "Lv");
@@ -819,79 +685,37 @@ function SCR_Get_DEFAULT_MINPATK(self)
     end
     
     local byStat = (stat * 2) + (math.floor(stat / 10) * (byLevel * 0.05));
-
-    local byItem = 0;
-    if tonumber(USE_SUBWEAPON_SLOT) == 1 then
-        local rhAtk = 0
-        local lhAtk = 0
-        local rh_subAtk = 0
-        local lh_subAtk = 0
-
-        local rh = GetEquipItemForPropCalc(self, 'RH')
-        if rh ~= nil then
-            rhAtk = TryGetProp(rh, 'MINATK', 0)
-        end
-        
-        local lh = GetEquipItemForPropCalc(self, 'LH')
-        if lh ~= nil and IS_NO_EQUIPITEM(lh) ~= 1 then
-            if TryGetProp(lh, "ClassType", 'None') == "Trinket" then
-                lhAtk = TryGetProp(lh, 'MINATK', 0)
-            else
-
-                lhAtk = TryGetProp(lh, 'MINATK', 0) * 0.3
-            end
-        end
-
-        byItem = rhAtk + lhAtk
-        
-        local rh_sub = GetEquipItemForPropCalc(self, 'RH_SUB')
-        if rh_sub ~= nil and IS_NO_EQUIPITEM(rh_sub) ~= 1 then
-            rh_subAtk = TryGetProp(rh_sub, 'MINATK', 0)
-
-            local lh_sub = GetEquipItemForPropCalc(self, 'LH_SUB')
-            if lh_sub ~= nil then
-                if TryGetProp(lh_sub, "ClassType") == "Trinket" then
-                    lh_subAtk = TryGetProp(lh_sub, 'MINATK', 0)
-                else
-                    lh_subAtk = TryGetProp(lh_sub, 'MINATK', 0) * 0.3
-                end
-            end
-
-            local bySubItem = rh_subAtk + lh_subAtk
-            byItem = byItem * 0.5 + bySubItem * 0.5
-        end
-
-        byItem = math.floor(byItem)
-    end
     
+    local byItem = 0;
     local byItemList = { "MINATK", "PATK", "ADD_MINATK" };
     for i = 1, #byItemList do
         local byItemTemp = GetSumOfEquipItem(self, byItemList[i]);
         if byItemTemp == nil then
             byItemTemp = 0;
         end
+        
         byItem = byItem + byItemTemp;
     end
-
-    local ori_rhAtk = TryGetProp(GetEquipItemForPropCalc(self, 'RH'), 'MINATK', 0)
-    local ori_lhAtk = TryGetProp(GetEquipItemForPropCalc(self, 'LH'), 'MINATK', 0)
-    local ori_trinketAtk = TryGetProp(GetEquipItemForPropCalc(self, 'TRINKET'), 'MINATK', 0)
-    local ori_rh_subAtk = TryGetProp(GetEquipItemForPropCalc(self, 'RH_SUB'), 'MINATK', 0)
-    local ori_lh_subAtk = TryGetProp(GetEquipItemForPropCalc(self, 'LH_SUB'), 'MINATK', 0)
     
-    byItem = byItem - (ori_rhAtk + ori_lhAtk + ori_trinketAtk + ori_rh_subAtk + ori_lh_subAtk)
-
-    byItem = byItem + TryGetProp(self, "EQUIP_PATK", 0) + TryGetProp(self, "EQUIP_PATK_MAIN", 0);
-
     local value = defaultValue + byLevel + byStat + byItem;
+    
+    local leftMinAtk = 0;
+    local leftHand = GetEquipItemForPropCalc(self, 'LH');
+    if leftHand ~= nil then
+        leftMinAtk = leftHand.MINATK;
+    end
+    
+    local throwItemMinAtk = 0;
+    local rightHand = GetEquipItemForPropCalc(self, 'RH');
+    if IsBuffApplied(self, 'Warrior_RH_VisibleObject') == 'YES' and rightHand ~= nil then
+        throwItemMinAtk = rightHand.MINATK;
+    end
 
-    return value
-end
+    if IsServerSection(self) == 1 then
+        REFRESH_ITEM(self, rightHand);
+    end
 
-
--- done, 해당 함수 내용은 cpp로 이전되었습니다. 변경 사항이 있다면 반드시 프로그램팀에 알려주시기 바랍니다.
-function SCR_Get_MINPATK(self)
-    local value = SCR_Get_DEFAULT_MINPATK(self)
+    value = value - leftMinAtk - throwItemMinAtk;
 
     local byBuff = 0;
     local byBuffList = { "PATK_BM", "MINPATK_BM", "PATK_MAIN_BM", "MINPATK_MAIN_BM" };
@@ -918,12 +742,6 @@ function SCR_Get_MINPATK(self)
     byRateBuff = math.floor(value * byRateBuff);
     
     value = value + byBuff + byRateBuff;
-
-    local decRatio = TryGetProp(self, 'PATK_RATE_MUL_BM', 1);
-    if decRatio < 0.5 then
-        decRatio = 0.5
-    end
-    value = math.floor(value * decRatio)    
     
     local maxPATK = TryGetProp(self, "MAXPATK");
     if value > maxPATK then
@@ -934,20 +752,10 @@ function SCR_Get_MINPATK(self)
     	value = 1;
     end
 
-    local equip_list = { 'RH', 'LH', 'RH_SUB', 'LH_SUB' }
-    local evolve_value = 0
-    for k, v in pairs(equip_list) do
-        local item = GetEquipItemForPropCalc(self, v)
-        if item ~= nil then
-            evolve_value = evolve_value + GET_EVOLVED_ATK(item)
-        end
-    end
-
-    return math.floor(value) + evolve_value;
+    return math.floor(value);
 end
 
--- done, 해당 함수 내용은 cpp로 이전되었습니다. 변경 사항이 있다면 반드시 프로그램팀에 알려주시기 바랍니다.
-function SCR_Get_DEFAULT_MAXPATK(self)
+function SCR_Get_MAXPATK(self)
     local defaultValue = 20;
     
     local lv = TryGetProp(self, "Lv");
@@ -965,73 +773,35 @@ function SCR_Get_DEFAULT_MAXPATK(self)
     local byStat = (stat * 2) + (math.floor(stat / 10) * (byLevel * 0.05));
     
     local byItem = 0;
-    if tonumber(USE_SUBWEAPON_SLOT) == 1 then
-        local rhAtk = 0
-        local lhAtk = 0
-        local rh_subAtk = 0
-        local lh_subAtk = 0
-
-        local rh = GetEquipItemForPropCalc(self, 'RH')
-        if rh ~= nil then
-            rhAtk = TryGetProp(rh, 'MAXATK', 0)
-        end
-
-        local lh = GetEquipItemForPropCalc(self, 'LH')
-        if lh ~= nil and IS_NO_EQUIPITEM(lh) ~= 1 then
-            if TryGetProp(lh, "ClassType") == "Trinket" then
-                lhAtk = TryGetProp(lh, 'MAXATK', 0)
-            else
-                lhAtk = TryGetProp(lh, 'MAXATK', 0) * 0.3
-            end
-        end       
-
-        byItem = rhAtk + lhAtk
-
-        local rh_sub = GetEquipItemForPropCalc(self, 'RH_SUB')
-        if rh_sub ~= nil and IS_NO_EQUIPITEM(rh_sub) ~= 1 then
-            rh_subAtk = TryGetProp(rh_sub, 'MAXATK', 0)
-
-            local lh_sub = GetEquipItemForPropCalc(self, 'LH_SUB')
-            if TryGetProp(lh_sub, "ClassType") == "Trinket" then
-                lh_subAtk = TryGetProp(lh_sub, 'MAXATK', 0)
-            else
-                lh_subAtk = TryGetProp(lh_sub, 'MAXATK', 0) * 0.3
-            end
-
-            local bySubItem = rh_subAtk + lh_subAtk
-            byItem = byItem * 0.5 + bySubItem * 0.5
-        end
-
-        byItem = math.floor(byItem)
-    end
-
     local byItemList = { "MAXATK", "PATK", "ADD_MAXATK" };
     for i = 1, #byItemList do
         local byItemTemp = GetSumOfEquipItem(self, byItemList[i]);
         if byItemTemp == nil then
             byItemTemp = 0;
         end
+        
         byItem = byItem + byItemTemp;
     end
-
-    local ori_rhAtk = TryGetProp(GetEquipItemForPropCalc(self, 'RH'), 'MAXATK', 0)
-    local ori_lhAtk = TryGetProp(GetEquipItemForPropCalc(self, 'LH'), 'MAXATK', 0)
-    local ori_trinketAtk = TryGetProp(GetEquipItemForPropCalc(self, 'TRINKET'), 'MAXATK', 0)
-    local ori_rh_subAtk = TryGetProp(GetEquipItemForPropCalc(self, 'RH_SUB'), 'MAXATK', 0)
-    local ori_lh_subAtk = TryGetProp(GetEquipItemForPropCalc(self, 'LH_SUB'), 'MAXATK', 0)
     
-    byItem = byItem - (ori_rhAtk + ori_lhAtk + ori_trinketAtk + ori_rh_subAtk + ori_lh_subAtk)
-
-    byItem = byItem + TryGetProp(self, "EQUIP_PATK", 0) + TryGetProp(self, "EQUIP_PATK_MAIN", 0);
-
     local value = defaultValue + byLevel + byStat + byItem;
     
-    return value
-end
+    local leftMaxAtk = 0;
+    local leftHand = GetEquipItemForPropCalc(self, 'LH');
+    if leftHand ~= nil then
+        leftMaxAtk = leftHand.MAXATK;
+    end
+    
+    local throwItemMaxAtk = 0;
+    local rightHand = GetEquipItemForPropCalc(self, 'RH');
+    if IsBuffApplied(self, 'Warrior_RH_VisibleObject') == 'YES' and rightHand ~= nil then
+        throwItemMaxAtk = rightHand.MAXATK;
+    end
 
--- done, 해당 함수 내용은 cpp로 이전되었습니다. 변경 사항이 있다면 반드시 프로그램팀에 알려주시기 바랍니다.
-function SCR_Get_MAXPATK(self)
-    local value = SCR_Get_DEFAULT_MAXPATK(self)
+    if IsServerSection(self) == 1 then
+        REFRESH_ITEM(self, rightHand);
+    end
+    
+    value = value - leftMaxAtk - throwItemMaxAtk;
     
     local byBuff = 0;
     local byBuffList = { "PATK_BM", "MAXPATK_BM", "PATK_MAIN_BM", "MAXPATK_MAIN_BM" };
@@ -1058,30 +828,15 @@ function SCR_Get_MAXPATK(self)
     byRateBuff = math.floor(value * byRateBuff);
     
     value = value + byBuff + byRateBuff;
-
-    local decRatio = TryGetProp(self, 'PATK_RATE_MUL_BM', 1);
-    if decRatio < 0.5 then
-        decRatio = 0.5
-    end
-    value = math.floor(value * decRatio)
     
     if value < 1 then
     	value = 1;
     end
     
-    local equip_list = { 'RH', 'LH', 'RH_SUB', 'LH_SUB' }
-    local evolve_value = 0
-    for k, v in pairs(equip_list) do
-        local item = GetEquipItemForPropCalc(self, v)
-        if item ~= nil then
-            evolve_value = evolve_value + GET_EVOLVED_ATK(item)
-        end
-    end
-
-    return math.floor(value) + evolve_value;
+    return math.floor(value);
 end
 
-function SCR_Get_DEFAULT_MINPATK_SUB(self)
+function SCR_Get_MINPATK_SUB(self)
     local defaultValue = 20;
 
     local lv = TryGetProp(self, "Lv");
@@ -1097,7 +852,7 @@ function SCR_Get_DEFAULT_MINPATK_SUB(self)
     end
     
     local byStat = (stat * 2) + (math.floor(stat / 10) * (byLevel * 0.05));
-
+    
     local byItem = 0;
     local byItemList = { "MINATK", "PATK", "ADD_MINATK" };
     for i = 1, #byItemList do
@@ -1105,23 +860,23 @@ function SCR_Get_DEFAULT_MINPATK_SUB(self)
         if byItemTemp == nil then
             byItemTemp = 0;
         end
-
+        
         byItem = byItem + byItemTemp;
     end
- 
-    byItem = byItem + TryGetProp(self, "EQUIP_PATK", 0) + TryGetProp(self, "EQUIP_PATK_SUB", 0);
-   
-    -- 20%
-    byItem = math.floor(byItem * 0.3)
-
+    
     local value = defaultValue + byLevel + byStat + byItem;
+    
+    local rightMinAtk = 0;
+    local rightHand = GetEquipItemForPropCalc(self, 'RH');
+    if rightHand ~= nil then
+        rightMinAtk = rightHand.MINATK;
+    end
 
-    return value
-end
-
--- done, 해당 함수 내용은 cpp로 이전되었습니다. 변경 사항이 있다면 반드시 프로그램팀에 알려주시기 바랍니다.
-function SCR_Get_MINPATK_SUB(self)
-    local value = SCR_Get_DEFAULT_MINPATK_SUB(self)
+    if IsServerSection(self) == 1 then
+        REFRESH_ITEM(self, rightHand);
+    end
+    
+    value = value - rightMinAtk;
     
     local byBuff = 0;
     local byBuffList = { "PATK_BM", "MINPATK_BM", "PATK_SUB_BM", "MINPATK_SUB_BM" };
@@ -1148,26 +903,20 @@ function SCR_Get_MINPATK_SUB(self)
     byRateBuff = math.floor(value * byRateBuff);
     
     value = value + byBuff + byRateBuff;
-
-    local decRatio = TryGetProp(self, 'PATK_RATE_MUL_BM', 1);
-    if decRatio < 0.5 then
-        decRatio = 0.5
-    end
-    value = math.floor(value * decRatio)
     
     local maxPATK_SUB = TryGetProp(self, "MAXPATK_SUB");
     if value > maxPATK_SUB then
         value = maxPATK_SUB;
     end
-
+    
     if value < 1 then
     	value = 1;
     end
-
+    
     return math.floor(value);
 end
 
-function SCR_Get_DEFAULT_MAXPATK_SUB(self)
+function SCR_Get_MAXPATK_SUB(self)
     local defaultValue = 20;
     
     local lv = TryGetProp(self, "Lv");
@@ -1183,7 +932,7 @@ function SCR_Get_DEFAULT_MAXPATK_SUB(self)
     end
     
     local byStat = (stat * 2) + (math.floor(stat / 10) * (byLevel * 0.05));
-
+    
     local byItem = 0;
     local byItemList = { "MAXATK", "PATK", "ADD_MAXATK" };
     for i = 1, #byItemList do
@@ -1191,22 +940,23 @@ function SCR_Get_DEFAULT_MAXPATK_SUB(self)
         if byItemTemp == nil then
             byItemTemp = 0;
         end
+        
         byItem = byItem + byItemTemp;
     end
-
-    byItem = byItem + TryGetProp(self, "EQUIP_PATK", 0) + TryGetProp(self, "EQUIP_PATK_SUB", 0);
-
-    -- 20%
-    byItem = math.floor(byItem * 0.3)
-
+    
     local value = defaultValue + byLevel + byStat + byItem;
     
-    return value
-end
+    local rightMaxAtk = 0;
+    local rightHand = GetEquipItemForPropCalc(self, 'RH');
+    if rightHand ~= nil then
+        rightMaxAtk = rightHand.MAXATK;
+    end
 
--- done, 해당 함수 내용은 cpp로 이전되었습니다. 변경 사항이 있다면 반드시 프로그램팀에 알려주시기 바랍니다.
-function SCR_Get_MAXPATK_SUB(self)
-    local value = SCR_Get_DEFAULT_MAXPATK_SUB(self)
+    if IsServerSection(self) == 1 then
+        REFRESH_ITEM(self, rightHand);
+    end
+    
+    value = value - rightMaxAtk;
     
     local byBuff = 0;
     local byBuffList = { "PATK_BM", "MAXPATK_BM", "PATK_SUB_BM", "MAXPATK_SUB_BM" };
@@ -1233,22 +983,15 @@ function SCR_Get_MAXPATK_SUB(self)
     byRateBuff = math.floor(value * byRateBuff);
     
     value = value + byBuff + byRateBuff;
-
-    local decRatio = TryGetProp(self, 'PATK_RATE_MUL_BM', 1);
-    if decRatio < 0.5 then
-        decRatio = 0.5
-    end
-    value = math.floor(value * decRatio)
     
     if value < 1 then
     	value = 1;
     end
-
+    
     return math.floor(value);
 end
 
--- done, 해당 함수 내용은 cpp로 이전되었습니다. 변경 사항이 있다면 반드시 프로그램팀에 알려주시기 바랍니다.
-function SCR_Get_DEFAULT_MINMATK(self)
+function SCR_Get_MINMATK(self)
     local defaultValue = 20;
     
     local lv = TryGetProp(self, "Lv");
@@ -1259,10 +1002,6 @@ function SCR_Get_DEFAULT_MINMATK(self)
     local byLevel = lv * 1;
     
     local stat = TryGetProp(self, "INT");
-    local abilCleric37 = GetAbility(self, 'Cleric37');
-    if abilCleric37 ~= nil and TryGetProp(abilCleric37, 'ActiveState', 0) == 1 then
-        stat = TryGetProp(self, 'MNA');
-    end
     if stat == nil then
         stat = 1;
     end
@@ -1270,76 +1009,29 @@ function SCR_Get_DEFAULT_MINMATK(self)
     local byStat = (stat * 2) + (math.floor(stat / 10) * (byLevel * 0.05));
     
     local byItem = 0;
-    if tonumber(USE_SUBWEAPON_SLOT) == 1 then
-        local rhAtk = 0
-        local lhAtk = 0
-        local rh_subAtk = 0
-        local lh_subAtk = 0
-
-        local rh = GetEquipItemForPropCalc(self, 'RH')
-        if rh ~= nil then
-            rhAtk = TryGetProp(rh, 'MATK', 0)
-        end
-
-        local lh = GetEquipItemForPropCalc(self, 'LH')
-        if lh ~= nil and IS_NO_EQUIPITEM(lh) ~= 1 then
-            if TryGetProp(lh, "ClassType") == "Trinket" then
-                lhAtk = TryGetProp(lh, 'MATK', 0)
-            else
-                lhAtk = TryGetProp(lh, 'MINATK', 0) * 0.3
-            end
-            
-        end
-
-        byItem = rhAtk + lhAtk
-        
-        local rh_sub = GetEquipItemForPropCalc(self, 'RH_SUB')
-        if rh_sub ~= nil and IS_NO_EQUIPITEM(rh_sub) ~= 1 then
-            rh_subAtk = TryGetProp(rh_sub, 'MATK', 0)
-
-            local lh_sub = GetEquipItemForPropCalc(self, 'LH_SUB')
-            if lh_sub ~= nil then
-                if TryGetProp(lh_sub, "ClassType") == "Trinket" then
-                    lh_subAtk = TryGetProp(lh_sub, 'MATK', 0)
-                else
-                    lh_subAtk = TryGetProp(lh_sub, 'MINATK', 0) * 0.3
-                end
-            end
-
-            local bySubItem = rh_subAtk + lh_subAtk
-            byItem = byItem * 0.5 + bySubItem * 0.5
-        end
-
-        byItem = math.floor(byItem)
-    end
-    
     local byItemList = { "MATK", "ADD_MATK", "ADD_MINATK" };
     for i = 1, #byItemList do
         local byItemTemp = GetSumOfEquipItem(self, byItemList[i]);
         if byItemTemp == nil then
             byItemTemp = 0;
         end
+        
         byItem = byItem + byItemTemp;
     end
-
-    local ori_rhAtk = TryGetProp(GetEquipItemForPropCalc(self, 'RH'), 'MATK', 0)
-    local ori_lhAtk = TryGetProp(GetEquipItemForPropCalc(self, 'LH'), 'MATK', 0)
-    local ori_trinketAtk = TryGetProp(GetEquipItemForPropCalc(self, 'TRINKET'), 'MATK', 0)
-    local ori_rh_subAtk = TryGetProp(GetEquipItemForPropCalc(self, 'RH_SUB'), 'MATK', 0)
-    local ori_lh_subAtk = TryGetProp(GetEquipItemForPropCalc(self, 'LH_SUB'), 'MATK', 0)
-
-    byItem = byItem - (ori_rhAtk + ori_lhAtk + ori_trinketAtk + ori_rh_subAtk + ori_lh_subAtk)
-
-    byItem = byItem + TryGetProp(self, "EQUIP_MATK", 0);
-
+    
     local value = defaultValue + byLevel + byStat + byItem;
+    
+    local throwItemMinMAtk = 0;
+    local rightHand = GetEquipItemForPropCalc(self, 'RH');
+    if IsBuffApplied(self, 'Warrior_RH_VisibleObject') == 'YES' and rightHand ~= nil then
+        throwItemMinMAtk = rightHand.MATK;
+    end
 
-    return value
-end
-
--- done, 해당 함수 내용은 cpp로 이전되었습니다. 변경 사항이 있다면 반드시 프로그램팀에 알려주시기 바랍니다.
-function SCR_Get_MINMATK(self)
-    local value = SCR_Get_DEFAULT_MINMATK(self)
+    if IsServerSection(self) == 1 then
+        REFRESH_ITEM(self, rightHand);
+    end
+    
+    value = value - throwItemMinMAtk;
     
     local byBuff = 0;
     local byBuffList = { "MATK_BM", "MINMATK_BM" };
@@ -1366,12 +1058,6 @@ function SCR_Get_MINMATK(self)
     byRateBuff = math.floor(value * byRateBuff);
     
     value = value + byBuff + byRateBuff;
-
-    local decRatio = TryGetProp(self, 'MATK_RATE_MUL_BM', 1);
-    if decRatio < 0.5 then
-        decRatio = 0.5
-    end
-    value = math.floor(value * decRatio)
     
     local maxMATK = TryGetProp(self, "MAXMATK");
     if value > maxMATK then
@@ -1382,20 +1068,10 @@ function SCR_Get_MINMATK(self)
     	value = 1;
     end
     
-    local equip_list = { 'RH', 'LH', 'RH_SUB', 'LH_SUB' }
-    local evolve_value = 0
-    for k, v in pairs(equip_list) do
-        local item = GetEquipItemForPropCalc(self, v)
-        if item ~= nil then
-            evolve_value = evolve_value + GET_EVOLVED_ATK(item)
-        end
-    end
-
-    return math.floor(value) + evolve_value;
+    return math.floor(value);
 end
 
--- done, 해당 함수 내용은 cpp로 이전되었습니다. 변경 사항이 있다면 반드시 프로그램팀에 알려주시기 바랍니다.
-function SCR_Get_DEFAULT_MAXMATK(self)
+function SCR_Get_MAXMATK(self)
     local defaultValue = 20;
     
     local lv = TryGetProp(self, "Lv");
@@ -1406,86 +1082,24 @@ function SCR_Get_DEFAULT_MAXMATK(self)
     local byLevel = lv * 1;
     
     local stat = TryGetProp(self, "INT");
-    local abilCleric37 = GetAbility(self, 'Cleric37');
-    if abilCleric37 ~= nil and TryGetProp(abilCleric37, 'ActiveState', 0) == 1 then
-        stat = TryGetProp(self, 'MNA');
-    end
     if stat == nil then
         stat = 1;
     end
     
     local byStat = (stat * 2) + (math.floor(stat / 10) * (byLevel * 0.05));
-
-    local byItem = 0;
-    if tonumber(USE_SUBWEAPON_SLOT) == 1 then
-        local rhAtk = 0
-        local lhAtk = 0
-        local rh_subAtk = 0
-        local lh_subAtk = 0
-
-        local rh = GetEquipItemForPropCalc(self, 'RH')
-        if rh ~= nil then
-            rhAtk = TryGetProp(rh, 'MATK', 0)
-        end
-
-        local lh = GetEquipItemForPropCalc(self, 'LH')
-        if lh ~= nil and IS_NO_EQUIPITEM(lh) ~= 1 then
-            if TryGetProp(lh, "ClassType") == "Trinket" then
-                lhAtk = TryGetProp(lh, 'MATK', 0)
-            else
-                lhAtk = TryGetProp(lh, 'MAXATK', 0) * 0.3
-            end            
-        end
-
-        byItem = rhAtk + lhAtk
-
-        local rh_sub = GetEquipItemForPropCalc(self, 'RH_SUB')
-        if rh_sub ~= nil and IS_NO_EQUIPITEM(rh_sub) ~= 1 then
-            rh_subAtk = TryGetProp(rh_sub, 'MATK', 0)
-
-            local lh_sub = GetEquipItemForPropCalc(self, 'LH_SUB')
-            if lh_sub ~= nil then
-                if TryGetProp(lh_sub, "ClassType") == "Trinket" then
-                    lh_subAtk = TryGetProp(lh_sub, 'MATK', 0)
-                else
-                    lh_subAtk = TryGetProp(lh_sub, 'MAXATK', 0) * 0.3
-                end
-            end
-
-            local bySubItem = rh_subAtk + lh_subAtk
-            byItem = byItem * 0.5 + bySubItem * 0.5
-        end
-
-        byItem = math.floor(byItem)
-    end
     
+    local byItem = 0;
     local byItemList = { "MATK", "ADD_MATK", "ADD_MAXATK" };
     for i = 1, #byItemList do
         local byItemTemp = GetSumOfEquipItem(self, byItemList[i]);
         if byItemTemp == nil then
             byItemTemp = 0;
         end
+        
         byItem = byItem + byItemTemp;
     end
-
-    local ori_rhAtk = TryGetProp(GetEquipItemForPropCalc(self, 'RH'), 'MATK', 0)
-    local ori_lhAtk = TryGetProp(GetEquipItemForPropCalc(self, 'LH'), 'MATK', 0)
-    local ori_trinketAtk = TryGetProp(GetEquipItemForPropCalc(self, 'TRINKET'), 'MATK', 0)
-    local ori_rh_subAtk = TryGetProp(GetEquipItemForPropCalc(self, 'RH_SUB'), 'MATK', 0)
-    local ori_lh_subAtk = TryGetProp(GetEquipItemForPropCalc(self, 'LH_SUB'), 'MATK', 0)
-
-    byItem = byItem - (ori_rhAtk + ori_lhAtk + ori_trinketAtk + ori_rh_subAtk + ori_lh_subAtk)
-
-    byItem = byItem + TryGetProp(self, "EQUIP_MATK", 0);
-
-    local value = defaultValue + byLevel + byStat + byItem;
     
-    return value
-end
-
--- done, 해당 함수 내용은 cpp로 이전되었습니다. 변경 사항이 있다면 반드시 프로그램팀에 알려주시기 바랍니다.
-function SCR_Get_MAXMATK(self)
-    local value = SCR_Get_DEFAULT_MAXMATK(self)
+    local value = defaultValue + byLevel + byStat + byItem;
     
     local throwItemMaxMAtk = 0;
     local rightHand = GetEquipItemForPropCalc(self, 'RH');
@@ -1524,27 +1138,12 @@ function SCR_Get_MAXMATK(self)
     byRateBuff = math.floor(value * byRateBuff);
     
     value = value + byBuff + byRateBuff;
-
-    local decRatio = TryGetProp(self, 'MATK_RATE_MUL_BM', 1);
-    if decRatio < 0.5 then
-        decRatio = 0.5
-    end
-    value = math.floor(value * decRatio)
     
     if value < 1 then
     	value = 1;
     end
-
-    local equip_list = { 'RH', 'LH', 'RH_SUB', 'LH_SUB' }
-    local evolve_value = 0
-    for k, v in pairs(equip_list) do
-        local item = GetEquipItemForPropCalc(self, v)
-        if item ~= nil then
-            evolve_value = evolve_value + GET_EVOLVED_ATK(item)
-        end
-    end
-
-    return math.floor(value) + evolve_value;
+    
+    return math.floor(value);
 end
 
 function SCR_Get_DEF(self)
@@ -1563,12 +1162,6 @@ function SCR_Get_DEF(self)
     byRateBuff = math.floor(value * byRateBuff);
     
     value = value + byBuff + byRateBuff;
-
-    local decRatio = TryGetProp(self, 'DEF_RATE_MUL_BM', 1);
-    if decRatio < 0.5 then
-        decRatio = 0.5
-    end
-    value = math.floor(value * decRatio)
     
     local throwItemDef = 0;
     local leftHand = GetEquipItemForPropCalc(self, 'LH');
@@ -1581,13 +1174,6 @@ function SCR_Get_DEF(self)
     end
     
     value = value - throwItemDef;
-
-    local card_crystalgolem_pdef_rate = GetExProp(self, "card_crystalgolem_pdef_rate");
-    if card_crystalgolem_pdef_rate > 0 then
-        local rate = card_crystalgolem_pdef_rate * 0.08;
-        local add_value = math.floor(value * rate);
-        value = value + add_value;
-    end
     
     if value < 0 then
         value = 0;
@@ -1614,23 +1200,6 @@ function SCR_CALC_BASIC_DEF(self)
     local byStat = (stat * 2) + (math.floor(stat / 10) * (byLevel * 0.05));
     
     local byItem = 0;
-    if tonumber(USE_SUBWEAPON_SLOT) == 1 then
-        if GetExProp(self, "IS_SHIELDSTRIKE_ABIL") == 0 then
-            local lhItem = GetEquipItemForPropCalc(self, "LH")
-            if lhItem ~= nil then
-                byItem = TryGetProp(lhItem, "DEF", 0)
-            end
-
-            local rh_sub = GetEquipItemForPropCalc(self, "RH_SUB")
-            local lh_sub = GetEquipItemForPropCalc(self, "LH_SUB")
-            if IS_NO_EQUIPITEM(rh_sub) ~= 1 or IS_NO_EQUIPITEM(lh_sub) ~= 1 then
-                local lhDef = TryGetProp(lhItem, "DEF", 0)
-                local subDef = TryGetProp(lh_sub, "DEF", 0)
-                byItem = math.floor((lhDef + subDef) / 2)
-            end
-        end
-    end
-    
     local byItemList = { "DEF", "ADD_DEF" };
     for i = 1, #byItemList do
         local byItemTemp = GetSumOfEquipItem(self, byItemList[i]);
@@ -1641,10 +1210,6 @@ function SCR_CALC_BASIC_DEF(self)
         byItem = byItem + byItemTemp;
     end
     
-    local ori_lhAtk = TryGetProp(GetEquipItemForPropCalc(self, 'LH'), 'DEF', 0)
-    local ori_lh_subAtk = TryGetProp(GetEquipItemForPropCalc(self, 'LH_SUB'), 'DEF', 0)
-    byItem  = byItem  - (ori_lhAtk + ori_lh_subAtk)
-
     local byBonus = TryGetProp(self, "MAXDEF_Bonus");
     if byBonus == nil then
         byBonus = 0;
@@ -1679,19 +1244,6 @@ function SCR_Get_MDEF(self)
     byRateBuff = math.floor(value * byRateBuff);
     
     value = value + byEnchant + byBuff + byRateBuff;
-
-    local decRatio = TryGetProp(self, 'MDEF_RATE_MUL_BM', 1);
-    if decRatio < 0.5 then
-        decRatio = 0.5
-    end
-    value = math.floor(value * decRatio)
-
-    local card_crystalgolem_mdef_rate = GetExProp(self, "card_crystalgolem_mdef_rate");
-    if card_crystalgolem_mdef_rate > 0 then
-        local rate = card_crystalgolem_mdef_rate * 0.08;
-        local add_value = math.floor(value * rate);
-        value = value + add_value;
-    end
     
     return math.floor(value);
 end
@@ -1714,23 +1266,6 @@ function SCR_CALC_BASIC_MDEF(self)
     local byStat = (stat * 2) + (math.floor(stat / 10) * (byLevel * 0.05));
     
     local byItem = 0;
-    if tonumber(USE_SUBWEAPON_SLOT) == 1 then
-        if GetExProp(self, "IS_SHIELDSTRIKE_ABIL") == 0 then
-            local lhItem = GetEquipItemForPropCalc(self, "LH")
-            if lhItem ~= nil then
-                byItem = TryGetProp(lhItem, "MDEF", 0)
-            end
-
-            local rh_sub = GetEquipItemForPropCalc(self, "RH_SUB")
-            local lh_sub = GetEquipItemForPropCalc(self, "LH_SUB")
-            if IS_NO_EQUIPITEM(rh_sub) ~= 1 or IS_NO_EQUIPITEM(lh_sub) ~= 1 then
-                local lhDef = TryGetProp(lhItem, "MDEF", 0)
-                local subDef = TryGetProp(lh_sub, "MDEF", 0)
-                byItem = math.floor((lhDef + subDef) / 2)
-            end
-        end
-    end
-    
     local byItemList = { "MDEF", "ADD_MDEF" };
     for i = 1, #byItemList do
         local byItemTemp = GetSumOfEquipItem(self, byItemList[i]);
@@ -1741,10 +1276,6 @@ function SCR_CALC_BASIC_MDEF(self)
         byItem = byItem + byItemTemp;
     end
     
-    local ori_lhAtk = TryGetProp(GetEquipItemForPropCalc(self, 'LH'), 'MDEF', 0)
-    local ori_lh_subAtk = TryGetProp(GetEquipItemForPropCalc(self, 'LH_SUB'), 'MDEF', 0)
-    byItem  = byItem  - (ori_lhAtk + ori_lh_subAtk)
-    
     local jobRate = SCR_GET_JOB_RATIO_STAT(self, "MDEF");
     
     local value = defaultValue + ((byLevel + byStat) * jobRate) + byItem;
@@ -1753,38 +1284,31 @@ function SCR_CALC_BASIC_MDEF(self)
 end
 
 function SCR_Get_BLKABLE(self)
-
-    local value = 0
-
     local equipLH = GetEquipItem(self, 'LH');
-    if TryGetProp(equipLH, 'ClassType') == 'Shield' then
-        value = 2
-    end
-
-    local equipRH_SUB = GetEquipItem(self, 'RH_SUB');
-    local equipLH_SUB = GetEquipItem(self, 'LH_SUB');
-    if IS_NO_EQUIPITEM(equipRH_SUB) ~= 1 or IS_NO_EQUIPITEM(equipLH_SUB) ~= 1 then
-        value = value / 2
-
-        if TryGetProp(equipLH_SUB, 'ClassType') == 'Shield' then
-            value = value + 1
+    local isShield = TryGetProp(equipLH, 'ClassType');
+    if isShield == 'Shield' then
+        local Fencer11_abil = GetAbility(self, "Fencer11")
+        if Fencer11_abil ~= nil and Fencer11_abil.ActiveState == 1 then
+            return 0;
+        else
+            return 1;
         end
+        
     end
-
+    
+--    local buffList = { "CrossGuard_Buff", "NonInvasiveArea_Buff", "EnchantEarth_Buff", "Retiarii_DaggerGuard" };
+--    for i = 1, #buffList do
+--        if IsBuffApplied(self, buffList[i]) == 'YES' then
+--            return 2;
+--        end
+--    end
+    
     local enableBlockBuff = TryGetProp(self, "BLKABLE_BM", 0);
     if enableBlockBuff >= 1 then
-        value = value + enableBlockBuff
-    end
-
-    if value > 2 then
-        value = 2
-    end
-
-    if value < 0 then
-        value = 0
-    end
-
-    return value;
+            return 2;
+        end
+    
+    return 0;
 end
 
 function SCR_Get_BLK(self)
@@ -1805,12 +1329,12 @@ function SCR_Get_BLK(self)
     if byItem == nil then
         byItem = 0;
     end
-
+    
     local byBlockRate = GetSumOfEquipItem(self, 'BlockRate');
     if byBlockRate == nil then
         byBlockRate = 0;
     end
-
+    
     byBlockRate = byLevel * (byBlockRate * 0.01);
     
     local value = byLevel + byItem + byBlockRate;
@@ -1912,12 +1436,6 @@ function SCR_Get_HR(self)
     byRateBuff = math.floor(value * byRateBuff);
     
     value = value + byItemRareOption + byBuff + byRateBuff;
-
-    if GetExProp(self, "IS_Hakkapeliter1_Abil") == 1 then
-        local addhr = math.floor(value * 0.15)
-        SetExProp(self, "IS_Hakkapeliter1_Value", addhr) 
-        value = value - addhr
-    end
     
     if value < 0 then
     	value = 0
@@ -1934,7 +1452,7 @@ function SCR_Get_DR(self)
     
     local jobRate = SCR_GET_JOB_RATIO_STAT(self, "DR");
     local byLevel = lv * 1.0 * jobRate;
-        
+    
     local byItem = 0;
     local byItemList = { "DR", "ADD_DR" };
     for i = 1, #byItemList do
@@ -2059,12 +1577,6 @@ function SCR_Get_CRTDR(self)
     byRateBuff = math.floor(value * byRateBuff);
     
     value = value + byItemRareOption + byBuff + byRateBuff;
-
-    local decRatio = TryGetProp(self, 'CRTDR_RATE_MUL_BM', 1);
-    if decRatio < 0.5 then
-        decRatio = 0.5
-    end
-    value = math.floor(value * decRatio)
 	
     if value < 0 then
     	value = 0;
@@ -2112,10 +1624,6 @@ function SCR_Get_CRTMATK(self)
     local byLevel = lv * 1.0;
 	
     local stat = TryGetProp(self, "MNA");
-    local abilCleric37 = GetAbility(self, 'Cleric37');
-    if abilCleric37 ~= nil and TryGetProp(abilCleric37, 'ActiveState', 0) == 1 then
-        stat = TryGetProp(self, 'INT');
-    end
     if stat == nil then
         stat = 1;
     end
@@ -2148,7 +1656,7 @@ function SCR_Get_RHP(self)
             return 0;
         end
     end
-
+    
     local baseMHP = TryGetProp(self, 'MHP', 1);
     
 	local jobRate = SCR_GET_JOB_RATIO_STAT(self, "RHP");
@@ -2166,16 +1674,8 @@ function SCR_Get_RHP(self)
     end
     
     local value = defaultValue + byItem + byBuff;
-
-    if IsPVPServer(self) == 1 then
-        value = value / 2
-    end
     
     if value < 0 then
-        value = 0;
-    end
-    
-    if GetExProp(self, 'force_rhp_zero') > 0 then
         value = 0;
     end
     
@@ -2194,12 +1694,7 @@ function SCR_GET_RHPTIME(self)
     if byBuff == nil then
         byBuff = 0;
     end
-
-    local squireBuff = GetBuffByName(self, 'squire_food3_buff')
-    if squireBuff ~= nil then
-        defaultTime = math.floor(defaultTime * (1 - GetExProp(squireBuff, "SQUIRE_FOOD_ADD_RHPTIME")))
-    end
-
+    
     local value = defaultTime - byItem - byBuff;
 
     if IsBuffApplied(self, 'SitRest') == 'YES' then 
@@ -2280,35 +1775,13 @@ function SCR_GET_RSPTIME(self)
     if byBuff == nil then
         byBuff = 0;
     end
-
-    local servantBuff = GetBuffByName(self, 'ServantSP_Buff')
-    if servantBuff ~= nil then
-        defaultTime = math.floor(defaultTime * (1 - GetExProp(servantBuff, "ADD_RSPTIME")))
-    end
-
-    local squireBuff = GetBuffByName(self, 'squire_food4_buff')
-    if squireBuff ~= nil then
-        defaultTime = math.floor(defaultTime * (1 - GetExProp(squireBuff, "SQUIRE_FOOD_ADD_RSPTIME")))
-    end
-
-    -- 딥디르비 제미나 여신상도 처리 필요
-    local zeminaBuff = GetBuffByName(self, 'CarveZemina_Buff')
-    if zeminaBuff ~= nil then
-        defaultTime = math.floor(defaultTime * (1 - GetExProp(zeminaBuff, "RSPTIME")))
-    end
-
+    
     local value = defaultTime - byItem - byBuff;
     
     if IsBuffApplied(self, 'SitRest') == 'YES' then 
         value = value * 0.5;
     end
-
-    if GetExProp(self, 'reduce_rsp_time') > 0 then
-        local rsp = GetExProp(self, 'reduce_rsp_time') * 0.01
-        rsp = 1 - rsp
-        value = value * rsp
-    end
-
+    
     if value < 1000 then
         value = 1000;
     end
@@ -2508,7 +1981,7 @@ function SCR_Get_KDArmorType(self)
         value = 1;
     end
     
-    local buffList = { "Safe", "PainBarrier_Buff", "Lycanthropy_Buff", "Marschierendeslied_Buff", "Methadone_Buff", "Fluting_Buff", "Slithering_Buff", "Algiz_PainBarrier_Buff", "BullyPainBarrier_Buff", "CavalryCharge_Abil_Buff", "TOSHero_PainBarrier" };
+    local buffList = { "Safe", "PainBarrier_Buff", "Lycanthropy_Buff", "Marschierendeslied_Buff", "Methadone_Buff", "Fluting_Buff", "Slithering_Buff", "Algiz_PainBarrier_Buff", "BullyPainBarrier_Buff" };
     for i = 1, #buffList do
         if IsBuffApplied(self, buffList[i]) == 'YES' then
             value = 99999;
@@ -2588,8 +2061,8 @@ function SCR_Get_MSPD(self)
         return fixMSPDBuff;
     end
     
-    if IsBuffApplied(self, 'PunjiStake_Debuff') == 'YES' then
-        return 10;
+    if IsBuffApplied(self, 'SnipersSerenity_Buff') == 'YES' then
+    	return 10;
     end
     
     if IsBuffApplied(self, 'HideShot_Buff') == 'YES' then
@@ -2601,7 +2074,7 @@ function SCR_Get_MSPD(self)
     end
     
     local jobRate = SCR_GET_JOB_RATIO_STAT(self, "MOVE_SPEED");
-    local value = 35.0 * jobRate;
+    local value = 30.0 * jobRate;
     
     if self.ClassName == 'PC' then
         local byItem = GetSumOfEquipItem(self, 'MSPD');
@@ -2623,28 +2096,8 @@ function SCR_Get_MSPD(self)
         
         if IsPVPServer(self) == 1 or IsPVPField(self) == 1 then
             byBuff = byBuff * 0.5
-
-            local addmspd = 0
-            if IsBuffApplied(self, 'Limacon_Buff') == 'YES' or IsBuffApplied(self, 'RunningShot_Buff') == 'YES' then
-                local lhItem = GetEquipItem(self, "LH")
-                local lh_subItem = GetEquipItem(self, "LH_SUB")
-        
-                if TryGetProp(lhItem, "ClassType", "None") == "Shield" then
-                    addmspd = addmspd - 2
-                end
-        
-                if TryGetProp(lh_subItem, "ClassType", "None") == "Shield" then
-                    addmspd = addmspd - 2
-                end
-            end
-
-            if IsBuffApplied(self, 'Schwarzereiter_MaxR_Buff') == 'YES' then
-                addmspd = addmspd - 2
-            end
-
-            byBuff = byBuff + addmspd
         end
-
+        
         local byBuffOnlyTopValue = 0;
         if IsServerSection(self) == 1 then
             local byBuffOnlyTopList = GetMSPDBuffInfoTable(self)
@@ -2656,7 +2109,7 @@ function SCR_Get_MSPD(self)
                 end
             end
         end
-
+		
 		value = value + byBuff + byBuffOnlyTopValue;
         
         local nowWeight = 0;
@@ -2672,13 +2125,12 @@ function SCR_Get_MSPD(self)
                 maxWeight = 8000;
             end
             
-            local mapCls = GetMapProperty(self);
-            if (mapCls == nil or 'City' ~= mapCls.MapType) and nowWeight >= maxWeight then
+            if nowWeight >= maxWeight then
                 value = value / 3;
             end
         else
             local pc = GetMyPCObject();
-
+            
             nowWeight = TryGetProp(pc, "NowWeight");
             if nowWeight == nil then
                 nowWeight = 0;
@@ -2688,10 +2140,8 @@ function SCR_Get_MSPD(self)
             if maxWeight == nil then
                 maxWeight = 8000;
             end
-
-            local mymapname = session.GetMapName();
-            local map = GetClass("Map", mymapname);
-            if (map == nil or map.isVillage ~= "YES") and nowWeight >= maxWeight then
+            
+            if nowWeight >= maxWeight then
                 value = value / 3;
             end
         end
@@ -2704,59 +2154,40 @@ function SCR_Get_MSPD(self)
     
     local jobObj = GetJobObject(self);
     local jobCtrlType = TryGetProp(jobObj, 'CtrlType')
---    if jobCtrlType == "Archer" then
---    	if IsBattleState(self) == 1 and IsBuffApplied(self, "Tracking_Buff") == "NO" then
---    		isDashRun = 0
---    	end
---    end
+    if jobCtrlType == "Archer" then
+    	if IsBattleState(self) == 1 and IsBuffApplied(self, "Tracking_Buff") == "NO" then
+    		isDashRun = 0
+    	end
+    end
     
     if IsBuffApplied(self, 'Slithering_Buff') == 'YES' then
-        isDashRun = 0
-     	return value;
+    	isDashRun = 0
+    	return 19;
     end
     
     if IsBuffApplied(self, 'Taglio_Buff') == 'YES' then
         isDashRun = 0
-        --return value;
+        return value;
     end
-    
-    if IsBuffApplied(self, 'ITEM_LEGEND_SVIRTI_BUFF') == 'YES' then
-        isDashRun = 0
-    end
-    
     if isDashRun > 0 then    -- 대시 런 --
         local dashRunAddValue = 10
         
-	    -- if jobCtrlType == "Wizard" then
-	    -- 	dashRunAddValue = dashRunAddValue - 4
-	    -- end
+	    if jobCtrlType == "Wizard" then
+	    	dashRunAddValue = dashRunAddValue - 4
+	    end
 	    
---	    if jobCtrlType == "Archer" then
---	    	if IsBattleState(self) == 0 or IsBuffApplied(self, "Tracking_Buff") == "YES" then
---	    		dashRunAddValue = dashRunAddValue + 3
---	    	else
---	    		isDashRun = 0
---	    	end
---	    end
+	    if jobCtrlType == "Archer" then
+	    	if IsBattleState(self) == 0 or IsBuffApplied(self, "Tracking_Buff") == "YES" then
+	    		dashRunAddValue = dashRunAddValue + 3
+	    	else
+	    		isDashRun = 0
+	    	end
+	    end
         
 	    if jobCtrlType == "Scout" then
 	    	dashRunAddValue = dashRunAddValue + 3
 	    end
-	    
-        if IsBuffApplied(self, 'ITEM_TRINKET_MASINIOS') == 'YES' then
-            dashRunAddValue = dashRunAddValue + 2
-        end
-	
-		if IsBuffApplied(self, 'premium_seal_2021_buff') == 'YES' and TryGetProp(self, "Lv", 1) < 460 then
-			dashRunAddValue = dashRunAddValue + 6
-		end
-
-        local cardDash = GetExProp(self, 'CARD_DASH_SPEED_UP')
-
-        if cardDash > 0 then
-            dashRunAddValue = dashRunAddValue + cardDash
-        end
-                    
+        
         value = value + dashRunAddValue;
         if isDashRun == 2 then  -- 인보 특성이 있으면 속도 +1 --
             value = value + 1;
@@ -2766,22 +2197,11 @@ function SCR_Get_MSPD(self)
         if isDashRun == 3 and RidingDashAbil ~= nil then
             value = value + 3;  -- 탑승 대쉬 특성이 있으면 속도 +3 --
         end
-
-		if IS_TOS_HERO_ZONE(self) == 'YES' and GetExProp(self, 'TOSHero_Tear2_MoveSPD') > 0 then
-			value = value + 5
-		end
     end
     
     -- 최대 이속 제한 --
-    if value > PC_MAX_MSPD and GetExProp(self, 'ignore_max_mspd') == 0 then
-        value = PC_MAX_MSPD;
-        if GetExProp(self, 'RIDE_PET_MSPD_LIMIT_INCREASE') > 0 then
-            value = value + GetExProp(self, 'RIDE_PET_MSPD_LIMIT_INCREASE')
-        end
-
-        if GetExProp(self, 'COMMON_MSPD_LIMIT_INCREASE') > 0 then
-            value = value + GetExProp(self, 'COMMON_MSPD_LIMIT_INCREASE')
-        end
+    if value > 60 then
+        value = 60;
     end
     
     local byBonus = TryGetProp(self, "MSPD_Bonus");
@@ -2800,29 +2220,7 @@ function SCR_Get_MSPD(self)
     if GetExProp(self, "IS_OOBE_DUMMYPC") == 1 then
         value = 55;
     end
-
-    if IsBuffApplied(self, 'SnipersSerenity_Buff') == 'YES' and (IsPVPField(self) == 1 or IsPVPServer(self) == 1) then
-        if IsBuffApplied(self, 'DesperateDefense_Buff') == 'YES' then
-            return math.floor(value);
-        else
-            if GetExProp(self, 'SniperSPD') > 0 and value >= GetExProp(self, 'SniperSPD') then
-                return GetExProp(self, 'SniperSPD')
-            end
-        end
-    end
     
-    if IsBuffApplied(self, 'Burrow_Rogue') == 'YES' then
-        if GetExProp(self, 'BurrowSPD') > 0 and value >= GetExProp(self, 'BurrowSPD') then
-            return GetExProp(self, 'BurrowSPD')
-        end
-    end
-
-    if IsBuffApplied(self, 'Bazooka_Abill_Buff') == 'YES' then
-        if GetExProp(self, 'BazookaSPD') > 0 and value >= GetExProp(self, 'BazookaSPD') then
-            return GetExProp(self, 'BazookaSPD')
-        end
-    end
-
     return math.floor(value);
 end
 
@@ -2887,12 +2285,7 @@ function SCR_Get_SR(self)
 	local byItemRareOption = TryGetProp(self, 'EnchantSR');
 	if byItemRareOption == nil then
 	    byItemRareOption = 0;
-    end
-    
-    if IsPVPServer(self) == 1 then
-        byItem = 0;
-        byItemRareOption = 0;
-    end
+	end
     
     local byBuff = TryGetProp(self, "SR_BM")
     if byBuff == nil then
@@ -2928,7 +2321,7 @@ function SCR_Get_SDR(self)
     if byItem == nil then
         byItem = 0;
     end
-
+    
     local byBuff = TryGetProp(self, "SDR_BM")
     if byBuff == nil then
         byBuff = 0;
@@ -2940,12 +2333,6 @@ function SCR_Get_SDR(self)
     	value = 1;
     end
     
-    if IsPVPServer(self) == 1 then
-        value = 2 + byBuff;
-    elseif IsPVPField(self) == 1 and value > 4 then
-        value = math.floor((math.max(0, value-4)^0.5))+math.min(4, value)
-    end
-
     return math.floor(value);
 end
 
@@ -3036,13 +2423,11 @@ end
 
 
 function SCR_PC_MOVINGSHOTABLE(pc)
-    local jobObj = nil
-    if IsServerObj(pc) == 1 then
-        jobObj = GetJobObject(pc);
-    else
-        jobObj = GetJobObject();
+    if IsBuffApplied(pc, 'SnipersSerenity_Buff') == 'YES' then
+    	return 0;
     end
     
+    local jobObj = GetJobObject(pc);
     if jobObj == nil then
         return 0;
     end
@@ -3051,9 +2436,9 @@ function SCR_PC_MOVINGSHOTABLE(pc)
         return 1;
     end
 
-    local buffList = { "Warrior_EnableMovingShot_Buff", "Warrior_RushMove_Buff", "Cyclone_EnableMovingShot_Buff", 'DoubleGunStance_Buff', 'Limacon_Buff' };
+    local buffList = { "Warrior_EnableMovingShot_Buff", "Warrior_RushMove_Buff", "Cyclone_EnableMovingShot_Buff", 'DoubleGunStance_Buff' };
     for i = 1, #buffList do
-        if IsBuffApplied(pc, buffList[i]) == "YES" then
+        if IsBuffApplied(pc, buffList[i]) == "YES" then    
             return 1;
         end
     end
@@ -3065,13 +2450,7 @@ function SCR_MOVING_SHOT_SPEED(pc) -- archer moving shot
     local value = 0;
     local isEnableMovingShot = TryGetProp(pc, "MovingShotable");
     if isEnableMovingShot ~= nil and isEnableMovingShot ~= 0 then
-        local jobObj = nil
-        if IsServerObj(pc) == 1 then
-            jobObj = GetJobObject(pc);
-        else
-            jobObj = GetJobObject();
-        end
-
+        local jobObj = GetJobObject(pc);
         if jobObj ~= nil then
             if jobObj.CtrlType == 'Archer' then 
                 value = 0.8;
@@ -3132,7 +2511,7 @@ end
 
 function SCR_Get_Sta_Run(self)
     local consumptionSTA = 0;
-
+    
     -- 기본 스태미너 소모량 --
     local defaultConsumptionSTA = 0;
     
@@ -3148,10 +2527,6 @@ function SCR_Get_Sta_Run(self)
     if isDashRun == nil then
         isDashRun = 0;
     end
-
-    if isDashRun == 4 then
-        consumptionSTA = 250
-    end
     
     local isAgility = GetExProp(self, 'ADD_RCSTA')
     if isAgility == nil then
@@ -3160,31 +2535,27 @@ function SCR_Get_Sta_Run(self)
     
     local jobObj = GetJobObject(self);
     local jobCtrlType = TryGetProp(jobObj, 'CtrlType')
---    if jobCtrlType == "Archer" then
---    	if IsBattleState(self) == 1 and IsBuffApplied(self, "Tracking_Buff") == "NO" then
---    		isDashRun = 0
---    	end
---    end
+    if jobCtrlType == "Archer" then
+    	if IsBattleState(self) == 1 and IsBuffApplied(self, "Tracking_Buff") == "NO" then
+    		isDashRun = 0
+    	end
+    end
     
     if isDashRun > 0 then
         local dashAmount = 500;
 
-        if isDashRun == 4 then
-            dashAmount = 0
-        end
-
---	    if jobCtrlType == "Archer" then
---	    	if IsBuffApplied(self, "Tracking_Buff") == "YES" then
---	    	    local level = 0;
---	    	    local buff = GetBuffByName(self, "Tracking_Buff")
---	    	    if buff ~= nil then
---	    	        level = GetBuffArg(buff)
---	    	    end
---	    	    
---	    	    local addRate = 1 + (0.5 - 0.03 * level)
---	    		dashAmount = dashAmount * addRate
---	    	end
---	    end        
+	    if jobCtrlType == "Archer" then
+	    	if IsBuffApplied(self, "Tracking_Buff") == "YES" then
+	    	    local level = 0;
+	    	    local buff = GetBuffByName(self, "Tracking_Buff")
+	    	    if buff ~= nil then
+	    	        level = GetBuffArg(buff)
+	    	    end
+	    	    
+	    	    local addRate = 1 + (0.5 - 0.03 * level)
+	    		dashAmount = dashAmount * addRate
+	    	end
+	    end        
         
 	    if jobCtrlType == "Cleric" then
 			if IsBuffApplied(self, "Lycanthropy_Half_Buff") == "YES" then
@@ -3192,16 +2563,16 @@ function SCR_Get_Sta_Run(self)
 			end
 		end
         
-	    -- if jobCtrlType == "Scout" then 
-		-- 	dashAmount = dashAmount * 2
-		-- end
+	    if jobCtrlType == "Scout" then
+			dashAmount = dashAmount * 2
+		end
         
         consumptionSTA = consumptionSTA + dashAmount;
         
         if isDashRun == 2 then
             addRateConsumptionSTA = addRateConsumptionSTA - 0.25;  -- 인보 특성 있는 중에는 추가량 25% 감소
         end
-
+	    
         local byRateBuffDash = TryGetProp(self, 'DASHSTA_RATE_BM');
         if byRateBuffDash == nil then
             byRateBuffDash = 0;
@@ -3217,30 +2588,10 @@ function SCR_Get_Sta_Run(self)
     
     value = value + (value * addRateConsumptionSTA);
     
-    -- 이런 버프 늘어나면 구조화 필요
-    
-    if IsBuffApplied(self, 'Corsair_Roar_Buff') == 'YES' then
-        local buff = GetBuffByName(self, "Corsair_Roar_Buff")
-        local buffOver = 1 - GetOver(buff) * 0.1
-        if buffOver <= 0.5 then
-            buffOver = 0.5
-        end
-        value = value * buffOver
-    end
     if IsBuffApplied(self, 'Sprint_Buff') == 'YES' then
         value = 0;
-    elseif IsBuffApplied(self, 'Stamina_Max_buff') == 'YES' then
-        value = SCR_FIELD_DUNGEON_CONSUME_DECREASE(self, 'Sta_Run', value);
-    end
-    
-	if IS_TOS_HERO_ZONE(self) == 'YES' and GetExProp(self, "TOSHero_NECK_MoveSPD") > 0 then
-		value = 0
     end
 
-    if GetExProp(self, 'CHALLENGE_MODE_AUTO_PLAYER') == 1 then
-        value = value * 0.5
-    end
-    
     return math.floor(value);
 end
 
@@ -3280,21 +2631,7 @@ function SCR_Get_Sta_Runable(self)
 end
 
 function SCR_Get_Sta_Jump(self)
-    local value = 1000
-    if IsBuffApplied(self, "RIDE_PET_RIDEPET_5") == "YES" then
-        value = 0
-    end
-
-    if IsBuffApplied(self, "RIDE_PET_RIDEPET_11_2") == "YES" then
-        value = 0
-    end
-
-    if IsBuffApplied(self, "RIDE_PET_RIDEPET_36") == "YES" then
-        value = 0
-    end
-
-
-    return value;
+    return 1000;
 end
 
 function SCR_Get_Sta_Step(self)
@@ -3468,16 +2805,7 @@ function SCR_GET_PC_GUARDABLE(pc)
      -- beautyshop check
      local beautyshopZone = GetZoneName(pc)
      if beautyshopZone == "c_barber_dress" and jobListString ~= nil and string.find(jobListString, "Char1_1") ~= nil then
-        -- 입어보기 상태를 점검한다.
-        if IsEquipedDummyItem(pc, "LH") == 1 then  -- 왼손에 장비를 끼고 있을 떄만 확인.
-            if IsEquipedDummySheild(pc) == 1 then
-                return 1;
-            else
-                -- 현재 뷰티샵 미리보기 상태이기 때문에 스킬, 실제 장착장비를 확인하지 못하게 해야함.
-                -- 방패를 실제로 장착하고 단검을 입어보기하면 가드가 우선이기 때문.        
-                return 0;
-            end
-        end
+         return 1;
      end
     
     local isGuardSkill = GetStanceSkill(pc, "Warrior_Guard");
@@ -3612,10 +2940,10 @@ function SCR_Get_SkillRange(self)
         byAbil = byAbil + abilProp;
     end
     
-    local value = byItem + byBuff + byAbil;    
+    local value = byItem + byBuff + byAbil;
     return value;
 end
-
+    
 function SCR_Get_SkillWidthRange(self)    
     local byItem = GetSumOfEquipItem(self, 'SkillWidthRange');
     
@@ -3814,42 +3142,8 @@ function SCR_GET_DARK_ATK(pc)
     return math.floor(value);
 end
 
-function SCR_GET_ADD_Damage_ATK(pc)
-    local byItem = GetSumOfEquipItem(pc, "Add_Damage_Atk");
-    if byItem == nil then
-        byItem = 0;
-    end
-    
-    local byBuff = TryGetProp(pc, "Add_Damage_Atk_BM");
-    if byBuff == nil then
-        byBuff = 0;
-    end
-    
-    local add_value = SCR_GET_FIRE_ATK(pc)
-    add_value = add_value + SCR_GET_ICE_ATK(pc)
-    add_value = add_value + SCR_GET_POISON_ATK(pc)
-    add_value = add_value + SCR_GET_LIGHTNING_ATK(pc)
-    add_value = add_value + SCR_GET_SOUL_ATK(pc)
-    add_value = add_value + SCR_GET_EARTH_ATK(pc)
-    add_value = add_value + SCR_GET_HOLY_ATK(pc)
-    add_value = add_value + SCR_GET_DARK_ATK(pc)
-
-    local byabil = 0
-    if GetExProp(pc, "IS_ADDDAMAGE_ABIL") > 0 then
-        local patk = (TryGetProp(pc, "MINPATK") + TryGetProp(pc, "MAXPATK")) / 2
-        local matk = (TryGetProp(pc, "MINMATK") + TryGetProp(pc, "MAXMATK")) / 2
-
-        local atk = math.max(patk, matk)
-
-        byabil = math.floor(atk * 0.1 * GetExProp(pc, "IS_ADDDAMAGE_ABIL"))
-    end
-
-    local value = byItem + byBuff + add_value + byabil;    
-    return math.floor(value);
-end
-
-function SCR_GET_Widling_ATK(pc)	
-    local byItem = GetSumOfEquipItem(pc, "ADD_WIDLING");	
+function SCR_GET_Widling_ATK(pc)
+    local byItem = GetSumOfEquipItem(pc, "ADD_WIDLING");
     if byItem == nil then
         byItem = 0;
     end
@@ -4034,90 +3328,12 @@ function SCR_GET_MiddleSize_ATK(pc)
     if byBuff == nil then
         byBuff = 0;
     end
-
-    local value = byItem + byBuff;
-    return math.floor(value);
-end
-
-function SCR_GET_MiddleSize_Def(pc)
-    local byItem = GetSumOfEquipItem(pc, "MiddleSize_Def");
-    if byItem == nil then
-        byItem = 0;
-    end
     
-    local byBuff = TryGetProp(pc, "MiddleSize_Def_BM");
-    if byBuff == nil then
-        byBuff = 0;
-    end
-
     local value = byItem + byBuff;
-    return math.floor(value);
-end
-
-function SCR_GET_AllMaterialType_Def(pc)
-    local byItem = GetSumOfEquipItem(pc, "AllMaterialType_Def");
-    if byItem == nil then
-        byItem = 0;
-    end
     
-    local byBuff = TryGetProp(pc, "AllMaterialType_Def_BM");
-    if byBuff == nil then
-        byBuff = 0;
-    end
-
-    local value = byItem + byBuff;
     return math.floor(value);
 end
 
--- done, 해당 함수 내용은 cpp로 이전되었습니다. 변경 사항이 있다면 반드시 프로그램팀에 알려주시기 바랍니다.
-function SCR_GET_AllMaterialType_Atk(pc)
-    local byItem = GetSumOfEquipItem(pc, "AllMaterialType_Atk");
-    if byItem == nil then
-        byItem = 0;
-    end
-    
-    local byBuff = TryGetProp(pc, "AllMaterialType_Atk_BM");
-    if byBuff == nil then
-        byBuff = 0;
-    end
-
-    local value = byItem + byBuff;
-    return math.floor(value);
-end
-
--- done, 해당 함수 내용은 cpp로 이전되었습니다. 변경 사항이 있다면 반드시 프로그램팀에 알려주시기 바랍니다.
-function SCR_GET_AllSize_Atk(pc)
-    local byItem = GetSumOfEquipItem(pc, "AllSize_Atk");
-    if byItem == nil then
-        byItem = 0;
-    end
-    
-    local byBuff = TryGetProp(pc, "AllSize_Atk_BM");
-    if byBuff == nil then
-        byBuff = 0;
-    end
-
-    local value = byItem + byBuff;
-    return math.floor(value);
-end
-
--- done, 해당 함수 내용은 cpp로 이전되었습니다. 변경 사항이 있다면 반드시 프로그램팀에 알려주시기 바랍니다.
-function SCR_GET_AllRace_Atk(pc)
-    local byItem = GetSumOfEquipItem(pc, "AllRace_Atk");
-    if byItem == nil then
-        byItem = 0;
-    end
-    
-    local byBuff = TryGetProp(pc, "AllRace_Atk_BM");
-    if byBuff == nil then
-        byBuff = 0;
-    end
-
-    local value = byItem + byBuff;
-    return math.floor(value);
-end
-
--- done, 해당 함수 내용은 cpp로 이전되었습니다. 변경 사항이 있다면 반드시 프로그램팀에 알려주시기 바랍니다.
 function SCR_GET_LargeSize_ATK(pc)
     local byItem = GetSumOfEquipItem(pc, "ADD_LARGESIZE");
     if byItem == nil then
@@ -4132,22 +3348,6 @@ function SCR_GET_LargeSize_ATK(pc)
     local value = byItem + byBuff;
     
     return math.floor(value);
-end
-
-function SCR_GET_BOSS_ATK(pc)
-    local byItem = GetSumOfEquipItem(pc, "ADD_BOSS_ATK");
-    if byItem == nil then
-        byItem = 0;
-    end
-  
-    local byBuff = TryGetProp(pc, "BOSS_ATK_BM");
-    if byBuff == nil then
-        byBuff = 0;
-    end
-    
-    local value = byItem + byBuff;
-
-    return math.floor(value)
 end
 
 function SCR_GET_BASE_WEAPON_DEF(pc)
@@ -4204,197 +3404,7 @@ function SCR_GET_ATK_STRIKE(pc)
     return math.floor(value);
 end
 
-function SCR_GET_Arrow_Atk(pc)
-    -- 아이템에서는 사용하지 않아 아이템에 대한 추가치 로직은 없음
-    -- 만약 아이템에서 사용하게 되면 로직 추가해야함
-    local byItem = 0;
-    
-    local byBuff = TryGetProp(pc, "Arrow_Atk_BM");
-    if byBuff == nil then
-        byBuff = 0;
-    end
-    
-    local value = byItem + byBuff;
-	
-    return math.floor(value);
-end
 
-function SCR_GET_Cannon_Atk(pc)
-    -- 아이템에서는 사용하지 않아 아이템에 대한 추가치 로직은 없음
-    -- 만약 아이템에서 사용하게 되면 로직 추가해야함
-    local byItem = 0;
-    
-    local byBuff = TryGetProp(pc, "Cannon_Atk_BM");
-    if byBuff == nil then
-        byBuff = 0;
-    end
-    
-    local value = byItem + byBuff;
-	
-    return math.floor(value);
-end
-
-function SCR_GET_Gun_Atk(pc)
-    -- 아이템에서는 사용하지 않아 아이템에 대한 추가치 로직은 없음
-    -- 만약 아이템에서 사용하게 되면 로직 추가해야함
-    local byItem = 0;
-    
-    local byBuff = TryGetProp(pc, "Gun_Atk_BM");
-    if byBuff == nil then
-        byBuff = 0;
-    end
-    
-    local value = byItem + byBuff;
-
-    if GetExProp(pc, "IS_Hakkapeliter1_Abil") == 1 then
-        value = value + GetExProp(pc, "IS_Hakkapeliter1_Value")
-    end
-	
-    return math.floor(value);
-end
-
-function SCR_GET_Magic_Melee_Atk(pc)
-    local byItem = GetSumOfEquipItem(pc, "Magic_Melee_Atk");
-    if byItem == nil then
-        byItem = 0;
-    end
-    
-    local byBuff = TryGetProp(pc, "Magic_Melee_Atk_BM");
-    if byBuff == nil then
-        byBuff = 0;
-    end
-    
-    local value = byItem + byBuff;
-	
-    return math.floor(value);
-end
-
-function SCR_GET_Magic_Fire_Atk(pc)
-    local byItem = GetSumOfEquipItem(pc, "Magic_Fire_Atk");
-    if byItem == nil then
-        byItem = 0;
-    end
-    
-    local byBuff = TryGetProp(pc, "Magic_Fire_Atk_BM");
-    if byBuff == nil then
-        byBuff = 0;
-    end
-    
-    local value = byItem + byBuff;
-	
-    return math.floor(value);
-end
-
-function SCR_GET_Magic_Ice_Atk(pc)
-    local byItem = GetSumOfEquipItem(pc, "Magic_Ice_Atk");
-    if byItem == nil then
-        byItem = 0;
-    end
-    
-    local byBuff = TryGetProp(pc, "Magic_Ice_Atk_BM");
-    if byBuff == nil then
-        byBuff = 0;
-    end
-    
-    local value = byItem + byBuff;
-	
-    return math.floor(value);
-end
-
-function SCR_GET_Magic_Lightning_Atk(pc)
-    local byItem = GetSumOfEquipItem(pc, "Magic_Lightning_Atk");
-    if byItem == nil then
-        byItem = 0;
-    end
-    
-    local byBuff = TryGetProp(pc, "Magic_Lightning_Atk_BM");
-    if byBuff == nil then
-        byBuff = 0;
-    end
-    
-    local value = byItem + byBuff;
-	
-    return math.floor(value);
-end
-
-function SCR_GET_Magic_Earth_Atk(pc)
-    local byItem = GetSumOfEquipItem(pc, "Magic_Earth_Atk");
-    if byItem == nil then
-        byItem = 0;
-    end
-    
-    local byBuff = TryGetProp(pc, "Magic_Earth_Atk_BM");
-    if byBuff == nil then
-        byBuff = 0;
-    end
-    
-    local value = byItem + byBuff;
-	
-    return math.floor(value);
-end
-
-function SCR_GET_Magic_Poison_Atk(pc)
-    -- 아이템에서는 사용하지 않아 아이템에 대한 추가치 로직은 없음
-    -- 만약 아이템에서 사용하게 되면 로직 추가해야함
-    local byItem = 0;
-    
-    local byBuff = TryGetProp(pc, "Magic_Poison_Atk_BM");
-    if byBuff == nil then
-        byBuff = 0;
-    end
-    
-    local value = byItem + byBuff;
-	
-    return math.floor(value);
-end
-
-function SCR_GET_Magic_Dark_Atk(pc)
-    local byItem = GetSumOfEquipItem(pc, "Magic_Dark_Atk");
-    if byItem == nil then
-        byItem = 0;
-    end
-    
-    local byBuff = TryGetProp(pc, "Magic_Dark_Atk_BM");
-    if byBuff == nil then
-        byBuff = 0;
-    end
-    
-    local value = byItem + byBuff;
-	
-    return math.floor(value);
-end
-
-function SCR_GET_Magic_Holy_Atk(pc)
-    local byItem = GetSumOfEquipItem(pc, "Magic_Holy_Atk");
-    if byItem == nil then
-        byItem = 0;
-    end
-    
-    local byBuff = TryGetProp(pc, "Magic_Holy_Atk_BM");
-    if byBuff == nil then
-        byBuff = 0;
-    end
-    
-    local value = byItem + byBuff;
-	
-    return math.floor(value);
-end
-
-function SCR_GET_Magic_Soul_Atk(pc)
-    local byItem = GetSumOfEquipItem(pc, "Magic_Soul_Atk");
-    if byItem == nil then
-        byItem = 0;
-    end
-    
-    local byBuff = TryGetProp(pc, "Magic_Soul_Atk_BM");
-    if byBuff == nil then
-        byBuff = 0;
-    end
-    
-    local value = byItem + byBuff;
-	
-    return math.floor(value);
-end
 
 function SCR_GET_DEF_ARIES(pc)
     local byItem = GetSumOfEquipItem(pc, "AriesDEF");
@@ -4556,31 +3566,6 @@ function SCR_GET_RES_DARK(pc)
     return math.floor(value);
 end
 
-function SCR_GET_RES_ADD_DAMAGE(pc)
-    local byItem = GetSumOfEquipItem(pc, "ResAdd_Damage");
-    if byItem == nil then
-        byItem = 0;
-    end
-    
-    local byBuff = TryGetProp(pc, "ResAdd_Damage_BM");
-    if byBuff == nil then
-        byBuff = 0;
-    end
-    
-    local add_value = SCR_GET_RES_FIRE(pc)
-    add_value = add_value + SCR_GET_RES_ICE(pc)
-    add_value = add_value + SCR_GET_RES_POISON(pc)
-    add_value = add_value + SCR_GET_RES_LIGHTNING(pc)
-    add_value = add_value + SCR_GET_RES_SOUL(pc)
-    add_value = add_value + SCR_GET_RES_EARTH(pc)
-    add_value = add_value + SCR_GET_RES_HOLY(pc)
-    add_value = add_value + SCR_GET_RES_DARK(pc)
-
-    local value = byItem + byBuff + add_value;
-    
-    return math.floor(value);
-end
-
 function SCR_GET_RES_SOUL(pc)
     local byItem = GetSumOfEquipItem(pc, "RES_SOUL");
     if byItem == nil then
@@ -4647,9 +3632,10 @@ function GET_MAXHATE_COUNT(self)
 	            byBuff = 0;
 	        end
 	        
-            maxHateCount = defaultMaxHateCount + byBuff;
+	        maxHateCount = defaultMaxHateCount + byBuff;
 	    end
     end
+    
     return maxHateCount;
 end
 
@@ -4990,59 +3976,32 @@ function SCR_GET_LOOTINGCHANCE(self)
     
     local value = defaultValue + byItem + byBuff;
     
-    if value > 10000 then
-    	value = 10000;
+    if value > 4000 then
+    	value = 4000;
     end
     
     return math.floor(value);
 end
 
--- done, 해당 함수 내용은 cpp로 이전되었습니다. 변경 사항이 있다면 반드시 프로그램팀에 알려주시기 바랍니다.
 function SCR_Get_HEAL_PWR(self)
-    local flag = 2
-    if flag == 1 then 
-        return SCR_Get_HEAL_PWR_VER1(self) -- 기존 연산식
-    elseif flag == 2 then 
-        return SCR_Get_HEAL_PWR_VER2(self) -- 신규 연산식
-    end
-    
-    -- 이전 치유력 계산식
-    --local defaultValue = 20;
-    --local byLevel = lv * 1.0;
-    --local byStat = (stat * 1) + (math.floor(stat / 10) * (byLevel * 0.03));
-    --local value = defaultValue + byLevel + byStat;
-
-    -- 레벨 이중 적용 계산식
-    --local defaultValue = 70;
-    --local byLevel = lv * (1 + 0.0073 * lv);
-    --local byStat = stat * 0.9;
-    --local byAttack = SCR_GET_DEFAULT_ATK_COMPARE(self) * 0.086
-    --local value = math.floor(defaultValue + byLevel + byStat + byAttack)
-
     local defaultValue = 20;
     
     local lv = TryGetProp(self, "Lv");
     if lv == nil then
         lv = 1;
     end
-
-    local byLevel = lv * 2.5;
+    
+    local byLevel = lv * 1.0;
     
     local stat = TryGetProp(self, "MNA");
     if stat == nil then
         stat = 1;
     end
-
-    local byStat = stat * 1;
-
-    local atk = SCR_GET_DEFAULT_ATK_COMPARE(self)
-    atk = atk / 3
-        
-    -- local byAttack = atk * 0.08
-
-    -- local value = math.floor(defaultValue + byLevel + byStat + byAttack)
-    local value = math.floor(defaultValue + byLevel + byStat)
-
+    
+    local byStat = (stat * 1) + (math.floor(stat / 10) * (byLevel * 0.03));
+    
+    local value = defaultValue + byLevel + byStat;
+    
     local byBuff = 0;
     
     local byBuffTemp = TryGetProp(self, "HEAL_PWR_BM");
@@ -5052,122 +4011,22 @@ function SCR_Get_HEAL_PWR(self)
     
     local byRateBuff = 0;
 
-    local byRateBuffTemp = TryGetProp(self, "HEAL_PWR_RATE_BM"); 
+    local byRateBuffTemp = TryGetProp(self, "HEAL_PWR_RATE_BM");
     if byRateBuffTemp ~= nil then
         byRateBuff = byRateBuff + byRateBuffTemp;
     end
     
-    -- HealControl 레이드 체크
-    -- if IsHealControlMap(self) == 1 then
-    --     local by_rate_raid = GET_HEAL_CTRL_RAID_HEAL_PWR_RATE_BM(self);
-    --     byRateBuff = byRateBuff + by_rate_raid;
-    --     atk = atk * (1 + by_rate_raid)
-    -- end
-
     byRateBuff = math.floor(value * byRateBuffTemp);
-    value = value + byBuff + byRateBuff;    
+    
+    value = value + byBuff + byRateBuff;
+    
     local byAbil = GetExProp(self, "ABIL_MACE_ADDHEAL")
     if byAbil == nil then
         byAbil = 0
     end
+	
+    value = value * (1 + byAbil) 
     
-    local sum_of_heal_power = 0
-    sum_of_heal_power = sum_of_heal_power + byAbil
-
-    local seal_option = GetExProp(self, "ITEM_Cleric_PatronSaint_HwpRate")        
-    if seal_option > 0 then
-        seal_option = seal_option / 1000 -- 치유력 증가 합연산으로 처리한다
-        sum_of_heal_power = sum_of_heal_power + seal_option
-    end
-    
-    if GetExProp(self, "ITEM_goddess_seal_lv1") > 0 then
-        seal_option = GetExProp(self, "ITEM_goddess_seal_lv1")        
-        seal_option = seal_option / 1000 -- 치유력 증가 합연산으로 처리한다
-        sum_of_heal_power = sum_of_heal_power + seal_option
-    end
-
-    if GetExProp(self, "ITEM_goddess_seal_def_lv2") > 0 then
-        seal_option = GetExProp(self, "ITEM_goddess_seal_def_lv2")
-        seal_option = seal_option / 1000 -- 치유력 증가 합연산으로 처리한다
-        sum_of_heal_power = sum_of_heal_power + seal_option
-    end
-
-    value = value * (1 + sum_of_heal_power)
-
-    local sum_of_value_atk = math.floor((value * 0.4) + (atk * 0.6))
-    if sum_of_value_atk < 1 then
-    	sum_of_value_atk = 1;
-    end
-
-    return sum_of_value_atk;
-end
-
--- 신규 연산식
-function SCR_Get_HEAL_PWR_VER2(self)
-    local defaultValue = 20;
-    
-    local lv = TryGetProp(self, "Lv", 1);
-    local byLevel = lv * 2.5;
-
-    local stat = TryGetProp(self, "MNA", 1);
-    local byStat = stat * 1;
-    
-    local value = math.floor(defaultValue + byLevel + byStat)
-    
-    local byItem = GetSumOfEquipItem(self, "HEAL_PWR");
-    if byItem == nil then
-        byItem = 0;
-    end
-
-    value = value + byItem;
-
-    local byBuff = TryGetProp(self, "HEAL_PWR_BM", 0);
-    value = value + byBuff;
-    
-    local atk = SCR_GET_DEFAULT_ATK_COMPARE(self)
-    local byAttack = atk / 4
-    value = math.floor((value * 0.4) + (byAttack * 0.6))
-    
-    local byRateBuff = TryGetProp(self, "HEAL_PWR_RATE_BM", 0); 
-    value = value * (1 + byRateBuff)
-    
-    local sum_of_heal_power = 0
-    local byAbil = GetExProp(self, "ABIL_MACE_ADDHEAL") -- 클레릭: 치유력 특성
-    if byAbil == nil then
-        byAbil = 0
-    end
-    sum_of_heal_power = sum_of_heal_power + byAbil
-
-    local seal_option = GetExProp(self, "ITEM_Cleric_PatronSaint_HwpRate") -- 보루타 인장 - 클레릭    
-    if seal_option > 0 then
-        seal_option = seal_option / 1000
-        sum_of_heal_power = sum_of_heal_power + seal_option
-    end
-    if GetExProp(self, "ITEM_goddess_seal_lv1") > 0 then -- 보루타 인장 - 공용
-        seal_option = GetExProp(self, "ITEM_goddess_seal_lv1")    
-        seal_option = seal_option / 1000
-        sum_of_heal_power = sum_of_heal_power + seal_option
-    end
-
-    if GetExProp(self, "ITEM_goddess_seal_def_lv2") > 0 then -- 유라테 인장 - 신의 가호
-        seal_option = GetExProp(self, "ITEM_goddess_seal_def_lv2")
-        seal_option = seal_option / 1000
-        sum_of_heal_power = sum_of_heal_power + seal_option
-    end
-
-
-    value = value * (1 + sum_of_heal_power)
-
-    if IsPVPServer(self) == 1 or IsPVPField(self) == 1 or IsJoinColonyWarMap(self) == 1 then
-        local reduce_ratio = FINAL_DAMAGE_REDUCE_RATIO_PVP / 100
-        value = value * (1 - reduce_ratio)
-    end
-
-    -- if IsJoinColonyWarMap(self) == 1 then
-    --     local reduce_ratio = FINAL_DAMAGE_REDUCE_RATIO_PVP_COLONY / 100
-    --     value = value * (1 - reduce_ratio)
-    -- end
-
     if value < 1 then
     	value = 1;
     end
@@ -5175,168 +4034,7 @@ function SCR_Get_HEAL_PWR_VER2(self)
     return math.floor(value);
 end
 
--- 툴팁용 표기
-function GET_SHOW_HEAL_PWR(self, real_value)
-    if IsBuffApplied(self, "PatronSaint_Abil_Buff") == "YES" then
-        real_value = GetExProp(self, "ORI_HEAL_POWER")
-    end
 
-    local atk = SCR_GET_DEFAULT_ATK_COMPARE(self)
-    local byAttack = atk / 4
-    
-    local byRateBuff = TryGetProp(self, "HEAL_PWR_RATE_BM", 0);        
-    local sum_of_heal_power = 0
-    local byAbil = GetExProp(self, "ABIL_MACE_ADDHEAL") -- 클레릭: 치유력 특성
-    if byAbil == nil then
-        byAbil = 0
-    end
-    
-    sum_of_heal_power = sum_of_heal_power + byAbil
-    
-    local seal_option = GetExProp(self, "ITEM_Cleric_PatronSaint_HwpRate") -- 보루타 인장 - 클레릭
-    if seal_option > 0 then
-        seal_option = seal_option / 1000
-        sum_of_heal_power = sum_of_heal_power + seal_option
-    end
-
-    if GetExProp(self, "ITEM_goddess_seal_lv1") > 0 then -- 보루타 인장 - 공용
-        seal_option = GetExProp(self, "ITEM_goddess_seal_lv1")
-        seal_option = seal_option / 1000
-        sum_of_heal_power = sum_of_heal_power + seal_option
-    end
-    
-    if GetExProp(self, "ITEM_goddess_seal_def_lv2") > 0 then -- 유라테 인장 - 신의 가호
-        seal_option = GetExProp(self, "ITEM_goddess_seal_def_lv2")
-        seal_option = seal_option / 1000
-        sum_of_heal_power = sum_of_heal_power + seal_option
-    end
-
-    real_value  = ((real_value - (byAttack * 0.6)) / 0.4)
-    real_value = ((real_value) + (byAttack * 0.6))
-    real_value = real_value * (1 + sum_of_heal_power) 
-    real_value = real_value * (1 + byRateBuff)
-
-    if IsPVPServer() == 1 or IsPVPField() == 1 or IsJoinColonyWarMap() == 1 then
-        local reduce_ratio = FINAL_DAMAGE_REDUCE_RATIO_PVP / 100
-        real_value = real_value * (1 - reduce_ratio)
-    end
-
-    -- if IsJoinColonyWarMap() == 1 then
-    --     local reduce_ratio = FINAL_DAMAGE_REDUCE_RATIO_PVP_COLONY / 100
-    --     real_value = real_value * (1 - reduce_ratio)
-    -- end
-
-    if real_value < 1 then
-    	real_value = 1;
-    end
-
-    return math.floor(real_value);
-end
-
--- 기존 연산식
-function SCR_Get_HEAL_PWR_VER1(self)
-    
-    local defaultValue = 20;
-    
-    local lv = TryGetProp(self, "Lv");
-    if lv == nil then
-        lv = 1;
-    end
-
-    local byLevel = lv * 2.5;
-    
-    local stat = TryGetProp(self, "MNA");
-    if stat == nil then
-        stat = 1;
-    end
-
-    local byStat = stat * 1;
-
-    local atk = SCR_GET_DEFAULT_ATK_COMPARE(self)
-    local byAttack = atk * 0.08
-
-    local value = math.floor(defaultValue + byLevel + byStat + byAttack)
-
-    local byBuff = 0;
-    
-    local byBuffTemp = TryGetProp(self, "HEAL_PWR_BM");
-    if byBuffTemp ~= nil then
-        byBuff = byBuff + byBuffTemp;
-    end
-    
-    local byRateBuff = 0;
-
-    local byRateBuffTemp = TryGetProp(self, "HEAL_PWR_RATE_BM");    
-    if byRateBuffTemp ~= nil then
-        byRateBuff = byRateBuff + byRateBuffTemp;
-    end
-
-    byRateBuff = math.floor(value * byRateBuffTemp);
-    value = value + byBuff + byRateBuff;    
-    local byAbil = GetExProp(self, "ABIL_MACE_ADDHEAL")
-    if byAbil == nil then
-        byAbil = 0
-    end
-    
-    local seal_option = GetExProp(self, "ITEM_Cleric_PatronSaint_HwpRate")        
-    seal_option = seal_option / 1000 -- 치유력 증가 합연산으로 처리한다
-    value = value * (1 + byAbil + seal_option) 
-    
-    if value < 1 then
-    	value = 1;
-    end
-
-    return math.floor(value);
-end
-
--- done, 해당 함수 내용은 cpp로 이전되었습니다. 변경 사항이 있다면 반드시 프로그램팀에 알려주시기 바랍니다.
-function SCR_GET_Leather_Def(pc)
-    local byItem = GetSumOfEquipItem(pc, "Leather_Def");
-    if byItem == nil then
-        byItem = 0;
-    end
-    
-    local byBuff = TryGetProp(pc, "Leather_Def_BM");
-    if byBuff == nil then
-        byBuff = 0;
-    end
-    
-    local value = byItem + byBuff;
-    
-    return math.floor(value);
-end
-
-function SCR_GET_Cloth_Def(pc)
-    local byItem = GetSumOfEquipItem(pc, "Cloth_Def");
-    if byItem == nil then
-        byItem = 0;
-    end
-    
-    local byBuff = TryGetProp(pc, "Cloth_Def_BM");
-    if byBuff == nil then
-        byBuff = 0;
-    end
-    
-    local value = byItem + byBuff;
-    
-    return math.floor(value);
-end
-
-function SCR_GET_Iron_Def(pc)
-    local byItem = GetSumOfEquipItem(pc, "Iron_Def");
-    if byItem == nil then
-        byItem = 0;
-    end
-    
-    local byBuff = TryGetProp(pc, "Iron_Def_BM");
-    if byBuff == nil then
-        byBuff = 0;
-    end
-    
-    local value = byItem + byBuff;
-    
-    return math.floor(value);
-end
 
 -- PC ITEM PROP LIST --
 
@@ -5461,173 +4159,4 @@ function SCR_GET_PC_ENCHANT_OPTION_VALUE(self, propName)
 	end
 	
 	return optionValue;
-end
--- done, 해당 함수 내용은 cpp로 이전되었습니다. 변경 사항이 있다면 반드시 프로그램팀에 알려주시기 바랍니다.
-function SCR_GET_DEFAULT_ATK_COMPARE(self)
-    local value = 0
-    local atkPatk = (SCR_Get_DEFAULT_MAXPATK(self) + SCR_Get_DEFAULT_MINPATK(self)) / 2
-    local atkMatk = (SCR_Get_DEFAULT_MAXMATK(self) + SCR_Get_DEFAULT_MINMATK(self)) / 2
-
-    local maxAtk = math.max(atkPatk, atkMatk)
-
-    return maxAtk
-end
-
--- ** [ 힐량 컨트롤 관련 기능 ] ** --
--- RHP_BM
-function GET_HEAL_CTRL_RAID_RHP_BM(self, value)
-    if self == nil then return 0; end
-    if IsHealControlMap(self) == 0 then return 0; end
-    if IsServerSection() == 1 then
-        local cmd = GetMGameCmd(self);
-        if cmd == nil then return 0; end
-        local add_rhp_bm = value * 0.9 * -1.0;
-        return add_rhp_bm;
-    else
-        return -0.9; -- 90% 감소
-    end
-    return 0;
-end
-
--- HEAL_PWR_RATE_BM
-function GET_HEAL_CTRL_RAID_HEAL_PWR_RATE_BM(self)
-    if self == nil then return 0; end
-    if IsHealControlMap(self) == 0 then return 0; end
-    if IsServerSection() == 1 then
-        local cmd = GetMGameCmd(self);
-        if cmd == nil then return 0; end
-        return -0.9; -- 90% 감소
-    else
-        return -0.9; -- 90% 감소
-    end
-    return 0;
-end
-
-function SCR_GET_STATUS_BY_ITEM(self, statString)
-    local byItem = GetSumOfEquipItem(self, statString);
-    if byItem == nil then
-        byItem = 0;
-    end
-    
-    local byItemBuff = TryGetProp(self, statString.."_ITEM_BM");
-    if byItemBuff == nil then
-        byItemBuff = 0
-    end
-
-    local value = byItem + byItemBuff
-    
-    return math.floor(value);
-end
-
-
-function GET_ITEM_ATK(item)
-    local min, max = GET_BASIC_ATK(item)
-    local add = GET_REINFORCE_ADD_VALUE_ATK(item, 0, 0, 'ATK')
-    min = min + add
-    max = max + add
-    return min, max
-end
-
-function GET_ITEM_MATK(item)
-    local min, max = GET_BASIC_MATK(item)
-    local add = GET_REINFORCE_ADD_VALUE_ATK(item, 0, 0, 'ATK')
-    min = min + add
-    max = max + add
-    return min, max
-end
-
-
-function ENABLE_TO_USE_SKILL_STATE(self, skill)
-    if TryGetProp(skill, 'Job', 'None') == 'Vanquisher' then
-        local list = {'RH'}
-        for i = 1, #list do
-            if IsServerSection() == 0 then
-                local inv_item = session.GetEquipItemBySpot(item.GetEquipSpotNum(list[i]))
-                if inv_item ~= nil then
-                    local item_obj = GetIES(inv_item:GetObject())                    
-                    if TryGetProp(item_obj, 'ClassType', 'None') ~= 'THSword' then
-                        return false
-                    end
-
-                else
-                    return false
-                end
-            else
-                local item_obj = GetEquipItemIgnoreDur(self, list[i]);                
-                if TryGetProp(item_obj, 'ClassType', 'None') ~= 'THSword' then
-                    return false
-                end
-            end
-        end
-    end    
-
-	if IsBuffApplied(self, 'VoidSlash_toggle_Buff') == 'YES' and TryGetProp(skill, 'ClassName', 'None') ~= 'Vanquisher_VoidSlash' then
-		return false
-	end
-
-	return true
-end
-
--- done, 해당 함수 내용은 cpp로 이전되었습니다.
-function SCR_GET_core_option_vibora(pc)
-    local byItem = GetSumOfEquipItem(pc, "core_option_vibora");
-    if byItem == nil then
-        byItem = 0;
-    end
-    
-    local byBuff = TryGetProp(pc, "core_option_vibora_BM");
-    if byBuff == nil then
-        byBuff = 0;
-    end
-
-    local value = byItem + byBuff;
-    return math.floor(value);
-end
-
--- done, 해당 함수 내용은 cpp로 이전되었습니다.
-function SCR_GET_core_option_ausirine(pc)
-    local byItem = GetSumOfEquipItem(pc, "core_option_ausirine");
-    if byItem == nil then
-        byItem = 0;
-    end
-    
-    local byBuff = TryGetProp(pc, "core_option_ausirine_BM");
-    if byBuff == nil then
-        byBuff = 0;
-    end
-
-    local value = byItem + byBuff;
-    return math.floor(value);
-end
-
--- done, 해당 함수 내용은 cpp로 이전되었습니다.
-function SCR_GET_core_option_gabija(pc)
-    local byItem = GetSumOfEquipItem(pc, "core_option_gabija");
-    if byItem == nil then
-        byItem = 0;
-    end
-    
-    local byBuff = TryGetProp(pc, "core_option_gabija_BM");
-    if byBuff == nil then
-        byBuff = 0;
-    end
-
-    local value = byItem + byBuff;
-    return math.floor(value);
-end
-
--- done, 해당 함수 내용은 cpp로 이전되었습니다.
-function SCR_GET_core_option_jurate(pc)
-    local byItem = GetSumOfEquipItem(pc, "core_option_jurate");
-    if byItem == nil then
-        byItem = 0;
-    end
-    
-    local byBuff = TryGetProp(pc, "core_option_jurate_BM");
-    if byBuff == nil then
-        byBuff = 0;
-    end
-
-    local value = byItem + byBuff;
-    return math.floor(value);
 end

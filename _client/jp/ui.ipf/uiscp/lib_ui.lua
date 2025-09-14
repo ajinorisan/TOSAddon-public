@@ -311,21 +311,7 @@ function GET_CHILD_RECURSIVELY(frame, name)
 
 end
 
-function GET_CHILD_RECURSIVELY_NAME(frame, childName)
-	local child = frame;
-	for name in string.gmatch(childName, "[^/]+") do
-        child = GET_CHILD(child, name)
-        if child == nil then 
-			return nil; 
-    	end
-	end
-	return child;
-end
-
 function AUTO_CAST(ctrl)
-	if ctrl == nil then
-		return nil
-	end
 	ctrl = tolua.cast(ctrl, ctrl:GetClassString());
 	return ctrl;
 end
@@ -505,19 +491,16 @@ function GET_CONFIG_HUD_OFFSET(frame, defaultX, defaultY)
     if config.IsExistHUDConfig(name) ~= 1 then
         return defaultX, defaultY;
     end
-    local x = math.floor(config.GetHUDConfigXRatio(name) * option.GetClientWidth());
-	local y = math.floor(config.GetHUDConfigYRatio(name) * option.GetClientHeight());
-	local pos = frame:ScreenPosToFramePos(x, y)
-	x = pos.x
-	y = pos.y
+    local x = math.floor(config.GetHUDConfigXRatio(name) * ui.GetClientInitialWidth());
+    local y = math.floor(config.GetHUDConfigYRatio(name) * ui.GetClientInitialHeight());
 
-    -- -- clamping
-    -- local width = option.GetClientWidth() - frame:GetWidth();
-    -- local height = option.GetClientHeight() - frame:GetHeight();
-    -- x = math.max(0, x);
-    -- x = math.min(x, width);
-    -- y = math.max(0, y);
-    -- y = math.min(y, height);
+    -- clamping
+    local width = option.GetClientWidth() - frame:GetWidth();
+    local height = option.GetClientHeight() - frame:GetHeight();
+    x = math.max(0, x);
+    x = math.min(x, width);
+    y = math.max(0, y);
+    y = math.min(y, height);
     return x, y;
 end
 
@@ -592,69 +575,3 @@ imcRichText = {
 		richtext:SetColorBlend(blendTime, color1, color2, true);
 	end,
 };
-
-function QUICKSLOT_MAKE_GAUGE(slot)
-	local x = 2;
-	local y = slot:GetHeight() - 11;
-	local width  = 45;
-	local height = 10;
-	local gauge = slot:MakeSlotGauge(x, y, width, height);
-	gauge:SetDrawStyle(ui.GAUGE_DRAW_CELL);
-	gauge:SetSkinName("dot_skillslot");
-end
-
-function GET_LAST_CHILD(obj, class, pred)
-	local i = obj:GetChildCount() - 1
-	while true do
-		local child = obj:GetChildByIndex(i)
-		if not child then return nil end
-		if not class or child:GetClassString() == class then
-			child = AUTO_CAST(child)
-			if not pred or pred(child) then
-				return child
-			end
-		end
-		i = i - 1
-	end
-end
-
-function GET_FIRST_CHILD(obj, class, pred)
-	local i = 0
-	while true do
-		local child = obj:GetChildByIndex(i)
-		if not child then return nil end
-		if not class or child:GetClassString() == class then
-			child = AUTO_CAST(child)
-			if not pred or pred(child) then
-				return child
-			end
-		end
-		i = i + 1
-	end
-end
-
---색 원상복구
-function FRAME_CHILD_COLORTONE_CLEAR(frame)
-    local childcnt = frame:GetChildCount();
-    for i = 0 , childcnt -1 do
-        local slot = frame:GetChildByIndex(i)
-        if slot ~= nil then
-            slot:SetColorTone("FFFFFFFF")
-        end
-    end
-end
-
---마을 인지 체크하는 클라이언트 함수
-function IS_IN_CITY()
-	local mymapname = session.GetMapName();
-    local map = GetClass("Map", mymapname);
-    if nil == map then
-        return 0;
-    end
-
-    if 'City' == map.MapType then
-        return 1;
-    end    
-    
-    return 0
-end

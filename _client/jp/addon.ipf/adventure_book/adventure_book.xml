@@ -1,35 +1,28 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- edited with XMLSPY v2004 rel. 2 U (http://www.xmlspy.com) by imc (imc) -->
-<uiframe name="adventure_book" x="0" y="0" width="1500" height="970">
+<!-- edited with XMLSPY v2004 rel. 3 U (http://www.xmlspy.com) by IMC (IMCGames Co., Ltd) -->
+<uiframe name="adventure_book" x="0" y="0" width="1500" height="950">
 	<frame fullheight="false" fasthide="true" layout_gravity="center center" margin="0 0 0 0" draw="false"/>
 	<skin frameskin="None"/>
 	<draw drawtitlebar="false"/>
 	<option visible="false" hideable="true" closebutton="false" moveable="true" alwaysVisible="false"/>
 	<layer layerlevel="100"/>
 	<animation frameOpenAnim="chat_balloon_start" frameCloseAnim="chat_balloon_end" margin="-100 -100 0 0"/>
-	<sound opensound="skill_window_open" closesound="skill_window_close"/>
 	<script OpenScp="OPEN_ADVENTURE_BOOK" CloseScp="CLOSE_ADVENTURE_BOOK"/>
 	<userconfig INDUN_DETAIL_MINIMAP_SKIN="blackbg1" MINIMAP_WIDTH="440" MINIMAP_HEIGHT="360" LIST_ELEM_COUNT="50" FISH_ELEM_SIZE="65" JOB_ELEM_WIDTH="100" JOB_ELEM_HEIGHT="100" INDUN_ELEM_HEIGHT="65" MONSTER_ELEM_HEIGHT="65" MONSTER_PLACE_HEIGHT="25" ITEM_ELEM_HEIGHT="65" ITEM_INFO_PROP_HEIGHT="30" ITEM_INFO_PROP_Y="40" ACHIEVE_ELEM_HEIGHT="30" QUEST_ELEM_HEIGHT="30" SELLER_ELEM_HEIGHT="65" SELLER_ABILITY_HEIGHT="65" REGION_ELEM_HEIGHT="40" MAP_ELEM_HEIGHT="30" CRAFT_MATERIAL_HEIGHT="50" CRAFT_MATERIAL_MARGIN_TOP="20" CRAFT_MATERIAL_MARGIN_BOTTOM="20" CRAFT_ELEM_HEIGHT="65" SIHOUETTE_COLOR_TONE="FF444444" CRAFT_INFO_PROP_ADD_HEIGHT="0" MAP_VISITED_FONT="adven_map_font" MAP_NOT_VISITED_FONT="black_18_b" QUEST_EVEN_BG_SKIN="chat_window_2" MAP_REWARD_OPEN="M_message_open" MAP_REWARD_CLOSE="M_message_unopen"/>
 	<controls>
-		<groupbox name="bookcover" rect="0 0 1331 941" margin="98 35 0 0" layout_gravity="left top" draw="true" hittestbox="false" resizebyparent="true" resizebyresolution="true" scrollbar="false" skin="None" stretch="true" image="adventure_book"/>
+		<groupbox name="bookcover" rect="0 0 1331 941" margin="98 15 0 0" layout_gravity="left top" draw="true" hittestbox="false" resizebyparent="true" resizebyresolution="true" scrollbar="false" skin="None" stretch="true" image="adventure_book"/>
 		<!--공용 컨트롤-->
-		<button name="close" rect="0 0 44 44" margin="0 10 18 75" parent="bookcover" layout_gravity="right top" LBtnUpArgNum="" LBtnUpScp="ADVENTURE_BOOK_BTN_CLOSE" MouseOffAnim="btn_mouseoff" MouseOnAnim="btn_mouseover" caption="" clicksound="button_click_big" image="testclose_button" oversound="button_over" texttooltip="{@st59}업적/모험일지를 닫습니다{/}"/>
-		<groupbox name="title_bg" rect="0 0 509 86" margin="0 20 0 0" layout_gravity="center top" draw="true" skin="adventure_title"/>
-		<richtext name="title_text" rect="0 0 200 30" margin="0 34 0 0" layout_gravity="center top" caption="{@st43b}타이틀"/>
-		<groupbox name="subtitle_bg" rect="0 0 280 51" margin="10 73 0 0" layout_gravity="center top" draw="true" skin="adventure_title2"/>
-		<!-- 메인탭 -->
-		<tab name="mainTab" rect="0 0 500 120" margin="220 -2 0 0" layout_gravity="left top" itemspc="10" skin="tab3"/>
-		<tabitem name="tab_main_achieve" parent="mainTab" layout_gravity="left top" width="110" normalimage="achievement_achievement" overimage="achievement_achievement_cursoron" selectimage="achievement_achievement_clicked" texttooltip="{@st59}업적{/}"/>
-		<tabitem name="tab_main_adventure" parent="mainTab" layout_gravity="left top" width="110" normalimage="achievement_adventure_diary" overimage="achievement_adventure_diary_cursoron" selectimage="achievement_adventure_diary_clicked" texttooltip="{@st59}모험 일지{/}"/>
-		<!-- 메인그룹 -->
-		<groupbox name="gb_achieve" rect="0 0 1500 950" margin="0 20 0 0" tabname="tab_main_achieve" tabchangescp="ADVENTURE_BOOK_ACHIEVE_INIT" layout_gravity="center top" draw="false" hittestbox="false" resizebyparent="false" resizebyresolution="false"/>
-		<groupbox name="gb_adventure" rect="0 0 1500 950" margin="0 20 0 0" tabname="tab_main_adventure" tabchangescp="ADVENTURE_BOOK_ADVENTURE_INIT" layout_gravity="center top" draw="false" hittestbox="false" resizebyparent="false" resizebyresolution="false"/>
-		<!-- 모험일지 탭 - 랭킹 탭 -->
-		<tab name="rankingTab" parent="gb_adventure" rect="0 0 120 500" margin="0 140 35 0" layout_gravity="right top" itemspc="25" vertical="true" skin="tab3"/>
+		<button name="close" rect="0 0 44 44" margin="0 10 18 75" parent="bookcover" layout_gravity="right top" LBtnUpArgNum="" LBtnUpScp="ADVENTURE_BOOK_BTN_CLOSE" MouseOffAnim="btn_mouseoff" MouseOnAnim="btn_mouseover" caption="" clicksound="button_click_big" image="testclose_button" oversound="button_over" texttooltip="{@st59}모험일지를 닫습니다{/}"/>
+		<groupbox name="title_bg" rect="0 0 509 86" margin="0 0 0 0" layout_gravity="center top" draw="true" skin="adventure_title"/>
+		<richtext name="title_text" rect="0 0 200 30" margin="0 14 0 0" layout_gravity="center top" caption="{@st43b}모험 일지"/>
+		<groupbox name="subtitle_bg" rect="0 0 280 51" margin="10 53 0 0" layout_gravity="center top" draw="true" skin="adventure_title2"/>
+		<!-- 랭킹 탭 -->
+		<tab name="rankingTab" rect="0 0 120 500" margin="0 140 35 0" layout_gravity="right top" itemspc="25" vertical="true" skin="tab3"/>
 		<tabitem name="adventureBookRankingTab" parent="rankingTab" layout_gravity="left top" skinspace="20" width="100" skin="tab2" normalimage="adventure_rankingbtn" overimage="adventure_rankingbtn_cursoron" selectimage="adventure_rankingbtn_clicked" texttooltip="{@st59}모험일지 랭킹{/}"/>
 		<tabitem name="teamBattleRankingTab" parent="rankingTab" layout_gravity="left top" skinspace="20" width="100" skin="tab2" normalimage="adventure_teambattle" overimage="adventure_teambattle_cursoron" selectimage="adventure_teambattle_clicked" texttooltip="{@st59}팀배틀리그 랭킹{/}"/>
-		<!-- 모험일지 탭 - 공용 탭 -->
-		<tab name="bookmark" parent="gb_adventure" rect="0 0 100 520" margin="87 140 0 0" layout_gravity="left top" clicksound="inven_arrange" imagetype="false" itemspc="25" oversound="button_cursor_over_2" vertical="true" skin="tab3"/>
+		<tabitem name="upHillRankingTab" parent="rankingTab" layout_gravity="left top" skinspace="20" width="100" skin="tab2" normalimage="adventure_uphill" overimage="adventure_uphill_cursoron" selectimage="adventure_uphill_clicked" texttooltip="{@st59}업힐디펜스 랭킹{/}"/>
+		<!--공용 탭-->
+		<tab name="bookmark" rect="0 0 100 520" margin="87 140 0 0" layout_gravity="left top" clicksound="inven_arrange" imagetype="false" itemspc="25" oversound="button_cursor_over_2" vertical="true" skin="tab3"/>
 		<tabitem name="tab_main" parent="bookmark" layout_gravity="left top" caption="" skinspace="20" width="100" skin="tab2" normalimage="adventure_main" overimage="adventure_main_cursoron" selectimage="adventure_main_clicked" texttooltip="{@st59}메인{/}"/>
 		<tabitem name="tab_monster" parent="bookmark" layout_gravity="left top" caption="" skinspace="20" width="100" normalimage="adventure_monster" overimage="adventure_monster_cursoron" selectimage="adventure_monster_clicked" texttooltip="{@st59}몬스터{/}"/>
 		<tabitem name="tab_item" parent="bookmark" layout_gravity="left top" caption="" skinspace="20" width="100" normalimage="adventure_item" overimage="adventure_item_cursoron" selectimage="adventure_item_clicked" texttooltip="{@st59}아이템{/}"/>
@@ -38,26 +31,28 @@
 		<tabitem name="tab_indun" parent="bookmark" layout_gravity="left top" caption="" skinspace="20" width="100" normalimage="adventure_dungeon" overimage="adventure_dungeon_cursoron" selectimage="adventure_dungeon_clicked" texttooltip="{@st59}던전{/}"/>
 		<tabitem name="tab_grow" parent="bookmark" layout_gravity="left top" caption="" skinspace="20" width="100" normalimage="adventure_grow" overimage="adventure_grow_cursoron" selectimage="adventure_grow_clicked" texttooltip="{@st59}성장{/}"/>
 		<tabitem name="tab_explore" parent="bookmark" layout_gravity="left top" caption="" skinspace="20" width="100" normalimage="adventure_explore" overimage="adventure_explore_cursoron" selectimage="adventure_explore_clicked" texttooltip="{@st59}탐험{/}"/>
-		<!-- 모험일지 - 메인-->
-		<groupbox name="page_main" parent="gb_adventure" rect="0 0 1200 870" margin="0 54 0 0" tabname="tab_main" tabchangescp="ADVENTURE_BOOK_MAIN_TAB_SELECTED" layout_gravity="center top" draw="false" hittestbox="false" resizebyparent="false" resizebyresolution="false"/>
+		<!--메인-->
+		<groupbox name="page_main" rect="0 0 1200 870" margin="0 54 0 0" tabname="tab_main" tabchangescp="ADVENTURE_BOOK_MAIN_INIT" layout_gravity="center top" draw="false" hittestbox="false" resizebyparent="false" resizebyresolution="false"/>
 		<richtext name="subtitle_text" rect="0 0 200 30" margin="5 7 0 0" parent="page_main" layout_gravity="center top" format="%s" param1="value" param1_def="메인" fontname="white_18_ol"/>
 		<groupbox name="page_main_left" rect="0 0 500 730" margin="70 70 0 0" parent="page_main" layout_gravity="left top" draw="true" hittestbox="false" resizebyparent="false" resizebyresolution="false" skin="test_frame_midle"/>
 		<picture name="chariconPic" rect="0 0 90 90" margin="25 5 0 0" parent="page_main_left" layout_gravity="left top" image="adventure_titlebar" stretch="true"/>
-		<richtext name="teamname_text" rect="0 0 150 30" margin="130 25 0 0" parent="page_main_left" layout_gravity="left top" format="%s" param1="value" param1_def="팀명" fontname="white_18_b_ol"/>
-		<richtext name="charname_text" rect="0 0 150 30" margin="130 50 0 0" parent="page_main_left" layout_gravity="left top" format="%s" param1="value" param1_def="캐릭명" fontname="white_18_b_ol"/>
+		<richtext name="teamname_text" rect="0 0 150 30" margin="130 35 0 0" parent="page_main_left" layout_gravity="left top" format="%s" param1="value" param1_def="팀명" fontname="white_18_b_ol"/>
+		<richtext name="charname_text" rect="0 0 150 30" margin="130 60 0 0" parent="page_main_left" layout_gravity="left top" format="%s" param1="value" param1_def="캐릭명" fontname="white_18_b_ol"/>
 		<picture name="myscore_bg" rect="0 0 440 35" margin="28 100 0 0" parent="page_main_left" layout_gravity="left top" stretch="true" hittestbox="false" resizebyparent="false" resizebyresolution="false" image="adventure_titlebar"/>
 		<richtext name="myscorerank_text" rect="0 0 150 30" margin="40 105 0 0" parent="page_main_left" layout_gravity="left top" textalign="left top" format="%s위" param1="value" param1_def="123" fontname="yellow_18_ol"/>
 		<richtext name="myscore_text" rect="0 0 250 30" margin="205 105 0 0" parent="page_main_left" layout_gravity="left top" textalign="right top" fixwidth="true" format="%s점" param1="value" param1_def="123" fontname="yellow_18_ol"/>
 		<groupbox name="score_each_category_bg" rect="0 0 440 430" margin="27 140 0 0" parent="page_main_left" layout_gravity="left top" draw="true" hittestbox="false" resizebyparent="false" resizebyresolution="false" skin="bg2"/>
 		<groupbox name="score_each_category_bg1" rect="0 0 440 145" margin="27 0 0 10" parent="page_main_left" layout_gravity="left bottom" draw="true" hittestbox="false" resizebyparent="false" resizebyresolution="false" skin="bg2"/>
-		<picture name="arrow_pic" rect="0 0 50 30" margin="345 175 0 0" parent="page_main_left" layout_gravity="left top" image="adventure_arrow" stretch="true"/>
-		<picture name="gauge_bg" rect="0 0 52 358" margin="0 0 50 190" parent="page_main_left" layout_gravity="right bottom" resizebyparent="false" resizebyresolution="false" stretch="true" image="jour_gauge_bg"/>
-		<picture name="gauge_fg" rect="0 0 44 348" margin="0 0 54 195" parent="page_main_left" layout_gravity="right bottom" resizebyparent="false" resizebyresolution="false" stretch="true" image="jour_gauge"/>
-		<controlset name="guage_monster" rect="0 0 300 20" margin="47 175 0 0" parent="page_main_left" type="adventure_book_main_guage" layout_gravity="left top" hittestbox="false" scrollbar="false" skin="None"/>
-		<controlset name="guage_item" rect="0 0 300 20" margin="47 255 0 0" parent="page_main_left" type="adventure_book_main_guage" layout_gravity="left top" hittestbox="false" scrollbar="false" skin="None"/>
-		<controlset name="guage_making" rect="0 0 300 20" margin="47 332 0 0" parent="page_main_left" type="adventure_book_main_guage" layout_gravity="left top" hittestbox="false" scrollbar="false" skin="None"/>
-		<controlset name="guage_living" rect="0 0 300 20" margin="47 405 0 0" parent="page_main_left" type="adventure_book_main_guage" layout_gravity="left top" hittestbox="false" scrollbar="false" skin="None"/>
-		<controlset name="guage_indun" rect="0 0 300 20" margin="47 480 0 0" parent="page_main_left" type="adventure_book_main_guage" layout_gravity="left top" hittestbox="false" scrollbar="false" skin="None"/>
+		<picture name="arrow_pic" rect="0 0 50 30" margin="345 195 0 0" parent="page_main_left" layout_gravity="left top" image="adventure_arrow" stretch="true"/>
+		<picture name="gauge_bg" rect="0 0 52 358" margin="0 0 50 170" parent="page_main_left" layout_gravity="right bottom" resizebyparent="false" resizebyresolution="false" stretch="true" image="jour_gauge_bg"/>
+		<picture name="gauge_fg" rect="0 0 44 348" margin="0 0 54 175" parent="page_main_left" layout_gravity="right bottom" resizebyparent="false" resizebyresolution="false" stretch="true" image="jour_gauge"/>
+		<richtext name="main_desc" rect="0 0 300 30" margin="46 152 0 0" parent="page_main_left" layout_gravity="left top" textalign="left top" fixwidth="true" caption="{img test_cooltime 24 24} 매월 1일마다 점수가 초기화됩니다.{/}" fontname="limitedsale"/>
+		<labelline name="main_labelline" margin="40 185 0 0" rect="0 0 420 4" parent="page_main_left" skin="labelline_def2" layout_gravity="left top"/>
+		<controlset name="guage_monster" rect="0 0 300 20" margin="47 205 0 0" parent="page_main_left" type="adventure_book_main_guage" layout_gravity="left top" hittestbox="false" scrollbar="false" skin="None"/>
+		<controlset name="guage_item" rect="0 0 300 20" margin="47 285 0 0" parent="page_main_left" type="adventure_book_main_guage" layout_gravity="left top" hittestbox="false" scrollbar="false" skin="None"/>
+		<controlset name="guage_making" rect="0 0 300 20" margin="47 362 0 0" parent="page_main_left" type="adventure_book_main_guage" layout_gravity="left top" hittestbox="false" scrollbar="false" skin="None"/>
+		<controlset name="guage_living" rect="0 0 300 20" margin="47 435 0 0" parent="page_main_left" type="adventure_book_main_guage" layout_gravity="left top" hittestbox="false" scrollbar="false" skin="None"/>
+		<controlset name="guage_indun" rect="0 0 300 20" margin="47 510 0 0" parent="page_main_left" type="adventure_book_main_guage" layout_gravity="left top" hittestbox="false" scrollbar="false" skin="None"/>
 		<controlset name="guage_grow" rect="0 0 300 20" margin="47 580 0 0" parent="page_main_left" type="adventure_book_main_guage_with_reward" layout_gravity="left top" hittestbox="false" scrollbar="false" skin="None"/>
 		<controlset name="guage_explore" rect="0 0 300 20" margin="47 640 0 0" parent="page_main_left" type="adventure_book_main_guage_with_reward" layout_gravity="left top" hittestbox="false" scrollbar="false" skin="None"/>
 		<groupbox name="page_main_right" rect="0 0 500 730" margin="0 70 40 0" parent="page_main" layout_gravity="right top" draw="false" hittestbox="false" resizebyparent="false" resizebyresolution="false" skin="None"/>
@@ -78,8 +73,8 @@
 		<controlset name="near_ranking_2" rect="0 0 400 20" margin="18 555 0 0" parent="page_main_right" type="adventure_book_main_near_ranking" layout_gravity="left top" hittestbox="false" scrollbar="false" skin="None"/>
 		<controlset name="near_ranking_my" rect="0 0 400 20" margin="18 605 0 0" parent="page_main_right" type="adventure_book_main_near_ranking" layout_gravity="left top" hittestbox="false" scrollbar="false" skin="None"/>
 		<controlset name="near_ranking_bottom" rect="0 0 400 20" margin="18 655 0 0" parent="page_main_right" type="adventure_book_main_near_ranking" layout_gravity="left top" hittestbox="false" scrollbar="false" skin="None"/>
-		<!-- 모험일지 - 몬스터 -->
-		<groupbox name="page_monster" parent="gb_adventure" rect="0 0 1200 870" margin="0 54 0 0" tabname="tab_monster" tabchangescp="ADVENTURE_BOOK_RENEW_MONSTER" layout_gravity="center top" draw="false" hittestbox="false" resizebyparent="false" resizebyresolution="false" scrollbar="true"/>
+		<!--몬스터-->
+		<groupbox name="page_monster" rect="0 0 1200 870" margin="0 54 0 0" tabname="tab_monster" tabchangescp="ADVENTURE_BOOK_RENEW_MONSTER" layout_gravity="center top" draw="false" hittestbox="false" resizebyparent="false" resizebyresolution="false" scrollbar="true"/>
 		<richtext name="subtitle_text" rect="0 0 200 30" margin="5 7 0 0" parent="page_monster" layout_gravity="center top" format="%s" param1="value" param1_def="몬스터" fontname="white_18_ol"/>
 		<groupbox name="total_score_bg" rect="0 0 570 40" margin="0 55 0 0" parent="page_monster" layout_gravity="right top" draw="false" hittestbox="false" resizebyparent="false" resizebyresolution="false" image="adventure_total"/>
 		<richtext name="total_score_text" rect="0 0 200 30" margin="0 58 40 0" parent="page_monster" layout_gravity="right top" textalign="right top" format="{@st43b}총 획득 점수 %s점" param1="value" param1_def="0" fontname="white_18_ol"/>
@@ -117,8 +112,8 @@
 		<groupbox name="monster_info_place_gb" rect="0 0 300 100" margin="40 355 0 0" parent="monster_info_gb" layout_gravity="left top" draw="false" hittestbox="false" resizebyparent="false" resizebyresolution="false" skin="None"/>
 		<groupbox name="monster_info_desc_gb" rect="0 0 466 204" margin="0 475 0 0" parent="monster_info_gb" layout_gravity="center top" draw="true" hittestbox="false" resizebyparent="false" resizebyresolution="false" skin="bg2"/>
 		<richtext name="monster_info_desc_text" rect="0 0 440 150" margin="0 486 0 0" parent="monster_info_gb" layout_gravity="center top" fixwidth="true" textalign="left top" fontname="black_14" format="%s" param1="value" param1_def="설명문"/>
-		<!-- 모험일지 - 아이템 -->
-		<groupbox name="page_item" parent="gb_adventure" rect="0 0 1200 870" margin="0 54 0 0" tabname="tab_item" tabchangescp="ADVENTURE_BOOK_RENEW_ITEM" layout_gravity="center top" draw="false" hittestbox="false" resizebyparent="false" resizebyresolution="false" scrollbar="true"/>
+		<!--아이템-->
+		<groupbox name="page_item" rect="0 0 1200 870" margin="0 54 0 0" tabname="tab_item" tabchangescp="ADVENTURE_BOOK_RENEW_ITEM" layout_gravity="center top" draw="false" hittestbox="false" resizebyparent="false" resizebyresolution="false" scrollbar="true"/>
 		<richtext name="subtitle_text" rect="0 0 200 30" margin="5 7 0 0" parent="page_item" layout_gravity="center top" format="%s" param1="value" param1_def="아이템" fontname="white_18_ol"/>
 		<groupbox name="total_score_bg" rect="0 0 570 40" margin="0 55 0 0" parent="page_item" layout_gravity="right top" draw="false" hittestbox="false" resizebyparent="false" resizebyresolution="false" image="adventure_total"/>
 		<richtext name="total_score_text" rect="0 0 200 30" margin="0 58 40 0" parent="page_item" layout_gravity="right top" textalign="right top" format="{@st43b}총 획득 점수 %s점" param1="value" param1_def="0" fontname="white_18_ol"/>
@@ -136,8 +131,8 @@
 		<controlset name="dummy_item" rect="0 0 550 632" margin="0 0 0 0" parent="item_list" type="adventure_book_item_elem" layout_gravity="left top" hittestbox="false" scrollbar="false"/>
 		<button name="item_more_btn" parent="page_item" rect="0 0 550 45" margin="45 0 0 60" layout_gravity="left bottom" skin="test_pvp_btn" caption="{@st66b}아이템 더 보기" LBtnUpScp="ADVENTURE_BOOK_BTN_MORE_ITEM"/>
 		<groupbox name="item_info_gb" rect="0 0 554 720" margin="0 100 10 0" parent="page_item" layout_gravity="right top" draw="true" hittestbox="false" resizebyparent="false" resizebyresolution="false" skin="adventure_paper"/>
-		<!-- 모험일지 - 제작 -->
-		<groupbox name="page_craft" parent="gb_adventure" rect="0 0 1200 870" margin="0 54 0 0" tabname="tab_craft" tabchangescp="ADVENTURE_BOOK_RENEW_CRAFT" layout_gravity="center top" draw="false" hittestbox="false" resizebyparent="false" resizebyresolution="false" scrollbar="true"/>
+		<!--제작-->
+		<groupbox name="page_craft" rect="0 0 1200 870" margin="0 54 0 0" tabname="tab_craft" tabchangescp="ADVENTURE_BOOK_RENEW_CRAFT" layout_gravity="center top" draw="false" hittestbox="false" resizebyparent="false" resizebyresolution="false" scrollbar="true"/>
 		<richtext name="subtitle_text" rect="0 0 200 30" margin="5 7 0 0" parent="page_craft" layout_gravity="center top" format="%s" param1="value" param1_def="제작" fontname="white_18_ol"/>
 		<groupbox name="total_score_bg" rect="0 0 570 40" margin="0 55 0 0" parent="page_craft" layout_gravity="right top" draw="false" hittestbox="false" resizebyparent="false" resizebyresolution="false" image="adventure_total"/>
 		<richtext name="total_score_text" rect="0 0 200 30" margin="0 58 40 0" parent="page_craft" layout_gravity="right top" textalign="right top" format="{@st43b}총 획득 점수 %s점" param1="value" param1_def="0" fontname="white_18_ol"/>
@@ -155,12 +150,12 @@
 		<controlset name="dummy_item" rect="0 0 550 632" margin="0 0 0 0" parent="craft_elem_list" type="adventure_book_craft_elem" layout_gravity="left top" hittestbox="false" scrollbar="false"/>
 		<button name="item_more_btn" parent="page_craft" rect="0 0 550 45" margin="45 0 0 60" layout_gravity="left bottom" skin="test_pvp_btn" caption="{@st66b}아이템 더 보기" LBtnUpScp="ADVENTURE_BOOK_BTN_MORE_CRAFT"/>
 		<groupbox name="craft_item_info_gb" rect="0 0 554 720" margin="0 100 10 0" parent="page_craft" layout_gravity="right top" draw="true" hittestbox="false" resizebyparent="false" resizebyresolution="false" skin="adventure_paper"/>
-		<!-- 모험일지 - 생활 -->
-		<groupbox name="page_living" parent="gb_adventure" rect="0 0 1200 870" margin="0 54 0 0" tabname="tab_living" tabchangescp="ADVENTURE_BOOK_LIVING_INIT" layout_gravity="center top" draw="false" hittestbox="false" resizebyparent="false" resizebyresolution="false" scrollbar="true"/>
+		<!--생활-->
+		<groupbox name="page_living" rect="0 0 1200 870" margin="0 54 0 0" tabname="tab_living" tabchangescp="ADVENTURE_BOOK_LIVING_INIT" layout_gravity="center top" draw="false" hittestbox="false" resizebyparent="false" resizebyresolution="false" scrollbar="true"/>
 		<richtext name="subtitle_text" rect="0 0 200 30" margin="5 7 0 0" parent="page_living" layout_gravity="center top" format="%s" param1="value" param1_def="생활" fontname="white_18_ol"/>
 		<groupbox name="total_score_bg" rect="0 0 570 40" margin="0 55 0 0" parent="page_living" layout_gravity="right top" draw="false" hittestbox="false" resizebyparent="false" resizebyresolution="false" image="adventure_total"/>
 		<richtext name="total_score_text" rect="0 0 200 30" margin="0 58 40 0" parent="page_living" layout_gravity="right top" textalign="right top" format="{@st43b}총 획득 점수 %s점" param1="value" param1_def="0" fontname="white_18_ol"/>
-		<!-- 모험일지 - 생활 - 개인 상점 -->
+		<!--개인 상점-->
 		<groupbox name="page_seller" rect="0 0 1200 750" margin="0 60 0 0" parent="page_living" tabname="tab_living_seller" tabchangescp="ADVENTURE_BOOK_RENEW_SELLER" layout_gravity="center top" draw="false" hittestbox="false" resizebyparent="false" resizebyresolution="false" scrollbar="true"/>
 		<groupbox name="skill_info_gb" rect="0 0 554 300" margin="0 80 10 0" parent="page_seller" layout_gravity="right top" draw="true" hittestbox="false" resizebyparent="false" resizebyresolution="false" skin="adventure_paper"/>
 		<groupbox name="skill_name_gb" rect="0 0 500 40" margin="10 30 0 0" parent="skill_info_gb" layout_gravity="center top" draw="false" hittestbox="false" resizebyparent="false" resizebyresolution="false"/>
@@ -181,7 +176,7 @@
 		<groupbox name="seller_left_page" rect="0 0 550 650" margin="45 100 0 0" parent="page_seller" layout_gravity="left top" draw="true" hittestbox="false" resizebyparent="false" resizebyresolution="false" skin="test_frame_midle"/>
 		<groupbox name="seller_char_list" rect="0 0 528 590" margin="45 100 0 0" parent="page_seller" layout_gravity="left top" draw="false" hittestbox="false" resizebyparent="false" resizebyresolution="false" skin="None"/>
 		<button name="seller_char_more_btn" parent="page_seller" rect="0 0 550 45" margin="45 0 0 0" layout_gravity="left bottom" skin="test_pvp_btn" caption="{@st66b}더 보기" LBtnUpScp=""/>
-		<!-- 모험일지 - 생활 - 낚시 -->
+		<!--낚시-->
 		<groupbox name="page_fishing" rect="0 0 1200 750" margin="20 80 0 0" parent="page_living" tabname="tab_living_fishing" tabchangescp="ADVENTURE_BOOK_RENEW_FISHING" layout_gravity="center top" draw="false" hittestbox="false" resizebyparent="false" resizebyresolution="false" scrollbar="true"/>
 		<groupbox name="fish_sort_gb" rect="0 0 500 30" margin="20 45 0 0" parent="page_fishing" layout_gravity="left top" draw="false" hittestbox="false" resizebyparent="false" resizebyresolution="false" skin="None"/>
 		<radiobutton name="sort_1" parent="fish_sort_gb" rect="0 0 120 20" margin="10 5 0 0" caption="이름 올림차 순" LBtnDownScp="ADVENTURE_BOOK_RENEW_FISHING" fontname="black_14_b" group="sort"/>
@@ -205,8 +200,8 @@
 		<richtext name="tradability_label" rect="0 0 200 30" margin="40 10 0 0" parent="fish_info_sub_gb" layout_gravity="left top" textalign="left top" fontname="black_14_b" caption="거래 옵션"/>
 		<controlset name="tradability_set" rect="0 0 300 20" margin="220 10 0 0" parent="fish_info_sub_gb" type="adventure_book_item_tradability" layout_gravity="left top" hittestbox="false" scrollbar="false"/>
 		<labelline name="labelline3" margin="0 60 0 0" rect="0 0 450 4" parent="fish_info_sub_gb" skin="labelline_def2" layout_gravity="center top"/>
-		<!-- 모험일지 - 던전 -->
-		<groupbox name="page_indun" parent="gb_adventure" rect="0 0 1200 870" margin="0 54 0 0" tabname="tab_indun" tabchangescp="ADVENTURE_BOOK_RENEW_INDUN" layout_gravity="center top" draw="false" hittestbox="false" resizebyparent="false" resizebyresolution="false" scrollbar="true"/>
+		<!--던전-->
+		<groupbox name="page_indun" rect="0 0 1200 870" margin="0 54 0 0" tabname="tab_indun" tabchangescp="ADVENTURE_BOOK_RENEW_INDUN" layout_gravity="center top" draw="false" hittestbox="false" resizebyparent="false" resizebyresolution="false" scrollbar="true"/>
 		<richtext name="subtitle_text" rect="0 0 200 30" margin="5 7 0 0" parent="page_indun" layout_gravity="center top" format="%s" param1="value" param1_def="던전" fontname="white_18_ol"/>
 		<groupbox name="total_score_bg" rect="0 0 570 40" margin="0 55 0 0" parent="page_indun" layout_gravity="right top" draw="false" hittestbox="false" resizebyparent="false" resizebyresolution="false" image="adventure_total"/>
 		<richtext name="total_score_text" rect="0 0 200 30" margin="0 58 40 0" parent="page_indun" layout_gravity="right top" textalign="right top" format="{@st43b}총 획득 점수 %s점" param1="value" param1_def="0" fontname="white_18_ol"/>
@@ -233,8 +228,8 @@
 		<richtext name="score_text" rect="0 0 200 30" margin="0 200 35 0" parent="indun_info_gb" layout_gravity="right top" textalign="right top" fontname="yellow_16_ol" format="%s점" param1="value" param1_def="0"/>
 		<richtext name="count_text" rect="0 0 200 30" margin="0 245 35 0" parent="indun_info_gb" layout_gravity="right top" textalign="right top" fontname="black_16_b" format="%s번" param1="value" param1_def="0"/>
 		<labelline name="labelline" margin="0 230 0 0" rect="0 0 460 4" parent="indun_info_gb" skin="labelline_def2" layout_gravity="center top"/>
-		<!-- 모험일지 - 성장 -->
-		<groupbox name="page_grow" parent="gb_adventure" rect="0 0 1200 870" margin="0 54 0 0" tabname="tab_grow" tabchangescp="ADVENTURE_BOOK_RENEW_GROW" layout_gravity="center top" draw="false" hittestbox="false" resizebyparent="false" resizebyresolution="false" scrollbar="true"/>
+		<!--성장-->
+		<groupbox name="page_grow" rect="0 0 1200 870" margin="0 54 0 0" tabname="tab_grow" tabchangescp="ADVENTURE_BOOK_RENEW_GROW" layout_gravity="center top" draw="false" hittestbox="false" resizebyparent="false" resizebyresolution="false" scrollbar="true"/>
 		<richtext name="subtitle_text" rect="0 0 200 30" margin="5 7 0 0" parent="page_grow" layout_gravity="center top" format="%s" param1="value" param1_def="성장" fontname="white_18_ol"/>
 		<groupbox name="total_score_bg" rect="0 0 570 40" margin="0 55 0 0" parent="page_grow" layout_gravity="right top" draw="false" hittestbox="false" resizebyparent="false" resizebyresolution="false" image="adventure_total"/>
 		<richtext name="total_score_text" rect="0 0 200 30" margin="0 58 40 0" parent="page_grow" layout_gravity="right top" textalign="right top" format="{@st43b}총 획득 점수 %s점" param1="value" param1_def="0" fontname="white_18_ol"/>
@@ -251,13 +246,13 @@
 		<groupbox name="page_grow_cleric" rect="0 0 530 630" margin="0 180 25 0" parent="page_grow" tabname="tab_grow_cleric" layout_gravity="right top" draw="true" hittestbox="false" resizebyparent="false" resizebyresolution="false" skin="test_frame_midle"/>
 		<groupbox name="page_grow_scout" rect="0 0 530 630" margin="0 180 25 0" parent="page_grow" tabname="tab_grow_scout" layout_gravity="right top" draw="true" hittestbox="false" resizebyparent="false" resizebyresolution="false" skin="test_frame_midle"/>
 		<!--툴팁 아직 안만듦..-->
-		<!-- 모험일지 - 탐험-->
-		<groupbox name="page_explore" parent="gb_adventure" rect="0 0 1200 870" margin="0 54 0 0" tabname="tab_explore" tabchangescp="ADVENTURE_BOOK_RENEW_MAP" layout_gravity="center top" draw="false" hittestbox="false" resizebyparent="false" resizebyresolution="false" scrollbar="true"/>
+		<!--탐험-->
+		<groupbox name="page_explore" rect="0 0 1200 870" margin="0 54 0 0" tabname="tab_explore" tabchangescp="ADVENTURE_BOOK_RENEW_MAP" layout_gravity="center top" draw="false" hittestbox="false" resizebyparent="false" resizebyresolution="false" scrollbar="true"/>
 		<richtext name="subtitle_text" rect="0 0 200 30" margin="5 7 0 0" parent="page_explore" layout_gravity="center top" format="%s" param1="value" param1_def="탐험" fontname="white_18_ol"/>
 		<groupbox name="total_score_bg" rect="0 0 570 40" margin="0 55 0 0" parent="page_explore" layout_gravity="right top" draw="false" hittestbox="false" resizebyparent="false" resizebyresolution="false" image="adventure_total"/>
 		<richtext name="total_rate_text" rect="0 0 200 30" margin="0 98 40 0" parent="page_explore" layout_gravity="right top" textalign="right top" format="총 탐사율 %s %" param1="value" param1_def="" fixwidth="true" fontname="black_18_b" visible="true"/>
 		<richtext name="total_score_text" rect="0 0 200 30" margin="0 58 40 0" parent="page_explore" layout_gravity="right top" textalign="right top" format="{@st43b}총 획득 점수 %s점" param1="value" param1_def="0" fontname="white_18_ol"/>
-		<!-- 모험일지 - 탐험 - 맵탐사-->
+		<!--맵탐사-->
 		<groupbox name="page_map" rect="0 0 1200 780" margin="12 60 0 0" parent="page_explore" tabname="tab_explore_map" tabchangescp="ADVENTURE_BOOK_RENEW_MAP" layout_gravity="center top" draw="false" hittestbox="false" resizebyparent="false" resizebyresolution="false" scrollbar="true"/>
 		<richtext name="sort_opt_text" parent="page_map" rect="0 0 20 24" margin="20 45 0 0" layout_gravity="left top" caption="정렬" fixwidth="false" fontname="black_16_b" hittest="false" resizebytext="true" textalign="left center"/>
 		<droplist name="sort_opt_list" parent="page_map" rect="0 0 178 40" margin="20 68 0 0" layout_gravity="left top" SelectScp="ADVENTURE_BOOK_RENEW_MAP" frametextalign="left" listclicksound="button_click" listoversound="button_cursor_over_2" skin="droplist_normal" textalign="left center" textoffset="10 0" visibleline="4"/>
@@ -278,7 +273,7 @@
 		<richtext name="rate_text" rect="0 0 200 30" margin="0 550 60 0" parent="map_info_gb" layout_gravity="right top" textalign="right top" fontname="black_16_b" format="%s %" param1="value" param1_def="0"/>
 		<!--퀘스트/업적-->
 		<groupbox name="page_quest_and_achieve" rect="0 0 1200 750" margin="10 80 0 0" parent="page_explore" tabname="tab_explore_quest" tabchangescp="ADVENTURE_BOOK_RENEW_QUEST_ACHIEVE" layout_gravity="center top" draw="false" hittestbox="false" resizebyparent="false" resizebyresolution="false" scrollbar="true"/>
-		<!-- 모험일지 - 탐험 - 퀘스트-->
+		<!--퀘스트-->
 		<groupbox name="page_quest" rect="0 0 570 750" margin="20 0 0 0" parent="page_quest_and_achieve" layout_gravity="left top" draw="false" hittestbox="false" resizebyparent="false" resizebyresolution="false"/>
 		<richtext name="cateText" parent="page_quest" rect="0 0 20 24" margin="10 25 0 0" layout_gravity="left top" caption="종류" fixwidth="false" fontname="black_16_b" hittest="false" resizebytext="true" textalign="left center"/>
 		<droplist name="questCateDrop" parent="page_quest" rect="0 0 178 40" margin="10 48 0 0" layout_gravity="left top" SelectScp="ADVENTURE_BOOK_QUEST_DROPLIST" frametextalign="left" listclicksound="button_click" listoversound="button_cursor_over_2" skin="droplist_normal" textalign="left center" textoffset="10 0" visibleline="4"/>
@@ -291,13 +286,13 @@
 		<richtext name="pointText" parent="questBox" rect="0 0 100 30" margin="0 10 20 0" layout_gravity="right top" format="획득 점수 %s 점" fontname="white_18_ol" param1="point" param1_def="0"/>
 		<labelline name="line1" parent="questBox" rect="0 0 550 4" margin="0 40 0 0" layout_gravity="center top" skin="labelline_def2"/>
 		<groupbox name="quest_list" parent="questBox" rect="0 0 555 580" margin="0 0 0 0" layout_gravity="center bottom" fixheight="true" scrollbar="true" draw="false"/>
-		<!-- 모험일지 - 탐험 - 업적-->
+		<!--업적-->
 		<groupbox name="page_achieve" rect="0 0 550 680" margin="0 50 25 0" parent="page_quest_and_achieve" layout_gravity="right top" draw="true" hittestbox="false" resizebyparent="false" resizebyresolution="false" skin="test_frame_midle"/>
 		<richtext name="title_label" rect="0 0 200 30" margin="20 20 0 0" parent="page_achieve" layout_gravity="left top" textalign="left top" fontname="white_18_ol" caption="업적"/>
 		<richtext name="score_text" rect="0 0 200 30" margin="0 20 20 0" parent="page_achieve" layout_gravity="right top" textalign="right top" fontname="white_18_ol" format="획득점수 %s점" param1="value" param1_def="0"/>
 		<labelline name="labelline" margin="0 50 0 0" rect="0 0 540 4" parent="page_achieve" skin="labelline_def2" layout_gravity="center top"/>
 		<groupbox name="achieve_list" rect="0 0 520 580" margin="20 70 0 0" parent="page_achieve" layout_gravity="left top" draw="false" hittestbox="false" resizebyparent="false" resizebyresolution="false" skin="none"/>
-		<!-- 모험일지 - 탐험 - 컬렉션-->
+		<!--컬렉션-->
 		<groupbox name="page_collection" rect="0 0 1200 780" margin="23 80 0 0" parent="page_explore" tabname="tab_explore_collection" tabchangescp="ADVENTURE_BOOK_COLLECTION_TAB" layout_gravity="center top" draw="false" hittestbox="false" resizebyparent="false" resizebyresolution="false" scrollbar="true"/>
 		<richtext name="sort_opt_text" parent="page_collection" rect="0 0 20 24" margin="22 25 0 0" layout_gravity="left top" caption="정렬" fixwidth="false" fontname="black_16_b" hittest="false" resizebytext="true" textalign="left center"/>
 		<droplist name="collectionSortDropList" parent="page_collection" rect="0 0 178 40" margin="22 48 0 0" layout_gravity="left top" SelectScp="ADVENTURE_BOOK_COLLECTION_DROPLIST_SORT" frametextalign="left" listclicksound="button_click" listoversound="button_cursor_over_2" skin="droplist_normal" textalign="left center" textoffset="10 0" visibleline="4"/>
@@ -315,12 +310,12 @@
 		<groupbox name="collectionItemBox" parent="collectionDetailBox" rect="0 0 450 410" margin="0 0 0 20" layout_gravity="center bottom" draw="false" fixheight="true" scrollbar="true"/>
 		<richtext name="collectionInfoText" parent="collectionRightBox" rect="0 0 300 30" margin="70 560 0 0" caption="컬렉션 효과" fontname="brown_16_b"/>
 		<richtext name="collectionEffectText" parent="collectionRightBox" rect="0 0 300 30" margin="0 560 40 0" layout_gravity="right top" format="%s" param1="effect" param1_def="정신 +6" fontname="brown_16_b"/>
-		<!-- 모험일지 - 모험일지 랭킹 -->
-		<groupbox name="page_adventureBookRanking" parent="gb_adventure" rect="0 0 1200 870" margin="0 54 0 0" tabname="adventureBookRankingTab" layout_gravity="center top" draw="false" tabchangescp="ADVENTURE_BOOK_RANK"/>
-		<richtext name="page_adventureBookRanking_text" parent="page_adventureBookRanking" rect="0 0 200 30" margin="5 7 0 0" layout_gravity="center top" caption="모험일지 랭킹" fontname="white_16_ol"/>
-		<controlset name="adventureBookRankingSet" parent="page_adventureBookRanking" type="adventure_book_rank_page" rect="0 0 1100 800" margin="10 0 0 0" layout_gravity="center bottom"/>
-		<!-- 모험일지 - 팀 배틀 리그 랭킹 -->
-		<groupbox name="page_teamBattleRanking" parent="gb_adventure" rect="0 0 1200 870" margin="0 54 0 0" tabname="teamBattleRankingTab" layout_gravity="center top" draw="false" tabchangescp="ADVENTURE_BOOK_TEAM_BATTLE_COMMON_INIT" scrollbar="false"/>
+		<!-- 모험일지 랭킹 -->
+		<groupbox name="page_adventureBookRanking" rect="0 0 1200 870" margin="0 54 0 0" tabname="adventureBookRankingTab" layout_gravity="center top" draw="false" tabchangescp="ADVENTURE_BOOK_RANK"/>
+		<richtext name="page_adventureBookRanking_text" rect="0 0 200 30" parent="page_adventureBookRanking" margin="5 7 0 0" layout_gravity="center top" caption="모험일지 랭킹" fontname="white_16_ol"/>
+		<controlset name="adventureBookRankingSet" type="adventure_book_rank_page" rect="0 0 1100 800" parent="page_adventureBookRanking" margin="10 0 0 0" layout_gravity="center bottom"/>
+		<!-- 팀 배틀 리그 랭킹 -->
+		<groupbox name="page_teamBattleRanking" rect="0 0 1200 870" margin="0 54 0 0" tabname="teamBattleRankingTab" layout_gravity="center top" draw="false" tabchangescp="ADVENTURE_BOOK_TEAM_BATTLE_COMMON_INIT"/>
 		<richtext name="page_teamBattleRanking_text" rect="0 0 200 30" parent="page_teamBattleRanking" margin="5 7 0 0" layout_gravity="center top" caption="팀 배틀 리그" fontname="white_16_ol"/>
 		<groupbox name="teamBattleLeftBox" rect="0 0 550 750" parent="page_teamBattleRanking" margin="10 0 0 0" layout_gravity="left bottom" draw="false"/>
 		<picture name="teamBattlePic" rect="0 0 450 450" parent="teamBattleLeftBox" margin="40 30 0 0" layout_gravity="center top" image="teambattle_emblem" stretch="true"/>
@@ -330,172 +325,35 @@
 		<richtext name="battlePointText" rect="0 0 300 30" parent="teamBattleCommonInfoBox" margin="0 0 0 0" layout_gravity="left bottom" caption="점수" fontname="black_18_b"/>
 		<richtext name="battlePointValueText" rect="0 0 300 30" parent="teamBattleCommonInfoBox" margin="0 0 0 0" layout_gravity="right bottom" format="%s 점" param1="point" param1_def="?" fontname="black_18"/>
 		<labelline name="battlePointLabelLine" rect="0 0 510 4" parent="teamBattleLeftBox" margin="55 0 0 185" layout_gravity="center bottom" skin="labelline_def_1"/>
-		<button name="teamBattleMatchingBtn" rect="0 0 200 60" parent="teamBattleLeftBox" margin="0 0 20 95" layout_gravity="right bottom" skin="test_red_button" caption="{@st59}참여{/}" LBtnUpScp="ADVENTURE_BOOK_JOIN_WORLDPVP" format="{s18}{ol}{#FFFFFF}%s" param1="text" param1_def="JOIN"/>
-		<button name="teamBattleRewardBtn" rect="0 0 200 60" parent="teamBattleLeftBox" margin="-100 0 0 95" layout_gravity="center bottom" skin="test_pvp_btn" caption="{@st66b}보상 받기{/}" LBtnUpScp="PVP_REWARD"/>
+		<button name="teamBattleMatchingBtn" rect="0 0 250 60" parent="teamBattleLeftBox" margin="40 0 0 95" layout_gravity="center bottom" skin="test_red_button" caption="{@st59}참여{/}" LBtnUpScp="ADVENTURE_BOOK_JOIN_WORLDPVP" format="{s18}{ol}{#FFFFFF}%s" param1="text" param1_def="JOIN"/>
 		<groupbox name="teamBattleRankingBox" rect="0 0 550 800" parent="page_teamBattleRanking" margin="13 20 35 0" layout_gravity="right top" draw="false" tabname="teamBattleRankingTab" tabchangescp="ADVENTURE_BOOK_TEAM_BATTLE_RANK"/>
 		<controlset name="teamBattleRankSet" rect="0 0 550 750" parent="teamBattleRankingBox" margin="0 10 0 0" layout_gravity="center bottom" type="team_battle_rank_page"/>
-		<groupbox name="teamBattleObserveBox" rect="0 0 550 800" parent="page_teamBattleRanking" margin="10 0 0 0" layout_gravity="right top" draw="false" tabname="teamBattleObserveTab" tabchangescp="REFRESH_PVP_OBSERVE_LIST" scrollbar="false"/>
-		<controlset name="bg_observer" rect="0 0 550 700" parent="teamBattleObserveBox" margin="10 65 0 0" layout_gravity="left top" type="pvp_observe_page"/>
-		<!-- 모험일지 - 업힐 디펜스 랭킹 -->
-		<groupbox name="page_upHillRanking" parent="gb_adventure" rect="0 0 1200 870" margin="0 54 0 0" tabname="upHillRankingTab" layout_gravity="center top" draw="false" tabchangescp="ADVENTURE_BOOK_RANK"/>
-		<richtext name="page_upHillRanking_text" parent="page_upHillRanking" rect="0 0 200 30" margin="5 7 0 0" layout_gravity="center top" caption="업힐디펜스 랭킹" fontname="white_16_ol"/>
-		<controlset name="upHillRankingSet" parent="page_upHillRanking" type="adventure_book_rank_page" rect="0 0 1100 800" margin="10 0 0 0" layout_gravity="center bottom"/>
-		<richtext name="totalPointText" parent="page_upHillRanking" rect="0 0 300 30" margin="70 7 0 85" layout_gravity="left bottom" caption="누적 포인트" fontname="black_18_b"/>
-		<button name="pointShopBtn" parent="page_upHillRanking" rect="0 0 150 40" margin="420 0 0 75" layout_gravity="left bottom" skin="test_pvp_btn" caption="{@st66b}포인트샵{/}" LBtnUpScp="PVP_OPEN_POINT_SHOP"/>
-		<richtext name="totalPointValueText" parent="page_upHillRanking" rect="0 0 300 30" margin="270 7 0 85" layout_gravity="left bottom" format="%s" param1="point" param1_def="0" fontname="black_18"/>
+		<groupbox name="teamBattleObserveBox" rect="0 0 550 750" parent="page_teamBattleRanking" margin="10 0 0 0" layout_gravity="right top" draw="false" tabname="teamBattleObserveTab" tabchangescp="REFRESH_PVP_OBSERVE_LIST"/>
+		<controlset name="bg_observer" rect="0 0 550 700" parent="teamBattleObserveBox" margin="10 0 0 0" layout_gravity="left bottom" type="pvp_observe_page"/>
+		<!-- 업힐 디펜스 랭킹 -->
+		<groupbox name="page_upHillRanking" rect="0 0 1200 870" margin="0 54 0 0" tabname="upHillRankingTab" layout_gravity="center top" draw="false" tabchangescp="ADVENTURE_BOOK_RANK"/>
+		<richtext name="page_upHillRanking_text" rect="0 0 200 30" parent="page_upHillRanking" margin="5 7 0 0" layout_gravity="center top" caption="업힐디펜스 랭킹" fontname="white_16_ol"/>
+		<controlset name="upHillRankingSet" type="adventure_book_rank_page" rect="0 0 1100 800" parent="page_upHillRanking" margin="10 0 0 0" layout_gravity="center bottom"/>
+		<richtext name="totalPointText" rect="0 0 300 30" parent="page_upHillRanking" margin="70 7 0 85" layout_gravity="left bottom" caption="누적 포인트" fontname="black_18_b"/>
+		<button name="pointShopBtn" rect="0 0 150 40" parent="page_upHillRanking" margin="420 0 0 75" layout_gravity="left bottom" skin="test_pvp_btn" caption="{@st66b}포인트샵{/}" LBtnUpScp="PVP_OPEN_POINT_SHOP"/>
+		<richtext name="totalPointValueText" rect="0 0 300 30" parent="page_upHillRanking" margin="270 7 0 85" layout_gravity="left bottom" format="%s" param1="point" param1_def="0" fontname="black_18"/>
 		<!--개인 탭-->
-		<tab name="bookmark_explore" parent="page_explore" rect="0 0 1000 50" margin="37 50 0 0" layout_gravity="left top" clicksound="inven_arrange" imagetype="false" itemspc="0" oversound="button_cursor_over_2" skin="adventure_tab"/>
+		<tab name="bookmark_explore" rect="0 0 1000 50" margin="37 50 0 0" parent="page_explore" layout_gravity="left top" clicksound="inven_arrange" imagetype="false" itemspc="0" oversound="button_cursor_over_2" skin="adventure_tab"/>
 		<tabitem name="tab_explore_map" parent="bookmark_explore" layout_gravity="left top" caption="{@st66b}맵탐사" skinspace="30" width="174"/>
 		<tabitem name="tab_explore_quest" parent="bookmark_explore" layout_gravity="left top" caption="{@st66b}퀘스트/업적" skinspace="30" width="174"/>
 		<tabitem name="tab_explore_collection" parent="bookmark_explore" layout_gravity="left top" caption="{@st66b}컬렉션" skinspace="30" width="174"/>
-		<tab name="bookmark_living" parent="page_living" rect="0 0 1000 50" margin="37 50 0 0" layout_gravity="left top" clicksound="inven_arrange" imagetype="false" itemspc="0" oversound="button_cursor_over_2" skin="adventure_tab"/>
+		<tab name="bookmark_living" rect="0 0 1000 50" margin="37 50 0 0" parent="page_living" layout_gravity="left top" clicksound="inven_arrange" imagetype="false" itemspc="0" oversound="button_cursor_over_2" skin="adventure_tab"/>
 		<tabitem name="tab_living_seller" parent="bookmark_living" layout_gravity="left top" caption="{@st66b}개인 상점" skinspace="30" width="174"/>
 		<tabitem name="tab_living_fishing" parent="bookmark_living" layout_gravity="left top" caption="{@st66b}낚시" skinspace="30" width="174"/>
-		<tab name="bookmark_grow" parent="page_grow" rect="0 0 500 50" margin="0 128 25 0" layout_gravity="right top" clicksound="inven_arrange" imagetype="false" itemspc="0" oversound="button_cursor_over_2" skin="adventure_tab"/>
+		<tab name="bookmark_grow" rect="0 0 500 50" margin="0 128 25 0" parent="page_grow" layout_gravity="right top" clicksound="inven_arrange" imagetype="false" itemspc="0" oversound="button_cursor_over_2" skin="adventure_tab"/>
 		<tabitem name="tab_grow_warrior" parent="bookmark_grow" layout_gravity="left top" skinspace="20" width="92" caption="{img adventure_grow1 32 40}" texttooltip="{@st59}소드맨 계열{/}"/>
 		<tabitem name="tab_grow_wizard" parent="bookmark_grow" layout_gravity="left top" skinspace="20" width="92" caption="{img adventure_grow2 32 40}" texttooltip="{@st59}위자드 계열{/}"/>
 		<tabitem name="tab_grow_archer" parent="bookmark_grow" layout_gravity="left top" skinspace="20" width="92" caption="{img adventure_grow3 32 40}" texttooltip="{@st59}아처 계열{/}"/>
 		<tabitem name="tab_grow_cleric" parent="bookmark_grow" layout_gravity="left top" skinspace="20" width="92" caption="{img adventure_grow4 32 40}" texttooltip="{@st59}클레릭 계열{/}"/>
 		<tabitem name="tab_grow_scout" parent="bookmark_grow" layout_gravity="left top" skinspace="20" width="92" caption="{img adventure_grow5 32 40}" texttooltip="{@st59}스카우트 계열{/}"/>
-		<!-- 모험일지 - 팀배 탭 -->
-		<tab name="teamBattleDetailTab" parent="page_teamBattleRanking" rect="0 0 500 50" margin="37 50 0 0" layout_gravity="left top" skin="adventure_tab"/>
+		<!-- 팀배 탭 -->
+		<tab name="teamBattleDetailTab" rect="0 0 500 50" margin="37 50 0 0" parent="page_teamBattleRanking" layout_gravity="left top" skin="adventure_tab"/>
 		<tabitem name="teamBattleRankingTab" parent="teamBattleDetailTab" layout_gravity="left top" caption="{@st66b}랭킹{/}" skinspace="30" width="174"/>
 		<tabitem name="teamBattleObserveTab" parent="teamBattleDetailTab" layout_gravity="left top" caption="{@st66b}관전하기{/}" skinspace="30" width="174"/>
-		<!-- 업적 탭 - 메인 카테고리 탭 -->
-		<tab name="achieveTab" parent="gb_achieve" rect="0 0 100 520" margin="87 140 0 0" layout_gravity="left top" clicksound="inven_arrange" imagetype="false" itemspc="25" oversound="button_cursor_over_2" vertical="true" skin="tab3"/>
-		<tabitem name="tab_achieve_main" parent="achieveTab" layout_gravity="left top" caption="" skinspace="20" width="100" skin="tab2" normalimage="adventure_main" overimage="adventure_main_cursoron" selectimage="adventure_main_clicked" texttooltip="{@st59}메인{/}"/>
-		<tabitem name="tab_achieve_search" parent="achieveTab" layout_gravity="left top" caption="" skinspace="20" width="100" normalimage="achievement_search" overimage="achievement_search_cursoron" selectimage="achievement_search_clicked" texttooltip="{@st59}검색{/}"/>
-		<tabitem name="tab_achieve_list_Main" parent="achieveTab" layout_gravity="left top" caption="" skinspace="20" width="100" normalimage="achievement_main_content" overimage="achievement_main_content_cursoron" selectimage="achievement_main_content_clicked" texttooltip="{@st59}주요 업적{/}"/>
-		<tabitem name="tab_achieve_list_Sub" parent="achieveTab" layout_gravity="left top" caption="" skinspace="20" width="100" normalimage="achievement_sub_content" overimage="achievement_sub_content_cursoron" selectimage="achievement_sub_content_clicked" texttooltip="{@st59}콘텐츠 업적{/}"/>
-		<tabitem name="tab_achieve_list_Special" parent="achieveTab" layout_gravity="left top" caption="" skinspace="20" width="100" normalimage="achievement_special" overimage="achievement_special_cursoron" selectimage="achievement_special_clicked" texttooltip="{@st59}특별 업적{/}"/>
-		<tabitem name="tab_achieve_list_Event" parent="achieveTab" layout_gravity="left top" caption="" skinspace="20" width="100" normalimage="achievement_event" overimage="achievement_event_cursoron" selectimage="achievement_event_clicked" texttooltip="{@st59}이벤트 업적{/}"/>
-		<!-- 업적 탭 - 메인 -->
-		<groupbox name="page_achieve_main" parent="gb_achieve" rect="0 0 1200 870" margin="0 54 0 0" tabname="tab_achieve_main" tabchangescp="ADVENTURE_BOOK_ACHIEVE_MAIN_TAB_SELECTED" layout_gravity="center top" draw="false" hittestbox="false" resizebyparent="false" resizebyresolution="false"/>
-		<richtext name="subtitle_text" rect="0 0 200 30" margin="5 7 0 0" parent="page_achieve_main" layout_gravity="center top" format="%s" param1="value" param1_def="메인" fontname="white_18_ol"/>
-		<groupbox name="page_achieve_main_left" rect="0 0 550 730" margin="40 70 0 0" parent="page_achieve_main" layout_gravity="left top" draw="true" hittestbox="false" resizebyparent="false" resizebyresolution="false" skin="test_frame_midle"/>
-		<!-- 업적 탭 - 메인 - 정보 -->
-		<groupbox name="page_achieve_main_info" parent="page_achieve_main_left" rect="0 0 550 120" margin="0 0 0 0" layout_gravity="left top" draw="false" hittestbox="false" resizebyparent="false" resizebyresolution="false" skin="test_frame_midle"/>
-		<picture name="achieve_main_chariconPic" parent="page_achieve_main_info" rect="0 0 100 100" margin="15 10 0 0" layout_gravity="left top" image="adventure_titlebar" stretch="true"/>
-		<richtext name="achieve_main_text" parent="page_achieve_main_info" rect="0 0 150 30" margin="130 10 0 0" layout_gravity="left top" format="%s" param1="value" param1_def="팀명" fontname="white_18_b_ol"/>
-		<richtext name="achieve_main_level" parent="page_achieve_main_info" rect="0 0 150 30" margin="130 35 0 0" layout_gravity="left top" format="업적 레벨: %s / 팀 레벨: %s" param1="achieve_level" param1_def="0" param2="team_level" param2_def="0" fontname="white_16_b_ol"/>
-		<labelline name="achieve_main_info_line" parent="page_achieve_main_info" rect="0 0 420 2" margin="120 60 0 0" layout_gravity="left top" skin="labelline_def_4"/>
-		<richtext name="achieve_main_exp_title" parent="page_achieve_main_info" rect="0 0 150 30" margin="130 65 0 0" layout_gravity="left top" caption="업적" fontname="white_18_b_ol"/>
-		<richtext name="achieve_main_exp" parent="page_achieve_main_info" rect="0 0 150 30" margin="0 68 15 0" layout_gravity="right top" format="EXP %s / %s" param1="value" param1_def="0" param2="maxvalue" param2_def="0" fontname="white_16_b_ol" textalign="right top"/>
-		<gauge name="gauge_achieve_exp" parent="page_achieve_main_info" rect="0 0 400 15" margin="130 95 0 0" layout_gravity="left top" skin="achievement_whole" inverse="false" point="10" maxpoint="120"/>
-		<button name="btn_reward" parent="page_achieve_main_info" rect="0 0 43 35" margin="0 10 10 0" layout_gravity="right top" image="compen_btn" stretch="true" LBtnUpScp="ADVENTURE_BOOK_ACHIEVE_CLICK_LEVEL_REWARD"/>
-		<picture name="newreward" parent="page_achieve_main_info" rect="0 0 27 27" margin="0 2 2 0" layout_gravity="right top" stretch="true" draw="true" hittest="false" resizebyparent="false" scrollbar="false" image="collection_new"/>
-		<!-- 업적 탭 - 메인 - 업적 현황 -->
-		<groupbox name="achieve_main_curstatus_title_bg" parent="page_achieve_main_left" rect="0 0 445 40" margin="15 120 0 0" layout_gravity="left top" draw="false" hittestbox="false" resizebyparent="false" resizebyresolution="false" image="test_com_namebg02"/>
-		<richtext name="achieve_main_curstatus_title_text" parent="achieve_main_curstatus_title_bg" rect="0 0 100 30" margin="15 10 0 0" layout_gravity="left top" textalign="left top" caption="{@st41b}업적 현황" fontname="white_18_ol"/>
-		<controlset name="achieve_main_curstatus_Main" parent="page_achieve_main_left" rect="0 0 500 20" margin="12 160 0 0" layout_gravity="left top" type="adventure_book_achieve_main_curstatus" hittestbox="false" scrollbar="false" skin="None"/>
-		<controlset name="achieve_main_curstatus_Sub" parent="page_achieve_main_left" rect="0 0 500 20" margin="12 250 0 0" layout_gravity="left top" type="adventure_book_achieve_main_curstatus" hittestbox="false" scrollbar="false" skin="None"/>
-		<controlset name="achieve_main_curstatus_Special" parent="page_achieve_main_left" rect="0 0 500 20" margin="12 340 0 0" layout_gravity="left top" type="adventure_book_achieve_main_curstatus" hittestbox="false" scrollbar="false" skin="None"/>
-		<controlset name="achieve_main_curstatus_Event" parent="page_achieve_main_left" rect="0 0 500 20" margin="12 430 0 0" layout_gravity="left top" type="adventure_book_achieve_main_curstatus" hittestbox="false" scrollbar="false" skin="None"/>
-		<!-- 업적 탭 - 메인 - 업적 교환 이벤트 -->
-		<groupbox name="achieve_main_exchangeevent_title_bg" parent="page_achieve_main_left" rect="0 0 445 40" margin="15 530 0 0" layout_gravity="left top" draw="false" hittestbox="false" resizebyparent="false" resizebyresolution="false" image="test_com_namebg02"/>
-		<richtext name="achieve_main_exchangeevent_title_text" parent="achieve_main_exchangeevent_title_bg" rect="0 0 100 30" margin="15 10 0 0" layout_gravity="left top" textalign="left top" caption="{@st41b}업적 교환 이벤트" fontname="white_18_ol"/>
-		<richtext name="achieve_main_exchangeevent_nextrenewal_text" parent="page_achieve_main_left" rect="0 0 100 30" margin="0 543 10 0" layout_gravity="right top" textalign="left top" format="다음 갱신까지: %s일 %s:%s:%s" param1="day" param1_def="0" param2="hour" param2_def="0" param3="minute" param3_def="0" param4="second" param4_def="0" fontname="limitedsale_14"/>
-		<timer name="exchange_event_timer" parent="achieve_main_exchangeevent_nextrenewal_text" rect="0 0 10 10" margin="0 0 0 0" layout_gravity="left top"/>
-		<groupbox name="gb_achieve_main_exchangeevent_list" parent="page_achieve_main_left" rect="0 0 390 150" margin="0 575 0 0" layout_gravity="center top" draw="false" hittestbox="false" resizebyparent="false" resizebyresolution="false"/>
-		<groupbox name="gb_achieve_main_exchangeevent_list_scroll" parent="gb_achieve_main_exchangeevent_list" rect="0 0 390 150" margin="0 0 0 0" layout_gravity="left top" draw="false" hittestbox="false" resizebyparent="false" resizebyresolution="false"/>
-		<controlset name="achieve_main_exchangeevent_0" parent="gb_achieve_main_exchangeevent_list_scroll" rect="0 0 120 140" margin="10 0 0 0" layout_gravity="left center" type="adventure_book_achieve_exchangeevent" hittestbox="false" scrollbar="false" skin="None"/>
-		<controlset name="achieve_main_exchangeevent_1" parent="gb_achieve_main_exchangeevent_list_scroll" rect="0 0 120 140" margin="140 0 0 0" layout_gravity="left center" type="adventure_book_achieve_exchangeevent" hittestbox="false" scrollbar="false" skin="None"/>
-		<controlset name="achieve_main_exchangeevent_2" parent="gb_achieve_main_exchangeevent_list_scroll" rect="0 0 120 140" margin="270 0 0 0" layout_gravity="left center" type="adventure_book_achieve_exchangeevent" hittestbox="false" scrollbar="false" skin="None"/>
-		<button name="left_btn" parent="page_achieve_main_left" rect="0 0 33 82" margin="20 605 0 0" layout_gravity="left top" image="achievement_arrow_left" LBtnUpScp="ADVENTURE_BOOK_ACHIEVE_EXCHANGE_EVENT_CLICK_LEFT"/>
-		<button name="right_btn" parent="page_achieve_main_left" rect="0 0 33 82" margin="0 605 20 0" layout_gravity="right top" image="achievement_arrow_right" LBtnUpScp="ADVENTURE_BOOK_ACHIEVE_EXCHANGE_EVENT_CLICK_RIGHT"/>
-		<picture name="coming_soon" parent="page_achieve_main_left" rect="0 0 316 76" margin="110 600 0 0" layout_gravity="left top" stretch="true" draw="true" hittest="false" resizebyparent="false" scrollbar="false" image="coming_soon_notice"/>
-		<!-- 업적 탭 - 메인 - 진행도가 높은 업적 -->
-		<groupbox name="achieve_main_high_progress_title_bg" parent="page_achieve_main" rect="0 0 490 40" margin="0 70 70 0" layout_gravity="right top" draw="false" hittestbox="false" resizebyparent="false" resizebyresolution="false" image="test_com_namebg02"/>
-		<richtext name="achieve_main_high_progress_title_text" parent="achieve_main_high_progress_title_bg" rect="0 0 100 30" margin="5 10 0 0" layout_gravity="left top" textalign="left top" caption="{@st41b}진행도가 높은 업적" fontname="white_18_ol"/>
-		<groupbox name="achieve_main_high_progress_list" parent="page_achieve_main" rect="0 0 550 350" margin="0 120 10 0" layout_gravity="right top" draw="true" hittestbox="true" resizebyparent="false" resizebyresolution="false" skin="test_frame_midle"/>
-		<controlset name="achieve_main_high_progress_dummy" parent="achieve_main_high_progress_list" rect="0 0 530 20" margin="2 2 0 0" layout_gravity="left top" type="adventure_book_achieve_summary" hittestbox="false" scrollbar="false" skin="None"/>
-		<button name="achieve_main_search_shortcut" parent="page_achieve_main" rect="0 0 57 33" margin="0 73 10 0" layout_gravity="right top" image="inven_s" LBtnUpScp="ADVENTURE_BOOK_ACHIEVE_SEARCH_SHORTCUT"/>
-		<!-- 업적 탭 - 메인 - 신규 업적 -->
-		<groupbox name="achieve_main_new_achive_title_bg" parent="page_achieve_main" rect="0 0 490 40" margin="0 500 70 0" layout_gravity="right top" draw="false" hittestbox="false" resizebyparent="false" resizebyresolution="false" image="test_com_namebg02"/>
-		<richtext name="achieve_main_new_achieve_title_text" parent="achieve_main_new_achive_title_bg" rect="0 0 100 30" margin="5 10 0 0" layout_gravity="left top" textalign="left top" caption="{@st41b}신규 업적" fontname="white_18_ol"/>
-		<groupbox name="achieve_main_new_achieve_list" parent="page_achieve_main" rect="0 0 550 250" margin="0 550 10 0" layout_gravity="right top" draw="true" hittestbox="false" resizebyparent="false" resizebyresolution="false" skin="test_frame_midle"/>
-		<!-- 업적 탭 - 업적 레벨 달성 보상 -->
-		<groupbox name="achieve_main_level_reward_bg" parent="page_achieve_main" rect="0 0 508 245" margin="580 70 0 0" layout_gravity="left top" draw="true" hittestbox="true" resizebyparent="false" resizebyresolution="false" visible="false" skin="test_frame_low"/>
-		<groupbox name="level_reward_title_bg" parent="achieve_main_level_reward_bg" rect="0 0 445 40" margin="15 15 0 0" layout_gravity="left top" draw="false" hittestbox="false" image="test_com_namebg"/>
-		<richtext name="level_reward_title_text" parent="level_reward_title_bg" rect="0 0 425 30" margin="10 0 0 0" layout_gravity="left center" textalign="left top" caption="업적 레벨 달성 보상" fontname="white_16_ol"/>
-		<button name="level_reward_close_btn" parent="achieve_main_level_reward_bg" rect="0 0 34 34" margin="0 10 10 0" layout_gravity="right top" LBtnUpScp="ADVENTURE_BOOK_ACHIEVE_LEVEL_REWARD_CLOSE" MouseOffAnim="btn_mouseoff" MouseOnAnim="btn_mouseover" clicksound="button_click_big" image="testclose_button" stretch="true"/>
-		<groupbox name="level_reward_body_bg" parent="achieve_main_level_reward_bg" rect="0 0 478 170" margin="15 60 0 0" layout_gravity="left top" draw="true" hittestbox="false" resizebyparent="false" resizebyresolution="false" skin="test_frame_midle"/>
-		<button name="level_reward_left_btn" parent="level_reward_body_bg" rect="0 0 32 82" margin="5 0 0 0" layout_gravity="left center" LBtnUpScp="ADVENTURE_BOOK_ACHIEVE_LEVEL_REWARD_LEFT_BTN" MouseOffAnim="btn_mouseoff" MouseOnAnim="btn_mouseover" clicksound="button_click_big" image="achievement_arrow_left" stretch="true"/>
-		<button name="level_reward_right_btn" parent="level_reward_body_bg" rect="0 0 32 82" margin="0 0 0 0" layout_gravity="right center" LBtnUpScp="ADVENTURE_BOOK_ACHIEVE_LEVEL_REWARD_RIGHT_BTN" MouseOffAnim="btn_mouseoff" MouseOnAnim="btn_mouseover" clicksound="button_click_big" image="achievement_arrow_right" stretch="true"/>
-		<groupbox name="level_reward_body" parent="level_reward_body_bg" rect="0 0 370 150" margin="0 0 0 0" layout_gravity="center center" draw="false" hittestbox="false" resizebyparent="false" resizebyresolution="false"/>
-		<groupbox name="level_reward_body_scroll" parent="level_reward_body" rect="0 0 370 140" margin="0 0 0 0" layout_gravity="left center" draw="false" hittestbox="false" resizebyparent="false" resizebyresolution="false"/>
-		<!-- 업적 탭 - 검색 -->
-		<groupbox name="page_achieve_list_search" parent="gb_achieve" rect="0 0 1200 870" margin="0 54 0 0" tabname="tab_achieve_search" tabchangescp="ADVENTURE_BOOK_RENEW_ACHIEVE_SEARCH" layout_gravity="center top" draw="false" hittestbox="false" resizebyparent="false" resizebyresolution="false"/>
-		<richtext name="subtitle_text" parent="page_achieve_list_search" rect="0 0 200 30" margin="5 7 0 0" layout_gravity="center top" format="%s" param1="value" param1_def="검색" fontname="white_18_ol"/>
-		<groupbox name="page_achieve_list_search_left" parent="page_achieve_list_search" rect="0 0 550 730" margin="40 70 0 0" layout_gravity="left top" draw="true" hittestbox="false" resizebyparent="false" resizebyresolution="false" skin="None"/>
-		<groupbox name="page_achieve_list_search_right" parent="page_achieve_list_search" rect="0 0 550 748" margin="0 70 10 0" layout_gravity="right top" draw="false" hittestbox="false" resizebyparent="false" resizebyresolution="false"/>
-		<richtext name="text_option_maincategory" parent="page_achieve_list_search_left" rect="0 0 20 20" margin="0 0 0 0" layout_gravity="left top" caption="메인 카테고리" fixwidth="false" fontname="black_16_b" hittest="false" resizebytext="true" textalign="left center"/>
-		<droplist name="droplist_option_maincategory" parent="page_achieve_list_search_left" rect="0 0 150 20" margin="0 25 0 0" layout_gravity="left top" SelectScp="ADVENTURE_BOOK_ACHIEVE_SELECT_SEARCH_OPTION_MAINCATEGORY" frametextalign="left" listclicksound="button_click" listoversound="button_cursor_over_2" skin="droplist_normal" textalign="left center" textoffset="10 0" visibleline="4"/>
-		<richtext name="text_option_subcategory" parent="page_achieve_list_search_left" rect="0 0 20 20" margin="160 0 0 0" layout_gravity="left top" caption="서브 카테고리" fixwidth="false" fontname="black_16_b" hittest="false" resizebytext="true" textalign="left center"/>
-		<droplist name="droplist_option_subcategory" parent="page_achieve_list_search_left" rect="0 0 150 20" margin="160 25 0 0" layout_gravity="left top" SelectScp="ADVENTURE_BOOK_ACHIEVE_SELECT_SEARCH_OPTION_SUBCATEGORY" frametextalign="left" listclicksound="button_click" listoversound="button_cursor_over_2" skin="droplist_normal" textalign="left center" textoffset="10 0" visibleline="4"/>
-		<checkbox name="check_option_reward" parent="page_achieve_list_search_left" rect="0 0 30 30" margin="0 85 0 5" layout_gravity="left top" fontname="black_16_b" caption="보상" LBtnUpScp="ADVENTURE_BOOK_ACHIEVE_SELECT_CHECK_OPTION_REWARD" clicksound="button_click_big" oversound="button_over"/>
-		<checkbox name="check_option_name" parent="page_achieve_list_search_left" rect="0 0 30 30" margin="80 85 0 5" layout_gravity="left top" fontname="black_16_b" caption="칭호" LBtnUpScp="ADVENTURE_BOOK_ACHIEVE_SELECT_CHECK_OPTION_NAME" clicksound="button_click_big" oversound="button_over"/>
-		<checkbox name="check_option_period" parent="page_achieve_list_search_left" rect="0 0 30 30" margin="160 85 0 5" layout_gravity="left top" fontname="black_16_b" caption="기간제" LBtnUpScp="ADVENTURE_BOOK_ACHIEVE_SELECT_CHECK_OPTION_PERIOD" clicksound="button_click_big" oversound="button_over"/>
-		<groupbox name="gb_achieve_search_input" parent="page_achieve_list_search_left" rect="0 0 550 30" margin="0 50 0 0" layout_gravity="left top" draw="true" hittestbox="true" resizebyparent="false" scrollbar="false" skin="test_weight_skin"/>
-		<edit name="search_editbox" parent="gb_achieve_search_input" rect="0 0 550 30" margin="0 0 0 0" layout_gravity="left top" clicksound="button_click_big" drawbackground="false" fontname="white_18_ol" maxlen="30" oversound="button_over" skin="None" textalign="left top" typingsound="chat_typing" EnterKeyScp="ADVENTURE_BOOK_ACHIEVE_CLICK_SEARCH_BUTTON"/>
-		<button name="search_btn" parent="page_achieve_list_search_left" rect="0 0 80 40" margin="0 47 0 0" layout_gravity="right top" LBtnUpArgNum="" LBtnUpScp="ADVENTURE_BOOK_ACHIEVE_CLICK_SEARCH_BUTTON" MouseOffAnim="btn_mouseoff" MouseOnAnim="btn_mouseover" clicksound="button_click_big" image="inven_s" oversound="button_over" stretch="true"/>
-		<groupbox name="list_achieve_search" parent="page_achieve_list_search_left" rect="0 0 550 610" margin="0 120 0 0" layout_gravity="left top" draw="true" hittestbox="true" resizebyparent="false" resizebyresolution="false" skin="test_frame_midle"/>
-		<richtext name="text_desc" parent="page_achieve_list_search_left" rect="0 0 200 30" margin="5 7 0 0" layout_gravity="center center" format="%s" param1="value" param1_def="보상 또는 업적 명칭으로{nl}업적을 검색할 수 있습니다." fontname="black_16_b" textalign="center top"/>
-		<!-- 업적 탭 - 주요 업적-->
-		<groupbox name="page_achieve_list_Main" parent="gb_achieve" rect="0 0 1200 870" margin="0 54 0 0" tabname="tab_achieve_list_Main" tabchangescp="ADVENTURE_BOOK_RENEW_ACHIEVE_MAINCONT" layout_gravity="center top" draw="false" hittestbox="false" resizebyparent="false" resizebyresolution="false"/>
-		<richtext name="subtitle_text" parent="page_achieve_list_Main" rect="0 0 200 30" margin="5 7 0 0" layout_gravity="center top" format="%s" param1="value" param1_def="주요 업적" fontname="white_18_ol"/>
-		<groupbox name="page_achieve_list_Main_left" parent="page_achieve_list_Main" rect="0 0 550 730" margin="40 70 0 0" layout_gravity="left top" draw="false" hittestbox="false" resizebyparent="false" resizebyresolution="false"/>
-		<groupbox name="page_achieve_list_Main_right" parent="page_achieve_list_Main" rect="0 0 550 748" margin="0 70 10 0" layout_gravity="right top" draw="false" hittestbox="false" resizebyparent="false" resizebyresolution="false"/>
-		<checkbox name="check_option_invisible_complete" parent="page_achieve_list_Main_left" rect="0 0 30 30" margin="0 110 0 0" layout_gravity="left top" fontname="black_16_b" caption="완료된 업적 표시하지 않기" LBtnUpScp="ADVENTURE_BOOK_RENEW_ACHIEVE_MAINCONT" clicksound="button_click_big" oversound="button_over"/>
-		<groupbox name="list_achieve_Main_subcategory" parent="page_achieve_list_Main_left" rect="0 0 390 114" margin="0 0 0 0" layout_gravity="center top" draw="false" hittestbox="true" resizebyparent="false" resizebyresolution="false" skin="None"/>
-		<groupbox name="list_achieve_Main_subcategory_scroll" parent="list_achieve_Main_subcategory" rect="0 0 390 114" margin="0 0 0 0" layout_gravity="left top" draw="false" hittestbox="true" resizebyparent="false" resizebyresolution="false" skin="None"/>
-		<button name="btn_left_Main_subcategory" parent="page_achieve_list_Main_left" rect="0 0 40 40" margin="20 25 0 0" layout_gravity="left top" image="button_left_select2" LBtnUpScp="ADVENTURE_BOOK_ACHIEVE_LIST_SUBCATEGORY_LEFT"/>
-		<button name="btn_right_Main_subcategory" parent="page_achieve_list_Main_left" rect="0 0 40 40" margin="0 25 20 0" layout_gravity="right top" image="button_right_select2" LBtnUpScp="ADVENTURE_BOOK_ACHIEVE_LIST_SUBCATEGORY_RIGHT"/>
-		<groupbox name="list_achieve_Main" parent="page_achieve_list_Main_left" rect="0 0 550 547" margin="0 140 0 0" layout_gravity="left top" draw="true" hittestbox="true" resizebyparent="false" resizebyresolution="false" skin="test_frame_midle"/>
-		<controlset name="achieve_info" parent="list_achieve_Main" rect="0 0 530 632" margin="0 0 0 0" type="adventure_book_achieve_summary" layout_gravity="left top" hittestbox="false" scrollbar="false"/>
-		<button name="btn_Main_reward_all" parent="page_achieve_list_Main_left" rect="0 0 550 43" margin="0 0 0 0" layout_gravity="center bottom" caption="{@st66b}{s16}보상 일괄 수령" skin="test_pvp_btn" LBtnUpScp="ACHIEVE_BOOK_ACHIEVE_CLICK_GET_REWARD_ALL"/>
-		<richtext name="text_desc" parent="page_achieve_list_Main_left" rect="0 0 200 30" margin="5 7 0 0" layout_gravity="center center" format="%s" param1="value" param1_def="해당 카테고리의 업적이 없습니다." fontname="black_16_b" textalign="center top"/>
-		<!-- 업적 탭 - 콘텐츠 업적-->
-		<groupbox name="page_achieve_list_Sub" parent="gb_achieve" rect="0 0 1200 870" margin="0 54 0 0" tabname="tab_achieve_list_Sub" tabchangescp="ADVENTURE_BOOK_RENEW_ACHIEVE_SUBCONT" layout_gravity="center top" draw="false" hittestbox="false" resizebyparent="false" resizebyresolution="false"/>
-		<richtext name="subtitle_text" parent="page_achieve_list_Sub" rect="0 0 200 30" margin="5 7 0 0" layout_gravity="center top" format="%s" param1="value" param1_def="콘텐츠 업적" fontname="white_18_ol"/>
-		<groupbox name="page_achieve_list_Sub_left" parent="page_achieve_list_Sub" rect="0 0 550 730" margin="40 70 0 0" layout_gravity="left top" draw="false" hittestbox="false" resizebyparent="false" resizebyresolution="false"/>
-		<groupbox name="page_achieve_list_Sub_right" parent="page_achieve_list_Sub" rect="0 0 550 748" margin="0 70 10 0" layout_gravity="right top" draw="false" hittestbox="false" resizebyparent="false" resizebyresolution="false"/>
-		<checkbox name="check_option_invisible_complete" parent="page_achieve_list_Sub_left" rect="0 0 30 30" margin="0 110 0 0" layout_gravity="left top" fontname="black_16_b" caption="완료된 업적 표시하지 않기" LBtnUpScp="ADVENTURE_BOOK_RENEW_ACHIEVE_SUBCONT" clicksound="button_click_big" oversound="button_over"/>
-		<groupbox name="list_achieve_Sub_subcategory" parent="page_achieve_list_Sub_left" rect="0 0 390 114" margin="0 0 0 0" layout_gravity="center top" draw="false" hittestbox="true" resizebyparent="false" resizebyresolution="false" skin="None"/>
-		<groupbox name="list_achieve_Sub_subcategory_scroll" parent="list_achieve_Sub_subcategory" rect="0 0 390 114" margin="0 0 0 0" layout_gravity="left top" draw="false" hittestbox="true" resizebyparent="false" resizebyresolution="false" skin="None"/>
-		<button name="btn_left_Sub_subcategory" parent="page_achieve_list_Sub_left" rect="0 0 40 40" margin="20 25 0 0" layout_gravity="left top" image="button_left_select2" LBtnUpScp="ADVENTURE_BOOK_ACHIEVE_LIST_SUBCATEGORY_LEFT"/>
-		<button name="btn_right_Sub_subcategory" parent="page_achieve_list_Sub_left" rect="0 0 40 40" margin="0 25 20 0" layout_gravity="right top" image="button_right_select2" LBtnUpScp="ADVENTURE_BOOK_ACHIEVE_LIST_SUBCATEGORY_RIGHT"/>
-		<groupbox name="list_achieve_Sub" parent="page_achieve_list_Sub_left" rect="0 0 550 547" margin="0 140 0 0" layout_gravity="left top" draw="true" hittestbox="true" resizebyparent="false" resizebyresolution="false" skin="test_frame_midle"/>
-		<controlset name="achieve_info" parent="list_achieve_Sub" rect="0 0 530 632" margin="0 0 0 0" type="adventure_book_achieve_summary" layout_gravity="left top" hittestbox="false" scrollbar="false"/>
-		<button name="btn_Sub_reward_all" parent="page_achieve_list_Sub_left" rect="0 0 550 43" margin="0 0 0 0" layout_gravity="center bottom" caption="{@st66b}{s16}보상 일괄 수령" skin="test_pvp_btn" LBtnUpScp="ACHIEVE_BOOK_ACHIEVE_CLICK_GET_REWARD_ALL"/>
-		<richtext name="text_desc" parent="page_achieve_list_Sub_left" rect="0 0 200 30" margin="5 7 0 0" layout_gravity="center center" format="%s" param1="value" param1_def="해당 카테고리의 업적이 없습니다." fontname="black_16_b" textalign="center top"/>
-		<!-- 업적 탭 - 특별 업적-->
-		<groupbox name="page_achieve_list_Special" parent="gb_achieve" rect="0 0 1200 870" margin="0 54 0 0" tabname="tab_achieve_list_Special" tabchangescp="ADVENTURE_BOOK_RENEW_ACHIEVE_SPECIAL" layout_gravity="center top" draw="false" hittestbox="false" resizebyparent="false" resizebyresolution="false"/>
-		<richtext name="subtitle_text" parent="page_achieve_list_Special" rect="0 0 200 30" margin="5 7 0 0" layout_gravity="center top" format="%s" param1="value" param1_def="특별 업적" fontname="white_18_ol"/>
-		<groupbox name="page_achieve_list_Special_left" parent="page_achieve_list_Special" rect="0 0 550 730" margin="40 70 0 0" layout_gravity="left top" draw="false" hittestbox="false" resizebyparent="false" resizebyresolution="false"/>
-		<groupbox name="page_achieve_list_Special_right" parent="page_achieve_list_Special" rect="0 0 550 748" margin="0 70 10 0" layout_gravity="right top" draw="false" hittestbox="false" resizebyparent="false" resizebyresolution="false"/>
-		<checkbox name="check_option_invisible_complete" parent="page_achieve_list_Special_left" rect="0 0 30 30" margin="0 110 0 0" layout_gravity="left top" fontname="black_16_b" caption="완료된 업적 표시하지 않기" LBtnUpScp="ADVENTURE_BOOK_RENEW_ACHIEVE_SPECIAL" clicksound="button_click_big" oversound="button_over"/>
-		<groupbox name="list_achieve_Special_subcategory" parent="page_achieve_list_Special_left" rect="0 0 390 114" margin="0 0 0 0" layout_gravity="center top" draw="false" hittestbox="true" resizebyparent="false" resizebyresolution="false" skin="None"/>
-		<groupbox name="list_achieve_Special_subcategory_scroll" parent="list_achieve_Special_subcategory" rect="0 0 390 114" margin="0 0 0 0" layout_gravity="left top" draw="false" hittestbox="true" resizebyparent="false" resizebyresolution="false" skin="None"/>
-		<button name="btn_left_Special_subcategory" parent="page_achieve_list_Special_left" rect="0 0 40 40" margin="20 25 0 0" layout_gravity="left top" image="button_left_select2" LBtnUpScp="ADVENTURE_BOOK_ACHIEVE_LIST_SUBCATEGORY_LEFT"/>
-		<button name="btn_right_Special_subcategory" parent="page_achieve_list_Special_left" rect="0 0 40 40" margin="0 25 20 0" layout_gravity="right top" image="button_right_select2" LBtnUpScp="ADVENTURE_BOOK_ACHIEVE_LIST_SUBCATEGORY_RIGHT"/>
-		<groupbox name="list_achieve_Special" parent="page_achieve_list_Special_left" rect="0 0 550 547" margin="0 140 0 0" layout_gravity="left top" draw="true" hittestbox="true" resizebyparent="false" resizebyresolution="false" skin="test_frame_midle"/>
-		<controlset name="achieve_info" parent="list_achieve_Special" rect="0 0 530 632" margin="0 0 0 0" type="adventure_book_achieve_summary" layout_gravity="left top" hittestbox="false" scrollbar="false"/>
-		<button name="btn_Special_reward_all" parent="page_achieve_list_Special_left" rect="0 0 550 43" margin="0 0 0 0" layout_gravity="center bottom" caption="{@st66b}{s16}보상 일괄 수령" skin="test_pvp_btn" LBtnUpScp="ACHIEVE_BOOK_ACHIEVE_CLICK_GET_REWARD_ALL"/>
-		<richtext name="text_desc" parent="page_achieve_list_Special_left" rect="0 0 200 30" margin="5 7 0 0" layout_gravity="center center" format="%s" param1="value" param1_def="해당 카테고리의 업적이 없습니다." fontname="black_16_b" textalign="center top"/>
-		<!-- 업적 탭 - 이벤트 업적-->
-		<groupbox name="page_achieve_list_Event" parent="gb_achieve" rect="0 0 1200 870" margin="0 54 0 0" tabname="tab_achieve_list_Event" tabchangescp="ADVENTURE_BOOK_RENEW_ACHIEVE_EVENT" layout_gravity="center top" draw="false" hittestbox="false" resizebyparent="false" resizebyresolution="false"/>
-		<richtext name="subtitle_text" parent="page_achieve_list_Event" rect="0 0 200 30" margin="5 7 0 0" layout_gravity="center top" format="%s" param1="value" param1_def="이벤트 업적" fontname="white_18_ol"/>
-		<groupbox name="page_achieve_list_Event_left" parent="page_achieve_list_Event" rect="0 0 550 730" margin="40 70 0 0" layout_gravity="left top" draw="false" hittestbox="false" resizebyparent="false" resizebyresolution="false"/>
-		<groupbox name="page_achieve_list_Event_right" parent="page_achieve_list_Event" rect="0 0 550 748" margin="0 70 10 0" layout_gravity="right top" draw="false" hittestbox="false" resizebyparent="false" resizebyresolution="false"/>
-		<checkbox name="check_option_invisible_complete" parent="page_achieve_list_Event_left" rect="0 0 30 30" margin="0 110 0 0" layout_gravity="left top" fontname="black_16_b" caption="완료된 업적 표시하지 않기" LBtnUpScp="ADVENTURE_BOOK_RENEW_ACHIEVE_EVENT" clicksound="button_click_big" oversound="button_over"/>
-		<groupbox name="list_achieve_Event_subcategory" parent="page_achieve_list_Event_left" rect="0 0 390 114" margin="0 0 0 0" layout_gravity="center top" draw="false" hittestbox="true" resizebyparent="false" resizebyresolution="false" skin="None"/>
-		<groupbox name="list_achieve_Event_subcategory_scroll" parent="list_achieve_Event_subcategory" rect="0 0 390 114" margin="0 0 0 0" layout_gravity="left top" draw="false" hittestbox="true" resizebyparent="false" resizebyresolution="false" skin="None"/>
-		<button name="btn_left_Event_subcategory" parent="page_achieve_list_Event_left" rect="0 0 40 40" margin="20 25 0 0" layout_gravity="left top" image="button_left_select2" LBtnUpScp="ADVENTURE_BOOK_ACHIEVE_LIST_SUBCATEGORY_LEFT"/>
-		<button name="btn_right_Event_subcategory" parent="page_achieve_list_Event_left" rect="0 0 40 40" margin="0 25 20 0" layout_gravity="right top" image="button_right_select2" LBtnUpScp="ADVENTURE_BOOK_ACHIEVE_LIST_SUBCATEGORY_RIGHT"/>
-		<groupbox name="list_achieve_Event" parent="page_achieve_list_Event_left" rect="0 0 550 547" margin="0 140 0 0" layout_gravity="left top" draw="true" hittestbox="true" resizebyparent="false" resizebyresolution="false" skin="test_frame_midle"/>
-		<controlset name="achieve_info" parent="list_achieve_Event" rect="0 0 530 632" margin="0 0 0 0" type="adventure_book_achieve_summary" layout_gravity="left top" hittestbox="false" scrollbar="false"/>
-		<button name="btn_Event_reward_all" parent="page_achieve_list_Event_left" rect="0 0 550 43" margin="0 0 0 0" layout_gravity="center bottom" caption="{@st66b}{s16}보상 일괄 수령" skin="test_pvp_btn" LBtnUpScp="ACHIEVE_BOOK_ACHIEVE_CLICK_GET_REWARD_ALL"/>
-		<richtext name="text_desc" parent="page_achieve_list_Event_left" rect="0 0 200 30" margin="5 7 0 0" layout_gravity="center center" format="%s" param1="value" param1_def="해당 카테고리의 업적이 없습니다." fontname="black_16_b" textalign="center top"/>
 	</controls>
 </uiframe>

@@ -129,7 +129,7 @@ function ON_PARTY_UPDATE(frame, msg, str, num)
 		end
 
 		local questinfo2frame = ui.GetFrame('questinfoset_2');
-		ON_PARTY_MEMBER_PROP_UPDATE(questinfo2frame)		
+		QUEST_PARTY_MEMBER_PROP_UPDATE(questinfo2frame)		
 
 		--파티보스 소환관련해서 남아있으면 지워보자.
 		session.minimap.RemoveIconInfo("PartyQuest_FieldBossRaid");
@@ -197,11 +197,7 @@ end
 function CREATE_PARTY_BTN(control)
 
 	local partyName = nil
-	local nation = config.GetServiceNation()
-	if nation == "GLOBAL_KOR" then
-		nation = "KOR"
-	end
-	local partyNameCls = GetClass("DefPartyName", nation);
+	local partyNameCls = GetClass("DefPartyName", config.GetServiceNation());
 	if partyNameCls ~= nil then
 		partyName = partyNameCls.CMM_DefPartyName;
 	end
@@ -225,23 +221,9 @@ function HIDE_PARTY_CREATE_BTN()
 end
 
 function OUT_PARTY_BTN(control)
-
-	--연출 중에 파티 탈퇴를 하면, 연출이 깨지는 문제가 있어 예외 처리 추가
-	--연출 중에는 파티 탈퇴를 할 수 없다.
-
-	local mgame = session.mgame.GetCurrentMGameName();
-	if mgame ~= "None" then
-		ui.SysMsg(ScpArgMsg("CannotLeaveTheParty"));
-		return;
-	end
-
-	local ret = geClientDirection.IsMyActorPlayingClientDirection();
-	if ret == true then
-		ui.SysMsg(ScpArgMsg("CannotLeaveTheParty"));
-		return;
-	end
-
+	
 	OUT_PARTY()
+
 end
 
 function ON_PARTY_OPTION_RESET(frame, msg, argStr, argNum)
@@ -405,10 +387,11 @@ function PARTY_TAB_CHANGE(frame, ctrl, argStr, argNum)
 			
 			createPartyBtn:ShowWindow(1)
 			outPartyBtn:ShowWindow(0)
-		end		
+		end
 	else
 		createPartyBtn:ShowWindow(0)
 		outPartyBtn:ShowWindow(0)
+
 	end
 
 	RESET_NAME_N_MEMO(frame)
@@ -601,3 +584,4 @@ end
 function EXEC_PARTY_CANCEL_PVP_JOIN(pvpType)
 	worldPVP.ReqJoinPVP(pvpType, PVP_STATE_NONE);
 end
+

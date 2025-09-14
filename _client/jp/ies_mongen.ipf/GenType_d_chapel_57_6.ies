@@ -18,6 +18,7 @@ ClassID,GenType,Lv,Range,GenRange,RespawnTime,MaxPop,Minimap,Hide,UseAIOufOfPC,A
 21,21,0,40,9999,0,8,0,0,0,0,0,1,"pawnd","","","","","","","","CHAPLE576_MQ_06_MON","","","NO","YES","NO","Monster","","","","Attack"
 22,22,0,40,30,0,15,0,0,0,0,0,1,"pawnd","","","","","","","","CHAPLE576_MQ_06_MON","","","NO","YES","NO","Monster","SmartGen","","","Attack"
 24,24,0,0,200,30000,20,0,0,0,1,0,0,"rootcrystal_01","","","","","MON_TORCH","","","","","","NO","YES","NO","RootCrystal","","","",""
+25,25,0,40,9999,60000,0,0,0,0,0,0,0,"F_boss_Chapparition","","","","","","","","","","","NO","YES","NO","Monster","","","",""
 26,26,1,250,1,60000,5,0,0,0,0,0,0,"HiddenTrigger_CantGen250","필드젠X","","","","","","","","","","NO","YES","NO","Neutral","","","",""
 27,27,0,40,9999,0,3,0,0,0,0,0,0,"Galok","","","","","","","","","","","NO","YES","NO","Monster","","","","Attack"
 28,28,0,40,20,0,6,0,0,0,1,0,1,"Pawndel","","","","","","","","CHAPLE576_MQ_06_MON","","","NO","YES","NO","Monster","SmartGen","","","Attack"
@@ -25,4 +26,3 @@ ClassID,GenType,Lv,Range,GenRange,RespawnTime,MaxPop,Minimap,Hide,UseAIOufOfPC,A
 30,30,1,0,1,1,1,0,0,0,0,0,0,"treasure_box1","보물 상자 LV1","","","","","","","TREASUREBOX_LV","","","","YES","NO","Neutral","LV1","ITEM:COLLECT_133:1","",""
 31,31,1,1,30,10000,13,0,0,0,1,0,1,"npc_orb1_Q","보주 결정","","","","","","","CHAPLE576_RP_1_OBJ","","","NO","YES","NO","Neutral","","","",""
 32,32,1,20,1,60000,1,0,0,0,0,0,0,"HiddenTrigger4","UnvisibleName","","","","","","","","EXPLORER_MISLE7","","NO","YES","NO","Neutral","","","",""
-33,33,1,40,1,60000,1,1,0,0,0,0,0,"npc_bonemancer","[본맨서 마스터]{nl}오르벨라","","","","","","","NPC_BONEMANCER","","","NO","YES","NO","Neutral","","","",""

@@ -20,7 +20,10 @@ function UI_TOGGLE_POSE_MACRO()
 end
 
 function CHATMACRO_CLOSE(frame)
-	CHASEINFO_OPEN_FRAME()
+	local questInfoSetFrame = ui.GetFrame('questinfoset_2');
+	if questInfoSetFrame:IsVisible() == 0 and ui.IsVisibleFramePIPType('CHATMACRO') == false then
+		questInfoSetFrame:ShowWindow(1);
+	end
 	ui.CloseFrame('skilltree');
 end
 
@@ -54,18 +57,8 @@ function CHATMACRO_UPDATE_TOKEN_STATE(frame)
 
 end
 
-function IS_MACRO_UNVISIBLE_WEAPON_POSE(className)
-	if className == "KICK" or className == "POPCORN" or className == "DABDANCE" 
-	or className == "CHEERUP" or className == "UNBELIEVABLE" or className == "SPOTLIGHT"
-	or className == "PULLUP" or className == "CHEER" or className == "BASEBALL"
-	or className == "CLOCKWORKDANCE" or className == "SQUAT" or className == "SHOOTDANCE"
-	or className == "RUSTLEDANCE" or className == "LUCHADOR" or className =="FLOWERSCENT" or className =="KAWAI" then
-		return true;
-	end
-	return false;
-end
-
 function MACRO_POSE_VIEW(poseGbox)	
+
 	local csetwidth =  ui.GetControlSetAttribute("pose_icon", 'width');
 	local csetheight =  ui.GetControlSetAttribute("pose_icon", 'height');
 	
@@ -104,10 +97,7 @@ function MACRO_POSE_VIEW(poseGbox)
     	    local eachcontrol = poseGbox:CreateOrGetControlSet('pose_icon','pose_icon'..cls.ClassName, x, y)
             local each_pose_name = GET_CHILD(eachcontrol, 'pose_name','ui::CRichText');
     		local each_pose_slot = GET_CHILD(eachcontrol, 'pose_slot','ui::CSlot');
-			each_pose_slot:SetEventScript(ui.LBUTTONDOWN, 'SOCIAL_POSE');
-			if IS_MACRO_UNVISIBLE_WEAPON_POSE(cls.ClassName) == true then
-				each_pose_slot:SetEventScriptArgString(ui.LBUTTONDOWN, "UnVisibleWeapon");
-			end
+    		each_pose_slot:SetEventScript(ui.LBUTTONDOWN, 'SOCIAL_POSE')
     		each_pose_slot:SetEventScriptArgNumber(ui.LBUTTONDOWN, cls.ClassID);
     		SET_SLOT_IMG(each_pose_slot, cls.Icon);
     		each_pose_name:SetTextByKey('posename',cls.Name);
@@ -127,10 +117,7 @@ function MACRO_POSE_VIEW(poseGbox)
         	    local eachcontrol = poseGbox:CreateOrGetControlSet('pose_icon','pose_icon'..cls.ClassName, x, y)
                 local each_pose_name = GET_CHILD(eachcontrol, 'pose_name','ui::CRichText');
         		local each_pose_slot = GET_CHILD(eachcontrol, 'pose_slot','ui::CSlot');
-				each_pose_slot:SetEventScript(ui.LBUTTONDOWN, 'SOCIAL_POSE');
-				if IS_MACRO_UNVISIBLE_WEAPON_POSE(cls.ClassName) == true then
-					each_pose_slot:SetEventScriptArgString(ui.LBUTTONDOWN, "UnVisibleWeapon");
-				end
+        		each_pose_slot:SetEventScript(ui.LBUTTONDOWN, 'SOCIAL_POSE')
         		each_pose_slot:SetEventScriptArgNumber(ui.LBUTTONDOWN, cls.ClassID);
         		SET_SLOT_IMG(each_pose_slot, cls.Icon);
         		each_pose_name:SetTextByKey('posename',cls.Name);
@@ -271,9 +258,6 @@ function SAVE_CHAT_MACRO(macroGbox, isclose)
 		else
 			local slot = macroGbox:GetChild("CHAT_MACRO_SLOT_" .. i);		
 			local poseID = tonumber( slot:GetUserValue('POSEID') );
-			if poseID == nil then
-				poseID = 0;
-			end
 			packet.ReqSaveChatMacro(i, poseID, text);
 	    end        
 	end
@@ -357,18 +341,10 @@ function SCR_GESTURE_DROP(frame, icon, argStr, argNum)
 end
 
 function SOCIAL_POSE(frame, ctrl, strarg, poseClsID)
-	if strarg == nil then
-		strarg = "None";
-	end
-
-	local visible = 1;
-	if strarg ~= "None" then
-		visible = 0;
-	end
 
 	local poseCls = GetClassByType('Pose', poseClsID);
 	if poseCls ~= nil then
-		control.Pose(poseCls.ClassName, 0, 0, visible);
+		control.Pose(poseCls.ClassName);
 	end
 end
 
