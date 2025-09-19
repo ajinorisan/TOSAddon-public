@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<uiframe name="bulk_sales" x="0" y="0" width="0" height="0" create="open">
+<uiframe name="bulk_sales" x="0" y="0" width="0" height="0">
+  <frame title="" fasthide="false"/>
   <option visible="true" closebutton="false" autoopen="true" hideable="false"/>
   <input moveable="true" hittestframe="true"/>
   <controls>

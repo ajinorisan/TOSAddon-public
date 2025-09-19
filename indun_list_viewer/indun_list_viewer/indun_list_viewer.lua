@@ -27,10 +27,11 @@
 -- v1.2.6 再修正。。。
 -- v1.2.7 レイドカウント取るタイミング修正
 -- v1.2.8 acutil終わり。indunpanelに統合準備。非表示のキャラを非表示にする機能。
+-- v1.2.9 250902大型対応。新レイド追加、設定画面修正。他鯖の時差修正したつもり
 local addon_name = "indun_list_viewer"
 local addon_name_lower = string.lower(addon_name)
 local author = "norisan"
-local ver = "1.2.8"
+local ver = "1.2.9"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -222,6 +223,12 @@ function indun_list_viewer_load_settings()
 
                     jobid = "",
                     raid_count = {
+                        V_H = "?",
+                        V_A = "?",
+                        L_H = "?",
+                        L_A = "?",
+                        R_H = "?",
+                        R_A = "?",
                         N_H = "?",
                         N_A = "?",
                         G_H = "?",
@@ -235,27 +242,45 @@ function indun_list_viewer_load_settings()
 
                     },
                     auto_clear_count = {
+                        V_S = "?",
+                        L_S = "?",
+                        R_S = "?",
                         N_S = "?",
                         G_S = "?",
                         M_S = "?",
                         U_S = "?",
                         S_S = "?"
-
                     }
                 }
-            end
 
-            if settings[pc_name] and settings[pc_name]["raid_count"] then
+            elseif settings[pc_name] and settings[pc_name]["raid_count"] then
+
+                if not settings[pc_name]["raid_count"].V_H then
+                    settings[pc_name]["raid_count"].V_H = "?"
+                    settings[pc_name]["raid_count"].V_A = "?"
+
+                    if settings[pc_name]["auto_clear_count"] then
+                        settings[pc_name]["auto_clear_count"].V_S = "?"
+                    end
+                end
+                if not settings[pc_name]["raid_count"].L_H then
+                    settings[pc_name]["raid_count"].L_H = "?"
+                    settings[pc_name]["raid_count"].L_A = "?"
+
+                    if settings[pc_name]["auto_clear_count"] then
+                        settings[pc_name]["auto_clear_count"].L_S = "?"
+                    end
+                end
                 if not settings[pc_name]["raid_count"].R_H then
                     settings[pc_name]["raid_count"].R_H = "?"
                     settings[pc_name]["raid_count"].R_A = "?"
 
                     if settings[pc_name]["auto_clear_count"] then
                         settings[pc_name]["auto_clear_count"].R_S = "?"
-
                     end
                 end
             end
+
         end
     end
 
@@ -265,10 +290,23 @@ function indun_list_viewer_load_settings()
 
     if g.load == true then
         indun_list_viewer_sort_characters(acc_info)
-        local now = os.time()
+        local server_time_str = date_time.get_lua_now_datetime_str()
+        if server_time_str then
+            local y, m, d, H, M, S = server_time_str:match("(%d+)-(%d+)-(%d+) (%d+):(%d+):(%d+)")
+            if y then
+                local server_now_timestamp = os.time({
+                    year = tonumber(y),
+                    month = tonumber(m),
+                    day = tonumber(d),
+                    hour = tonumber(H),
+                    min = tonumber(M),
+                    sec = tonumber(S)
+                })
 
-        if now > g.settings.reset_time then
-            indun_list_viewer_raid_reset()
+                if server_now_timestamp > g.settings.reset_time then
+                    indun_list_viewer_raid_reset()
+                end
+            end
         end
     else
         g.sorted_settings = {}
@@ -294,6 +332,63 @@ function indun_list_viewer_load_settings()
 end
 
 function indun_list_viewer_get_reset_time()
+
+    local server_time_str = date_time.get_lua_now_datetime_str()
+    if not server_time_str then
+        return 0
+    end
+
+    local year, month, day, hour, min, sec = server_time_str:match("(%d+)-(%d+)-(%d+) (%d+):(%d+):(%d+)")
+    if not year then
+        return 0
+    end
+
+    local now_table = {
+        year = tonumber(year),
+        month = tonumber(month),
+        day = tonumber(day),
+        hour = tonumber(hour),
+        min = tonumber(min),
+        sec = tonumber(sec)
+    }
+
+    local now_timestamp = os.time(now_table)
+
+    -- os.dateにタイムスタンプを渡して、その日の曜日を取得する（%wは日曜日=0）
+    -- Luaのwday（日=1）と合わせるため、+1する
+    local current_day_of_week = tonumber(os.date("%w", now_timestamp)) + 1
+
+    local days_to_next_monday
+    if current_day_of_week == 2 and now_table.hour < 6 then
+        -- もし今日が月曜日で、かつAM6:00より前なら、リセットは「今日」
+        days_to_next_monday = 0
+    else
+        -- それ以外の場合、次の月曜日までの日数を計算
+        -- (9 - 現在の曜日) % 7 で計算。もし0なら次の週なので7日にする
+        days_to_next_monday = (9 - current_day_of_week) % 7
+        if days_to_next_monday == 0 then
+            days_to_next_monday = 7
+        end
+    end
+
+    -- 今日のタイムスタンプに、次の月曜日までの日数分の秒数を足す
+    local next_monday_timestamp_base = now_timestamp + days_to_next_monday * 86400
+    local next_monday_date = os.date("*t", next_monday_timestamp_base)
+
+    -- 最終的な「次の月曜AM6:00」のタイムスタンプを計算
+    local next_monday_6am_timestamp = os.time({
+        year = next_monday_date.year,
+        month = next_monday_date.month,
+        day = next_monday_date.day,
+        hour = 6,
+        min = 0,
+        sec = 0
+    })
+
+    return next_monday_6am_timestamp
+end
+
+--[[function indun_list_viewer_get_reset_time()
     local now = os.time()
     local date_table = os.date("*t", now)
     local current_day = date_table.wday
@@ -326,7 +421,7 @@ function indun_list_viewer_get_reset_time()
     end
 
     return next_monday_timestamp
-end
+end]]
 
 function indun_list_viewer_raid_reset()
     local account_info = session.barrack.GetMyAccount()
@@ -337,6 +432,10 @@ function indun_list_viewer_raid_reset()
         local barrack_pc_name = barrack_pc_info:GetName()
 
         g.settings[barrack_pc_name]["raid_count"] = {
+            V_H = "?",
+            V_A = "?",
+            L_H = "?",
+            L_A = "?",
             N_H = "?",
             N_A = "?",
             G_H = "?",
@@ -522,6 +621,12 @@ function indun_list_viewer_get_raid_count()
 
     local function create_data()
         local data = {
+            V_H = GET_CURRENT_ENTERANCE_COUNT(GetClassByType("Indun", 727).PlayPerResetType),
+            -- V_H = "",
+            V_A = GET_CURRENT_ENTERANCE_COUNT(GetClassByType("Indun", 725).PlayPerResetType),
+            L_H = GET_CURRENT_ENTERANCE_COUNT(GetClassByType("Indun", 724).PlayPerResetType),
+            -- L_H = "",
+            L_A = GET_CURRENT_ENTERANCE_COUNT(GetClassByType("Indun", 722).PlayPerResetType),
             R_H = GET_CURRENT_ENTERANCE_COUNT(GetClassByType("Indun", 718).PlayPerResetType),
             R_A = GET_CURRENT_ENTERANCE_COUNT(GetClassByType("Indun", 716).PlayPerResetType),
             N_H = GET_CURRENT_ENTERANCE_COUNT(GetClassByType("Indun", 709).PlayPerResetType),
@@ -543,6 +648,8 @@ function indun_list_viewer_get_raid_count()
     g.settings[g.login_name]["raid_count"] = data
 
     local sweepbuff_table = {
+        V_S = 80045,
+        L_S = 80043,
         R_S = 80039,
         N_S = 80035,
         G_S = 80037,
@@ -576,8 +683,9 @@ function indun_list_viewer_get_raid_count()
     indun_list_viewer_save_settings()
 end
 
-local check_table = {"Redania_H", "Neringa_H", "Golem_H", "Merregina_H", "Slogutis_H", "Upinis_H", "Redania_S",
-                     "Neringa_S", "Golem_S", "Merregina_S", "Slogutis_S", "Upinis_S", "Memo"}
+local check_table = {"Veliora_H", "Limara_H", "Redania_H", "Neringa_H", "Golem_H", "Merregina_H", "Slogutis_H",
+                     "Upinis_H", "Veliora_S", "Limara_S", "Redania_S", "Neringa_S", "Golem_S", "Merregina_S",
+                     "Slogutis_S", "Upinis_S", "Memo"}
 
 function indun_list_viewer_frame_init()
 
@@ -612,6 +720,13 @@ function indun_list_viewer_frame_init()
     indun_list_viewer_save_settings()
 end
 -- ゴーレムH712 A710 S711 ネリンガH709 A707 S708 
+
+--[[local packageItemCls = GetClass('Item', "misc_boss_202509_weapon");
+local iconName = GET_ITEM_ICON_IMAGE(packageItemCls);
+print(tostring(iconName))
+local packageItemCls = GetClass('Item', "misc_boss_202509_armor");
+local iconName = GET_ITEM_ICON_IMAGE(packageItemCls);
+print(tostring(iconName))]]
 
 function indun_list_viewer_title_frame_open()
 
@@ -652,6 +767,16 @@ function indun_list_viewer_title_frame_open()
     local select_texts = g.lang == "Japanese" and texts.japanese or texts.etc
 
     local icon_table = {{
+        icon_name = "icon_item_misc_boss_Veliora",
+        hard = 727,
+        solo = 726,
+        auto = 725
+    }, {
+        icon_name = "icon_item_misc_boss_Laimara",
+        hard = 724,
+        solo = 723,
+        auto = 722
+    }, {
         icon_name = "icon_item_misc_boss_Redania",
         hard = 718,
         solo = 717,
@@ -684,12 +809,13 @@ function indun_list_viewer_title_frame_open()
     }}
 
     local x = 185
-    for i = 1, 6 do
+    for i = 1, #icon_table do
 
         if g.settings[tostring(check_table[i])] == 1 then
             local title_picture = title_gb:CreateOrGetControl('picture', "title_picture" .. i, x, 5, 30, 30);
             AUTO_CAST(title_picture)
             local icon_name = icon_table[i].icon_name
+            -- print(tostring(icon_name))
             title_picture:SetImage(icon_name)
             title_picture:SetEnableStretch(1)
             title_picture:EnableHitTest(1)
@@ -704,17 +830,17 @@ function indun_list_viewer_title_frame_open()
         end
     end
     x = x + 30
-    for i = 7, 12 do
+    for i = #icon_table + 1, #icon_table * 2 do
 
         if g.settings[tostring(check_table[i])] == 1 then
             local title_picture = title_gb:CreateOrGetControl('picture', "title_picture" .. i, x, 5, 30, 30);
             AUTO_CAST(title_picture)
-            local icon_name = icon_table[i - 6].icon_name --
+            local icon_name = icon_table[i - #icon_table].icon_name --
             title_picture:SetImage(icon_name)
             title_picture:SetEnableStretch(1)
             title_picture:EnableHitTest(1)
-            title_picture:SetUserValue("SOLO", icon_table[i - 6].solo)
-            title_picture:SetUserValue("AUTO", icon_table[i - 6].auto)
+            title_picture:SetUserValue("SOLO", icon_table[i - #icon_table].solo)
+            title_picture:SetUserValue("AUTO", icon_table[i - #icon_table].auto)
             title_picture:SetEventScript(ui.LBUTTONUP, "indun_list_viewer_enter_context")
             title_picture:SetTextTooltip(g.lang == "Japanese" and "左クリックでレイド画面表示{nl}" ..
                                              select_texts.auto_raid or "Left click to display raid screen{nl}" ..
@@ -745,10 +871,14 @@ function indun_list_viewer_title_frame_open()
         config_gb:SetSkinName("bg")
         config_gb:ShowWindow(1)
 
+        local text = config_gb:CreateOrGetControl("richtext", "text", 10, 10)
+        AUTO_CAST(text)
+        text:SetText(g.lang == "Japanese" and "チェックすると表示" or "{ol}Check to show")
+
         local title_gb = frame:CreateOrGetControl("groupbox", "title_gb", 0, 0, 10, 10)
         AUTO_CAST(title_gb)
-        local x = 185
-        for i = 1, 6 do
+        local x = text:GetWidth() + 35
+        for i = 1, #icon_table do
 
             local title_picture = title_gb:CreateOrGetControl('picture', "title_picture" .. i, x, 5, 30, 30);
             AUTO_CAST(title_picture)
@@ -762,22 +892,22 @@ function indun_list_viewer_title_frame_open()
         end
 
         x = x + 30
-        for i = 7, 12 do
+        for i = #icon_table + 1, #icon_table * 2 do
 
             local title_picture = title_gb:CreateOrGetControl('picture', "title_picture" .. i, x, 5, 30, 30);
             AUTO_CAST(title_picture)
-            local icon_name = icon_table[i - 6].icon_name
+            local icon_name = icon_table[i - #icon_table].icon_name
             title_picture:SetImage(icon_name)
             title_picture:SetEnableStretch(1)
             title_picture:EnableHitTest(1)
             title_picture:SetTextTooltip("{ol}" .. select_texts.auto_raid)
 
-            x = x + 65
+            x = x + 30
         end
-
+        x = x + 30
         local memo_text = title_gb:CreateOrGetControl("richtext", "memo_text", x, 10)
         AUTO_CAST(memo_text)
-        memo_text:SetText("{ol}" .. select_texts.memo)
+        memo_text:SetText("{ol}" .. select_texts.memo or "")
 
         local close_button = title_gb:CreateOrGetControl("button", "close_button", 0, 0, 20, 20)
         AUTO_CAST(close_button)
@@ -785,10 +915,6 @@ function indun_list_viewer_title_frame_open()
         close_button:SetGravity(ui.LEFT, ui.TOP)
         close_button:SetEventScript(ui.LBUTTONUP, "indun_list_viewer_close")
         close_button:SetEventScriptArgNumber(ui.LBUTTONUP, 1)
-
-        local text = config_gb:CreateOrGetControl("richtext", "text", 10, 10)
-        AUTO_CAST(text)
-        text:SetText("{ol}Display if checked")
 
         function indun_list_viewer_display_check(frame, ctrl, str, num)
 
@@ -805,8 +931,8 @@ function indun_list_viewer_title_frame_open()
         end
         indun_list_viewer_save_settings()
 
-        local x = 180
-        for i = 1, 6 do
+        local x = text:GetWidth() + 30
+        for i = 1, #icon_table do
 
             local check_box = config_gb:CreateOrGetControl('checkbox', "check_box" .. i, x, 5, 30, 30);
             AUTO_CAST(check_box)
@@ -817,20 +943,26 @@ function indun_list_viewer_title_frame_open()
             x = x + 30
         end
         x = x + 30
-        for i = 7, 13 do
+        local loop_end_index = #icon_table * 2 + 1
 
+        for i = #icon_table + 1, loop_end_index do
             local check_box = config_gb:CreateOrGetControl('checkbox', "check_box" .. i, x, 5, 30, 30);
             AUTO_CAST(check_box)
             check_box:SetCheck(g.settings[tostring(check_table[i])] or 1)
             check_box:SetEventScript(ui.LBUTTONDOWN, "indun_list_viewer_display_check")
             check_box:SetEventScriptArgString(ui.LBUTTONDOWN, check_table[i])
 
-            x = x + 65
+            if i == loop_end_index - 1 then
+                x = x + 60
+            else
+                x = x + 30
+            end
         end
-        title_gb:Resize(900 + 70, 55)
-        frame:Resize(865 + 80, 85)
 
-        config_gb:Resize(865 + 60, frame:GetHeight() - 45)
+        title_gb:Resize(x + 20, 55)
+        frame:Resize(x + 40, 85)
+
+        config_gb:Resize(frame:GetWidth() - 20, frame:GetHeight() - 45)
     end
 
     local config_btn = title_gb:CreateOrGetControl('button', 'config_btn', 75, 5, 30, 30)
@@ -872,9 +1004,9 @@ function indun_list_viewer_title_frame_open()
     display_text:SetText("{ol}" .. select_texts.display)
     display_text:SetTextTooltip("{ol}" .. select_texts.display_text)
 
-    title_gb:Resize(900 + 70, 55)
+    -- title_gb:Resize(x + 70, 55)
     frame:SetPos(665, 35)
-    frame:Resize(900 + 70, 55)
+    -- frame:Resize(x + 70, 55)
     frame:ShowWindow(1)
 
     indun_list_viewer_frame_open(frame)
@@ -898,6 +1030,7 @@ function indun_list_viewer_frame_open(frame)
     local gb = frame:CreateOrGetControl("groupbox", "gb", 10, 35, 10, 10)
     AUTO_CAST(gb)
     gb:SetSkinName("bg")
+    gb:RemoveAllChild()
 
     local sorted_new_settings = {}
     for _, data in ipairs(g.sorted_settings) do
@@ -916,7 +1049,7 @@ function indun_list_viewer_frame_open(frame)
     local y = 10
     g.x = 0
 
-    for _, data in ipairs(sorted_new_settings) do
+    for key, data in ipairs(sorted_new_settings) do
         local x = 35
         if type(data) == "table" then
             local pc_name = data.pc_name
@@ -930,241 +1063,82 @@ function indun_list_viewer_frame_open(frame)
             end
 
             indun_list_viewer_job_slot(frame, data, y)
-
+            x = x + 60
             local i = 1
             local index = 0
 
             if not data.hide then
-                local raid_count = data["raid_count"]
-                local auto_clear_count = data["auto_clear_count"]
 
-                if g.settings[tostring(check_table[i])] == 1 then
+                local hard_flag = false
+                local normal_flag = false
 
-                    x = index == 0 and x + 140 or x + 30
-                    index = index + 1
-                    local R_H = gb:CreateOrGetControl("richtext", "R_H" .. pc_name, x, y)
-                    AUTO_CAST(R_H)
-                    R_H:SetText("{ol}{s14}( " .. raid_count.R_H .. " )")
-                    if raid_count.R_H == 1 then
-                        R_H:SetColorTone("FF990000");
-                    else
-                        R_H:SetColorTone("FFFFFFFF");
+                for _, raid_name in ipairs(check_table) do
+                    if g.settings[raid_name] == 1 then
+                        if string.find(raid_name, "_H") then
+
+                            if not hard_flag then
+                                x = 180
+                                hard_flag = true
+                            else
+                                x = x + 30
+                            end
+
+                            local first_char, last_char = string.match(raid_name, "^(.).*_(.)$")
+                            local key = first_char .. "_" .. last_char
+                            -- if key ~= "V_H" and key ~= "L_H" then
+                            local count = data.raid_count[key]
+                            if count then
+                                local text_ctrl = gb:CreateOrGetControl("richtext", key .. pc_name, x, y)
+                                text_ctrl:SetText("{ol}{s14}( " .. count .. " )")
+                                text_ctrl:SetColorTone(count == 1 and "FF990000" or "FFFFFFFF")
+                            end
+                            -- end
+
+                        elseif string.find(raid_name, "_S") then
+                            if not hard_flag then
+                                x = 140
+                                hard_flag = true
+                            end
+
+                            if not normal_flag then
+                                x = x + 60
+                                normal_flag = true
+                            else
+                                x = x + 40
+                            end
+
+                            local base_key = string.match(raid_name, "^(.).*_S$")
+                            local key_a, key_s = base_key .. "_A", base_key .. "_S"
+
+                            local count_a = data.raid_count[key_a]
+                            local text_a = gb:CreateOrGetControl("richtext", key_a .. pc_name, x, y)
+                            text_a:SetText("{ol}{s14}( " .. count_a .. " )")
+                            text_a:SetColorTone(count_a == 2 and "FF990000" or "FFFFFFFF")
+
+                            x = x + 25
+                            local count_s = data.auto_clear_count[key_s]
+                            local text_s = gb:CreateOrGetControl("richtext", key_s .. pc_name, x, y)
+                            text_s:SetText("{ol}{s14}/( " .. count_s .. " )")
+
+                        elseif raid_name == "Memo" then
+
+                            x = x + 40
+                            local memo = gb:CreateOrGetControl('edit', 'memo' .. pc_name, x, y - 2, 180, 20)
+                            memo:SetFontName("white_14_ol")
+                            memo:SetTextAlign("left", "center")
+                            memo:SetSkinName("inventory_serch")
+                            memo:SetEventScript(ui.ENTERKEY, "indun_list_viewer_memo_save")
+                            memo:SetEventScriptArgString(ui.ENTERKEY, pc_name)
+                            memo:SetText(data.memo or "")
+                            x = x + 140
+                        end
                     end
-                end
-
-                i = i + 1
-                if g.settings[tostring(check_table[i])] == 1 then
-                    x = index == 0 and x + 140 or x + 30
-                    index = index + 1
-                    local N_H = gb:CreateOrGetControl("richtext", "N_H" .. pc_name, x, y)
-                    AUTO_CAST(N_H)
-                    N_H:SetText("{ol}{s14}( " .. raid_count.N_H .. " )")
-                    if raid_count.N_H == 1 then
-                        N_H:SetColorTone("FF990000");
-                    else
-                        N_H:SetColorTone("FFFFFFFF");
-                    end
-                end
-
-                i = i + 1
-                if g.settings[tostring(check_table[i])] == 1 then
-                    x = index == 0 and x + 140 or x + 30
-                    index = index + 1
-                    local G_H = gb:CreateOrGetControl("richtext", "G_H" .. pc_name, x, y)
-                    AUTO_CAST(G_H)
-                    G_H:SetText("{ol}{s14}( " .. raid_count.G_H .. " )")
-                    if raid_count.G_H == 1 then
-                        G_H:SetColorTone("FF990000");
-                    else
-                        G_H:SetColorTone("FFFFFFFF");
-                    end
-                end
-
-                i = i + 1
-                if g.settings[tostring(check_table[i])] == 1 then
-                    x = index == 0 and x + 140 or x + 30
-                    index = index + 1
-                    local M_H = gb:CreateOrGetControl("richtext", "M_H" .. pc_name, x, y)
-                    AUTO_CAST(M_H)
-                    M_H:SetText("{ol}{s14}( " .. raid_count.M_H .. " )")
-                    if raid_count.M_H == 1 then
-                        M_H:SetColorTone("FF990000");
-                    else
-                        M_H:SetColorTone("FFFFFFFF");
-                    end
-                end
-
-                i = i + 1
-                if g.settings[tostring(check_table[i])] == 1 then
-                    x = index == 0 and x + 140 or x + 30
-                    index = index + 1
-                    local S_H = gb:CreateOrGetControl("richtext", "S_H" .. pc_name, x, y)
-                    AUTO_CAST(S_H)
-                    S_H:SetText("{ol}{s14}( " .. raid_count.S_H .. " )")
-                    if raid_count.S_H == 1 then
-                        S_H:SetColorTone("FF990000");
-                    else
-                        S_H:SetColorTone("FFFFFFFF");
-                    end
-                end
-
-                i = i + 1
-                if g.settings[tostring(check_table[i])] == 1 then
-                    x = index == 0 and x + 140 or x + 30
-                    index = index + 1
-
-                    local U_H = gb:CreateOrGetControl("richtext", "U_H" .. pc_name, x, y)
-                    AUTO_CAST(U_H)
-                    U_H:SetText("{ol}{s14}( " .. raid_count.U_H .. " )")
-                    if raid_count.U_H == 1 then
-                        U_H:SetColorTone("FF990000");
-                    else
-                        U_H:SetColorTone("FFFFFFFF");
-                    end
-
-                end
-
-                i = i + 1
-                if x >= 175 then
-                    index = 0
-                else
-                    x = 140
-                end
-                if g.settings[tostring(check_table[i])] == 1 then
-                    x = index == 0 and x + 60 or x + 40
-                    index = index + 1
-
-                    local R_A = gb:CreateOrGetControl("richtext", "R_A" .. pc_name, x, y)
-                    AUTO_CAST(R_A)
-                    R_A:SetText("{ol}{s14}( " .. raid_count.R_A .. " )")
-                    if raid_count.R_A == 2 then
-                        R_A:SetColorTone("FF990000");
-                    else
-                        R_A:SetColorTone("FFFFFFFF");
-                    end
-
-                    x = x + 25
-                    local R_S = gb:CreateOrGetControl("richtext", "R_S" .. pc_name, x, y)
-                    AUTO_CAST(R_S)
-                    R_S:SetText("{ol}{s14}/( " .. auto_clear_count.R_S .. " )")
-                end
-
-                i = i + 1
-                if g.settings[tostring(check_table[i])] == 1 then
-                    x = index == 0 and x + 60 or x + 40
-                    index = index + 1
-                    local N_A = gb:CreateOrGetControl("richtext", "N_A" .. pc_name, x, y)
-                    AUTO_CAST(N_A)
-                    N_A:SetText("{ol}{s14}( " .. raid_count.N_A .. " )")
-                    if raid_count.N_A == 2 then
-                        N_A:SetColorTone("FF990000");
-                    else
-                        N_A:SetColorTone("FFFFFFFF");
-                    end
-
-                    x = x + 25
-                    local N_S = gb:CreateOrGetControl("richtext", "N_S" .. pc_name, x, y)
-                    AUTO_CAST(N_S)
-                    N_S:SetText("{ol}{s14}/( " .. auto_clear_count.N_S .. " )")
-                end
-
-                i = i + 1
-                if g.settings[tostring(check_table[i])] == 1 then
-                    x = index == 0 and x + 60 or x + 40
-                    index = index + 1
-                    local G_A = gb:CreateOrGetControl("richtext", "G_A" .. pc_name, x, y)
-                    AUTO_CAST(G_A)
-                    G_A:SetText("{ol}{s14}( " .. raid_count.G_A .. " )")
-                    if raid_count.G_A == 2 then
-                        G_A:SetColorTone("FF990000");
-                    else
-                        G_A:SetColorTone("FFFFFFFF");
-                    end
-
-                    x = x + 25
-                    local G_S = gb:CreateOrGetControl("richtext", "G_S" .. pc_name, x, y)
-                    AUTO_CAST(G_S)
-                    G_S:SetText("{ol}{s14}/( " .. auto_clear_count.G_S .. " )")
-                end
-
-                i = i + 1
-                if g.settings[tostring(check_table[i])] == 1 then
-                    x = index == 0 and x + 60 or x + 40
-                    index = index + 1
-                    local M_A = gb:CreateOrGetControl("richtext", "M_A" .. pc_name, x, y)
-                    AUTO_CAST(M_A)
-                    M_A:SetText("{ol}{s14}( " .. raid_count.M_A .. " )")
-                    if raid_count.M_A == 2 then
-                        M_A:SetColorTone("FF990000");
-                    else
-                        M_A:SetColorTone("FFFFFFFF");
-                    end
-                    x = x + 25
-                    local M_S = gb:CreateOrGetControl("richtext", "M_S" .. pc_name, x, y)
-                    AUTO_CAST(M_S)
-                    M_S:SetText("{ol}{s14}/( " .. auto_clear_count.M_S .. " )")
-
-                end
-
-                i = i + 1
-                if g.settings[tostring(check_table[i])] == 1 then
-                    x = index == 0 and x + 60 or x + 40
-                    index = index + 1
-                    local S_A = gb:CreateOrGetControl("richtext", "S_A" .. pc_name, x, y)
-                    AUTO_CAST(S_A)
-                    S_A:SetText("{ol}{s14}( " .. raid_count.S_A .. " )")
-                    if raid_count.S_A == 2 then
-                        S_A:SetColorTone("FF990000");
-                    else
-                        S_A:SetColorTone("FFFFFFFF");
-                    end
-                    x = x + 25
-                    local S_S = gb:CreateOrGetControl("richtext", "S_S" .. pc_name, x, y)
-                    AUTO_CAST(S_S)
-                    S_S:SetText("{ol}{s14}/( " .. auto_clear_count.S_S .. " )")
-                end
-
-                i = i + 1
-                if g.settings[tostring(check_table[i])] == 1 then
-                    x = index == 0 and x + 60 or x + 40
-                    index = index + 1
-                    local U_A = gb:CreateOrGetControl("richtext", "U_A" .. pc_name, x, y)
-                    AUTO_CAST(U_A)
-                    U_A:SetText("{ol}{s14}( " .. raid_count.U_A .. " )")
-                    if raid_count.U_A == 2 then
-                        U_A:SetColorTone("FF990000");
-                    else
-                        U_A:SetColorTone("FFFFFFFF");
-                    end
-                    x = x + 25
-                    local U_S = gb:CreateOrGetControl("richtext", "U_S" .. pc_name, x, y)
-                    AUTO_CAST(U_S)
-                    U_S:SetText("{ol}{s14}/( " .. auto_clear_count.U_S .. " )")
-                end
-
-                if g.settings[tostring(check_table[#check_table])] == 1 then
-
-                    local memo = gb:CreateOrGetControl('edit', 'memo' .. pc_name, x + 40, y - 2, 180, 20)
-                    AUTO_CAST(memo)
-                    memo:SetFontName("white_14_ol")
-                    memo:SetTextAlign("left", "center")
-                    memo:SetSkinName("inventory_serch"); -- test_edit_skin--test_weight_skin--inventory_serch
-                    memo:SetEventScript(ui.ENTERKEY, "indun_list_viewer_memo_save")
-                    memo:SetEventScriptArgString(ui.ENTERKEY, pc_name)
-                    local memoData = data.memo
-                    memo:SetText(memoData)
-
-                    x = x + 180
-
                 end
 
             end
-            if not g.x then
-                g.x = x
-            elseif x > g.x then
+            if not g.x or x > g.x then
                 g.x = x
             end
-            i = i + 1
             y = y + 25
         end
     end

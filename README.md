@@ -477,6 +477,7 @@ Tree of Savior 用のアドオンを作成・改変しています。
 
 ![キャプチャ](https://github.com/ajinorisan/TOSAddon-public/assets/128560971/a7d82d3f-1571-4e36-abb0-3d22e022d497)
 
+*   v1.2.9 アラクネ姉妹対応、他鯖のリセット時間修正
 *   v1.2.8 indun panelとの連携のための修正
 *   v1.2.7 レイド残り回数取得安定化修正
 *   v1.2.6 再度修正
