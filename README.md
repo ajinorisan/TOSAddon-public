@@ -705,6 +705,7 @@ Tree of Savior 用のアドオンを作成・改変しています。
 
 ![cchelper](https://github.com/ajinorisan/TOSAddon-public/assets/128560971/5f184a1b-fd24-4d17-a701-86a491f3dd42)
 
+*   v1.3.6 コアに対応。レリックに再対応。
 *   v1.3.5 セーブデータをバグりにくい様に修正
 *   v1.3.4 セーブデータのジョブバグってたの修正
 *   v1.3.3 コード全体見直し。mcc殺した。ペット登録可能に

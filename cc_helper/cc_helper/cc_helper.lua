@@ -20,10 +20,11 @@
 -- v1.3.3 コード全体見直し。mcc殺した。ペット登録可能に
 -- v1.3.4 セーブデータのジョブバグってたの修正
 -- v1.3.5 JSON作るのバグってたの修正したつもり。カード装着画面閉じる時間調整
+-- v1.3.6 JSON作る階層バグってたの修正。疲れてたんやと思う。コアとレリック追加
 local addon_name = "CC_HELPER"
 local addon_name_lower = string.lower(addon_name)
 local author = "norisan"
-local ver = "1.3.5"
+local ver = "1.3.6"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -99,11 +100,64 @@ function g.load_json(path)
     return decoded_table, nil
 end
 
+local function ts(...)
+
+    local num_args = select('#', ...)
+
+    if num_args == 0 then
+        return
+    end
+
+    local string_parts = {}
+
+    for i = 1, num_args do
+        local arg = select(i, ...)
+        table.insert(string_parts, tostring(arg))
+    end
+
+    print(table.concat(string_parts, "\t"))
+end
+
+local DEFAULT_EQUIP_SLOT = {
+    iesid = "",
+    clsid = 0,
+    image = "",
+    skin = "",
+    memo = ""
+}
+
+local DEFAULT_CHAR_SETTINGS = {
+    name = "",
+    mcc_use = 0,
+    agm_use = 0,
+    agm_check = 1,
+    gender = 0,
+    jobid = 0,
+    seal = {},
+    ark = {},
+    leg = {},
+    god = {},
+    hair1 = {},
+    hair2 = {},
+    hair3 = {},
+    gem1 = {},
+    gem2 = {},
+    gem3 = {},
+    gem4 = {},
+    pet = {},
+    core = {},
+    relic = {}
+}
+
 function cc_helper_save_settings()
+
     g.save_json(g.cid_settings_path, g.settings)
 end
 
 function cc_helper_load_settings()
+
+    g.old_settings_path = string.format('../addons/%s/%s.json', addon_name_lower, g.cid)
+    g.cid_settings_path = string.format('../addons/%s/%s/%s.json', addon_name_lower, g.active_id, g.cid)
 
     local share_settings = g.load_json(g.settings_path)
 
@@ -124,24 +178,23 @@ function cc_helper_load_settings()
     local old_settings = g.load_json(g.old_settings_path)
 
     if old_settings then
-        print("古い形式の設定ファイルを発見しました。新しい形式に移行します...")
+        -- print("古い形式の設定ファイルを発見しました。新しい形式に移行します...")
         g.save_json(g.cid_settings_path, old_settings)
 
         local new_file_check = io.open(g.cid_settings_path, "r")
         if new_file_check then
             new_file_check:close()
 
-            print("新しい設定ファイルの作成に成功しました。古いファイルを削除します。")
+            -- print("新しい設定ファイルの作成に成功しました。古いファイルを削除します。")
 
             local success, err = os.remove(g.old_settings_path)
 
             if not success then
-                print(string.format("古い設定ファイルの削除に失敗しました: %s", tostring(err)))
+                -- print(string.format("古い設定ファイルの削除に失敗しました: %s", tostring(err)))
             end
 
         else
-            print(
-                "警告：新しい設定ファイルの作成に失敗しました。古いファイルは、削除しませんでした。")
+            -- print("警告：新しい設定ファイルの作成に失敗しました。古いファイルは、削除しませんでした。")
         end
     end
 
@@ -151,71 +204,95 @@ function cc_helper_load_settings()
         settings = {}
     end
 
+    if not settings[g.cid] then
+        settings[g.cid] = {}
+    end
+
+    for key, default_value in pairs(DEFAULT_CHAR_SETTINGS) do
+        if settings[g.cid][key] == nil then
+            settings[g.cid][key] = (type(default_value) == "table") and {} or default_value
+        end
+    end
+
+    for key, value in pairs(settings[g.cid]) do
+
+        if type(value) == "table" and type(DEFAULT_CHAR_SETTINGS[key]) == "table" then
+
+            for sub_key, sub_default_value in pairs(DEFAULT_EQUIP_SLOT) do
+                if value[sub_key] == nil then
+                    value[sub_key] = sub_default_value
+                end
+            end
+        end
+    end
+
     local pc_info = session.barrack.GetMyAccount():GetByStrCID(g.cid)
     local pc_apc = pc_info:GetApc()
     local jobid = pc_info:GetRepID() or pc_apc:GetJob()
     local gender = pc_apc:GetGender()
 
-    if not settings[g.cid] then
-        local temp_tbl = {"name", "mcc_use", "agm_use", "agm_check", "seal", "ark", "leg", "god", "hair1", "hair2",
-                          "hair3", "gem1", "gem2", "gem3", "gem4", "gender", "jobid"}
-        settings[g.cid] = {}
-
-        for i, key in ipairs(temp_tbl) do
-            if key == "name" then
-                settings[g.cid][key] = g.login_name
-            elseif key == "mcc_use" then
-                settings[g.cid][key] = 0
-            elseif key == "agm_use" then
-                settings[g.cid][key] = 0
-            elseif key == "agm_check" then
-                settings[g.cid][key] = 1
-            elseif key == "gender" then
-                settings[g.cid][key] = gender
-            elseif key == "jobid" then
-                settings[g.cid][key] = jobid
-            else
-                settings[g.cid][key] = {
-                    iesid = "",
-                    clsid = 0,
-                    image = "",
-                    skin = "",
-                    memo = ""
-                }
-            end
-        end
-    end
-
-    if not settings[g.cid].pet then
-        settings[g.cid].pet = {
-            iesid = "",
-            clsid = 0,
-            image = "",
-            skin = "",
-            memo = ""
-        }
-    end
+    settings[g.cid].name = g.login_name
+    settings[g.cid].jobid = jobid
+    settings[g.cid].gender = gender
 
     g.settings = settings
 
-    cc_helper_save_settings()
+    --[[print("--- g.settings の内容 ---")
+    DebugPrintTable(g.settings)
+    print("--- 表示完了 ---")]]
 
+    local function cc_helper_filter_table_bykey(original_table, key_to_keep)
+        local filtered_table = {}
+        if original_table and original_table[key_to_keep] then
+            filtered_table[key_to_keep] = original_table[key_to_keep]
+        end
+        return filtered_table
+    end
+
+    g.settings = cc_helper_filter_table_bykey(g.settings, g.cid)
+    cc_helper_save_settings()
 end
+
+--[[function DebugPrintTable(tbl, indent)
+    indent = indent or ""
+
+    for key, value in pairs(tbl) do
+        -- キーの文字列は変更なし
+        local key_str = indent .. "[" .. tostring(key) .. "] ="
+        local value_type = type(value)
+
+        if value_type == "table" then
+            print(key_str .. "{")
+            DebugPrintTable(value, indent .. "  ")
+            print(indent .. "}")
+        else
+            -- ★★★ 変更点: 値が文字列なら "'" で囲む ★★★
+            if value_type == "string" then
+                print(key_str .. "'" .. tostring(value) .. "'")
+            else
+                print(key_str .. tostring(value))
+            end
+        end
+    end
+end]]
 
 function cc_helper_function_check()
 
+    local agm_use = true
+
     if type(_G["AETHERGEM_MGR_ON_INIT"]) == "function" then
 
-        g.agm = true
+        return agm_use
 
     else
-        g.agm = false
+        agm_use = false
         if g.settings[g.cid].agm_use == 1 then
             g.settings[g.cid].agm_use = 0
         end
+        cc_helper_save_settings()
     end
 
-    cc_helper_save_settings()
+    return agm_use
 end
 
 function g.setup_hook_and_event(my_addon, origin_func_name, my_func_name, bool)
@@ -265,8 +342,7 @@ function CC_HELPER_ON_INIT(addon, frame)
     g.REGISTER = {}
 
     if g.get_map_type() == "City" then
-        g.old_settings_path = string.format('../addons/%s/%s.json', addon_name_lower, g.cid)
-        g.cid_settings_path = string.format('../addons/%s/%s/%s.json', addon_name_lower, g.active_id, g.cid)
+
         addon:RegisterMsg("GAME_START", "cc_helper_load_settings")
 
         g.setup_hook_and_event(addon, "ACCOUNTWAREHOUSE_CLOSE", "cc_helper_ACCOUNTWAREHOUSE_CLOSE", true)
@@ -302,6 +378,18 @@ function cc_helper_AETHERGEM_MGR_SAVE_SETTINGS(my_frame, my_msg)
         end
     end
     cc_helper_save_settings()
+
+    local frame_name = string.lower("AETHERGEM_MGR") .. "setting_frame"
+    local agm_setting_frame = ui.GetFrame(frame_name)
+    if not agm_setting_frame then
+        return
+    else
+        AUTO_CAST(agm_setting_frame)
+    end
+    if agm_setting_frame:IsVisible() == 1 then
+        cc_helper_setting_frame_init("", "", "minimum", "")
+        return
+    end
 end
 
 function cc_helper_invframe_init()
@@ -403,6 +491,7 @@ function cc_helper_ACCOUNTWAREHOUSE_CLOSE(frame)
 
     in_btn:ShowWindow(0)
     out_btn:ShowWindow(0)
+    INVENTORY_SET_CUSTOM_RBTNDOWN("None")
 end
 
 function cc_helper_check_setting(frame, ctrl)
@@ -461,190 +550,283 @@ end
 
 -- settingframe
 
-local slot_info = {
-    ["seal"] = {
-        x = 10,
-        y = 210,
-        text = "{ol}{s14}SEAL"
-    },
-    ["ark"] = {
-        x = 65,
-        y = 210,
-        text = "{ol}{s14}ARK"
-    },
-    ["gem1"] = {
-        x = 10,
-        y = 320,
-        text = "{ol}{s12}AETHER{nl}GEM1"
-    },
-    ["gem2"] = {
-        x = 65,
-        y = 320,
-        text = "{ol}{s12}AETHER{nl}GEM2"
-    },
-    ["gem3"] = {
-        x = 120,
-        y = 320,
-        text = "{ol}{s12}AETHER{nl}GEM3"
-    },
-    ["gem4"] = {
-        x = 175,
-        y = 320,
-        text = "{ol}{s12}AETHER{nl}GEM4"
-    },
-    ["leg"] = {
-        x = 10,
-        y = 45,
-        text = "{ol}{s14}LEGEND{nl}CARD"
-    },
-    ["god"] = {
-        x = 120,
-        y = 45,
-        text = "{ol}{s14}GODDESS{nl}CARD"
-    },
-    ["hair1"] = {
-        x = 10,
-        y = 265,
-        text = "{ol}{s14}HAIR1"
-    },
-    ["hair2"] = {
-        x = 65,
-        y = 265,
-        text = "{ol}{s14}HAIR2"
-    },
-    ["hair3"] = {
-        x = 120,
-        y = 265,
-        text = "{ol}{s14}HAIR3"
-    },
-    ["pet"] = {
-        x = 160,
-        y = 410,
-        text = "{ol}{s14}PET"
-    }
-}
+function cc_helper_setting_frame_close_by_agm(frame)
+    local frame_name = string.lower("AETHERGEM_MGR") .. "setting_frame"
+    local agm_setting_frame = ui.GetFrame(frame_name)
+    if not agm_setting_frame then
+        return 0
+    else
+        AUTO_CAST(agm_setting_frame)
+    end
+    if agm_setting_frame:IsVisible() == 0 then
+        frame:ShowWindow(0)
+        return 0
+    end
+    return 1
+end
 
-function cc_helper_setting_frame_init()
-    cc_helper_function_check()
-    local awhframe = ui.GetFrame("accountwarehouse")
-    ACCOUNTWAREHOUSE_CLOSE(awhframe)
-    UI_TOGGLE_INVENTORY()
+function cc_helper_settings_close(frame)
+    --[[if type(_G["ANOTHER_WAREHOUSE_ON_INIT"]) == "function" then
+        ts("aru")
+        INVENTORY_SET_CUSTOM_RBTNDOWN("another_warehouse_setting_rbtn")
+    else
+
+    end]]
+    local accountwarehouse = ui.GetFrame("accountwarehouse")
+    if accountwarehouse:IsVisible() == 1 then
+        INVENTORY_SET_CUSTOM_RBTNDOWN("ACCOUNT_WAREHOUSE_INV_RBTN")
+    end
+    -- 
+    local cc_helper = ui.GetFrame("cc_helper")
+    cc_helper:ShowWindow(0)
+end
+
+function cc_helper_load_copy(cid)
+
+    local function cc_helper_deep_copy(original)
+        local copy = {}
+        for k, v in pairs(original) do
+            if type(v) == "table" then
+                copy[k] = cc_helper_deep_copy(v)
+            else
+                copy[k] = v
+            end
+        end
+        return copy
+    end
+
+    g.settings[g.cid] = cc_helper_deep_copy(g.copy_settings[cid])
+    g.settings[g.cid]["name"] = g.login_name
+
+    cc_helper_save_settings()
+    cc_helper_setting_frame_init()
+
+    local frame = ui.GetFrame("cc_helper")
+    frame:ShowWindow(1)
+end
+
+function cc_helper_setting_copy(frame, ctrl, str, num)
+
+    local old_copy_path = string.format('../addons/%s/%s_copy.json', addon_name_lower, g.active_id)
+    local new_copy_path = string.format('../addons/%s/%s/%s_copy.json', addon_name_lower, g.active_id, g.active_id)
+
+    local old_copy_settings = g.load_json(old_copy_path)
+
+    if old_copy_settings then
+        print("古い形式のコピー設定ファイルを発見。移行します...")
+
+        g.save_json(new_copy_path, old_copy_settings)
+
+        local new_copy_file_check = io.open(new_copy_path, "r")
+        if new_copy_file_check then
+            new_copy_file_check:close()
+
+            print("新しいコピー設定ファイルの作成に成功。古いファイルを削除します。")
+
+            os.remove(old_copy_path)
+
+        else
+            print(
+                "警告：新しいコピー設定ファイルの作成に失敗。古いファイルは削除しませんでした。")
+        end
+    end
+
+    g.copy_settings = g.load_json(new_copy_path)
+
+    local context = ui.CreateContextMenu("MAPFOG_CONTEXT", "{ol}Copy source", 0, 0, 0, 0)
+    ui.AddContextMenuItem(context, "-----", "")
+
+    for cid, tbl in pairs(g.copy_settings) do
+
+        if next(tbl) then
+            local job_cls = GetClassByType("Job", tbl.jobid)
+            local job_name = GET_JOB_NAME(job_cls, tbl.gender)
+            local name = tbl.name
+            local text = name .. "(" .. job_name .. ")"
+            local scp = ui.AddContextMenuItem(context, text, string.format("cc_helper_load_copy('%s')", cid))
+        end
+
+    end
+    ui.OpenContextMenu(context)
+
+end
+
+function cc_helper_setting_save(frame, ctrl, str, num)
+
+    local copy_settings_location = string.format('../addons/%s/%s/%s_copy.json', addon_name_lower, g.active_id,
+        g.active_id)
+    local copy_settings = g.load_json(copy_settings_location)
+    if not copy_settings then
+        copy_settings = {}
+    end
+    if not copy_settings[g.cid] then
+        copy_settings[g.cid] = {}
+    end
+    local pc_info = session.barrack.GetMyAccount():GetByStrCID(g.cid)
+    local pc_apc = pc_info:GetApc()
+    local jobid = pc_info:GetRepID() or pc_apc:GetJob()
+    local gender = pc_apc:GetGender()
+    g.settings[g.cid].jobid = jobid
+    g.settings[g.cid].gender = gender
+    copy_settings[g.cid] = g.settings[g.cid]
+
+    g.copy_settings = copy_settings
+    g.save_json(copy_settings_location, g.copy_settings)
+
+    ui.SysMsg(g.lang == "Japanese" and "{ol}{#FFFF00}設定を保存しました" or "{ol}{#FFFF00}Settings saved")
+    cc_helper_save_settings()
+end
+
+function cc_helper_cancel(frame, ctrl, argstr, argnum)
+
+    ctrl:ClearIcon()
+    ctrl:RemoveAllChild()
+    local name = ctrl:GetName()
+
+    for key, value in pairs(g.settings[g.cid]) do
+        if name == key then
+            value.image = ""
+            value.iesid = ""
+            value.clsid = 0
+            value.skin = ""
+            value.memo = ""
+            if string.find(name, "god") == nil and string.find(name, "leg") == nil then
+                local skinName = "invenslot2"
+                ctrl:SetSkinName(skinName)
+            end
+            break
+        end
+    end
+
+    cc_helper_save_settings()
+end
+
+function cc_helper_tooltip(frame, ctrl, argStr, argNum)
+
+    local tooltip = ui.GetTooltip("wholeitem")
+    local rect = tooltip:GetMargin()
+    tooltip:SetMargin(rect.left, rect.top - 50, rect.righ, rect.bottom)
+    local equip_main = GET_CHILD_RECURSIVELY(tooltip, 'equip_main')
+    local tooltip_ark_lv = GET_CHILD_RECURSIVELY(equip_main, "tooltip_ark_lv")
+    local invitem = session.GetInvItemByGuid(g.settings[g.cid]["ark"].iesid)
+    if invitem == nil then
+        return
+    end
+    local item_obj = GetIES(invitem:GetObject())
+
+    local ypos = 0
+
+    ypos = DRAW_EQUIP_COMMON_TOOLTIP_SMALL_IMG(tooltip, item_obj, "equip_main")
+
+    ypos = DRAW_ARK_LV(tooltip, item_obj, 170, "equip_main")
+
+    ypos = DRAW_ARK_OPTION(tooltip, item_obj, ypos, "equip_main")
+    ypos = DRAW_ARK_EXP(tooltip, item_obj, ypos, "equip_main")
+    ypos = DRAW_EQUIP_MEMO(tooltip, item_obj, ypos, "equip_main")
+    ypos = DRAW_EQUIP_ARK_DESC(tooltip, item_obj, ypos, "equip_main") -- 각종 설명문
+
+    ypos = DRAW_EQUIP_TRADABILITY(tooltip, item_obj, ypos, "equip_main") -- 거래 제한
+    ypos = DRAW_CANNOT_REINFORCE(tooltip, item_obj, ypos, "equip_main") -- 초월 및 강화불가
+
+    local isHaveLifeTime = TryGetProp(item_obj, "LifeTime", 0) -- 기간제
+    if 0 == tonumber(isHaveLifeTime) then
+        ypos = DRAW_SELL_PRICE(tooltip, item_obj, ypos, "equip_main")
+    else
+        ypos = DRAW_REMAIN_LIFE_TIME(tooltip, item_obj, ypos, "equip_main")
+    end
+
+    ypos = ypos + 3
+    -- ypos = DRAW_TOGGLE_EQUIP_DESC(tooltip, item_obj, ypos, "equip_main") -- 설명문 토글 여부
+
+    local gBox = GET_CHILD(tooltip, "equip_main", 'ui::CGroupBox')
+    gBox:Resize(gBox:GetWidth(), ypos + 20)
+    tooltip:Resize(gBox:GetWidth(), ypos + 20)
+
+end
+
+function cc_helper_setting_delete_(cid)
+
+    local copy_settings_location = string.format('../addons/%s/%s/%s_copy.json', addon_name_lower, g.active_id,
+        g.active_id)
+    local copy_settings = g.load_json(copy_settings_location)
+    if not copy_settings then
+        copy_settings = {}
+    end
+    if not copy_settings[cid] then
+        copy_settings[cid] = {}
+    end
+    copy_settings[cid] = {}
+    g.copy_settings = copy_settings
+    g.save_json(copy_settings_location, g.copy_settings)
+    ui.SysMsg(g.lang == "Japanese" and "{ol}{#FFFF00}設定を削除しました" or "{ol}{#FFFF00}Settings deleted")
+    -- cc_helper_save_settings()
+end
+
+function cc_helper_setting_delete(frame, ctrl, str, num)
+
+    local context = ui.CreateContextMenu("MAPFOG_CONTEXT", "{ol}{#FF0000}Delete Data", 0, 0, 0, 0)
+    ui.AddContextMenuItem(context, "{ol}{#FF0000}" .. "-----", "")
+
+    for cid, tbl in pairs(g.copy_settings) do
+
+        if next(tbl) then
+            local job_cls = GetClassByType("Job", tbl.jobid)
+            local job_name = GET_JOB_NAME(job_cls, tbl.gender)
+            local name = tbl.name
+            local text = "{ol}{#FF0000}" .. name .. "(" .. job_name .. ")"
+            local scp = ui.AddContextMenuItem(context, text, string.format("cc_helper_setting_delete_('%s')", cid))
+        end
+
+    end
+    ui.OpenContextMenu(context)
+
+end
+
+function cc_helper_setting_frame_init(frame, ctrl, minimum, num)
+
+    -- local awhframe = ui.GetFrame("accountwarehouse")
+    -- ACCOUNTWAREHOUSE_CLOSE(awhframe)
+    -- UI_TOGGLE_INVENTORY()
 
     local frame = ui.GetFrame("cc_helper")
     frame:RemoveAllChild()
     frame:SetSkinName("test_frame_low")
     frame:SetLayerLevel(93)
+
+    if minimum == "minimum" then
+        frame:SetPos(885, 300)
+        frame:RunUpdateScript("cc_helper_setting_frame_close_by_agm", 0.3)
+    else
+        frame:SetPos(1185, 380)
+    end
     frame:Resize(235, 470)
-    frame:SetPos(1185, 380)
+    -- frame:SetPos(1185, 380)
     frame:SetTitleBarSkin("None")
     frame:EnableHittestFrame(1)
     frame:EnableHitTest(1)
 
     if frame:IsVisible() == 0 then
         frame:ShowWindow(1)
+    elseif minimum == "minimum" then
+        frame:ShowWindow(1)
     else
         frame:ShowWindow(0)
     end
 
+    if minimum ~= "minimum" then
+        local close = frame:CreateOrGetControl('button', 'close', 0, 0, 30, 30)
+        AUTO_CAST(close)
+        close:SetImage("testclose_button")
+        close:SetGravity(ui.LEFT, ui.TOP)
+        close:SetEventScript(ui.LBUTTONUP, "cc_helper_settings_close")
+
+    end
     INVENTORY_SET_CUSTOM_RBTNDOWN("cc_helper_inv_rbtn")
-
-    function cc_helper_load_copy(cid)
-
-        local function deepCopy(original)
-            local copy = {}
-            for k, v in pairs(original) do
-                if type(v) == "table" then
-                    copy[k] = deepCopy(v)
-                else
-                    copy[k] = v
-                end
-            end
-            return copy
-        end
-
-        g.settings[g.cid] = deepCopy(g.copy_settings[cid])
-        g.settings[g.cid]["name"] = g.login_name
-
-        cc_helper_save_settings()
-        cc_helper_setting_frame_init()
-        frame:ShowWindow(1)
-    end
-
-    function cc_helper_setting_copy(frame, ctrl, str, num)
-
-        local old_copy_path = string.format('../addons/%s/%s_copy.json', addon_name_lower, g.active_id)
-        local new_copy_path = string.format('../addons/%s/%s/%s_copy.json', addon_name_lower, g.active_id, g.active_id)
-
-        local old_copy_settings = g.load_json(old_copy_path)
-
-        if old_copy_settings then
-            print("古い形式のコピー設定ファイルを発見。移行します...")
-
-            g.save_json(new_copy_path, old_copy_settings)
-
-            local new_copy_file_check = io.open(new_copy_path, "r")
-            if new_copy_file_check then
-                new_copy_file_check:close()
-
-                print("新しいコピー設定ファイルの作成に成功。古いファイルを削除します。")
-
-                os.remove(old_copy_path)
-
-            else
-                print(
-                    "警告：新しいコピー設定ファイルの作成に失敗。古いファイルは削除しませんでした。")
-            end
-        end
-
-        g.copy_settings = g.load_json(new_copy_path)
-
-        local context = ui.CreateContextMenu("MAPFOG_CONTEXT", "{ol}Copy source", 0, 0, 0, 0)
-        ui.AddContextMenuItem(context, "-----", "")
-
-        for cid, tbl in pairs(g.copy_settings) do
-
-            if next(tbl) then
-                local job_cls = GetClassByType("Job", tbl.jobid)
-                local job_name = GET_JOB_NAME(job_cls, tbl.gender)
-                local name = tbl.name
-                local text = name .. "(" .. job_name .. ")"
-                local scp = ui.AddContextMenuItem(context, text, string.format("cc_helper_load_copy('%s')", cid))
-            end
-
-        end
-        ui.OpenContextMenu(context)
-
-    end
 
     local copy = frame:CreateOrGetControl('button', 'copy', 180, 10, 40, 30)
     AUTO_CAST(copy)
     copy:SetText("{ol}copy")
     copy:SetEventScript(ui.LBUTTONUP, "cc_helper_setting_copy")
-
-    function cc_helper_setting_save(frame, ctrl, str, num)
-
-        local copy_settings_location = string.format('../addons/%s/%s_copy.json', addon_name_lower, g.active_id)
-        local copy_settings = g.load_json(copy_settings_location)
-        if not copy_settings then
-            copy_settings = {}
-        end
-        if not copy_settings[g.cid] then
-            copy_settings[g.cid] = {}
-        end
-        local pc_info = session.barrack.GetMyAccount():GetByStrCID(g.cid)
-        local pc_apc = pc_info:GetApc()
-        local jobid = pc_info:GetRepID() or pc_apc:GetJob()
-        local gender = pc_apc:GetGender()
-        g.settings[g.cid].jobid = jobid
-        g.settings[g.cid].gender = gender
-        copy_settings[g.cid] = g.settings[g.cid]
-
-        g.copy_settings = copy_settings
-        g.save_json(copy_settings_location, g.copy_settings)
-
-        ui.SysMsg(g.lang == "Japanese" and "{ol}{#FFFF00}設定を保存しました" or "{ol}{#FFFF00}Settings saved")
-        cc_helper_save_settings()
-    end
 
     local save = frame:CreateOrGetControl('button', 'save', 130, 10, 40, 30)
     AUTO_CAST(save)
@@ -653,22 +835,6 @@ function cc_helper_setting_frame_init()
     save:SetTextTooltip(g.lang == "Japanese" and "{ol}このキャラの設定をコピー用に保存します" or
                             "{ol}Save this character settings for copying")
 
-    function cc_helper_setting_delete(frame, ctrl, str, num)
-        local copy_settings_location = string.format('../addons/%s/%s_copy.json', addon_name_lower, g.active_id)
-        local copy_settings = g.load_json(copy_settings_location)
-        if not copy_settings then
-            copy_settings = {}
-        end
-        if not copy_settings[g.cid] then
-            copy_settings[g.cid] = {}
-        end
-        copy_settings[g.cid] = {}
-        g.copy_settings = copy_settings
-        g.save_json(copy_settings_location, g.copy_settings)
-        ui.SysMsg(g.lang == "Japanese" and "{ol}{#FFFF00}設定を削除しました" or "{ol}{#FFFF00}Settings deleted")
-        cc_helper_save_settings()
-    end
-
     local save_delete = frame:CreateOrGetControl('button', 'save_delete', 67, 10, 40, 30)
     AUTO_CAST(save_delete)
     save_delete:SetText("{ol}delete")
@@ -676,17 +842,6 @@ function cc_helper_setting_frame_init()
     save_delete:SetTextTooltip(
         g.lang == "Japanese" and "{ol}このキャラのコピー用の設定を削除します" or
             "{ol}Delete settings for copying this character")
-
-    --[[if g.mcc then
-        local mccuse = frame:CreateOrGetControl("checkbox", "mccuse", 10, 375, 25, 25)
-        AUTO_CAST(mccuse)
-        mccuse:SetText("{ol}mcc")
-        mccuse:SetTextTooltip(g.lang == "Japanese" and
-                                  "チェックを入れると[Monster Card Change]と連携します。" or
-                                  "If checked, it will work with [Monster Card Change].")
-        mccuse:SetCheck(g.settings[g.cid].mcc_use)
-        mccuse:SetEventScript(ui.LBUTTONUP, "cc_helper_check_setting")
-    end]]
 
     local ecouse = frame:CreateOrGetControl("checkbox", "ecouse", 10, 375, 25, 25)
     AUTO_CAST(ecouse)
@@ -697,44 +852,8 @@ function cc_helper_setting_frame_init()
     ecouse:SetEventScript(ui.LBUTTONUP, "cc_helper_check_setting")
     ecouse:SetCheck(g.share_settings.eco_mode)
 
-    --[[local delay_title = frame:CreateOrGetControl("richtext", "delay_title", 130, 440)
-    delay_title:SetText("{ol}delay")
-    function cc_helper_delay_change(frame, ctrl, argStr, argNum)
-        local value = tonumber(ctrl:GetText())
-
-        if value ~= nil then
-            ui.SysMsg("Delay Time setting set to" .. value)
-            g.share_settings.delay = value
-        else
-            ui.SysMsg("Invalid value. Please enter one-byte numbers.")
-            local text = GET_CHILD_RECURSIVELY(frame, "delay")
-            text:SetText("0.3")
-            g.share_settings.delay = 0.3
-        end
-        g.save_json(g.settings_path, g.share_settings)
-    end
-    local delay = frame:CreateOrGetControl('edit', 'delay', 175, 440, 50, 20)
-    AUTO_CAST(delay)
-    delay:SetText("{ol}" .. g.share_settings.delay)
-    delay:SetFontName("white_16_ol")
-    delay:SetTextAlign("center", "center")
-    delay:SetEventScript(ui.ENTERKEY, "cc_helper_delay_change")
-    delay:SetTextTooltip(g.lang == "Japanese" and
-                             "動作のディレイ時間を設定します。デフォルトは0.3秒。{nl}早過ぎると失敗が多発します。" or
-                             "Sets the delay time for the operation. Default is 0.3 seconds.{nl}Too early and many failures will occur.")]]
-
-    function cc_helper_settings_close(frame)
-        local frame = ui.GetFrame("cc_helper")
-        frame:ShowWindow(0)
-    end
-
-    local close = frame:CreateOrGetControl('button', 'close', 0, 0, 30, 30)
-    AUTO_CAST(close)
-    close:SetImage("testclose_button")
-    close:SetGravity(ui.LEFT, ui.TOP)
-    close:SetEventScript(ui.LBUTTONUP, "cc_helper_settings_close")
-
-    if g.agm then
+    local agm_use = cc_helper_function_check()
+    if agm_use then
 
         local all_agm = frame:CreateOrGetControl("checkbox", "all_agm", 10, 435, 25, 25)
         AUTO_CAST(all_agm)
@@ -777,79 +896,48 @@ function cc_helper_setting_frame_init()
 
     end
 
-    function cc_helper_cancel(frame, ctrl, argstr, argnum)
-
-        ctrl:ClearIcon()
-        ctrl:RemoveAllChild()
-        local name = ctrl:GetName()
-
-        for key, value in pairs(g.settings[g.cid]) do
-            if name == key then
-                value.image = ""
-                value.iesid = ""
-                value.clsid = 0
-                value.skin = ""
-                value.memo = ""
-                if string.find(name, "god") == nil and string.find(name, "leg") == nil then
-                    local skinName = "invenslot2"
-                    ctrl:SetSkinName(skinName)
-                end
-                break
-            end
-        end
-
-        cc_helper_save_settings()
-    end
-
-    function cc_helper_tooltip(frame, ctrl, argStr, argNum)
-
-        local tooltip = ui.GetTooltip("wholeitem")
-        local rect = tooltip:GetMargin()
-        tooltip:SetMargin(rect.left, rect.top - 50, rect.righ, rect.bottom)
-        local equip_main = GET_CHILD_RECURSIVELY(tooltip, 'equip_main')
-        local tooltip_ark_lv = GET_CHILD_RECURSIVELY(equip_main, "tooltip_ark_lv")
-        local invitem = session.GetInvItemByGuid(g.settings[g.cid]["ark"].iesid)
-        if invitem == nil then
-            return
-        end
-        local item_obj = GetIES(invitem:GetObject())
-
-        local ypos = 0
-
-        ypos = DRAW_EQUIP_COMMON_TOOLTIP_SMALL_IMG(tooltip, item_obj, "equip_main")
-
-        ypos = DRAW_ARK_LV(tooltip, item_obj, 170, "equip_main")
-
-        ypos = DRAW_ARK_OPTION(tooltip, item_obj, ypos, "equip_main")
-        ypos = DRAW_ARK_EXP(tooltip, item_obj, ypos, "equip_main")
-        ypos = DRAW_EQUIP_MEMO(tooltip, item_obj, ypos, "equip_main")
-        ypos = DRAW_EQUIP_ARK_DESC(tooltip, item_obj, ypos, "equip_main") -- 각종 설명문
-
-        ypos = DRAW_EQUIP_TRADABILITY(tooltip, item_obj, ypos, "equip_main") -- 거래 제한
-        ypos = DRAW_CANNOT_REINFORCE(tooltip, item_obj, ypos, "equip_main") -- 초월 및 강화불가
-
-        local isHaveLifeTime = TryGetProp(item_obj, "LifeTime", 0) -- 기간제
-        if 0 == tonumber(isHaveLifeTime) then
-            ypos = DRAW_SELL_PRICE(tooltip, item_obj, ypos, "equip_main")
-        else
-            ypos = DRAW_REMAIN_LIFE_TIME(tooltip, item_obj, ypos, "equip_main")
-        end
-
-        ypos = ypos + 3
-        -- ypos = DRAW_TOGGLE_EQUIP_DESC(tooltip, item_obj, ypos, "equip_main") -- 설명문 토글 여부
-
-        local gBox = GET_CHILD(tooltip, "equip_main", 'ui::CGroupBox')
-        gBox:Resize(gBox:GetWidth(), ypos + 20)
-        tooltip:Resize(gBox:GetWidth(), ypos + 20)
-
-    end
-
     local pet_select = frame:CreateOrGetControl('button', 'pet_select', 140, 375, 40, 30)
     AUTO_CAST(pet_select)
     pet_select:SetText("{ol}pet select")
     pet_select:SetEventScript(ui.LBUTTONUP, "cc_helper_context_pet")
 
     cc_helper_slot_create()
+    --[[if g.mcc then
+        local mccuse = frame:CreateOrGetControl("checkbox", "mccuse", 10, 375, 25, 25)
+        AUTO_CAST(mccuse)
+        mccuse:SetText("{ol}mcc")
+        mccuse:SetTextTooltip(g.lang == "Japanese" and
+                                  "チェックを入れると[Monster Card Change]と連携します。" or
+                                  "If checked, it will work with [Monster Card Change].")
+        mccuse:SetCheck(g.settings[g.cid].mcc_use)
+        mccuse:SetEventScript(ui.LBUTTONUP, "cc_helper_check_setting")
+    end]]
+
+    --[[local delay_title = frame:CreateOrGetControl("richtext", "delay_title", 130, 440)
+    delay_title:SetText("{ol}delay")
+    function cc_helper_delay_change(frame, ctrl, argStr, argNum)
+        local value = tonumber(ctrl:GetText())
+
+        if value ~= nil then
+            ui.SysMsg("Delay Time setting set to" .. value)
+            g.share_settings.delay = value
+        else
+            ui.SysMsg("Invalid value. Please enter one-byte numbers.")
+            local text = GET_CHILD_RECURSIVELY(frame, "delay")
+            text:SetText("0.3")
+            g.share_settings.delay = 0.3
+        end
+        g.save_json(g.settings_path, g.share_settings)
+    end
+    local delay = frame:CreateOrGetControl('edit', 'delay', 175, 440, 50, 20)
+    AUTO_CAST(delay)
+    delay:SetText("{ol}" .. g.share_settings.delay)
+    delay:SetFontName("white_16_ol")
+    delay:SetTextAlign("center", "center")
+    delay:SetEventScript(ui.ENTERKEY, "cc_helper_delay_change")
+    delay:SetTextTooltip(g.lang == "Japanese" and
+                             "動作のディレイ時間を設定します。デフォルトは0.3秒。{nl}早過ぎると失敗が多発します。" or
+                             "Sets the delay time for the operation. Default is 0.3 seconds.{nl}Too early and many failures will occur.")]]
 end
 
 function cc_helper_create_slot(frame, name, x, y, width, height, skin, text, clsid, iesid, image, cid)
@@ -949,6 +1037,8 @@ function cc_helper_create_slot(frame, name, x, y, width, height, skin, text, cls
                         lv_text:SetText("{ol}{s14}LV500")
                     elseif string.find(gem_name, "520") ~= nil then
                         lv_text:SetText("{ol}{s14}LV520")
+                    elseif string.find(gem_name, "540") ~= nil then
+                        lv_text:SetText("{ol}{s14}LV540")
                     else
                         lv_text:SetText("{ol}{s14}LV460")
                     end
@@ -964,6 +1054,79 @@ function cc_helper_create_slot(frame, name, x, y, width, height, skin, text, cls
         slot:SetEventScript(ui.RBUTTONDOWN, "None")
     end
 end
+
+local slot_info = {
+    ["seal"] = {
+        x = 10,
+        y = 210,
+        text = "{ol}{s14}SEAL"
+    },
+    ["ark"] = {
+        x = 65,
+        y = 210,
+        text = "{ol}{s14}ARK"
+    },
+    ["core"] = {
+        x = 120,
+        y = 210,
+        text = "{ol}{s14}CORE"
+    },
+    ["relic"] = {
+        x = 175,
+        y = 210,
+        text = "{ol}{s14}RELIC"
+    },
+    ["gem1"] = {
+        x = 10,
+        y = 320,
+        text = "{ol}{s12}AETHER{nl}GEM1"
+    },
+    ["gem2"] = {
+        x = 65,
+        y = 320,
+        text = "{ol}{s12}AETHER{nl}GEM2"
+    },
+    ["gem3"] = {
+        x = 120,
+        y = 320,
+        text = "{ol}{s12}AETHER{nl}GEM3"
+    },
+    ["gem4"] = {
+        x = 175,
+        y = 320,
+        text = "{ol}{s12}AETHER{nl}GEM4"
+    },
+    ["leg"] = {
+        x = 10,
+        y = 45,
+        text = "{ol}{s14}LEGEND{nl}CARD"
+    },
+    ["god"] = {
+        x = 120,
+        y = 45,
+        text = "{ol}{s14}GODDESS{nl}CARD"
+    },
+    ["hair1"] = {
+        x = 10,
+        y = 265,
+        text = "{ol}{s14}HAIR1"
+    },
+    ["hair2"] = {
+        x = 65,
+        y = 265,
+        text = "{ol}{s14}HAIR2"
+    },
+    ["hair3"] = {
+        x = 120,
+        y = 265,
+        text = "{ol}{s14}HAIR3"
+    },
+    ["pet"] = {
+        x = 160,
+        y = 410,
+        text = "{ol}{s14}PET"
+    }
+}
 
 function cc_helper_slot_create()
     local frame = ui.GetFrame("cc_helper")
@@ -1079,7 +1242,7 @@ function cc_helper_inv_rbtn(item_obj, slot)
     local type = item_obj.ClassType
     local gemtype = GET_EQUIP_GEM_TYPE(item_obj)
     local parent_name = slot:GetParent():GetName()
-
+    ts(type)
     local char_belonging = TryGetProp(item_obj, 'CharacterBelonging', 0)
 
     local temp_tbl = {
@@ -1089,15 +1252,24 @@ function cc_helper_inv_rbtn(item_obj, slot)
         ["GODDESS"] = "god",
         ["sset_HairAcc_Acc1"] = "hair1",
         ["sset_HairAcc_Acc2"] = "hair2",
-        ["sset_HairAcc_Acc3"] = "hair3"
+        ["sset_HairAcc_Acc3"] = "hair3",
+        ["CORE"] = "core",
+        ["Relic"] = "relic"
         -- ["aether"] = "gem"
     }
 
     for key, value in pairs(temp_tbl) do
+
         if key == "Seal" and key == type and clsid ~= 614001 then
             cc_helper_settings_slot(frame, value, item_obj, iesid, clsid, image)
             return
         elseif key == "Ark" and key == type and char_belonging ~= 1 then
+            cc_helper_settings_slot(frame, value, item_obj, iesid, clsid, image)
+            return
+        elseif key == "CORE" and key == type then
+
+            cc_helper_settings_slot(frame, value, item_obj, iesid, clsid, image)
+        elseif key == "Relic" and key == type then
             cc_helper_settings_slot(frame, value, item_obj, iesid, clsid, image)
             return
         elseif key == "LEG" and key == item_obj.CardGroupName then
@@ -1166,12 +1338,15 @@ function cc_helper_settings_slot(frame, value, item_obj, iesid, clsid, image, st
     local skin = ""
     if string.find(value, "gem") ~= nil then
         if string.find(item_obj.ClassName, "480") ~= nil then
-            skin = "invenslot_unique"
+            skin = "invenslot_rare"
             slot:SetSkinName(skin)
         elseif string.find(item_obj.ClassName, "500") ~= nil then
-            skin = "invenslot_legend"
+            skin = "invenslot_unique"
             slot:SetSkinName(skin)
         elseif string.find(item_obj.ClassName, "520") ~= nil then
+            skin = "invenslot_legend"
+            slot:SetSkinName(skin)
+        elseif string.find(item_obj.ClassName, "540") ~= nil then -- invenslot_rare
             skin = "invenslot_pic_goddess"
             slot:SetSkinName(skin)
         end
@@ -1232,8 +1407,10 @@ function cc_helper_frame_drop(frame, ctrl, argstr, argnum)
         ["GODDESS"] = "god",
         ["sset_HairAcc_Acc1"] = "hair1",
         ["sset_HairAcc_Acc2"] = "hair2",
-        ["sset_HairAcc_Acc3"] = "hair3"
-        -- ["aether"] = "gem"
+        ["sset_HairAcc_Acc3"] = "hair3",
+        ["CORE"] = "core",
+        ["Relic"] = "relic"
+
     }
 
     for key, value in pairs(temp_tbl) do
@@ -1241,6 +1418,11 @@ function cc_helper_frame_drop(frame, ctrl, argstr, argnum)
             cc_helper_settings_slot(frame, value, item_obj, iesid, clsid, image)
             return
         elseif key == "Ark" and key == type and char_belonging ~= 1 then
+            cc_helper_settings_slot(frame, value, item_obj, iesid, clsid, image)
+            return
+        elseif key == "CORE" and key == type then
+            cc_helper_settings_slot(frame, value, item_obj, iesid, clsid, image)
+        elseif key == "Relic" and key == type then
             cc_helper_settings_slot(frame, value, item_obj, iesid, clsid, image)
             return
         elseif key == "LEG" and key == item_obj.CardGroupName then
@@ -1273,6 +1455,9 @@ function cc_helper_putitem(frame, in_btn, try, step)
     -- g.try = g.try or tonumber(try)
 
     local inventory = ui.GetFrame("inventory")
+    -- local inventype_Tab = GET_CHILD_RECURSIVELY(inventory, "inventype_Tab")
+    -- local index = inventype_Tab:GetSelectItemIndex()
+
     local in_btn = GET_CHILD_RECURSIVELY(inventory, "in_btn")
 
     if step == 0 then
@@ -1289,8 +1474,8 @@ function cc_helper_putitem(frame, in_btn, try, step)
     elseif step == 2 then
         in_btn:SetUserValue("STEP", 2)
         g.leg = nil
-        local temp_tbl = {"hair1", "hair2", "hair3", "seal", "ark"}
-        g.delay = 0.7
+        local temp_tbl = {"hair1", "hair2", "hair3", "seal", "ark", "core"}
+        g.delay = 0.8
         for _, equip in ipairs(temp_tbl) do
             if g.settings[g.cid][equip].clsid ~= 0 then
                 g.delay = g.delay - 0.1
@@ -1413,13 +1598,22 @@ function cc_helper_in_btn_start(in_btn)
 
 end
 
+-- spot番号調べるコード
+--[[local equipList = session.GetEquipItemList();
+for i = 0, equipList:Count() - 1 do
+    local equipItem = equipList:GetEquipItemByIndex(i);
+    local spotName = item.GetEquipSpotName(equipItem.equipSpot);
+    ts(i, spotName)
+
+end]]
+
 function cc_helper_unequip(in_btn)
 
     local frame = ui.GetFrame("inventory")
     local eqp_tab = GET_CHILD_RECURSIVELY(frame, "inventype_Tab")
     eqp_tab:SelectTab(1)
-    local equip_tbl = {0, 20, 1, 25, 27}
-    local temp_tbl = {"hair1", "hair2", "hair3", "seal", "ark"}
+    local equip_tbl = {0, 20, 1, 25, 27, 29, 35}
+    local temp_tbl = {"hair1", "hair2", "hair3", "seal", "ark", "relic", "core"}
     local equip_item_list = session.GetEquipItemList()
     for i, equip_index in ipairs(equip_tbl) do
         local equip_item = equip_item_list:GetEquipItemByIndex(equip_index)
@@ -1557,6 +1751,18 @@ function cc_helper_get_goal_index()
     end
 end
 
+-- treeの名前調べる
+--[[local inventory = ui.GetFrame("inventory")
+local inventree_Equip = GET_CHILD_RECURSIVELY(inventory, "inventree_Card")
+local childNames = {}
+local childCount = inventree_Equip:GetChildCount()
+for i = 0, childCount - 1 do
+    local child = inventree_Equip:GetChildByIndex(i)
+    local child_name = child:GetName()
+    local child_y = child:GetY()
+    ts(child:GetY(), child:GetName())
+end]]
+
 function cc_helper_inv_to_warehouse(in_btn)
 
     if not cc_helper_get_warehouse_count() then
@@ -1567,28 +1773,88 @@ function cc_helper_inv_to_warehouse(in_btn)
     local in_btn = GET_CHILD_RECURSIVELY(inventory, "in_btn")
 
     local accountwarehouse = ui.GetFrame("accountwarehouse")
-    local inventory = ui.GetFrame("inventory")
+
     local handle = accountwarehouse:GetUserIValue('HANDLE')
     local inventype_Tab = GET_CHILD_RECURSIVELY(inventory, "inventype_Tab")
 
-    local temp_tbl = {"seal", "ark", "hair1", "hair2", "hair3", "leg", "god"}
-
+    local temp_tbl = {{
+        key = "seal",
+        value = "sset_Accessory_Seal"
+    }, {
+        key = "ark",
+        value = "sset_Accessory_Ark"
+    }, {
+        key = "core",
+        value = "sset_Accessory_Core"
+    }, {
+        key = "relic",
+        value = "sset_Relic"
+    }, {
+        key = "hair1",
+        value = "sset_HairAcc_Acc1"
+    }, {
+        key = "hair2",
+        value = "sset_HairAcc_Acc2"
+    }, {
+        key = "hair3",
+        value = "sset_HairAcc_Acc3"
+    }, {
+        key = "leg",
+        value = "sset_Card_CardLeg"
+    }, {
+        key = "god",
+        value = "sset_Card_CardGoddess"
+    }}
+    -- , "ark", "core", "hair1", "hair2", "hair3", "leg", "god"
     if accountwarehouse:IsVisible() == 1 then
-        for i, equip_index in ipairs(temp_tbl) do
-            local iesid = g.settings[g.cid][temp_tbl[i]].iesid
+        for i, data in ipairs(temp_tbl) do
+            local key = data.key
+            local value = data.value
+            local iesid = g.settings[g.cid][key].iesid
+
             local inv_item = session.GetInvItemByGuid(iesid)
+
             if inv_item then
 
                 if i <= 5 then
                     inventype_Tab:SelectTab(1)
+                    local inventree_Equip = GET_CHILD_RECURSIVELY(inventory, "inventree_Equip")
+                    local childNames = {}
+                    local childCount = inventree_Equip:GetChildCount()
+                    for j = 0, childCount - 1 do
+                        local child = inventree_Equip:GetChildByIndex(j)
+                        local child_name = child:GetName()
+                        if child_name == value then
+
+                            local child_y = child:GetY()
+                            local treeGbox_Equip = GET_CHILD_RECURSIVELY(inventory, "treeGbox_Equip")
+                            treeGbox_Equip:SetScrollPos(tonumber(child_y))
+                            break
+                        end
+                    end
+
                 else
                     inventype_Tab:SelectTab(4)
+                    local inventree_Card = GET_CHILD_RECURSIVELY(inventory, "inventree_Card")
+                    local childNames = {}
+                    local childCount = inventree_Card:GetChildCount()
+                    for j = 0, childCount - 1 do
+                        local child = inventree_Card:GetChildByIndex(j)
+                        local child_name = child:GetName()
+                        if child_name == value then
+                            local child_y = child:GetY()
+                            local treeGbox_Card = GET_CHILD_RECURSIVELY(inventory, "treeGbox_Card")
+                            treeGbox_Card:SetScrollPos(tonumber(child_y))
+                            break
+                        end
+                    end
                 end
 
                 if cc_helper_checkvalid(iesid) then
 
                     local goal_index = cc_helper_get_goal_index()
-                    local item_cls = GetClassByType('Item', g.settings[g.cid][temp_tbl[i]].clsid)
+                    local item_cls = GetClassByType('Item', g.settings[g.cid][key].clsid)
+
                     local item_name = item_cls.Name
                     local log = g.lang == "Japanese" and "倉庫に格納しました" .. "：[" .. "{#EE82EE}" ..
                                     item_name .. "{#FFFF00}]×" .. "{#EE82EE}1" or "Item to warehousing" .. "：[" ..
@@ -1826,7 +2092,7 @@ function cc_helper_GODDESS_MGR_SOCKET_REG_ITEM(in_btn)
             return 0
         end
         in_btn:StopUpdateScript("cc_helper_GODDESS_MGR_SOCKET_REG_ITEM")
-        in_btn:RunUpdateScript("cc_helper_in_btn_agm_operation", 0.1)
+        in_btn:RunUpdateScript("cc_helper_in_btn_agm_operation", 0.2)
         return 0
     else
         return 1
@@ -1979,17 +2245,23 @@ function cc_helper_end_of_operation(btn)
 
     local goddess_equip_manager = ui.GetFrame("goddess_equip_manager")
     goddess_equip_manager:ShowWindow(0)
+    local inv_frame = ui.GetFrame("inventory")
+    local inv_tab = GET_CHILD_RECURSIVELY(inv_frame, "inventype_Tab")
+    if inv_tab then
+        inv_tab:SelectTab(0)
+    end
 
     if g.share_settings.auto_close == 1 then
 
         local accountwarehouse = ui.GetFrame("accountwarehouse")
-        ACCOUNTWAREHOUSE_CLOSE(accountwarehouse)
-        -- accountwarehouse:RunUpdateScript("ACCOUNTWAREHOUSE_CLOSE", 1.0)
+
+        -- ACCOUNTWAREHOUSE_CLOSE(accountwarehouse)
+        accountwarehouse:RunUpdateScript("ACCOUNTWAREHOUSE_CLOSE", 1.0)
     end
     local monstercardslot = ui.GetFrame("monstercardslot")
     if monstercardslot:IsVisible() == 1 then
         -- MONSTERCARDSLOT_CLOSE(monstercardslot)
-        monstercardslot:RunUpdateScript("MONSTERCARDSLOT_CLOSE", 0.5)
+        monstercardslot:RunUpdateScript("MONSTERCARDSLOT_CLOSE", 1.0)
     end
 
     ui.SysMsg("{ol}[CCH]End of Operation")
@@ -2098,6 +2370,7 @@ function cc_helper_take_item(frame, out_btn, str, step)
         out_btn:RunUpdateScript("cc_helper_equip_take_warehouse_item", 0.1)
     elseif step == 1 then
         out_btn:SetUserValue("STEP", 1)
+        out_btn:SetUserValue("TRY", 1)
         out_btn:RunUpdateScript("cc_helper_equip_card", 0.1)
     elseif step == 2 then
 
@@ -2469,6 +2742,10 @@ function cc_helper_equips_reserve(out_btn)
         ["SEAL"] = "seal"
     }, {
         ["ARK"] = "ark"
+    }, {
+        ["RELIC"] = "relic"
+    }, {
+        ["CORE"] = "core"
     }}
 
     out_btn:RunUpdateScript("cc_helper_equips", 0.1)
@@ -2507,6 +2784,7 @@ function cc_helper_equip_card(out_btn)
     local monstercardslot = ui.GetFrame("monstercardslot")
 
     local step = out_btn:GetUserIValue("STEP")
+    local try = out_btn:GetUserIValue("TRY")
     if step == 1 then
         local card_index = 13
         local card_id = GETMYCARD_INFO(card_index)
@@ -2517,9 +2795,14 @@ function cc_helper_equip_card(out_btn)
                 if inv_item then
                     local inv_tab = GET_CHILD_RECURSIVELY(inventory, "inventype_Tab")
                     inv_tab:SelectTab(4)
+
                     MONSTERCARDSLOT_FRAME_OPEN()
                     local arg_str = string.format("%d#%s", card_index, tostring(iesid))
                     pc.ReqExecuteTx("SCR_TX_EQUIP_CARD_SLOT", arg_str)
+                    return 1
+                elseif not inv_item and try <= 3 then
+                    try = try + 1
+                    out_btn:SetUserValue("TRY", try)
                     return 1
                 end
             end
@@ -2567,9 +2850,9 @@ function cc_helper_equip_take_warehouse_item(out_btn)
     local accountwarehouse = ui.GetFrame("accountwarehouse")
     local handle = accountwarehouse:GetUserIValue("HANDLE")
 
-    local temp_tbl = {"seal", "ark", "leg", "god", "hair1", "hair2", "hair3"}
+    local temp_tbl = {"seal", "ark", "relic", "core", "leg", "god", "hair1", "hair2", "hair3"}
     if g.share_settings.eco_mode == 1 then
-        temp_tbl = {"seal", "ark", "god", "hair1", "hair2", "hair3"}
+        temp_tbl = {"seal", "ark", "relic", "core", "god", "hair1", "hair2", "hair3"}
     end
 
     local iesids = {}
