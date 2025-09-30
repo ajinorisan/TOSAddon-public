@@ -15,23 +15,24 @@
 -- v1.1.9 金床はなんでもノーチェックに。インベントリにonoff付けた。クエとかでバグるらしいので、街以外ではOFFに。アイテム連続使用のフレーム作った
 -- v1.2.0 アイテム連続使用フレームのバグ修正
 -- v1.2.1 アクセの系統変更時不自然なの修正。ボスカード使用時OFFでも使う様に。ええやろ別に。
-local addonName = "NOCHECK"
-local addonNameLower = string.lower(addonName)
+-- v1.2.2 連続捨てる機能追加
+local addon_name = "NOCHECK"
+local addon_name_lower = string.lower(addon_name)
 local author = "norisan"
-local ver = "1.2.1"
+local ver = "1.2.2"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
-_G["ADDONS"][author][addonName] = _G["ADDONS"][author][addonName] or {}
-local g = _G["ADDONS"][author][addonName]
+_G["ADDONS"][author][addon_name] = _G["ADDONS"][author][addon_name] or {}
+local g = _G["ADDONS"][author][addon_name]
 
-g.settings_file_location = string.format('../addons/%s/settings.json', addonNameLower)
+g.settings_file_location = string.format('../addons/%s/settings.json', addon_name_lower)
 
 local acutil = require("acutil")
 local base = {}
 
 function g.SetupHook(func, baseFuncName)
-    local addonUpper = string.upper(addonName)
+    local addonUpper = string.upper(addon_name)
     local replacementName = addonUpper .. "_BASE_" .. baseFuncName
     if (_G[replacementName] == nil) then
         _G[replacementName] = _G[baseFuncName];
@@ -41,8 +42,8 @@ function g.SetupHook(func, baseFuncName)
 end
 
 function g.mkdir_new_folder()
-    local folder_path = string.format("../addons/%s", addonNameLower)
-    local file_path = string.format("../addons/%s/mkdir.txt", addonNameLower)
+    local folder_path = string.format("../addons/%s", addon_name_lower)
+    local file_path = string.format("../addons/%s/mkdir.txt", addon_name_lower)
     local file = io.open(file_path, "r")
     if not file then
         os.execute('mkdir "' .. folder_path .. '"')
@@ -56,6 +57,29 @@ function g.mkdir_new_folder()
     end
 end
 g.mkdir_new_folder()
+
+local function ts(...)
+
+    local num_args = select('#', ...)
+
+    if num_args == 0 then
+        print("ts: (no arguments)")
+        return
+    end
+
+    local string_parts = {}
+    for i = 1, num_args do
+        local arg = select(i, ...)
+
+        if arg == nil then
+            table.insert(string_parts, "nil")
+        else
+            table.insert(string_parts, tostring(arg))
+        end
+    end
+
+    print(table.concat(string_parts, "\t"))
+end
 
 -- 欠片アイテム他使用時のメッセージボックス非表示
 function NOCHECK_BEFORE_APPLIED_YESSCP_OPEN_BASIC_MSG(invItem)
@@ -396,225 +420,6 @@ function NOCHECK_BEFORE_APPLIED_NON_EQUIP_ITEM_OPEN_(invItem)
     end
 end
 
-function NOCHECK_ON_INIT(addon, frame)
-
-    g.addon = addon
-    g.frame = frame
-    g.lang = option.GetCurrentCountry()
-
-    nocheck_load_settings()
-
-    addon:RegisterMsg("GAME_START", "nocheck_inventory_frame_init")
-
-    g.SetupHook(NOCHECK_BEFORE_APPLIED_YESSCP_OPEN_BASIC_MSG, "BEFORE_APPLIED_YESSCP_OPEN_BASIC_MSG") --
-    g.SetupHook(NOCHECK_CARD_SLOT_EQUIP, "CARD_SLOT_EQUIP") --
-    g.SetupHook(NOCHECK_EQUIP_CARDSLOT_INFO_OPEN, "EQUIP_CARDSLOT_INFO_OPEN");
-    g.SetupHook(NOCHECK_EQUIP_GODDESSCARDSLOT_INFO_OPEN, "EQUIP_GODDESSCARDSLOT_INFO_OPEN")
-    g.SetupHook(NOCHECK_GODDESS_MGR_SOCKET_REQ_GEM_REMOVE, "GODDESS_MGR_SOCKET_REQ_GEM_REMOVE")
-    g.SetupHook(NOCHECK_UNLOCK_TRANSMUTATIONSPREADER_BELONGING_SCROLL_EXEC_ASK_AGAIN,
-                "UNLOCK_TRANSMUTATIONSPREADER_BELONGING_SCROLL_EXEC_ASK_AGAIN")
-    g.SetupHook(NOCHECK_UNLOCK_ACC_BELONGING_SCROLL_EXEC_ASK_AGAIN, "UNLOCK_ACC_BELONGING_SCROLL_EXEC_ASK_AGAIN")
-    g.SetupHook(NOCHECK_SELECT_ZONE_MOVE_CHANNEL, "SELECT_ZONE_MOVE_CHANNEL")
-    g.SetupHook(NOCHECK_BEFORE_APPLIED_NON_EQUIP_ITEM_OPEN, "BEFORE_APPLIED_NON_EQUIP_ITEM_OPEN")
-
-    local pc = GetMyPCObject();
-    local curMap = GetZoneName(pc)
-    local mapCls = GetClass("Map", curMap)
-    if mapCls.MapType == "City" then
-        g.settings.use = g.settings.use or 0
-        addon:RegisterMsg("FPS_UPDATE", "NOCHECK_WARNINGMSGBOX_FRAME_OPEN")
-        addon:RegisterMsg("FPS_UPDATE", "NOCHECK_WARNINGMSGBOX_EX_FRAME_OPEN_FPS")
-        acutil.setupEvent(addon, "MORU_LBTN_CLICK", "NOCHECK_MORU_LBTN_CLICK");
-    else
-        g.settings.use = 0
-    end
-
-end
-
-function nocheck_save_settings()
-    acutil.saveJSON(g.settings_file_location, g.settings)
-end
-
-function nocheck_load_settings()
-    local settings = acutil.loadJSON(g.settings_file_location)
-    if not settings then
-        settings = {
-            use = 1
-        }
-    end
-    g.settings = settings
-    nocheck_save_settings()
-end
-
-function nocheck_inventory_btnup(frame, ctrl, str, num)
-    if g.settings.use == 1 then
-        ctrl:SetSkinName("test_gray_button")
-        g.settings.use = 0
-        ctrl:SetTextTooltip("{ol}No Check ON{nl}LeftClick:On Off switch")
-        ctrl:SetEventScript(ui.RBUTTONUP, "")
-    else
-        ctrl:SetSkinName("test_pvp_btn")
-        g.settings.use = 1
-        ctrl:SetTextTooltip("{ol}No Check ON{nl}LeftClick:On Off switch{nl}RightClick:Continuous item use frame")
-        ctrl:SetEventScript(ui.RBUTTONUP, "nocheck_inventory_continuous_use_frame")
-    end
-    nocheck_save_settings()
-end
-
-function nocheck_inv_rbtn(itemObj, slot)
-    local icon = slot:GetIcon()
-    local iconInfo = icon:GetInfo()
-    local clsid = iconInfo.type
-    local inv_item = session.GetInvItemByType(clsid)
-
-    local frame = ui.GetFrame(addonNameLower .. "continuous_use")
-    local item_slot = GET_CHILD(frame, "item_slot")
-    local item_cls = GetClassByType("Item", clsid)
-    item_slot:SetUserValue("CLASS_ID", clsid)
-    SET_SLOT_ITEM_CLS(item_slot, item_cls)
-    SET_SLOT_ITEM_TEXT(item_slot, inv_item, item_cls)
-end
-
-function nocheck_inventory_continuous_use_frame_close(frame, ctrl, str, num)
-    local frame = ui.GetFrame(addonNameLower .. "continuous_use")
-    local item_slot = GET_CHILD(frame, "item_slot")
-    AUTO_CAST(item_slot)
-    item_slot:SetUserValue("CLASS_ID", 0)
-    frame:ShowWindow(0)
-    INVENTORY_SET_CUSTOM_RBTNDOWN('None')
-end
-
-function nocheck_inventory_continuous_use_count_result(frame_name, clsid)
-
-    local frame = ui.GetFrame(frame_name)
-
-    local item_slot = GET_CHILD(frame, "item_slot")
-    AUTO_CAST(item_slot)
-    local inv_item = session.GetInvItemByType(clsid)
-    if not inv_item then
-        nocheck_inventory_continuous_use_frame_close(frame)
-        return
-    end
-    local count = tonumber(inv_item.count)
-    if g.count ~= count then
-        item_slot:SetText("{s18}{ol}{b}" .. count, 'count', ui.RIGHT, ui.BOTTOM, -2, 1);
-        frame:Invalidate()
-        nocheck_inventory_continuous_use(frame)
-        return
-
-    else
-        nocheck_inventory_continuous_use_frame_close(frame)
-        return
-    end
-end
-
-function nocheck_inventory_continuous_use_icon_use(frame)
-
-    local frame = ui.GetFrame(addonNameLower .. "continuous_use")
-    local item_slot = GET_CHILD(frame, "item_slot")
-    AUTO_CAST(item_slot)
-    local clsid = item_slot:GetUserIValue("CLASS_ID")
-    if clsid == 0 then
-        frame:ShowWindow(0)
-        return
-    end
-
-    local inv_item = session.GetInvItemByType(clsid)
-    if inv_item ~= nil then
-        INV_ICON_USE(inv_item)
-        local item_cls = GetClassByType("Item", clsid)
-        SET_SLOT_ITEM_CLS(item_slot, item_cls);
-        inv_item = session.GetInvItemByType(clsid)
-        local count = tonumber(inv_item.count)
-
-        local result = ReserveScript(string.format("nocheck_inventory_continuous_use_count_result('%s',%d)",
-                                                   frame:GetName(), clsid), 1.0)
-
-    else
-        local item_cls = GetClassByType("Item", clsid)
-        SET_SLOT_ITEM_CLS(item_slot, item_cls);
-        CreateIcon(item_slot):SetColorTone('FFFF0000')
-        item_slot:SetText("{s18}{ol}{b}" .. 0, 'count', ui.RIGHT, ui.BOTTOM, -2, 1);
-        frame:Invalidate()
-        frame:RunUpdateScript("nocheck_inventory_continuous_use_frame_close", 1.0);
-        return
-    end
-
-end
-
-function nocheck_inventory_continuous_use(frame, ctrl, str, num)
-    local frame = ui.GetFrame(addonNameLower .. "continuous_use")
-    local item_slot = GET_CHILD(frame, "item_slot")
-    local clsid = item_slot:GetUserIValue("CLASS_ID")
-    -- session.ResetItemList();
-    local inv_item = session.GetInvItemByType(clsid)
-    g.count = tonumber(inv_item.count)
-
-    if inv_item ~= nil then
-        local item_cls = GetClassByType("Item", clsid)
-        SET_SLOT_ITEM_TEXT(item_slot, inv_item, item_cls)
-        nocheck_inventory_continuous_use_icon_use(frame)
-        -- frame:RunUpdateScript("nocheck_inventory_continuous_use_icon_use", 1.0);
-    end
-end
-
-function nocheck_inventory_continuous_use_frame(frame, ctrl, str, num)
-    acutil.setupEvent(g.addon, "INVENTORY_CLOSE", "nocheck_inventory_continuous_use_frame_close");
-    local inventory = ui.GetFrame("inventory")
-    local inv_x = inventory:GetX()
-    local continuous_use_frame = ui.CreateNewFrame("notice_on_pc", addonNameLower .. "continuous_use", 0, 0, 0, 0)
-    AUTO_CAST(continuous_use_frame)
-    continuous_use_frame:SetSkinName("test_win_lastpopup")
-    continuous_use_frame:Resize(300, 300)
-    continuous_use_frame:SetPos(inv_x - 305, 300)
-    continuous_use_frame:RemoveAllChild()
-    continuous_use_frame:ShowWindow(1)
-
-    local item_slot = continuous_use_frame:CreateOrGetControl('slot', 'item_slot', 115, 100, 70, 70)
-    AUTO_CAST(item_slot)
-    item_slot:SetSkinName("slot");
-    INVENTORY_SET_CUSTOM_RBTNDOWN("nocheck_inv_rbtn")
-    item_slot:SetEventScript(ui.RBUTTONUP, "nocheck_inventory_continuous_use_frame_close")
-
-    local notice = continuous_use_frame:CreateOrGetControl('richtext', 'notice', 30, 180, 0, 0)
-    AUTO_CAST(notice)
-    notice:SetText(g.lang == "Japanese" and "{ol}{s20}アイテムを連続使用します" or
-                       "{ol}{s18}Use the item continuously");
-
-    local continuous_use = continuous_use_frame:CreateOrGetControl('button', 'continuous_use', 40, 220, 100, 50)
-    AUTO_CAST(continuous_use)
-    continuous_use:SetSkinName("test_red_button")
-    continuous_use:SetText(g.lang == "Japanese" and "{ol}{s16}連続使用" or "{ol}{s16}Continu");
-    continuous_use:SetEventScript(ui.LBUTTONUP, "nocheck_inventory_continuous_use")
-
-    local cancel = continuous_use_frame:CreateOrGetControl('button', 'cancel', 155, 220, 100, 50)
-    AUTO_CAST(cancel)
-    cancel:SetSkinName("test_gray_button")
-    cancel:SetText(g.lang == "Japanese" and "{ol}{s16}キャンセル" or "{ol}{s16}Cancel");
-    cancel:SetEventScript(ui.LBUTTONUP, "nocheck_inventory_continuous_use_frame_close")
-end
-
-function nocheck_inventory_frame_init(frame, msg, str, num)
-    local frame = ui.GetFrame("inventory")
-    local searchSkin = GET_CHILD_RECURSIVELY(frame, "searchSkin")
-    searchSkin:Resize(284, 30)
-    searchSkin:SetMargin(38, 0, 0, 5)
-    local searchGbox = GET_CHILD_RECURSIVELY(frame, "searchGbox")
-    local btn = searchGbox:CreateOrGetControl("button", "btn", 160, -3, 35, 38)
-    AUTO_CAST(btn)
-    if g.settings.use == 1 then
-        btn:SetSkinName("test_pvp_btn")
-        btn:SetTextTooltip("{ol}No Check ON{nl}LeftClick:On Off switch{nl}RightClick:Continuous item use frame")
-        btn:SetEventScript(ui.RBUTTONUP, "nocheck_inventory_continuous_use_frame")
-    else
-        btn:SetSkinName("test_gray_button")
-        btn:SetTextTooltip("{ol}No Check ON{nl}LeftClick:On Off switch")
-        btn:SetEventScript(ui.RBUTTONUP, "")
-    end
-    btn:SetText("{img equipment_info_btn_mark2 32 32}")
-    btn:SetEventScript(ui.LBUTTONUP, "nocheck_inventory_btnup")
-end
-
 function NOCHECK_MORU_LBTN_CLICK(frame, msg)
     local invframe, invItem = acutil.getEventArgs(msg)
     if g.settings.use == 1 then
@@ -696,3 +501,558 @@ function NOCHECK_WARNINGMSGBOX_EX_FRAME_OPEN_FPS()
         end
     end
 end
+
+function NOCHECK_ON_INIT(addon, frame)
+
+    g.addon = addon
+    g.frame = frame
+    g.lang = option.GetCurrentCountry()
+
+    nocheck_load_settings()
+
+    addon:RegisterMsg("GAME_START", "nocheck_inventory_frame_init")
+
+    g.SetupHook(NOCHECK_BEFORE_APPLIED_YESSCP_OPEN_BASIC_MSG, "BEFORE_APPLIED_YESSCP_OPEN_BASIC_MSG") --
+    g.SetupHook(NOCHECK_CARD_SLOT_EQUIP, "CARD_SLOT_EQUIP") --
+    g.SetupHook(NOCHECK_EQUIP_CARDSLOT_INFO_OPEN, "EQUIP_CARDSLOT_INFO_OPEN");
+    g.SetupHook(NOCHECK_EQUIP_GODDESSCARDSLOT_INFO_OPEN, "EQUIP_GODDESSCARDSLOT_INFO_OPEN")
+    g.SetupHook(NOCHECK_GODDESS_MGR_SOCKET_REQ_GEM_REMOVE, "GODDESS_MGR_SOCKET_REQ_GEM_REMOVE")
+    g.SetupHook(NOCHECK_UNLOCK_TRANSMUTATIONSPREADER_BELONGING_SCROLL_EXEC_ASK_AGAIN,
+        "UNLOCK_TRANSMUTATIONSPREADER_BELONGING_SCROLL_EXEC_ASK_AGAIN")
+    g.SetupHook(NOCHECK_UNLOCK_ACC_BELONGING_SCROLL_EXEC_ASK_AGAIN, "UNLOCK_ACC_BELONGING_SCROLL_EXEC_ASK_AGAIN")
+    g.SetupHook(NOCHECK_SELECT_ZONE_MOVE_CHANNEL, "SELECT_ZONE_MOVE_CHANNEL")
+    g.SetupHook(NOCHECK_BEFORE_APPLIED_NON_EQUIP_ITEM_OPEN, "BEFORE_APPLIED_NON_EQUIP_ITEM_OPEN")
+
+    local pc = GetMyPCObject();
+    local curMap = GetZoneName(pc)
+    local mapCls = GetClass("Map", curMap)
+    if mapCls.MapType == "City" then
+        g.settings.use = g.settings.use or 0
+        addon:RegisterMsg("FPS_UPDATE", "NOCHECK_WARNINGMSGBOX_FRAME_OPEN")
+        addon:RegisterMsg("FPS_UPDATE", "NOCHECK_WARNINGMSGBOX_EX_FRAME_OPEN_FPS")
+        acutil.setupEvent(addon, "MORU_LBTN_CLICK", "NOCHECK_MORU_LBTN_CLICK");
+    else
+        g.settings.use = 0
+    end
+
+end
+
+function nocheck_save_settings()
+    acutil.saveJSON(g.settings_file_location, g.settings)
+end
+
+function nocheck_load_settings()
+    local settings = acutil.loadJSON(g.settings_file_location)
+    if not settings then
+        settings = {
+            use = 1
+        }
+    end
+    g.settings = settings
+    nocheck_save_settings()
+end
+
+function nocheck_inventory_frame_init(frame, msg, str, num)
+    local frame = ui.GetFrame("inventory")
+    local searchSkin = GET_CHILD_RECURSIVELY(frame, "searchSkin")
+    searchSkin:Resize(284, 30)
+    searchSkin:SetMargin(38, 0, 0, 5)
+    local searchGbox = GET_CHILD_RECURSIVELY(frame, "searchGbox")
+    local btn = searchGbox:CreateOrGetControl("button", "btn", 160, -3, 35, 38)
+    AUTO_CAST(btn)
+    if g.settings.use == 1 then
+        btn:SetSkinName("test_pvp_btn")
+        local tool_tip = g.lang == "Japanese" and
+                             "{ol}[No Check]ON{nl}左クリック: ON/OFF{nl}右クリック: 他の機能選択" or
+                             "{ol}[No Check]ON{nl}Left-click: On/Off{nl}Right-click: Select other functions"
+        btn:SetTextTooltip(tool_tip)
+        -- btn:SetEventScript(ui.RBUTTONUP, "nocheck_inventory_continuous_use_frame")
+        btn:SetEventScript(ui.RBUTTONUP, "nocheck_rbtn_context")
+    else
+        btn:SetSkinName("test_gray_button")
+        local tool_tip = g.lang == "Japanese" and "{ol}[No Check]OFF{nl}左クリック: ON/OFF" or
+                             "{ol}[No Check]OFF{nl}Left-click: On/Off"
+        btn:SetTextTooltip(tool_tip)
+        btn:SetEventScript(ui.RBUTTONUP, "")
+    end
+    btn:SetText("{img equipment_info_btn_mark2 32 32}")
+    btn:SetEventScript(ui.LBUTTONUP, "nocheck_inventory_btnup")
+
+end
+
+-- ONOFF切り替え
+function nocheck_inventory_btnup(frame, ctrl, str, num)
+    if g.settings.use == 1 then
+        ctrl:SetSkinName("test_gray_button")
+        g.settings.use = 0
+        local tool_tip = g.lang == "Japanese" and "{ol}[No Check]OFF{nl}左クリック: ON/OFF" or
+                             "{ol}[No Check]OFF{nl}Left-click: On/Off"
+        ctrl:SetTextTooltip(tool_tip)
+        ctrl:SetEventScript(ui.RBUTTONUP, "")
+    else
+        ctrl:SetSkinName("test_pvp_btn")
+        g.settings.use = 1
+        local tool_tip = g.lang == "Japanese" and
+                             "{ol}[No Check]ON{nl}左クリック: ON/OFF{nl}右クリック: 他の機能選択" or
+                             "{ol}[No Check]ON{nl}Left-click: On/Off{nl}Right-click: Select other functions"
+        ctrl:SetTextTooltip(tool_tip)
+        -- ctrl:SetEventScript(ui.RBUTTONUP, "nocheck_inventory_continuous_use_frame")
+        ctrl:SetEventScript(ui.RBUTTONUP, "nocheck_rbtn_context")
+    end
+    nocheck_save_settings()
+end
+
+-- 連続使用とゴミ捨ての共通
+function nocheck_rbtn_context(frame, ctrl, str, num)
+
+    local frame = ui.GetFrame(addon_name_lower .. "continuous_use")
+    if frame and frame:IsVisible() == 1 then
+        return
+    end
+
+    local delete_item = ui.GetFrame(addon_name_lower .. "_delete_item")
+    if delete_item and delete_item:IsVisible() == 1 then
+        return
+    end
+
+    --[[local map = ui.GetFrame("map")
+    local width = map:GetWidth()
+
+    if width > 1920 then
+        inv_x = inv_x / 16 * 21
+    end]]
+
+    local context = ui.CreateContextMenu("RBTN_CONTEXT", "{ol}Feature Selection", 0, -200, 0, 0)
+
+    local scp = string.format("nocheck_inventory_continuous_use_frame('','','','')")
+    local text = g.lang == "Japanese" and "{ol}アイテム連続使用フレーム" or "{ol}Item Continuous Use Frame"
+    ui.AddContextMenuItem(context, text, scp)
+
+    local scp = string.format("nocheck_delete_item_frame_init('','','','')")
+    local text = g.lang == "Japanese" and "{ol}ゴミ箱用フレーム" or "{ol}Trash Bin Frame"
+    ui.AddContextMenuItem(context, text, scp)
+
+    ui.OpenContextMenu(context)
+end
+-- 連続使用とゴミ捨ての共通。インベントリマウス制御
+function nocheck_inv_rbtn(itemObj, slot)
+    local icon = slot:GetIcon()
+    local icon_info = icon:GetInfo()
+
+    local frame = ui.GetFrame(addon_name_lower .. "continuous_use")
+    if frame and frame:IsVisible() == 1 then
+        local clsid = icon_info.type
+        local inv_item = session.GetInvItemByType(clsid)
+        local item_slot = GET_CHILD(frame, "item_slot")
+        local item_cls = GetClassByType("Item", clsid)
+        item_slot:SetUserValue("CLASS_ID", clsid)
+        SET_SLOT_ITEM_CLS(item_slot, item_cls)
+        SET_SLOT_ITEM_TEXT(item_slot, inv_item, item_cls)
+    else
+        local delete_item = ui.GetFrame(addon_name_lower .. "_delete_item")
+        if delete_item and delete_item:IsVisible() == 1 then
+            AUTO_CAST(delete_item)
+            local iesid = icon_info:GetIESID()
+            local inv_item = session.GetInvItemByGuid(iesid)
+            local item_obj = GetIES(inv_item:GetObject())
+
+            if g.temp_iesids[iesid] then
+                local msg = g.lang == "Japanese" and "{ol}既に登録されています" or "{ol}Already registered"
+                ui.SysMsg(msg)
+                return
+            end
+
+            if nocheck_delete_check(iesid, item_obj.ClassID) then
+
+                local delete_slotset = GET_CHILD_RECURSIVELY(delete_item, "delete_slotset")
+                AUTO_CAST(delete_slotset);
+                local slot_count = delete_slotset:GetSlotCount()
+
+                for i = 1, slot_count do
+
+                    local slot = GET_CHILD(delete_slotset, "slot" .. i)
+                    AUTO_CAST(slot)
+                    local icon = slot:GetIcon()
+                    if not icon then
+                        icon = CreateIcon(slot)
+                        slot:SetUserValue("DELETE_IDSID", iesid)
+                        slot:SetUserValue("DELETE_NAME", item_obj.Name)
+                        slot:SetUserValue("DELETE_COUNT", inv_item.count)
+                        g.temp_iesids[iesid] = true
+
+                        SET_SLOT_ITEM_CLS(slot, item_obj)
+                        SET_SLOT_ITEM_TEXT(slot, inv_item, item_obj)
+                        SET_SLOT_STYLESET(slot, item_obj)
+                        SET_SLOT_IESID(slot, iesid)
+                        SET_SLOT_ICOR_CATEGORY(slot, item_obj);
+                        icon:SetTooltipArg("None", 0, iesid);
+                        SET_ITEM_TOOLTIP_TYPE(icon, item_obj.ClassID, item_obj, "None");
+                        SET_SLOT_ICOR_CATEGORY(slot, item_obj)
+
+                        slot:SetEventScript(ui.RBUTTONUP, "nocheck_delete_item_clear")
+                        slot:SetEventScriptArgString(ui.RBUTTONUP, iesid)
+
+                        local inventory = ui.GetFrame("inventory")
+                        local inv_slot = INV_GET_SLOT_BY_ITEMGUID(iesid)
+                        if inv_slot then
+                            AUTO_CAST(inv_slot)
+
+                            inv_slot:SetSelectedImage('socket_slot_check')
+                            inv_slot:Select(1)
+                            inv_slot:RunUpdateScript("nocheck_inv_invalidate", 0.1)
+                            inv_slot:Invalidate()
+                        end
+                        return
+                    end
+                end
+            end
+        end
+    end
+end
+
+function nocheck_inv_invalidate(frame)
+    frame:Invalidate()
+end
+
+function nocheck_inventory_continuous_use_frame_close(frame, ctrl, str, num)
+    local frame = ui.GetFrame(addon_name_lower .. "continuous_use")
+    local item_slot = GET_CHILD(frame, "item_slot")
+    AUTO_CAST(item_slot)
+    item_slot:SetUserValue("CLASS_ID", 0)
+    frame:ShowWindow(0)
+    INVENTORY_SET_CUSTOM_RBTNDOWN('None')
+end
+
+function nocheck_inventory_continuous_use_count_result(frame_name, clsid)
+
+    local frame = ui.GetFrame(frame_name)
+
+    local item_slot = GET_CHILD(frame, "item_slot")
+    AUTO_CAST(item_slot)
+    local inv_item = session.GetInvItemByType(clsid)
+    if not inv_item then
+        nocheck_inventory_continuous_use_frame_close(frame)
+        return
+    end
+    local count = tonumber(inv_item.count)
+    if g.count ~= count then
+        item_slot:SetText("{s18}{ol}{b}" .. count, 'count', ui.RIGHT, ui.BOTTOM, -2, 1);
+        frame:RunUpdateScript("nocheck_inv_invalidate", 0.1)
+        frame:Invalidate()
+        nocheck_inventory_continuous_use(frame)
+        return
+
+    else
+        nocheck_inventory_continuous_use_frame_close(frame)
+        return
+    end
+end
+
+function nocheck_inventory_continuous_use_icon_use(frame)
+
+    local frame = ui.GetFrame(addon_name_lower .. "continuous_use")
+    local item_slot = GET_CHILD(frame, "item_slot")
+    AUTO_CAST(item_slot)
+    local clsid = item_slot:GetUserIValue("CLASS_ID")
+    if clsid == 0 then
+        frame:ShowWindow(0)
+        return
+    end
+
+    local inv_item = session.GetInvItemByType(clsid)
+    if inv_item ~= nil then
+        INV_ICON_USE(inv_item)
+        local item_cls = GetClassByType("Item", clsid)
+        SET_SLOT_ITEM_CLS(item_slot, item_cls);
+        inv_item = session.GetInvItemByType(clsid)
+        local count = tonumber(inv_item.count)
+
+        local result = ReserveScript(string.format("nocheck_inventory_continuous_use_count_result('%s',%d)",
+            frame:GetName(), clsid), 1.0)
+
+    else
+        local item_cls = GetClassByType("Item", clsid)
+        SET_SLOT_ITEM_CLS(item_slot, item_cls);
+        CreateIcon(item_slot):SetColorTone('FFFF0000')
+        item_slot:SetText("{s18}{ol}{b}" .. 0, 'count', ui.RIGHT, ui.BOTTOM, -2, 1);
+        frame:RunUpdateScript("nocheck_inv_invalidate", 0.1)
+        frame:Invalidate()
+        frame:RunUpdateScript("nocheck_inventory_continuous_use_frame_close", 1.0);
+        return
+    end
+
+end
+
+function nocheck_inventory_continuous_use(frame, ctrl, str, num)
+    local frame = ui.GetFrame(addon_name_lower .. "continuous_use")
+    local item_slot = GET_CHILD(frame, "item_slot")
+    local clsid = item_slot:GetUserIValue("CLASS_ID")
+    -- session.ResetItemList();
+    local inv_item = session.GetInvItemByType(clsid)
+    g.count = tonumber(inv_item.count)
+
+    if inv_item ~= nil then
+        local item_cls = GetClassByType("Item", clsid)
+        SET_SLOT_ITEM_TEXT(item_slot, inv_item, item_cls)
+        nocheck_inventory_continuous_use_icon_use(frame)
+        -- frame:RunUpdateScript("nocheck_inventory_continuous_use_icon_use", 1.0);
+    end
+end
+
+function nocheck_inventory_continuous_use_frame(frame, ctrl, str, num)
+    acutil.setupEvent(g.addon, "INVENTORY_CLOSE", "nocheck_inventory_continuous_use_frame_close");
+    local inventory = ui.GetFrame("inventory")
+    local inv_x = inventory:GetX()
+    local continuous_use_frame = ui.CreateNewFrame("notice_on_pc", addon_name_lower .. "continuous_use", 0, 0, 0, 0)
+    AUTO_CAST(continuous_use_frame)
+    continuous_use_frame:SetSkinName("test_win_lastpopup")
+    continuous_use_frame:Resize(300, 300)
+    continuous_use_frame:SetPos(inv_x - 305, 300)
+    continuous_use_frame:RemoveAllChild()
+    continuous_use_frame:ShowWindow(1)
+
+    local item_slot = continuous_use_frame:CreateOrGetControl('slot', 'item_slot', 115, 100, 70, 70)
+    AUTO_CAST(item_slot)
+    item_slot:SetSkinName("slot");
+    INVENTORY_SET_CUSTOM_RBTNDOWN("nocheck_inv_rbtn")
+    item_slot:SetEventScript(ui.RBUTTONUP, "nocheck_inventory_continuous_use_frame_close")
+
+    local notice = continuous_use_frame:CreateOrGetControl('richtext', 'notice', 30, 180, 0, 0)
+    AUTO_CAST(notice)
+    notice:SetText(g.lang == "Japanese" and "{ol}{s20}アイテムを連続使用します" or
+                       "{ol}{s18}Use the item continuously");
+
+    local continuous_use = continuous_use_frame:CreateOrGetControl('button', 'continuous_use', 40, 220, 100, 50)
+    AUTO_CAST(continuous_use)
+    continuous_use:SetSkinName("test_red_button")
+    continuous_use:SetText(g.lang == "Japanese" and "{ol}{s16}連続使用" or "{ol}{s16}Continu");
+    continuous_use:SetEventScript(ui.LBUTTONUP, "nocheck_inventory_continuous_use")
+
+    local cancel = continuous_use_frame:CreateOrGetControl('button', 'cancel', 155, 220, 100, 50)
+    AUTO_CAST(cancel)
+    cancel:SetSkinName("test_gray_button")
+    cancel:SetText(g.lang == "Japanese" and "{ol}{s16}キャンセル" or "{ol}{s16}Cancel");
+    cancel:SetEventScript(ui.LBUTTONUP, "nocheck_inventory_continuous_use_frame_close")
+end
+
+s_dropDeleteItemIESID = ''
+s_dropDeleteItemCount = 0
+s_dropDeleteItemName = ''
+
+function nocheck_delete_item_frame_init()
+
+    acutil.setupEvent(g.addon, "INVENTORY_CLOSE", "nocheck_delete_item_frame_close")
+    g.temp_iesids = {}
+
+    local inventory = ui.GetFrame("inventory")
+    local inv_x = inventory:GetX()
+
+    local map = ui.GetFrame("map")
+    local width = map:GetWidth()
+
+    if width > 1920 then
+        inv_x = inv_x / 16 * 21
+    end
+
+    local frame = ui.CreateNewFrame("notice_on_pc", addon_name_lower .. "_delete_item", 0, 0, 10, 10)
+    AUTO_CAST(frame)
+    frame:SetSkinName("test_frame_low")
+    frame:SetPos(inv_x - 135, 170)
+    frame:SetLayerLevel(100)
+    frame:Resize(300, 698)
+    frame:RemoveAllChild()
+
+    local title = frame:CreateOrGetControl('richtext', 'title', 10, 15, 0, 0)
+    AUTO_CAST(title)
+    title:SetText(g.lang == "Japanese" and "{ol}{s18}ゴミ箱スロット" or "{ol}{s18}Discard item Slots")
+
+    local close = frame:CreateOrGetControl("button", "close", 0, 0, 25, 25)
+    AUTO_CAST(close)
+    close:SetImage("testclose_button")
+    close:SetGravity(ui.RIGHT, ui.TOP)
+    close:SetEventScript(ui.LBUTTONUP, "nocheck_delete_item_frame_close")
+    close:SetEventScriptArgString(ui.LBUTTONUP, "true")
+
+    local delete_gb = frame:CreateOrGetControl("groupbox", "delete_gb", 10, 40, 380, 380)
+    AUTO_CAST(delete_gb)
+    delete_gb:SetSkinName("test_frame_midle_light")
+    delete_gb:Resize(280, 600)
+    frame:ShowWindow(1)
+
+    local delete_slotset = delete_gb:CreateOrGetControl('slotset', 'delete_slotset', 0, 0, 0, 0)
+    AUTO_CAST(delete_slotset);
+    delete_slotset:SetSlotSize(40, 40)
+    delete_slotset:EnablePop(0)
+    delete_slotset:EnableDrag(1)
+    delete_slotset:EnableDrop(1)
+    delete_slotset:SetColRow(7, 15)
+    delete_slotset:SetSpc(0, 0)
+    delete_slotset:SetSkinName('slot')
+
+    delete_slotset:CreateSlots()
+    local slot_count = delete_slotset:GetSlotCount()
+
+    local go_func = frame:CreateOrGetControl("button", "go_func", 0, 0, 100, 43)
+    AUTO_CAST(go_func)
+    go_func:SetText(g.lang == "Japanese" and "{ol}{s16}スタート" or "{ol}{s16}START")
+    go_func:SetMargin(190, 645, 100, 0)
+    go_func:SetSkinName("test_red_button")
+    go_func:SetEventScript(ui.LBUTTONUP, "nocheck_delete_item_msgbox")
+
+    local stop_func = frame:CreateOrGetControl("button", "stop_func", 0, 0, 100, 43)
+    AUTO_CAST(stop_func)
+    stop_func:SetText(g.lang == "Japanese" and "{ol}{s16}ストップ" or "{ol}{s16}STOP")
+    stop_func:SetMargin(10, 645, 100, 0)
+    stop_func:SetSkinName("test_gray_button")
+    stop_func:SetEventScript(ui.LBUTTONUP, "nocheck_delete_item_frame_close")
+    stop_func:SetEventScriptArgString(ui.LBUTTONUP, "true")
+
+    INVENTORY_SET_CUSTOM_RBTNDOWN("nocheck_inv_rbtn")
+
+end
+
+function nocheck_delete_check(iesid, cls_id)
+
+    if GetCraftState() == 1 then
+        return false
+    end
+    if true == BEING_TRADING_STATE() then
+        return false
+    end
+
+    local inventory = ui.GetFrame("inventory")
+    --[[if ui.GetPickedFrame() ~= nil then
+        return false
+    end]]
+
+    local inv_item = session.GetInvItemByGuid(iesid)
+    if nil == inv_item then
+        return false
+    end
+
+    if true == inv_item.isLockState or true == IS_TEMP_LOCK(inventory, inv_item) then
+        ui.SysMsg(ClMsg("MaterialItemIsLock"))
+        return false
+    end
+
+    local item_cls = GetClassByType("Item", cls_id)
+    if nil == item_cls then
+        return false
+    end
+
+    local item_prop = geItemTable.IsDestroyable(cls_id)
+    if item_cls.Destroyable == 'NO' or item_prop == false then
+        local item_obj = GetIES(inv_item:GetObject());
+        if item_obj.ItemLifeTimeOver == 0 then
+            ui.AlarmMsg("ItemIsNotDestroy");
+            return false
+        end
+    end
+    return true
+end
+
+function nocheck_delete_item_frame_close(frame, ctrl, bool)
+
+    local delete_item = ui.GetFrame(addon_name_lower .. "_delete_item")
+    delete_item:ShowWindow(0)
+    g.temp_iesids = {}
+    INVENTORY_SET_CUSTOM_RBTNDOWN('None')
+    INVENTORY_CLEAR_SELECT(nil)
+    if bool == "true" then
+        UI_TOGGLE_INVENTORY()
+    end
+    if ctrl:GetName() == "delete_slotset" then
+        ui.SysMsg("{ol}[No Check]End of Operation")
+    end
+    if ctrl:GetName() == "stop_func" then
+        delete_item:StopUpdateScript("nocheck_delete_item")
+        ui.SysMsg("{ol}[No Check]Stop Operation")
+    end
+
+end
+
+function nocheck_delete_item_msgbox()
+    local yes_scp = string.format("nocheck_delete_item_reserve()")
+    local msg = g.lang == "Japanese" and
+                    "{ol}{#FF0000}本当にゴミ捨てを開始しますか？{nl}(リカバリーサービス対象外かも)" or
+                    "{ol}{#FF0000}Are you sure you want to start trashing?{nl}(might not be covered by the{nl} recovery service)"
+    ui.MsgBox(msg, yes_scp, "None");
+
+end
+
+function nocheck_delete_item_reserve()
+    local delete_item = ui.GetFrame(addon_name_lower .. "_delete_item")
+    nocheck_delete_item(delete_item)
+    delete_item:RunUpdateScript("nocheck_delete_item", 1.0)
+end
+
+function nocheck_delete_item(delete_item)
+
+    if delete_item and delete_item:IsVisible() == 0 then
+        return 0
+    end
+    local delete_slotset = GET_CHILD_RECURSIVELY(delete_item, "delete_slotset")
+    AUTO_CAST(delete_slotset);
+    local slot_count = delete_slotset:GetSlotCount()
+
+    for i = 1, slot_count do
+
+        local slot = GET_CHILD(delete_slotset, "slot" .. i)
+        AUTO_CAST(slot)
+        local icon = slot:GetIcon()
+
+        if icon then
+            local iesid = slot:GetUserValue("DELETE_IDSID")
+            local name = slot:GetUserValue("DELETE_NAME")
+            local count = slot:GetUserIValue("DELETE_COUNT")
+            local trans_name = dic.getTranslatedStr(name)
+            -- ts(iesid, name, count, trans_name)
+            s_dropDeleteItemIESID = iesid
+            s_dropDeleteItemCount = count
+            s_dropDeleteItemName = name
+            nocheck_delete_item_execute(slot, iesid, trans_name, count)
+            return 1
+        end
+    end
+
+    nocheck_delete_item_frame_close(delete_item, delete_slotset, "true")
+    return 0
+
+end
+
+function nocheck_delete_item_execute(slot, iesid, trans_name, count)
+    IMC_LOG("INFO_NORMAL", "EXEC_DELETE_ITEMDROP")
+    local pc = GetMyPCObject()
+    local msg = g.lang == "Japanese" and "{ol}{#FFFF00}[" .. trans_name .. "]{/}{ol}{#FFFFFF}を" .. "{ol}{#FFFF00}[" ..
+                    count .. "個]{/}" .. "{ol}{#FFFFFF}捨てました" or "{ol}{#FFFFFF}Discarded {/}" ..
+                    "{ol}{#FFFF00}[" .. count .. "]{ol}{#FFFFFF} piece " .. "{ol}{#FFFF00}[" .. trans_name .. "]{/}"
+
+    imcAddOn.BroadMsg("NOTICE_Dm_!", msg, 0.9);
+    item.DropDelete(s_dropDeleteItemIESID, s_dropDeleteItemCount)
+    s_dropDeleteItemIESID = ''
+    s_dropDeleteItemCount = 0
+    s_dropDeleteItemName = ''
+    nocheck_delete_item_clear("", slot, iesid, "")
+
+end
+
+function nocheck_delete_item_clear(frame, slot, iesid, num)
+    slot:ClearIcon()
+    slot:ClearText()
+    slot:SetSkinName('slot')
+    slot:SetUserValue("DELETE_IDSID", "None")
+    slot:SetUserValue("DELETE_NAME", "None")
+    slot:SetUserValue("DELETE_COUNT", 0)
+    g.temp_iesids[iesid] = nil
+
+    local inventory = ui.GetFrame("inventory")
+    local inv_slot = INV_GET_SLOT_BY_ITEMGUID(iesid)
+
+    if inv_slot then
+        AUTO_CAST(inv_slot)
+        inv_slot:Select(0)
+        inv_slot:RunUpdateScript("nocheck_inv_invalidate", 0.1)
+        inv_slot:Invalidate()
+    end
+end
+

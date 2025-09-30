@@ -14,10 +14,11 @@
 -- v1.1.1 保存バグってたの修正
 -- v1.1.2 保存時更にバグってたの修正
 -- v1.1.3 最終的には必ず武器スロ1を選択する様に
+-- v1.1.4 イコル保存時に情報保存
 local addon_name = "GODDESS_ICOR_MANAGER"
 local addon_name_lower = string.lower(addon_name)
 local author = "norisan"
-local ver = "1.1.3"
+local ver = "1.1.4"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -1284,6 +1285,24 @@ function g.setup_hook_and_event(my_addon, origin_func_name, my_func_name, bool)
     end
 end
 
+local function ts(...)
+
+    local num_args = select('#', ...)
+
+    if num_args == 0 then
+        return
+    end
+
+    local string_parts = {}
+
+    for i = 1, num_args do
+        local arg = select(i, ...)
+        table.insert(string_parts, tostring(arg))
+    end
+
+    print(table.concat(string_parts, "\t"))
+end
+
 function GODDESS_ICOR_MANAGER_ON_INIT(addon, frame)
 
     g.addon = addon
@@ -1344,9 +1363,19 @@ function goddess_icor_manager__GODDESS_MGR_RANDOMOPTION_ENGRAVE_ICOR_EXEC()
         arg_list:Add(spot)
     end
 
-    if g.settings[g.cid].icor_ids then
-        g.settings[g.cid].icor_ids[tostring(index)] = spot .. ":::" .. cls_id .. ":::" .. cls_name
+    if not g.settings[g.cid] then
+        g.settings[g.cid] = {}
     end
+
+    if not g.settings[g.cid].icor_ids then
+        g.settings[g.cid].icor_ids = {}
+    end
+
+    if not g.settings[g.cid].icor_ids[tostring(index)] or type(g.settings[g.cid].icor_ids[tostring(index)]) ~= "table" then
+        g.settings[g.cid].icor_ids[tostring(index)] = {}
+    end
+
+    g.settings[g.cid].icor_ids[tostring(index)][spot] = cls_id
 
     local result_list = session.GetItemIDList()
     item.DialogTransaction('ICOR_PRESET_ENGRAVE_ICOR', result_list, '', arg_list)
@@ -2569,7 +2598,49 @@ function goddess_icor_manager_list_gb_init(frame, page)
 
                 local manage_text = manage_bg:CreateOrGetControl("richtext", "manage_text" .. j, 10, 0)
 
-                manage_text:SetText("{ol}" .. ClMsg(managed_slot_list[j].clmsg))
+                local temp_name = ""
+                if type(g.settings[g.cid].icor_ids[tostring(i)]) == "table" then
+                    local spot_data = g.settings[g.cid].icor_ids[tostring(i)][managed_slot_list[j].slot_name]
+                    if spot_data then
+                        local temp_cls = GetClassByType("Item", spot_data)
+                        if temp_cls then
+                            local cls_name = temp_cls.ClassName
+
+                            if string.find(cls_name, "EP17", 1, true) then
+                                if string.find(cls_name, "high", 1, true) then
+                                    temp_name = g.lang == "Japanese" and " [540]上級" or " [540]Advanced"
+                                else
+                                    temp_name = " [540]"
+                                end
+                            elseif string.find(cls_name, "EP16", 1, true) then
+                                if string.find(cls_name, "high", 1, true) then
+                                    temp_name = g.lang == "Japanese" and " [520]上級" or " [520]Advanced"
+                                else
+                                    temp_name = " [520]"
+                                end
+                            elseif string.find(cls_name, "EP15", 1, true) and
+                                (string.find(cls_name, "Weapon2", 1, true) or string.find(cls_name, "Armor2", 1, true)) then
+                                temp_name = g.lang == "Japanese" and " [500]継承" or " [500]Succession"
+                            end
+                        end
+                    end
+                    --[[if g.settings[g.cid].icor_ids[tostring(i)][managed_slot_list[j].slot_name] then
+                        local temp_id = g.settings[g.cid].icor_ids[tostring(i)][managed_slot_list[j].slot_name]
+                        local temp_cls = GetClassByType("Item", temp_id)
+                        temp_name = temp_cls.ClassName
+                        if string.find(temp_name, "EP16", 1, true) and string.find(temp_name, "high", 1, true) then
+                            temp_name = g.lang == "Japanese" and " [520]上級" or " [520]Advanced"
+                        elseif string.find(temp_name, "EP16", 1, true) then
+                            temp_name = g.lang == "Japanese" and " [520]" or " [520]"
+                        end
+                        if string.find(temp_name, "EP17", 1, true) and string.find(temp_name, "high", 1, true) then
+                            temp_name = g.lang == "Japanese" and " [540]上級" or " [540]Advanced"
+                        elseif string.find(temp_name, "EP17", 1, true) then
+                            temp_name = g.lang == "Japanese" and " [540]" or " [540]"
+                        end
+                    end]]
+                end
+                manage_text:SetText("{ol}" .. ClMsg(managed_slot_list[j].clmsg) .. temp_name)
 
                 manage_bg:SetSkinName("test_frame_midle_light")
 
@@ -2612,7 +2683,34 @@ function goddess_icor_manager_list_gb_init(frame, page)
             m_bg:SetSkinName("test_frame_midle_light")
 
             local m_text = m_bg:CreateOrGetControl("richtext", "manage_text" .. j, 10, 0)
-            m_text:SetText("{ol}" .. goddess_icor_manager_language(managed_list[j]))
+            local temp_name = ""
+            if type(g.settings[g.cid].icor_ids[tostring(current_i)]) == "table" then
+                local spot_data = g.settings[g.cid].icor_ids[tostring(current_i)][managed_slot_list[j].slot_name]
+                if spot_data then
+                    local temp_cls = GetClassByType("Item", spot_data)
+                    if temp_cls then
+                        local cls_name = temp_cls.ClassName
+
+                        if string.find(cls_name, "EP17", 1, true) then
+                            if string.find(cls_name, "high", 1, true) then
+                                temp_name = g.lang == "Japanese" and " [540]上級" or " [540]Advanced"
+                            else
+                                temp_name = " [540]"
+                            end
+                        elseif string.find(cls_name, "EP16", 1, true) then
+                            if string.find(cls_name, "high", 1, true) then
+                                temp_name = g.lang == "Japanese" and " [520]上級" or " [520]Advanced"
+                            else
+                                temp_name = " [520]"
+                            end
+                        elseif string.find(cls_name, "EP15", 1, true) and
+                            (string.find(cls_name, "Weapon2", 1, true) or string.find(cls_name, "Armor2", 1, true)) then
+                            temp_name = g.lang == "Japanese" and " [500]継承" or " [500]Succession"
+                        end
+                    end
+                end
+            end
+            m_text:SetText("{ol}" .. goddess_icor_manager_language(managed_list[j]) .. temp_name)
             local p1, p2, p3 = {}, {}, {}
 
             local opt_prop, grp_prop, val_prop, is_goddess =
@@ -2759,7 +2857,7 @@ function goddess_icor_manager_equip_button(frame, ctrl, argStr, argNum)
             local bg = GET_CHILD_RECURSIVELY(frame, "bg" .. i)
             AUTO_CAST(bg)
             local curpos = bg:GetScrollCurPos()
-            if curpos == 514 then
+            if curpos >= 484 then
                 curpos = 0
             end
             g.settings[tostring(i)] = curpos
@@ -2783,12 +2881,12 @@ function goddess_icor_manager_set_pos(frame, page_max)
         local pos = tonumber(g.settings[tostring(i)])
 
         bg:SetScrollPos(0)
-        if pos ~= 0 then
+        --[[if pos ~= 0 then
             bg:EnableScrollBar(1)
             bg:EnableDrawFrame(1)
             bg:SetScrollPos(pos)
-        end
-
+        end]]
+        bg:Invalidate()
     end
 
 end

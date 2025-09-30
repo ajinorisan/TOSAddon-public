@@ -1,12 +1,13 @@
 -- v2.0.0 エビさんから引き継ぎな感じ。イコル検索と保存呼出を弄った
 -- v2.0.1 キャンセルと期間終了の元の販売データを表示する様に
 -- v2.0.2 アドオン名変更
+-- v2.0.3 マーケットの開け閉め爆速に、検索ボタン入替え機能。検索開始位置調整機能、オプション見やすく。
 local addon_name = 'MARKET_FAVORITE_REBUILD'
 local addon_name_lower = string.lower(addon_name)
 -- 作者名
 local author = 'ebisuke'
 local base_ver = "1.1.1"
-local ver = "2.0.2"
+local ver = "2.0.3"
 
 -- アドオン内で使用する領域を作成。以下、ファイル内のスコープではグローバル変数gでアクセス可
 _G['ADDONS'] = _G['ADDONS'] or {}
@@ -16,6 +17,24 @@ local g = _G['ADDONS'][author][addon_name]
 
 local json = require('json')
 
+local function ts(...)
+
+    local num_args = select('#', ...)
+
+    if num_args == 0 then
+        return
+    end
+
+    local string_parts = {}
+
+    for i = 1, num_args do
+        local arg = select(i, ...)
+        table.insert(string_parts, tostring(arg))
+    end
+
+    print(table.concat(string_parts, "\t"))
+end
+
 function g.truncate_text_by_byte_limit(text, lang)
     if not text or text == "" then
         return ""
@@ -23,10 +42,10 @@ function g.truncate_text_by_byte_limit(text, lang)
 
     local max_bytes
     if lang == "ja" or lang == "ko" then
+        -- 日本語/韓国語の場合: 20文字 * 3バイト = 60バイト
         max_bytes = 48
-    elseif lang == "en" then
-        max_bytes = 16
     else
+        -- 英語やその他の言語の場合: 20文字 * 1バイト = 20バイト
         max_bytes = 16
     end
 
@@ -157,14 +176,6 @@ function g.load_json(path)
     return decoded_table, nil
 end
 
-function EBI_try_catch(what)
-    local status, result = pcall(what.try)
-    if not status then
-        what.catch(result)
-    end
-    return result
-end
-
 function market_favorite_rebuild_SAVE_SETTINGS()
     g.save_settings()
 end
@@ -173,7 +184,7 @@ function market_favorite_rebuild_LOAD_SETTINGS()
     local settings = g.load_json(g.settings_path)
     if not settings then
         settings = {
-            move = 1,
+            move = 0,
             always = 0,
             position = {
                 x = 1420,
@@ -193,7 +204,27 @@ function market_favorite_rebuild_LOAD_SETTINGS()
         g.settings.sell_items[g.login_name] = {}
     end
 
-    market_favorite_rebuild_SAVE_SETTINGS()
+    local has_changed = false
+    if g.settings.items and type(g.settings.items) == "table" then
+        for _, item in ipairs(g.settings.items) do
+            if type(item) == "table" and item.clsid ~= nil then
+
+                if item.str_count == nil then
+                    item.str_count = 1
+                    has_changed = true
+                end
+
+                if type(item.clsid) == "string" then
+                    item.clsid = tonumber(item.clsid)
+                    has_changed = true
+                end
+            end
+        end
+    end
+
+    if has_changed then
+        market_favorite_rebuild_SAVE_SETTINGS()
+    end
 end
 
 function string.starts(String, Start)
@@ -251,13 +282,15 @@ function MARKET_FAVORITE_REBUILD_ON_INIT(addon, frame)
     g.lang = option.GetCurrentCountry()
     g.login_name = session.GetMySession():GetPCApc():GetName()
 
-    if not g.settings then
-        market_favorite_rebuild_LOAD_SETTINGS()
-    end
+    -- if not g.settings then
+    market_favorite_rebuild_LOAD_SETTINGS()
+    -- end
 
     addon:RegisterMsg("OPEN_DLG_MARKET", "market_favorite_rebuild_ON_OPEN_MARKET")
 
     g.REGISTER = {}
+    -- MARKET_SELL_FILTER_RESET
+    g.setup_hook_and_event(addon, "MARKET_SELL_FILTER_RESET", "market_favorite_rebuild_MARKET_SELL_FILTER_RESET", false)
     g.setup_hook_and_event(addon, "MARKET_CLOSE", "market_favorite_rebuild_MARKET_CLOSE", true)
     g.setup_hook_and_event(addon, "_MARKET_SAVE_CATEGORY_OPTION",
         "market_favorite_rebuild__MARKET_SAVE_CATEGORY_OPTION", true)
@@ -273,8 +306,1071 @@ function MARKET_FAVORITE_REBUILD_ON_INIT(addon, frame)
     g.setup_hook_and_event(addon, "ON_CABINET_ITEM_LIST", "market_favorite_rebuild_ON_CABINET_ITEM_LIST", false)
 
     g.setup_hook_and_event(addon, "MARKET_SELL_REGISTER", "market_favorite_rebuild_MARKET_SELL_REGISTER", false)
+    g.setup_hook_and_event(addon, "MARKET_DRAW_CTRLSET_OPTMISC", "market_favorite_rebuild_MARKET_DRAW_CTRLSET_OPTMISC",
+        false)
+    g.setup_hook_and_event(addon, "MARKET_DRAW_CTRLSET_EQUIP", "market_favorite_rebuild_MARKET_DRAW_CTRLSET_EQUIP",
+        false)
+
     g.temp_tbl = {}
 
+end
+
+local option_image_table = {
+    ["Add_Damage_Atk"] = "{img tooltip_attribute1}",
+    ["ADD_MATK"] = "{img tooltip_attribute1}",
+    ["AllMaterialType_Atk"] = "{img tooltip_attribute1}",
+    ["AllRace_Atk"] = "{img tooltip_attribute1}",
+    ["PATK"] = "{img tooltip_attribute1}",
+    ["ADD_DEF"] = "{img tooltip_attribute2}",
+    ["ADD_MDEF"] = "{img tooltip_attribute2}",
+    ["high_fire_res"] = "{img tooltip_attribute2}",
+    ["high_freezing_res"] = "{img tooltip_attribute2}",
+    ["high_laceration_res"] = "{img tooltip_attribute2}",
+    ["high_lighting_res"] = "{img tooltip_attribute2}",
+    ["high_poison_res"] = "{img tooltip_attribute2}",
+    ["MiddleSize_Def"] = "{img tooltip_attribute2}",
+    ["portion_expansion"] = "{img tooltip_attribute2}",
+    ["ResAdd_Damage"] = "{img tooltip_attribute2}",
+    ["stun_res"] = "{img tooltip_attribute2}",
+    ["ADD_DR"] = "{img tooltip_attribute3}",
+    ["ADD_HR"] = "{img tooltip_attribute3}",
+    ["BLK"] = "{img tooltip_attribute3}",
+    ["BLK_BREAK"] = "{img tooltip_attribute3}",
+    ["CRTATK"] = "{img tooltip_attribute3}",
+    ["CRTDR"] = "{img tooltip_attribute3}",
+    ["CRTHR"] = "{img tooltip_attribute3}",
+    ["CRTMATK"] = "{img tooltip_attribute3}",
+    ["MHP"] = "{img tooltip_attribute3}",
+    ["MSP"] = "{img tooltip_attribute3}",
+    ["ALLSKILL"] = "{img tooltip_attribute5}",
+    ["ignore_deadremove"] = "{img tooltip_attribute5}",
+    ["MSPD"] = "{img tooltip_attribute5}",
+    ["reduce_rsp_time"] = "{img tooltip_attribute5}",
+    ["secret_medicine_time"] = "{img tooltip_attribute5}",
+    ["walking_recover_sta"] = "{img tooltip_attribute5}"
+}
+
+function market_favorite_rebuild_MARKET_DRAW_CTRLSET_EQUIP(my_frame, my_msg)
+    local frame, isShowSocket = g.get_event_args(my_msg)
+
+    if g.settings.op_text == 0 then
+        g.FUNCS["MARKET_DRAW_CTRLSET_EQUIP"](frame, isShowSocket)
+        return
+    end
+
+    local itemlist = GET_CHILD_RECURSIVELY(frame, "itemListGbox");
+    itemlist:RemoveAllChild();
+    local mySession = session.GetMySession();
+    local cid = mySession:GetCID();
+    local count = session.market.GetItemCount();
+
+    MARKET_SELECT_SHOW_TITLE(frame, "equipTitle")
+
+    local equipTitle_socket = GET_CHILD_RECURSIVELY(frame, "equipTitle_socket");
+    local equipTitle_stats = GET_CHILD_RECURSIVELY(frame, "equipTitle_stats");
+    if isShowSocket ~= nil and isShowSocket == false then
+        equipTitle_socket:ShowWindow(0);
+        equipTitle_stats:ShowWindow(0);
+    else
+        equipTitle_socket:ShowWindow(1)
+        equipTitle_stats:ShowWindow(1);
+    end
+
+    local yPos = 0
+    for i = 0, count - 1 do
+        local marketItem = session.market.GetItemByIndex(i);
+        local itemObj = GetIES(marketItem:GetObject());
+        local refreshScp = itemObj.RefreshScp;
+        if refreshScp ~= "None" then
+            refreshScp = _G[refreshScp];
+            refreshScp(itemObj);
+        end
+
+        local ctrlSet = itemlist:CreateControlSet("market_item_detail_equip", "ITEM_EQUIP_" .. i, ui.LEFT, ui.TOP, 0, 0,
+            0, yPos);
+        AUTO_CAST(ctrlSet)
+        ctrlSet:SetUserValue("DETAIL_ROW", i);
+        ctrlSet:SetUserValue("optionIndex", 0)
+
+        local inheritanceItem = GetClass('Item', itemObj.InheritanceItemName)
+        if inheritanceItem == nil then
+            inheritanceItem = GetClass('Item', itemObj.InheritanceRandomItemName)
+        end
+
+        local function MARKET_CTRLSET_SET_ICON(ctrlSet, itemObj, marketItem)
+            local pic = GET_CHILD_RECURSIVELY(ctrlSet, "pic");
+            SET_SLOT_ITEM_CLS(pic, itemObj)
+            SET_ITEM_TOOLTIP_ALL_TYPE(pic:GetIcon(), marketItem, itemObj.ClassName, "market", marketItem.itemType,
+                marketItem:GetMarketGuid());
+            SET_SLOT_STYLESET(pic, itemObj)
+            -- 아이커 종류 표시	
+            SET_SLOT_ICOR_CATEGORY(pic, itemObj);
+
+            if itemObj.MaxStack > 1 then
+                local font = '{s16}{ol}{b}';
+                if 100000 <= marketItem.count then -- 6자리 수 폰트 크기 조정
+                    font = '{s14}{ol}{b}';
+                end
+                SET_SLOT_COUNT_TEXT(pic, marketItem.count, font);
+            end
+            SET_SLOT_STAR_TEXT(pic, itemObj);
+        end
+
+        MARKET_CTRLSET_SET_ICON(ctrlSet, itemObj, marketItem);
+
+        local name = GET_CHILD_RECURSIVELY(ctrlSet, "name");
+        local name_text = GET_FULL_NAME(itemObj)
+        local grade = shared_item_earring.get_earring_grade(itemObj)
+        if grade > 0 then
+            name_text = name_text .. '(' .. grade .. ClMsg('Grade') .. ')'
+        end
+
+        name:SetTextByKey("value", name_text);
+
+        local level = GET_CHILD_RECURSIVELY(ctrlSet, "level");
+        level:SetTextByKey("value", itemObj.UseLv);
+
+        -- ATK, MATK, DEF 
+        local atkdefImageSize = ctrlSet:GetUserConfig("ATKDEF_IMAGE_SIZE")
+        local basicProp = 'None';
+        local atkdefText = "";
+        if itemObj.BasicTooltipProp ~= 'None' then
+            local basicTooltipPropList = StringSplit(itemObj.BasicTooltipProp, ';');
+            for j = 1, #basicTooltipPropList do
+                basicProp = basicTooltipPropList[j];
+                local typeiconname, typestring, arg1, arg2
+                if basicProp == 'ATK' then
+                    typeiconname = 'test_sword_icon'
+                    typestring = ScpArgMsg("Melee_Atk")
+                    if TryGetProp(itemObj, 'EquipGroup') == "SubWeapon" then
+                        typestring = ScpArgMsg("PATK_SUB")
+                    end
+                    arg1 = itemObj.MINATK;
+                    arg2 = itemObj.MAXATK;
+                elseif basicProp == 'MATK' then
+                    typeiconname = 'test_sword_icon'
+                    typestring = ScpArgMsg("Magic_Atk")
+                    arg1 = itemObj.MATK;
+                    arg2 = itemObj.MATK;
+                else
+                    typeiconname = 'test_shield_icon'
+                    typestring = ScpArgMsg(basicProp);
+                    if itemObj.RefreshScp ~= 'None' then
+                        local scp = _G[itemObj.RefreshScp];
+                        if scp ~= nil then
+                            scp(itemObj);
+                        end
+                    end
+
+                    arg1 = TryGetProp(itemObj, basicProp);
+                    arg2 = TryGetProp(itemObj, basicProp);
+                end
+
+                local tempStr = string.format("{img %s %d %d}", typeiconname, atkdefImageSize, atkdefImageSize)
+                local tempATKDEF = ""
+                if arg1 == arg2 or arg2 == 0 then
+                    tempATKDEF = " " .. arg1
+                else
+                    tempATKDEF = " " .. arg1 .. "~" .. arg2
+                end
+
+                if j == 1 then
+                    atkdefText = atkdefText .. tempStr .. typestring .. tempATKDEF
+                else
+                    atkdefText = atkdefText .. "{nl}" .. tempStr .. typestring .. tempATKDEF
+                end
+            end
+        end
+
+        local atkdef = GET_CHILD_RECURSIVELY(ctrlSet, "atkdef");
+        atkdef:SetTextByKey("value", atkdefText);
+
+        -- SOCKET
+
+        local socket = GET_CHILD_RECURSIVELY(ctrlSet, "socket")
+
+        local needAppraisal = TryGetProp(itemObj, "NeedAppraisal");
+        local needRandomOption = TryGetProp(itemObj, "NeedRandomOption");
+        local maxSocketCount = itemObj.MaxSocket
+        local drawFlag = 0
+        if maxSocketCount > 3 then
+            drawFlag = 1
+        end
+
+        local curCount = 1;
+        local socketText = "";
+        local tempStr = "";
+        for j = 0, maxSocketCount - 1 do
+            if marketItem:IsAvailableSocket(j) == true then
+                local isEquip = marketItem:GetEquipGemID(j);
+                if isEquip == 0 then
+                    tempStr = ctrlSet:GetUserConfig("SOCKET_IMAGE_EMPTY")
+                    if drawFlag == 1 and curCount % 2 == 1 then
+                        socketText = socketText .. tempStr
+                    else
+                        socketText = socketText .. tempStr .. "{nl}"
+                    end
+                else
+                    local gemClass = GetClassByType("Item", isEquip);
+                    if gemClass.ClassName == 'gem_circle_1' then
+                        tempStr = ctrlSet:GetUserConfig("SOCKET_IMAGE_RED")
+                    elseif gemClass.ClassName == 'gem_square_1' then
+                        tempStr = ctrlSet:GetUserConfig("SOCKET_IMAGE_BLUE")
+                    elseif gemClass.ClassName == 'gem_diamond_1' then
+                        tempStr = ctrlSet:GetUserConfig("SOCKET_IMAGE_GREEN")
+                    elseif gemClass.ClassName == 'gem_star_1' then
+                        tempStr = ctrlSet:GetUserConfig("SOCKET_IMAGE_YELLOW")
+                    elseif gemClass.ClassName == 'gem_White_1' then
+                        tempStr = ctrlSet:GetUserConfig("SOCKET_IMAGE_WHITE")
+                    elseif gemClass.EquipXpGroup == "Gem_Skill" then
+                        tempStr = ctrlSet:GetUserConfig("SOCKET_IMAGE_MONSTER")
+                    end
+
+                    local gemLv = GET_ITEM_LEVEL_EXP(gemClass, marketItem:GetEquipGemExp(j));
+                    tempStr = tempStr .. "Lv" .. gemLv
+
+                    if drawFlag == 1 and curCount % 2 == 1 then
+                        socketText = socketText .. tempStr
+                    else
+                        socketText = socketText .. tempStr .. "{nl}"
+                    end
+                end
+            end
+            curCount = curCount + 1
+        end
+        socket:SetTextByKey("value", socketText)
+
+        -- POTENTIAL
+
+        local potential = GET_CHILD_RECURSIVELY(ctrlSet, "potential");
+        if needAppraisal == 1 then
+            potential:SetTextByKey("value1", "?")
+            potential:SetTextByKey("value2", "?")
+        else
+            potential:SetTextByKey("value1", itemObj.PR)
+            potential:SetTextByKey("value2", itemObj.MaxPR)
+        end
+
+        -- OPTION
+
+        local originalItemObj = itemObj
+        if inheritanceItem ~= nil then
+            itemObj = inheritanceItem
+        end
+
+        if needAppraisal == 1 or needRandomOption == 1 then
+            SET_MARKET_EQUIP_CTRLSET_OPTION_TEXT(ctrlSet, '{@st66b}' .. ScpArgMsg("AppraisalItem"))
+        end
+
+        local basicList = GET_EQUIP_TOOLTIP_PROP_LIST(itemObj);
+        local list = {};
+        local basicTooltipPropList = StringSplit(itemObj.BasicTooltipProp, ';');
+        for j = 1, #basicTooltipPropList do
+            local basicTooltipProp = basicTooltipPropList[i];
+            list = GET_CHECK_OVERLAP_EQUIPPROP_LIST(basicList, basicTooltipProp, list);
+        end
+
+        local list2 = GET_EUQIPITEM_PROP_LIST();
+        local cnt = 0;
+        local class = GetClassByType("Item", itemObj.ClassID);
+
+        local maxRandomOptionCnt = MAX_OPTION_EXTRACT_COUNT;
+        local randomOptionProp = {};
+        for j = 1, maxRandomOptionCnt do
+            if itemObj['RandomOption_' .. j] ~= 'None' then
+                randomOptionProp[itemObj['RandomOption_' .. j]] = itemObj['RandomOptionValue_' .. j];
+            end
+        end
+
+        for j = 1, #list do
+            local propName = list[j];
+            local propValue = TryGetProp(class, propName, 0);
+
+            local needToShow = true;
+            for k = 1, #basicTooltipPropList do
+                if basicTooltipPropList[k] == propName then
+                    needToShow = false;
+                end
+            end
+
+            if needToShow == true and propValue ~= 0 and randomOptionProp[propName] == nil then -- 랜덤 옵션이랑 겹치는 프로퍼티는 여기서 출력하지 않음
+                if itemObj.GroupName == 'Weapon' then
+                    if propName ~= "MINATK" and propName ~= 'MAXATK' then
+                        local strInfo = ABILITY_DESC_PLUS(ScpArgMsg(propName), propValue);
+                        SET_MARKET_EQUIP_CTRLSET_OPTION_TEXT(ctrlSet, strInfo);
+                    end
+                elseif itemObj.GroupName == 'Armor' then
+                    if itemObj.ClassType == 'Gloves' then
+                        if propName ~= "HR" then
+                            local strInfo = ABILITY_DESC_PLUS(ScpArgMsg(propName), propValue);
+                            SET_MARKET_EQUIP_CTRLSET_OPTION_TEXT(ctrlSet, strInfo);
+                        end
+                    elseif itemObj.ClassType == 'Boots' then
+                        if propName ~= "DR" then
+                            local strInfo = ABILITY_DESC_PLUS(ScpArgMsg(propName), propValue);
+                            SET_MARKET_EQUIP_CTRLSET_OPTION_TEXT(ctrlSet, strInfo);
+                        end
+                    else
+                        if propName ~= "DEF" then
+                            local strInfo = ABILITY_DESC_PLUS(ScpArgMsg(propName), propValue);
+                            SET_MARKET_EQUIP_CTRLSET_OPTION_TEXT(ctrlSet, strInfo);
+                        end
+                    end
+                else
+                    local strInfo = ABILITY_DESC_PLUS(ScpArgMsg(propName), propValue);
+                    SET_MARKET_EQUIP_CTRLSET_OPTION_TEXT(ctrlSet, strInfo);
+                end
+            end
+        end
+
+        for j = 1, 3 do
+            local propName = "HatPropName_" .. j;
+            local propValue = "HatPropValue_" .. j;
+            -- ts(itemObj[propName])
+            if itemObj[propValue] ~= 0 and itemObj[propName] ~= "None" then
+
+                local opName
+                local op_image = ""
+                if string.find(itemObj[propName], 'ALLSKILL_') == nil then
+                    -- opName = string.format("[%s] %s", ClMsg("EnchantOption"), ScpArgMsg(itemObj[propName]));
+                    opName = string.format("%s", ScpArgMsg(itemObj[propName]))
+                    -- ts(i, itemObj[propName])
+                    if option_image_table[itemObj[propName]] then
+                        op_image = option_image_table[itemObj[propName]]
+                    else
+                        op_image = ScpArgMsg("PropUp")
+                    end
+                else
+                    local job = StringSplit(itemObj[propName], '_')[2]
+                    if job == 'ShadowMancer' then
+                        job = 'Shadowmancer'
+                    end
+                    local classList, count = GetClassList('Job')
+                    local real_name = ScpArgMsg(job)
+                    for i = 0, count - 1 do
+                        local class = GetClassByIndexFromList(classList, i)
+                        if class.EngName == job then
+                            real_name = string.gsub(dictionary.ReplaceDicIDInCompStr(class.Name), "{s18}", "")
+                            break
+                        end
+
+                    end
+                    opName = string.format("{ol}{#FFD700}%s", real_name .. ' ' .. ScpArgMsg('skill_lv_up_by_count'))
+
+                    --[[opName = string.format("[%s] %s", ClMsg("EnchantOption"),
+                            ScpArgMsg(job) .. ' ' .. ScpArgMsg('skill_lv_up_by_count'));]]
+                    --[[opName =
+                        string.format("{ol}{#FFD700}%s", ScpArgMsg(job) .. ' ' .. ScpArgMsg('skill_lv_up_by_count'))]]
+
+                    if option_image_table["ALLSKILL"] then
+                        op_image = option_image_table["ALLSKILL"]
+                    end
+                end
+                local function market_favorite_rebuild_ABILITY_DESC_PLUS(desc, cur, op_image)
+
+                    if cur < 0 then
+                        return string.format(" - %s " .. ScpArgMsg("PropDown") .. "%d", desc, math.abs(cur));
+                    elseif string.find(desc, "{#FFD700}") then
+                        return string.format(op_image .. "+ %d" .. " %s", math.abs(cur), desc)
+                    else
+                        return string.format(op_image .. " %s" .. " %s", GET_COMMAED_STRING(math.abs(cur)), desc)
+                    end
+
+                end
+                local strInfo = market_favorite_rebuild_ABILITY_DESC_PLUS(opName, itemObj[propValue], op_image);
+
+                SET_MARKET_EQUIP_CTRLSET_OPTION_TEXT(ctrlSet, strInfo);
+            end
+        end
+
+        for j = 1, maxRandomOptionCnt do
+            local propGroupName = "RandomOptionGroup_" .. j;
+            local propName = "RandomOption_" .. j;
+            local propValue = "RandomOptionValue_" .. j;
+            local clientMessage = 'None'
+
+            local propItem = originalItemObj
+
+            if propItem[propGroupName] == 'ATK' then
+                clientMessage = 'ItemRandomOptionGroupATK'
+            elseif propItem[propGroupName] == 'DEF' then
+                clientMessage = 'ItemRandomOptionGroupDEF'
+            elseif propItem[propGroupName] == 'UTIL_WEAPON' then
+                clientMessage = 'ItemRandomOptionGroupUTIL'
+            elseif propItem[propGroupName] == 'UTIL_ARMOR' then
+                clientMessage = 'ItemRandomOptionGroupUTIL'
+            elseif propItem[propGroupName] == 'UTIL_SHILED' then
+                clientMessage = 'ItemRandomOptionGroupUTIL'
+            elseif propItem[propGroupName] == 'STAT' then
+                clientMessage = 'ItemRandomOptionGroupSTAT'
+            elseif propItem[propGroupName] == 'SPECIAL' then
+                clientMessage = 'ItemRandomOptionGroupSPECIAL'
+                --[[elseif propItem[propGroupName] == 'SPECIAL' then
+                clientMessage = 'ItemRandomOptionGroupSPECIAL']]
+            end
+
+            if propItem[propValue] ~= 0 and propItem[propName] ~= "None" then
+                local opName = string.format("%s %s", ClMsg(clientMessage), ScpArgMsg(propItem[propName]));
+                local strInfo = ABILITY_DESC_NO_PLUS(opName, propItem[propValue], 0);
+                local min, max = 0, 0
+                if itemObj.ClassType == "BELT" then
+                    min, max = shared_item_belt.get_option_value_range_equip(itemObj, itemObj[propName])
+                    local per = string.sub(tonumber(propItem[propValue]) / max * 100, 1, 4) .. "%"
+                    if g.settings.max_value == 1 then
+                        strInfo =
+                            "{@st66}{s14}" .. GET_COMMAED_STRING(propItem[propValue]) .. "{@st66}{s14}" .. opName ..
+                                "{nl}{@st66}{s10}  (" .. per .. "/" .. GET_COMMAED_STRING(max) .. ")"
+                    else
+                        strInfo =
+                            "{@st66}{s14}" .. GET_COMMAED_STRING(propItem[propValue]) .. "{@st66}{s14}" .. opName ..
+                                "{nl}{@st66}{s12}  (" .. per .. ")"
+                    end
+                    local optionText = GET_CHILD_RECURSIVELY(ctrlSet, "randomoption_" .. j - 1)
+                    optionText:Resize(250, 36)
+                elseif itemObj.ClassType == 'SHOULDER' then
+                    min, max = shared_item_shoulder.get_option_value_range_equip(itemObj, itemObj[propName])
+                    local per = string.sub(tonumber(propItem[propValue]) / max * 100, 1, 4) .. "%"
+                    if g.settings.max_value == 1 then
+                        strInfo =
+                            "{@st66}{s14}" .. GET_COMMAED_STRING(propItem[propValue]) .. "{@st66}{s14}" .. opName ..
+                                "{nl}{@st66}{s10}  (" .. per .. "/" .. GET_COMMAED_STRING(max) .. ")"
+                    else
+                        strInfo =
+                            "{@st66}{s14}" .. GET_COMMAED_STRING(propItem[propValue]) .. "{@st66}{s14}" .. opName ..
+                                "{nl}{@st66}{s12}  (" .. per .. ")"
+                    end
+                    local optionText = GET_CHILD_RECURSIVELY(ctrlSet, "randomoption_" .. j - 1)
+                    optionText:Resize(250, 36)
+                end
+                SET_MARKET_EQUIP_CTRLSET_OPTION_TEXT(ctrlSet, strInfo);
+            end
+        end
+
+        local function _CREATE_SEAL_OPTION(ctrlSet, itemObj)
+            if TryGetProp(itemObj, 'GroupName') ~= 'Seal' then
+                return;
+            end
+
+            if TryGetProp(itemObj, "StringArg") == "Seal_Material" then
+                return;
+            end
+
+            for j = 1, itemObj.MaxReinforceCount do
+                local option = TryGetProp(itemObj, 'SealOption_' .. j, 'None');
+                if option == 'None' then
+                    break
+                end
+                local strInfo = GET_OPTION_VALUE_OR_PERCECNT_STRING(option, itemObj['SealOptionValue_' .. j]);
+                SET_MARKET_EQUIP_CTRLSET_OPTION_TEXT(ctrlSet, strInfo);
+            end
+        end
+        _CREATE_SEAL_OPTION(ctrlSet, itemObj);
+        local function _CREATE_EARRING_OPTION(ctrlSet, itemObj)
+            if TryGetProp(itemObj, 'GroupName') ~= 'Earring' then
+                return;
+            end
+
+            for j = 1, shared_item_earring.get_max_special_option_count(TryGetProp(itemObj, 'ItemLv', 0)) do
+                local ctrl = TryGetProp(itemObj, 'EarringSpecialOption_' .. j, 'None')
+                if ctrl ~= 'None' then
+                    local cls = GetClass('Job', ctrl)
+                    local ctrl = TryGetProp(cls, 'Name', 'None')
+
+                    local rank = TryGetProp(itemObj, 'EarringSpecialOptionRankValue_' .. j, 0)
+                    local lv = TryGetProp(itemObj, 'EarringSpecialOptionLevelValue_' .. j, 0)
+                    -- local text = ScpArgMsg('EarringSpecialOption{ctrl}{rank}{lv}', 'ctrl', ctrl, 'rank', rank, 'lv', lv)
+                    ctrl = string.gsub(dic.getTranslatedStr(ctrl), "{s18}", "")
+                    --[[local text = "{img tooltip_attribute5} {ol}{s15}{#32CD32}" .. ctrl ..
+                                     "{/}{/}{s15}{#FF0000}[{/}{/}{ol}{s15}{#FFD700}" .. rank ..
+                                     "{/}{/}{s15}{#FF0000}]{/}{/}" .. ScpArgMsg("PropUp") .. "{s15}{#32CD32}" .. lv]]
+                    local text = "{img tooltip_attribute5} {ol}{s15}{#32CD32}" .. ctrl .. "{/}{/}{s15}{#1E90FF}[" ..
+                                     rank .. "]" .. ScpArgMsg("PropUp") .. "{s15}{#32CD32}" .. lv
+                    -- ts(ctrl, rank, lv)
+                    SET_MARKET_EQUIP_CTRLSET_OPTION_TEXT(ctrlSet, text); -- {#FFD700}
+                end
+            end
+        end
+        _CREATE_EARRING_OPTION(ctrlSet, itemObj);
+        local function _CREATE_RADA_OPTION(ctrlSet, itemObj)
+            if TryGetProp(itemObj, 'RadaOption', 'None') == 'None' then
+                return;
+            end
+
+            local RadaOption = TryGetProp(itemObj, 'RadaOption', 'None')
+            local equip_group = TryGetProp(itemObj, 'EquipGroup', 'None')
+            if RadaOption ~= 'None' then
+
+                local list = StringSplit(RadaOption, ';')
+                for i = 1, #list do
+                    local desc = ''
+                    local prefix = ''
+                    local suffix = ''
+                    if SEASON_COIN_NAME ~= 'RadaCertificate' then
+                        prefix = '{#7F7F7F}'
+                        suffix = '{/}'
+                    end
+
+                    desc = prefix .. desc
+
+                    local name = StringSplit(list[i], '/')[1]
+                    local value = StringSplit(list[i], '/')[2]
+
+                    local range = GET_RADAOPTION_RANGE(name, equip_group)
+                    desc = desc .. ScpArgMsg(name, 'level', value, 'min', range[1], 'max', range[2]) .. '{nl}'
+                    desc = desc .. suffix
+                    SET_MARKET_EQUIP_CTRLSET_OPTION_TEXT(ctrlSet, desc);
+                end
+            end
+        end
+        _CREATE_RADA_OPTION(ctrlSet, itemObj);
+
+        for j = 1, #list2 do
+            local propName = list2[j];
+            local propValue = TryGetProp(itemObj, propName, 0);
+            if propValue ~= 0 then
+                local strInfo = ABILITY_DESC_PLUS(ScpArgMsg(propName), propValue);
+                SET_MARKET_EQUIP_CTRLSET_OPTION_TEXT(ctrlSet, strInfo);
+            end
+        end
+
+        if itemObj.OptDesc ~= nil and itemObj.OptDesc ~= 'None' then
+            SET_MARKET_EQUIP_CTRLSET_OPTION_TEXT(ctrlSet, itemObj.OptDesc);
+        end
+
+        if originalItemObj['RandomOptionRareValue'] ~= 0 and originalItemObj['RandomOptionRare'] ~= "None" then
+            local strInfo = _GET_RANDOM_OPTION_RARE_CLIENT_TEXT(originalItemObj['RandomOptionRare'],
+                originalItemObj['RandomOptionRareValue'], '');
+            if strInfo ~= nil then
+                SET_MARKET_EQUIP_CTRLSET_OPTION_TEXT(ctrlSet, strInfo);
+            end
+        end
+
+        if inheritanceItem == nil then
+            if itemObj.IsAwaken == 1 then
+                local opName = string.format("[%s] %s", ClMsg("AwakenOption"), ScpArgMsg(itemObj.HiddenProp));
+                local strInfo = ABILITY_DESC_PLUS(opName, itemObj.HiddenPropValue);
+                SET_MARKET_EQUIP_CTRLSET_OPTION_TEXT(ctrlSet, strInfo);
+            end
+        else
+            if inheritanceItem.IsAwaken == 1 then
+                local opName = string.format("[%s] %s", ClMsg("AwakenOption"), ScpArgMsg(inheritanceItem.HiddenProp));
+                local strInfo = ABILITY_DESC_PLUS(opName, inheritanceItem.HiddenPropValue);
+                SET_MARKET_EQUIP_CTRLSET_OPTION_TEXT(ctrlSet, strInfo);
+            end
+        end
+
+        if itemObj.ReinforceRatio > 100 then
+            local opName = ClMsg("ReinforceOption");
+            local strInfo = ABILITY_DESC_PLUS(opName, math.floor(10 * itemObj.ReinforceRatio / 100));
+            SET_MARKET_EQUIP_CTRLSET_OPTION_TEXT(ctrlSet, strInfo);
+        end
+
+        -- 내 판매리스트 처리
+
+        if cid == marketItem:GetSellerCID() then
+            local buyBtn = GET_CHILD_RECURSIVELY(ctrlSet, "buyBtn");
+            buyBtn:ShowWindow(0)
+            buyBtn:SetEnable(0);
+            local cancelBtn = GET_CHILD_RECURSIVELY(ctrlSet, "cancelBtn");
+            cancelBtn:ShowWindow(1)
+            cancelBtn:SetEnable(1)
+
+            if USE_MARKET_REPORT == 1 then
+                local reportBtn = GET_CHILD_RECURSIVELY(ctrlSet, "reportBtn");
+                reportBtn:SetEnable(0);
+            end
+
+            local totalPrice_num = GET_CHILD_RECURSIVELY(ctrlSet, "totalPrice_num");
+            totalPrice_num:SetTextByKey("value", 0);
+            local totalPrice_text = GET_CHILD_RECURSIVELY(ctrlSet, "totalPrice_text");
+            totalPrice_text:SetTextByKey("value", 0);
+        else
+
+            local buyBtn = GET_CHILD_RECURSIVELY(ctrlSet, "buyBtn");
+            buyBtn:ShowWindow(1)
+            buyBtn:SetEnable(1);
+            local cancelBtn = GET_CHILD_RECURSIVELY(ctrlSet, "cancelBtn");
+            cancelBtn:ShowWindow(0)
+            cancelBtn:SetEnable(0)
+
+            MARKET_CTRLSET_SET_TOTAL_PRICE(ctrlSet, marketItem);
+
+        end
+
+        ctrlSet:SetUserValue("sellPrice", marketItem:GetSellPrice() or 0);
+
+    end
+
+    local ITEM_CTRLSET_INTERVAL_Y_MARGIN = tonumber(frame:GetUserConfig('ITEM_CTRLSET_INTERVAL_Y_MARGIN'));
+
+    GBOX_AUTO_ALIGN(itemlist, 4, ITEM_CTRLSET_INTERVAL_Y_MARGIN, 0, true, false)
+
+    local function MARKET_SET_PAGE_CONTROL(frame, pageControl)
+        local category, _category, _subCategory = GET_CATEGORY_STRING(frame);
+        local itemCntPerPage = GET_MARKET_SEARCH_ITEM_COUNT(_category);
+        local maxPage = math.ceil(session.market.GetTotalCount() / itemCntPerPage);
+        local curPage = session.market.GetCurPage();
+        local pageController = GET_CHILD(frame, pageControl, 'ui::CPageController')
+        if maxPage < 1 then
+            maxPage = 1;
+        end
+
+        pageController:SetMaxPage(maxPage);
+        pageController:SetCurPage(curPage);
+    end
+    MARKET_SET_PAGE_CONTROL(frame, "pagecontrol")
+end
+
+local icor_table = { -- { "オプション名", "category", 武器突破, 武器通常, 防具突破, 防具通常 },
+{"revenge", "ATK", 90000, 60000, nil, nil}, {"perfection", "ATK", 14040, 9360, nil, nil},
+{"AllMaterialType_Atk", "ATK", 4746, 3164, 3804, 2536}, {"AllRace_Atk", "ATK", 4746, 3164, 3804, 2536},
+{"Add_Damage_Atk", "ATK", 8385, 5590, 5583, 3722}, {"ADD_SMALLSIZE", "ATK", 5583, 3722, 4473, 2982},
+{"ADD_PARAMUNE", "ATK", 5583, 3722, 4473, 2982}, {"ADD_IRON", "ATK", 5583, 3722, 4473, 2982},
+{"ADD_VELIAS", "ATK", 5583, 3722, 4473, 2982}, {"ADD_GHOST", "ATK", 5583, 3722, 4473, 2982},
+{"ADD_MIDDLESIZE", "ATK", 5583, 3722, 4473, 2982}, {"ADD_FORESTER", "ATK", 5583, 3722, 4473, 2982},
+{"ADD_CLOTH", "ATK", 5583, 3722, 4473, 2982}, {"ADD_LARGESIZE", "ATK", 5583, 3722, 4473, 2982},
+{"ADD_WIDLING", "ATK", 5583, 3722, 4473, 2982}, {"ADD_KLAIDA", "ATK", 5583, 3722, 4473, 2982},
+{"ADD_LEATHER", "ATK", 5583, 3722, 4473, 2982}, {"ResAdd_Damage", "DEF", 8385, 5590, 5583, 3722},
+{"MiddleSize_Def", "DEF", 5583, 3722, 4473, 2982}, {"Iron_Def", "DEF", 5583, 3722, 4473, 2982},
+{"Leather_Def", "DEF", 5583, 3722, 4473, 2982}, {"Cloth_Def", "DEF", 5583, 3722, 4473, 2982},
+{"portion_expansion", "DEF", nil, nil, 116707, 77805}, {"high_lighting_res", "DEF", nil, nil, 798, 532},
+{"high_poison_res", "DEF", nil, nil, 798, 532}, {"stun_res", "DEF", nil, nil, 798, 532},
+{"high_laceration_res", "DEF", nil, nil, 798, 532}, {"high_freezing_res", "DEF", nil, nil, 798, 532},
+{"high_fire_res", "DEF", nil, nil, 798, 532}, {"RHP", "UTIL", 2793, 1862, 2230, 1487},
+{"ADD_HR", "UTIL", 2793, 1862, 2230, 1487}, {"ADD_DR", "UTIL", 2793, 1862, 2230, 1487},
+{"CRTHR", "UTIL", 2793, 1862, 2230, 1487}, {"BLK_BREAK", "UTIL", 2793, 1862, 2230, 1487},
+{"CRTDR", "UTIL", 2793, 1862, 2230, 1487}, {"BLK", "UTIL", 2793, 1862, 2230, 1487}, {"INT", "STAT", 834, 556, 663, 442},
+{"CON", "STAT", 834, 556, 663, 442}, {"STR", "STAT", 834, 556, 663, 442}, {"DEX", "STAT", 834, 556, 663, 442},
+{"MNA", "STAT", 834, 556, 663, 442}}
+
+function market_favorite_rebuild_MARKET_DRAW_CTRLSET_OPTMISC(my_frame, my_msg)
+    local frame = g.get_event_args(my_msg)
+
+    if g.settings.op_text == 0 then
+        g.FUNCS["MARKET_DRAW_CTRLSET_OPTMISC"](frame)
+        return
+    end
+
+    local itemlist = GET_CHILD_RECURSIVELY(frame, "itemListGbox");
+    itemlist:RemoveAllChild();
+    local mySession = session.GetMySession();
+    local cid = mySession:GetCID();
+    local count = session.market.GetItemCount();
+
+    MARKET_SELECT_SHOW_TITLE(frame, "OPTMiscTitle")
+
+    local yPos = 0
+    for i = 0, count - 1 do
+        local marketItem = session.market.GetItemByIndex(i);
+        local itemObj = GetIES(marketItem:GetObject());
+        local refreshScp = itemObj.RefreshScp;
+        if refreshScp ~= "None" then
+            refreshScp = _G[refreshScp];
+            refreshScp(itemObj);
+        end
+
+        local ctrlSet = itemlist:CreateControlSet("market_item_detail_OPTMisc", "ITEM_EQUIP_" .. i, ui.LEFT, ui.TOP, 0,
+            0, 0, yPos);
+        AUTO_CAST(ctrlSet)
+        ctrlSet:SetUserValue("DETAIL_ROW", i);
+        ctrlSet:SetUserValue("optionIndex", 0)
+
+        local type = GET_CHILD_RECURSIVELY(ctrlSet, "type");
+        type:ShowWindow(0);
+
+        local inheritanceItem = GetClass('Item', itemObj.InheritanceItemName)
+        if inheritanceItem == nil then
+            inheritanceItem = GetClass('Item', itemObj.InheritanceRandomItemName)
+        end
+
+        local function MARKET_CTRLSET_SET_ICON(ctrlSet, itemObj, marketItem)
+            local pic = GET_CHILD_RECURSIVELY(ctrlSet, "pic");
+            SET_SLOT_ITEM_CLS(pic, itemObj)
+            SET_ITEM_TOOLTIP_ALL_TYPE(pic:GetIcon(), marketItem, itemObj.ClassName, "market", marketItem.itemType,
+                marketItem:GetMarketGuid());
+            SET_SLOT_STYLESET(pic, itemObj)
+            -- 아이커 종류 표시	
+            SET_SLOT_ICOR_CATEGORY(pic, itemObj);
+
+            if itemObj.MaxStack > 1 then
+                local font = '{s16}{ol}{b}';
+                if 100000 <= marketItem.count then -- 6자리 수 폰트 크기 조정
+                    font = '{s14}{ol}{b}';
+                end
+                SET_SLOT_COUNT_TEXT(pic, marketItem.count, font);
+            end
+            SET_SLOT_STAR_TEXT(pic, itemObj);
+        end
+
+        MARKET_CTRLSET_SET_ICON(ctrlSet, itemObj, marketItem);
+
+        local name = GET_CHILD_RECURSIVELY(ctrlSet, "name");
+
+        local real_name = dictionary.ReplaceDicIDInCompStr(GET_FULL_NAME(itemObj))
+        -- ts(real_name)
+        if not string.find(real_name, "540") then
+            real_name = ScpArgMsg("PropDown") .. "{ol}{#FF0000}" .. real_name
+        elseif string.find(real_name, "540") and string.find(real_name, "上級") then
+            real_name = "{ol}{#FFA500}" .. real_name
+        end
+        name:SetTextByKey("value", real_name);
+        -- name:SetTextByKey("value", GET_FULL_NAME(itemObj));
+
+        -- OPTION (아이커)
+        local originalItemObj = itemObj
+        if inheritanceItem ~= nil then
+            itemObj = inheritanceItem
+
+            type:SetTextByKey("value", ClMsg(inheritanceItem.ClassType));
+            type:ShowWindow(1);
+
+            if needAppraisal == 1 or needRandomOption == 1 then
+                SET_MARKET_EQUIP_CTRLSET_OPTION_TEXT(ctrlSet, '{@st66b}' .. ScpArgMsg("AppraisalItem"))
+            end
+
+            local basicList = GET_EQUIP_TOOLTIP_PROP_LIST(itemObj);
+            local list = {};
+            local basicTooltipPropList = StringSplit(itemObj.BasicTooltipProp, ';');
+            for i = 1, #basicTooltipPropList do
+                local basicTooltipProp = basicTooltipPropList[i];
+                list = GET_CHECK_OVERLAP_EQUIPPROP_LIST(basicList, basicTooltipProp, list);
+            end
+
+            local list2 = GET_EUQIPITEM_PROP_LIST();
+            local cnt = 0;
+            local class = GetClassByType("Item", itemObj.ClassID);
+
+            local maxRandomOptionCnt = MAX_OPTION_EXTRACT_COUNT;
+            local randomOptionProp = {};
+            for i = 1, maxRandomOptionCnt do
+                if itemObj['RandomOption_' .. i] ~= 'None' then
+                    randomOptionProp[itemObj['RandomOption_' .. i]] = itemObj['RandomOptionValue_' .. i];
+                end
+            end
+
+            for i = 1, #list do
+                local propName = list[i];
+                local propValue = TryGetProp(class, propName, 0);
+
+                local needToShow = true;
+                for j = 1, #basicTooltipPropList do
+                    if basicTooltipPropList[j] == propName then
+                        needToShow = false;
+                    end
+                end
+
+                if needToShow == true and propValue ~= 0 and randomOptionProp[propName] == nil then -- 랜덤 옵션이랑 겹치는 프로퍼티는 여기서 출력하지 않음
+                    if itemObj.GroupName == 'Weapon' then
+                        if propName ~= "MINATK" and propName ~= 'MAXATK' then
+                            local strInfo = ABILITY_DESC_PLUS(ScpArgMsg(propName), propValue);
+                            SET_MARKET_EQUIP_CTRLSET_OPTION_TEXT(ctrlSet, strInfo);
+                        end
+                    elseif itemObj.GroupName == 'Armor' then
+                        if itemObj.ClassType == 'Gloves' then
+                            if propName ~= "HR" then
+                                local strInfo = ABILITY_DESC_PLUS(ScpArgMsg(propName), propValue);
+                                SET_MARKET_EQUIP_CTRLSET_OPTION_TEXT(ctrlSet, strInfo);
+                            end
+                        elseif itemObj.ClassType == 'Boots' then
+                            if propName ~= "DR" then
+                                local strInfo = ABILITY_DESC_PLUS(ScpArgMsg(propName), propValue);
+                                SET_MARKET_EQUIP_CTRLSET_OPTION_TEXT(ctrlSet, strInfo);
+                            end
+                        else
+                            if propName ~= "DEF" then
+                                local strInfo = ABILITY_DESC_PLUS(ScpArgMsg(propName), propValue);
+                                SET_MARKET_EQUIP_CTRLSET_OPTION_TEXT(ctrlSet, strInfo);
+                            end
+                        end
+                    else
+                        local strInfo = ABILITY_DESC_PLUS(ScpArgMsg(propName), propValue);
+                        SET_MARKET_EQUIP_CTRLSET_OPTION_TEXT(ctrlSet, strInfo);
+                    end
+                end
+            end
+
+            for i = 1, 3 do
+                local propName = "HatPropName_" .. i;
+                local propValue = "HatPropValue_" .. i;
+                if itemObj[propValue] ~= 0 and itemObj[propName] ~= "None" then
+                    local opName
+                    if string.find(itemObj[propName], 'ALLSKILL_') == nil then
+                        opName = string.format("[%s] %s", ClMsg("EnchantOption"), ScpArgMsg(itemObj[propName]));
+                    else
+                        local job = StringSplit(itemObj[propName], '_')[2]
+                        if job == 'ShadowMancer' then
+                            job = 'Shadowmancer'
+                        end
+                        opName = string.format("[%s] %s", ClMsg("EnchantOption"),
+                            ScpArgMsg(job) .. ' ' .. ScpArgMsg('skill_lv_up_by_count'));
+                    end
+                    local strInfo = ABILITY_DESC_PLUS(opName, itemObj[propValue]);
+                    SET_MARKET_EQUIP_CTRLSET_OPTION_TEXT(ctrlSet, strInfo);
+                end
+            end
+
+            for i = 1, maxRandomOptionCnt do
+                local propGroupName = "RandomOptionGroup_" .. i;
+                local propName = "RandomOption_" .. i;
+                local propValue = "RandomOptionValue_" .. i;
+                local clientMessage = 'None'
+
+                local propItem = originalItemObj
+
+                if propItem[propGroupName] == 'ATK' then
+                    clientMessage = 'ItemRandomOptionGroupATK'
+                elseif propItem[propGroupName] == 'DEF' then
+                    clientMessage = 'ItemRandomOptionGroupDEF'
+                elseif propItem[propGroupName] == 'UTIL_WEAPON' then
+                    clientMessage = 'ItemRandomOptionGroupUTIL'
+                elseif propItem[propGroupName] == 'UTIL_ARMOR' then
+                    clientMessage = 'ItemRandomOptionGroupUTIL'
+                elseif propItem[propGroupName] == 'UTIL_SHILED' then
+                    clientMessage = 'ItemRandomOptionGroupUTIL'
+                elseif propItem[propGroupName] == 'STAT' then
+                    clientMessage = 'ItemRandomOptionGroupSTAT'
+                elseif propItem[propGroupName] == 'SPECIAL' then
+                    clientMessage = 'ItemRandomOptionGroupSPECIAL'
+                end
+
+                if propItem[propValue] ~= 0 and propItem[propName] ~= "None" then
+                    local opName = string.format("%s %s", ClMsg(clientMessage), ScpArgMsg(propItem[propName]));
+                    local strInfo = ABILITY_DESC_NO_PLUS(opName, propItem[propValue], 0);
+                    SET_MARKET_EQUIP_CTRLSET_OPTION_TEXT(ctrlSet, strInfo);
+                end
+            end
+
+            local function _CREATE_SEAL_OPTION(parent, ypos, width, height, option, optionValue, idx, xMargin)
+                local richtext = parent:CreateControl('richtext', 'OPTION_' .. idx, xMargin, ypos, width - 10, height);
+                local str = string.format('{img tooltip_attribute2 20 20} %d%s : %s', idx, ClMsg('Step'),
+                    GET_OPTION_VALUE_OR_PERCECNT_STRING(option, optionValue));
+                richtext:SetTextFixWidth(1);
+                richtext:EnableTextOmitByWidth(1);
+                richtext:SetText(str);
+                richtext:SetFontName('white_16_b_ol');
+                ypos = ypos + height;
+                return ypos;
+            end
+
+            _CREATE_SEAL_OPTION(ctrlSet, itemObj);
+
+            for i = 1, #list2 do
+                local propName = list2[i];
+                local propValue = TryGetProp(itemObj, propName, 0);
+                if propValue ~= 0 then
+                    local strInfo = ABILITY_DESC_PLUS(ScpArgMsg(propName), propValue);
+                    SET_MARKET_EQUIP_CTRLSET_OPTION_TEXT(ctrlSet, strInfo);
+                end
+            end
+
+            if itemObj.OptDesc ~= nil and itemObj.OptDesc ~= 'None' then
+                SET_MARKET_EQUIP_CTRLSET_OPTION_TEXT(ctrlSet, itemObj.OptDesc);
+            end
+
+            if originalItemObj['RandomOptionRareValue'] ~= 0 and originalItemObj['RandomOptionRare'] ~= "None" then
+                local strInfo = _GET_RANDOM_OPTION_RARE_CLIENT_TEXT(originalItemObj['RandomOptionRare'],
+                    originalItemObj['RandomOptionRareValue'], '');
+                if strInfo ~= nil then
+                    SET_MARKET_EQUIP_CTRLSET_OPTION_TEXT(ctrlSet, strInfo);
+                end
+            end
+
+            if inheritanceItem == nil then
+                if itemObj.IsAwaken == 1 then
+                    local opName = string.format("[%s] %s", ClMsg("AwakenOption"), ScpArgMsg(itemObj.HiddenProp));
+                    local strInfo = ABILITY_DESC_PLUS(opName, itemObj.HiddenPropValue);
+                    SET_MARKET_EQUIP_CTRLSET_OPTION_TEXT(ctrlSet, strInfo);
+                end
+            else
+                if inheritanceItem.IsAwaken == 1 then
+                    local opName =
+                        string.format("[%s] %s", ClMsg("AwakenOption"), ScpArgMsg(inheritanceItem.HiddenProp));
+                    local strInfo = ABILITY_DESC_PLUS(opName, inheritanceItem.HiddenPropValue);
+                    SET_MARKET_EQUIP_CTRLSET_OPTION_TEXT(ctrlSet, strInfo);
+                end
+            end
+
+            if itemObj.ReinforceRatio > 100 then
+                local opName = ClMsg("ReinforceOption");
+                local strInfo = ABILITY_DESC_PLUS(opName, math.floor(10 * itemObj.ReinforceRatio / 100));
+                SET_MARKET_EQUIP_CTRLSET_OPTION_TEXT(ctrlSet, strInfo);
+            end
+
+        end
+
+        local goddessIcor = string.find(itemObj.StringArg, "GoddessIcor")
+
+        if goddessIcor ~= nil then
+            local maxRandomOptionCnt = MAX_OPTION_EXTRACT_COUNT;
+            local randomOptionProp = {};
+            for i = 1, maxRandomOptionCnt do
+                if itemObj['RandomOption_' .. i] ~= 'None' then
+                    randomOptionProp[itemObj['RandomOption_' .. i]] = itemObj['RandomOptionValue_' .. i];
+                end
+            end
+
+            for j = 1, maxRandomOptionCnt do
+                local propGroupName = "RandomOptionGroup_" .. j;
+                local propName = "RandomOption_" .. j;
+                local propValue = "RandomOptionValue_" .. j;
+                local clientMessage = 'None'
+
+                local propItem = originalItemObj
+
+                if propItem[propGroupName] == 'ATK' then
+                    clientMessage = 'ItemRandomOptionGroupATK'
+                elseif propItem[propGroupName] == 'DEF' then
+                    clientMessage = 'ItemRandomOptionGroupDEF'
+                elseif propItem[propGroupName] == 'UTIL_WEAPON' then
+                    clientMessage = 'ItemRandomOptionGroupUTIL'
+                elseif propItem[propGroupName] == 'UTIL_ARMOR' then
+                    clientMessage = 'ItemRandomOptionGroupUTIL'
+                elseif propItem[propGroupName] == 'UTIL_SHILED' then
+                    clientMessage = 'ItemRandomOptionGroupUTIL'
+                elseif propItem[propGroupName] == 'STAT' then
+                    clientMessage = 'ItemRandomOptionGroupSTAT'
+                elseif propItem[propGroupName] == 'SPECIAL' then
+                    clientMessage = 'ItemRandomOptionGroupSPECIAL'
+                end
+
+                if propItem[propValue] ~= 0 and propItem[propName] ~= "None" then
+                    local opName = string.format("%s %s", ClMsg(clientMessage), ScpArgMsg(propItem[propName]));
+
+                    local strInfo = ABILITY_DESC_NO_PLUS(opName, propItem[propValue], 0);
+                    if not string.find(opName, "_bless_") and string.find(itemObj.StringArg, "EP17") then
+                        local tag_part = string.match(strInfo, "({.-})")
+                        local number_part = string.gsub(string.match(strInfo, "([%+%,%d]+)$"), ",", "")
+                        number_part = tonumber(number_part)
+
+                        local middle_part = strInfo
+                        if tag_part then
+                            middle_part = string.gsub(middle_part, "({.-})", "", 1)
+                        end
+                        if number_part then
+                            middle_part = string.gsub(middle_part, "([%+%,%d]+)$", "", 1)
+                        end
+                        middle_part = string.gsub(middle_part, "!@#$PropUp#@!", "")
+                        middle_part = middle_part:match("^%s*(.-)%s*$")
+
+                        local pattern = "^%!@#%$(.-)%#@%!$"
+                        local extracted_text = string.match(middle_part, pattern)
+                        local per_text = ""
+                        for i, row_data in ipairs(icor_table) do
+                            local op_name = row_data[1]
+
+                            if extracted_text == op_name then
+                                if string.find(itemObj.StringArg, "Weapon") then
+                                    local op_break_limit = row_data[3]
+                                    local op_max = row_data[4]
+                                    local per = string.sub(tonumber(propItem[propValue]) / op_max * 100, 1, 4) .. "%"
+
+                                    if g.settings.max_value == 1 then
+                                        per_text = "{nl}{@st66}{s10}  (" .. per .. "/" .. GET_COMMAED_STRING(op_max) ..
+                                                       ")"
+                                    else
+                                        per_text = "{nl}{@st66}{s12}  (" .. per .. ")"
+                                    end
+
+                                    local optionText = GET_CHILD_RECURSIVELY(ctrlSet, "randomoption_" .. j - 1)
+                                    optionText:Resize(250, 36)
+
+                                    if number_part == op_break_limit then
+                                        number_part = "{#9932CC}{ol}" .. GET_COMMAED_STRING(number_part) .. "{/}{/}"
+                                    elseif number_part == op_max then
+                                        number_part = "{#98FB98}{ol}" .. GET_COMMAED_STRING(number_part) .. "{/}{/}"
+                                    elseif number_part >= math.ceil(op_max * 0.9) then
+                                        number_part = "{#FFA500}{ol}" .. GET_COMMAED_STRING(number_part) .. "{/}{/}"
+                                    else
+                                        number_part = GET_COMMAED_STRING(number_part)
+                                    end
+                                elseif string.find(itemObj.StringArg, "Armor") then
+                                    local op_break_limit = row_data[5]
+                                    local op_max = row_data[6]
+
+                                    local per = string.sub(tonumber(propItem[propValue]) / op_max * 100, 1, 4) .. "%"
+
+                                    if g.settings.max_value == 1 then
+                                        per_text = "{nl}{@st66}{s10}  (" .. per .. "/" .. GET_COMMAED_STRING(op_max) ..
+                                                       ")"
+                                    else
+                                        per_text = "{nl}{@st66}{s12}  (" .. per .. ")"
+                                    end
+
+                                    local optionText = GET_CHILD_RECURSIVELY(ctrlSet, "randomoption_" .. j - 1)
+                                    optionText:Resize(250, 36)
+
+                                    if number_part == op_break_limit then
+                                        number_part = "{#9932CC}{ol}" .. GET_COMMAED_STRING(number_part) .. "{/}{/}"
+                                    elseif number_part == op_max then
+                                        number_part = "{#98FB98}{ol}" .. GET_COMMAED_STRING(number_part) .. "{/}{/}"
+                                    elseif number_part >= math.ceil(op_max * 0.9) then
+                                        number_part = "{#FFA500}{ol}" .. GET_COMMAED_STRING(number_part) .. "{/}{/}"
+                                    else
+                                        number_part = GET_COMMAED_STRING(number_part)
+                                    end
+                                end
+                            end
+                        end
+                        -- ts(middle_part)
+                        strInfo = number_part .. "" .. tag_part .. "" .. middle_part .. per_text
+                    end
+
+                    SET_MARKET_EQUIP_CTRLSET_OPTION_TEXT(ctrlSet, strInfo);
+                end
+            end
+        end
+
+        -- 내 판매리스트 처리
+        if cid == marketItem:GetSellerCID() then
+            local buyBtn = GET_CHILD_RECURSIVELY(ctrlSet, "buyBtn");
+            buyBtn:ShowWindow(0)
+            buyBtn:SetEnable(0);
+            local cancelBtn = GET_CHILD_RECURSIVELY(ctrlSet, "cancelBtn");
+            cancelBtn:ShowWindow(1)
+            cancelBtn:SetEnable(1)
+
+            if USE_MARKET_REPORT == 1 then
+                local reportBtn = GET_CHILD_RECURSIVELY(ctrlSet, "reportBtn");
+                reportBtn:SetEnable(0);
+            end
+
+            local totalPrice_num = GET_CHILD_RECURSIVELY(ctrlSet, "totalPrice_num");
+            totalPrice_num:SetTextByKey("value", 0);
+            local totalPrice_text = GET_CHILD_RECURSIVELY(ctrlSet, "totalPrice_text");
+            totalPrice_text:SetTextByKey("value", 0);
+        else
+
+            local buyBtn = GET_CHILD_RECURSIVELY(ctrlSet, "buyBtn");
+            buyBtn:ShowWindow(1)
+            buyBtn:SetEnable(1);
+            local cancelBtn = GET_CHILD_RECURSIVELY(ctrlSet, "cancelBtn");
+            cancelBtn:ShowWindow(0)
+            cancelBtn:SetEnable(0)
+
+            MARKET_CTRLSET_SET_TOTAL_PRICE(ctrlSet, marketItem);
+        end
+
+        ctrlSet:SetUserValue("sellPrice", marketItem:GetSellPrice());
+    end
+
+    local ITEM_CTRLSET_INTERVAL_Y_MARGIN = tonumber(frame:GetUserConfig('ITEM_CTRLSET_INTERVAL_Y_MARGIN'));
+    GBOX_AUTO_ALIGN(itemlist, 4, ITEM_CTRLSET_INTERVAL_Y_MARGIN, 0, true, false);
+
+    local function MARKET_SET_PAGE_CONTROL(frame, pageControl)
+        local category, _category, _subCategory = GET_CATEGORY_STRING(frame);
+        local itemCntPerPage = GET_MARKET_SEARCH_ITEM_COUNT(_category);
+        local maxPage = math.ceil(session.market.GetTotalCount() / itemCntPerPage);
+        local curPage = session.market.GetCurPage();
+        local pageController = GET_CHILD(frame, pageControl, 'ui::CPageController')
+        if maxPage < 1 then
+            maxPage = 1;
+        end
+
+        pageController:SetMaxPage(maxPage);
+        pageController:SetCurPage(curPage);
+    end
+
+    MARKET_SET_PAGE_CONTROL(frame, "pagecontrol")
 end
 
 function market_favorite_rebuild_MARKET_INIT_OPTION_GROUP_DROPLIST(my_frame, my_msg)
@@ -487,6 +1583,39 @@ end
 
 function market_favorite_rebuild_req_register_item(itemGuid, floorprice, count, _, needTime, clsid)
 
+    local server_time_str = date_time.get_lua_now_datetime_str() -- "YYYY-MM-DD HH:MM:SS"
+
+    local year, month, day, hour, min = server_time_str:match("(%d+)-(%d+)-(%d+) (%d+):(%d+)")
+
+    local formatted_time = ""
+    if year then
+
+        local short_year = string.sub(year, 3, 4)
+        formatted_time = string.format("%s-%s-%s %s:%s", short_year, month, day, hour, min)
+    else
+
+        formatted_time = server_time_str
+    end
+
+    local data = {
+        iesid = itemGuid,
+        clsid = clsid,
+        price = floorprice,
+        count = count,
+        time = needTime,
+        register_time = formatted_time,
+        status = "selling"
+    }
+
+    table.insert(g.settings.sell_items[g.login_name], data)
+    g.item_index = #g.settings.sell_items[g.login_name]
+
+    market.ReqRegisterItem(itemGuid, tonumber(floorprice), tonumber(count), 1, tonumber(needTime))
+end
+
+--[[function market_favorite_rebuild_req_register_item(itemGuid, floorprice, count, _, needTime, clsid)
+    -- !
+
     local current_time = os.date("%y-%m-%d %H:%M")
 
     local data = {
@@ -502,7 +1631,7 @@ function market_favorite_rebuild_req_register_item(itemGuid, floorprice, count, 
     g.item_index = #g.settings.sell_items[g.login_name]
     market.ReqRegisterItem(itemGuid, tonumber(floorprice), tonumber(count), 1, tonumber(needTime))
 
-end
+end]]
 
 function market_favorite_rebuild_ON_CABINET_ITEM_LIST(my_frame, my_msg)
 
@@ -831,7 +1960,7 @@ function market_favorite_rebuild_ON_MARKET_SELL_LIST(my_frame, my_msg)
                 local market_guid = saved_item.market_guid
                 if not live_guids[market_guid] then
                     saved_item.status = "nothing"
-                    -- print("Status updated to 'nothing' for GUID:" .. saved_item.market_guid) -- テスト用
+
                 end
             end
         end
@@ -860,12 +1989,10 @@ function market_favorite_rebuild_MARKET_DELETE_SAVED_OPTION(my_frame, my_msg)
 
     local delete_text = nameText:GetText()
 
-    for i = #g.settings.searchs, 1, -1 do
-        local entry = g.settings.searchs[i]
+    for i, key in ipairs(g.settings.searchs) do
+        if key == delete_text then
+            g.settings.searchs[i] = ""
 
-        if entry and entry.key == delete_text then
-
-            table.remove(g.settings.searchs, i)
             break
         end
     end
@@ -873,12 +2000,31 @@ function market_favorite_rebuild_MARKET_DELETE_SAVED_OPTION(my_frame, my_msg)
     market_favorite_rebuild_TOGGLE_FRAME("true")
 end
 
-function market_favorite_rebuild_MARKET_CLOSE()
-    local market_favorite_rebuild = ui.GetFrame("market_favorite_rebuild")
-    market_favorite_rebuild:ShowWindow(0)
+function market_favorite_rebuild_MARKET_SELL_FILTER_RESET(my_frame, my_msg)
+    local frame = g.get_event_args(my_msg)
+
+    local option = GET_CHILD_RECURSIVELY(frame, "marketfilter", "ui::CCheckBox");
+
+    if option ~= nil and option:IsChecked() == 1 then
+        option:SetCheck(0);
+        ui.inventory.ApplyInventoryFilter("inventory", IVF_MARKET_TRADE, 0);
+    end
 end
 
-function market_favorite_rebuild_MARKET_LOAD_CATEGORY_OPTION(parent, ctrl, configKey)
+function market_favorite_rebuild_MARKET_CLOSE(my_frame, my_msg)
+
+    local market_favorite_rebuild = ui.GetFrame("market_favorite_rebuild")
+    market_favorite_rebuild:ShowWindow(0)
+
+end
+
+function market_favorite_rebuild_MARKET_LOAD_CATEGORY_OPTION(parent, ctrl, configKey, left_or_right)
+
+    if keyboard.IsKeyPressed('LSHIFT') == 1 and left_or_right == 2 then
+        market_favorite_rebuild_delete_load_option(parent, ctrl, configKey)
+        return
+    end
+
     local market = ui.GetFrame("market")
     local optionBox = GET_CHILD_RECURSIVELY(market, 'optionBox')
     optionBox:ShowWindow(0)
@@ -905,7 +2051,7 @@ function market_favorite_rebuild__MARKET_LOAD_CATEGORY_OPTION(frame, configKey)
         end
         local propName = string.sub(config, 0, idx - 1)
         local propValue = string.sub(config, idx + 1)
-        -- print(tostring(propValue))
+
         configTable[propName] = propValue
     end
 
@@ -976,7 +2122,7 @@ function market_favorite_rebuild__MARKET_LOAD_CATEGORY_OPTION(frame, configKey)
                 child:SetCheck(0)
             end
         end
-        print(tostring(configTable['CT_ItemGrade']))
+
         if configTable['CT_ItemGrade'] ~= nil then
             if gradeCheckSet ~= nil and gradeCheckSet:IsVisible() == 1 then
                 local checkValue = configTable['CT_ItemGrade']
@@ -1084,7 +2230,7 @@ function market_favorite_rebuild__MARKET_LOAD_CATEGORY_OPTION(frame, configKey)
                 nameList:SelectItemByKey(configName)
 
                 local minValue, maxValue = GET_MINMAX_VALUE_BY_QUERY_STRING(configValue)
-                -- print(tostring(minValue) .. ":" .. tostring(maxValue))
+
                 local minEdit, maxEdit = GET_CHILD_RECURSIVELY(selectSet, 'minEdit'),
                     GET_CHILD_RECURSIVELY(selectSet, 'maxEdit')
                 minEdit:SetText(minValue)
@@ -1162,22 +2308,99 @@ function market_favorite_rebuild_delete_load_option(frame, ctrl, delete_text)
             end
         end
     end
-    for i = #g.settings.searchs, 1, -1 do
-        local entry = g.settings.searchs[i]
-        if entry and entry.key == delete_text then
-            table.remove(g.settings.searchs, i)
+    for i, key in ipairs(g.settings.searchs) do
+        if key == delete_text then
+            g.settings.searchs[i] = ""
             break
         end
+    end
+
+    market_favorite_rebuild_SAVE_SETTINGS()
+    market_favorite_rebuild_TOGGLE_FRAME("true")
+end
+
+function market_favorite_change_start_str_count(inputstring, ctrl, str, num)
+
+    inputstring:ShowWindow(0)
+    local edit = GET_CHILD(inputstring, 'input')
+    local get_text = tonumber(edit:GetText())
+    if get_text > 15 then
+        ui.SysMsg("The max is 15")
+        market_favorite_INPUT_STRING_BOX(num)
+        return
+    end
+    if g.settings.items[num].str_count then
+        g.settings.items[num].str_count = get_text
     end
     market_favorite_rebuild_SAVE_SETTINGS()
     market_favorite_rebuild_TOGGLE_FRAME("true")
 end
 
+function market_favorite_INPUT_STRING_BOX(num)
+    local inputstring = ui.GetFrame("inputstring")
+    inputstring:Resize(500, 220)
+    inputstring:SetLayerLevel(999)
+    local edit = GET_CHILD(inputstring, 'input', "ui::CEditControl")
+
+    edit:SetNumberMode(1)
+    edit:SetMaxLen(2)
+    edit:SetText("1")
+
+    inputstring:ShowWindow(1)
+    inputstring:SetEnable(1)
+
+    local title = inputstring:GetChild("title")
+    AUTO_CAST(title)
+
+    local text = g.lang == "Japanese" and
+                     "{ol}{s16}{#FFFFFF}入力した数値分、検索開始位置をずらします(MAX15)" or
+                     "{ol}{s16}{#FFFFFF}Shifts the search start point by the entered value{nl}(MAX15)"
+    title:SetText(text)
+
+    local confirm = inputstring:GetChild("confirm")
+    confirm:SetEventScript(ui.LBUTTONUP, "market_favorite_change_start_str_count")
+    confirm:SetEventScriptArgNumber(ui.LBUTTONUP, num)
+
+    edit:SetEventScript(ui.ENTERKEY, "market_favorite_change_start_str_count")
+    edit:SetEventScriptArgNumber(ui.ENTERKEY, num)
+    edit:AcquireFocus()
+
+end
+
 function market_favorite_rebuild_ON_LBUTTONDOWN(frame, ctrl, str, num)
+
+    if keyboard.IsKeyPressed('LSHIFT') == 1 then
+        market_favorite_INPUT_STRING_BOX(num)
+        return
+    end
 
     g.settings.items[num] = {}
     g.slot_index = num
     g.slot = ctrl
+
+end
+
+function market_favorite_rebuild_swap_btn(frame, ctrl, key, index)
+    g.settings.searchs[index] = ""
+    g.from_slot = ctrl
+    g.from_slot_key = key
+    g.from_slot_index = index
+end
+
+function market_favorite_rebuild_on_drop_btn(frame, ctrl, key, slot_index)
+
+    if g.from_slot then
+
+        g.settings.searchs[g.from_slot_index] = key
+        g.settings.searchs[slot_index] = g.from_slot_key
+
+        g.from_slot = nil
+        g.from_slot_key = nil
+        g.from_slot_index = nil
+    end
+
+    market_favorite_rebuild_SAVE_SETTINGS()
+    market_favorite_rebuild_TOGGLE_FRAME("true")
 end
 
 function market_favorite_rebuild_TOGGLE_FRAME(bool)
@@ -1185,6 +2408,7 @@ function market_favorite_rebuild_TOGGLE_FRAME(bool)
     if bool ~= "true" then
         ui.ToggleFrame('market_favorite_rebuild')
     end
+
     local frame = ui.GetFrame('market_favorite_rebuild')
 
     if frame:IsVisible() == 1 then
@@ -1216,17 +2440,27 @@ function market_favorite_rebuild_TOGGLE_FRAME(bool)
                 local item = g.settings.items[i]
                 if item and item['clsid'] then
                     slot:SetUserValue('clsid', tostring(item['clsid']))
-
+                    if item['str_count'] then
+                        slot:SetUserValue('STR_COUNT', item['str_count'])
+                    end
                     local item_cls = GetClassByType("Item", item['clsid'])
                     SET_SLOT_ITEM_CLS(slot, item_cls)
                     SET_SLOT_STYLESET(slot, item_cls)
+                    SET_SLOT_COUNT_TEXT(slot, item.str_count)
                 else
                     g.settings.items[i] = {}
                 end
             end
 
         end
-        -- market_favorite_rebuild_LOADFROMSTRUCTURE()
+
+        local tips = frame:CreateOrGetControl('richtext', "tips", 15, 480, 95, 25)
+        AUTO_CAST(tips)
+        local text = g.lang == "Japanese" and
+                         "{ol}右クリック: マーケット検索{nl}LSHIFT+左クリック: 検索開始位置調整{nl}右下の数字が調整数{nl}LSHIFT+右クリック: スロット初期化" or
+                         "{ol}{s13}Right-click: Market Search{nl}LSHIFT + Left-click: Adjust search start position{nl}The number in the bottom right is the{nl}adjustment value{nl}LSHIFT + Right-click: Initialize Slot"
+        tips:SetText(text)
+
         for i = 1, 18 do
             local search_btn = GET_CHILD(frame, 'search_btn' .. i)
             if search_btn then
@@ -1234,77 +2468,212 @@ function market_favorite_rebuild_TOGGLE_FRAME(bool)
             end
         end
 
-        local x = 15
-        local y = 530
-        for i = 1, 18 do
-            local search_btn = frame:CreateOrGetControl('button', 'search_btn' .. i, x, y, 30, 25)
-            AUTO_CAST(search_btn)
-            search_btn:SetText("{ol}" .. i)
-            if g.settings.searchs and g.settings.searchs[i] then
-                local key = g.settings.searchs[i].key
+        frame:RemoveChild("btn_slot_set")
+        local btn_slot_set = frame:CreateOrGetControl('slotset', 'btn_slot_set', 10, 555, 0, 0)
+        AUTO_CAST(btn_slot_set)
 
-                local text = g.lang == "Japanese" and
-                                 "{ol}左クリック:オプション呼出{nl}右クリック:オプション削除" or
-                                 "{ol}Left-click: Recall Option{nl}Right-click: Delete Option"
+        btn_slot_set:SetColRow(2, 9)
+        btn_slot_set:SetSlotSize(177, 35)
+        btn_slot_set:EnableDrag(1)
+        btn_slot_set:EnableDrop(1)
+        btn_slot_set:EnablePop(1)
+        btn_slot_set:SetSpc(5, 5)
+        btn_slot_set:SetSkinName("invenslot2")
 
-                search_btn:SetTextTooltip("{ol}" .. key .. "{nl}" .. text)
-                search_btn:SetEventScript(ui.LBUTTONUP, "market_favorite_rebuild_MARKET_LOAD_CATEGORY_OPTION")
-                search_btn:SetEventScriptArgString(ui.LBUTTONUP, key)
+        btn_slot_set:CreateSlots()
+        local slot_count = btn_slot_set:GetSlotCount()
 
-                search_btn:SetEventScript(ui.RBUTTONUP, "market_favorite_rebuild_delete_load_option")
-                search_btn:SetEventScriptArgString(ui.RBUTTONUP, key)
+        local max_slots = 18
+        local new_searchs = {}
 
-                search_btn:SetSkinName("test_red_button")
-            else
-                local text = g.lang == "Japanese" and "{ol}保存されたオプションはありません" or
-                                 "{ol}No saved Option"
-                search_btn:SetTextTooltip(text)
-                search_btn:SetSkinName('test_gray_button')
+        local needs_reset = false
+        if g.settings.searchs then
+            for _, entry in ipairs(g.settings.searchs) do
+                if type(entry) == "table" then
+                    needs_reset = true
+                    break
+                end
             end
-
-            x = x + 35
-            if i == 10 then
-                x = 15
-                y = 560
-            end
-            search_btn:ShowWindow(1)
         end
+
+        if needs_reset or not g.settings.searchs then
+            for i = 1, max_slots do
+                new_searchs[i] = ""
+            end
+        else
+            for i = 1, max_slots do
+                new_searchs[i] = g.settings.searchs[i] or ""
+            end
+        end
+
+        local config_key_list = GetMarketCategoryConfigKeyList()
+        if config_key_list then
+            local existing_keys = {}
+            for _, key in ipairs(new_searchs) do
+                if key ~= "" then
+                    existing_keys[key] = true
+                end
+            end
+
+            for i, tos_str in ipairs(config_key_list) do
+
+                if tos_str ~= "" then
+                    if not existing_keys[tos_str] then
+                        for i = 1, max_slots do
+                            if new_searchs[i] == "" then
+                                new_searchs[i] = tos_str
+                                existing_keys[tos_str] = true
+                                break
+                            end
+                        end
+                    end
+                end
+            end
+        end
+
+        g.settings.searchs = new_searchs
+
+        for i = 1, slot_count do
+
+            local btn_slot = btn_slot_set:GetSlotByIndex(i - 1)
+            local icon = CreateIcon(btn_slot)
+            local text = ""
+            local key = g.settings.searchs[i]
+            if key then
+                btn_slot:SetUserValue("SLOT_INDEX", i)
+                btn_slot:SetEventScript(ui.LBUTTONDOWN, "market_favorite_rebuild_swap_btn")
+                btn_slot:SetEventScriptArgString(ui.LBUTTONDOWN, key)
+                btn_slot:SetEventScriptArgNumber(ui.LBUTTONDOWN, i)
+
+                btn_slot:SetEventScript(ui.DROP, 'market_favorite_rebuild_on_drop_btn')
+                btn_slot:SetEventScriptArgString(ui.DROP, key)
+                btn_slot:SetEventScriptArgNumber(ui.DROP, i)
+            end
+            if key ~= '' then
+                text = g.lang == "Japanese" and
+                           "{ol}右クリック: 検索{nl}LSHIFT+右クリック: オプション削除{nl}左クリック: 入替" or
+                           "{ol}Right-click: Search{nl}LSHIFT + Right-click: Delete Option{nl}Left-click: Swap"
+                icon:SetTextTooltip(text)
+
+                btn_slot:SetEventScript(ui.RBUTTONUP, "market_favorite_rebuild_MARKET_LOAD_CATEGORY_OPTION")
+                btn_slot:SetEventScriptArgString(ui.RBUTTONUP, key)
+                btn_slot:SetEventScriptArgNumber(ui.RBUTTONUP, 2)
+
+                btn_slot:SetText("{ol}{#FFFFFF}" .. key)
+                btn_slot:SetTextAlign("center", "center");
+                icon:SetImage("fullwhite")
+                icon:SetColorTone("BB800000")
+            else
+                --[[local text = g.lang == "Japanese" and "{ol}保存されたオプションはありません" or
+                                 "{ol}No saved Option"
+                icon:SetTextTooltip(text)]]
+
+                -- btn_slot:SetText("{ol}No saved Option")
+                btn_slot:SetText("")
+                btn_slot:SetTextAlign("center", "center");
+                icon:SetImage("fullwhite")
+                icon:SetColorTone("BB696969")
+            end
+
+        end
+
         slot_set:ShowWindow(1)
+        btn_slot_set:ShowWindow(1)
+
     end
     market_favorite_rebuild_SAVE_SETTINGS()
 
-    local tips = frame:CreateOrGetControl('richtext', "tips", 15, 480, 95, 25)
-    AUTO_CAST(tips)
-    local text = g.lang == "Japanese" and
-                     "{ol}右クリック: マーケット検索{nl}LSHIFT+右クリック: スロット初期化" or
-                     "{ol}Right-click: Market Search{nl}LSHIFT + Right-click: Initialize Slot"
-    tips:SetText(text)
-
-    local always_check = frame:CreateOrGetControl('checkbox', "always_check", 15, 600, 25, 25)
+    -- local y = frame:GetUserIValue("MY_Y")
+    local y = 920
+    local always_check = frame:CreateOrGetControl('checkbox', "always_check", 15, y, 25, 25)
     AUTO_CAST(always_check)
     local text = g.lang == "Japanese" and "{ol}チェックすると自動表示" or "{ol}Check to auto-display"
     always_check:SetText(text)
     always_check:SetCheck(g.settings.always or 0)
     always_check:SetEventScript(ui.LBUTTONUP, "market_favorite_rebuild_toggle_check")
 
-    local move_check = frame:CreateOrGetControl('checkbox', "move_check", 15, 630, 25, 25)
+    y = y + 30
+
+    local move_check = frame:CreateOrGetControl('checkbox', "move_check", 15, y, 25, 25)
     AUTO_CAST(move_check)
-    local text = g.lang == "Japanese" and "{ol}チェック外すとフレーム固定" or "{ol}Uncheck to lock frame"
+    local text = g.lang == "Japanese" and "{ol}チェックするとフレーム固定" or "{ol}Check to lock frame"
     move_check:SetText(text)
-    move_check:SetCheck(g.settings.move or 1)
+    move_check:SetCheck(g.settings.move or 0)
     move_check:SetEventScript(ui.LBUTTONUP, "market_favorite_rebuild_toggle_check")
+
+    y = y + 30
+
+    if not g.settings.op_text then
+        g.settings.op_text = 0
+        market_favorite_rebuild_SAVE_SETTINGS()
+    end
+
+    local op_check = frame:CreateOrGetControl('checkbox', "op_check", 15, y, 25, 25)
+    AUTO_CAST(op_check)
+    local text = g.lang == "Japanese" and "{ol}チェックするとオプション表示変更" or
+                     "{ol}Check to change option display"
+    op_check:SetText(text)
+    op_check:SetCheck(g.settings.op_text or 0)
+    op_check:SetEventScript(ui.LBUTTONUP, "market_favorite_rebuild_toggle_check")
+
+    local toggle = frame:CreateOrGetControl('picture', "toggle", op_check:GetWidth() + 20, y, 60, 25);
+    AUTO_CAST(toggle)
+
+    if not g.settings.max_value then
+        g.settings.max_value = 1
+    end
+    local icon_name = "test_com_ability_on"
+    if g.settings.max_value == 0 then
+        icon_name = "test_com_ability_off"
+    end
+    toggle:SetImage(icon_name)
+    toggle:SetEnableStretch(1)
+    toggle:EnableHitTest(1)
+    local text = g.lang == "Japanese" and "{ol}MAX数値表示" or "{ol}Display Max Value"
+    toggle:SetTextTooltip(text)
+    toggle:SetEventScript(ui.LBUTTONUP, "market_favorite_rebuild_toggle_check")
 
     local xBtn = GET_CHILD_RECURSIVELY(frame, "xBtn")
     AUTO_CAST(xBtn)
     xBtn:SetEventScript(ui.LBUTTONUP, "market_favorite_rebuild_CLOSE")
     -- market_favorite_rebuild_CLOSE()
-    frame:Resize(frame:GetWidth(), 670)
+    y = y + 40
+
+    frame:Resize(frame:GetWidth(), y)
 
 end
 
 function market_favorite_rebuild_toggle_check(frame, ctrl)
-    local is_check = ctrl:IsChecked()
+
     local ctrl_name = ctrl:GetName()
+
+    if ctrl_name == "toggle" then
+
+        if g.settings.max_value == 0 then
+            g.settings.max_value = 1
+            AUTO_CAST(ctrl)
+            ctrl:SetImage("test_com_ability_on")
+        else
+            AUTO_CAST(ctrl)
+            ctrl:SetImage("test_com_ability_off")
+
+            g.settings.max_value = 0
+        end
+        market_favorite_rebuild_SAVE_SETTINGS()
+        market_favorite_rebuild_TOGGLE_FRAME("true")
+        return
+    end
+
+    local is_check = ctrl:IsChecked()
+
+    if ctrl_name == "op_check" then
+        if is_check == 1 then
+            g.settings.op_text = 1
+        else
+            g.settings.op_text = 0
+        end
+    end
+
     if ctrl_name == "always_check" then
         if is_check == 1 then
             g.settings.always = 1
@@ -1316,10 +2685,10 @@ function market_favorite_rebuild_toggle_check(frame, ctrl)
     if ctrl_name == "move_check" then
         if is_check == 1 then
             g.settings.move = 1
-            frame:EnableMove(1)
+            frame:EnableMove(0)
         else
             g.settings.move = 0
-            frame:EnableMove(0)
+            frame:EnableMove(1)
         end
     end
     market_favorite_rebuild_SAVE_SETTINGS()
@@ -1339,7 +2708,7 @@ function market_favorite_rebuild_ON_OPEN_MARKET(frame, msg)
     frame:SetOffset(g.settings.position.x, g.settings.position.y)
     frame:ShowWindow(0)
     frame:SetEventScript(ui.LBUTTONUP, 'market_favorite_rebuild_END_DRAG')
-    frame:EnableMove(g.settings.move or 1)
+    frame:EnableMove(g.settings.move == 1 and 0 or 1)
     if g.settings.always == 1 then
         market_favorite_rebuild_TOGGLE_FRAME()
         frame:ShowWindow(1)
@@ -1348,6 +2717,10 @@ function market_favorite_rebuild_ON_OPEN_MARKET(frame, msg)
     local market = ui.GetFrame("market")
     local open_btn = market:CreateOrGetControl("button", "open_btn", 610, 120, 100, 30)
     AUTO_CAST(open_btn)
+
+    if g.lang ~= "Japanese" and g.lang ~= "kr" then
+        open_btn:SetOffset(620, 120)
+    end
     open_btn:SetSkinName("tab2_btn")
     local text = g.lang == "Japanese" and "{@st66b18}お気に入り" or "{@st66b18}Favorites"
     open_btn:SetText(text)
@@ -1374,21 +2747,20 @@ function market_favorite_rebuild__MARKET_SAVE_CATEGORY_OPTION(my_frame, my_msg)
         return
     end
 
-    local serialize_val = string.format('order:%s@searchText:%s@category:%s', tostring(orderByDesc),
+    --[[local serialize_val = string.format('order:%s@searchText:%s@category:%s', tostring(orderByDesc),
         tostring(searchText), tostring(category))
     if optionKey and optionValue then
         for i = 1, #optionKey do
             serialize_val = serialize_val .. '@' .. tostring(optionKey[i]) .. ':' .. tostring(optionValue[i])
         end
     end
-    -- print("Key:" .. key_str .. "Value:" .. serialize_val)
 
     local new_entry = {
         key = key_str,
         value = serialize_val
-    }
+    }]]
 
-    table.insert(g.settings.searchs, new_entry)
+    table.insert(g.settings.searchs, key_str)
 
     market_favorite_rebuild_SAVE_SETTINGS()
     market_favorite_rebuild_TOGGLE_FRAME("true")
@@ -1400,14 +2772,10 @@ function market_favorite_rebuild_ON_DROP(frame, slot, str, slot_index)
     local liftParent = liftIcon:GetParent()
     local slot = tolua.cast(slot, 'ui::CSlot')
     local iconInfo = liftIcon:GetInfo()
-
-    local invitem = GET_ITEM_BY_GUID(iconInfo:GetIESID())
-
-    if iconInfo == nil or slot == nil or invitem == nil then
-
+    if iconInfo == nil or slot == nil then
         return
     end
-    local itemobj = GetIES(invitem:GetObject())
+
     if (iconInfo:GetIESID() == '0') then
 
         if (liftParent:GetName() == 'pic') then
@@ -1424,37 +2792,42 @@ function market_favorite_rebuild_ON_DROP(frame, slot, str, slot_index)
             local marketItem = session.market.GetItemByIndex(row)
             local obj = GetIES(marketItem:GetObject())
             local item_cls = GetClassByType("Item", obj.ClassID)
-
+            -- !
             if item_cls then
                 slot:SetUserValue('clsid', tostring(obj.ClassID))
                 g.settings.items[slot_index] = {
-                    ["clsid"] = obj.ClassID
+                    ["clsid"] = tonumber(obj.ClassID),
+                    ["str_count"] = 1
                 }
-                SET_SLOT_ITEM_CLS(slot, item_cls)
-                SET_SLOT_STYLESET(slot, item_cls)
-
+                -- SET_SLOT_ITEM_CLS(slot, item_cls)
+                -- SET_SLOT_STYLESET(slot, item_cls)
+                -- SET_SLOT_COUNT_TEXT(slot, g.settings.items[slot_index].str_count)
             end
         else
             if g.slot_index then
 
                 local cls_id = g.slot:GetUserValue("clsid")
-
+                local from_count = g.slot:GetUserIValue("STR_COUNT")
                 local drop_clsid = slot:GetUserValue("clsid")
+                local to_count = slot:GetUserIValue("STR_COUNT")
                 local item_cls = GetClassByType("Item", cls_id)
                 if item_cls then
 
                     slot:SetUserValue('clsid', tostring(cls_id))
                     g.settings.items[slot_index] = {
-                        ["clsid"] = cls_id
+                        ["clsid"] = tonumber(cls_id),
+                        ["str_count"] = from_count or 1
                     }
-                    SET_SLOT_ITEM_CLS(slot, item_cls)
-                    SET_SLOT_STYLESET(slot, item_cls)
+                    -- SET_SLOT_ITEM_CLS(slot, item_cls)
+                    -- SET_SLOT_STYLESET(slot, item_cls)
+                    -- SET_SLOT_COUNT_TEXT(slot, g.settings.items[slot_index].str_count)
 
                     local drop_item_cls = GetClassByType("Item", drop_clsid)
                     if drop_item_cls then
                         g.slot:SetUserValue('clsid', tostring(drop_clsid))
                         g.settings.items[g.slot_index] = {
-                            ["clsid"] = drop_clsid
+                            ["clsid"] = tonumber(drop_clsid),
+                            ["str_count"] = to_count or 1
                         }
                     else
                         g.settings.items[g.slot_index] = {}
@@ -1467,16 +2840,25 @@ function market_favorite_rebuild_ON_DROP(frame, slot, str, slot_index)
 
         end
     else
-
+        local invitem = GET_ITEM_BY_GUID(iconInfo:GetIESID())
+        local itemobj = GetIES(invitem:GetObject())
         local item_cls = GetClassByType("Item", itemobj.ClassID)
+        local market_trade = TryGetProp(item_cls, "MarketTrade")
+        if market_trade == "NO" then
+            ui.SysMsg(ClMsg("NoMarketTrade"))
+            return
+        end
+
         if item_cls then
             slot:SetUserValue('clsid', tostring(itemobj.ClassID))
             g.settings.items[slot_index] = {
-                ["clsid"] = itemobj.ClassID
+                ["clsid"] = tonumber(itemobj.ClassID),
+                ["str_count"] = 1
             }
 
-            SET_SLOT_ITEM_CLS(slot, item_cls)
-            SET_SLOT_STYLESET(slot, item_cls)
+            -- SET_SLOT_ITEM_CLS(slot, item_cls)
+            -- SET_SLOT_STYLESET(slot, item_cls)
+            -- SET_SLOT_COUNT_TEXT(slot, g.settings.items[slot_index].str_count)
 
         end
     end
@@ -1488,12 +2870,11 @@ function market_favorite_rebuild_ON_RCLICK(frame, slot, argstr, argnum)
 
     if keyboard.IsKeyPressed('LSHIFT') == 1 then
         -- 削除モード
-
         g.settings.items[argnum] = {}
 
         market_favorite_rebuild_SAVE_SETTINGS()
         market_favorite_rebuild_TOGGLE_FRAME("true")
-        -- market_favorite_rebuild_LOADFROMSTRUCTURE()
+
     else
 
         if (ui.GetFrame('market'):IsVisible() == 0) then
@@ -1506,7 +2887,6 @@ function market_favorite_rebuild_ON_RCLICK(frame, slot, argstr, argnum)
         if (clsid == nil) then
             return
         end
-        -- local iesid=slot:GetUserValue("iesid")
 
         local invitem = GetClassByType('Item', tonumber(clsid))
         if (invitem == nil) then
@@ -1514,20 +2894,21 @@ function market_favorite_rebuild_ON_RCLICK(frame, slot, argstr, argnum)
         end
         MARKET_BUYMODE(frame)
         MARKET_INIT_CATEGORY(frame)
-        -- MARKET_REFRESH_SEARCH_OPTION(frame, nil)
 
         local searchtext = GET_CHILD_RECURSIVELY(frame, 'searchEdit')
         AUTO_CAST(searchtext)
         local realname = dictionary.ReplaceDicIDInCompStr(invitem.Name)
+        local str_shift = g.settings.items[argnum].str_count
+        local start_byte = utf8.offset(realname, str_shift, 1)
+        realname = string.sub(realname, start_byte)
+
         local cls_name = invitem.ClassName
         local armor = nil
         local weapon = nil
 
-        if string.find(cls_name, "EP16_GoddessIcor_Weapon_high") or string.find(cls_name, "EP16_GoddessIcor_Weapon") or
-            string.find(cls_name, "EP15_GoddessIcor_Weapon_high") or string.find(cls_name, "EP15_GoddessIcor_Weapon") then
+        if string.find(cls_name, "GoddessIcor_Weapon", 1, true) and not string.find(cls_name, "piece", 1, true) then
             weapon = true
-        elseif string.find(cls_name, "EP16_GoddessIcor_Armor_high") or string.find(cls_name, "EP16_GoddessIcor_Armor") or
-            string.find(cls_name, "EP15_GoddessIcor_Armor_high") or string.find(cls_name, "EP15_GoddessIcor_Armor") then
+        elseif string.find(cls_name, "GoddessIcor_Armor", 1, true) and not string.find(cls_name, "piece", 1, true) then
             armor = true
         end
 
@@ -1619,7 +3000,7 @@ function market_favorite_rebuild_ON_RCLICK(frame, slot, argstr, argnum)
             end
 
             searchEdit:SetText(realname)
-            -- print(tostring(realname))
+
             frame:RunUpdateScript("MARKET_REQ_LIST", 0.1) -- (frame)
             return
         end
@@ -1640,1589 +3021,198 @@ function market_favorite_rebuild_ON_RCLICK(frame, slot, argstr, argnum)
 
 end
 
---[==[function market_favorite_rebuild_ON_DROP(frame, ctrl, str, num)
-    EBI_try_catch {
-        try = function()
-            local liftIcon = ui.GetLiftIcon()
-            local liftParent = liftIcon:GetParent()
-            local slot = tolua.cast(ctrl, 'ui::CSlot')
-            local iconInfo = liftIcon:GetInfo()
+--[[function market_favorite_rebuild_MARKET_FIND_PAGE(my_frame, my_msg)
+    local frame, page = g.get_event_args(my_msg)
 
-            local invitem = GET_ITEM_BY_GUID(iconInfo:GetIESID())
-
-            if iconInfo == nil or slot == nil or invitem == nil then
-
-                return
-            end
-            local itemobj = GetIES(invitem:GetObject())
-            if (iconInfo:GetIESID() == '0') then
-                if (liftParent:GetName() == 'pic') then
-                    local parent = liftParent:GetParent()
-                    while (string.starts(parent:GetName(), 'ITEM') == false) do
-                        parent = parent:GetParent()
-                        if (parent == nil) then
-                            CHAT_SYSTEM('失敗')
-                            return
-                        end
-                    end
-
-                    --[[local row = tonumber(parent:GetUserValue('DETAIL_ROW'))
-                    local mySession = session.GetMySession()
-                    local cid = mySession:GetCID()
-                    local count = session.market.GetItemCount()]]
-                    local row = tonumber(parent:GetUserValue('DETAIL_ROW'))
-                    local marketItem = session.market.GetItemByIndex(row)
-                    local obj = GetIES(marketItem:GetObject())
-
-                    -- アイコンを生成
-                    local item_cls = GetClassByType("Item", obj.ClassID)
-                    -- IESを生成
-                    if item_cls then
-                        slot:SetUserValue('clsid', tostring(obj.ClassID))
-                        g.settings.items[num] = {
-                            ["clsid"] = obj.ClassID
-                        }
-                        SET_SLOT_ITEM_CLS(slot, item_cls)
-                        SET_SLOT_STYLESET(slot, item_cls)
-
-                    end
-                else
-                    return
-                end
-            else
-
-                local item_cls = GetClassByType("Item", itemobj.ClassID)
-                if item_cls then
-                    slot:SetUserValue('clsid', tostring(itemobj.ClassID))
-                    g.settings.items[num] = {
-                        ["clsid"] = itemobj.ClassID
-                    }
-
-                    SET_SLOT_ITEM_CLS(slot, item_cls)
-                    SET_SLOT_STYLESET(slot, item_cls)
-
-                end
-            end
-            market_favorite_rebuild_SAVE_SETTINGS()
-        end,
-        catch = function(error)
-            CHAT_SYSTEM(error)
-        end
-    }
-end]==]
-
---[[function market_favorite_rebuild_MARKET_ADD_SEARCH_OPTION_GROUP(my_frame, my_msg)
-
-    local optionGroupSet, ctrl, hideDeleteCtrl = g.get_event_args(my_msg)
-
-    local function GET_DETAIL_OPTION_CTRLSET_COUNT(optionGroupSet)
-        local ctrlsetCnt = 0
-        local childCnt = optionGroupSet:GetChildCount()
-        for i = 0, childCnt - 1 do
-            local child = optionGroupSet:GetChildByIndex(i)
-            if string.find(child:GetName(), 'SELECT_') ~= nil and child:IsVisible() == 1 then
-                ctrlsetCnt = ctrlsetCnt + 1
-            end
-        end
-        return ctrlsetCnt
-    end
-
-    if GET_DETAIL_OPTION_CTRLSET_COUNT(optionGroupSet) >= 8 then
-        return
-    end
-
-    local curSelectCnt = optionGroupSet:GetUserIValue('ADD_SELECT_COUNT')
-    optionGroupSet:SetUserValue('ADD_SELECT_COUNT', curSelectCnt + 1)
-    local childIdx = curSelectCnt
-    local selectSet = optionGroupSet:CreateOrGetControlSet('market_option_group_select', 'SELECT_' .. childIdx, 0, 0)
-    local minEdit = GET_CHILD_RECURSIVELY(selectSet, 'minEdit')
-    local maxEdit = GET_CHILD_RECURSIVELY(selectSet, 'maxEdit')
-    minEdit:SetText('0')
-    maxEdit:SetText('')
-
-    if hideDeleteCtrl == true then
-        local deleteText = GET_CHILD(selectSet, 'deleteText')
-        deleteText:ShowWindow(0)
-        optionGroupSet:SetUserValue('HIDE_CHILD_INDEX', childIdx)
-    else
-        local hideChildIdx = optionGroupSet:GetUserValue('HIDE_CHILD_INDEX')
-        local hideChild = GET_CHILD(optionGroupSet, 'SELECT_' .. hideChildIdx)
-        if hideChild ~= nil then
-            local hideDelText = GET_CHILD(hideChild, 'deleteText')
-            hideDelText:ShowWindow(1)
-            optionGroupSet:SetUserValue('HIDE_CHILD_INDEX', 'None')
-        end
-    end
-    print(tostring("etst1"))
-    local groupList = GET_CHILD(selectSet, 'groupList')
-    MARKET_INIT_OPTION_GROUP_DROPLIST(groupList)
-
-    local function ALIGN_OPTION_GROUP_SET(optionGroupSet)
-        local Y_ADD_MARGIN = 6
-        local staticText = GET_CHILD(optionGroupSet, 'staticText')
-        local ypos = staticText:GetY() + staticText:GetHeight() + Y_ADD_MARGIN
-        local childCnt = optionGroupSet:GetChildCount()
-
-        local visibleSelectChildCount = 0
-        local visibleChild = nil
-        for i = 0, childCnt - 1 do
-            local child = optionGroupSet:GetChildByIndex(i)
-            if string.find(child:GetName(), 'SELECT_') ~= nil then
-                child:SetOffset(child:GetX(), ypos)
-                visibleChild = child
-                ypos = ypos + child:GetHeight()
-                visibleSelectChildCount = visibleSelectChildCount + 1
-            end
-        end
-        local addOptionBtn = GET_CHILD(optionGroupSet, 'addOptionBtn')
-        addOptionBtn:SetOffset(0, ypos)
-        ypos = ypos + addOptionBtn:GetHeight() + Y_ADD_MARGIN
-        optionGroupSet:Resize(optionGroupSet:GetWidth(), ypos)
-        return visibleSelectChildCount, visibleChild
-    end
-    print(tostring(tostring(optionGroupSet)))
-    ALIGN_OPTION_GROUP_SET(optionGroupSet)
-    print(tostring("test2"))
-    local function ALIGN_ALL_CATEGORY(frame)
-        local cateListBox = GET_CHILD_RECURSIVELY(frame, 'cateListBox')
-        local selectedCtrlset = GET_CHILD_RECURSIVELY(frame, 'CATEGORY_' .. frame:GetUserValue('SELECTED_CATEGORY'))
-        local subCateBox = GET_CHILD_RECURSIVELY(frame, 'detailBox')
-        GBOX_AUTO_ALIGN(subCateBox, 0, 1, 0, true, true)
-        ALIGN_CATEGORY_BOX(cateListBox, selectedCtrlset, subCateBox)
-    end
-    ALIGN_ALL_CATEGORY(optionGroupSet:GetTopParentFrame())
-    print(tostring(tostring(selectSet)))
-    return selectSet
-end]]
---[[function market_favorite_rebuild_get_market_guid(market_sell)
-
-    local count = session.market.GetItemCount()
-
-    print("--- Checking g.temp_tbl ---")
-    for key, value in pairs(g.temp_tbl) do
-        print(string.format("  Key: %s, Value: %s", tostring(key), tostring(value)))
-    end
-    print("---------------------------")
-
-    for i = 0, count - 1 do
-        local marketItem = session.market.GetItemByIndex(i)
-
-        local market_guid = marketItem:GetMarketGuid()
-        print(tostring(market_guid))
-        if not g.temp_tbl[tostring(marketItem:GetMarketGuid())] then
-
-            g.settings.sell_items[g.login_name][g.item_index].market_guid = market_guid
-            market_favorite_rebuild_SAVE_SETTINGS()
-            return 0
-        end
-
-    end
-    return 0
-end]]
---[[function g.utf8_sub(str, start_char, end_char)
-    if not str or str == "" then
-        return ""
-    end
-
-    -- end_charが省略された場合は、最後までを意味する
-    end_char = end_char or -1
-
-    -- utf8.offset(文字列, 文字インデックス, 開始バイト位置)
-    -- 文字列の先頭から、指定した文字数分のオフセット（バイト位置）を取得する
-    local start_byte = utf8.offset(str, start_char)
-
-    -- もし開始位置が見つからなければ（範囲外）、空文字を返す
-    if not start_byte then
-        return ""
-    end
-
-    local end_byte
-    if end_char == -1 then
-        -- 終了位置が-1なら、最後までを意味するので引数を省略
-        end_byte = -1
-    else
-        -- 終了位置の次の文字の開始バイト位置を取得
-        local next_char_byte = utf8.offset(str, end_char + 1)
-        if next_char_byte then
-            -- 次の文字の開始位置の1つ手前が、終了文字の最後のバイト
-            end_byte = next_char_byte - 1
-        else
-            -- 次の文字が見つからない = 最後の文字まで
-            end_byte = -1
-        end
-    end
-
-    if end_byte == -1 then
-        return string.sub(str, start_byte)
-    else
-        return string.sub(str, start_byte, end_byte)
-    end
-end]]
-
---[==[local acutil = require('acutil')
--- デフォルト設定
-
--- 文字処理用
-
--- $Id: utf8.lua 179 2009-04-03 18:10:03Z pasta $
---
--- Provides UTF-8 aware string functions implemented in pure lua:
--- * utf8len(s)
--- * utf8sub(s, i, j)
--- * utf8reverse(s)
--- * utf8char(unicode)
--- * utf8unicode(s, i, j)
--- * utf8gensub(s, sub_len)
--- * utf8find(str, regex, init, plain)
--- * utf8match(str, regex, init)
--- * utf8gmatch(str, regex, all)
--- * utf8gsub(str, regex, repl, limit)
---
--- If utf8data.lua (containing the lower<->upper case mappings) is loaded, these
--- additional functions are available:
--- * utf8upper(s)
--- * utf8lower(s)
---
--- All functions behave as their non UTF-8 aware counterparts with the exception
--- that UTF-8 characters are used instead of bytes for all units.
-
---[[
-Copyright (c) 2006-2007, Kyle Smith
-All rights reserved.
-
-Contributors:
-	Alimov Stepan
-
-Redistribution and use in source and binary forms, with or without
-modification, are permitted provided that the following conditions are met:
-
-    * Redistributions of source code must retain the above copyright notice,
-      this list of conditions and the following disclaimer.
-    * Redistributions in binary form must reproduce the above copyright
-      notice, this list of conditions and the following disclaimer in the
-      documentation and/or other materials provided with the distribution.
-    * Neither the name of the author nor the names of its contributors may be
-      used to endorse or promote products derived from this software without
-      specific prior written permission.
-
-THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE
-FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
-DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
-SERVICES LOSS OF USE, DATA, OR PROFITS OR BUSINESS INTERRUPTION) HOWEVER
-CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
-OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
---]]
-
--- ABNF from RFC 3629
--- 
--- UTF8-octets = *( UTF8-char )
--- UTF8-char   = UTF8-1 / UTF8-2 / UTF8-3 / UTF8-4
--- UTF8-1      = %x00-7F
--- UTF8-2      = %xC2-DF UTF8-tail
--- UTF8-3      = %xE0 %xA0-BF UTF8-tail / %xE1-EC 2( UTF8-tail ) /
---               %xED %x80-9F UTF8-tail / %xEE-EF 2( UTF8-tail )
--- UTF8-4      = %xF0 %x90-BF 2( UTF8-tail ) / %xF1-F3 3( UTF8-tail ) /
---               %xF4 %x80-8F 2( UTF8-tail )
--- UTF8-tail   = %x80-BF
--- 
-
-local byte = string.byte
-local char = string.char
-local dump = string.dump
-local find = string.find
-local format = string.format
-local gmatch = string.gmatch
-local gsub = string.gsub
-local len = string.len
-local lower = string.lower
-local match = string.match
-local rep = string.rep
-local reverse = string.reverse
-local sub = string.sub
-local upper = string.upper
-
--- returns the number of bytes used by the UTF-8 character at byte i in s
--- also doubles as a UTF-8 character validator
-local function utf8charbytes(s, i)
-    -- argument defaults
-    i = i or 1
-
-    -- argument checking
-    if type(s) ~= "string" then
-        error("bad argument #1 to 'utf8charbytes' (string expected, got " .. type(s) .. ")")
-    end
-    if type(i) ~= "number" then
-        error("bad argument #2 to 'utf8charbytes' (number expected, got " .. type(i) .. ")")
-    end
-
-    local c = byte(s, i)
-
-    -- determine bytes needed for character, based on RFC 3629
-    -- validate byte 1
-    if c > 0 and c <= 127 then
-        -- UTF8-1
-        return 1
-
-    elseif c >= 194 and c <= 223 then
-        -- UTF8-2
-        local c2 = byte(s, i + 1)
-
-        if not c2 then
-            error("UTF-8 string terminated early")
-        end
-
-        -- validate byte 2
-        if c2 < 128 or c2 > 191 then
-            error("Invalid UTF-8 character")
-        end
-
-        return 2
-
-    elseif c >= 224 and c <= 239 then
-        -- UTF8-3
-        local c2 = byte(s, i + 1)
-        local c3 = byte(s, i + 2)
-
-        if not c2 or not c3 then
-            error("UTF-8 string terminated early")
-        end
-
-        -- validate byte 2
-        if c == 224 and (c2 < 160 or c2 > 191) then
-            error("Invalid UTF-8 character")
-        elseif c == 237 and (c2 < 128 or c2 > 159) then
-            error("Invalid UTF-8 character")
-        elseif c2 < 128 or c2 > 191 then
-            error("Invalid UTF-8 character")
-        end
-
-        -- validate byte 3
-        if c3 < 128 or c3 > 191 then
-            error("Invalid UTF-8 character")
-        end
-
-        return 3
-
-    elseif c >= 240 and c <= 244 then
-        -- UTF8-4
-        local c2 = byte(s, i + 1)
-        local c3 = byte(s, i + 2)
-        local c4 = byte(s, i + 3)
-
-        if not c2 or not c3 or not c4 then
-            error("UTF-8 string terminated early")
-        end
-
-        -- validate byte 2
-        if c == 240 and (c2 < 144 or c2 > 191) then
-            error("Invalid UTF-8 character")
-        elseif c == 244 and (c2 < 128 or c2 > 143) then
-            error("Invalid UTF-8 character")
-        elseif c2 < 128 or c2 > 191 then
-            error("Invalid UTF-8 character")
-        end
-
-        -- validate byte 3
-        if c3 < 128 or c3 > 191 then
-            error("Invalid UTF-8 character")
-        end
-
-        -- validate byte 4
-        if c4 < 128 or c4 > 191 then
-            error("Invalid UTF-8 character")
-        end
-
-        return 4
-
-    else
-        error("Invalid UTF-8 character")
-    end
-end
-
--- returns the number of characters in a UTF-8 string
-local function utf8len(s)
-    -- argument checking
-    if type(s) ~= "string" then
-        for k, v in pairs(s) do
-            print('"', tostring(k), '"', tostring(v), '"')
-        end
-        error("bad argument #1 to 'utf8len' (string expected, got " .. type(s) .. ")")
-    end
-
-    local pos = 1
-    local bytes = len(s)
-    local len = 0
-
-    while pos <= bytes do
-        len = len + 1
-        pos = pos + utf8charbytes(s, pos)
-    end
-
-    return len
-end
-
--- functions identically to string.sub except that i and j are UTF-8 characters
--- instead of bytes
-local function utf8sub(s, i, j)
-    -- argument defaults
-    j = j or -1
-
-    local pos = 1
-    local bytes = len(s)
-    local len = 0
-
-    -- only set l if i or j is negative
-    local l = (i >= 0 and j >= 0) or utf8len(s)
-    local startChar = (i >= 0) and i or l + i + 1
-    local endChar = (j >= 0) and j or l + j + 1
-
-    -- can't have start before end!
-    if startChar > endChar then
-        return ""
-    end
-
-    -- byte offsets to pass to string.sub
-    local startByte, endByte = 1, bytes
-
-    while pos <= bytes do
-        len = len + 1
-
-        if len == startChar then
-            startByte = pos
-        end
-
-        pos = pos + utf8charbytes(s, pos)
-
-        if len == endChar then
-            endByte = pos - 1
-            break
-        end
-    end
-
-    if startChar > len then
-        startByte = bytes + 1
-    end
-    if endChar < 1 then
-        endByte = 0
-    end
-
-    return sub(s, startByte, endByte)
-end
-
--- replace UTF-8 characters based on a mapping table
-local function utf8replace(s, mapping)
-    -- argument checking
-    if type(s) ~= "string" then
-        error("bad argument #1 to 'utf8replace' (string expected, got " .. type(s) .. ")")
-    end
-    if type(mapping) ~= "table" then
-        error("bad argument #2 to 'utf8replace' (table expected, got " .. type(mapping) .. ")")
-    end
-
-    local pos = 1
-    local bytes = len(s)
-    local charbytes
-    local newstr = ""
-
-    while pos <= bytes do
-        charbytes = utf8charbytes(s, pos)
-        local c = sub(s, pos, pos + charbytes - 1)
-
-        newstr = newstr .. (mapping[c] or c)
-
-        pos = pos + charbytes
-    end
-
-    return newstr
-end
-
--- identical to string.upper except it knows about unicode simple case conversions
-local function utf8upper(s)
-    return utf8replace(s, utf8_lc_uc)
-end
-
--- identical to string.lower except it knows about unicode simple case conversions
-local function utf8lower(s)
-    return utf8replace(s, utf8_uc_lc)
-end
-
--- identical to string.reverse except that it supports UTF-8
-local function utf8reverse(s)
-    -- argument checking
-    if type(s) ~= "string" then
-        error("bad argument #1 to 'utf8reverse' (string expected, got " .. type(s) .. ")")
-    end
-
-    local bytes = len(s)
-    local pos = bytes
-    local charbytes
-    local newstr = ""
-
-    while pos > 0 do
-        c = byte(s, pos)
-        while c >= 128 and c <= 191 do
-            pos = pos - 1
-            c = byte(s, pos)
-        end
-
-        charbytes = utf8charbytes(s, pos)
-
-        newstr = newstr .. sub(s, pos, pos + charbytes - 1)
-
-        pos = pos - 1
-    end
-
-    return newstr
-end
-
--- http://en.wikipedia.org/wiki/Utf8
--- http://developer.coronalabs.com/code/utf-8-conversion-utility
-local function utf8char(unicode)
-    if unicode <= 0x7F then
-        return char(unicode)
-    end
-
-    if (unicode <= 0x7FF) then
-        local Byte0 = 0xC0 + math.floor(unicode / 0x40)
-        local Byte1 = 0x80 + (unicode % 0x40)
-        return char(Byte0, Byte1)
-    end
-
-    if (unicode <= 0xFFFF) then
-        local Byte0 = 0xE0 + math.floor(unicode / 0x1000)
-        local Byte1 = 0x80 + (math.floor(unicode / 0x40) % 0x40)
-        local Byte2 = 0x80 + (unicode % 0x40)
-        return char(Byte0, Byte1, Byte2)
-    end
-
-    if (unicode <= 0x10FFFF) then
-        local code = unicode
-        local Byte3 = 0x80 + (code % 0x40)
-        code = math.floor(code / 0x40)
-        local Byte2 = 0x80 + (code % 0x40)
-        code = math.floor(code / 0x40)
-        local Byte1 = 0x80 + (code % 0x40)
-        code = math.floor(code / 0x40)
-        local Byte0 = 0xF0 + code
-
-        return char(Byte0, Byte1, Byte2, Byte3)
-    end
-
-    error 'Unicode cannot be greater than U+10FFFF!'
-end
-
-local shift_6 = 2 ^ 6
-local shift_12 = 2 ^ 12
-local shift_18 = 2 ^ 18
-
-local utf8unicode
-utf8unicode = function(str, i, j, byte_pos)
-    i = i or 1
-    j = j or i
-
-    if i > j then
-        return
-    end
-
-    local char, bytes
-
-    if byte_pos then
-        bytes = utf8charbytes(str, byte_pos)
-        char = sub(str, byte_pos, byte_pos - 1 + bytes)
-    else
-        char, byte_pos = utf8sub(str, i, i), 0
-        bytes = #char
-    end
-
-    local unicode
-
-    if bytes == 1 then
-        unicode = byte(char)
-    end
-    if bytes == 2 then
-        local byte0, byte1 = byte(char, 1, 2)
-        local code0, code1 = byte0 - 0xC0, byte1 - 0x80
-        unicode = code0 * shift_6 + code1
-    end
-    if bytes == 3 then
-        local byte0, byte1, byte2 = byte(char, 1, 3)
-        local code0, code1, code2 = byte0 - 0xE0, byte1 - 0x80, byte2 - 0x80
-        unicode = code0 * shift_12 + code1 * shift_6 + code2
-    end
-    if bytes == 4 then
-        local byte0, byte1, byte2, byte3 = byte(char, 1, 4)
-        local code0, code1, code2, code3 = byte0 - 0xF0, byte1 - 0x80, byte2 - 0x80, byte3 - 0x80
-        unicode = code0 * shift_18 + code1 * shift_12 + code2 * shift_6 + code3
-    end
-
-    return unicode, utf8unicode(str, i + 1, j, byte_pos + bytes)
-end
-
--- Returns an iterator which returns the next substring and its byte interval
-local function utf8gensub(str, sub_len)
-    sub_len = sub_len or 1
-    local byte_pos = 1
-    local len = #str
-    return function(skip)
-        if skip then
-            byte_pos = byte_pos + skip
-        end
-        local char_count = 0
-        local start = byte_pos
-        repeat
-            if byte_pos > len then
-                return
-            end
-            char_count = char_count + 1
-            local bytes = utf8charbytes(str, byte_pos)
-            byte_pos = byte_pos + bytes
-
-        until char_count == sub_len
-
-        local last = byte_pos - 1
-        local sub = sub(str, start, last)
-        return sub, start, last
-    end
-end
-
-local function binsearch(sortedTable, item, comp)
-    local head, tail = 1, #sortedTable
-    local mid = math.floor((head + tail) / 2)
-    if not comp then
-        while (tail - head) > 1 do
-            if sortedTable[tonumber(mid)] > item then
-                tail = mid
-            else
-                head = mid
-            end
-            mid = math.floor((head + tail) / 2)
-        end
-    else
-    end
-    if sortedTable[tonumber(head)] == item then
-        return true, tonumber(head)
-    elseif sortedTable[tonumber(tail)] == item then
-        return true, tonumber(tail)
-    else
-        return false
-    end
-end
-local function classMatchGenerator(class, plain)
-    local codes = {}
-    local ranges = {}
-    local ignore = false
-    local range = false
-    local firstletter = true
-    local unmatch = false
-
-    local it = utf8gensub(class)
-
-    local skip
-    for c, bs, be in it do
-        skip = be
-        if not ignore and not plain then
-            if c == "%" then
-                ignore = true
-            elseif c == "-" then
-                table.insert(codes, utf8unicode(c))
-                range = true
-            elseif c == "^" then
-                if not firstletter then
-                    error('!!!')
-                else
-                    unmatch = true
-                end
-            elseif c == ']' then
-                break
-            else
-                if not range then
-                    table.insert(codes, utf8unicode(c))
-                else
-                    table.remove(codes) -- removing '-'
-                    table.insert(ranges, {table.remove(codes), utf8unicode(c)})
-                    range = false
-                end
-            end
-        elseif ignore and not plain then
-            if c == 'a' then -- %a: represents all letters. (ONLY ASCII)
-                table.insert(ranges, {65, 90}) -- A - Z
-                table.insert(ranges, {97, 122}) -- a - z
-            elseif c == 'c' then -- %c: represents all control characters.
-                table.insert(ranges, {0, 31})
-                table.insert(codes, 127)
-            elseif c == 'd' then -- %d: represents all digits.
-                table.insert(ranges, {48, 57}) -- 0 - 9
-            elseif c == 'g' then -- %g: represents all printable characters except space.
-                table.insert(ranges, {1, 8})
-                table.insert(ranges, {14, 31})
-                table.insert(ranges, {33, 132})
-                table.insert(ranges, {134, 159})
-                table.insert(ranges, {161, 5759})
-                table.insert(ranges, {5761, 8191})
-                table.insert(ranges, {8203, 8231})
-                table.insert(ranges, {8234, 8238})
-                table.insert(ranges, {8240, 8286})
-                table.insert(ranges, {8288, 12287})
-            elseif c == 'l' then -- %l: represents all lowercase letters. (ONLY ASCII)
-                table.insert(ranges, {97, 122}) -- a - z
-            elseif c == 'p' then -- %p: represents all punctuation characters. (ONLY ASCII)
-                table.insert(ranges, {33, 47})
-                table.insert(ranges, {58, 64})
-                table.insert(ranges, {91, 96})
-                table.insert(ranges, {123, 126})
-            elseif c == 's' then -- %s: represents all space characters.
-                table.insert(ranges, {9, 13})
-                table.insert(codes, 32)
-                table.insert(codes, 133)
-                table.insert(codes, 160)
-                table.insert(codes, 5760)
-                table.insert(ranges, {8192, 8202})
-                table.insert(codes, 8232)
-                table.insert(codes, 8233)
-                table.insert(codes, 8239)
-                table.insert(codes, 8287)
-                table.insert(codes, 12288)
-            elseif c == 'u' then -- %u: represents all uppercase letters. (ONLY ASCII)
-                table.insert(ranges, {65, 90}) -- A - Z
-            elseif c == 'w' then -- %w: represents all alphanumeric characters. (ONLY ASCII)
-                table.insert(ranges, {48, 57}) -- 0 - 9
-                table.insert(ranges, {65, 90}) -- A - Z
-                table.insert(ranges, {97, 122}) -- a - z
-            elseif c == 'x' then -- %x: represents all hexadecimal digits.
-                table.insert(ranges, {48, 57}) -- 0 - 9
-                table.insert(ranges, {65, 70}) -- A - F
-                table.insert(ranges, {97, 102}) -- a - f
-            else
-                if not range then
-                    table.insert(codes, utf8unicode(c))
-                else
-                    table.remove(codes) -- removing '-'
-                    table.insert(ranges, {table.remove(codes), utf8unicode(c)})
-                    range = false
-                end
-            end
-            ignore = false
-        else
-            if not range then
-                table.insert(codes, utf8unicode(c))
-            else
-                table.remove(codes) -- removing '-'
-                table.insert(ranges, {table.remove(codes), utf8unicode(c)})
-                range = false
-            end
-            ignore = false
-        end
-
-        firstletter = false
-    end
-
-    table.sort(codes)
-
-    local function inRanges(charCode)
-        for _, r in ipairs(ranges) do
-            if r[1] <= charCode and charCode <= r[2] then
-                return true
-            end
-        end
-        return false
-    end
-    if not unmatch then
-        return function(charCode)
-            return binsearch(codes, charCode) or inRanges(charCode)
-        end, skip
-    else
-        return function(charCode)
-            return charCode ~= -1 and not (binsearch(codes, charCode) or inRanges(charCode))
-        end, skip
-    end
-end
-
--- utf8sub with extra argument, and extra result value 
-local function utf8subWithBytes(s, i, j, sb)
-    -- argument defaults
-    j = j or -1
-
-    local pos = sb or 1
-    local bytes = len(s)
-    local len = 0
-
-    -- only set l if i or j is negative
-    local l = (i >= 0 and j >= 0) or utf8len(s)
-    local startChar = (i >= 0) and i or l + i + 1
-    local endChar = (j >= 0) and j or l + j + 1
-
-    -- can't have start before end!
-    if startChar > endChar then
-        return ""
-    end
-
-    -- byte offsets to pass to string.sub
-    local startByte, endByte = 1, bytes
-
-    while pos <= bytes do
-        len = len + 1
-
-        if len == startChar then
-            startByte = pos
-        end
-
-        pos = pos + utf8charbytes(s, pos)
-
-        if len == endChar then
-            endByte = pos - 1
-            break
-        end
-    end
-
-    if startChar > len then
-        startByte = bytes + 1
-    end
-    if endChar < 1 then
-        endByte = 0
-    end
-
-    return sub(s, startByte, endByte), endByte + 1
-end
-
-local cache = setmetatable({}, {
-    __mode = 'kv'
-})
-local cachePlain = setmetatable({}, {
-    __mode = 'kv'
-})
-local function matcherGenerator(regex, plain)
-    local matcher = {
-        functions = {},
-        captures = {}
-    }
-    if not plain then
-        cache[regex] = matcher
-    else
-        cachePlain[regex] = matcher
-    end
-    local function simple(func)
-        return function(cC)
-            if func(cC) then
-                matcher:nextFunc()
-                matcher:nextStr()
-            else
-                matcher:reset()
-            end
-        end
-    end
-    local function star(func)
-        return function(cC)
-            if func(cC) then
-                matcher:fullResetOnNextFunc()
-                matcher:nextStr()
-            else
-                matcher:nextFunc()
-            end
-        end
-    end
-    local function minus(func)
-        return function(cC)
-            if func(cC) then
-                matcher:fullResetOnNextStr()
-            end
-            matcher:nextFunc()
-        end
-    end
-    local function question(func)
-        return function(cC)
-            if func(cC) then
-                matcher:fullResetOnNextFunc()
-                matcher:nextStr()
-            end
-            matcher:nextFunc()
-        end
-    end
-
-    local function capture(id)
-        return function(cC)
-            local l = matcher.captures[id][2] - matcher.captures[id][1]
-            local captured = utf8sub(matcher.string, matcher.captures[id][1], matcher.captures[id][2])
-            local check = utf8sub(matcher.string, matcher.str, matcher.str + l)
-            if captured == check then
-                for i = 0, l do
-                    matcher:nextStr()
-                end
-                matcher:nextFunc()
-            else
-                matcher:reset()
-            end
-        end
-    end
-    local function captureStart(id)
-        return function(cC)
-            matcher.captures[id][1] = matcher.str
-            matcher:nextFunc()
-        end
-    end
-    local function captureStop(id)
-        return function(cC)
-            matcher.captures[id][2] = matcher.str - 1
-            matcher:nextFunc()
-        end
-    end
-
-    local function balancer(str)
-        local sum = 0
-        local bc, ec = utf8sub(str, 1, 1), utf8sub(str, 2, 2)
-        local skip = len(bc) + len(ec)
-        bc, ec = utf8unicode(bc), utf8unicode(ec)
-        return function(cC)
-            if cC == ec and sum > 0 then
-                sum = sum - 1
-                if sum == 0 then
-                    matcher:nextFunc()
-                end
-                matcher:nextStr()
-            elseif cC == bc then
-                sum = sum + 1
-                matcher:nextStr()
-            else
-                if sum == 0 or cC == -1 then
-                    sum = 0
-                    matcher:reset()
-                else
-                    matcher:nextStr()
-                end
-            end
-        end, skip
-    end
-
-    matcher.functions[1] = function(cC)
-        matcher:fullResetOnNextStr()
-        matcher.seqStart = matcher.str
-        matcher:nextFunc()
-        if (matcher.str > matcher.startStr and matcher.fromStart) or matcher.str >= matcher.stringLen then
-            matcher.stop = true
-            matcher.seqStart = nil
-        end
-    end
-
-    local lastFunc
-    local ignore = false
-    local skip = nil
-    local it = (function()
-        local gen = utf8gensub(regex)
-        return function()
-            return gen(skip)
-        end
-    end)()
-    local cs = {}
-    for c, bs, be in it do
-        skip = nil
-        if plain then
-            table.insert(matcher.functions, simple(classMatchGenerator(c, plain)))
-        else
-            if ignore then
-                if find('123456789', c, 1, true) then
-                    if lastFunc then
-                        table.insert(matcher.functions, simple(lastFunc))
-                        lastFunc = nil
-                    end
-                    table.insert(matcher.functions, capture(tonumber(c)))
-                elseif c == 'b' then
-                    if lastFunc then
-                        table.insert(matcher.functions, simple(lastFunc))
-                        lastFunc = nil
-                    end
-                    local b
-                    b, skip = balancer(sub(regex, be + 1, be + 9))
-                    table.insert(matcher.functions, b)
-                else
-                    lastFunc = classMatchGenerator('%' .. c)
-                end
-                ignore = false
-            else
-                if c == '*' then
-                    if lastFunc then
-                        table.insert(matcher.functions, star(lastFunc))
-                        lastFunc = nil
-                    else
-                        error('invalid regex after ' .. sub(regex, 1, bs))
-                    end
-                elseif c == '+' then
-                    if lastFunc then
-                        table.insert(matcher.functions, simple(lastFunc))
-                        table.insert(matcher.functions, star(lastFunc))
-                        lastFunc = nil
-                    else
-                        error('invalid regex after ' .. sub(regex, 1, bs))
-                    end
-                elseif c == '-' then
-                    if lastFunc then
-                        table.insert(matcher.functions, minus(lastFunc))
-                        lastFunc = nil
-                    else
-                        error('invalid regex after ' .. sub(regex, 1, bs))
-                    end
-                elseif c == '?' then
-                    if lastFunc then
-                        table.insert(matcher.functions, question(lastFunc))
-                        lastFunc = nil
-                    else
-                        error('invalid regex after ' .. sub(regex, 1, bs))
-                    end
-                elseif c == '^' then
-                    if bs == 1 then
-                        matcher.fromStart = true
-                    else
-                        error('invalid regex after ' .. sub(regex, 1, bs))
-                    end
-                elseif c == '$' then
-                    if be == len(regex) then
-                        matcher.toEnd = true
-                    else
-                        error('invalid regex after ' .. sub(regex, 1, bs))
-                    end
-                elseif c == '[' then
-                    if lastFunc then
-                        table.insert(matcher.functions, simple(lastFunc))
-                    end
-                    lastFunc, skip = classMatchGenerator(sub(regex, be + 1))
-                elseif c == '(' then
-                    if lastFunc then
-                        table.insert(matcher.functions, simple(lastFunc))
-                        lastFunc = nil
-                    end
-                    table.insert(matcher.captures, {})
-                    table.insert(cs, #matcher.captures)
-                    table.insert(matcher.functions, captureStart(cs[#cs]))
-                    if sub(regex, be + 1, be + 1) == ')' then
-                        matcher.captures[#matcher.captures].empty = true
-                    end
-                elseif c == ')' then
-                    if lastFunc then
-                        table.insert(matcher.functions, simple(lastFunc))
-                        lastFunc = nil
-                    end
-                    local cap = table.remove(cs)
-                    if not cap then
-                        error('invalid capture: "(" missing')
-                    end
-                    table.insert(matcher.functions, captureStop(cap))
-                elseif c == '.' then
-                    if lastFunc then
-                        table.insert(matcher.functions, simple(lastFunc))
-                    end
-                    lastFunc = function(cC)
-                        return cC ~= -1
-                    end
-                elseif c == '%' then
-                    ignore = true
-                else
-                    if lastFunc then
-                        table.insert(matcher.functions, simple(lastFunc))
-                    end
-                    lastFunc = classMatchGenerator(c)
-                end
-            end
-        end
-    end
-    if #cs > 0 then
-        error('invalid capture: ")" missing')
-    end
-    if lastFunc then
-        table.insert(matcher.functions, simple(lastFunc))
-    end
-    lastFunc = nil
-    ignore = nil
-
-    table.insert(matcher.functions, function()
-        if matcher.toEnd and matcher.str ~= matcher.stringLen then
-            matcher:reset()
-        else
-            matcher.stop = true
-        end
-    end)
-
-    matcher.nextFunc = function(self)
-        self.func = self.func + 1
-    end
-    matcher.nextStr = function(self)
-        self.str = self.str + 1
-    end
-    matcher.strReset = function(self)
-        local oldReset = self.reset
-        local str = self.str
-        self.reset = function(s)
-            s.str = str
-            s.reset = oldReset
-        end
-    end
-    matcher.fullResetOnNextFunc = function(self)
-        local oldReset = self.reset
-        local func = self.func + 1
-        local str = self.str
-        self.reset = function(s)
-            s.func = func
-            s.str = str
-            s.reset = oldReset
-        end
-    end
-    matcher.fullResetOnNextStr = function(self)
-        local oldReset = self.reset
-        local str = self.str + 1
-        local func = self.func
-        self.reset = function(s)
-            s.func = func
-            s.str = str
-            s.reset = oldReset
-        end
-    end
-
-    matcher.process = function(self, str, start)
-
-        self.func = 1
-        start = start or 1
-        self.startStr = (start >= 0) and start or utf8len(str) + start + 1
-        self.seqStart = self.startStr
-        self.str = self.startStr
-        self.stringLen = utf8len(str) + 1
-        self.string = str
-        self.stop = false
-
-        self.reset = function(s)
-            s.func = 1
-        end
-
-        local lastPos = self.str
-        local lastByte
-        local char
-        while not self.stop do
-            if self.str < self.stringLen then
-                --[[ if lastPos < self.str then
-					print('last byte', lastByte)
-					char, lastByte = utf8subWithBytes(str, 1, self.str - lastPos - 1, lastByte)
-					char, lastByte = utf8subWithBytes(str, 1, 1, lastByte)
-					lastByte = lastByte - 1
-				else
-					char, lastByte = utf8subWithBytes(str, self.str, self.str)
-				end
-				lastPos = self.str ]]
-                char = utf8sub(str, self.str, self.str)
-                -- print('char', char, utf8unicode(char))
-                self.functions[self.func](utf8unicode(char))
-            else
-                self.functions[self.func](-1)
-            end
-        end
-
-        if self.seqStart then
-            local captures = {}
-            for _, pair in pairs(self.captures) do
-                if pair.empty then
-                    table.insert(captures, pair[1])
-                else
-                    table.insert(captures, utf8sub(str, pair[1], pair[2]))
-                end
-            end
-            return self.seqStart, self.str - 1, unpack(captures)
-        end
-    end
-
-    return matcher
-end
-
--- string.find
-local function utf8find(str, regex, init, plain)
-    local matcher = cache[regex] or matcherGenerator(regex, plain)
-    return matcher:process(str, init)
-end
-
--- string.match
-local function utf8match(str, regex, init)
-    init = init or 1
-    local found = {utf8find(str, regex, init)}
-    if found[1] then
-        if found[3] then
-            return unpack(found, 3)
-        end
-        return utf8sub(str, found[1], found[2])
-    end
-end
-
--- string.gmatch
-local function utf8gmatch(str, regex, all)
-    regex = (utf8sub(regex, 1, 1) ~= '^') and regex or '%' .. regex
-    local lastChar = 1
-    return function()
-        local found = {utf8find(str, regex, lastChar)}
-        if found[1] then
-            lastChar = found[2] + 1
-            if found[all and 1 or 3] then
-                return unpack(found, all and 1 or 3)
-            end
-            return utf8sub(str, found[1], found[2])
-        end
-    end
-end
-
-local function replace(repl, args)
-    local ret = ''
-    if type(repl) == 'string' then
-        local ignore = false
-        local num = 0
-        for c in utf8gensub(repl) do
-            if not ignore then
-                if c == '%' then
-                    ignore = true
-                else
-                    ret = ret .. c
-                end
-            else
-                num = tonumber(c)
-                if num then
-                    ret = ret .. args[num]
-                else
-                    ret = ret .. c
-                end
-                ignore = false
-            end
-        end
-    elseif type(repl) == 'table' then
-        ret = repl[args[1] or args[0]] or ''
-    elseif type(repl) == 'function' then
-        if #args > 0 then
-            ret = repl(unpack(args, 1)) or ''
-        else
-            ret = repl(args[0]) or ''
-        end
-    end
-    return ret
-end
--- string.gsub
-local function utf8gsub(str, regex, repl, limit)
-    limit = limit or -1
-    local ret = ''
-    local prevEnd = 1
-    local it = utf8gmatch(str, regex, true)
-    local found = {it()}
-    local n = 0
-    while #found > 0 and limit ~= n do
-        local args = {
-            [0] = utf8sub(str, found[1], found[2]),
-            unpack(found, 3)
-        }
-        ret = ret .. utf8sub(str, prevEnd, found[1] - 1) .. replace(repl, args)
-        prevEnd = found[2] + 1
-        n = n + 1
-        found = {it()}
-    end
-    return ret .. utf8sub(str, prevEnd), n
-end
-
----------
-
-local translationtable = {
-    Favorites = {
-        jp = "お気に入り",
-        en = "Favorites"
-    },
-    HavntopenMarket = {
-        jp = "マーケット画面を開いていません",
-        en = "Please open the market window."
-    }
-}
-
-local function L_(str)
-    if (option.GetCurrentCountry() == "Japanese") then
-        return translationtable[str].jp
-    else
-        return translationtable[str].en
-    end
-end
-
---[[function market_favorite_rebuild_SAVETOSTRUCTURE()
-    local frame = ui.GetFrame('market_favorite_rebuild')
-    if (frame == nil) then
-        return
-    end
-    local slotset = frame:GetChild('slot_set')
-    if (slotset == nil) then
-        return
-    end
-    slotset = tolua.cast(slotset, 'ui::CSlotSet')
-
-    for i = 0, slotset:GetSlotCount() - 1 do
-        local slot = slotset:GetSlotByIndex(i)
-        if (slot ~= nil) then
-            local val = slot:GetUserValue('clsid')
-            g.settings.items[i + 1] = {
-                clsid = tonumber(val)
-            }
-
-        else
-
-            g.settings.items[i + 1] = nil
-        end
-    end
-end
-function market_favorite_rebuild_LOADFROMSTRUCTURE()
-    local frame = ui.GetFrame('market_favorite_rebuild')
-    if (frame == nil or g.settings.items == nil) then
-        return
-    end
-
-    local obj = frame:GetChild('slot_set')
-    local slotset = tolua.cast(obj, 'ui::CSlotSet')
-    if (slotset == nil) then
-        return
-    end
-    slotset:ClearIconAll()
-
-    for i = 0, slotset:GetSlotCount() - 1 do
-        -- statements
-        local slot = slotset:GetSlotByIndex(i)
-        if (slot ~= nil) then
-            slot:SetText("")
-            slot:RemoveAllChild()
-            slot:SetSkinName('invenslot2')
-        end
-    end
-    for i = 1, #g.settings.items do
-        EBI_try_catch {
-            try = function()
-
-                local item = g.settings.items[i]
-                if (item ~= nil) then
-
-                    local slot = slotset:GetSlotByIndex(i - 1)
-                    if (item['clsid'] ~= nil) then
-                        slot:SetUserValue('clsid', tostring(item['clsid']))
-                        -- アイコンを生成
-                        local invitem = GetClassByType("Item", item['clsid'])
-
-                        SET_SLOT_ITEM_CLS(slot, invitem)
-                        SET_SLOT_STYLESET(slot, invitem)
-                    end
-                end
-            end,
-            catch = function(error)
-                CHAT_SYSTEM(error)
-            end
-        }
-    end
-end]]
---[[function market_favorite_rebuild_INIT_FRAME(frame)
-    EBI_try_catch {
-        try = function()
-
-        end,
-        catch = function(error)
-            CHAT_SYSTEM(error)
-        end
-    }
-end]]
---[[function market_favorite_rebuild_MARKET_ITEMLIST_JUMPER(frame, msg, argStr, argNum)
-    if (OLD_ON_MARKET_ITEM_LIST ~= nil) then
-        OLD_ON_MARKET_ITEM_LIST(frame, msg, argStr, argNum)
-    end
-    market_favorite_rebuild_MARKET_ITEMLIST(frame)
-end
-function market_favorite_rebuild_MARKET_ITEMLIST(frame)
-    EBI_try_catch {
-        try = function()
-            local frame = ui.GetFrame('market')
-
-            for i = 0, 20 do
-                -- statements
-                local ctrl2 = GET_CHILD_RECURSIVELY(frame, 'ITEM2EQUIP_' .. tostring(i))
-                local ctrl1 = GET_CHILD_RECURSIVELY(frame, 'ITEM_EQUIP_' .. tostring(i))
-                local pic
-
-                if (ctrl2 ~= nil) then
-                    pic = GET_CHILD_RECURSIVELY(ctrl2, 'pic')
-                elseif (ctrl1 ~= nil) then
-                    -- statements
-
-                    pic = GET_CHILD_RECURSIVELY(ctrl1, 'pic')
-                end
-
-            end
-        end,
-        catch = function(error)
-            CHAT_SYSTEM(error)
-        end
-    }
-end]]
---[[function market_favorite_rebuild_MARKET_FIND_PAGE(frame, page)
     local function CLAMP_MARKET_PAGE_NUMBER(frame, pageControllerName, page)
         if page == nil then
-            return 0
+            return 0;
         end
-        local pagecontrol = GET_CHILD(frame, pageControllerName)
-        local MaxPage = pagecontrol:GetMaxPage()
+        local pagecontrol = GET_CHILD(frame, pageControllerName);
+        local MaxPage = pagecontrol:GetMaxPage();
         if page >= MaxPage then
-            page = MaxPage - 1
+            page = MaxPage - 1;
         elseif page <= 0 then
-            page = 0
+            page = 0;
         end
-        return page
+        return page;
     end
-
-    page = CLAMP_MARKET_PAGE_NUMBER(frame, 'pagecontrol', page)
+    page = CLAMP_MARKET_PAGE_NUMBER(frame, 'pagecontrol', page);
 
     local function GET_SEARCH_PRICE_ORDER(frame)
-        local priceOrderCheck_0 = GET_CHILD_RECURSIVELY(frame, 'priceOrderCheck_0')
-        local priceOrderCheck_1 = GET_CHILD_RECURSIVELY(frame, 'priceOrderCheck_1')
+        local priceOrderCheck_0 = GET_CHILD_RECURSIVELY(frame, 'priceOrderCheck_0');
+        local priceOrderCheck_1 = GET_CHILD_RECURSIVELY(frame, 'priceOrderCheck_1');
         if priceOrderCheck_0 == nil or priceOrderCheck_1 == nil then
-            return -1
+            return -1;
         end
 
         if priceOrderCheck_0:IsChecked() == 1 then
-            return 0
+            return 0;
         end
         if priceOrderCheck_1:IsChecked() == 1 then
-            return 1
+            return 1;
         end
-        return 0 -- default
+        return 0; -- default
     end
-
-    local orderByDesc = GET_SEARCH_PRICE_ORDER(frame)
+    local orderByDesc = GET_SEARCH_PRICE_ORDER(frame);
     if orderByDesc < 0 then
-        return
+        return;
     end
 
     local function GET_SEARCH_TEXT(frame)
-        local defaultValue = ''
-        local market_search = GET_CHILD_RECURSIVELY(frame, 'itemSearchSet')
+        local defaultValue = '';
+        local market_search = GET_CHILD_RECURSIVELY(frame, 'itemSearchSet');
         if market_search ~= nil and market_search:IsVisible() == 1 then
-            local searchEdit = GET_CHILD_RECURSIVELY(market_search, 'searchEdit')
-            local findItem = searchEdit:GetText()
-            local minLength = 0
-            local findItemStrLength = findItem.len(findItem)
-            local maxLength = 120
+            local searchEdit = GET_CHILD_RECURSIVELY(market_search, 'searchEdit');
+            local findItem = searchEdit:GetText();
+            searchEdit:Focus()
+            local minLength = 0;
+            local findItemStrLength = findItem.len(findItem);
+            local maxLength = 60;
             if config.GetServiceNation() == "GLOBAL" then
-                minLength = 1
-                maxLength = 40
+                minLength = 1;
+                maxLength = 20;
             elseif config.GetServiceNation() == "JPN" then
-                maxLength = 120
-            elseif config.GetServiceNation() == "KOR" then
-                maxLength = 120
+                maxLength = 60;
+            elseif config.GetServiceNation() == "KOR" or config.GetServiceNation() == "GLOBAL_KOR" then
+                maxLength = 60;
             end
             if findItemStrLength ~= 0 then -- 있다면 길이 조건 체크
                 if findItemStrLength <= minLength then
-                    ui.SysMsg(ClMsg("InvalidFindItemQueryMin"))
-                    return defaultValue
+                    ui.SysMsg(ClMsg("InvalidFindItemQueryMin"));
+                    return defaultValue;
                 elseif findItemStrLength > maxLength then
-                    ui.SysMsg(ClMsg("InvalidFindItemQueryMax"))
-                    return defaultValue
+                    ui.SysMsg(ClMsg("InvalidFindItemQueryMax"));
+                    return defaultValue;
                 end
             end
-            return findItem
+            return findItem;
         end
-        return defaultValue
+        return defaultValue;
     end
+    local searchText = GET_SEARCH_TEXT(frame);
 
-    local searchText = GET_SEARCH_TEXT(frame)
-    local category, _category, _subCategory = GET_CATEGORY_STRING(frame)
+    local category, _category, _subCategory = GET_CATEGORY_STRING(frame);
     if category == '' and searchText == '' then
-        return
+        return;
     end
 
     if searchText ~= '' and ui.GetPaperLength(searchText) < 2 then
-        ui.SysMsg(ClMsg('InvalidFindItemQueryMin'))
-        return
+        ui.SysMsg(ClMsg('InvalidFindItemQueryMin'));
+        return;
     end
 
     local function GET_SEARCH_OPTION(frame)
-        local optionName, optionValue = {}, {}
-        local optionSet = {} -- for checking duplicate option
-        local category = frame:GetUserValue('SELECTED_CATEGORY')
+        local optionName, optionValue = {}, {};
+        local optionSet = {}; -- for checking duplicate option
+        local category = frame:GetUserValue('SELECTED_CATEGORY');
 
+        local function GET_MINMAX_QUERY_VALUE_STRING(minEdit, maxEdit)
+            local queryValue = '';
+            local minValue = -1000000;
+            local maxValue = 1000000;
+            local valid = false;
+            if minEdit:GetText() ~= nil and minEdit:GetText() ~= '' then
+                minValue = tonumber(minEdit:GetText());
+                valid = true;
+            end
+            if maxEdit:GetText() ~= nil and maxEdit:GetText() ~= '' then
+                maxValue = tonumber(maxEdit:GetText());
+                valid = true;
+            end
+
+            if valid == false then
+                return queryValue;
+            end
+
+            queryValue = minValue .. ';' .. maxValue;
+            return queryValue;
+        end
         -- level range
-        local levelRangeSet = GET_CHILD_RECURSIVELY(frame, 'levelRangeSet')
+        local levelRangeSet = GET_CHILD_RECURSIVELY(frame, 'levelRangeSet');
         if levelRangeSet ~= nil and levelRangeSet:IsVisible() == 1 then
-            local minEdit = GET_CHILD_RECURSIVELY(levelRangeSet, 'minEdit')
-            local maxEdit = GET_CHILD_RECURSIVELY(levelRangeSet, 'maxEdit')
-            local opValue = GET_MINMAX_QUERY_VALUE_STRING(minEdit, maxEdit)
+            local minEdit = GET_CHILD_RECURSIVELY(levelRangeSet, 'minEdit');
+            local maxEdit = GET_CHILD_RECURSIVELY(levelRangeSet, 'maxEdit');
+            local opValue = GET_MINMAX_QUERY_VALUE_STRING(minEdit, maxEdit);
             if opValue ~= '' then
-                local opName = 'CT_UseLv'
+                local opName = 'CT_UseLv';
                 if category == 'OPTMisc' then
-                    opName = 'Level'
+                    opName = 'Level';
                 end
-                optionName[#optionName + 1] = opName
-                optionValue[#optionValue + 1] = opValue
-                optionSet[opName] = true
+                optionName[#optionName + 1] = opName;
+                optionValue[#optionValue + 1] = opValue;
+                optionSet[opName] = true;
             end
         end
 
         -- grade
-        local gradeCheckSet = GET_CHILD_RECURSIVELY(frame, 'gradeCheckSet')
+        local gradeCheckSet = GET_CHILD_RECURSIVELY(frame, 'gradeCheckSet');
         if gradeCheckSet ~= nil and gradeCheckSet:IsVisible() == 1 then
-            local checkStr = ''
-            local matchCnt, lastMatch = 0, nil
-            local childCnt = gradeCheckSet:GetChildCount()
+            local checkStr = '';
+            local matchCnt, lastMatch = 0, nil;
+            local childCnt = gradeCheckSet:GetChildCount();
             for i = 0, childCnt - 1 do
-                local child = gradeCheckSet:GetChildByIndex(i)
+                local child = gradeCheckSet:GetChildByIndex(i);
                 if string.find(child:GetName(), 'gradeCheck_') ~= nil then
-                    AUTO_CAST(child)
+                    AUTO_CAST(child);
                     if child:IsChecked() == 1 then
-                        local grade = string.sub(child:GetName(), string.find(child:GetName(), '_') + 1)
-                        checkStr = checkStr .. grade .. ''
-                        matchCnt = matchCnt + 1
-                        lastMatch = grade
+                        local grade = string.sub(child:GetName(), string.find(child:GetName(), '_') + 1);
+                        checkStr = checkStr .. grade .. ';';
+                        matchCnt = matchCnt + 1;
+                        lastMatch = grade;
                     end
                 end
             end
             if checkStr ~= '' then
                 if matchCnt == 1 then
-                    checkStr = checkStr .. lastMatch
+                    checkStr = checkStr .. lastMatch;
                 end
-                local opName = 'CT_ItemGrade'
-                optionName[#optionName + 1] = opName
-                optionValue[#optionValue + 1] = checkStr
-                optionSet[opName] = true
+                local opName = 'CT_ItemGrade';
+                optionName[#optionName + 1] = opName;
+                optionValue[#optionValue + 1] = checkStr;
+                optionSet[opName] = true;
             end
         end
 
         -- random option flag
-        local appCheckSet = GET_CHILD_RECURSIVELY(frame, 'appCheckSet')
+        local appCheckSet = GET_CHILD_RECURSIVELY(frame, 'appCheckSet');
         if appCheckSet ~= nil and appCheckSet:IsVisible() == 1 then
-            local ranOpName, ranOpValue
-            local appCheck_0 = GET_CHILD(appCheckSet, 'appCheck_0')
+            local ranOpName, ranOpValue;
+            local appCheck_0 = GET_CHILD(appCheckSet, 'appCheck_0');
             if appCheck_0:IsChecked() == 1 then
-                ranOpName = 'Random_Item'
+                ranOpName = 'Random_Item';
                 ranOpValue = '2'
             end
 
-            local appCheck_1 = GET_CHILD(appCheckSet, 'appCheck_1')
+            local appCheck_1 = GET_CHILD(appCheckSet, 'appCheck_1');
             if appCheck_1:IsChecked() == 1 then
-                ranOpName = 'Random_Item'
+                ranOpName = 'Random_Item';
                 ranOpValue = '1'
             end
 
             if ranOpName ~= nil then
-                optionName[#optionName + 1] = ranOpName
-                optionValue[#optionValue + 1] = ranOpValue
-                optionSet[ranOpName] = true
+                optionName[#optionName + 1] = ranOpName;
+                optionValue[#optionValue + 1] = ranOpValue;
+                optionSet[ranOpName] = true;
             end
         end
 
         -- detail setting
-        local detailOptionSet = GET_CHILD_RECURSIVELY(frame, 'detailOptionSet')
+        local detailOptionSet = GET_CHILD_RECURSIVELY(frame, 'detailOptionSet');
         if detailOptionSet ~= nil and detailOptionSet:IsVisible() == 1 then
-            local curCnt = detailOptionSet:GetUserIValue('ADD_SELECT_COUNT')
+            local curCnt = detailOptionSet:GetUserIValue('ADD_SELECT_COUNT');
             for i = 0, curCnt do
-                local selectSet = GET_CHILD_RECURSIVELY(detailOptionSet, 'SELECT_' .. i)
+                local selectSet = GET_CHILD_RECURSIVELY(detailOptionSet, 'SELECT_' .. i);
                 if selectSet ~= nil and selectSet:IsVisible() == 1 then
-                    local nameList = GET_CHILD(selectSet, 'groupList')
-                    local opName = nameList:GetSelItemKey()
+                    local nameList = GET_CHILD(selectSet, 'groupList');
+                    local opName = nameList:GetSelItemKey();
                     if opName ~= '' then
                         local opValue = GET_MINMAX_QUERY_VALUE_STRING(GET_CHILD_RECURSIVELY(selectSet, 'minEdit'),
-                            GET_CHILD_RECURSIVELY(selectSet, 'maxEdit'))
+                            GET_CHILD_RECURSIVELY(selectSet, 'maxEdit'));
                         if opValue ~= '' and optionSet[opName] == nil then
-                            optionName[#optionName + 1] = opName
-                            optionValue[#optionValue + 1] = opValue
-                            optionSet[opName] = true
+                            optionName[#optionName + 1] = opName;
+                            optionValue[#optionValue + 1] = opValue;
+                            optionSet[opName] = true;
                         end
                     end
                 end
@@ -3230,21 +3220,21 @@ end]]
         end
 
         -- option group
-        local optionGroupSet = GET_CHILD_RECURSIVELY(frame, 'optionGroupSet')
+        local optionGroupSet = GET_CHILD_RECURSIVELY(frame, 'optionGroupSet');
         if optionGroupSet ~= nil and optionGroupSet:IsVisible() == 1 then
-            local curCnt = optionGroupSet:GetUserIValue('ADD_SELECT_COUNT')
+            local curCnt = optionGroupSet:GetUserIValue('ADD_SELECT_COUNT');
             for i = 0, curCnt do
-                local selectSet = GET_CHILD_RECURSIVELY(optionGroupSet, 'SELECT_' .. i)
+                local selectSet = GET_CHILD_RECURSIVELY(optionGroupSet, 'SELECT_' .. i);
                 if selectSet ~= nil then
-                    local nameList = GET_CHILD(selectSet, 'nameList')
-                    local opName = nameList:GetSelItemKey()
+                    local nameList = GET_CHILD(selectSet, 'nameList');
+                    local opName = nameList:GetSelItemKey();
                     if opName ~= '' then
                         local opValue = GET_MINMAX_QUERY_VALUE_STRING(GET_CHILD_RECURSIVELY(selectSet, 'minEdit'),
-                            GET_CHILD_RECURSIVELY(selectSet, 'maxEdit'))
+                            GET_CHILD_RECURSIVELY(selectSet, 'maxEdit'));
                         if opValue ~= '' and optionSet[opName] == nil then
-                            optionName[#optionName + 1] = opName
-                            optionValue[#optionValue + 1] = opValue
-                            optionSet[opName] = true
+                            optionName[#optionName + 1] = opName;
+                            optionValue[#optionValue + 1] = opValue;
+                            optionSet[opName] = true;
                         end
                     end
                 end
@@ -3252,64 +3242,168 @@ end]]
         end
 
         -- gem option
-        local gemOptionSet = GET_CHILD_RECURSIVELY(frame, 'gemOptionSet')
+        local gemOptionSet = GET_CHILD_RECURSIVELY(frame, 'gemOptionSet');
         if gemOptionSet ~= nil and gemOptionSet:IsVisible() == 1 then
-            local levelMinEdit = GET_CHILD_RECURSIVELY(gemOptionSet, 'levelMinEdit')
-            local levelMaxEdit = GET_CHILD_RECURSIVELY(gemOptionSet, 'levelMaxEdit')
-            local roastingMinEdit = GET_CHILD_RECURSIVELY(gemOptionSet, 'roastingMinEdit')
-            local roastingMaxEdit = GET_CHILD_RECURSIVELY(gemOptionSet, 'roastingMaxEdit')
+            local levelMinEdit = GET_CHILD_RECURSIVELY(gemOptionSet, 'levelMinEdit');
+            local levelMaxEdit = GET_CHILD_RECURSIVELY(gemOptionSet, 'levelMaxEdit');
+            local roastingMinEdit = GET_CHILD_RECURSIVELY(gemOptionSet, 'roastingMinEdit');
+            local roastingMaxEdit = GET_CHILD_RECURSIVELY(gemOptionSet, 'roastingMaxEdit');
             if category == 'Gem' then
-                local opValue = GET_MINMAX_QUERY_VALUE_STRING(levelMinEdit, levelMaxEdit)
+                local opValue = GET_MINMAX_QUERY_VALUE_STRING(levelMinEdit, levelMaxEdit);
                 if opValue ~= '' then
-                    optionName[#optionName + 1] = 'GemLevel'
-                    optionValue[#optionValue + 1] = opValue
-                    optionSet['GemLevel'] = true
+                    optionName[#optionName + 1] = 'GemLevel';
+                    optionValue[#optionValue + 1] = opValue;
+                    optionSet['GemLevel'] = true;
                 end
 
-                local roastOpValue = GET_MINMAX_QUERY_VALUE_STRING(roastingMinEdit, roastingMaxEdit)
+                local roastOpValue = GET_MINMAX_QUERY_VALUE_STRING(roastingMinEdit, roastingMaxEdit);
                 if roastOpValue ~= '' then
-                    optionName[#optionName + 1] = 'GemRoastingLv'
-                    optionValue[#optionValue + 1] = roastOpValue
-                    optionSet['GemRoastingLv'] = true
+                    optionName[#optionName + 1] = 'GemRoastingLv';
+                    optionValue[#optionValue + 1] = roastOpValue;
+                    optionSet['GemRoastingLv'] = true;
                 end
             elseif category == 'Card' then
-                local opValue = GET_MINMAX_QUERY_VALUE_STRING(levelMinEdit, levelMaxEdit)
+                local opValue = GET_MINMAX_QUERY_VALUE_STRING(levelMinEdit, levelMaxEdit);
                 if opValue ~= '' then
-                    optionName[#optionName + 1] = 'CardLevel'
-                    optionValue[#optionValue + 1] = opValue
-                    optionSet['CardLevel'] = true
+                    optionName[#optionName + 1] = 'CardLevel';
+                    optionValue[#optionValue + 1] = opValue;
+                    optionSet['CardLevel'] = true;
                 end
             end
         end
 
-        return optionName, optionValue
+        return optionName, optionValue;
     end
-
-    local optionKey, optionValue = GET_SEARCH_OPTION(frame)
-    local itemCntPerPage = GET_MARKET_SEARCH_ITEM_COUNT(_category)
-    MarketSearch(page + 1, orderByDesc, searchText, category, optionKey, optionValue, itemCntPerPage)
-    DISABLE_BUTTON_DOUBLECLICK_WITH_CHILD(frame:GetName(), 'commitSet', 'searchBtn', 1)
-    MARKET_OPTION_BOX_CLOSE_CLICK(frame)
+    local test_category = frame:GetUserValue('SELECTED_CATEGORY');
+    local optionKey, optionValue
+    if test_category == "Gem" then
+        optionKey, optionValue = market_favorite_GET_SEARCH_OPTION(frame);
+    else
+        optionKey, optionValue = GET_SEARCH_OPTION(frame);
+    end
+    local itemCntPerPage = GET_MARKET_SEARCH_ITEM_COUNT(_category);
+    MarketSearch(page + 1, orderByDesc, searchText, category, optionKey, optionValue, itemCntPerPage);
+    DISABLE_BUTTON_DOUBLECLICK_WITH_CHILD(frame:GetName(), 'commitSet', 'searchBtn', 1);
+    MARKET_OPTION_BOX_CLOSE_CLICK(frame);
 end
 
-function market_favorite_rebuild_MARKET_REQ_LIST(frame)
-    frame = frame:GetTopParentFrame()
-    market_favorite_rebuild_MARKET_FIND_PAGE(frame, 0)
-end]]
+function market_favorite_GET_SEARCH_OPTION(frame)
+    local optionName, optionValue = {}, {};
+    local optionSet = {}; -- for checking duplicate option
+    local category = frame:GetUserValue('SELECTED_CATEGORY');
+    local sub_category = frame:GetUserValue('SELECTED_SUB_CATEGORY');
 
---[[function market_favorite_rebuild_TOGGLE_FRAME()
-    if g.frame:IsVisible() == 0 then
-        -- 非表示->表示
-        g.frame:ShowWindow(1)
-        g.settings.enable = true
-    else
-        -- 表示->非表示
-        g.frame:ShowWindow(0)
-        g.settings.show = false
+    local function GET_MINMAX_QUERY_VALUE_STRING(minEdit, maxEdit)
+        local queryValue = '';
+        local minValue = -1000000;
+        local maxValue = 1000000;
+        local valid = false;
+        if minEdit:GetText() ~= nil and minEdit:GetText() ~= '' then
+            minValue = tonumber(minEdit:GetText());
+            valid = true;
+        end
+        if maxEdit:GetText() ~= nil and maxEdit:GetText() ~= '' then
+            maxValue = tonumber(maxEdit:GetText());
+            valid = true;
+        end
+
+        if valid == false then
+            return queryValue;
+        end
+
+        queryValue = minValue .. ';' .. maxValue;
+        return queryValue;
     end
 
-    market_favorite_rebuild_SAVE_SETTINGS()
+    -- gem option
+    local gemOptionSet = GET_CHILD_RECURSIVELY(frame, 'gemOptionSet');
+    if gemOptionSet ~= nil and gemOptionSet:IsVisible() == 1 then
+        local levelMinEdit = GET_CHILD_RECURSIVELY(gemOptionSet, 'levelMinEdit');
+        local levelMaxEdit = GET_CHILD_RECURSIVELY(gemOptionSet, 'levelMaxEdit');
+        local roastingMinEdit = GET_CHILD_RECURSIVELY(gemOptionSet, 'roastingMinEdit');
+        local roastingMaxEdit = GET_CHILD_RECURSIVELY(gemOptionSet, 'roastingMaxEdit');
+        if category == 'Gem' then
+            if sub_category == "GemSkill" then
+                -- local opValue = GET_MINMAX_QUERY_VALUE_STRING(levelMinEdit, levelMaxEdit);
+                local opValue = 99 .. ';' .. 99
+                if opValue ~= '' then
+                    ts(sub_category, opValue)
+                    optionName[#optionName + 1] = 'GemLevel';
+                    optionValue[#optionValue + 1] = opValue;
+                    optionSet['GemLevel'] = true;
+                end
+
+                local roastOpValue = GET_MINMAX_QUERY_VALUE_STRING(roastingMinEdit, roastingMaxEdit);
+                if roastOpValue ~= '' then
+                    optionName[#optionName + 1] = 'GemRoastingLv';
+                    optionValue[#optionValue + 1] = roastOpValue;
+                    optionSet['GemRoastingLv'] = true;
+                end
+            else
+                local opValue = GET_MINMAX_QUERY_VALUE_STRING(levelMinEdit, levelMaxEdit);
+                if opValue ~= '' then
+                    optionName[#optionName + 1] = 'GemLevel';
+                    optionValue[#optionValue + 1] = opValue;
+                    optionSet['GemLevel'] = true;
+                end
+
+                local roastOpValue = GET_MINMAX_QUERY_VALUE_STRING(roastingMinEdit, roastingMaxEdit);
+                if roastOpValue ~= '' then
+                    optionName[#optionName + 1] = 'GemRoastingLv';
+                    optionValue[#optionValue + 1] = roastOpValue;
+                    optionSet['GemRoastingLv'] = true;
+                end
+            end
+        elseif category == 'Card' then
+            local opValue = GET_MINMAX_QUERY_VALUE_STRING(levelMinEdit, levelMaxEdit);
+            if opValue ~= '' then
+                optionName[#optionName + 1] = 'CardLevel';
+                optionValue[#optionValue + 1] = opValue;
+                optionSet['CardLevel'] = true;
+            end
+        end
+    end
+
+    return optionName, optionValue;
 end]]
 
--- フレーム場所保存処理
-]==]
+--[[for i = 1, 18 do
+            local search_btn = frame:CreateOrGetControl('button', 'search_btn' .. i, x, y, 180, 40)
+            AUTO_CAST(search_btn)
+            local text = ""
+            local key = false
+            if g.settings.searchs and g.settings.searchs[i] then
+                key = g.settings.searchs[i].key
+
+                text = g.lang == "Japanese" and "{ol}LSHIFT+右クリック: オプション削除" or
+                           "{ol}LSHIFT + Right-click: Delete Option"
+
+                search_btn:SetTextTooltip(text)
+                search_btn:SetEventScript(ui.LBUTTONUP, "market_favorite_rebuild_MARKET_LOAD_CATEGORY_OPTION")
+                search_btn:SetEventScriptArgString(ui.LBUTTONUP, key)
+                search_btn:SetEventScriptArgNumber(ui.LBUTTONUP, 1)
+
+                search_btn:SetEventScript(ui.RBUTTONUP, "market_favorite_rebuild_MARKET_LOAD_CATEGORY_OPTION")
+                search_btn:SetEventScriptArgString(ui.RBUTTONUP, key)
+                search_btn:SetEventScriptArgNumber(ui.RBUTTONUP, 2)
+
+                search_btn:SetSkinName("test_red_button")
+            else
+                local text = g.lang == "Japanese" and "{ol}保存されたオプションはありません" or
+                                 "{ol}No saved Option"
+                search_btn:SetTextTooltip(text)
+                search_btn:SetSkinName('test_gray_button')
+            end
+            if key then
+                search_btn:SetText("{ol}" .. key)
+            else
+                search_btn:SetText("")
+            end
+            y = y + 40
+
+            search_btn:ShowWindow(1)
+            if i == 9 then
+                x = 190
+                y = 555
+            end
+        end]]
