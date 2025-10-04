@@ -4,16 +4,36 @@
 -- v1.0.3 ローディング最適化
 -- v1.0.4 最適化。手動モード。JSRの起動ONOFF
 -- v1.0.5 no_heal機能移植
+-- v1.0.6 補助側を1回設定すると、直らなかったバグ修正
 local addon_name = "vakarine_equip"
 local addon_name_lower = string.lower(addon_name)
 local author = "norisan"
-local ver = "1.0.5"
+local ver = "1.0.6"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
 _G["ADDONS"][author][addon_name] = _G["ADDONS"][author][addon_name] or {}
 local g = _G["ADDONS"][author][addon_name]
 local json = require('json')
+
+local function ts(...)
+    local num_args = select('#', ...)
+    if num_args == 0 then
+        print("ts() -- 引数がありません")
+        return
+    end
+    local string_parts = {}
+    for i = 1, num_args do
+        local arg = select(i, ...)
+        local arg_type = type(arg)
+        local is_success, value_str = pcall(tostring, arg)
+        if not is_success then
+            value_str = "[tostringでエラー発生]"
+        end
+        table.insert(string_parts, string.format("(%s) %s", arg_type, value_str))
+    end
+    print(table.concat(string_parts, "   |   "))
+end
 
 local active_id = session.loginInfo.GetAID()
 g.settings_path = string.format('../addons/%s/%s.json', addon_name_lower, active_id)
@@ -164,7 +184,7 @@ function vakarine_equip_FIELD_BOSS_JOIN_ENTER_CLICK_MSG()
 end
 
 function VAKARINE_EQUIP_ON_INIT(addon, frame)
-    local start_time = os.clock() -- ★処理開始前の時刻を記録★
+
     g.addon = addon
     g.frame = frame
     g.cid = info.GetCID(session.GetMyHandle())
@@ -185,24 +205,19 @@ function VAKARINE_EQUIP_ON_INIT(addon, frame)
     g.setup_hook_and_event(addon, "FIELD_BOSS_JOIN_ENTER_CLICK_MSG", "vakarine_equip_FIELD_BOSS_JOIN_ENTER_CLICK_MSG",
         false)
 
-    addon:RegisterMsg('BUFF_ADD', 'vakarine_equip_BUFF_ON_MSG')
-    addon:RegisterMsg('BUFF_UPDATE', 'vakarine_equip_BUFF_ON_MSG')
-
     addon:RegisterMsg('STAT_UPDATE', 'vakarine_equip_stat_update')
     addon:RegisterMsg('TAKE_DAMAGE', 'vakarine_equip_stat_update')
     addon:RegisterMsg('TAKE_HEAL', 'vakarine_equip_stat_update')
 
     addon:RegisterMsg("GAME_START", "vakarine_equip_frame_init")
-
     addon:RegisterMsg("GAME_START_3SEC", "vakarine_equip_unequip_animas")
 
     if g.settings[g.cid].use == 0 then
         return
     end
+    addon:RegisterMsg('BUFF_ADD', 'vakarine_equip_BUFF_ON_MSG')
+    addon:RegisterMsg('BUFF_UPDATE', 'vakarine_equip_BUFF_ON_MSG')
     addon:RegisterMsg("GAME_START", "vakarine_equip_GAME_START")
-    local end_time = os.clock() -- ★処理終了後の時刻を記録★
-    local elapsed_time = end_time - start_time
-    -- CHAT_SYSTEM(string.format("%s: %.4f seconds", addon_name, elapsed_time))
 
 end
 
@@ -219,6 +234,7 @@ function vakarine_equip_neck_equip(frame)
     end
 
     local equip_item = equip_item_list:GetEquipItemByIndex(19)
+
     if not equip_item then
         g.try_count = g.try_count + 1
         return 1
@@ -484,7 +500,7 @@ function vakarine_equip_GAME_START(frame, msg, str, num)
 
     local cur_map_id = session.GetMapID()
 
-    if (g.get_map_type() == "Instance" and cur_map_id ~= 11227) or cur_map_id == 8022 then
+    if (g.get_map_type() == "Instance" and cur_map_id ~= 11227) or cur_map_id == 8022 or cur_map_id == 11244 then
 
         ui.SetHoldUI(true)
         frame:RunUpdateScript("vakarine_equip_holdui_release", 10.0)
@@ -529,6 +545,7 @@ function vakarine_equip_GAME_START(frame, msg, str, num)
         local equip_item_list = session.GetEquipItemList()
         g.equip_tbl = {}
         g.neck = false
+        g.sub = false
         for index, data in ipairs(equips) do
             local equip_name = nil
             local equip_index = nil
@@ -539,6 +556,7 @@ function vakarine_equip_GAME_START(frame, msg, str, num)
             end
 
             local use = g.settings[g.cid].equip_tbl[equip_name]
+
             local equip_item = equip_item_list:GetEquipItemByIndex(equip_index)
             local iesid = equip_item:GetIESID()
 
@@ -570,7 +588,7 @@ function vakarine_equip_GAME_START(frame, msg, str, num)
                 end
             end
 
-        else
+        elseif g.settings[g.cid].equip_tbl["LH"] == 1 then
             DO_WEAPON_SLOT_CHANGE(invframe, 1)
             item.UnEquip(9)
             for index, data in ipairs(g.equip_tbl) do
@@ -670,7 +688,7 @@ function vakarine_equip_onoff_switch(parent, ctrl, str, num)
     end
 
     vakarine_equip_vakarine()
-    print(tostring(g.vakarine))
+    -- print(tostring(g.vakarine))
 
     local parent = ui.GetFrame("vakarine_equip")
     local vaka_pic = GET_CHILD(parent, "vaka_pic")
