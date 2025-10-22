@@ -1,0 +1,84 @@
+{
+  "NECK": {
+    "lv": 19,
+    "iesid": "1530670509724690",
+    "clsid": 11100069
+  },
+  "RH_SUB": {
+    "lv": 20,
+    "iesid": "1519529365091601",
+    "clsid": 11107003
+  },
+  "RING1": {
+    "lv": 19,
+    "iesid": "1530670509724697",
+    "clsid": 11100070
+  },
+  "SHIRT": {
+    "skillName": "Common_Chronomancer_QuickCast",
+    "lv": 20,
+    "iesid": "1518227989755258",
+    "clsid": 11107021,
+    "skillLv": 1
+  },
+  "LEG": {
+
+  },
+  "SEAL": {
+
+  },
+  "RING2": {
+    "lv": 19,
+    "iesid": "1530670509724715",
+    "clsid": 11100070
+  },
+  "GOD": {
+
+  },
+  "ARK": {
+
+  },
+  "name": "あちゃ",
+  "LH": {
+    "lv": 20,
+    "iesid": "1524159339754517",
+    "clsid": 11107010
+  },
+  "PANTS": {
+    "skillName": "Common_Pardoner_IncreaseMagicDEF",
+    "lv": 20,
+    "iesid": "1518227989755265",
+    "clsid": 11107022,
+    "skillLv": 5
+  },
+  "LH_SUB": {
+    "lv": 20,
+    "iesid": "1524159339754528",
+    "clsid": 11107016
+  },
+  "GLOVES": {
+    "skillName": "Common_Chronomancer_QuickCast",
+    "lv": 20,
+    "iesid": "1518670371715736",
+    "clsid": 11107024,
+    "skillLv": 4
+  },
+  "BOOTS": {
+    "skillName": "Common_Paladin_StoneSkin",
+    "lv": 20,
+    "iesid": "1518120615512342",
+    "clsid": 11107023,
+    "skillLv": 5
+  },
+  "RH": {
+    "lv": 20,
+    "iesid": "1519529365091583",
+    "clsid": 11107004
+  },
+  "RELIC": {
+    "lv": 20,
+    "iesid": "78469052579729",
+    "clsid": 11040003
+  },
+  "gear_score": 23402
+}

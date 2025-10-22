@@ -1,0 +1,84 @@
+{
+  "NECK": {
+    "lv": 15,
+    "iesid": "1531984770255782",
+    "clsid": 11100069
+  },
+  "RH_SUB": {
+    "lv": 20,
+    "iesid": "1518627421849820",
+    "clsid": 11107008
+  },
+  "LH_SUB": {
+    "lv": 20,
+    "iesid": "1518627421849883",
+    "clsid": 11107010
+  },
+  "SHIRT": {
+    "skillName": "Common_PiedPiper_Marschierendeslied",
+    "lv": 20,
+    "iesid": "1518670371866985",
+    "clsid": 11107021,
+    "skillLv": 5
+  },
+  "LH": {
+    "lv": 20,
+    "iesid": "1518627421849842",
+    "clsid": 11107016
+  },
+  "SEAL": {
+
+  },
+  "RING2": {
+    "lv": 15,
+    "iesid": "1531984770255799",
+    "clsid": 11100070
+  },
+  "RELIC": {
+    "lv": 20,
+    "iesid": "1308156844521610",
+    "clsid": 11040003
+  },
+  "ARK": {
+
+  },
+  "name": "イベキャラ",
+  "GOD": {
+
+  },
+  "LEG": {
+
+  },
+  "RING1": {
+    "lv": 15,
+    "iesid": "1531984770255794",
+    "clsid": 11100070
+  },
+  "PANTS": {
+    "skillName": "Common_Chronomancer_QuickCast",
+    "lv": 20,
+    "iesid": "1518670371866990",
+    "clsid": 11107022,
+    "skillLv": 4
+  },
+  "GLOVES": {
+    "skillName": "Common_Paladin_StoneSkin",
+    "lv": 20,
+    "iesid": "1518670371866999",
+    "clsid": 11107024,
+    "skillLv": 5
+  },
+  "RH": {
+    "lv": 20,
+    "iesid": "1518627421849830",
+    "clsid": 11107001
+  },
+  "BOOTS": {
+    "skillName": "Common_Wizard_Teleportation",
+    "lv": 20,
+    "iesid": "1518094845817879",
+    "clsid": 11107023,
+    "skillLv": 3
+  },
+  "gear_score": 23167
+}

@@ -1,0 +1,90 @@
+{
+  "RING2": {
+    "clsid": 11100078,
+    "lv": 20,
+    "iesid": "1557037314156997"
+  },
+  "NECK": {
+    "clsid": 11100077,
+    "lv": 21,
+    "iesid": "1557037314156974"
+  },
+  "GOD": {
+    "clsid": 11039407,
+    "lv": 10
+  },
+  "SEAL": {
+    "clsid": 11100053,
+    "lv": 5,
+    "iesid": "1560503354618253"
+  },
+  "gear_score": 31069,
+  "SHIRT": {
+    "clsid": 11107050,
+    "skillName": "Common_Pardoner_IncreaseMagicDEF",
+    "lv": 21,
+    "skillLv": 4,
+    "iesid": "1554022247221031"
+  },
+  "PANTS": {
+    "clsid": 11107051,
+    "skillName": "Common_Cryomancer_SubzeroShield",
+    "lv": 21,
+    "skillLv": 2,
+    "iesid": "1554022247222367"
+  },
+  "name": "Sword",
+  "RELIC": {
+    "clsid": 11040003,
+    "lv": 20,
+    "iesid": "1554017952161944"
+  },
+  "LH_SUB": {
+    "clsid": 11107039,
+    "lv": 20,
+    "iesid": "1554022247223507"
+  },
+  "BOOTS": {
+    "clsid": 11107052,
+    "skillName": "Common_Chronomancer_QuickCast",
+    "lv": 21,
+    "skillLv": 2,
+    "iesid": "1554022247224370"
+  },
+  "RING1": {
+    "clsid": 11100078,
+    "lv": 21,
+    "iesid": "1557037314156986"
+  },
+  "LEG": {
+    "lv": 10,
+    "clsid": 644931
+  },
+  "RH_SUB": {
+    "clsid": 11107029,
+    "lv": 20,
+    "iesid": "1554022247223281"
+  },
+  "LH": {
+    "clsid": 11107045,
+    "lv": 20,
+    "iesid": "1554022247224401"
+  },
+  "RH": {
+    "clsid": 11107030,
+    "lv": 20,
+    "iesid": "1554022247223500"
+  },
+  "ARK": {
+    "clsid": 620010,
+    "lv": 10,
+    "iesid": "1553953527721762"
+  },
+  "GLOVES": {
+    "clsid": 11107053,
+    "skillName": "Common_Kabbalist_Ayin_sof",
+    "lv": 21,
+    "skillLv": 3,
+    "iesid": "1554022247223445"
+  }
+}
