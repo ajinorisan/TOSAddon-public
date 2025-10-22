@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<uiframe name="cupole_manager" x="0" y="0" width="10" height="10" create="open">
+  <option visible="true" closebutton="false" autoopen="true" hideable="false"/>
+   <controls/>
+</uiframe>

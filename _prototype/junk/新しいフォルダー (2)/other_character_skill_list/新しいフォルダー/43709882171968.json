@@ -1,0 +1,87 @@
+{
+  "gear_score": 23204,
+  "PANTS": {
+    "iesid": "1518240874402038",
+    "lv": 15,
+    "skillLv": 4,
+    "skillName": "Common_Highlander_Defiance",
+    "clsid": 11107018
+  },
+  "SEAL": {
+
+  },
+  "GLOVES": {
+    "iesid": "1529180156566642",
+    "lv": 20,
+    "skillLv": 2,
+    "skillName": "Common_Cataphract_Trot",
+    "clsid": 11107020
+  },
+  "SHIRT": {
+    "iesid": "1518240874402009",
+    "lv": 16,
+    "skillLv": 4,
+    "skillName": "Common_Arquebusier_DesperateDefense",
+    "clsid": 11107017
+  },
+  "LEG": {
+
+  },
+  "RH_SUB": {
+    "lv": 16,
+    "iesid": "1518240874401932",
+    "clsid": 11107005
+  },
+  "GOD": {
+    "lv": 10,
+    "clsid": 11039401
+  },
+  "RELIC": {
+    "lv": 20,
+    "iesid": "1308156844252702",
+    "clsid": 11040003
+  },
+  "LH_SUB": {
+    "lv": 16,
+    "iesid": "1518240874401993",
+    "clsid": 11107007
+  },
+  "name": "ヒラヒラ",
+  "NECK": {
+    "lv": 16,
+    "iesid": "1530644740054352",
+    "clsid": 11100065
+  },
+  "LH": {
+    "lv": 16,
+    "iesid": "1518240874401966",
+    "clsid": 11107007
+  },
+  "RH": {
+    "lv": 16,
+    "iesid": "1518240874401945",
+    "clsid": 11107005
+  },
+  "ARK": {
+    "lv": 10,
+    "iesid": "1335133533773303",
+    "clsid": 620012
+  },
+  "BOOTS": {
+    "iesid": "1518240874402077",
+    "lv": 15,
+    "skillLv": 2,
+    "skillName": "Common_Chronomancer_QuickCast",
+    "clsid": 11107019
+  },
+  "RING2": {
+    "lv": 16,
+    "iesid": "1530644740054402",
+    "clsid": 11100066
+  },
+  "RING1": {
+    "lv": 16,
+    "iesid": "1530644740054367",
+    "clsid": 11100066
+  }
+}
