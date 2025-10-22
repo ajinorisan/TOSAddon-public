@@ -1,0 +1,90 @@
+{
+  "LEG": {
+    "clsid": 644931,
+    "lv": 10
+  },
+  "GLOVES": {
+    "skillName": "Common_BlossomBlader_StartUp",
+    "clsid": 11107053,
+    "lv": 25,
+    "iesid": "1547846084507845",
+    "skillLv": 5
+  },
+  "RELIC": {
+    "iesid": "75037373663240",
+    "clsid": 11040003,
+    "lv": 20
+  },
+  "RING1": {
+    "iesid": "1559489740478120",
+    "clsid": 11100072,
+    "lv": 23
+  },
+  "RH": {
+    "iesid": "1546493169772189",
+    "clsid": 11107041,
+    "lv": 25
+  },
+  "NECK": {
+    "iesid": "1559489740478110",
+    "clsid": 11100071,
+    "lv": 21
+  },
+  "RING2": {
+    "iesid": "1559489740478134",
+    "clsid": 11100072,
+    "lv": 21
+  },
+  "LH": {
+    "iesid": "1546493169772183",
+    "clsid": 11107029,
+    "lv": 25
+  },
+  "SEAL": {
+    "iesid": "1512958064649399",
+    "clsid": 11100053,
+    "lv": 5
+  },
+  "GOD": {
+    "clsid": 11039407,
+    "lv": 10
+  },
+  "gear_score": 31890,
+  "LH_SUB": {
+    "iesid": "1546493169772179",
+    "clsid": 11107029,
+    "lv": 25
+  },
+  "RH_SUB": {
+    "iesid": "1546493169772186",
+    "clsid": 11107039,
+    "lv": 25
+  },
+  "ARK": {
+    "iesid": "58433030118437",
+    "clsid": 620010,
+    "lv": 10
+  },
+  "SHIRT": {
+    "skillName": "Common_Recovery",
+    "clsid": 11107050,
+    "lv": 25,
+    "iesid": "1546441630225191",
+    "skillLv": 3
+  },
+  "BOOTS": {
+    "skillName": "Common_Assassin_Hasisas",
+    "clsid": 11107052,
+    "lv": 25,
+    "iesid": "1546441630225270",
+    "skillLv": 3
+  },
+  "name": "すか",
+  "PANTS": {
+    "skillName": "Common_Barbarian_Frenzy",
+    "clsid": 11107051,
+    "lv": 25,
+    "iesid": "1546441630225202",
+    "skillLv": 3
+  }
+}
