@@ -1,0 +1,87 @@
+{
+  "RH": {
+    "clsid": 11107034,
+    "lv": 10,
+    "iesid": "1563153347433905"
+  },
+  "LH_SUB": {
+    "clsid": 11107036,
+    "lv": 10,
+    "iesid": "1563153347433919"
+  },
+  "GOD": {
+    "clsid": 11039401,
+    "lv": 10
+  },
+  "LEG": {
+
+  },
+  "NECK": {
+    "clsid": 11100073,
+    "lv": 10,
+    "iesid": "1563153347433313"
+  },
+  "RH_SUB": {
+    "clsid": 11107034,
+    "lv": 10,
+    "iesid": "1563153347433884"
+  },
+  "ARK": {
+    "clsid": 620012,
+    "lv": 10,
+    "iesid": "1533217425475981"
+  },
+  "RING1": {
+    "clsid": 11100074,
+    "lv": 10,
+    "iesid": "1563153347433343"
+  },
+  "RELIC": {
+    "clsid": 11040003,
+    "lv": 20,
+    "iesid": "1309131801762883"
+  },
+  "gear_score": 27113,
+  "SHIRT": {
+    "clsid": 11107046,
+    "skillLv": 1,
+    "skillName": "Common_PiedPiper_LiedDerWeltbaum",
+    "lv": 10,
+    "iesid": "1563153347433979"
+  },
+  "name": "おなじみの",
+  "PANTS": {
+    "clsid": 11107047,
+    "skillLv": 5,
+    "skillName": "Common_Oracle_Foretell",
+    "lv": 10,
+    "iesid": "1563153347434038"
+  },
+  "GLOVES": {
+    "clsid": 11107049,
+    "skillLv": 5,
+    "skillName": "Common_Arquebusier_DesperateDefense",
+    "lv": 10,
+    "iesid": "1563153347434094"
+  },
+  "BOOTS": {
+    "clsid": 11107048,
+    "skillLv": 5,
+    "skillName": "Common_Paladin_StoneSkin",
+    "lv": 10,
+    "iesid": "1563153347434146"
+  },
+  "SEAL": {
+
+  },
+  "LH": {
+    "clsid": 11107036,
+    "lv": 10,
+    "iesid": "1563153347433952"
+  },
+  "RING2": {
+    "clsid": 11100074,
+    "lv": 10,
+    "iesid": "1563153347433379"
+  }
+}

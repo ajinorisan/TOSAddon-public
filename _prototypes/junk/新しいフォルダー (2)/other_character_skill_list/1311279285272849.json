@@ -1,0 +1,84 @@
+{
+  "gear_score": 23137,
+  "SHIRT": {
+    "clsid": 11107021,
+    "skillName": "Common_Priest_Aspersion",
+    "skillLv": 5,
+    "lv": 20,
+    "iesid": "1518094845817758"
+  },
+  "PANTS": {
+    "clsid": 11107022,
+    "skillName": "Common_Chronomancer_QuickCast",
+    "skillLv": 2,
+    "lv": 20,
+    "iesid": "1518094845817854"
+  },
+  "BOOTS": {
+    "clsid": 11107023,
+    "skillName": "Common_Chronomancer_QuickCast",
+    "skillLv": 4,
+    "lv": 20,
+    "iesid": "1518670371867004"
+  },
+  "RING1": {
+    "clsid": 11100064,
+    "lv": 15,
+    "iesid": "1530670509977289"
+  },
+  "SEAL": {
+
+  },
+  "RELIC": {
+    "clsid": 11040003,
+    "lv": 20,
+    "iesid": "1364300656603115"
+  },
+  "ARK": {
+
+  },
+  "RH_SUB": {
+    "clsid": 11107006,
+    "lv": 20,
+    "iesid": "1518094845817728"
+  },
+  "name": "第二倉庫ちゃん",
+  "NECK": {
+    "clsid": 11100063,
+    "lv": 15,
+    "iesid": "1530670509977165"
+  },
+  "RING2": {
+    "clsid": 11100064,
+    "lv": 15,
+    "iesid": "1530670509977268"
+  },
+  "GLOVES": {
+    "clsid": 11107024,
+    "skillName": "Common_Thaumaturge_SwellHands",
+    "skillLv": 3,
+    "lv": 20,
+    "iesid": "1518094845817867"
+  },
+  "LH": {
+    "clsid": 11107016,
+    "lv": 20,
+    "iesid": "1518094845817754"
+  },
+  "LEG": {
+
+  },
+  "GOD": {
+
+  },
+  "RH": {
+    "clsid": 11107006,
+    "lv": 20,
+    "iesid": "1536425766038078"
+  },
+  "LH_SUB": {
+    "clsid": 11107016,
+    "lv": 20,
+    "iesid": "1518094845817749"
+  }
+}

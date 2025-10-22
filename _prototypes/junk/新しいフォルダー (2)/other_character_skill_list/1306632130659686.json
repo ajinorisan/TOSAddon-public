@@ -1,0 +1,84 @@
+{
+  "gear_score": 23183,
+  "SHIRT": {
+    "clsid": 11107021,
+    "skillName": "Common_Cataphract_Trot",
+    "skillLv": 2,
+    "lv": 20,
+    "iesid": "1518614537253053"
+  },
+  "PANTS": {
+    "clsid": 11107022,
+    "skillName": "Common_Retiarii_DaggerGuard",
+    "skillLv": 5,
+    "lv": 20,
+    "iesid": "1521887302213953"
+  },
+  "BOOTS": {
+    "clsid": 11107023,
+    "skillName": "Common_Cryomancer_SubzeroShield",
+    "skillLv": 4,
+    "lv": 20,
+    "iesid": "1521887302213959"
+  },
+  "RING1": {
+    "clsid": 11100064,
+    "lv": 15,
+    "iesid": "1532912482915740"
+  },
+  "SEAL": {
+
+  },
+  "RELIC": {
+    "clsid": 11040003,
+    "lv": 20,
+    "iesid": "1309849061660741"
+  },
+  "ARK": {
+
+  },
+  "RH_SUB": {
+    "clsid": 11107008,
+    "lv": 20,
+    "iesid": "1520512912408154"
+  },
+  "name": "とりあえず",
+  "NECK": {
+    "clsid": 11100063,
+    "lv": 15,
+    "iesid": "1532912482915687"
+  },
+  "LH": {
+    "clsid": 11107016,
+    "lv": 20,
+    "iesid": "1532912482915635"
+  },
+  "GLOVES": {
+    "clsid": 11107024,
+    "skillName": "Common_Barbarian_Frenzy",
+    "skillLv": 2,
+    "lv": 20,
+    "iesid": "1521887302213935"
+  },
+  "GOD": {
+
+  },
+  "RING2": {
+    "clsid": 11100064,
+    "lv": 15,
+    "iesid": "1532912482915718"
+  },
+  "LH_SUB": {
+    "clsid": 11107010,
+    "lv": 20,
+    "iesid": "1532912482915579"
+  },
+  "RH": {
+    "clsid": 11107001,
+    "lv": 20,
+    "iesid": "1520512912408926"
+  },
+  "LEG": {
+
+  }
+}

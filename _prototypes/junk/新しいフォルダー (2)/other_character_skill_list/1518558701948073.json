@@ -1,0 +1,84 @@
+{
+  "gear_score": 23167,
+  "SHIRT": {
+    "clsid": 11107021,
+    "skillName": "Common_Pardoner_IncreaseMagicDEF",
+    "skillLv": 5,
+    "lv": 20,
+    "iesid": "1520508617834618"
+  },
+  "PANTS": {
+    "clsid": 11107022,
+    "skillName": "Common_Chronomancer_QuickCast",
+    "skillLv": 4,
+    "lv": 20,
+    "iesid": "1520508617834626"
+  },
+  "BOOTS": {
+    "clsid": 11107023,
+    "skillName": "Common_Retiarii_DaggerGuard",
+    "skillLv": 4,
+    "lv": 20,
+    "iesid": "1520508617834717"
+  },
+  "RING1": {
+    "clsid": 11100064,
+    "lv": 15,
+    "iesid": "1531254625682690"
+  },
+  "SEAL": {
+
+  },
+  "RELIC": {
+    "clsid": 11040003,
+    "lv": 20,
+    "iesid": "1518872234767297"
+  },
+  "ARK": {
+
+  },
+  "RH_SUB": {
+    "clsid": 11107003,
+    "lv": 20,
+    "iesid": "1518764860490535"
+  },
+  "name": "ぽぽぶー",
+  "NECK": {
+    "clsid": 11100063,
+    "lv": 15,
+    "iesid": "1531254625682681"
+  },
+  "RING2": {
+    "clsid": 11100064,
+    "lv": 15,
+    "iesid": "1531254625682687"
+  },
+  "GLOVES": {
+    "clsid": 11107024,
+    "skillName": "Common_Enchanter_EnchantLightning",
+    "skillLv": 5,
+    "lv": 20,
+    "iesid": "1520508617834692"
+  },
+  "LH": {
+    "clsid": 11107010,
+    "lv": 20,
+    "iesid": "1518764860490540"
+  },
+  "LEG": {
+
+  },
+  "GOD": {
+
+  },
+  "RH": {
+    "clsid": 11107004,
+    "lv": 20,
+    "iesid": "1518764860490530"
+  },
+  "LH_SUB": {
+    "clsid": 11107016,
+    "lv": 20,
+    "iesid": "1518764860490569"
+  }
+}

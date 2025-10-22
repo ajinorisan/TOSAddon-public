@@ -1,0 +1,84 @@
+{
+  "name": "ぽぽブー",
+  "ARK": {
+
+  },
+  "RH": {
+    "iesid": "1536425766038068",
+    "clsid": 11107006,
+    "lv": 20
+  },
+  "RING1": {
+    "iesid": "1536619039936329",
+    "clsid": 11100064,
+    "lv": 15
+  },
+  "GLOVES": {
+    "iesid": "1536425766002050",
+    "skillLv": 1,
+    "lv": 21,
+    "clsid": 11107024,
+    "skillName": "Common_Chronomancer_QuickCast"
+  },
+  "SEAL": {
+
+  },
+  "LH": {
+    "iesid": "1536425766038079",
+    "clsid": 11107016,
+    "lv": 20
+  },
+  "RELIC": {
+    "iesid": "1536588974999591",
+    "clsid": 11040003,
+    "lv": 20
+  },
+  "BOOTS": {
+    "iesid": "1536425766002048",
+    "skillLv": 3,
+    "lv": 21,
+    "clsid": 11107023,
+    "skillName": "Common_Cryomancer_SubzeroShield"
+  },
+  "SHIRT": {
+    "iesid": "1536425766002044",
+    "skillLv": 3,
+    "lv": 21,
+    "clsid": 11107021,
+    "skillName": "Common_Chronomancer_QuickCast"
+  },
+  "LH_SUB": {
+    "iesid": "1536425766038080",
+    "clsid": 11107016,
+    "lv": 20
+  },
+  "PANTS": {
+    "iesid": "1536425766002046",
+    "skillLv": 4,
+    "lv": 21,
+    "clsid": 11107022,
+    "skillName": "Common_Chronomancer_Pass"
+  },
+  "NECK": {
+    "iesid": "1536619039936326",
+    "clsid": 11100063,
+    "lv": 15
+  },
+  "RH_SUB": {
+    "iesid": "1518094845817619",
+    "clsid": 11107006,
+    "lv": 20
+  },
+  "RING2": {
+    "iesid": "1536619039936338",
+    "clsid": 11100064,
+    "lv": 15
+  },
+  "gear_score": 23256,
+  "GOD": {
+
+  },
+  "LEG": {
+
+  }
+}
