@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<uiframe name="monstercard_change" x="0" y="0" width="10" height="10" create="open">
-  <controls>
-    <timer name="addontimer" rect="0 0 10 10" margin="0 0 0 0" layout_gravity="left top"/>
-  </controls>
-</uiframe>
