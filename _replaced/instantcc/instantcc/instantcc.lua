@@ -489,6 +489,7 @@ function INSTANTCC_APPS_TRY_MOVE_BARRACK_(barrack_num)
 
     end
     ui.OpenContextMenu(context)
+    return
 end
 
 function INSTANTCC_CHANGE()

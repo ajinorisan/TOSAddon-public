@@ -2981,4 +2981,1614 @@ end]==] --[[function MINI_ADDONS_ISCHECK(frame, ctrl, argStr, argNum)
 
     MINI_ADDONS_SAVE_SETTINGS()
 
+end]] --[[function muteki2ex_notice_update_overload(gauge)
+
+    local start_time = gauge:GetUserValue("START_TIME")
+    start_time = tonumber(start_time)
+
+    local notice_frame = gauge:GetParent()
+    local buff_id = gauge:GetUserIValue("BUFF_ID")
+    AUTO_CAST(gauge)
+
+    local buff_time = gauge:CreateOrGetControl("richtext", "buff_time", 180, 0, 30, 20)
+    AUTO_CAST(buff_time)
+    buff_time:SetGravity(ui.RIGHT, ui.TOP)
+    local rect = buff_time:GetMargin()
+    buff_time:SetMargin(rect.left, rect.top, rect.right + 40, rect.bottom)
+    local now_time = imcTime.GetAppTime()
+
+    if start_time == 20 then
+
+        local cd_time = notice_frame:GetUserIValue("OVERLOAD_CD")
+        local diff_time = imcTime.GetAppTime() - cd_time
+        if diff_time > 19.8 then
+            gauge:SetUserValue("CUR_TIME", 0)
+            local my_handle = session.GetMyHandle()
+            local info_buff = info.GetBuff(my_handle, buff_id)
+            if not info_buff then
+                DESTROY_CHILD_BYNAME(notice_frame, "gauge_" .. buff_id)
+            end
+            muteki2ex_child_set_pos(notice_frame, false)
+            return 0
+        end
+
+        local cur_time = 20 - diff_time
+        gauge:SetUserValue("CUR_TIME", cur_time)
+        local stat = string.format("{ol}{s18}%.1f", cur_time)
+        buff_time:SetText(stat)
+
+        local gauge_front = GET_CHILD(gauge, "gauge_front")
+        local ratio = cur_time / 20
+        gauge_front:Resize(250 * ratio, 20)
+
+    else
+        local diff_time = imcTime.GetAppTime() - g.overload.time
+
+        if diff_time > 49.8 then
+            gauge:SetUserValue("CUR_TIME", 0)
+            local my_handle = session.GetMyHandle()
+            local info_buff = info.GetBuff(my_handle, buff_id)
+            if not info_buff then
+                DESTROY_CHILD_BYNAME(notice_frame, "gauge_" .. buff_id)
+            end
+            muteki2ex_child_set_pos(notice_frame, false)
+            return 0
+        end
+
+        local cur_time = 50 - diff_time
+        gauge:SetUserValue("CUR_TIME", cur_time)
+        local stat = string.format("{ol}{s18}%.1f", cur_time)
+        buff_time:SetText(stat)
+
+        local gauge_front = GET_CHILD(gauge, "gauge_front")
+        local ratio = cur_time / start_time
+        gauge_front:Resize(250 * ratio, 20)
+    end
+
+    return 1
+end]] --[[function muteki2ex_child_set_pos(notice_frame, is_circle, overload_cd, overload_buff_id, game_start)
+
+    local my_handle = session.GetMyHandle()
+    if overload_cd then
+
+        g.buffs.gauge_sortedlist = {}
+
+        table.insert(g.buffs.gauge_sortedlist, {
+            buff_id = overload_buff_id,
+            time = game_start and 50 - (imcTime.GetAppTime() - g.overload.time) or 20
+        })
+        ts(game_start and 50 - (imcTime.GetAppTime() - g.overload.time) or 20)
+        if g.buffs.gauge and type(g.buffs.gauge) == "table" then
+            for i, buff_id in ipairs(g.buffs.gauge) do
+                local info_buff = info.GetBuff(my_handle, buff_id)
+                if info_buff and (info_buff.time > 0 or g.settings.buff_list[tostring(buff_id)].count_display) then
+                    table.insert(g.buffs.gauge_sortedlist, {
+                        buff_id = buff_id,
+                        time = info_buff.time
+                    })
+                end
+            end
+        end
+
+        table.sort(g.buffs.gauge_sortedlist, function(a, b)
+            return a.time < b.time
+        end)
+
+        local index = 0
+        for i, entry in ipairs(g.buffs.gauge_sortedlist) do
+
+            local buff_id = entry.buff_id
+            if buff_id ~= overload_buff_id then
+                local gauge = GET_CHILD(notice_frame, "gauge_" .. buff_id)
+                if gauge:IsVisible() == 1 then
+                    gauge:SetOffset(0, (index) * 25 + 60)
+                    index = index + 1
+                end
+            else
+                local gauge = notice_frame:CreateOrGetControl("picture", "gauge_" .. buff_id, 0, 60, 250, 20)
+                AUTO_CAST(gauge)
+                gauge:SetUserValue("BUFF_ID", buff_id)
+                gauge:SetUserValue("START_TIME", game_start and 50 - (imcTime.GetAppTime() - g.overload.time) or 20)
+                CHAT_SYSTEM(game_start and 50 - (imcTime.GetAppTime() - g.overload.time) or 20)
+                gauge:SetEnableStretch(1)
+                gauge:EnableHitTest(0)
+
+                local gauge_back = gauge:CreateOrGetControl("picture", "gauge_back", 0, 10, 250, 10)
+                AUTO_CAST(gauge_back)
+                gauge_back:SetImage("fullblack")
+                gauge_back:SetEnableStretch(1)
+                gauge_back:EnableHitTest(0)
+
+                local gauge_front = gauge:CreateOrGetControl("picture", "gauge_front", 0, 10, 250, 10)
+                AUTO_CAST(gauge_front)
+                gauge_front:SetImage("fullwhite")
+                gauge_front:SetEnableStretch(1)
+                gauge_front:EnableHitTest(0)
+                gauge_front:SetColorTone("FFFFFFFF")
+
+                local buff_name = gauge:CreateOrGetControl("richtext", "buff_name", 0, 0, 10, 20)
+                AUTO_CAST(buff_name)
+                local buff_cls = GetClassByType('Buff', overload_buff_id)
+                local image_name = GET_BUFF_ICON_NAME(buff_cls)
+                local image = "{img " .. image_name .. " 15 15}"
+                local stat = string.format("{ol}{s12}%s%s", image, buff_cls.Name)
+                buff_name:SetText(stat)
+                buff_name:AdjustFontSizeByWidth(170)
+
+                index = index + 1
+
+                muteki2ex_notice_update_overload(gauge)
+                gauge:RunUpdateScript("muteki2ex_notice_update_overload", 0.1)
+
+            end
+        end
+        local circle_count = (g.buffs.circle_sortedlist and #g.buffs.circle_sortedlist) or 0
+        local x = circle_count * 50 + 50
+        if x < 250 then
+            x = 250
+        end
+        local gauge_count = (g.buffs.gauge_sortedlist and #g.buffs.gauge_sortedlist) or 0
+        local y = gauge_count * 25 + 60
+        if y < 60 then
+            y = 60
+        end
+        notice_frame:Resize(x, y)
+        return
+    end
+
+    if is_circle then
+        g.buffs.circle_sortedlist = {}
+        if g.buffs.circle and type(g.buffs.circle) == "table" then
+            for i, buff_id in ipairs(g.buffs.circle) do
+                local info_buff = info.GetBuff(my_handle, buff_id)
+                if info_buff and (info_buff.time > 0 or g.settings.buff_list[tostring(buff_id)].count_display) then
+                    table.insert(g.buffs.circle_sortedlist, {
+                        buff_id = buff_id,
+                        time = info_buff.time
+                    })
+                end
+            end
+        end
+        table.sort(g.buffs.circle_sortedlist, function(a, b)
+            return a.time < b.time
+        end)
+
+        local index = 1
+        for i, entry in ipairs(g.buffs.circle_sortedlist) do
+            local buff_id = entry.buff_id
+            local circle = GET_CHILD(notice_frame, "circle_" .. buff_id)
+            if circle:IsVisible() == 1 then
+
+                circle:SetOffset(index * 50, 5)
+
+                index = index + 1
+            end
+        end
+
+    else
+        g.buffs.gauge_sortedlist = {}
+        local overload_tbl = {4483, 4757}
+        local overload_gauge = GET_CHILD(notice_frame, "gauge_" .. overload_tbl[1]) or
+                                   GET_CHILD(notice_frame, "gauge_" .. overload_tbl[2])
+        if overload_gauge then
+            local buff_id = overload_gauge:GetUserIValue("BUFF_ID")
+            local info_buff = info.GetBuff(my_handle, buff_id)
+            if not info_buff then
+                local cur_time = overload_gauge:GetUserIValue("CUR_TIME")
+                if cur_time > 0 then
+                    table.insert(g.buffs.gauge_sortedlist, {
+                        buff_id = buff_id,
+                        time = cur_time
+                    })
+                end
+            end
+        end
+        if g.buffs.gauge and type(g.buffs.gauge) == "table" then
+            for i, buff_id in ipairs(g.buffs.gauge) do
+                local info_buff = info.GetBuff(my_handle, buff_id)
+                if info_buff and (info_buff.time > 0 or g.settings.buff_list[tostring(buff_id)].count_display) then
+                    table.insert(g.buffs.gauge_sortedlist, {
+                        buff_id = buff_id,
+                        time = info_buff.time
+                    })
+                end
+            end
+        end
+        table.sort(g.buffs.gauge_sortedlist, function(a, b)
+            return a.time < b.time
+        end)
+
+        local index = 0
+        for i, entry in ipairs(g.buffs.gauge_sortedlist) do
+            local buff_id = entry.buff_id
+            local gauge = GET_CHILD(notice_frame, "gauge_" .. buff_id)
+            if gauge:IsVisible() == 1 then
+                gauge:SetOffset(0, (index) * 25 + 60)
+                index = index + 1
+            end
+        end
+
+    end
+
+    local circle_count = (g.buffs.circle_sortedlist and #g.buffs.circle_sortedlist) or 0
+    local x = circle_count * 50 + 50
+    if x < 250 then
+        x = 250
+    end
+    local gauge_count = (g.buffs.gauge_sortedlist and #g.buffs.gauge_sortedlist) or 0
+    local y = gauge_count * 25 + 60
+    if y < 60 then
+        y = 60
+    end
+    notice_frame:Resize(x, y)
+end
+
+function all_in_one_context(frame, ctrl, str, num)
+
+    local context = ui.CreateContextMenu("on_off", "{ol}ALL IN ONE ", 0, -500, 0, 0)
+    for key, value in pairs(g.settings) do
+        local on_off = value.use == 1 and "ON" or "OFF"
+        local addon_name = value.name
+        local scp = string.format("all_in_one_toggle_addons('%s')", key)
+        ui.AddContextMenuItem(context, addon_name .. " " .. on_off, scp)
+
+    end
+    ui.OpenContextMenu(context)
+end
+function auto_map_change_SCR_TEXT_HIGHLIGHT(dialogClassName, text)
+
+    local targetZoneWordList = {}
+
+    local exceptList, exceptcnt = GetClassList("DialogExceptionText");
+    local exceptdialog = {}
+    local exceptword = {}
+    for i = 0, exceptcnt - 1 do
+        local cls = GetClassByIndexFromList(exceptList, i);
+        local clstype = TryGetProp(cls, 'Type', 'None')
+        local clsword = TryGetProp(cls, 'Word', 'None')
+        local clsdialog = TryGetProp(cls, 'Dialog', 'None')
+        if clstype == 'WORD' then
+            exceptdialog[#exceptdialog + 1] = clsdialog
+            exceptword[#exceptword + 1] = SCR_STRING_CUT(clsword)
+        end
+    end
+    local exceptIndex = table.find(exceptdialog, dialogClassName)
+
+    for zone_name, _ in pairs(g.auto_map_change_TEXT_ZONENAMELIST) do
+        local findIndex = string.find(text, zone_name)
+        if findIndex ~= nil then
+            local beforeChar = string.sub(text, findIndex - 1, findIndex - 1)
+            local beforeNum = string.byte(beforeChar)
+            if findIndex == 1 or beforeChar == ' ' or (beforeNum >= 33 and beforeNum <= 47) or
+                (beforeNum >= 58 and beforeNum <= 64) or (beforeNum >= 91 and beforeNum <= 96) or
+                (beforeNum >= 123 and beforeNum <= 126) then
+                if exceptIndex == 0 then
+                    table.insert(targetZoneWordList, zone_name)
+                else
+                    if table.find(exceptword[exceptIndex], zone_name) == 0 then
+                        table.insert(targetZoneWordList, zone_name)
+                    end
+                end
+            end
+        end
+    end
+
+    if #targetZoneWordList > 0 then
+        table.sort(targetZoneWordList, function(a, b)
+            return string.len(a) > string.len(b)
+        end)
+    end
+
+    if #targetZoneWordList > 0 then
+        for i = 1, #targetZoneWordList do
+            text = string.gsub(text, targetZoneWordList[i], '{#003399}' .. targetZoneWordList[i] .. '{/}')
+        end
+    end
+    return text
+end
+
+
+
+function auto_map_change_DIALOG_TEXTVIEW(frame, msg, str)
+
+    local DialogTable = GetClass('DialogText', str)
+
+    local text = ""
+    local titleName = nil
+    local npcDialog = nil
+
+    if DialogTable == nil then
+        local dd = string.find(str, "\\")
+        if dd then
+            local npcName = string.sub(str, 1, dd - 1);
+            npcDialog = GetClass('DialogText', npcName)
+            str = string.sub(str, dd + 1)
+        end
+        local tokenList = TokenizeByChar(str, "*@*")
+        if #tokenList == 2 then
+            titleName = tokenList[1]
+            str = tokenList[2]
+        end
+    end
+
+    if DialogTable ~= nil then
+        text = DialogTable.Text
+    else
+        text = str
+    end
+
+    auto_map_change_INIT_TEXT_HIGHLIGHT_TABLE()
+    text = auto_map_change_SCR_TEXT_HIGHLIGHT(str, text)
+    if DialogTable ~= nil then
+        if DialogTable.Caption ~= 'None' then
+            titleName = DialogTable.Caption
+        else
+            titleName = ''
+        end
+    elseif npcDialog ~= nil then
+        if npcDialog.Caption ~= 'None' then
+            titleName = npcDialog.Caption
+        else
+            titleName = ''
+        end
+    end
+    ts(3, text, "DialogTable.Caption", titleName)
+
+    auto_map_change_DIALOG_SHOW_DIALOG_TEXT(frame, text, titleName)
+end
+
+function auto_map_change_INIT_TEXT_HIGHLIGHT_TABLE()
+
+    if not next(g.auto_map_change_TEXT_ZONENAMELIST) then
+        local maplist, mapcnt = GetClassList("Map")
+        for i = 0, mapcnt - 1 do
+            local cls = GetClassByIndexFromList(maplist, i)
+            local zoneName = TryGetProp(cls, 'Name', 'None')
+            if zoneName ~= 'None' and g.auto_map_change_TEXT_ZONENAMELIST[zoneName] == nil and
+                string.find(zoneName, '%[') == nil then
+                g.auto_map_change_TEXT_ZONENAMELIST[zoneName] = true
+            end
+        end
+
+        local arealist, areacnt = GetClassList("Map_Area");
+        for i = 0, areacnt - 1 do
+            local cls = GetClassByIndexFromList(arealist, i);
+            local zoneName = TryGetProp(cls, 'Name', 'None')
+            if zoneName ~= 'None' and g.auto_map_change_TEXT_ZONENAMELIST[zoneName] == nil and
+                string.find(zoneName, '%[') == nil then
+                g.auto_map_change_TEXT_ZONENAMELIST[zoneName] = true
+            end
+        end
+    end
+end
+
+function auto_map_change_DIALOG_SHOW_DIALOG_TEXT(frame, text, titleName)
+    ts("test")
+    local dialogFrame = ui.GetFrame('dialog')
+    tolua.cast(dialogFrame, "ui::CFrame")
+    if titleName == nil then
+        dialogFrame:ShowTitleBar(0)
+    else
+        dialogFrame:ShowTitleBar(1)
+        dialogFrame:SetTitleName('{s20}{ol}{gr gradation2}  ' .. titleName .. '  {/}')
+    end
+    ts("test2")
+    local spaceObj = GET_CHILD(dialogFrame, "space", "ui::CAnimPicture")
+    print(tostring(spaceObj))
+    spaceObj:PlayAnimation()
+    print(tostring(spaceObj))
+end
+auto_map_change_INIT_TEXT_HIGHLIGHT_TABLE()
+        local found_zone_name = string.sub(str, string.find(str, "\\") + 1)
+        local npcName = string.sub(str, 1, string.find(str, "\\") - 1)
+        local npcDialog = GetClass('DialogText', npcName)
+        npcDialog = GetClass('DialogText', npcName)
+        local title_name
+        if npcDialog then
+            if npcDialog.Caption ~= 'None' then
+                title_name = npcDialog.Caption
+            else
+                title_name = ''
+            end
+        end
+        ts(found_zone_name, title_name)
+        auto_map_change_DIALOG_SHOW_DIALOG_TEXT(frame, found_zone_name, title_name)
+        -- CHAT_SYSTEM("マップ移動を自動選択しました:" .. found_zone_name)
+
+--[[local is_dummy = handle == "dummy"
+            local buff_id_str = tostring(buff_id)
+            local flag = false
+            if not is_dummy then
+
+                local debuff_list = g.settings.buff_list[buff_id_str].debuff_manage[g.cid]
+                local debuff_time = nil
+                if next(debuff_list) then
+                    debuff_time = debuff_list.debuff_time
+
+                end
+                local buff_list = g.settings.buff_list[buff_id_str].buff_manage[g.cid]
+                local buff_time = nil
+                if next(buff_list) then
+                    buff_time = buff_list.buff_time
+                end
+
+                local frame_name = frame:GetName()
+
+                if not debuff_time and not buff_time then
+                    flag = true
+
+                elseif debuff_time and not g.debuffs[buff_id_str] then
+                    g.debuffs[buff_id_str] = {
+                        start_time = imcTime.GetAppTime() - debuff_time * 1000 * 2
+                    }
+                    flag = true
+                elseif debuff_time and debuff_time - math.ceil(imcTime.GetAppTime() - g.debuffs[buff_id_str].start_time) <=
+                    0 then
+                    g.debuffs[buff_id_str] = nil
+
+                    flag = true
+                elseif buff_time and buff_time -
+                    math.ceil(imcTime.GetAppTime() - tonumber(frame:GetUserValue("START_TIME"))) <= 0 then
+
+                    flag = true
+                end
+
+                if flag then
+                    if buff_data.pt_chat then
+                        ui.Chat(string.format("/p %s end", buff_cls.Name))
+                    end
+                    if buff_data.nico_chat == 1 then
+                        NICO_CHAT(string.format("{@st55_a}%s end", buff_name))
+                    end
+                    if buff_data.end_sound == 1 then
+                        imcSound.PlaySoundEvent("sys_transcend_cast")
+                    end
+
+                    if g.buffs[buff_id_str] then
+                        g.buffs[buff_id_str] = nil
+                    end
+
+                    if buff_data.circle_icon then
+                        is_circle = true
+                    end
+
+                    local circle = GET_CHILD(notice_frame, "circle_" .. buff_id)
+                    if circle then
+                        local list_to_modify = g.buffs.circle
+                        if list_to_modify then
+                            for i = #list_to_modify, 1, -1 do
+                                if list_to_modify[i] == buff_id then
+                                    table.remove(list_to_modify, i)
+                                    break
+                                end
+                            end
+                        end
+                        DESTROY_CHILD_BYNAME(notice_frame, "circle_" .. buff_id)
+                    end
+                    local gauge = GET_CHILD(notice_frame, "gauge_" .. buff_id)
+                    if gauge then
+                        local list_to_modify = g.buffs.gauge
+                        if list_to_modify then
+                            for i = #list_to_modify, 1, -1 do
+                                if list_to_modify[i] == buff_id then
+                                    table.remove(list_to_modify, i)
+                                    break
+                                end
+                            end
+                        end
+                        DESTROY_CHILD_BYNAME(notice_frame, "gauge_" .. buff_id)
+                    end
+                else
+                    if debuff_time and debuff_time -
+                        math.ceil(imcTime.GetAppTime() - g.debuffs[tostring(buff_id)].start_time) > 0 then
+                        muteki2ex_remove_debuff(notice_frame)
+                        notice_frame:RunUpdateScript("muteki2ex_remove_debuff", 0.1)
+                    end
+                end
+            end
+
+            if overload_cd then
+                muteki2ex_child_set_pos(notice_frame, is_circle, overload_cd, buff_id)
+            else
+                muteki2ex_child_set_pos(notice_frame, is_circle)
+            end]] --[[function muteki2ex_remove_debuff(notice_frame)
+
+    local debuff_id_list = {}
+    for key, value in pairs(g.debuffs) do
+        table.insert(debuff_id_list, key)
+    end
+
+    if #debuff_id_list == 0 then
+        return 0
+    end
+
+    for i, buff_id in ipairs(debuff_id_list) do
+        local buff_list_debuff = g.settings.buff_list[tostring(buff_id)].debuff_manage[g.cid]
+        local buff_data = g.settings.buff_list[tostring(buff_id)]
+        local debuff_start_time = g.debuffs[buff_id].start_time
+        if buff_list_debuff and buff_data and debuff_start_time then
+            if buff_list_debuff.debuff_time - (imcTime.GetAppTime() - debuff_start_time) <= 0 then
+                local buff_cls = GetClassByType('Buff', buff_id)
+                if buff_data.pt_chat then
+                    ui.Chat(string.format("/p %s end", buff_cls.Name))
+                end
+                if buff_data.nico_chat == 1 then
+                    NICO_CHAT(string.format("{@st55_a}%s end", buff_cls.Name))
+                end
+                if buff_data.end_sound == 1 then
+                    imcSound.PlaySoundEvent("sys_transcend_cast")
+                end
+                if g.buffs[tostring(buff_id)] then
+                    g.buffs[tostring(buff_id)] = nil
+                end
+
+                if buff_data.circle_icon then
+                    is_circle = true
+                end
+
+                local circle = GET_CHILD(notice_frame, "circle_" .. buff_id)
+                if circle then
+                    local list_to_modify = g.buffs.circle
+                    if list_to_modify then
+                        for i = #list_to_modify, 1, -1 do
+                            if list_to_modify[i] == buff_id then
+                                table.remove(list_to_modify, i)
+                                break
+                            end
+                        end
+                    end
+                    DESTROY_CHILD_BYNAME(notice_frame, "circle_" .. buff_id)
+                end
+                local gauge = GET_CHILD(notice_frame, "gauge_" .. buff_id)
+                if gauge then
+                    local list_to_modify = g.buffs.gauge
+                    if list_to_modify then
+                        for i = #list_to_modify, 1, -1 do
+                            if list_to_modify[i] == buff_id then
+                                table.remove(list_to_modify, i)
+                                break
+                            end
+                        end
+                    end
+                    DESTROY_CHILD_BYNAME(notice_frame, "gauge_" .. buff_id)
+                end
+                g.debuffs[tostring(buff_id)] = nil
+            end
+        end
+    end
+    return 1
+end]] --[[function muteki2ex_load_settings()
+
+    local settings = g.load_json(g.settings_path)
+
+    if settings then
+        g.settings = settings
+        return
+    end
+
+    local unwanted_keys = {
+        ["version"] = true,
+        ["enable"] = true,
+        ["isNoTimeBuff"] = true,
+        ["isNotNotify"] = true
+    }
+
+    local rename_keys_map = {
+        ["circleIcon"] = "circle_icon",
+        ["layerLvl"] = "layer_lv",
+        ["rotate_check"] = "rotate",
+        ["hiddenBuffTime"] = "hide_time",
+        ["position"] = "pos",
+        ["buffList"] = "buff_list",
+        ["isEffect"] = "pt_chat"
+    }
+
+    local old_settings = g.load_json(g.settings_old_path)
+
+    local function convert_settings(old_tbl)
+        local new_tbl = {}
+        for old_key, old_value in pairs(old_tbl) do
+            if unwanted_keys[old_key] then
+            elseif rename_keys_map[old_key] then
+                local new_key = rename_keys_map[old_key]
+                if type(old_value) == "table" then
+                    new_tbl[new_key] = convert_settings(old_value)
+                else
+                    new_tbl[new_key] = old_value
+                end
+            else
+                if type(old_value) == "table" then
+                    new_tbl[old_key] = convert_settings(old_value)
+                else
+                    new_tbl[old_key] = old_value
+                end
+            end
+        end
+
+        return new_tbl
+    end
+
+    if old_settings then
+
+        local new_settings = convert_settings(old_settings)
+
+        local buff_defaults = {
+            color = "FFCCCC22",
+            pt_chat = false,
+            circle_icon = false,
+            nico_chat = 0,
+            not_notify = {},
+            effect_check = 0,
+            count_display = false,
+            end_sound = 0
+        }
+
+        if new_settings.buff_list and type(new_settings.buff_list) == "table" then
+            for buff_id, buff_data in pairs(new_settings.buff_list) do
+                for key, default_value in pairs(buff_defaults) do
+                    if buff_data[key] == nil then
+                        if type(default_value) == "table" then
+                            buff_data[key] = {}
+                        else
+                            buff_data[key] = default_value
+                        end
+                    end
+                end
+            end
+        end
+        g.settings = new_settings
+    else
+
+        local defaults = {
+            mode = "fixed",
+            layer_lv = 80,
+            hide_time = 300,
+            rotate = 0,
+            pos = {
+                lock = false,
+                y = 640,
+                x = 480
+            },
+            buff_list = {}
+        }
+        g.settings = defaults
+    end
+    muteki2ex_save_settings()
+end
+function muteki2ex_buff_frame(notice_frame, msg, buff_id, buff_cls, buff_data, is_circle, handle, buff_index)
+
+    local my_handle = session.GetMyHandle()
+
+    local info_buff = info.GetBuff(my_handle, buff_id) or info.GetBuff(handle, buff_id, buff_index)
+
+    if not info_buff then
+        return
+    end
+
+    local buff_id_str = tostring(buff_id)
+
+    if not g.buffs[buff_id_str] then
+        g.buffs[buff_id_str] = {
+            show = false,
+            effect = false,
+            handle = handle or false,
+            buff_index = buff_index or false,
+            start_time = imcTime.GetAppTime()
+
+        }
+
+        g.buffs.circle = g.buffs.circle or {}
+        g.buffs.gauge = g.buffs.gauge or {}
+        if is_circle then
+            table.insert(g.buffs.circle, buff_id)
+        else
+            table.insert(g.buffs.gauge, buff_id)
+        end
+    else
+        g.buffs[buff_id_str].handle = handle or false
+        g.buffs[buff_id_str].buff_index = buff_index or false
+        g.buffs[buff_id_str].start_time = imcTime.GetAppTime()
+    end
+
+    local image_name = GET_BUFF_ICON_NAME(buff_cls)
+    if image_name == "icon_None" then
+        image_name = "icon_item_nothing"
+    end
+
+    if msg == "BUFF_ADD" and is_circle then
+        local circle = notice_frame:CreateOrGetControl("picture", "circle_" .. buff_id, 50, 5, 50, 50)
+        AUTO_CAST(circle)
+        circle:SetUserValue("BUFF_ID", buff_id)
+
+        circle:SetImage(image_name)
+        circle:SetEnableStretch(1)
+        circle:EnableHitTest(0)
+        if g.settings.rotate == 1 then
+            circle:SetAngleLoop(3)
+        end
+
+        if info_buff.time / 1000 >= g.settings.hide_time then
+            circle:ShowWindow(0)
+        else
+            circle:ShowWindow(1)
+        end
+
+        local buff_id_str = tostring(buff_id)
+        local debuff_list = g.settings.buff_list[buff_id_str].debuff_manage[g.cid]
+        local buff_list = g.settings.buff_list[buff_id_str].buff_manage[g.cid]
+        local start_time = 0
+        if debuff_list and debuff_list.debuff_time then
+            start_time = debuff_list.debuff_time
+            if g.debuffs[buff_id_str] and not g.debuffs[buff_id_str].etc then
+                g.debuffs[buff_id_str].etc = true
+                circle:SetUserValue("TO_REMOVE", imcTime.GetAppTime())
+            end
+
+        elseif buff_list and buff_list.buff_time then
+            start_time = imcTime.GetAppTime()
+        else
+            start_time = info_buff.time / 1000
+        end
+        circle:SetUserValue("START_TIME", start_time)
+
+        if buff_data.count_display then
+            local buff_over = circle:CreateOrGetControl("richtext", "buff_over", 0, 0, 20, 20)
+            AUTO_CAST(buff_over)
+            buff_over:SetGravity(ui.RIGHT, ui.BOTTOM)
+            if start_time == 0 then
+
+                buff_over:SetText(string.format("{ol}{s35}%d", info_buff.over))
+                buff_over:SetColorTone("FFFFFF00")
+                local rect = buff_over:GetMargin()
+                buff_over:SetMargin(rect.left, rect.top, rect.right + 12, rect.bottom + 5)
+            elseif start_time then
+                buff_over:SetText(string.format("{ol}{s22}%d", info_buff.over))
+                buff_over:SetColorTone("FFFFFF00")
+            end
+        end
+
+        local buff_time = circle:CreateOrGetControl("richtext", "buff_time", 0, 0, 50, 30)
+        AUTO_CAST(buff_time)
+
+        if buff_data.count_display and start_time > 0 then
+            buff_time:SetGravity(ui.LEFT, ui.TOP)
+        elseif start_time and start_time > 0 then
+
+            buff_time:SetGravity(ui.RIGHT, ui.TOP)
+            local rect = buff_time:GetMargin()
+            buff_time:SetMargin(rect.left, rect.top + 10, rect.right, rect.bottom)
+        else
+            buff_time:ShowWindow(0)
+        end
+
+        muteki2ex_notice_update(circle)
+        circle:RunUpdateScript("muteki2ex_notice_update", 0.1)
+    elseif msg == "BUFF_UPDATE" and is_circle then
+        local circle = GET_CHILD(notice_frame, "circle_" .. buff_id)
+
+        local buff_over = GET_CHILD(circle, "buff_over")
+        if buff_over then
+            local stat = string.format("{ol}{s22}%d", info_buff.over)
+            if info_buff.time <= 0 then
+                stat = string.format("{ol}{s35}%d", info_buff.over)
+            end
+            buff_over:SetText(stat)
+            buff_over:SetColorTone("FFFFFF00")
+            if buff_cls.OverBuff <= info_buff.over then
+                if not g.buffs[tostring(buff_id)].effect then
+                    local my_handle = session.GetMyHandle()
+                    local actor = world.GetActor(my_handle)
+                    effect.PlayActorEffect(actor, 'F_pattern025_loop', 'None', 1.0, 1.5)
+                    imcSound.PlaySoundEvent("sys_cube_open_jackpot")
+                    g.buffs[tostring(buff_id)].effect = true
+                end
+                buff_over:SetColorTone("FFFF0000")
+            end
+        end
+        circle:StopUpdateScript("muteki2ex_notice_update")
+        muteki2ex_notice_update(circle)
+        circle:RunUpdateScript("muteki2ex_notice_update", 0.1)
+        if info_buff.time / 1000 >= g.settings.hide_time then
+            circle:ShowWindow(0)
+            g.buffs[tostring(buff_id)].show = false
+            muteki2ex_child_set_pos(notice_frame, true)
+        end
+    elseif msg == "BUFF_ADD" and not is_circle then
+
+        local gauge = notice_frame:CreateOrGetControl("picture", "gauge_" .. buff_id, 0, 60, 250, 20)
+        AUTO_CAST(gauge)
+        gauge:SetUserValue("BUFF_ID", buff_id)
+
+        local buff_id_str = tostring(buff_id)
+        local debuff_list = g.settings.buff_list[buff_id_str].debuff_manage[g.cid]
+        local buff_list = g.settings.buff_list[buff_id_str].buff_manage[g.cid]
+        local start_time = 0
+        if debuff_list and debuff_list.debuff_time then
+            start_time = debuff_list.debuff_time
+            if g.debuffs[buff_id_str] and not g.debuffs[buff_id_str].etc then
+                g.debuffs[buff_id_str].etc = true
+                gauge:SetUserValue("TO_REMOVE", imcTime.GetAppTime())
+
+            end
+        elseif buff_list and buff_list.buff_time then
+            start_time = imcTime.GetAppTime()
+        else
+            start_time = info_buff.time / 1000
+        end
+
+        gauge:SetUserValue("START_TIME", start_time)
+        gauge:SetEnableStretch(1)
+        gauge:EnableHitTest(0)
+
+        local gauge_back = gauge:CreateOrGetControl("picture", "gauge_back", 0, 10, 250, 10)
+        AUTO_CAST(gauge_back)
+        gauge_back:SetImage("fullblack")
+        gauge_back:SetEnableStretch(1)
+        gauge_back:EnableHitTest(0)
+
+        local gauge_front = gauge:CreateOrGetControl("picture", "gauge_front", 0, 10, 250, 10)
+        AUTO_CAST(gauge_front)
+        gauge_front:SetImage("fullwhite")
+        gauge_front:SetEnableStretch(1)
+        gauge_front:EnableHitTest(0)
+        gauge_front:SetColorTone(buff_data.color)
+
+        if info_buff.time / 1000 >= g.settings.hide_time then
+            gauge:ShowWindow(0)
+        else
+            gauge:ShowWindow(1)
+        end
+
+        local buff_name = gauge:CreateOrGetControl("richtext", "buff_name", 0, 0, 10, 20)
+        AUTO_CAST(buff_name)
+        local image = "{img " .. image_name .. " 15 15}"
+        local stat = string.format("{ol}{s12}%s%s", image, buff_cls.Name)
+        buff_name:SetText(stat)
+        buff_name:AdjustFontSizeByWidth(170)
+        if buff_data.count_display then
+            local buff_over = gauge:CreateOrGetControl("richtext", "buff_over", 220, 0, 30, 20)
+            AUTO_CAST(buff_over)
+            local stat = string.format("{ol}{s20}%d", info_buff.over)
+            buff_over:SetText(stat)
+            buff_over:SetGravity(ui.RIGHT, ui.CENTER_VERT);
+        end
+        muteki2ex_notice_update(gauge)
+        gauge:RunUpdateScript("muteki2ex_notice_update", 0.1)
+
+    elseif msg == "BUFF_UPDATE" and not is_circle then
+        local gauge = GET_CHILD(notice_frame, "gauge_" .. buff_id)
+
+        local buff_over = GET_CHILD(gauge, "buff_over")
+        if buff_over then
+            buff_over:SetGravity(ui.RIGHT, ui.CENTER_VERT)
+            local stat = string.format("{ol}{s20}%d", info_buff.over)
+            buff_over:SetColorTone("FFFFFF00")
+            buff_over:SetText(stat)
+            if buff_cls.OverBuff <= info_buff.over then
+                if not g.buffs[tostring(buff_id)].effect then
+                    local my_handle = session.GetMyHandle()
+                    local actor = world.GetActor(my_handle)
+                    effect.PlayActorEffect(actor, 'F_pattern025_loop', 'None', 1.0, 1.5)
+                    imcSound.PlaySoundEvent("sys_cube_open_jackpot")
+                    g.buffs[tostring(buff_id)].effect = true
+                end
+
+                buff_over:SetColorTone("FFFF0000")
+            end
+        end
+
+        gauge:StopUpdateScript("muteki2ex_notice_update")
+        muteki2ex_notice_update(gauge)
+        gauge:RunUpdateScript("muteki2ex_notice_update", 0.1)
+        if info_buff.time / 1000 >= g.settings.hide_time then
+            gauge:ShowWindow(0)
+            g.buffs[tostring(buff_id)].show = false
+            muteki2ex_child_set_pos(notice_frame, false)
+        end
+    end
+end
+function muteki2ex_notice_update(child)
+
+    local child_name = child:GetName()
+
+    local notice_frame = child:GetParent()
+    local buff_id = child:GetUserIValue("BUFF_ID")
+    local my_handle = session.GetMyHandle()
+    local handle = g.buffs[tostring(buff_id)].handle
+    local buff_index = g.buffs[tostring(buff_id)].buff_index
+
+    local info_buff = info.GetBuff(my_handle, buff_id) or info.GetBuff(handle, buff_id, buff_index)
+
+    if string.find(child_name, "gauge_") then
+        AUTO_CAST(child)
+
+        local gauge = child
+
+        if not info_buff then
+            gauge:ShowWindow(0)
+            if g.buffs[tostring(buff_id)] then
+                g.buffs[tostring(buff_id)].show = false
+            end
+            if handle then
+                muteki2ex_BUFF_ON_MSG(gauge, "BUFF_REMOVE", handle, buff_id, buff_index)
+            end
+            muteki2ex_child_set_pos(notice_frame, false)
+            return 1
+        end
+
+        if not g.buffs[tostring(buff_id)].show and (info_buff.time / 1000 < g.settings.hide_time) or handle then
+
+            gauge:ShowWindow(1)
+            muteki2ex_child_set_pos(notice_frame, false)
+            g.buffs[tostring(buff_id)].show = true
+        end
+
+        local buff_time = gauge:CreateOrGetControl("richtext", "buff_time", 180, 0, 30, 20)
+        AUTO_CAST(buff_time)
+        buff_time:SetGravity(ui.RIGHT, ui.TOP)
+        local rect = buff_time:GetMargin()
+        buff_time:SetMargin(rect.left, rect.top, rect.right + 40, rect.bottom)
+
+        local debuff_list = g.settings.buff_list[tostring(buff_id)].debuff_manage[g.cid]
+        local cur_time = 0
+        if info_buff and info_buff.time > 0 then
+            cur_time = info_buff.time / 1000
+        elseif g.debuffs[tostring(buff_id)] and debuff_list then
+
+            local elapsed_time = imcTime.GetAppTime() - g.debuffs[tostring(buff_id)].start_time
+            cur_time = debuff_list.debuff_time - elapsed_time
+        else
+
+            local gauge = GET_CHILD(notice_frame, "gauge_" .. buff_id)
+            local start_time = tonumber(gauge:GetUserValue("START_TIME"))
+            local buff_time = g.settings.buff_list[tostring(buff_id)].buff_manage[g.cid].buff_time
+            cur_time = buff_time - (imcTime.GetAppTime() - start_time)
+            gauge:SetUserValue("BUFF_TIME_TOGGLE", 1)
+        end
+
+        if cur_time >= g.settings.hide_time then
+            gauge:ShowWindow(0)
+            g.buffs[tostring(buff_id)].show = false
+            muteki2ex_child_set_pos(notice_frame, false)
+        end
+
+        if cur_time > 0 then
+            buff_time:ShowWindow(1)
+            local stat = string.format("{ol}{s18}%.1f", cur_time)
+            buff_time:SetText(stat)
+            buff_time:SetColorTone(g.settings.buff_list[tostring(buff_id)].color)
+        else
+            buff_time:ShowWindow(0)
+        end
+
+        local gauge_front = GET_CHILD(gauge, "gauge_front")
+        local start_time = gauge:GetUserIValue("START_TIME")
+        local buff_time_toggle = gauge:GetUserIValue("BUFF_TIME_TOGGLE")
+        local buff_time = g.settings.buff_list[tostring(buff_id)].buff_manage[g.cid].buff_time
+        local ratio = 0
+        if buff_time_toggle == 1 then
+            ratio = cur_time / buff_time
+        elseif start_time > 0 then
+            ratio = cur_time / start_time
+        end
+
+        gauge_front:Resize(250 * ratio, 10)
+
+    elseif string.find(child_name, "circle_") then
+        AUTO_CAST(child)
+        local circle = child
+
+        if not info_buff then
+
+            circle:ShowWindow(0)
+            if g.buffs[tostring(buff_id)] then
+                g.buffs[tostring(buff_id)].show = false
+            end
+
+            if handle then
+                muteki2ex_BUFF_ON_MSG(circle, "BUFF_REMOVE", handle, buff_id, buff_index)
+            end
+            g.buffs[tostring(buff_id)].show = false
+            muteki2ex_child_set_pos(notice_frame, true)
+            return 1
+        end
+
+        if not g.buffs[tostring(buff_id)].show and (info_buff.time / 1000 < g.settings.hide_time) or handle then
+
+            circle:ShowWindow(1)
+            muteki2ex_child_set_pos(notice_frame, true)
+            g.buffs[tostring(buff_id)].show = true
+        end
+
+        local debuff_list = g.settings.buff_list[tostring(buff_id)].debuff_manage[g.cid]
+        local cur_time = 0
+        if info_buff and info_buff.time > 0 then
+            cur_time = info_buff.time / 1000
+        elseif g.debuffs[tostring(buff_id)] and debuff_list then
+            local elapsed_time = imcTime.GetAppTime() - g.debuffs[tostring(buff_id)].start_time
+            cur_time = debuff_list.debuff_time - elapsed_time
+        else
+            local circle = GET_CHILD(notice_frame, "circle_" .. buff_id)
+            local start_time = tonumber(circle:GetUserValue("START_TIME"))
+            local buff_time = g.settings.buff_list[tostring(buff_id)].buff_manage[g.cid].buff_time
+            cur_time = buff_time - (imcTime.GetAppTime() - start_time)
+            circle:SetUserValue("BUFF_TIME_TOGGLE", 1)
+        end
+
+        if cur_time >= g.settings.hide_time then
+            circle:ShowWindow(0)
+            g.buffs[tostring(buff_id)].show = false
+            muteki2ex_child_set_pos(notice_frame, true)
+        end
+
+        if cur_time > 0 then
+            local stat = string.format("{ol}{s22}%.1f", cur_time)
+            if cur_time >= 60 then
+                local min = math.floor(info_buff.time / 1000 / 60)
+                stat = string.format("{ol}{s22}%d{s10}%s", min, "min")
+            elseif cur_time <= 10 and cur_time > 5 then
+                stat = string.format("{ol}{s22}{#FF4500}%.1f", cur_time)
+            elseif cur_time <= 5 then
+                stat = string.format("{ol}{s22}{#FF0000}%.1f", cur_time)
+            end
+            local buff_time = GET_CHILD(circle, "buff_time")
+            buff_time:SetText(stat)
+        end
+    end
+
+    return 1
+end
+function muteki2ex_BUFF_ON_MSG(frame, msg, handle, buff_id)
+
+    local buff_id_str = tostring(buff_id)
+    local buff_data = g.settings.buff_list[buff_id_str]
+    local notice_frame = ui.GetFrame(addon_name_lower .. "_notice_frame")
+    local is_circle = false
+
+    if (buff_data and not buff_data["not_notify"][g.cid]) or handle == "dummy" then
+
+        if g.buffs[buff_id_str] and g.buffs[buff_id_str].start_time then
+            local now = imcTime.GetAppTime()
+            if now - g.buffs[buff_id_str].start_time < 0.5 then
+                return
+            end
+        end
+
+        local buff_cls = GetClassByType('Buff', buff_id)
+        local buff_name = buff_cls.Name
+        if msg == 'BUFF_ADD' then
+
+            if buff_data.pt_chat then
+                if not string.find(buff_cls.Name, "NoData") then
+                    ui.Chat(string.format("/p %s start", buff_cls.Name))
+                end
+            end
+            if buff_data.nico_chat == 1 then
+                NICO_CHAT(string.format("{@st55_a}%s start", buff_name))
+            end
+            if buff_data.effect_check == 1 then
+                local my_handle = session.GetMyHandle()
+                local actor = world.GetActor(my_handle)
+                effect.PlayActorEffect(actor, "F_sys_TPBOX_great_300", "None", 1.0, 6.0)
+            end
+
+            if buff_data.circle_icon then
+                is_circle = true
+            end
+
+            muteki2ex_buff_frame(notice_frame, msg, buff_id, buff_cls, buff_data, is_circle)
+            local overload_tbl = {4483, 4757}
+            if buff_id == overload_tbl[1] or buff_id == overload_tbl[2] then
+                g.overload = {
+                    time = imcTime.GetAppTime(),
+                    buff_id = buff_id
+                }
+            end
+
+        elseif msg == 'BUFF_REMOVE' then
+            --  ts("remove")
+            local overload_tbl = {4483, 4757}
+            local overload_cd
+            if buff_id == overload_tbl[1] or buff_id == overload_tbl[2] then
+                overload_cd = true
+                notice_frame:SetUserValue("OVERLOAD_CD", imcTime.GetAppTime())
+            end
+
+            local is_dummy = handle == "dummy"
+            local should_end_buff = false
+            if not is_dummy then
+                local debuff_list = g.settings.buff_list[buff_id_str].debuff_manage[g.cid]
+                local debuff_time = debuff_list and debuff_list.debuff_time or nil
+
+                local buff_list = g.settings.buff_list[buff_id_str].buff_manage[g.cid]
+                local buff_time = buff_list and buff_list.buff_time or nil
+
+                local start_time = tonumber(frame:GetUserValue("START_TIME"))
+
+                local my_handle = session.GetMyHandle()
+                local info_buff = info.GetBuff(my_handle, buff_id)
+
+                if not debuff_time and not buff_time then
+                    should_end_buff = true
+                elseif debuff_time and debuff_time - math.ceil(imcTime.GetAppTime() - to_remove) <= 0 and not info_buff then
+                    should_end_buff = true
+                elseif buff_time and buff_time - math.ceil(imcTime.GetAppTime() - start_time) <= 0 and not info_buff then
+                    should_end_buff = true
+                end
+
+                if should_end_buff then
+                    muteki2ex_handle_buff_end(notice_frame, buff_id)
+                else
+                    if debuff_time - (imcTime.GetAppTime() - to_remove) > 0 then
+                        muteki2ex_remove_buff(notice_frame, to_remove, "debuff")
+                        -- notice_frame:RunUpdateScript("muteki2ex_remove_debuff", 0.1)
+                    elseif buff_time - (imcTime.GetAppTime() - start_time) > 0 then
+                        muteki2ex_remove_buff(notice_frame, start_time, "buff")
+                    end
+                end
+            end
+
+            if buff_data.circle_icon then
+                is_circle = true
+            end
+            if overload_cd then
+                muteki2ex_child_set_pos(notice_frame, is_circle, overload_cd, buff_id)
+            else
+                muteki2ex_child_set_pos(notice_frame, is_circle)
+            end
+
+        elseif msg == 'BUFF_UPDATE' then
+            if buff_data.circle_icon then
+                is_circle = true
+            end
+
+            muteki2ex_buff_frame(notice_frame, msg, buff_id, buff_cls, buff_data, is_circle, handle, buff_index)
+        end
+    end
+end
+function muteki2ex_handle_buff_end(notice_frame, buff_id)
+    local buff_id_str = tostring(buff_id)
+    local buff_data = g.settings.buff_list[buff_id_str]
+    local buff_cls = GetClassByType('Buff', buff_id)
+
+    if buff_data.pt_chat then
+        if not string.find(buff_cls.Name, "NoData") then
+            ui.Chat(string.format("/p %s end", buff_cls.Name))
+        end
+    end
+    if buff_data.nico_chat == 1 then
+        NICO_CHAT(string.format("{@st55_a}%s end", buff_cls.Name))
+    end
+    if buff_data.end_sound == 1 then
+        imcSound.PlaySoundEvent("sys_transcend_cast")
+    end
+
+    if g.buffs[buff_id_str] then
+        g.buffs[buff_id_str] = nil
+    end
+
+    if g.debuffs[buff_id_str] then
+        g.debuffs[buff_id_str] = nil
+    end
+
+    local circle = GET_CHILD(notice_frame, "circle_" .. buff_id)
+    if circle then
+
+        local target_list = g.buffs.circle
+        if target_list then
+            for i = #target_list, 1, -1 do
+                if target_list[i] == buff_id then
+                    table.remove(target_list, i)
+                    break
+                end
+            end
+        end
+        DESTROY_CHILD_BYNAME(notice_frame, "circle_" .. buff_id)
+    end
+
+    local gauge = GET_CHILD(notice_frame, "gauge_" .. buff_id)
+    if gauge then
+
+        local target_list = g.buffs.gauge
+        if target_list then
+            for i = #target_list, 1, -1 do
+                if target_list[i] == buff_id then
+                    table.remove(target_list, i)
+                    break
+                end
+            end
+        end
+        DESTROY_CHILD_BYNAME(notice_frame, "gauge_" .. buff_id)
+    end
+end
+function muteki2ex_remove_buff(notice_frame, to_remove, str)
+
+    if str == "debuff" then
+        local debuff_id_list = {}
+        for key, value in pairs(g.debuffs) do
+            table.insert(debuff_id_list, key)
+        end
+
+        if #debuff_id_list == 0 then
+            return 0
+        end
+
+        for i, buff_id_str in ipairs(debuff_id_list) do
+            local buff_id = tonumber(buff_id_str)
+            local debuff_list = g.settings.buff_list[buff_id_str].debuff_manage[g.cid]
+
+            if debuff_list and to_remove then
+                if debuff_list.debuff_time - (imcTime.GetAppTime() - to_remove) <= 0 then
+                    -- ts(buff_id, "debuff_end")
+                    muteki2ex_handle_buff_end(notice_frame, buff_id)
+                end
+            end
+        end
+    elseif str == "buff" then
+        local buff_id_list = {}
+        for key, value in pairs(g.buffs) do
+            table.insert(buff_id_list, key)
+        end
+
+        if #buff_id_list == 0 then
+            return 0
+        end
+
+        for i, buff_id_str in ipairs(buff_id_list) do
+            local buff_id = tonumber(buff_id_str)
+            local buff_list = g.settings.buff_list[buff_id_str].buff_manage[g.cid]
+
+            if buff_list and to_remove then
+                if buff_list.buff_time - (imcTime.GetAppTime() - to_remove) <= 0 then
+                    -- ts(buff_id, "buff_end")
+                    muteki2ex_handle_buff_end(notice_frame, buff_id)
+                end
+            end
+        end
+    end
+    return 1
+end
+function muteki2ex_child_set_pos(notice_frame, is_circle, child)
+
+    local my_handle = session.GetMyHandle()
+    if overload_cd then
+        local gauge = notice_frame:CreateOrGetControl("picture", "gauge_" .. overload_buff_id, 0, 60, 250, 20)
+        AUTO_CAST(gauge)
+        gauge:SetUserValue("BUFF_ID", overload_buff_id)
+        gauge:SetUserValue("START_TIME", game_start and 50 - (imcTime.GetAppTime() - g.overload.time) or 20)
+        gauge:SetEnableStretch(1)
+        gauge:EnableHitTest(0)
+
+        local gauge_back = gauge:CreateOrGetControl("picture", "gauge_back", 0, 10, 250, 10)
+        AUTO_CAST(gauge_back)
+        gauge_back:SetImage("fullblack")
+        gauge_back:SetEnableStretch(1)
+        gauge_back:EnableHitTest(0)
+
+        local gauge_front = gauge:CreateOrGetControl("picture", "gauge_front", 0, 10, 250, 10)
+        AUTO_CAST(gauge_front)
+        gauge_front:SetImage("fullwhite")
+        gauge_front:SetEnableStretch(1)
+        gauge_front:EnableHitTest(0)
+        gauge_front:SetColorTone("FFFFFFFF")
+
+        local buff_name = gauge:CreateOrGetControl("richtext", "buff_name", 0, 0, 10, 20)
+        AUTO_CAST(buff_name)
+        local buff_cls = GetClassByType('Buff', overload_buff_id)
+        local image_name = GET_BUFF_ICON_NAME(buff_cls)
+        local image = "{img " .. image_name .. " 15 15}"
+        local stat = string.format("{ol}{s12}%s%s", image, buff_cls.Name)
+        buff_name:SetText(stat)
+        buff_name:AdjustFontSizeByWidth(170)
+
+        muteki2ex_child_set_pos_gauge(notice_frame, game_start)
+
+        muteki2ex_notice_update_overload(gauge)
+        gauge:RunUpdateScript("muteki2ex_notice_update_overload", 0.1)
+    elseif not is_circle then
+        muteki2ex_child_set_pos_gauge(notice_frame)
+    else
+        g.buffs.circle_sortedlist = {}
+        if g.buffs.circle and type(g.buffs.circle) == "table" then
+            for _, buff_id in ipairs(g.buffs.circle) do
+                local buff_id_str = tostring(buff_id)
+                local info_buff = info.GetBuff(my_handle, buff_id) or g.debuffs[buff_id_str] or nil
+                if info_buff then
+                    local cur_time = 0
+                    local buff_manage = g.settings.buff_list[buff_id_str].buff_manage[g.cid]
+                    if buff_manage and buff_manage.buff_time then
+                        local start_time = tonumber(child:GetUserValue("START_TIME"))
+                        cur_time = buff_manage.buff_time - (imcTime.GetAppTime() - start_time)
+                    elseif type(info_buff) == "number" then
+                        local elapsed_time = imcTime.GetAppTime() - g.buffs[buff_id_str].start_time
+                        cur_time = g.debuffs[buff_id_str] - elapsed_time
+                    else
+                        cur_time = info_buff.time / 1000
+                    end
+
+                    table.insert(g.buffs.circle_sortedlist, {
+                        buff_id = buff_id,
+                        time = cur_time
+                    })
+                end
+            end
+        end
+
+        table.sort(g.buffs.circle_sortedlist, function(a, b)
+            return a.time < b.time
+        end)
+        local index = 1
+        for _, entry in ipairs(g.buffs.circle_sortedlist) do
+            local circle = GET_CHILD(notice_frame, "circle_" .. entry.buff_id)
+
+            if circle and circle:IsVisible() == 1 then
+                circle:SetOffset(index * 50, 5)
+                index = index + 1
+                if not circle:HaveUpdateScript("muteki2ex_notice_update") then
+                    circle:RunUpdateScript("muteki2ex_notice_update", 0.1)
+                end
+            end
+        end
+
+    end
+
+    local circle_count = (g.buffs.circle_sortedlist and #g.buffs.circle_sortedlist) or 0
+    local x = circle_count * 50 + 50
+    if x < 250 then
+        x = 250
+    end
+    local gauge_count = (g.buffs.gauge_sortedlist and #g.buffs.gauge_sortedlist) or 0
+    local y = gauge_count * 25 + 60
+    if y < 60 then
+        y = 60
+    end
+    notice_frame:Resize(x, y)
+end
+function muteki2ex_child_set_pos_gauge(notice_frame, game_start)
+    local my_handle = session.GetMyHandle()
+
+    g.buffs.gauge_sortedlist = {}
+
+    local overload_tbl = {4483, 4757}
+    local overload_gauge = GET_CHILD(notice_frame, "gauge_" .. overload_tbl[1]) or
+                               GET_CHILD(notice_frame, "gauge_" .. overload_tbl[2])
+    if overload_gauge then
+        local buff_id = overload_gauge:GetUserIValue("BUFF_ID")
+        local info_buff = info.GetBuff(my_handle, buff_id)
+        if not info_buff then
+            table.insert(g.buffs.gauge_sortedlist, {
+                buff_id = buff_id,
+                time = game_start and 50 - (imcTime.GetAppTime() - g.overload.time) or 20
+            })
+        end
+    end
+
+    if g.buffs.gauge and type(g.buffs.gauge) == "table" then
+        for _, buff_id in ipairs(g.buffs.gauge) do
+            local handle = g.buffs[tostring(buff_id)].handle
+            local buff_index = g.buffs[tostring(buff_id)].buff_index
+            local info_buff = info.GetBuff(my_handle, buff_id) or info.GetBuff(handle, buff_id, buff_index)
+            local debuff_list = g.settings.buff_list[tostring(buff_id)].debuff_manage[g.cid]
+
+            if info_buff and (info_buff.time > 0 or g.settings.buff_list[tostring(buff_id)].count_display) or handle then
+                local time = 0
+
+                if info_buff and info_buff.time > 0 then
+                    time = info_buff.time
+                elseif g.debuffs[tostring(buff_id)] and debuff_list then
+                    local elapsed_time = imcTime.GetAppTime() - g.debuffs[tostring(buff_id)].start_time
+                    local remaining_time = debuff_list.debuff_time - elapsed_time
+                    if remaining_time > 0 then
+                        time = remaining_time * 1000
+                    end
+                else
+                    local gauge = GET_CHILD(notice_frame, "gauge_" .. buff_id)
+                    local start_time = tonumber(gauge:GetUserValue("START_TIME"))
+                    local elapsed_time = imcTime.GetAppTime() - start_time
+                    local remaining_time = g.settings.buff_list[tostring(buff_id)].buff_manage[g.cid].buff_time -
+                                               elapsed_time
+                    if remaining_time > 0 then
+                        time = remaining_time * 1000
+                    end
+
+                end
+                table.insert(g.buffs.gauge_sortedlist, {
+                    buff_id = buff_id,
+                    time = time
+                })
+            end
+        end
+    end
+
+    table.sort(g.buffs.gauge_sortedlist, function(a, b)
+        return a.time < b.time
+    end)
+
+    local index = 0
+
+    for _, entry in ipairs(g.buffs.gauge_sortedlist) do
+        local gauge = GET_CHILD(notice_frame, "gauge_" .. entry.buff_id)
+
+        if gauge and gauge:IsVisible() == 1 then
+
+            gauge:SetOffset(0, (index) * 25 + 60)
+            index = index + 1
+            if not gauge:HaveUpdateScript("muteki2ex_notice_update") then
+                gauge:RunUpdateScript("muteki2ex_notice_update", 0.1)
+            end
+        end
+
+    end
+end
+
+--[[g.buffs.circle_sortedlist = {}
+    if g.buffs.circle and type(g.buffs.circle) == "table" then
+        for _, buff_id in ipairs(g.buffs.circle) do
+            local buff_id_str = tostring(buff_id)
+            local info_buff = info.GetBuff(my_handle, buff_id) or g.debuffs[buff_id_str] or nil
+            if info_buff then
+                local cur_time = 0
+                local buff_manage = g.settings.buff_list[buff_id_str].buff_manage[g.cid]
+                if buff_manage and buff_manage.buff_time then
+                    local start_time = tonumber(child:GetUserValue("START_TIME"))
+                    cur_time = buff_manage.buff_time - (imcTime.GetAppTime() - start_time)
+                elseif type(info_buff) == "number" then
+                    local elapsed_time = imcTime.GetAppTime() - g.buffs[buff_id_str].start_time
+                    cur_time = g.debuffs[buff_id_str] - elapsed_time
+                else
+                    cur_time = info_buff.time / 1000
+                end
+
+                table.insert(g.buffs.circle_sortedlist, {
+                    buff_id = buff_id,
+                    time = cur_time
+                })
+            end
+        end
+    end
+
+    table.sort(g.buffs.circle_sortedlist, function(a, b)
+        return a.time < b.time
+    end)
+    local index = 1
+    for _, entry in ipairs(g.buffs.circle_sortedlist) do
+        local circle = GET_CHILD(notice_frame, "circle_" .. entry.buff_id)
+
+        if circle and circle:IsVisible() == 1 then
+            circle:SetOffset(index * 50, 5)
+            index = index + 1
+            if not circle:HaveUpdateScript("muteki2ex_notice_update") then
+                circle:RunUpdateScript("muteki2ex_notice_update", 0.1)
+            end
+        end
+    end
+    if overload_cd then
+        local gauge = notice_frame:CreateOrGetControl("picture", "gauge_" .. overload_buff_id, 0, 60, 250, 20)
+        AUTO_CAST(gauge)
+        gauge:SetUserValue("BUFF_ID", overload_buff_id)
+        gauge:SetUserValue("START_TIME", game_start and 50 - (imcTime.GetAppTime() - g.overload.time) or 20)
+        gauge:SetEnableStretch(1)
+        gauge:EnableHitTest(0)
+
+        local gauge_back = gauge:CreateOrGetControl("picture", "gauge_back", 0, 10, 250, 10)
+        AUTO_CAST(gauge_back)
+        gauge_back:SetImage("fullblack")
+        gauge_back:SetEnableStretch(1)
+        gauge_back:EnableHitTest(0)
+
+        local gauge_front = gauge:CreateOrGetControl("picture", "gauge_front", 0, 10, 250, 10)
+        AUTO_CAST(gauge_front)
+        gauge_front:SetImage("fullwhite")
+        gauge_front:SetEnableStretch(1)
+        gauge_front:EnableHitTest(0)
+        gauge_front:SetColorTone("FFFFFFFF")
+
+        local buff_name = gauge:CreateOrGetControl("richtext", "buff_name", 0, 0, 10, 20)
+        AUTO_CAST(buff_name)
+        local buff_cls = GetClassByType('Buff', overload_buff_id)
+        local image_name = GET_BUFF_ICON_NAME(buff_cls)
+        local image = "{img " .. image_name .. " 15 15}"
+        local stat = string.format("{ol}{s12}%s%s", image, buff_cls.Name)
+        buff_name:SetText(stat)
+        buff_name:AdjustFontSizeByWidth(170)
+
+        muteki2ex_child_set_pos_gauge(notice_frame, game_start)
+
+        muteki2ex_notice_update_overload(gauge)
+        gauge:RunUpdateScript("muteki2ex_notice_update_overload", 0.1)
+    elseif not is_circle then
+        muteki2ex_child_set_pos_gauge(notice_frame)
+    else
+
+    end
+    function muteki2ex_TARGETBUFF_ON_MSG(frame, msg, buff_index, buff_id)
+
+    local buff_list = g.settings.buff_list[tostring(buff_id)]
+    if not buff_list or buff_list["not_notify"][g.cid] then
+        return
+    end
+    local handle = session.GetTargetHandle()
+    local buff_cls = GetClassByType('Buff', buff_id)
+    if not buff_cls then
+        return
+    end
+    if buff_cls and buff_cls.Group1 ~= "Debuff" and buff_cls.Group1 ~= "Deuff" then
+        return
+    end
+    if buff_cls.ShowIcon == "FALSE" then
+        return
+    end
+    local image_name = GET_BUFF_ICON_NAME(buff_cls)
+    if image_name == "icon_None" then
+        return
+    end
+    local buff_index = tonumber(buff_index)
+    local buff_info = info.GetBuff(handle, buff_id, buff_index)
+    if buff_info then
+        local my_handle = session.GetMyHandle()
+        local caster_handle = buff_info:GetHandle()
+        if caster_handle ~= my_handle then
+            return
+        end
+    end
+
+    local buff_list_debuff = g.settings.buff_list[tostring(buff_id)].debuff_manage[g.cid]
+    if buff_list_debuff and (not buff_list_debuff.get_debuff_time) and buff_info and buff_info.time > 0 then
+        buff_list_debuff.get_debuff_time = true
+        if buff_list_debuff.auto_time == nil then
+            buff_list_debuff.debuff_time = math.ceil(buff_info.time / 1000)
+            buff_list_debuff.auto_time = true
+        else
+            buff_list_debuff.auto_time = false
+        end
+        muteki2ex_save_settings()
+        CHAT_SYSTEM(buff_info.time)
+    end
+end]] --[[function muteki2ex_notice_update_overload(gauge)
+    local start_time = tonumber(gauge:GetUserValue("START_TIME"))
+    local notice_frame = gauge:GetParent()
+    local buff_id = gauge:GetUserIValue("BUFF_ID")
+    AUTO_CAST(gauge)
+
+    local max_time
+    local base_time
+    if start_time == 20 then
+        max_time = 20
+        base_time = notice_frame:GetUserIValue("OVERLOAD_CD")
+    else
+        max_time = 50
+        base_time = g.overload.time
+    end
+
+    local diff_time = imcTime.GetAppTime() - base_time
+    local cur_time = max_time - diff_time
+
+    if cur_time < 0.2 then
+
+        local my_handle = session.GetMyHandle()
+        local info_buff = info.GetBuff(my_handle, buff_id)
+        if not info_buff then
+            DESTROY_CHILD_BYNAME(notice_frame, "gauge_" .. buff_id)
+        end
+        muteki2ex_child_set_pos(notice_frame, false)
+        return 0
+    end
+
+    local buff_time = gauge:CreateOrGetControl("richtext", "buff_time", 180, 0, 30, 20)
+    buff_time:SetGravity(ui.RIGHT, ui.TOP)
+    local rect = buff_time:GetMargin()
+    buff_time:SetMargin(rect.left, rect.top, rect.right + 40, rect.bottom)
+    buff_time:SetText(string.format("{ol}{s18}%.1f", cur_time))
+
+    local gauge_front = GET_CHILD(gauge, "gauge_front")
+    if gauge_front then
+        local ratio = cur_time / max_time
+        if start_time == 20 then
+            ratio = cur_time / max_time
+        else
+            ratio = cur_time / start_time
+        end
+        gauge_front:Resize(250 * ratio, 20)
+    end
+    return 1
 end]] 

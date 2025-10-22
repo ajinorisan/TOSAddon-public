@@ -602,6 +602,7 @@ Tree of Savior 用のアドオンを作成・改変しています。
 
 ![キャプチャ1](https://github.com/ajinorisan/TOSAddon-public/assets/128560971/c24764ff-2fc3-40e2-8dde-b1b310bcb8ec)
 
+*   v1.0.7 そもそものターゲットの取り方変更
 *   v1.0.6 レダニア本体判別機能追加
 *   v1.0.5 クエストボス等でのバグ修正（のつもり）
 *   v1.0.4 微調整（タゲ固定推奨）
