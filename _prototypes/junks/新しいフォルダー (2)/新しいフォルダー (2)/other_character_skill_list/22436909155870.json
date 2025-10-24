@@ -1,0 +1,84 @@
+{
+  "SHIRT": {
+    "clsid": 11107021,
+    "skillName": "Common_Cataphract_Trot",
+    "iesid": "1518670371715584",
+    "lv": 20,
+    "skillLv": 2
+  },
+  "RING1": {
+    "iesid": "1530670509977771",
+    "clsid": 11100070,
+    "lv": 15
+  },
+  "PANTS": {
+    "clsid": 11107022,
+    "skillName": "Common_Chronomancer_QuickCast",
+    "iesid": "1518627421849912",
+    "lv": 20,
+    "skillLv": 3
+  },
+  "gear_score": 23193,
+  "ARK": {
+
+  },
+  "RH": {
+    "iesid": "1518120615512300",
+    "clsid": 11107001,
+    "lv": 20
+  },
+  "LEG": {
+
+  },
+  "BOOTS": {
+    "clsid": 11107023,
+    "skillName": "Common_Retiarii_DaggerGuard",
+    "iesid": "1518627421849945",
+    "lv": 20,
+    "skillLv": 4
+  },
+  "SEAL": {
+
+  },
+  "LH": {
+    "iesid": "1518120615512325",
+    "clsid": 11107016,
+    "lv": 20
+  },
+  "LH_SUB": {
+    "iesid": "1518120615512330",
+    "clsid": 11107010,
+    "lv": 20
+  },
+  "NECK": {
+    "iesid": "1530670509977752",
+    "clsid": 11100069,
+    "lv": 15
+  },
+  "GLOVES": {
+    "clsid": 11107024,
+    "skillName": "Common_Priest_Aspersion",
+    "iesid": "1518627421849931",
+    "lv": 20,
+    "skillLv": 4
+  },
+  "RING2": {
+    "iesid": "1530670509977778",
+    "clsid": 11100070,
+    "lv": 15
+  },
+  "name": "そーど",
+  "GOD": {
+
+  },
+  "RH_SUB": {
+    "iesid": "1518120615512299",
+    "clsid": 11107008,
+    "lv": 20
+  },
+  "RELIC": {
+    "iesid": "76965814028377",
+    "clsid": 11040003,
+    "lv": 20
+  }
+}

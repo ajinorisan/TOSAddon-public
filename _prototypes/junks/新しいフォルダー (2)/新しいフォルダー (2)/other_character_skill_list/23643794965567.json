@@ -1,0 +1,87 @@
+{
+  "gear_score": 23831,
+  "SHIRT": {
+    "clsid": 11107017,
+    "skillName": "Common_Swordman_PainBarrier",
+    "skillLv": 3,
+    "lv": 20,
+    "iesid": "1518614537570963"
+  },
+  "PANTS": {
+    "clsid": 11107018,
+    "skillName": "Common_Pardoner_IncreaseMagicDEF",
+    "skillLv": 4,
+    "lv": 20,
+    "iesid": "1518614537570992"
+  },
+  "BOOTS": {
+    "clsid": 11107019,
+    "skillName": "Common_Chronomancer_QuickCast",
+    "skillLv": 4,
+    "lv": 20,
+    "iesid": "1518614537571015"
+  },
+  "RING1": {
+    "clsid": 11100066,
+    "lv": 17,
+    "iesid": "1530503006335707"
+  },
+  "SEAL": {
+
+  },
+  "RELIC": {
+    "clsid": 11040003,
+    "lv": 20,
+    "iesid": "73388106258817"
+  },
+  "ARK": {
+    "clsid": 620012,
+    "lv": 10,
+    "iesid": "1308174023943612"
+  },
+  "RH_SUB": {
+    "clsid": 11107005,
+    "lv": 20,
+    "iesid": "1531314755230572"
+  },
+  "name": "くれり",
+  "NECK": {
+    "clsid": 11100065,
+    "lv": 17,
+    "iesid": "1530503006335706"
+  },
+  "LH": {
+    "clsid": 11107007,
+    "lv": 20,
+    "iesid": "1531314755230586"
+  },
+  "GLOVES": {
+    "clsid": 11107020,
+    "skillName": "Common_Recovery",
+    "skillLv": 2,
+    "lv": 20,
+    "iesid": "1518120615512341"
+  },
+  "GOD": {
+    "clsid": 11039401,
+    "lv": 10
+  },
+  "RING2": {
+    "clsid": 11100066,
+    "lv": 17,
+    "iesid": "1530503006335708"
+  },
+  "LEG": {
+
+  },
+  "RH": {
+    "clsid": 11107005,
+    "lv": 20,
+    "iesid": "1531314755230579"
+  },
+  "LH_SUB": {
+    "clsid": 11107007,
+    "lv": 20,
+    "iesid": "1531314755230593"
+  }
+}

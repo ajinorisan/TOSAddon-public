@@ -1,0 +1,84 @@
+{
+  "SEAL": {
+
+  },
+  "RING1": {
+    "iesid": "1562234225808643",
+    "clsid": 11100072,
+    "lv": 10
+  },
+  "gear_score": 27682,
+  "RH_SUB": {
+    "iesid": "1562234225485271",
+    "clsid": 11107039,
+    "lv": 17
+  },
+  "PANTS": {
+    "skillName": "Common_QuarrelShooter_DeployPavise",
+    "iesid": "1562234225485423",
+    "lv": 15,
+    "clsid": 11107051,
+    "skillLv": 1
+  },
+  "BOOTS": {
+    "skillName": "Common_Cryomancer_SubzeroShield",
+    "iesid": "1562234225485467",
+    "lv": 15,
+    "clsid": 11107052,
+    "skillLv": 2
+  },
+  "RING2": {
+    "iesid": "1562234225808663",
+    "clsid": 11100072,
+    "lv": 10
+  },
+  "LH_SUB": {
+    "iesid": "1562234225485338",
+    "clsid": 11107029,
+    "lv": 15
+  },
+  "RELIC": {
+    "iesid": "1562234224751751",
+    "clsid": 11040003,
+    "lv": 20
+  },
+  "LEG": {
+
+  },
+  "SHIRT": {
+    "skillName": "Common_Peltasta_HardShield",
+    "iesid": "1562234225485371",
+    "lv": 15,
+    "clsid": 11107050,
+    "skillLv": 3
+  },
+  "GOD": {
+
+  },
+  "NECK": {
+    "iesid": "1562234225808623",
+    "clsid": 11100071,
+    "lv": 10
+  },
+  "LH": {
+    "iesid": "1562234225485314",
+    "clsid": 11107029,
+    "lv": 15
+  },
+  "name": "ぽぽ6",
+  "ARK": {
+
+  },
+  "GLOVES": {
+    "skillName": "Common_Shadowmancer_ShadowPool",
+    "iesid": "1562234225485447",
+    "lv": 15,
+    "clsid": 11107053,
+    "skillLv": 5
+  },
+  "RH": {
+    "iesid": "1562234225485257",
+    "clsid": 11107041,
+    "lv": 18
+  }
+}
