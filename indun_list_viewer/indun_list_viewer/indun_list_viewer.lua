@@ -28,35 +28,39 @@
 -- v1.2.7 レイドカウント取るタイミング修正
 -- v1.2.8 acutil終わり。indunpanelに統合準備。非表示のキャラを非表示にする機能。
 -- v1.2.9 250902大型対応。新レイド追加、設定画面修正。他鯖の時差修正したつもり
+-- v1.2.9.1 デルムーアまで拡張 
+-- v1.2.9.2 IMCの20251023バグ修正
+-- v1.2.9.3 リファクタリング。最初から作り直し
+-- v1.3.0 デルムーアのダンジョンタイプ変わってたの修正
 local addon_name = "indun_list_viewer"
 local addon_name_lower = string.lower(addon_name)
 local author = "norisan"
-local ver = "1.2.9"
+local ver = "1.3.0"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
 _G["ADDONS"][author][addon_name] = _G["ADDONS"][author][addon_name] or {}
 local g = _G["ADDONS"][author][addon_name]
 
--- local acutil = require("acutil")
 local json = require("json")
-
-local function unicode_to_codepoint(char)
-    local codepoint = utf8.codepoint(char)
-    return string.format("%X", codepoint)
-end
-
-local function convert_to_ascii(input)
-    local result = ""
-    for char in input:gmatch(utf8.charpattern) do
-        result = result .. unicode_to_codepoint(char)
+local function ts(...)
+    local num_args = select('#', ...)
+    if num_args == 0 then
+        print("ts() -- 引数がありません")
+        return
     end
-    return result
+    local string_parts = {}
+    for i = 1, num_args do
+        local arg = select(i, ...)
+        local arg_type = type(arg)
+        local is_success, value_str = pcall(tostring, arg)
+        if not is_success then
+            value_str = "[tostringでエラー発生]"
+        end
+        table.insert(string_parts, string.format("(%s) %s", arg_type, value_str))
+    end
+    print(table.concat(string_parts, "   |   "))
 end
-
-local input = GETMYFAMILYNAME()
-local output = convert_to_ascii(input)
-g.settings_old = string.format('../addons/%s/%s.json', addon_name_lower, output .. "2410")
 
 function g.mkdir_new_folder()
     local function create_folder(folder_path, file_path)
@@ -81,31 +85,10 @@ function g.mkdir_new_folder()
     local user_folder = string.format("../addons/%s/%s", addon_name_lower, g.active_id)
     local user_file_path = string.format("../addons/%s/%s/mkdir.txt", addon_name_lower, g.active_id)
     create_folder(user_folder, user_file_path)
-
-    g.settings_path = string.format("../addons/%s/%s/settings.json", addon_name_lower, g.active_id)
-
-    local new_settings_file_check = io.open(g.settings_path, "r")
-    if not new_settings_file_check then
-
-        local old_file_handle = io.open(g.settings_old, "rb")
-        if old_file_handle then
-
-            local content_to_copy = old_file_handle:read("*all")
-            old_file_handle:close()
-
-            local new_file_handle = io.open(g.settings_path, "wb")
-            if new_file_handle then
-                new_file_handle:write(content_to_copy)
-                new_file_handle:close()
-
-            end
-
-        end
-    else
-        new_settings_file_check:close()
-    end
+    g.settings_path = string.format("../addons/%s/%s/settings_2510.json", addon_name_lower, g.active_id)
 end
 g.mkdir_new_folder()
+
 function g.save_json(path, tbl)
     local file = io.open(path, "w")
     if file then
@@ -120,20 +103,15 @@ function g.load_json(path)
     if not file then
         return nil, "Error opening file: " .. path
     end
-
     local content = file:read("*all")
     file:close()
-
     if not content or content == "" then
         return nil, "File content is empty or could not be read: " .. path
     end
-
     local decoded_table, decode_err = json.decode(content)
-
     if not decoded_table then
         return nil, decode_err
     end
-
     return decoded_table, nil
 end
 
@@ -150,30 +128,22 @@ function g.setup_hook_and_event(my_addon, origin_func_name, my_func_name, bool)
     if not g.FUNCS[origin_func_name] then
         g.FUNCS[origin_func_name] = _G[origin_func_name]
     end
-
     local origin_func = g.FUNCS[origin_func_name]
-
     local function hooked_function(...)
-
         local original_results
-
         if bool == true then
             original_results = {origin_func(...)}
         end
-
         g.ARGS = g.ARGS or {}
         g.ARGS[origin_func_name] = {...}
         imcAddOn.BroadMsg(origin_func_name)
-
         if original_results then
             return table.unpack(original_results)
         else
             return
         end
     end
-
     _G[origin_func_name] = hooked_function
-
     if not g.REGISTER[origin_func_name .. my_func_name] then -- g.REGISTERはON_INIT内で都度初期化
         g.REGISTER[origin_func_name .. my_func_name] = true
         my_addon:RegisterMsg(origin_func_name, my_func_name)
@@ -188,108 +158,209 @@ function g.get_event_args(origin_func_name)
     return nil
 end
 
+local RAID_KEYS = {"V", "L", "R", "N", "G", "M", "S", "U", "RO", "F", "P", "D"}
+
+local RAID_INFO = {
+    V = {
+        name = "Veliora",
+        hard = 727,
+        solo = 726,
+        auto = 725,
+        icon = "icon_item_misc_boss_Veliora",
+        sweep_buff = 80045
+    },
+    L = {
+        name = "Limara",
+        hard = 724,
+        solo = 723,
+        auto = 722,
+        icon = "icon_item_misc_boss_Laimara",
+        sweep_buff = 80043
+    },
+    R = {
+        name = "Redania",
+        hard = 718,
+        solo = 717,
+        auto = 716,
+        icon = "icon_item_misc_boss_Redania",
+        sweep_buff = 80039
+    },
+    N = {
+        name = "Neringa",
+        hard = 709,
+        solo = 708,
+        auto = 707,
+        icon = "icon_item_misc_boss_DarkNeringa",
+        sweep_buff = 80035
+    },
+    G = {
+        name = "Golem",
+        hard = 712,
+        solo = 711,
+        auto = 710,
+        icon = "icon_item_misc_boss_CrystalGolem",
+        sweep_buff = 80037
+    },
+    M = {
+        name = "Merregina",
+        hard = 697,
+        solo = 696,
+        auto = 695,
+        icon = "icon_item_misc_merregina_blackpearl",
+        sweep_buff = 80032
+    },
+    S = {
+        name = "Slogutis",
+        hard = 690,
+        solo = 689,
+        auto = 688,
+        icon = "icon_item_misc_boss_Slogutis",
+        sweep_buff = 80031
+    },
+    U = {
+        name = "Upinis",
+        hard = 687,
+        solo = 686,
+        auto = 685,
+        icon = "icon_item_misc_boss_Upinis",
+        sweep_buff = 80030
+    },
+    RO = {
+        name = "Roze",
+        hard = 681,
+        solo = 680,
+        auto = 679,
+        icon = "icon_item_misc_boss_Roze",
+        sweep_buff = 80015
+    },
+    F = {
+        name = "Falouros",
+        hard = 678,
+        solo = 677,
+        auto = 676,
+        icon = "icon_item_misc_high_falouros",
+        sweep_buff = 80017
+    },
+    P = {
+        name = "Spreader",
+        hard = 675,
+        solo = 674,
+        auto = 673,
+        icon = "icon_item_misc_high_transmutationSpreader",
+        sweep_buff = 80016
+    },
+    D = {
+        name = "Delmore",
+        hard = 665,
+        solo = 667,
+        auto = 666,
+        icon = "icon_item_misc_RevivalPaulius",
+        sweep_buff = nil
+    }
+}
+
+local CHECK_KEYS = {}
+for _, key in ipairs(RAID_KEYS) do
+    table.insert(CHECK_KEYS, RAID_INFO[key].name .. "_H")
+end
+for _, key in ipairs(RAID_KEYS) do
+    table.insert(CHECK_KEYS, RAID_INFO[key].name .. "_S")
+end
+table.insert(CHECK_KEYS, "Memo")
+
+local DEFAULT_CHAR_DATA = {
+    layer = 9,
+    order = 99,
+    hide = false,
+    memo = "",
+    president_jobid = "",
+    jobid = "",
+    raid_count = {},
+    auto_clear_count = {}
+}
+
+for _, key in ipairs(RAID_KEYS) do
+    DEFAULT_CHAR_DATA.raid_count[key .. "_H"] = "?"
+    DEFAULT_CHAR_DATA.raid_count[key .. "_A"] = "?"
+    DEFAULT_CHAR_DATA.auto_clear_count[key .. "_S"] = "?"
+end
+
+local DEFAULT_SETTINGS = {
+    default_options = {
+        reset_time = 0,
+        display_mode = "full",
+        hidden = 0
+    },
+    display_options = {}
+}
+
+for _, key in ipairs(CHECK_KEYS) do
+    DEFAULT_SETTINGS.display_options[key] = 1
+end
+
 function indun_list_viewer_save_settings()
     g.save_json(g.settings_path, g.settings)
-
 end
 
 function indun_list_viewer_load_settings()
+    local settings = g.load_json(g.settings_path) or {}
 
-    local settings = g.load_json(g.settings_path)
+    local changed = false
 
-    if not settings then
-        settings = {
-            reset_time = 1702846800,
-            display_mode = "full"
-        }
+    local function ensure_defaults(target_table, default_table)
+        local applied_change = false
+        for key, default_value in pairs(default_table) do
+            if target_table[key] == nil then
+                if type(default_value) == 'table' then
+                    target_table[key] = json.decode(json.encode(default_value))
+                else
+                    target_table[key] = default_value
+                end
+                applied_change = true
+            elseif type(target_table[key]) == "table" and type(default_value) == "table" then
+                if ensure_defaults(target_table[key], default_value) then
+                    applied_change = true
+                end
+            end
+        end
+        return applied_change
+    end
+
+    if ensure_defaults(settings, DEFAULT_SETTINGS) then
+        changed = true
     end
 
     local acc_info = session.barrack.GetMyAccount()
     if g.load == true then
         local barrack_cnt = acc_info:GetBarrackPCCount()
-
+        local barrack_names = {}
         for i = 0, barrack_cnt - 1 do
             local pc_info = acc_info:GetBarrackPCByIndex(i)
             local pc_name = pc_info:GetName()
-
+            barrack_names[pc_name] = true
             if not settings[pc_name] then
                 settings[pc_name] = {
-                    pc_name = pc_name,
-                    layer = 9,
-                    order = 99,
-                    hide = false,
-                    memo = "",
-                    president_jobid = "",
-
-                    jobid = "",
-                    raid_count = {
-                        V_H = "?",
-                        V_A = "?",
-                        L_H = "?",
-                        L_A = "?",
-                        R_H = "?",
-                        R_A = "?",
-                        N_H = "?",
-                        N_A = "?",
-                        G_H = "?",
-                        G_A = "?",
-                        M_H = "?",
-                        M_A = "?",
-                        S_H = "?",
-                        S_A = "?",
-                        U_H = "?",
-                        U_A = "?"
-
-                    },
-                    auto_clear_count = {
-                        V_S = "?",
-                        L_S = "?",
-                        R_S = "?",
-                        N_S = "?",
-                        G_S = "?",
-                        M_S = "?",
-                        U_S = "?",
-                        S_S = "?"
-                    }
+                    pc_name = pc_name
                 }
-
-            elseif settings[pc_name] and settings[pc_name]["raid_count"] then
-
-                if not settings[pc_name]["raid_count"].V_H then
-                    settings[pc_name]["raid_count"].V_H = "?"
-                    settings[pc_name]["raid_count"].V_A = "?"
-
-                    if settings[pc_name]["auto_clear_count"] then
-                        settings[pc_name]["auto_clear_count"].V_S = "?"
-                    end
-                end
-                if not settings[pc_name]["raid_count"].L_H then
-                    settings[pc_name]["raid_count"].L_H = "?"
-                    settings[pc_name]["raid_count"].L_A = "?"
-
-                    if settings[pc_name]["auto_clear_count"] then
-                        settings[pc_name]["auto_clear_count"].L_S = "?"
-                    end
-                end
-                if not settings[pc_name]["raid_count"].R_H then
-                    settings[pc_name]["raid_count"].R_H = "?"
-                    settings[pc_name]["raid_count"].R_A = "?"
-
-                    if settings[pc_name]["auto_clear_count"] then
-                        settings[pc_name]["auto_clear_count"].R_S = "?"
-                    end
-                end
+                ensure_defaults(settings[pc_name], DEFAULT_CHAR_DATA)
+                changed = true
             end
 
         end
-    end
+        local keys_to_delete = {}
+        for key, data in pairs(settings) do
+            if type(data) == "table" and data.pc_name and not barrack_names[key] then
+                table.insert(keys_to_delete, key)
+            end
+        end
+        if #keys_to_delete > 0 then
+            for _, key in ipairs(keys_to_delete) do
+                settings[key] = nil
+            end
+            changed = true
+        end
+        indun_list_viewer_sort_characters(acc_info, settings)
 
-    g.settings = settings
-
-    indun_list_viewer_save_settings()
-
-    if g.load == true then
-        indun_list_viewer_sort_characters(acc_info)
         local server_time_str = date_time.get_lua_now_datetime_str()
         if server_time_str then
             local y, m, d, H, M, S = server_time_str:match("(%d+)-(%d+)-(%d+) (%d+):(%d+):(%d+)")
@@ -302,47 +373,73 @@ function indun_list_viewer_load_settings()
                     min = tonumber(M),
                     sec = tonumber(S)
                 })
-
-                if server_now_timestamp > g.settings.reset_time then
-                    indun_list_viewer_raid_reset()
+                if server_now_timestamp > settings.default_options.reset_time then
+                    indun_list_viewer_raid_reset(settings)
+                    changed = true
                 end
             end
         end
     else
-        g.sorted_settings = {}
-        for _, data in pairs(g.settings) do
-            if type(data) == "table" then
-                table.insert(g.sorted_settings, data)
-            end
+        if not settings[g.login_name] then
+            settings[g.login_name] = {
+                pc_name = g.login_name
+            }
+            ensure_defaults(settings[g.login_name], DEFAULT_CHAR_DATA)
+            changed = true
         end
-
-        local function sort_layer_order(a, b)
-            if a.layer ~= b.layer then
-                return a.layer < b.layer
-            else
-                return a.order < b.order
-            end
-        end
-
-        table.sort(g.sorted_settings, sort_layer_order)
-        g.load = true
+        indun_list_viewer_sort_characters(nil, settings)
     end
 
-    indun_list_viewer_frame_init()
+    g.settings = settings
+    if changed then
+        g.settings_changed = changed
+    end
+end
+
+function indun_list_viewer_raid_reset(settings)
+
+    local account_info = session.barrack.GetMyAccount()
+    if not account_info then
+        return
+    end
+
+    local barrack_pc_count = account_info:GetBarrackPCCount()
+    if not barrack_pc_count then
+        return
+    end
+
+    for i = 0, barrack_pc_count - 1 do
+        local barrack_pc_info = account_info:GetBarrackPCByIndex(i)
+        if barrack_pc_info then
+            local barrack_pc_name = barrack_pc_info:GetName()
+            local char_data = settings[barrack_pc_name]
+
+            if char_data then
+                char_data.raid_count = {}
+                for _, key in ipairs(RAID_KEYS) do
+                    char_data.raid_count[key .. "_H"] = "?"
+                    char_data.raid_count[key .. "_A"] = "?"
+                end
+            end
+        end
+    end
+    settings.default_options.reset_time = indun_list_viewer_get_reset_time()
+    if g.lang == "Japanese" then
+        ui.SysMsg("[ILV]レイドの回数を初期化しました。")
+    else
+        ui.SysMsg("[ILV]Raid counts were initialized.")
+    end
 end
 
 function indun_list_viewer_get_reset_time()
-
     local server_time_str = date_time.get_lua_now_datetime_str()
     if not server_time_str then
         return 0
     end
-
     local year, month, day, hour, min, sec = server_time_str:match("(%d+)-(%d+)-(%d+) (%d+):(%d+):(%d+)")
     if not year then
         return 0
     end
-
     local now_table = {
         year = tonumber(year),
         month = tonumber(month),
@@ -351,31 +448,19 @@ function indun_list_viewer_get_reset_time()
         min = tonumber(min),
         sec = tonumber(sec)
     }
-
     local now_timestamp = os.time(now_table)
-
-    -- os.dateにタイムスタンプを渡して、その日の曜日を取得する（%wは日曜日=0）
-    -- Luaのwday（日=1）と合わせるため、+1する
     local current_day_of_week = tonumber(os.date("%w", now_timestamp)) + 1
-
     local days_to_next_monday
     if current_day_of_week == 2 and now_table.hour < 6 then
-        -- もし今日が月曜日で、かつAM6:00より前なら、リセットは「今日」
         days_to_next_monday = 0
     else
-        -- それ以外の場合、次の月曜日までの日数を計算
-        -- (9 - 現在の曜日) % 7 で計算。もし0なら次の週なので7日にする
         days_to_next_monday = (9 - current_day_of_week) % 7
         if days_to_next_monday == 0 then
             days_to_next_monday = 7
         end
     end
-
-    -- 今日のタイムスタンプに、次の月曜日までの日数分の秒数を足す
     local next_monday_timestamp_base = now_timestamp + days_to_next_monday * 86400
     local next_monday_date = os.date("*t", next_monday_timestamp_base)
-
-    -- 最終的な「次の月曜AM6:00」のタイムスタンプを計算
     local next_monday_6am_timestamp = os.time({
         year = next_monday_date.year,
         month = next_monday_date.month,
@@ -384,103 +469,33 @@ function indun_list_viewer_get_reset_time()
         min = 0,
         sec = 0
     })
-
     return next_monday_6am_timestamp
 end
 
---[[function indun_list_viewer_get_reset_time()
-    local now = os.time()
-    local date_table = os.date("*t", now)
-    local current_day = date_table.wday
-    local next_monday_timestamp
-
-    if current_day == 2 and date_table.hour < 6 then
-        next_monday_timestamp = os.time({
-            year = date_table.year,
-            month = date_table.month,
-            day = date_table.day,
-            hour = 6,
-            min = 0,
-            sec = 0
-        })
-    else
-        local days_to_next_monday = (9 - current_day) % 7
-        if days_to_next_monday == 0 then
-            days_to_next_monday = 7 -- 次週の月曜日に設定
+function indun_list_viewer_sort_characters(account_info, settings_table)
+    if account_info then
+        local layer_pc_count = account_info:GetPCCount()
+        for order = 0, layer_pc_count - 1 do
+            local pc_info = account_info:GetPCByIndex(order)
+            if pc_info then
+                local pc_apc = pc_info:GetApc()
+                local pc_name = pc_apc:GetName()
+                if settings_table[pc_name] then
+                    settings_table[pc_name].cid = pc_info:GetCID()
+                    settings_table[pc_name].order = order
+                    if g.layer and g.layer ~= settings_table[pc_name].layer then
+                        settings_table[pc_name].layer = g.layer
+                    end
+                end
+            end
         end
-
-        local next_monday_date = os.date("*t", now + days_to_next_monday * 86400)
-        next_monday_timestamp = os.time({
-            year = next_monday_date.year,
-            month = next_monday_date.month,
-            day = next_monday_date.day,
-            hour = 6,
-            min = 0,
-            sec = 0
-        })
+        g.settings_changed = true
     end
-
-    return next_monday_timestamp
-end]]
-
-function indun_list_viewer_raid_reset()
-    local account_info = session.barrack.GetMyAccount()
-    local barrack_pc_count = account_info:GetBarrackPCCount()
-
-    for i = 0, barrack_pc_count - 1 do
-        local barrack_pc_info = account_info:GetBarrackPCByIndex(i)
-        local barrack_pc_name = barrack_pc_info:GetName()
-
-        g.settings[barrack_pc_name]["raid_count"] = {
-            V_H = "?",
-            V_A = "?",
-            L_H = "?",
-            L_A = "?",
-            N_H = "?",
-            N_A = "?",
-            G_H = "?",
-            G_A = "?",
-            M_H = "?",
-            M_A = "?",
-            S_H = "?",
-            S_A = "?",
-            U_H = "?",
-            U_A = "?",
-            R_H = "?",
-            R_A = "?"
-        }
-    end
-    g.settings.reset_time = indun_list_viewer_get_reset_time()
-    indun_list_viewer_save_settings()
-
-    if g.lang == "Japanese" then
-        ui.SysMsg("[ILV]レイドの回数を初期化しました。")
-    else
-        ui.SysMsg("[ILV]Raid counts were initialized.")
-    end
-end
-
-function indun_list_viewer_sort_characters(account_info)
-
-    local layer_pc_count = account_info:GetPCCount()
-    for order = 0, layer_pc_count - 1 do
-        local pc_info = account_info:GetPCByIndex(order)
-        local pc_apc = pc_info:GetApc()
-        local pc_name = pc_apc:GetName()
-        local pc_cid = pc_info:GetCID()
-        g.settings[pc_name].cid = pc_cid
-        g.settings[pc_name].order = order
-        if g.layer and g.layer ~= g.settings[pc_name].layer then
-            g.settings[pc_name].layer = g.layer
-        end
-    end
-    g.layer = nil
-
-    indun_list_viewer_save_settings()
 
     g.sorted_settings = {}
-    for _, data in pairs(g.settings) do
-        if type(data) == "table" then
+    for key, data in pairs(settings_table) do
+        -- "reset_time" などのキャラクターデータではないテーブルを除外
+        if type(data) == "table" and data.pc_name then
             table.insert(g.sorted_settings, data)
         end
     end
@@ -492,210 +507,103 @@ function indun_list_viewer_sort_characters(account_info)
             return a.order < b.order
         end
     end
-
     table.sort(g.sorted_settings, sort_layer_order)
-end
-
-function indun_list_viewer_BARRACK_TO_GAME(...)
-
-    local bc_frame = ui.GetFrame("barrack_charlist")
-    if bc_frame then
-        g.layer = tonumber(bc_frame:GetUserValue("SelectBarrackLayer"))
-        _G["norisan"] = _G["norisan"] or {}
-        _G["norisan"]["LAST_LAYER"] = tonumber(bc_frame:GetUserValue("SelectBarrackLayer"))
-    end
-
-    local original_func = g.FUNCS["BARRACK_TO_GAME"]
-
-    local result
-
-    if original_func then
-        result = original_func(...)
-    end
-    return result
-end
-
-function indun_list_viewer_BARRACK_TO_GAME_HOOK()
-    g.FUNCS = g.FUNCS or {}
-    local origin_func_name = "BARRACK_TO_GAME"
-    if _G[origin_func_name] then
-        if not g.FUNCS[origin_func_name] then
-            g.FUNCS[origin_func_name] = _G[origin_func_name]
-        end
-        _G[origin_func_name] = indun_list_viewer_BARRACK_TO_GAME
-    end
 end
 
 function INDUN_LIST_VIEWER_ON_INIT(addon, frame)
 
     g.addon = addon
     g.frame = frame
-
     g.REGISTER = {}
-
-    _G["norisan"] = _G["norisan"] or {}
-    _G["norisan"]["HOOKS"] = _G["norisan"]["HOOKS"] or {}
-    if not _G["norisan"]["HOOKS"]["BARRACK_TO_GAME"] then
-        _G["norisan"]["HOOKS"]["BARRACK_TO_GAME"] = addon_name
-        addon:RegisterMsg("GAME_START", "indun_list_viewer_BARRACK_TO_GAME_HOOK")
-    end
-
     g.cid = session.GetMySession():GetCID();
     g.lang = option.GetCurrentCountry()
     g.login_name = session.GetMySession():GetPCApc():GetName()
-
-    g.layer = g.layer or (g.settings and g.settings[g.login_name] and g.settings[g.login_name].layer) or 1
+    if _G["BARRACK_CHARLIST_ON_INIT"] and _G["current_layer"] then
+        g.layer = _G["current_layer"] or 1
+    end
 
     if g.get_map_type() == "City" then
-        addon:RegisterMsg('GAME_START', "indun_list_viewer_load_settings")
-        addon:RegisterMsg('GAME_START_3SEC', "indun_list_viewer_get_raid_count")
+        indun_list_viewer_load_settings()
+        addon:RegisterMsg('GAME_START_3SEC', "indun_list_viewer_post_load_tasks")
 
-        g.setup_hook_and_event(addon, "APPS_TRY_MOVE_BARRACK", "indun_list_viewer_get_raid_count", true)
-        g.setup_hook_and_event(addon, "APPS_TRY_LOGOUT", "indun_list_viewer_get_raid_count", true)
-        g.setup_hook_and_event(addon, "APPS_TRY_EXIT", "indun_list_viewer_get_raid_count", true)
+        g.setup_hook_and_event(addon, "APPS_TRY_MOVE_BARRACK", "indun_list_viewer_save_current_char_counts", true)
+        g.setup_hook_and_event(addon, "APPS_TRY_LOGOUT", "indun_list_viewer_save_current_char_counts", true)
+        g.setup_hook_and_event(addon, "APPS_TRY_EXIT", "indun_list_viewer_save_current_char_counts", true)
         g.setup_hook_and_event(addon, "STATUS_SELET_REPRESENTATION_CLASS",
-            "indun_list_viewer_STATUS_SELET_REPRESENTATION_CLASS", true)
-
-    end
-    if g.load then
-        addon:RegisterMsg('GAME_START_3SEC', "indun_list_viewer_delete_character")
+            "indun_list_viewer_STATUS_SELET_REPRESENTATION_CLASS", true) -- STATUS_OPEN_CLASS_DROPLIST
     end
 end
 
-function indun_list_viewer_delete_character()
-
-    local acc_info = session.barrack.GetMyAccount()
-    local barrack_cnt = acc_info:GetBarrackPCCount()
-
-    local barrack_names = {}
-    for i = 0, barrack_cnt - 1 do
-        local pc_info = acc_info:GetBarrackPCByIndex(i)
-        local pc_name = pc_info:GetName()
-        table.insert(barrack_names, pc_name)
-    end
-
-    local remove_keys = {}
-
-    if g.settings then
-        for set_key, data_val in pairs(g.settings) do
-
-            local is_char_data = false
-            if type(data_val) == "table" and data_val.pc_name then
-                is_char_data = true
-            end
-
-            if is_char_data then
-
-                local found_barrack = false
-                if barrack_names and #barrack_names > 0 then
-                    for _, name_barrack in ipairs(barrack_names) do
-                        if set_key == name_barrack then
-                            found_barrack = true
-                            break
-                        end
-                    end
-                end
-
-                if not found_barrack then
-
-                    table.insert(remove_keys, set_key)
-
-                end
-
-            end
+function indun_list_viewer_post_load_tasks()
+    if not g.load then
+        g.settings[g.login_name] = g.settings[g.login_name] or {}
+        if not g.settings[g.login_name].auto_clear_count then
+            g.settings[g.login_name].auto_clear_count = {}
         end
-
-        if #remove_keys > 0 then
-
-            for _, key_del in ipairs(remove_keys) do
-
-                g.settings[key_del] = nil
-            end
-        end
+        g.load = true
     end
-
-    indun_list_viewer_save_settings()
+    indun_list_viewer_save_current_char_counts()
+    if g.settings_changed then
+        indun_list_viewer_save_settings()
+        g.settings_changed = false
+    end
+    indun_list_viewer_frame_init()
 end
 
-function indun_list_viewer_get_raid_count()
+function indun_list_viewer_save_current_char_counts()
 
-    local function create_data()
-        local data = {
-            V_H = GET_CURRENT_ENTERANCE_COUNT(GetClassByType("Indun", 727).PlayPerResetType),
-            -- V_H = "",
-            V_A = GET_CURRENT_ENTERANCE_COUNT(GetClassByType("Indun", 725).PlayPerResetType),
-            L_H = GET_CURRENT_ENTERANCE_COUNT(GetClassByType("Indun", 724).PlayPerResetType),
-            -- L_H = "",
-            L_A = GET_CURRENT_ENTERANCE_COUNT(GetClassByType("Indun", 722).PlayPerResetType),
-            R_H = GET_CURRENT_ENTERANCE_COUNT(GetClassByType("Indun", 718).PlayPerResetType),
-            R_A = GET_CURRENT_ENTERANCE_COUNT(GetClassByType("Indun", 716).PlayPerResetType),
-            N_H = GET_CURRENT_ENTERANCE_COUNT(GetClassByType("Indun", 709).PlayPerResetType),
-            N_A = GET_CURRENT_ENTERANCE_COUNT(GetClassByType("Indun", 707).PlayPerResetType),
-            G_H = GET_CURRENT_ENTERANCE_COUNT(GetClassByType("Indun", 712).PlayPerResetType),
-            G_A = GET_CURRENT_ENTERANCE_COUNT(GetClassByType("Indun", 710).PlayPerResetType),
-            M_H = GET_CURRENT_ENTERANCE_COUNT(GetClassByType("Indun", 697).PlayPerResetType),
-            M_A = GET_CURRENT_ENTERANCE_COUNT(GetClassByType("Indun", 695).PlayPerResetType),
-            S_H = GET_CURRENT_ENTERANCE_COUNT(GetClassByType("Indun", 690).PlayPerResetType),
-            S_A = GET_CURRENT_ENTERANCE_COUNT(GetClassByType("Indun", 688).PlayPerResetType),
-            U_H = GET_CURRENT_ENTERANCE_COUNT(GetClassByType("Indun", 687).PlayPerResetType),
-            U_A = GET_CURRENT_ENTERANCE_COUNT(GetClassByType("Indun", 685).PlayPerResetType)
-        }
-
-        return data
+    if g.get_map_type() ~= "City" then
+        return
     end
+    if not g.settings[g.login_name] then
+        return
+    end
+    local function get_safe_entrance_count(indun_type)
+        local indun_cls = GetClassByType("Indun", indun_type)
+        if indun_cls and indun_cls.PlayPerResetType then
+            return GET_CURRENT_ENTERANCE_COUNT(indun_cls.PlayPerResetType)
+        end
+        return nil
+    end
+    local raid_data = {}
+    for key, raid in pairs(RAID_INFO) do
+        local count = get_safe_entrance_count(raid.hard)
+        raid_data[key .. "_H"] = count or "?"
 
-    local data = create_data()
-    g.settings[g.login_name]["raid_count"] = data
+        count = get_safe_entrance_count(raid.auto)
+        raid_data[key .. "_A"] = count or "?"
+    end
+    g.settings[g.login_name].raid_count = raid_data
 
-    local sweepbuff_table = {
-        V_S = 80045,
-        L_S = 80043,
-        R_S = 80039,
-        N_S = 80035,
-        G_S = 80037,
-        M_S = 80032,
-        U_S = 80030,
-        S_S = 80031
-    }
+    local auto_clear_data = g.settings[g.login_name].auto_clear_count
     local my_handle = session.GetMyHandle()
 
-    local buff_frame = ui.GetFrame("buff")
-    local buff_slotset = GET_CHILD_RECURSIVELY(buff_frame, "buffslot")
-    local buff_slotcount = buff_slotset:GetChildCount()
-
-    for key, value in pairs(sweepbuff_table) do
-        g.settings[g.login_name]["auto_clear_count"][key] = 0
-
-        for i = 0, buff_slotcount - 1 do
-            local child = buff_slotset:GetChildByIndex(i)
-            local icon = child:GetIcon()
-            local icon_info = icon:GetInfo()
-            local buff_id = icon_info.type
-
-            if buff_id == value then
-                local buff_class = info.GetBuff(my_handle, buff_id)
-                g.settings[g.login_name]["auto_clear_count"][key] = buff_class.over
-                break
+    for _, key in ipairs(RAID_KEYS) do
+        local raid = RAID_INFO[key]
+        auto_clear_data[key .. "_S"] = 0
+        if raid.sweep_buff then
+            local buff_info = info.GetBuff(my_handle, raid.sweep_buff)
+            if buff_info then
+                auto_clear_data[key .. "_S"] = buff_info.over
             end
         end
     end
-
+    g.settings[g.login_name].auto_clear_count = auto_clear_data
     indun_list_viewer_save_settings()
+    g.settings_changed = false
 end
 
-local check_table = {"Veliora_H", "Limara_H", "Redania_H", "Neringa_H", "Golem_H", "Merregina_H", "Slogutis_H",
-                     "Upinis_H", "Veliora_S", "Limara_S", "Redania_S", "Neringa_S", "Golem_S", "Merregina_S",
-                     "Slogutis_S", "Upinis_S", "Memo"}
-
 function indun_list_viewer_frame_init()
+    local addon_frame = ui.GetFrame("indun_list_viewer")
+    addon_frame:SetSkinName('None')
+    addon_frame:SetTitleBarSkin("None")
+    addon_frame:Resize(35, 35)
 
-    local frame = ui.GetFrame("indun_list_viewer")
-    frame:SetSkinName('None')
-    frame:SetTitleBarSkin("None")
-    frame:Resize(35, 35)
-    frame:SetPos(665, 0)
+    local map_frame = ui.GetFrame("map")
+    addon_frame:SetPos((map_frame:GetWidth() - addon_frame:GetWidth()) / 2, 0)
 
-    local open_button = frame:CreateOrGetControl('button', 'open_button', 0, 0, 35, 35)
+    local open_button = addon_frame:CreateOrGetControl('button', 'open_button', 0, 0, 35, 35)
+    AUTO_CAST(open_button)
     open_button:SetSkinName("None")
     open_button:SetText("{img sysmenu_qu 35 35}")
     open_button:SetEventScript(ui.LBUTTONDOWN, "indun_list_viewer_title_frame_open")
@@ -711,141 +619,164 @@ function indun_list_viewer_frame_init()
                                        "You must return to the barracks once to rearrange the order of the characters.{nl}" ..
                                        "(instant cc not available)")
     end
+end
 
-    for i = 1, #check_table do
-        if g.settings[tostring(check_table[i])] == nil then
-            g.settings[tostring(check_table[i])] = 1
-        end
-    end
+function indun_list_viewer_display_check(frame, ctrl, key, num)
+    g.settings.display_options[key] = ctrl:IsChecked() == 1 and 1 or 0
     indun_list_viewer_save_settings()
 end
--- ゴーレムH712 A710 S711 ネリンガH709 A707 S708 
 
---[[local packageItemCls = GetClass('Item', "misc_boss_202509_weapon");
-local iconName = GET_ITEM_ICON_IMAGE(packageItemCls);
-print(tostring(iconName))
-local packageItemCls = GetClass('Item', "misc_boss_202509_armor");
-local iconName = GET_ITEM_ICON_IMAGE(packageItemCls);
-print(tostring(iconName))]]
+function indun_list_viewer_config()
+    local frame = ui.GetFrame(addon_name_lower .. "list_frame")
+    frame:RemoveAllChild()
+
+    local title_gb = frame:CreateOrGetControl("groupbox", "title_gb", 0, 0, 10, 10)
+    AUTO_CAST(title_gb)
+    local config_gb = frame:CreateOrGetControl("groupbox", "config_gb", 10, 35, 10, 10)
+    AUTO_CAST(config_gb)
+    config_gb:SetSkinName("bg")
+
+    local text = config_gb:CreateOrGetControl("richtext", "text", 10, 10)
+    AUTO_CAST(text)
+    text:SetText(g.lang == "Japanese" and "チェックすると表示" or "{ol}Check to show")
+
+    local x = text:GetX() + text:GetWidth() + 5
+
+    local text_x = 0
+
+    for _, raid_key in ipairs(RAID_KEYS) do
+        local raid_info = RAID_INFO[raid_key]
+        if text_x == 0 then
+            text_x = x
+        end
+        local pic = title_gb:CreateOrGetControl('picture', "title_pic_" .. raid_key .. "_H", x + 5, 5, 30, 30)
+        AUTO_CAST(pic)
+        pic:SetImage(raid_info.icon)
+        pic:SetEnableStretch(1)
+        pic:EnableHitTest(1)
+        local check = config_gb:CreateOrGetControl('checkbox', "check_" .. raid_key .. "_H", x, 5, 30, 30)
+        AUTO_CAST(check)
+        check:SetCheck(g.settings.display_options[raid_info.name .. "_H"])
+        check:SetEventScript(ui.LBUTTONDOWN, "indun_list_viewer_display_check")
+        check:SetEventScriptArgString(ui.LBUTTONDOWN, raid_info.name .. "_H")
+        x = x + 30
+    end
+
+    local hard_text = title_gb:CreateOrGetControl("richtext", "hard_text", text_x - 40, 10)
+    AUTO_CAST(hard_text)
+    hard_text:SetText("{ol}Hard")
+
+    x = x + 100
+    text_x = 0
+
+    for _, raid_key in ipairs(RAID_KEYS) do
+        local raid_info = RAID_INFO[raid_key]
+        if text_x == 0 then
+            text_x = x
+        end
+        local pic = title_gb:CreateOrGetControl('picture', "title_pic_" .. raid_key .. "_S", x + 5, 5, 30, 30)
+        AUTO_CAST(pic)
+        pic:SetImage(raid_info.icon)
+        pic:SetEnableStretch(1)
+        pic:EnableHitTest(1)
+        local check = config_gb:CreateOrGetControl('checkbox', "check_" .. raid_key .. "_S", x, 5, 30, 30)
+        AUTO_CAST(check)
+        check:SetCheck(g.settings.display_options[raid_info.name .. "_S"])
+        check:SetEventScript(ui.LBUTTONDOWN, "indun_list_viewer_display_check")
+        check:SetEventScriptArgString(ui.LBUTTONDOWN, raid_info.name .. "_S")
+        x = x + 30
+    end
+
+    local auto_text = title_gb:CreateOrGetControl("richtext", "auto_text", text_x - 80, 10)
+    AUTO_CAST(auto_text)
+    auto_text:SetText("{ol}Solo/Auto")
+
+    x = x + 30
+    -- メモ
+    local memo_text = title_gb:CreateOrGetControl("richtext", "memo_text", x, 10)
+    AUTO_CAST(memo_text)
+    memo_text:SetText("{ol}Memo")
+    local memo_check = config_gb:CreateOrGetControl('checkbox', "check_memo", x, 5, 30, 30)
+    AUTO_CAST(memo_check)
+    memo_check:SetCheck(g.settings.display_options["Memo"])
+    memo_check:SetEventScript(ui.LBUTTONDOWN, "indun_list_viewer_display_check")
+    memo_check:SetEventScriptArgString(ui.LBUTTONDOWN, "Memo")
+
+    local close_button = title_gb:CreateOrGetControl("button", "close_button", 0, 0, 20, 20)
+    AUTO_CAST(close_button)
+    close_button:SetImage("testclose_button")
+    close_button:SetGravity(ui.LEFT, ui.TOP)
+    close_button:SetEventScript(ui.LBUTTONUP, "indun_list_viewer_close")
+    close_button:SetEventScriptArgNumber(ui.LBUTTONUP, 1)
+
+    title_gb:Resize(x + 50, 55)
+    frame:Resize(title_gb:GetWidth() + 20, 85)
+    config_gb:Resize(frame:GetWidth() - 20, frame:GetHeight() - 45)
+end
 
 function indun_list_viewer_title_frame_open()
+    indun_list_viewer_save_current_char_counts()
 
-    indun_list_viewer_get_raid_count()
     local frame = ui.CreateNewFrame("notice_on_pc", addon_name_lower .. "list_frame", 0, 0, 10, 10)
     AUTO_CAST(frame)
     frame:RemoveAllChild()
-    frame:SetLayerLevel(99);
+    frame:SetLayerLevel(99)
     frame:SetSkinName("test_frame_low")
 
     local title_gb = frame:CreateOrGetControl("groupbox", "title_gb", 0, 0, 10, 10)
     AUTO_CAST(title_gb)
 
-    local texts = {
-        japanese = {
-            charcter_name = "キャラクター名",
-            hard_raid = "ハード",
-            auto_raid = "オート ソロ / オート掃討",
-            mode_text = "チェックを入れるとスクロールモードに切替",
-            display_text = "チェックしたキャラはレイド回数非表示",
-            memo = "メモ",
-            display = "表示",
-            hidden = "チェックを入れると非表示キャラを表示しません"
-        },
-        etc = {
-            charcter_name = "CharacterName",
-            hard_raid = "Hard Count",
-            auto_raid = "Auto or Solo Count/ AutoClearBuff Count",
-            titlegb_text = "Right-click to close",
-            mode_text = "Switch to scroll mode when checked",
-            display_text = "Checked characters hide raid count",
-            memo = "Memo",
-            display = "Disp",
-            hidden = "If checked, do not show hidden characters"
-        }
+    local texts = (g.lang == "Japanese") and {
+        hard_raid = "ハード",
+        auto_raid = "左クリック:ソロ入場{nl}右クリック:自動入場{nl} {nl}/掃討回数",
+        mode_text = "チェックを入れるとスクロールモードに切替",
+        display_text = "チェックしたキャラはレイド回数非表示",
+        memo = "メモ",
+        display = "表示",
+        hidden = "チェックを入れると非表示キャラを表示しません"
+    } or {
+        hard_raid = "Hard Count",
+        auto_raid = "Left-click: Solo Entry{nl}Right-click: Automatic Entry{nl} {nl}/Auto clear count",
+        mode_text = "Switch to scroll mode when checked",
+        display_text = "Checked characters hide raid count",
+        memo = "Memo",
+        display = "Disp",
+        hidden = "If checked, do not show hidden characters"
     }
 
-    local select_texts = g.lang == "Japanese" and texts.japanese or texts.etc
-
-    local icon_table = {{
-        icon_name = "icon_item_misc_boss_Veliora",
-        hard = 727,
-        solo = 726,
-        auto = 725
-    }, {
-        icon_name = "icon_item_misc_boss_Laimara",
-        hard = 724,
-        solo = 723,
-        auto = 722
-    }, {
-        icon_name = "icon_item_misc_boss_Redania",
-        hard = 718,
-        solo = 717,
-        auto = 716
-    }, {
-        icon_name = "icon_item_misc_boss_DarkNeringa",
-        hard = 709,
-        solo = 708,
-        auto = 707
-    }, {
-        icon_name = "icon_item_misc_boss_CrystalGolem",
-        hard = 712,
-        solo = 711,
-        auto = 710
-    }, {
-        icon_name = "icon_item_misc_merregina_blackpearl",
-        hard = 697,
-        solo = 696,
-        auto = 695
-    }, {
-        icon_name = "icon_item_misc_boss_Slogutis",
-        hard = 690,
-        solo = 689,
-        auto = 688
-    }, {
-        icon_name = "icon_item_misc_boss_Upinis",
-        hard = 687,
-        solo = 686,
-        auto = 685
-    }}
-
     local x = 185
-    for i = 1, #icon_table do
-
-        if g.settings[tostring(check_table[i])] == 1 then
-            local title_picture = title_gb:CreateOrGetControl('picture', "title_picture" .. i, x, 5, 30, 30);
-            AUTO_CAST(title_picture)
-            local icon_name = icon_table[i].icon_name
-            -- print(tostring(icon_name))
-            title_picture:SetImage(icon_name)
-            title_picture:SetEnableStretch(1)
-            title_picture:EnableHitTest(1)
-            title_picture:SetEventScript(ui.LBUTTONDOWN, "indun_list_viewer_enter_hard")
-            title_picture:SetEventScriptArgNumber(ui.LBUTTONDOWN, icon_table[i].hard)
-            title_picture:SetEventScriptArgString(ui.LBUTTONDOWN, "false")
-            title_picture:SetTextTooltip(g.lang == "Japanese" and "左クリックでレイド画面表示{nl}" ..
-                                             select_texts.hard_raid or "Left click to display raid screen{nl}" ..
-                                             select_texts.hard_raid)
-
+    for _, raid_key in ipairs(RAID_KEYS) do
+        local raid_info = RAID_INFO[raid_key]
+        if g.settings.display_options[raid_info.name .. "_H"] == 1 then
+            local pic = title_gb:CreateOrGetControl('picture', "title_pic_" .. raid_key .. "_H", x, 5, 30, 30)
+            AUTO_CAST(pic)
+            pic:SetImage(raid_info.icon)
+            pic:SetEnableStretch(1)
+            pic:EnableHitTest(1)
+            pic:SetEventScript(ui.LBUTTONDOWN, "indun_list_viewer_enter_hard")
+            pic:SetEventScriptArgNumber(ui.LBUTTONDOWN, raid_info.hard)
+            pic:SetEventScriptArgString(ui.LBUTTONDOWN, "false")
+            pic:SetTextTooltip("{ol}" .. texts.hard_raid)
             x = x + 30
         end
     end
     x = x + 30
-    for i = #icon_table + 1, #icon_table * 2 do
 
-        if g.settings[tostring(check_table[i])] == 1 then
-            local title_picture = title_gb:CreateOrGetControl('picture', "title_picture" .. i, x, 5, 30, 30);
-            AUTO_CAST(title_picture)
-            local icon_name = icon_table[i - #icon_table].icon_name --
-            title_picture:SetImage(icon_name)
-            title_picture:SetEnableStretch(1)
-            title_picture:EnableHitTest(1)
-            title_picture:SetUserValue("SOLO", icon_table[i - #icon_table].solo)
-            title_picture:SetUserValue("AUTO", icon_table[i - #icon_table].auto)
-            title_picture:SetEventScript(ui.LBUTTONUP, "indun_list_viewer_enter_context")
-            title_picture:SetTextTooltip(g.lang == "Japanese" and "左クリックでレイド画面表示{nl}" ..
-                                             select_texts.auto_raid or "Left click to display raid screen{nl}" ..
-                                             select_texts.auto_raid)
-
+    for _, raid_key in ipairs(RAID_KEYS) do
+        local raid_info = RAID_INFO[raid_key]
+        if g.settings.display_options[raid_info.name .. "_S"] == 1 then
+            local pic = title_gb:CreateOrGetControl('picture', "title_pic_" .. raid_key .. "_S", x, 5, 30, 30)
+            AUTO_CAST(pic)
+            pic:SetImage(raid_info.icon)
+            pic:SetEnableStretch(1)
+            pic:EnableHitTest(1)
+            pic:SetEventScript(ui.LBUTTONUP, "indun_list_viewer_enter_solo_or_auto")
+            pic:SetEventScriptArgString(ui.LBUTTONUP, "1")
+            pic:SetEventScriptArgNumber(ui.LBUTTONUP, raid_info.solo)
+            pic:SetEventScript(ui.RBUTTONUP, "indun_list_viewer_enter_solo_or_auto")
+            pic:SetEventScriptArgString(ui.RBUTTONUP, "2")
+            pic:SetEventScriptArgNumber(ui.RBUTTONUP, raid_info.auto)
+            pic:SetTextTooltip("{ol}" .. texts.auto_raid)
             x = x + 65
         end
     end
@@ -862,109 +793,6 @@ function indun_list_viewer_title_frame_open()
     cc_button:SetText("{img barrack_button_normal 30 30}")
     cc_button:SetEventScript(ui.LBUTTONUP, "APPS_TRY_MOVE_BARRACK")
 
-    function indun_list_viewer_config(frame, ctrl, str, num)
-
-        local frame = ui.GetFrame(addon_name_lower .. "list_frame")
-        frame:RemoveAllChild()
-        local config_gb = frame:CreateOrGetControl("groupbox", "config_gb", 10, 35, 10, 10)
-        AUTO_CAST(config_gb)
-        config_gb:SetSkinName("bg")
-        config_gb:ShowWindow(1)
-
-        local text = config_gb:CreateOrGetControl("richtext", "text", 10, 10)
-        AUTO_CAST(text)
-        text:SetText(g.lang == "Japanese" and "チェックすると表示" or "{ol}Check to show")
-
-        local title_gb = frame:CreateOrGetControl("groupbox", "title_gb", 0, 0, 10, 10)
-        AUTO_CAST(title_gb)
-        local x = text:GetWidth() + 35
-        for i = 1, #icon_table do
-
-            local title_picture = title_gb:CreateOrGetControl('picture', "title_picture" .. i, x, 5, 30, 30);
-            AUTO_CAST(title_picture)
-            local icon_name = icon_table[i].icon_name
-            title_picture:SetImage(icon_name)
-            title_picture:SetEnableStretch(1)
-            title_picture:EnableHitTest(1)
-            title_picture:SetTextTooltip("{ol}" .. select_texts.hard_raid)
-
-            x = x + 30
-        end
-
-        x = x + 30
-        for i = #icon_table + 1, #icon_table * 2 do
-
-            local title_picture = title_gb:CreateOrGetControl('picture', "title_picture" .. i, x, 5, 30, 30);
-            AUTO_CAST(title_picture)
-            local icon_name = icon_table[i - #icon_table].icon_name
-            title_picture:SetImage(icon_name)
-            title_picture:SetEnableStretch(1)
-            title_picture:EnableHitTest(1)
-            title_picture:SetTextTooltip("{ol}" .. select_texts.auto_raid)
-
-            x = x + 30
-        end
-        x = x + 30
-        local memo_text = title_gb:CreateOrGetControl("richtext", "memo_text", x, 10)
-        AUTO_CAST(memo_text)
-        memo_text:SetText("{ol}" .. select_texts.memo or "")
-
-        local close_button = title_gb:CreateOrGetControl("button", "close_button", 0, 0, 20, 20)
-        AUTO_CAST(close_button)
-        close_button:SetImage("testclose_button")
-        close_button:SetGravity(ui.LEFT, ui.TOP)
-        close_button:SetEventScript(ui.LBUTTONUP, "indun_list_viewer_close")
-        close_button:SetEventScriptArgNumber(ui.LBUTTONUP, 1)
-
-        function indun_list_viewer_display_check(frame, ctrl, str, num)
-
-            local ischeck = ctrl:IsChecked()
-            g.settings[str] = ischeck
-            indun_list_viewer_save_settings()
-        end
-
-        for i = 1, #check_table do
-
-            if g.settings[tostring(check_table[i])] == nil then
-                g.settings[tostring(check_table[i])] = 1
-            end
-        end
-        indun_list_viewer_save_settings()
-
-        local x = text:GetWidth() + 30
-        for i = 1, #icon_table do
-
-            local check_box = config_gb:CreateOrGetControl('checkbox', "check_box" .. i, x, 5, 30, 30);
-            AUTO_CAST(check_box)
-            check_box:SetCheck(g.settings[tostring(check_table[i])] or 1)
-            check_box:SetEventScript(ui.LBUTTONDOWN, "indun_list_viewer_display_check")
-            check_box:SetEventScriptArgString(ui.LBUTTONDOWN, check_table[i])
-
-            x = x + 30
-        end
-        x = x + 30
-        local loop_end_index = #icon_table * 2 + 1
-
-        for i = #icon_table + 1, loop_end_index do
-            local check_box = config_gb:CreateOrGetControl('checkbox', "check_box" .. i, x, 5, 30, 30);
-            AUTO_CAST(check_box)
-            check_box:SetCheck(g.settings[tostring(check_table[i])] or 1)
-            check_box:SetEventScript(ui.LBUTTONDOWN, "indun_list_viewer_display_check")
-            check_box:SetEventScriptArgString(ui.LBUTTONDOWN, check_table[i])
-
-            if i == loop_end_index - 1 then
-                x = x + 60
-            else
-                x = x + 30
-            end
-        end
-
-        title_gb:Resize(x + 20, 55)
-        frame:Resize(x + 40, 85)
-
-        config_gb:Resize(frame:GetWidth() - 20, frame:GetHeight() - 45)
-    end
-
     local config_btn = title_gb:CreateOrGetControl('button', 'config_btn', 75, 5, 30, 30)
     AUTO_CAST(config_btn)
     config_btn:SetSkinName("None")
@@ -973,283 +801,192 @@ function indun_list_viewer_title_frame_open()
 
     local mode_check = title_gb:CreateOrGetControl('checkbox', 'mode_check', 115, 5, 30, 30)
     AUTO_CAST(mode_check)
-    if g.settings.display_mode == "full" then
-        mode_check:SetCheck(0)
-    else
-        mode_check:SetCheck(1)
-    end
+    mode_check:SetCheck(g.settings.default_options.display_mode == "slide" and 1 or 0)
     mode_check:SetEventScript(ui.LBUTTONUP, "indun_list_viewer_modechange")
-    mode_check:SetTextTooltip("{ol}" .. select_texts.mode_text)
+    mode_check:SetTextTooltip("{ol}" .. texts.mode_text)
 
-    local hidden = title_gb:CreateOrGetControl('checkbox', 'hidden', 150, 5, 30, 30)
-    AUTO_CAST(hidden)
-    if not g.settings.hidden then
-        g.settings.hidden = 0
-        indun_list_viewer_save_settings()
-    end
-    hidden:SetCheck(g.settings.hidden)
+    local hidden_check = title_gb:CreateOrGetControl('checkbox', 'hidden_check', 150, 5, 30, 30)
+    AUTO_CAST(hidden_check)
+    hidden_check:SetCheck(g.settings.default_options.hidden)
+    hidden_check:SetEventScript(ui.LBUTTONUP, "indun_list_viewer_modechange")
+    hidden_check:SetTextTooltip("{ol}" .. texts.hidden)
 
-    hidden:SetEventScript(ui.LBUTTONUP, "indun_list_viewer_modechange")
-    hidden:SetTextTooltip("{ol}" .. select_texts.hidden)
-
-    if g.settings[tostring(check_table[#check_table])] == 1 then
+    if g.settings.display_options["Memo"] == 1 then
         local memo_text = title_gb:CreateOrGetControl("richtext", "memo_text", x, 10)
         AUTO_CAST(memo_text)
-        memo_text:SetText("{ol}" .. select_texts.memo)
+        memo_text:SetText("{ol}" .. texts.memo)
         x = x + 160
     end
 
     local display_text = title_gb:CreateOrGetControl("richtext", "display_text", x, 10)
     AUTO_CAST(display_text)
-    display_text:SetText("{ol}" .. select_texts.display)
-    display_text:SetTextTooltip("{ol}" .. select_texts.display_text)
+    display_text:SetText("{ol}" .. texts.display)
+    display_text:SetTextTooltip("{ol}" .. texts.display_text)
 
-    -- title_gb:Resize(x + 70, 55)
-    frame:SetPos(665, 35)
-    -- frame:Resize(x + 70, 55)
     frame:ShowWindow(1)
-
     indun_list_viewer_frame_open(frame)
 end
 
 function indun_list_viewer_close(frame, ctrl, str, num)
-
-    local frame = ui.GetFrame(addon_name_lower .. "list_frame")
-    frame:ShowWindow(0)
-
+    local list_frame = ui.GetFrame(addon_name_lower .. "list_frame")
+    list_frame:ShowWindow(0)
     if num == 1 then
         indun_list_viewer_title_frame_open()
     end
 end
 
 function indun_list_viewer_frame_open(frame)
-
-    local title_gb = GET_CHILD_RECURSIVELY(frame, "title_gb")
+    local title_gb = GET_CHILD(frame, "title_gb")
     AUTO_CAST(title_gb)
 
     local gb = frame:CreateOrGetControl("groupbox", "gb", 10, 35, 10, 10)
     AUTO_CAST(gb)
     gb:SetSkinName("bg")
-    gb:RemoveAllChild()
 
-    local sorted_new_settings = {}
+    local sorted_char_list = {}
     for _, data in ipairs(g.sorted_settings) do
-        if type(data) == "table" then
-            if g.settings.hidden == 1 then
-                local hidden = data.hide
-                if not hidden then
-                    table.insert(sorted_new_settings, data)
-                end
-            else
-                table.insert(sorted_new_settings, data)
+        if type(data) == "table" and data.pc_name then
+            if g.settings.default_options.hidden == 0 or not data.hide then
+                table.insert(sorted_char_list, data)
             end
         end
     end
 
     local y = 10
-    g.x = 0
-
-    for key, data in ipairs(sorted_new_settings) do
+    local max_x = 0
+    for _, data in ipairs(sorted_char_list) do
         local x = 35
-        if type(data) == "table" then
-            local pc_name = data.pc_name
+        local pc_name = data.pc_name
+        local name = gb:CreateOrGetControl("richtext", pc_name, x, y)
+        AUTO_CAST(name)
+        name:SetText(("{ol}{s14}" .. (g.login_name == pc_name and "{#FF4500}" or "") .. pc_name))
 
-            local name = gb:CreateOrGetControl("richtext", pc_name, x, y)
-            AUTO_CAST(name)
-            if g.login_name == pc_name then
-                name:SetText("{ol}{s14}{#FF4500}" .. pc_name)
-            else
-                name:SetText("{ol}{s14}" .. pc_name)
-            end
+        indun_list_viewer_job_slot(frame, data, y)
+        x = x + 60
 
-            indun_list_viewer_job_slot(frame, data, y)
-            x = x + 60
-            local i = 1
-            local index = 0
-
-            if not data.hide then
-
-                local hard_flag = false
-                local normal_flag = false
-
-                for _, raid_name in ipairs(check_table) do
-                    if g.settings[raid_name] == 1 then
-                        if string.find(raid_name, "_H") then
-
-                            if not hard_flag then
-                                x = 180
-                                hard_flag = true
-                            else
-                                x = x + 30
-                            end
-
-                            local first_char, last_char = string.match(raid_name, "^(.).*_(.)$")
-                            local key = first_char .. "_" .. last_char
-                            -- if key ~= "V_H" and key ~= "L_H" then
-                            local count = data.raid_count[key]
-                            if count then
-                                local text_ctrl = gb:CreateOrGetControl("richtext", key .. pc_name, x, y)
-                                text_ctrl:SetText("{ol}{s14}( " .. count .. " )")
-                                text_ctrl:SetColorTone(count == 1 and "FF990000" or "FFFFFFFF")
-                            end
-                            -- end
-
-                        elseif string.find(raid_name, "_S") then
-                            if not hard_flag then
-                                x = 140
-                                hard_flag = true
-                            end
-
-                            if not normal_flag then
-                                x = x + 60
-                                normal_flag = true
-                            else
-                                x = x + 40
-                            end
-
-                            local base_key = string.match(raid_name, "^(.).*_S$")
-                            local key_a, key_s = base_key .. "_A", base_key .. "_S"
-
-                            local count_a = data.raid_count[key_a]
-                            local text_a = gb:CreateOrGetControl("richtext", key_a .. pc_name, x, y)
-                            text_a:SetText("{ol}{s14}( " .. count_a .. " )")
-                            text_a:SetColorTone(count_a == 2 and "FF990000" or "FFFFFFFF")
-
-                            x = x + 25
-                            local count_s = data.auto_clear_count[key_s]
-                            local text_s = gb:CreateOrGetControl("richtext", key_s .. pc_name, x, y)
-                            text_s:SetText("{ol}{s14}/( " .. count_s .. " )")
-
-                        elseif raid_name == "Memo" then
-
-                            x = x + 40
-                            local memo = gb:CreateOrGetControl('edit', 'memo' .. pc_name, x, y - 2, 180, 20)
-                            memo:SetFontName("white_14_ol")
-                            memo:SetTextAlign("left", "center")
-                            memo:SetSkinName("inventory_serch")
-                            memo:SetEventScript(ui.ENTERKEY, "indun_list_viewer_memo_save")
-                            memo:SetEventScriptArgString(ui.ENTERKEY, pc_name)
-                            memo:SetText(data.memo or "")
-                            x = x + 140
-                        end
-                    end
+        if not data.hide then
+            local current_x = 180
+            -- ハード回数
+            for _, raid_key in ipairs(RAID_KEYS) do
+                local raid_info = RAID_INFO[raid_key]
+                if g.settings.display_options[raid_info.name .. "_H"] == 1 then
+                    local count = data.raid_count[raid_key .. "_H"] or "?"
+                    local text_ctrl = gb:CreateOrGetControl("richtext", raid_key .. "_H_" .. pc_name, current_x, y)
+                    AUTO_CAST(text_ctrl)
+                    text_ctrl:SetText("{ol}{s14}( " .. count .. " )")
+                    local limit = (raid_key == "P" or raid_key == "F") and 2 or 1
+                    text_ctrl:SetColorTone(count == limit and "FF990000" or "FFFFFFFF")
+                    current_x = current_x + 30
                 end
+            end
+            current_x = current_x + 30
+            -- オート/ソロ回数
+            for _, raid_key in ipairs(RAID_KEYS) do
+                local raid_info = RAID_INFO[raid_key]
+                if g.settings.display_options[raid_info.name .. "_S"] == 1 then
+                    local count_a = data.raid_count[raid_key .. "_A"] or "?"
+                    local text_a = gb:CreateOrGetControl("richtext", raid_key .. "_A_" .. pc_name, current_x, y)
+                    AUTO_CAST(text_a)
+                    text_a:SetText("{ol}{s14}( " .. count_a .. " )")
+                    local limit = (raid_key == "P" or raid_key == "F") and 4 or 2
+                    text_a:SetColorTone(count_a == limit and "FF990000" or "FFFFFFFF")
 
+                    if raid_key ~= "D" then
+                        current_x = current_x + 25
+                        local count_s = data.auto_clear_count[raid_key .. "_S"] or 0
+                        local text_s = gb:CreateOrGetControl("richtext", raid_key .. "_S_" .. pc_name, current_x, y)
+                        AUTO_CAST(text_s)
+                        text_s:SetText("{ol}{s14}/( " .. count_s .. " )")
+                    end
+                    current_x = current_x + 40
+                end
             end
-            if not g.x or x > g.x then
-                g.x = x
+            -- メモ
+            if g.settings.display_options["Memo"] == 1 then
+                local memo = gb:CreateOrGetControl('edit', 'memo' .. pc_name, current_x, y - 2, 180, 20)
+                AUTO_CAST(memo)
+                memo:SetFontName("white_14_ol")
+                memo:SetTextAlign("left", "center")
+                memo:SetSkinName("inventory_serch")
+                memo:SetEventScript(ui.ENTERKEY, "indun_list_viewer_memo_save")
+                memo:SetEventScriptArgString(ui.ENTERKEY, pc_name)
+                memo:SetText(data.memo or "")
+                current_x = current_x + 180
             end
-            y = y + 25
+            x = current_x
         end
-    end
 
-    local y = 10
-    for _, data in ipairs(sorted_new_settings) do
-
-        if type(data) == "table" then
-            local pc_name = data.pc_name
-
-            local line = gb:CreateOrGetControl("labelline", "line" .. pc_name, 25, y + 20, g.x + 10, 1)
-
-            line:SetSkinName("labelline_def_3")
-
-            local display = gb:CreateOrGetControl('checkbox', 'display' .. pc_name, g.x + 50, y - 5, 25, 25) -- 865
-
-            AUTO_CAST(display)
-            display:SetEventScript(ui.LBUTTONUP, "indun_list_viewer_display_save")
-            display:SetEventScriptArgString(ui.LBUTTONUP, pc_name)
-            local check = 1
-            if not data.hide then
-                check = 0
-            end
-            display:SetCheck(check)
-
+        if x > max_x then
+            max_x = x
         end
         y = y + 25
     end
 
-    if g.settings.display_mode == "full" then
-        frame:Resize(g.x + 40 + 80, y + 50)
-        gb:Resize(frame:GetWidth() - 20, frame:GetHeight() - 45)
-        title_gb:Resize(frame:GetWidth() - 20, 55)
+    local display_x = max_x + 20
+    y = 10
+    for _, data in ipairs(sorted_char_list) do
+        local pc_name = data.pc_name
+        local line = gb:CreateOrGetControl("labelline", "line" .. pc_name, 25, y + 20, max_x - 20, 1)
+        AUTO_CAST(line)
+        line:SetSkinName("labelline_def_3")
 
-    else
-        if y < 545 then
-            frame:Resize(g.x + 40 + 80, y + 50)
-            gb:Resize(frame:GetWidth() - 20, frame:GetHeight() - 45)
-        else
-            frame:Resize(g.x + 40 + 80, 545)
-            gb:Resize(frame:GetWidth() - 20, 500)
-        end
-
-        gb:EnableScrollBar(1);
-        gb:EnableDrawFrame(1);
-        gb:SetScrollPos(0)
-        title_gb:Resize(frame:GetWidth() - 20, 55)
+        local display_check = gb:CreateOrGetControl('checkbox', 'display' .. pc_name, display_x, y - 5, 25, 25)
+        AUTO_CAST(display_check)
+        display_check:SetEventScript(ui.LBUTTONUP, "indun_list_viewer_display_save")
+        display_check:SetEventScriptArgString(ui.LBUTTONUP, pc_name)
+        display_check:SetCheck(data.hide and 1 or 0)
+        y = y + 25
     end
 
+    local frame_width = display_x + 60
+    local frame_height = y + 50
+    if g.settings.default_options.display_mode == "slide" and frame_height > 545 then
+        frame_height = 545
+        gb:EnableScrollBar(1)
+    end
+
+    frame:Resize(frame_width, frame_height)
+    gb:Resize(frame:GetWidth() - 20, frame:GetHeight() - 45)
+    title_gb:Resize(frame:GetWidth() - 20, 55)
+
     local display_text = GET_CHILD_RECURSIVELY(frame, "display_text")
-    AUTO_CAST(display_text)
-    local charName = GETMYPCNAME();
-    local display = GET_CHILD_RECURSIVELY(frame, 'display' .. charName)
-    AUTO_CAST(display)
-    local display_x = display:GetX()
-    display_text:SetPos(display_x + 10, 10)
-    frame:ShowWindow(1)
+    if display_text then
+        AUTO_CAST(display_text)
+        display_text:SetPos(display_x, 10)
+    end
+
+    local map_frame = ui.GetFrame("map")
+    frame:SetPos((map_frame:GetWidth() - frame:GetWidth()) / 2, 35)
 end
 
-function indun_list_viewer_display_save(frame, ctrl, str, num)
+function indun_list_viewer_display_save(frame, ctrl, pc_name, num)
 
-    local ischeck = ctrl:IsChecked()
-
-    for _, data in ipairs(g.sorted_settings) do
-        local pc_name = data.pc_name
-        if pc_name == str then
-            if ischeck == 1 then
-                g.settings[pc_name].hide = true
-            else
-                g.settings[pc_name].hide = false
-            end
-            indun_list_viewer_save_settings()
-            break
-        end
+    local is_checked = ctrl:IsChecked()
+    if g.settings[pc_name] then
+        g.settings[pc_name].hide = (is_checked == 1)
+        indun_list_viewer_save_settings()
     end
     indun_list_viewer_title_frame_open()
 end
 
-function indun_list_viewer_memo_save(frame, ctrl, str, num)
-
-    local text = ctrl:GetText()
-    for _, data in ipairs(g.sorted_settings) do
-        local pc_name = data.pc_name
-        if pc_name == str then
-            g.settings[pc_name].memo = text
-            indun_list_viewer_save_settings()
-            break
-        end
+function indun_list_viewer_memo_save(frame, ctrl, pc_name, num)
+    if g.settings[pc_name] then
+        g.settings[pc_name].memo = ctrl:GetText()
+        indun_list_viewer_save_settings()
     end
-    if g.lang == "Japanese" then
-        ui.SysMsg("メモを登録しました。")
-    else
-        ui.SysMsg("MEMO registered.")
-    end
+    ui.SysMsg(g.lang == "Japanese" and "メモを登録しました。" or "MEMO registered.")
 end
 
 function indun_list_viewer_job_slot(frame, data, y)
 
     local pc_name = data.pc_name
-    local job_id = data.jobid
-    local president = data.president_jobid
+    local job_id_str = data.jobid or ""
+    local president_id_str = data.president_jobid or ""
 
-    local last_job_class
-    local job_list, level, last_job_id = GetJobListFromAdventureBookCharData(pc_name)
-    if job_id == "" then
-        last_job_class = GetClassByType("Job", last_job_id)
-    else
-        last_job_class = GetClassByType("Job", president)
-    end
-
-    local last_job_icon = TryGetProp(last_job_class, "Icon")
+    local _, _, last_job_id = GetJobListFromAdventureBookCharData(pc_name)
+    local representative_job_id = (president_id ~= "") and president_id or last_job_id
+    local job_class = GetClassByType("Job", representative_job_id)
+    local job_icon_name = TryGetProp(job_class, "Icon")
 
     local gb = GET_CHILD_RECURSIVELY(frame, "gb")
     local job_slot = gb:CreateOrGetControl("slot", "jobslot" .. pc_name, 5, y - 4, 25, 25)
@@ -1257,211 +994,136 @@ function indun_list_viewer_job_slot(frame, data, y)
     job_slot:SetSkinName("None")
     job_slot:EnableHitTest(1)
     job_slot:EnablePop(0)
-
     local job_icon = CreateIcon(job_slot)
-    job_icon:SetImage(last_job_icon)
+    job_icon:SetImage(job_icon_name)
 
-    local cc_text = ""
-    if g.lang == "Japanese" then
-        cc_text = "クリックするとキャラクターチェンジします。"
+    local tooltip_parts = {}
+    if job_id_str ~= "" then
+        local highlight_color = "{#FF0000}"
+        for id_str in job_id_str:gmatch("/([^/]+)") do
+            local job_id_num = tonumber(id_str)
+            if job_id_num then
+                local cls = GetClassByType("Job", job_id_num)
+                if cls and cls.Name then
+                    local name = (string.gsub(dic.getTranslatedStr(cls.Name), "{s18}", ""))
+                    if id_str == president_id_str then
+                        table.insert(tooltip_parts, highlight_color .. name .. "{/}")
+                    else
+                        table.insert(tooltip_parts, name)
+                    end
+                end
+            end
+        end
     else
-        cc_text = "Click to change characters."
+        if job_class and job_class.Name then
+            local name = TryGetProp(job_class, "Name")
+            table.insert(tooltip_parts, (string.gsub(dic.getTranslatedStr(name), "{s18}", "")))
+        end
     end
-
-    local text = ""
-    local id1, id2, id3, id4 = nil, nil, nil, nil
-    local job_name1, job_name2, job_name3, job_name4
-
-    if job_id ~= "" then
-
-        local ids = {}
-
-        for part in string.gmatch(job_id, "[^/]+") do
-            table.insert(ids, part)
-        end
-
-        id1, id2, id3, id4 = ids[1], ids[2], ids[3], ids[4]
-
-        local function get_job_name(id)
-            if not id then
-                return nil
-            end
-            local job_class = GetClassByType("Job", tonumber(id))
-            if job_class then
-                return TryGetProp(job_class, "Name", nil)
-            end
-            return nil
-        end
-
-        job_name1 = get_job_name(id1)
-        job_name2 = get_job_name(id2)
-        job_name3 = get_job_name(id3)
-        job_name4 = get_job_name(id4)
-
-        local highlight_color = "{#FF0000}" -- 一致した場合の色
-        local function color_if_match(jobName, jobId)
-            if jobId and tonumber(jobId) == tonumber(president) then
-                return highlight_color .. jobName .. "{/}"
-            else
-                return jobName
-            end
-        end
-        local tooltip_text = "{ol}"
-        if job_name1 then
-            tooltip_text = tooltip_text ..
-                               color_if_match(string.gsub(dic.getTranslatedStr(job_name1), "{s18}", ""), id1) .. "{nl}"
-        end
-        if job_name2 then
-            tooltip_text = tooltip_text ..
-                               color_if_match(string.gsub(dic.getTranslatedStr(job_name2), "{s18}", ""), id2) .. "{nl}"
-        end
-        if job_name3 then
-            tooltip_text = tooltip_text ..
-                               color_if_match(string.gsub(dic.getTranslatedStr(job_name3), "{s18}", ""), id3) .. "{nl}"
-        end
-        if job_name4 then
-            tooltip_text = tooltip_text ..
-                               color_if_match(string.gsub(dic.getTranslatedStr(job_name4), "{s18}", ""), id4) .. "{nl}"
-        end
-        text = tooltip_text
-    else
-        local job_name = TryGetProp(last_job_class, "Name")
-        text = "{ol}" .. string.gsub(dic.getTranslatedStr(job_name), "{s18}", "")
-
+    local tooltip_text = "{ol}" .. table.concat(tooltip_parts, "{nl}")
+    if g.login_name == pc_name then
+        local r_click_text = (g.lang == "Japanese") and "右クリック: 表示アイコン選択" or
+                                 "Right-click: Select Display Icon"
+        tooltip_text = tooltip_text .. "{nl} {nl}" .. r_click_text
+        job_slot:SetEventScript(ui.RBUTTONDOWN, "STATUS_OPEN_CLASS_DROPLIST")
+        local name_text = GET_CHILD_RECURSIVELY(gb, pc_name)
+        name_text:SetEventScript(ui.RBUTTONDOWN, "STATUS_OPEN_CLASS_DROPLIST")
     end
+    -- InstantCCアドオン連携
+    if type(_G["INSTANTCC_ON_INIT"]) == "function" then
+        local cc_text = (g.lang == "Japanese") and "左クリック: キャラクターチェンジ" or
+                            "Left-click: Character Change"
+        tooltip_text = tooltip_text .. "{nl} {nl}{#FF4500}" .. cc_text
 
-    local functionName = "INSTANTCC_ON_INIT"
-    if type(_G[functionName]) == "function" then
-
-        local cid = data.cid
-        local layer = data.layer
-
-        job_icon:SetTextTooltip(text .. "{nl} {nl}{#FF4500}" .. cc_text)
         job_slot:SetEventScript(ui.LBUTTONDOWN, "indun_list_viewer_INSTANTCC_DO_CC")
-        job_slot:SetEventScriptArgString(ui.LBUTTONDOWN, cid)
-        job_slot:SetEventScriptArgNumber(ui.LBUTTONDOWN, layer)
+        job_slot:SetEventScriptArgString(ui.LBUTTONDOWN, data.cid)
+        job_slot:SetEventScriptArgNumber(ui.LBUTTONDOWN, data.layer)
 
         local name_text = GET_CHILD_RECURSIVELY(gb, pc_name)
         name_text:SetEventScript(ui.LBUTTONDOWN, "indun_list_viewer_INSTANTCC_DO_CC")
-        name_text:SetEventScriptArgString(ui.LBUTTONDOWN, cid)
-        name_text:SetEventScriptArgNumber(ui.LBUTTONDOWN, layer)
-        name_text:SetTextTooltip(text .. "{nl} {nl}{#FF4500}" .. cc_text)
-    else
-        job_icon:SetTextTooltip(text)
+        name_text:SetEventScriptArgString(ui.LBUTTONDOWN, data.cid)
+        name_text:SetEventScriptArgNumber(ui.LBUTTONDOWN, data.layer)
+        name_text:SetTextTooltip(tooltip_text)
     end
+    job_icon:SetTextTooltip(tooltip_text)
 end
 
 function indun_list_viewer_INSTANTCC_DO_CC(frame, ctrl, cid, layer)
-    g.layer = nil
     INSTANTCC_DO_CC(cid, layer)
 end
 
 function indun_list_viewer_modechange(frame, ctrl, argStr, argNum)
-    -- hidden
     local ctrl_name = ctrl:GetName()
-    local ischeck = ctrl:IsChecked()
-    if ctrl_name == "hidden" then
-        if ischeck == 1 then
-            g.settings.hidden = 1
-        else
-            g.settings.hidden = 0
-        end
-    else
-        if ischeck == 1 then
-            g.settings.display_mode = "slide"
-        else
-            g.settings.display_mode = "full"
-        end
+    local is_checked = ctrl:IsChecked()
+    if ctrl_name == "hidden_check" then
+        g.settings.default_options.hidden = is_checked
+    else -- mode_check
+        g.settings.default_options.display_mode = is_checked == 1 and "slide" or "full"
     end
-
     indun_list_viewer_save_settings()
     indun_list_viewer_title_frame_open()
 end
 
 function indun_list_viewer_STATUS_SELET_REPRESENTATION_CLASS(my_frame, my_msg)
-    local select_index, select_key = g.get_event_args(my_msg)
+    local _, select_key = g.get_event_args(my_msg)
 
-    local main_session = session.GetMainSession();
-    local pc_job_info = main_session:GetPCJobInfo();
-    local job_count = pc_job_info:GetJobCount();
-    g.settings[g.login_name].jobid = ""
+    local pc_job_info = session.GetMainSession():GetPCJobInfo()
+    local job_count = pc_job_info:GetJobCount()
+    local job_id_parts = {}
     for i = 0, job_count - 1 do
-        local job_info = pc_job_info:GetJobInfoByIndex(i);
-        g.settings[g.login_name].jobid = g.settings[g.login_name].jobid .. "/" .. job_info.jobID
+        local job_info = pc_job_info:GetJobInfoByIndex(i)
+        table.insert(job_id_parts, job_info.jobID)
     end
+    g.settings[g.login_name].jobid = "/" .. table.concat(job_id_parts, "/")
 
-    g.settings[g.login_name].president_jobid = select_key
+    g.settings[g.login_name].president_jobid = tostring(select_key)
     indun_list_viewer_save_settings()
+    indun_list_viewer_title_frame_open()
 end
 
-function indun_list_viewer_enter_context(frame, ctrl, str, num)
-    local solo = g.lang == "Japanese" and "ソロ" or "SOLO"
-    local auto = g.lang == "Japanese" and "自動" or "AUTO"
-    local context = ui.CreateContextMenu("context", "", 0, 0, 0, 0);
-
-    local strScp = string.format("indun_list_viewer_enter_solo(%d)", ctrl:GetUserIValue("SOLO"))
-    ui.AddContextMenuItem(context, solo, strScp)
-    strScp = string.format("indun_list_viewer_enter_auto(%d)", ctrl:GetUserIValue("AUTO"))
-    ui.AddContextMenuItem(context, auto, strScp)
-    ui.OpenContextMenu(context);
-end
-
-function indun_list_viewer_enter_solo(induntype)
+function indun_list_viewer_enter_solo_or_auto(frame, ctrl, move_type_str, indun_type)
+    local move_type = tonumber(move_type_str)
     local frame = ui.GetFrame(addon_name_lower .. "list_frame")
     frame:ShowWindow(0)
 
-    ReqRaidAutoUIOpen(induntype)
-    ReserveScript(string.format("ReqMoveToIndun(%d,%d)", 1, 0), 0.3)
-end
+    ReqRaidAutoUIOpen(indun_type)
 
-function indun_list_viewer_enter_auto(induntype)
-    local frame = ui.GetFrame(addon_name_lower .. "list_frame")
-    frame:ShowWindow(0)
-
-    ReqRaidAutoUIOpen(induntype)
-    local topFrame = ui.GetFrame("indunenter")
-    -- local useCount = tonumber(topFrame:GetUserValue("multipleCount"));
-    local indunType = topFrame:GetUserValue('INDUN_TYPE');
-    local indunCls = GetClassByType('Indun', indunType);
-    local indunMinPCRank = TryGetProp(indunCls, 'PCRank')
-    local totaljobcount = session.GetPcTotalJobGrade()
-
-    if indunMinPCRank ~= nil then
-        if indunMinPCRank > totaljobcount and indunMinPCRank ~= totaljobcount then
-            ui.SysMsg(ScpArgMsg('IndunEnterNeedPCRank', 'NEED_RANK', indunMinPCRank))
-            return;
+    if move_type == 2 then
+        local top_frame = ui.GetFrame("indunenter")
+        local indun_cls = GetClassByType('Indun', top_frame:GetUserValue('INDUN_TYPE'))
+        local min_rank = TryGetProp(indun_cls, 'PCRank')
+        if min_rank and min_rank > session.GetPcTotalJobGrade() then
+            ui.SysMsg(ScpArgMsg('IndunEnterNeedPCRank', 'NEED_RANK', min_rank))
+            return
         end
     end
-    ReserveScript(string.format("ReqMoveToIndun(%d,%d)", 2, 0), 0.3)
+
+    ReserveScript(string.format("ReqMoveToIndun(%d, 0)", move_type), 0.3)
 end
 
-function indun_list_viewer_INDUNINFO_SET_BUTTONS(induntype, ctrl)
-    local frame = ui.GetFrame(addon_name_lower .. "list_frame")
-    local indunCls = GetClassByType('Indun', induntype)
-    local dungeonType = TryGetProp(indunCls, "DungeonType", "None")
-    local btnInfoCls = GetClassByStrProp("IndunInfoButton", "DungeonType", dungeonType)
+function indun_list_viewer_INDUNINFO_SET_BUTTONS(indun_type, ctrl)
 
-    if dungeonType == "Raid" then
-        btnInfoCls = INDUNINFO_SET_BUTTONS_FIND_CLASS(indunCls)
+    local indun_cls = GetClassByType('Indun', indun_type)
+    local dungeon_type = TryGetProp(indun_cls, "DungeonType", "None")
+    local btn_info_cls = GetClassByStrProp("IndunInfoButton", "DungeonType", dungeon_type)
+
+    if dungeon_type == "Raid" then
+        btn_info_cls = INDUNINFO_SET_BUTTONS_FIND_CLASS(indun_cls)
     end
 
-    local redButtonScp = TryGetProp(btnInfoCls, "RedButtonScp")
-    ctrl:SetUserValue('MOVE_INDUN_CLASSID', indunCls.ClassID)
-    ctrl:SetEventScript(ui.LBUTTONUP, redButtonScp)
+    local red_button_scp = TryGetProp(btn_info_cls, "RedButtonScp")
+    ctrl:SetUserValue('MOVE_INDUN_CLASSID', indun_cls.ClassID)
+    ctrl:SetEventScript(ui.LBUTTONUP, red_button_scp)
 end
 
-function indun_list_viewer_enter_hard(frame, ctrl, str, induntype)
-    local frame = ui.GetFrame(addon_name_lower .. "list_frame")
-    local indunCls = GetClassByType("Indun", induntype)
+function indun_list_viewer_enter_hard(frame, ctrl, str, indun_type)
+    local list_frame = ui.GetFrame(addon_name_lower .. "list_frame")
     if str == "false" then
-        indun_list_viewer_INDUNINFO_SET_BUTTONS(induntype, ctrl)
-        str = "true"
-        ReserveScript(string.format("indun_list_viewer_enter_hard('%s','%s','%s',%d)", frame, ctrl, str, induntype), 0.5)
-        return
+        indun_list_viewer_INDUNINFO_SET_BUTTONS(indun_type, ctrl)
+        ReserveScript(string.format("indun_list_viewer_enter_hard(nil, nil, 'true', %d)", indun_type), 0.5)
     else
-        SHOW_INDUNENTER_DIALOG(induntype)
-        frame:ShowWindow(0)
-        return
+        SHOW_INDUNENTER_DIALOG(indun_type)
+        list_frame:ShowWindow(0)
     end
 end
 
