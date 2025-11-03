@@ -304,7 +304,7 @@
     "name": "Indun Panel",
     "file": "indun_panel",
     "extension": "ipf",
-    "fileVersion": "v1.6.6",
+    "fileVersion": "v1.6.7",
     "releaseTag": "indun_panel",
     "unicode": "⛄",
     "description": "Wide monitor supported<br>チャレンジやレイドに入る支援パネルを設置します。<br>Set up a support panel to enter challenges and raids.<br>챌린지나 레이드에 들어가는 지원 패널을 설치합니다.",

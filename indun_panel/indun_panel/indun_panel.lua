@@ -68,10 +68,11 @@
 -- v1.6.5.3 テルハルシャUSEボタンバグってたの修正、IMCの20251023バグ修正
 -- v1.6.5.4 チャレンジ回数バグってたの修正
 -- v1.6.6 正式版
+-- v1.6.7 520チャレンジ券買えなかったバグ修正
 local addonName = "indun_panel"
 local addon_name_lower = string.lower(addonName)
 local author = "norisan"
-local ver = "1.6.6"
+local ver = "1.6.7"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -251,7 +252,7 @@ local buffIDs = {
 local raidTable = {
     [725] = {11210057, 11210056, 11210055},
     [722] = {11210053, 11210052, 11210051},
-    [716] = {11210044, 11210043, 11210042},
+    [716] = {11210044, 10820040, 11210043, 11210042},
     [707] = {11210024, 11210023, 11210022},
     [710] = {11210028, 11210027, 11210026},
     [695] = {11200356, 11200355, 11200354},
@@ -298,33 +299,26 @@ local DEFAULT_SETTINGS = {
 }
 
 function g.setup_hook_and_event(my_addon, origin_func_name, my_func_name, bool)
-
     g.FUNCS = g.FUNCS or {}
     if not g.FUNCS[origin_func_name] then
         g.FUNCS[origin_func_name] = _G[origin_func_name]
     end
     local origin_func = g.FUNCS[origin_func_name]
     local function hooked_function(...)
-
         local original_results
-
         if bool == true then
             original_results = {origin_func(...)}
         end
-
         g.ARGS = g.ARGS or {}
         g.ARGS[origin_func_name] = {...}
         imcAddOn.BroadMsg(origin_func_name)
-
         if original_results then
             return table.unpack(original_results)
         else
             return
         end
     end
-
     _G[origin_func_name] = hooked_function
-
     if not g.REGISTER[origin_func_name] then -- g.REGISTERはON_INIT内で都度初期化
         g.REGISTER[origin_func_name] = true
         my_addon:RegisterMsg(origin_func_name, my_func_name)
@@ -453,37 +447,26 @@ function g.setup_hook_and_event_before_after(my_addon, origin_func_name, my_func
     if not g.FUNCS[origin_func_name] then
         g.FUNCS[origin_func_name] = _G[origin_func_name]
     end
-
     local origin_func = g.FUNCS[origin_func_name]
-
     if bool == nil then
         bool = true
     end
-
     local function hooked_function(...)
         if bool == true then
-
             if before_after == "before" then
                 _G[my_func_name](...)
             end
-
             local results = {origin_func(...)}
-
             if before_after == "after" then
                 _G[my_func_name](...)
             end
-
             return table.unpack(results)
         else
-
             imcAddOn.BroadMsg(origin_func_name, ...)
-
             return
         end
     end
-
     _G[origin_func_name] = hooked_function
-
     if not bool then
         g.REGISTER = g.REGISTER or {}
         if not g.REGISTER[origin_func_name .. my_func_name] then
@@ -715,16 +698,7 @@ function indun_panel_save_setname(inputstring, ctrl, ctrl_name, num)
 
 end
 
-function indun_panel_frame_init()
-
-    local frame = ui.GetFrame("indun_panel")
-
-    frame:SetSkinName('None')
-    frame:SetLayerLevel(30)
-
-    frame:EnableHittestFrame(1)
-    frame:EnableMove(g.settings.move or 0)
-    frame:SetEventScript(ui.LBUTTONUP, "indun_panel_frame_drag")
+function indun_panel_setup_frame(frame)
     local map_frame = ui.GetFrame("map")
     local width = map_frame:GetWidth()
 
@@ -742,17 +716,16 @@ function indun_panel_frame_init()
     frame:SetPos(x, g.settings.y)
     frame:SetTitleBarSkin("None")
     frame:EnableHittestFrame(1)
-    frame:RemoveAllChild()
+    frame:EnableMove(g.settings.move or 0)
+    if g.settings.move == 1 then
+        frame:SetEventScript(ui.LBUTTONUP, "indun_panel_frame_drag")
+    else
+        frame:SetEventScript(ui.LBUTTONUP, "None")
+    end
+end
 
-    local button = frame:CreateOrGetControl("button", "indun_panel_open", 5, 5, 80, 30)
-    AUTO_CAST(button)
-    button:SetText("{ol}{s10}INDUNPANEL")
-    button:SetEventScript(ui.LBUTTONUP, "indun_panel_frame_open")
-    button:SetEventScript(ui.RBUTTONUP, "indun_panel_always_init")
-    button:SetEventScriptArgString(ui.RBUTTONUP, "OPEN")
-    button:SetTextTooltip(g.lang == "Japanese" and "{ol}右クリック: 常時展開で開く" or
-                              "{ol}Right click: Open in Always Expand")
-
+-- 新設: 共通のボタンを作成する関数
+function indun_panel_create_common_buttons(frame)
     local ccbtn = frame:CreateOrGetControl('button', 'ccbtn', 85, 5, 30, 30)
     AUTO_CAST(ccbtn)
     ccbtn:SetSkinName("None")
@@ -761,14 +734,12 @@ function indun_panel_frame_init()
     local lbutton_action = "APPS_TRY_MOVE_BARRACK"
     local rbutton_action = nil
     local tooltip_parts = {}
-
     local lbutton_tooltip = nil
 
     if type(_G["INSTANTCC_APPS_TRY_MOVE_BARRACK"]) == "function" then
         lbutton_action = "INSTANTCC_APPS_TRY_MOVE_BARRACK"
         lbutton_tooltip = "[InstantCC] Open"
     end
-
     if type(_G["indun_list_viewer_title_frame_open"]) == "function" then
         lbutton_action = "indun_list_viewer_title_frame_open"
         lbutton_tooltip = "Left-Click: [ILV] Open"
@@ -781,7 +752,6 @@ function indun_panel_frame_init()
     if lbutton_tooltip then
         table.insert(tooltip_parts, lbutton_tooltip)
     end
-
     if type(_G["other_character_skill_list_frame_open"]) == "function" then
         rbutton_action = "other_character_skill_list_frame_open"
         table.insert(tooltip_parts, "Right-Click: [OCSL] Open")
@@ -792,177 +762,270 @@ function indun_panel_frame_init()
         ccbtn:SetEventScript(ui.RBUTTONUP, rbutton_action)
     end
 
-    if #tooltip_parts > 0 then
-        ccbtn:SetTextTooltip("{ol}" .. table.concat(tooltip_parts, "{nl}"))
-    else
-        ccbtn:SetTextTooltip(g.lang == "Japanese" and "{ol}バラックに戻ります" or "{ol}Return to Barracks")
+    local default_tooltip = g.lang == "Japanese" and "{ol}バラックに戻ります" or "{ol}Return to Barracks"
+    ccbtn:SetTextTooltip(#tooltip_parts > 0 and "{ol}" .. table.concat(tooltip_parts, "{nl}") or default_tooltip)
+
+    return 115 -- 次のボタンを開始するX座標を返す
+end
+
+-- 新設: キー名に応じたボタンを作成するヘルパー関数
+function indun_panel_create_shortcut_button(frame, key_name, x)
+    local account_obj = GetMyAccountObj()
+    local coin_count = 0
+    local tooltip_msg = ""
+    local btn = nil
+
+    if key_name == "tos" and g.get_map_type() == "City" then
+        btn = frame:CreateOrGetControl("button", "tosshop", x + 2, 8, 25, 25)
+        btn:SetText("{img icon_item_Tos_Event_Coin 25 25}")
+        tooltip_msg = g.lang == "Japanese" and "{ol}TOSイベントショップ" or "{ol}TOS Event Shop"
+        btn:SetEventScript(ui.LBUTTONUP, "indun_panel_event_tos_whole_shop_open")
+    elseif key_name == "gabija" and g.get_map_type() == "City" then
+        btn = frame:CreateOrGetControl("button", "gabija", x, 7, 29, 29)
+        btn:SetText("{img goddess_shop_btn 29 29}")
+        coin_count = GET_COMMAED_STRING(TryGetProp(account_obj, "GabijaCertificate", "0"))
+        tooltip_msg =
+            (g.lang == "Japanese" and "{ol}ガビヤショップ{nl}" or "{ol}Gabija Shop{nl}") .. "{#FFFF00}" ..
+                coin_count
+        btn:SetEventScript(ui.LBUTTONUP, "REQ_GabijaCertificate_SHOP_OPEN")
+    elseif key_name == "vakarine" and g.get_map_type() == "City" then
+        btn = frame:CreateOrGetControl("button", "vakarine", x, 7, 29, 29)
+        btn:SetText("{img goddess2_shop_btn 29 29}")
+        coin_count = GET_COMMAED_STRING(TryGetProp(account_obj, "VakarineCertificate", "0"))
+        tooltip_msg = (g.lang == "Japanese" and "{ol}ヴァカリネショップ{nl}" or "{ol}Vakarine Shop{nl}") ..
+                          "{#FFFF00}" .. coin_count
+        btn:SetEventScript(ui.LBUTTONUP, "REQ_VakarineCertificate_SHOP_OPEN")
+    elseif key_name == "rada" and g.get_map_type() == "City" then
+        btn = frame:CreateOrGetControl("button", "rada", x, 8, 29, 29)
+        btn:SetText("{img goddess3_shop_btn 29 29}")
+        coin_count = GET_COMMAED_STRING(TryGetProp(account_obj, "RadaCertificate", "0"))
+        tooltip_msg = (g.lang == "Japanese" and "{ol}ラダショップ{nl}" or "{ol}Rada Shop{nl}") .. "{#FFFF00}" ..
+                          coin_count
+        btn:SetEventScript(ui.LBUTTONUP, "REQ_RadaCertificate_SHOP_OPEN")
+    elseif key_name == "jurate" and g.get_map_type() == "City" then
+        btn = frame:CreateOrGetControl("button", "jurate", x, 7, 29, 29)
+        btn:SetText("{img goddess4_shop_btn 29 29}")
+        coin_count = GET_COMMAED_STRING(TryGetProp(account_obj, "JurateCertificate", "0"))
+        tooltip_msg =
+            (g.lang == "Japanese" and "{ol}ユラテショップ{nl}" or "{ol}Jurate Shop{nl}") .. "{#FFFF00}" ..
+                coin_count
+        btn:SetEventScript(ui.LBUTTONUP, "REQ_JurateCertificate_SHOP_OPEN")
+    elseif key_name == "austeja" then
+        btn = frame:CreateOrGetControl("button", "austeja", x, 7, 29, 29)
+        btn:SetText("{img goddess5_shop_btn 29 29}")
+        coin_count = GET_COMMAED_STRING(TryGetProp(account_obj, "AustejaCertificate", "0"))
+        tooltip_msg = (g.lang == "Japanese" and "{ol}アウステヤショップ{nl}" or "{ol}Austeja Shop{nl}") ..
+                          "{#FFFF00}" .. coin_count
+        btn:SetEventScript(ui.LBUTTONUP, "REQ_AustejaCertificate_SHOP_OPEN")
+    elseif key_name == "pvp_mine" then
+        btn = frame:CreateOrGetControl("button", "pvp_mine", x, 7, 29, 29)
+        btn:SetText("{img pvpmine_shop_btn_total 29 29}")
+        tooltip_msg = g.lang == "Japanese" and "{ol}傭兵団ショップ" or "{ol}Mercenary Shop"
+        btn:SetEventScript(ui.LBUTTONUP, "MINIMIZED_PVPMINE_SHOP_BUTTON_CLICK")
+    elseif key_name == "market" and g.get_map_type() == "City" then
+        btn = frame:CreateOrGetControl("button", "market", x, 6, 29, 29)
+        btn:SetText("{img market_shortcut_btn02 29 29}")
+        tooltip_msg = g.lang == "Japanese" and "{ol}マーケット" or "{ol}Market"
+        btn:SetEventScript(ui.LBUTTONUP, "MINIMIZED_MARKET_BUTTON_CLICK")
+    elseif key_name == "craft" and g.get_map_type() == "City" then
+        btn = frame:CreateOrGetControl("button", "craft", x, 5, 29, 29)
+        btn:SetText("{img icon_fullscreen_menu_equipment_processing 28 28}")
+        tooltip_msg = g.lang == "Japanese" and "{ol}装備加工" or "{ol}Equipment Processing"
+        btn:SetEventScript(ui.LBUTTONUP, "FULLSCREEN_NAVIGATION_MENU_DEATIL_EQUIPMENT_PROCESSING_NPC")
+    elseif key_name == "leticia" and g.get_map_type() == "City" then
+        btn = frame:CreateOrGetControl("button", "leticia", x, 5, 29, 29)
+        btn:SetText("{img icon_fullscreen_menu_letica 28 28}")
+        tooltip_msg = g.lang == "Japanese" and "{ol}レティーシャへ移動" or "{ol}Leticia Move"
+        btn:SetEventScript(ui.LBUTTONUP, "indun_panel_FULLSCREEN_NAVIGATION_MENU_DETAIL_MOVE_NPC")
+        btn:SetEventScriptArgNumber(ui.LBUTTONUP, 309)
     end
 
-    local x = 115
+    if btn then
+        AUTO_CAST(btn)
+        btn:SetSkinName("None")
+        btn:SetTextTooltip(tooltip_msg)
+        btn:SetEventScript(ui.LBUTTONDOWN, "INDUN_PANEL_EARTHTOWERSHOP_CLOSE_RESTART")
+        return true -- ボタンが作成された
+    end
+    return false -- ボタンが作成されなかった
+end
+
+-- 修正: 折りたたみ時のUI構築
+function indun_panel_frame_init()
+    local frame = ui.GetFrame("indun_panel")
+    frame:SetSkinName('None')
+    frame:SetLayerLevel(30)
+    frame:RemoveAllChild()
+
+    indun_panel_setup_frame(frame)
+
+    local button = frame:CreateOrGetControl("button", "indun_panel_open", 5, 5, 80, 30)
+    AUTO_CAST(button)
+    button:SetText("{ol}{s10}INDUNPANEL")
+    button:SetEventScript(ui.LBUTTONUP, "indun_panel_frame_open")
+    button:SetEventScript(ui.RBUTTONUP, "indun_panel_always_init")
+    button:SetEventScriptArgString(ui.RBUTTONUP, "OPEN")
+    button:SetTextTooltip(g.lang == "Japanese" and "{ol}右クリック: 常時展開で開く" or
+                              "{ol}Right click: Open in Always Expand")
+
+    local x = indun_panel_create_common_buttons(frame)
 
     local temp_tbl =
         {"tos", "gabija", "vakarine", "rada", "jurate", "austeja", "pvp_mine", "market", "craft", "leticia"}
-
     if not g.settings.cols then
         g.settings.cols = {}
         for _, key_name in ipairs(temp_tbl) do
-
-            if key_name == "leticia" then
-                g.settings.cols[key_name] = 1
-            else
-                g.settings.cols[key_name] = 0
-            end
-
+            g.settings.cols[key_name] = (key_name == "leticia") and 1 or 0
         end
-
         g.save_settings()
     else
         for _, key_name in ipairs(temp_tbl) do
-            if not g.settings.cols[key_name] then
+            if g.settings.cols[key_name] == nil then
                 g.settings.cols[key_name] = 0
             end
         end
     end
 
-    local account_obj = GetMyAccountObj()
-    local coin_count = 0
-
     for _, key_name in ipairs(temp_tbl) do
         if g.settings.cols[key_name] == 1 then
-            local tooltip_msg = ""
-            if key_name == "tos" then
-                if g.get_map_type() == "City" then
-                    local tosshop = frame:CreateOrGetControl("button", "tosshop", x + 2, 8, 25, 25);
-                    AUTO_CAST(tosshop)
-                    tosshop:SetSkinName("None")
-                    tosshop:SetText("{img icon_item_Tos_Event_Coin 25 25}")
-                    coin_count = GET_COMMAED_STRING(TryGetProp(account_obj, "EVENT_TOS_WHOLE_TOTAL_COIN", "0"))
-                    tooltip_msg = g.lang == "Japanese" and "{ol}TOSイベントショップ" or "{ol}TOS Event Shop"
-                    tosshop:SetTextTooltip(tooltip_msg)
-                    tosshop:SetEventScript(ui.LBUTTONDOWN, "INDUN_PANEL_EARTHTOWERSHOP_CLOSE_RESTART")
-                    tosshop:SetEventScript(ui.LBUTTONUP, "indun_panel_event_tos_whole_shop_open")
-                end
-            elseif key_name == "gabija" then
-                if g.get_map_type() == "City" then
-                    local gabija = frame:CreateOrGetControl("button", "gabija", x, 7, 29, 29);
-                    AUTO_CAST(gabija)
-                    gabija:SetSkinName("None")
-                    gabija:SetText("{img goddess_shop_btn 29 29}")
-                    coin_count = GET_COMMAED_STRING(TryGetProp(account_obj, "GabijaCertificate", "0"))
-                    tooltip_msg =
-                        g.lang == "Japanese" and "{ol}ガビヤショップ{nl}" .. "{#FFFF00}" .. coin_count or
-                            "{ol}Gabija Shop{nl}" .. "{#FFFF00}" .. coin_count
-                    gabija:SetTextTooltip(tooltip_msg)
-                    gabija:SetEventScript(ui.LBUTTONDOWN, "INDUN_PANEL_EARTHTOWERSHOP_CLOSE_RESTART")
-                    gabija:SetEventScript(ui.LBUTTONUP, "REQ_GabijaCertificate_SHOP_OPEN")
-                end
-            elseif key_name == "vakarine" then
-                if g.get_map_type() == "City" then
-                    local vakarine = frame:CreateOrGetControl("button", "vakarine", x, 7, 29, 29);
-                    AUTO_CAST(vakarine)
-                    vakarine:SetSkinName("None")
-                    vakarine:SetText("{img goddess2_shop_btn 29 29}")
-                    coin_count = GET_COMMAED_STRING(TryGetProp(account_obj, "VakarineCertificate", "0"))
-                    tooltip_msg = g.lang == "Japanese" and "{ol}ヴァカリネショップ{nl}" .. "{#FFFF00}" ..
-                                      coin_count or "{ol}Vakarine Shop{nl}" .. "{#FFFF00}" .. coin_count
-                    vakarine:SetTextTooltip(tooltip_msg)
-                    vakarine:SetEventScript(ui.LBUTTONDOWN, "INDUN_PANEL_EARTHTOWERSHOP_CLOSE_RESTART")
-                    vakarine:SetEventScript(ui.LBUTTONUP, "REQ_VakarineCertificate_SHOP_OPEN")
-                end
-            elseif key_name == "rada" then
-                if g.get_map_type() == "City" then
-                    local rada = frame:CreateOrGetControl("button", "rada", x, 8, 29, 29);
-                    AUTO_CAST(rada)
-                    rada:SetSkinName("None")
-                    rada:SetText("{img goddess3_shop_btn 29 29}")
-                    coin_count = GET_COMMAED_STRING(TryGetProp(account_obj, "RadaCertificate", "0"))
-                    tooltip_msg = g.lang == "Japanese" and "{ol}ラダショップ{nl}" .. "{#FFFF00}" .. coin_count or
-                                      "{ol}Rada Shop{nl}" .. "{#FFFF00}" .. coin_count
-                    rada:SetTextTooltip(tooltip_msg)
-                    rada:SetEventScript(ui.LBUTTONDOWN, "INDUN_PANEL_EARTHTOWERSHOP_CLOSE_RESTART")
-                    rada:SetEventScript(ui.LBUTTONUP, "REQ_RadaCertificate_SHOP_OPEN")
-                end
-            elseif key_name == "jurate" then
-                if g.get_map_type() == "City" then
-                    local jurate = frame:CreateOrGetControl("button", "jurate", x, 7, 29, 29);
-                    AUTO_CAST(jurate)
-
-                    jurate:SetSkinName("None")
-                    jurate:SetText("{img goddess4_shop_btn 29 29}")
-                    coin_count = GET_COMMAED_STRING(TryGetProp(account_obj, "JurateCertificate", "0"))
-                    tooltip_msg =
-                        g.lang == "Japanese" and "{ol}ユラテショップ{nl}" .. "{#FFFF00}" .. coin_count or
-                            "{ol}Jurate Shop{nl}" .. "{#FFFF00}" .. coin_count
-                    jurate:SetTextTooltip(tooltip_msg)
-                    jurate:SetEventScript(ui.LBUTTONDOWN, "INDUN_PANEL_EARTHTOWERSHOP_CLOSE_RESTART")
-                    jurate:SetEventScript(ui.LBUTTONUP, "REQ_JurateCertificate_SHOP_OPEN")
-                end
-            elseif key_name == "austeja" then
-                -- if g.get_map_type() == "City" then
-                local austeja = frame:CreateOrGetControl("button", "austeja", x, 7, 29, 29);
-                AUTO_CAST(austeja)
-                if g.get_map_type() ~= "City" then
-                    austeja:SetOffset(115, 7)
-                end
-                austeja:SetSkinName("None")
-                austeja:SetText("{img goddess5_shop_btn 29 29}")
-                coin_count = GET_COMMAED_STRING(TryGetProp(account_obj, "AustejaCertificate", "0"))
-                tooltip_msg = g.lang == "Japanese" and "{ol}アウステヤショップ{nl}" .. "{#FFFF00}" ..
-                                  coin_count or "{ol}Austeja Shop{nl}" .. "{#FFFF00}" .. coin_count
-                austeja:SetTextTooltip(tooltip_msg)
-                austeja:SetEventScript(ui.LBUTTONDOWN, "INDUN_PANEL_EARTHTOWERSHOP_CLOSE_RESTART")
-                austeja:SetEventScript(ui.LBUTTONUP, "REQ_AustejaCertificate_SHOP_OPEN")
-                -- end
-            elseif key_name == "pvp_mine" then
-                local pvp_mine = frame:CreateOrGetControl("button", "pvp_mine", x, 7, 29, 29);
-                AUTO_CAST(pvp_mine)
-                if g.get_map_type() ~= "City" then
-                    pvp_mine:SetOffset(145, 7)
-                end
-                pvp_mine:SetSkinName("None")
-                pvp_mine:SetText("{img pvpmine_shop_btn_total 29 29}")
-                pvp_mine:SetTextTooltip(g.lang == "Japanese" and "{ol}傭兵団ショップ" or "{ol}Mercenary Shop")
-                pvp_mine:SetEventScript(ui.LBUTTONDOWN, "INDUN_PANEL_EARTHTOWERSHOP_CLOSE_RESTART")
-                -- pvp_mine:SetEventScript(ui.LBUTTONUP, "REQ_PVP_MINE_SHOP_OPEN")
-                pvp_mine:SetEventScript(ui.LBUTTONUP, "MINIMIZED_PVPMINE_SHOP_BUTTON_CLICK")
-                -- MINIMIZED_PVPMINE_SHOP_BUTTON_CLICK
-            elseif key_name == "market" then
-                if g.get_map_type() == "City" then
-                    local market = frame:CreateOrGetControl("button", "market", x, 6, 29, 29);
-                    AUTO_CAST(market)
-                    market:SetSkinName("None")
-                    market:SetText("{img market_shortcut_btn02 29 29}")
-                    market:SetTextTooltip(g.lang == "Japanese" and "{ol}マーケット" or "{ol}Market")
-                    market:SetEventScript(ui.LBUTTONUP, "MINIMIZED_MARKET_BUTTON_CLICK")
-                end
-            elseif key_name == "craft" then
-                if g.get_map_type() == "City" then
-                    local craft = frame:CreateOrGetControl("button", "craft", x, 5, 29, 29);
-                    AUTO_CAST(craft)
-                    craft:SetSkinName("None")
-                    craft:SetText("{img icon_fullscreen_menu_equipment_processing 28 28}")
-                    craft:SetTextTooltip(g.lang == "Japanese" and "{ol}装備加工" or "{ol}Equipment Processing")
-                    craft:SetEventScript(ui.LBUTTONUP, "FULLSCREEN_NAVIGATION_MENU_DEATIL_EQUIPMENT_PROCESSING_NPC")
-                end
-            elseif key_name == "leticia" then
-                if g.get_map_type() == "City" then
-                    local leticia = frame:CreateOrGetControl("button", "leticia", x, 5, 29, 29);
-                    AUTO_CAST(leticia)
-                    leticia:SetSkinName("None")
-                    leticia:SetText("{img icon_fullscreen_menu_letica 28 28}")
-                    leticia:SetTextTooltip(g.lang == "Japanese" and "{ol}レティーシャへ移動" or
-                                               "{ol}Leticia Move")
-                    leticia:SetEventScript(ui.LBUTTONUP, "indun_panel_FULLSCREEN_NAVIGATION_MENU_DETAIL_MOVE_NPC")
-                    leticia:SetEventScriptArgNumber(ui.LBUTTONUP, 309)
-                end
+            if indun_panel_create_shortcut_button(frame, key_name, x) then
+                x = x + 30
             end
-            x = x + 30
         end
     end
 
     frame:Resize(x, 40)
     frame:ShowWindow(1)
+end
 
+-- 修正: 展開時のUI構築
+function indun_panel_frame_open()
+    local frame = ui.GetFrame("indun_panel")
+    frame:RemoveAllChild()
+
+    indun_panel_setup_frame(frame)
+
+    local button = frame:CreateOrGetControl("button", "indun_panel_open", 5, 5, 80, 30)
+    AUTO_CAST(button)
+    button:SetText("{ol}{s10}INDUNPANEL")
+    button:SetEventScript(ui.LBUTTONUP, "indun_panel_frame_init")
+    button:SetEventScript(ui.RBUTTONUP, "indun_panel_always_init")
+    button:SetTextTooltip(g.lang == "Japanese" and "{ol}右クリック: 常時展開解除で閉じる" or
+                              "{ol}Right click: Close with permanent unexpand")
+
+    local x = indun_panel_create_common_buttons(frame)
+
+    local configbtn = frame:CreateOrGetControl('button', 'configbtn', x, 5, 30, 30)
+    AUTO_CAST(configbtn)
+    configbtn:SetSkinName("None")
+    configbtn:SetText("{img config_button_normal 30 30}")
+    configbtn:SetEventScript(ui.LBUTTONUP, "indun_panel_config_gb_open")
+    configbtn:SetTextTooltip(g.lang == "Japanese" and "{ol}Indun Panel 設定" or "{ol}Indun Panel Config")
+    x = x + 30
+
+    local button_keys = {"tos", "gabija", "vakarine", "rada", "jurate", "austeja", "pvp_mine", "market", "craft",
+                         "leticia"}
+    for _, key_name in ipairs(button_keys) do
+        if indun_panel_create_shortcut_button(frame, key_name, x) then
+            x = x + 30
+        end
+    end
+
+    if not g.settings.set_names then
+        g.settings.set_names = {}
+    end
+
+    local set_buttons = {{
+        name = "set_a",
+        default_text = "SET A"
+    }, {
+        name = "set_b",
+        default_text = "SET B"
+    }, {
+        name = "set_c",
+        default_text = "SET C"
+    }}
+
+    local current_x = x + 10 -- SET A の開始位置
+
+    for _, btn_info in ipairs(set_buttons) do
+        local btn = frame:CreateOrGetControl("button", btn_info.name, current_x, 5, 80, 30)
+        AUTO_CAST(btn)
+
+        local text = g.settings.set_names[btn_info.name] or btn_info.default_text
+        btn:Resize(80, 30)
+        btn:SetText("{ol}" .. text)
+        btn:Resize(80, 30)
+        btn:AdjustFontSizeByWidth(80)
+        btn:SetEventScript(ui.LBUTTONUP, "indun_panel_set_toggle")
+        btn:SetEventScriptArgString(ui.LBUTTONUP, btn:GetName())
+
+        if g.settings.use_set == btn_info.name then
+            btn:SetSkinName("test_red_button")
+        end
+
+        current_x = current_x + 85
+    end
+
+    local checkbox = frame:CreateOrGetControl('checkbox', 'checkbox', current_x, 5, 30, 30)
+    AUTO_CAST(checkbox)
+    checkbox:SetCheck(g.settings.checkbox)
+    checkbox:SetEventScript(ui.LBUTTONUP, "indun_panel_ischecked")
+    checkbox:SetTextTooltip(g.lang == "Japanese" and "{ol}チェックすると常時展開" or "{ol}IsCheck AlwaysOpen")
+
+    if g.settings.season_checkbox == nil then
+        g.settings.season_checkbox = 1
+        g.save_settings()
+    end
+
+    local function indun_panel_FIELD_BOSS_TIME_TAB_SETTING()
+        local induninfo_frame = ui.GetFrame("induninfo")
+        if not induninfo_frame then
+            return
+        end
+
+        local field_boss_ranking_control = GET_CHILD_RECURSIVELY(induninfo_frame, "field_boss_ranking_control")
+        if not field_boss_ranking_control then
+            return
+        end
+
+        local sub_tab = GET_CHILD_RECURSIVELY(field_boss_ranking_control, "sub_tab")
+        if not sub_tab then
+            return
+        end
+
+        local server_time_str = date_time.get_lua_now_datetime_str()
+        if not server_time_str then
+            return
+        end
+
+        local _, _, _, hour_str, min_str, _ = server_time_str:match("(%d+)-(%d+)-(%d+) (%d+):(%d+):(%d+)")
+        if not hour_str then
+            return
+        end
+
+        local server_hour = tonumber(hour_str)
+        local server_min = tonumber(min_str)
+
+        if (server_hour < 12) or (server_hour == 12 and server_min < 5) then
+            sub_tab:SelectTab(0)
+        else
+            sub_tab:SelectTab(1)
+        end
+    end
+
+    if g.settings.jsr_checkbox == 1 then
+        indun_panel_FIELD_BOSS_TIME_TAB_SETTING()
+    end
+
+    local final_x = current_x + 30
+    frame:Resize(final_x, 40)
+    frame:ShowWindow(1)
+
+    g.update_try = 0
+    g.housing_call_time = nil
+    indun_panel_frame_contents(frame)
+    configbtn:RunUpdateScript("indun_panel_frame_contents", 1.0)
 end
 
 function indun_panel_frame_save(frame, ctrl, set_name, num)
@@ -970,15 +1033,10 @@ function indun_panel_frame_save(frame, ctrl, set_name, num)
     if not g.settings[set_name] then
         g.settings[set_name] = {}
     end
-
     if g.settings.use_set == "None" then
         for key, value in pairs(g.settings) do
-
             if string.match(key, "_checkbox$") then
-
                 g.settings[set_name][key] = value
-                -- g.settings[key] = nil
-                -- ts("コピーしました:", key, value)
             end
         end
     end
@@ -1019,11 +1077,9 @@ function indun_panel_frame_skin_select_(skin_name)
 end
 
 function indun_panel_config_gb_open(frame, ctrl, argStr, argNum)
-
     local frame = ui.GetFrame("indun_panel")
     frame:SetSkinName("test_frame_low")
     frame:SetLayerLevel(90)
-
     frame:EnableHittestFrame(1)
     frame:SetAlpha(100)
     frame:RemoveAllChild()
@@ -1033,7 +1089,7 @@ function indun_panel_config_gb_open(frame, ctrl, argStr, argNum)
     AUTO_CAST(closeBtn)
     closeBtn:SetImage("testclose_button")
     closeBtn:SetGravity(ui.RIGHT, ui.TOP)
-    closeBtn:SetEventScript(ui.LBUTTONUP, "indun_panel_frame_init");
+    closeBtn:SetEventScript(ui.LBUTTONUP, "indun_panel_frame_init")
 
     local button = frame:CreateOrGetControl("button", "indun_panel_open", 5, 5, 80, 30)
     AUTO_CAST(button)
@@ -1044,228 +1100,154 @@ function indun_panel_config_gb_open(frame, ctrl, argStr, argNum)
     AUTO_CAST(position)
     position:SetText("{ol}{s10}BASE POS")
     position:SetEventScript(ui.LBUTTONUP, "indun_panel_frame_base_position")
-    -- indun_panel_INPUT_STRING_BOX
+
+    -- SET A, B, C ボタンの作成をループ処理に
     local tool_text = g.lang == "Japanese" and "{ol}右クリック: セット名変更" or
                           "{ol}Right-click: Rename Set"
-    local set_a = frame:CreateOrGetControl("button", "set_a", 200, 5, 80, 30)
-    AUTO_CAST(set_a)
-    local text = g.settings.set_names["set_a"] or "SET A"
-    set_a:Resize(80, 30)
-    set_a:SetText("{ol}" .. text)
-    set_a:Resize(80, 30)
-    set_a:AdjustFontSizeByWidth(80)
-    set_a:SetEventScript(ui.LBUTTONUP, "indun_panel_frame_save")
-    set_a:SetEventScriptArgString(ui.LBUTTONUP, set_a:GetName())
+    local set_buttons = {{
+        name = "set_a",
+        default = "SET A",
+        x = 200
+    }, {
+        name = "set_b",
+        default = "SET B",
+        x = 285
+    }, {
+        name = "set_c",
+        default = "SET C",
+        x = 370
+    }}
 
-    set_a:SetEventScript(ui.RBUTTONUP, "indun_panel_INPUT_STRING_BOX")
-    set_a:SetEventScriptArgString(ui.RBUTTONUP, set_a:GetName())
-    if g.settings.use_set == "set_a" then
-        set_a:SetSkinName("test_red_button")
+    for _, btn_info in ipairs(set_buttons) do
+        local btn = frame:CreateOrGetControl("button", btn_info.name, btn_info.x, 5, 80, 30)
+        AUTO_CAST(btn)
+        local text = g.settings.set_names[btn_info.name] or btn_info.default
+        btn:Resize(80, 30)
+        btn:SetText("{ol}" .. text)
+        btn:Resize(80, 30)
+        btn:AdjustFontSizeByWidth(80)
+        btn:SetEventScript(ui.LBUTTONUP, "indun_panel_frame_save")
+        btn:SetEventScriptArgString(ui.LBUTTONUP, btn:GetName())
+        btn:SetEventScript(ui.RBUTTONUP, "indun_panel_INPUT_STRING_BOX")
+        btn:SetEventScriptArgString(ui.RBUTTONUP, btn:GetName())
+        if g.settings.use_set == btn_info.name then
+            btn:SetSkinName("test_red_button")
+        end
+        btn:SetTextTooltip(tool_text)
     end
-    set_a:SetTextTooltip(tool_text)
-
-    local set_b = frame:CreateOrGetControl("button", "set_b", 285, 5, 80, 30)
-    AUTO_CAST(set_b)
-    local text = g.settings.set_names["set_b"] or "SET B"
-    set_b:Resize(80, 30)
-    set_b:SetText("{ol}" .. text)
-    set_b:Resize(80, 30)
-    set_b:AdjustFontSizeByWidth(80)
-    set_b:SetEventScript(ui.LBUTTONUP, "indun_panel_frame_save")
-    set_b:SetEventScriptArgString(ui.LBUTTONUP, set_b:GetName())
-    set_b:SetEventScript(ui.RBUTTONUP, "indun_panel_INPUT_STRING_BOX")
-    set_b:SetEventScriptArgString(ui.RBUTTONUP, set_b:GetName())
-    if g.settings.use_set == "set_b" then
-        set_b:SetSkinName("test_red_button")
-    end
-    set_b:SetTextTooltip(tool_text)
-
-    local set_c = frame:CreateOrGetControl("button", "set_c", 370, 5, 80, 30)
-    AUTO_CAST(set_c)
-    local text = g.settings.set_names["set_c"] or "SET C"
-    set_c:SetText("{ol}" .. text)
-    set_c:Resize(80, 30)
-    set_c:AdjustFontSizeByWidth(80)
-    set_c:Resize(80, 30)
-    set_c:SetEventScript(ui.LBUTTONUP, "indun_panel_frame_save")
-    set_c:SetEventScriptArgString(ui.LBUTTONUP, set_c:GetName())
-    set_c:SetEventScript(ui.RBUTTONUP, "indun_panel_INPUT_STRING_BOX")
-    set_c:SetEventScriptArgString(ui.RBUTTONUP, set_c:GetName())
-    if g.settings.use_set == "set_c" then
-        set_c:SetSkinName("test_red_button")
-    end
-    set_c:SetTextTooltip(tool_text)
 
     local skin_change = frame:CreateOrGetControl("button", "skin_change", 470, 5, 80, 30)
     AUTO_CAST(skin_change)
-    local text = g.lang == "Japanese" and "{ol}フレームスキン選択" or "{ol}Select Frame Skin"
+    local skin_text = g.lang == "Japanese" and "{ol}フレームスキン選択" or "{ol}Select Frame Skin"
     skin_change:SetEventScript(ui.LBUTTONUP, "indun_panel_frame_skin_select")
     skin_change:SetText("{ol}SKIN SELECT")
-    skin_change:SetTextTooltip("{ol}" .. text)
+    skin_change:SetTextTooltip(skin_text)
 
-    --[[    local droplist = ui.MakeDropListFrame(frame, 460, 5, 100, 30, 3, ui.CENTER_HORZ, 'indun_panel_frame_skin_select',
-        nil, nil); -- 最後2個はマウスオーバーとマウスアウト
-    for l = 1, 3 do
-        ui.AddDropListItem(dropBoxItem.Name, nil, dropBoxItem.ClassName)
-    end]]
-
-    ---ここから
-
+    -- ショートカットアイコンのチェックボックス作成をループ処理に
+    local shortcut_icons = {{
+        name = "tos",
+        img = "icon_item_Tos_Event_Coin",
+        size = 25
+    }, {
+        name = "gabija",
+        img = "goddess_shop_btn",
+        size = 29
+    }, {
+        name = "vakarine",
+        img = "goddess2_shop_btn",
+        size = 29
+    }, {
+        name = "rada",
+        img = "goddess3_shop_btn",
+        size = 29
+    }, {
+        name = "jurate",
+        img = "goddess4_shop_btn",
+        size = 29
+    }, {
+        name = "austeja",
+        img = "goddess5_shop_btn",
+        size = 29
+    }, {
+        name = "pvp_mine",
+        img = "pvpmine_shop_btn_total",
+        size = 29
+    }, {
+        name = "market",
+        img = "market_shortcut_btn02",
+        size = 29
+    }, {
+        name = "craft",
+        img = "icon_fullscreen_menu_equipment_processing",
+        size = 28
+    }, {
+        name = "leticia",
+        img = "icon_fullscreen_menu_letica",
+        size = 28
+    }}
     local config_x = 15
-    local tosshop = frame:CreateOrGetControl("checkbox", "tosshop", config_x, 47, 25, 25);
-    AUTO_CAST(tosshop)
-    tosshop:SetText("{img icon_item_Tos_Event_Coin 25 25}")
-    tosshop:SetEventScript(ui.LBUTTONUP, "indun_panel_ischecked")
-    tosshop:SetEventScriptArgString(ui.LBUTTONUP, "config")
-    tosshop:SetTextTooltip(g.lang == "Japanese" and "{ol}チェックすると常に表示" or
-                               "{ol}Always visible when checked")
-    tosshop:SetCheck(g.settings.cols.tos)
-    config_x = config_x + tosshop:GetWidth() + 5
+    local tooltip_always_show = g.lang == "Japanese" and "{ol}チェックすると常に表示" or
+                                    "{ol}Always visible when checked"
+    for _, icon_info in ipairs(shortcut_icons) do
+        local checkbox = frame:CreateOrGetControl("checkbox", icon_info.name, config_x, 47, icon_info.size,
+            icon_info.size)
+        AUTO_CAST(checkbox)
+        checkbox:SetText(string.format("{img %s %d %d}", icon_info.img, icon_info.size, icon_info.size))
+        checkbox:SetEventScript(ui.LBUTTONUP, "indun_panel_ischecked")
+        checkbox:SetEventScriptArgString(ui.LBUTTONUP, "config")
+        checkbox:SetTextTooltip(tooltip_always_show)
+        checkbox:SetCheck(g.settings.cols[icon_info.name])
+        config_x = config_x + checkbox:GetWidth() + 5
+    end
 
-    local gabija = frame:CreateOrGetControl("checkbox", "gabija", config_x, 47, 29, 29);
-    AUTO_CAST(gabija)
-    gabija:SetText("{img goddess_shop_btn 29 29}")
-    gabija:SetEventScript(ui.LBUTTONUP, "indun_panel_ischecked")
-    gabija:SetEventScriptArgString(ui.LBUTTONUP, "config")
-    gabija:SetTextTooltip(g.lang == "Japanese" and "{ol}チェックすると常に表示" or
-                              "{ol}Always visible when checked")
-    gabija:SetCheck(g.settings.cols.gabija)
-    config_x = config_x + gabija:GetWidth() + 5
-
-    local vakarine = frame:CreateOrGetControl("checkbox", "vakarine", config_x, 47, 29, 29);
-    AUTO_CAST(vakarine)
-    vakarine:SetText("{img goddess2_shop_btn 29 29}")
-    vakarine:SetEventScript(ui.LBUTTONUP, "indun_panel_ischecked")
-    vakarine:SetEventScriptArgString(ui.LBUTTONUP, "config")
-    vakarine:SetTextTooltip(g.lang == "Japanese" and "{ol}チェックすると常に表示" or
-                                "{ol}Always visible when checked")
-    vakarine:SetCheck(g.settings.cols.vakarine)
-    config_x = config_x + vakarine:GetWidth() + 5
-
-    local rada = frame:CreateOrGetControl("checkbox", "rada", config_x, 47, 29, 29);
-    AUTO_CAST(rada)
-    rada:SetText("{img goddess3_shop_btn 29 29}")
-    rada:SetEventScript(ui.LBUTTONUP, "indun_panel_ischecked")
-    rada:SetEventScriptArgString(ui.LBUTTONUP, "config")
-    rada:SetTextTooltip(g.lang == "Japanese" and "{ol}チェックすると常に表示" or
-                            "{ol}Always visible when checked")
-    rada:SetCheck(g.settings.cols.rada)
-    config_x = config_x + rada:GetWidth() + 5
-
-    local jurate = frame:CreateOrGetControl("checkbox", "jurate", config_x, 47, 29, 29);
-    AUTO_CAST(jurate)
-    jurate:SetText("{img goddess4_shop_btn 29 29}")
-    jurate:SetEventScript(ui.LBUTTONUP, "indun_panel_ischecked")
-    jurate:SetEventScriptArgString(ui.LBUTTONUP, "config")
-    jurate:SetTextTooltip(g.lang == "Japanese" and "{ol}チェックすると常に表示" or
-                              "{ol}Always visible when checked")
-    jurate:SetCheck(g.settings.cols.jurate)
-    config_x = config_x + jurate:GetWidth() + 5
-
-    local austeja = frame:CreateOrGetControl("checkbox", "austeja", config_x, 47, 29, 29);
-    AUTO_CAST(austeja)
-    austeja:SetText("{img goddess5_shop_btn 29 29}")
-    austeja:SetEventScript(ui.LBUTTONUP, "indun_panel_ischecked")
-    austeja:SetEventScriptArgString(ui.LBUTTONUP, "config")
-    austeja:SetTextTooltip(g.lang == "Japanese" and "{ol}チェックすると常に表示" or
-                               "{ol}Always visible when checked")
-    austeja:SetCheck(g.settings.cols.austeja)
-    config_x = config_x + austeja:GetWidth() + 5
-
-    local pvp_mine = frame:CreateOrGetControl("checkbox", "pvp_mine", config_x, 47, 29, 29);
-    AUTO_CAST(pvp_mine)
-    pvp_mine:SetText("{img pvpmine_shop_btn_total 29 29}")
-    pvp_mine:SetEventScript(ui.LBUTTONUP, "indun_panel_ischecked")
-    pvp_mine:SetEventScriptArgString(ui.LBUTTONUP, "config")
-    pvp_mine:SetTextTooltip(g.lang == "Japanese" and "{ol}チェックすると常に表示" or
-                                "{ol}Always visible when checked")
-    pvp_mine:SetCheck(g.settings.cols.pvp_mine)
-    config_x = config_x + pvp_mine:GetWidth() + 5
-
-    local market = frame:CreateOrGetControl("checkbox", "market", config_x, 47, 29, 29);
-    AUTO_CAST(market)
-    market:SetText("{img market_shortcut_btn02 29 29}")
-    market:SetEventScript(ui.LBUTTONUP, "indun_panel_ischecked")
-    market:SetEventScriptArgString(ui.LBUTTONUP, "config")
-    market:SetTextTooltip(g.lang == "Japanese" and "{ol}チェックすると常に表示" or
-                              "{ol}Always visible when checked")
-    market:SetCheck(g.settings.cols.market)
-    config_x = config_x + market:GetWidth() + 5
-
-    local craft = frame:CreateOrGetControl("checkbox", "craft", config_x, 47, 29, 29);
-    AUTO_CAST(craft)
-    craft:SetText("{img icon_fullscreen_menu_equipment_processing 28 28}")
-    craft:SetEventScript(ui.LBUTTONUP, "indun_panel_ischecked")
-    craft:SetEventScriptArgString(ui.LBUTTONUP, "config")
-    craft:SetTextTooltip(g.lang == "Japanese" and "{ol}チェックすると常に表示" or
-                             "{ol}Always visible when checked")
-    craft:SetCheck(g.settings.cols.craft)
-    config_x = config_x + craft:GetWidth() + 5
-
-    local leticia = frame:CreateOrGetControl("checkbox", "leticia", config_x, 47, 29, 29);
-    AUTO_CAST(leticia)
-    leticia:SetText("{img icon_fullscreen_menu_letica 28 28}")
-    leticia:SetEventScript(ui.LBUTTONUP, "indun_panel_ischecked")
-    leticia:SetEventScriptArgString(ui.LBUTTONUP, "config")
-    leticia:SetTextTooltip(g.lang == "Japanese" and "{ol}チェックすると常に表示" or
-                               "{ol}Always visible when checked")
-    leticia:SetCheck(g.settings.cols.leticia)
-    config_x = config_x + leticia:GetWidth() + 5
-
-    local label_line2 = frame:CreateControl('labelline', 'label_line2', 10, 77, config_x, 5);
+    local label_line2 = frame:CreateControl('labelline', 'label_line2', 10, 77, config_x, 5)
     AUTO_CAST(label_line2)
     label_line2:SetSkinName("labelline2")
 
-    local en_ver = frame:CreateOrGetControl('checkbox', 'en_ver', 25, 85, 25, 25)
-    AUTO_CAST(en_ver)
-    if g.settings.en_ver == nil then
-        g.settings.en_ver = 0
+    -- その他の設定チェックボックス作成をループ処理に
+    local other_settings = {{
+        name = "en_ver",
+        y = 85,
+        jp = "チェックすると英語表示に変更します",
+        en = "Check to display to English"
+    }, {
+        name = "move",
+        y = 120,
+        jp = "チェックするとフレームを動かせます",
+        en = "Check to move the frame"
+    }, {
+        name = "field_mode",
+        y = 155,
+        jp = "チェックするとフィールドで表示",
+        en = "Check to display in field"
+    }, {
+        name = "shading",
+        y = 190,
+        jp = "チェックすると網掛け表示",
+        en = "Check to display shading"
+    }}
+    local settings_changed = false
+    for _, setting_info in ipairs(other_settings) do
+        local checkbox = frame:CreateOrGetControl('checkbox', setting_info.name, 25, setting_info.y, 25, 25)
+        AUTO_CAST(checkbox)
+        if g.settings[setting_info.name] == nil then
+            g.settings[setting_info.name] = 0
+            settings_changed = true
+        end
+        checkbox:SetCheck(g.settings[setting_info.name])
+        checkbox:SetEventScript(ui.LBUTTONUP, "indun_panel_ischecked")
+        checkbox:SetText(g.lang == "Japanese" and "{ol}" .. setting_info.jp or "{ol}" .. setting_info.en)
+    end
+    if settings_changed then
         g.save_settings()
     end
-    en_ver:SetCheck(g.settings.en_ver)
-    en_ver:SetEventScript(ui.LBUTTONUP, "indun_panel_ischecked")
-    en_ver:SetText(g.lang == "Japanese" and "{ol}チェックすると英語表示に変更します" or
-                       "{ol}Check to display to English")
 
-    local move = frame:CreateOrGetControl('checkbox', 'move', 25, 120, 25, 25)
-    AUTO_CAST(move)
-    if g.settings.move == nil then
-        g.settings.move = 0
-        g.save_settings()
-    end
-    move:SetCheck(g.settings.move)
-    move:SetEventScript(ui.LBUTTONUP, "indun_panel_ischecked")
-    move:SetText(g.lang == "Japanese" and "{ol}チェックするとフレームを動かせます" or
-                     "{ol}Check to move the frame")
-
-    local field_mode = frame:CreateOrGetControl('checkbox', 'field_mode', 25, 155, 25, 25)
-    AUTO_CAST(field_mode)
-    if g.settings.field_mode == nil then
-        g.settings.field_mode = 0
-        g.save_settings()
-    end
-    field_mode:SetCheck(g.settings.field_mode)
-    field_mode:SetEventScript(ui.LBUTTONUP, "indun_panel_ischecked")
-    field_mode:SetText(g.lang == "Japanese" and "{ol}チェックするとフィールドで表示" or
-                           "{ol}Check to display in field")
-
-    local shading = frame:CreateOrGetControl('checkbox', 'shading', 25, 190, 25, 25)
-    AUTO_CAST(shading)
-    if g.settings.shading == nil then
-        g.settings.shading = 0
-        g.save_settings()
-    end
-    shading:SetCheck(g.settings.shading)
-    shading:SetEventScript(ui.LBUTTONUP, "indun_panel_ischecked")
-    shading:SetText(g.lang == "Japanese" and "{ol}チェックすると網掛け表示" or
-                        "{ol}Check to display shading")
-
-    local label_line = frame:CreateControl('labelline', 'label_line', 10, 215, config_x, 5);
+    local label_line = frame:CreateControl('labelline', 'label_line', 10, 215, config_x, 5)
     AUTO_CAST(label_line)
     label_line:SetSkinName("labelline2")
 
-    local posY_left = 220 -- 左の列のY座標
-    local posY_right = 220 -- 右の列のY座標
+    local posY_left = 220
+    local posY_right = 220
 
     local count = #induntype
     local half_count = math.ceil(count / 2)
@@ -1274,25 +1256,22 @@ function indun_panel_config_gb_open(frame, ctrl, argStr, argNum)
         local entry = induntype[i]
         for key, value in pairs(entry) do
             local checkbox
-
             if i <= half_count then
-
                 checkbox = frame:CreateOrGetControl('checkbox', key .. '_checkbox', 15, posY_left, 25, 25)
                 AUTO_CAST(checkbox)
                 posY_left = posY_left + 35
             else
-
                 checkbox = frame:CreateOrGetControl('checkbox', key .. '_checkbox', 325, posY_right, 25, 25)
                 AUTO_CAST(checkbox)
                 posY_right = posY_right + 35
             end
-
             checkbox:SetCheck(use_tbl[key .. '_checkbox'])
             checkbox:SetEventScript(ui.LBUTTONUP, "indun_panel_ischecked")
             checkbox:SetText("{ol}{#FFFFFF}" .. INDUN_PANEL_LANG(convert_tbl[key] or key))
             checkbox:SetTextTooltip(g.lang == "Japanese" and "チェックすると表示" or "Check to show")
         end
     end
+
     local final_height = math.max(posY_left, posY_right)
     frame:Resize(660, final_height + 5)
 end
@@ -1302,330 +1281,6 @@ function indun_panel_event_tos_whole_shop_open()
     local frame = ui.GetFrame("earthtowershop");
     frame:SetUserValue("SHOP_TYPE", 'EVENT_TOS_WHOLE_SHOP');
     ui.OpenFrame('earthtowershop');
-end
-
-function indun_panel_frame_open(frame)
-
-    local map_frame = ui.GetFrame("map")
-    local width = map_frame:GetWidth()
-
-    if not g.settings.x then
-        g.settings.x = 665
-        g.settings.y = 30
-        g.save_settings()
-    end
-
-    local x = g.settings.x
-    if width <= 1920 and x > 1920 then
-        x = g.settings.x / 21 * 16
-    end
-
-    local frame = ui.GetFrame("indun_panel")
-
-    frame:SetPos(x, g.settings.y)
-    frame:SetTitleBarSkin("None")
-    frame:EnableHittestFrame(1)
-    if not g.settings.move then
-        g.settings.move = 0
-    end
-    frame:EnableMove(g.settings.move)
-    if g.settings.move == 1 then
-        frame:SetEventScript(ui.LBUTTONUP, "indun_panel_frame_drag")
-    else
-        frame:SetEventScript(ui.LBUTTONUP, "None")
-    end
-    frame:RemoveAllChild()
-
-    local button = frame:CreateOrGetControl("button", "indun_panel_open", 5, 5, 80, 30)
-    AUTO_CAST(button)
-    button:SetText("{ol}{s10}INDUNPANEL")
-    button:SetEventScript(ui.RBUTTONUP, "indun_panel_always_init")
-    button:SetTextTooltip(g.lang == "Japanese" and "{ol}右クリック: 常時展開解除で閉じる" or
-                              "{ol}Right click: Close with permanent unexpand")
-
-    local ccbtn = frame:CreateOrGetControl('button', 'ccbtn', 85, 5, 30, 30)
-    AUTO_CAST(ccbtn)
-    ccbtn:SetSkinName("None")
-    ccbtn:SetText("{img barrack_button_normal 30 30}")
-    local lbutton_action = "APPS_TRY_MOVE_BARRACK"
-    local rbutton_action = nil
-    local tooltip_parts = {}
-
-    local lbutton_tooltip = nil
-
-    if type(_G["INSTANTCC_APPS_TRY_MOVE_BARRACK"]) == "function" then
-        lbutton_action = "INSTANTCC_APPS_TRY_MOVE_BARRACK"
-        lbutton_tooltip = "[InstantCC] Open"
-    end
-
-    if type(_G["indun_list_viewer_title_frame_open"]) == "function" then
-        lbutton_action = "indun_list_viewer_title_frame_open"
-        lbutton_tooltip = "Left-Click: [ILV] Open"
-        local indun_list_viewer = ui.GetFrame("indun_list_viewer")
-        if indun_list_viewer:IsVisible() == 1 then
-            indun_list_viewer:ShowWindow(0)
-        end
-    end
-
-    if lbutton_tooltip then
-        table.insert(tooltip_parts, lbutton_tooltip)
-    end
-
-    if type(_G["other_character_skill_list_frame_open"]) == "function" then
-        rbutton_action = "other_character_skill_list_frame_open"
-        table.insert(tooltip_parts, "Right-Click: [OCSL] Open")
-    end
-
-    ccbtn:SetEventScript(ui.LBUTTONUP, lbutton_action)
-    if rbutton_action then
-        ccbtn:SetEventScript(ui.RBUTTONUP, rbutton_action)
-    end
-
-    if #tooltip_parts > 0 then
-        ccbtn:SetTextTooltip("{ol}" .. table.concat(tooltip_parts, "{nl}"))
-    else
-        ccbtn:SetTextTooltip(g.lang == "Japanese" and "{ol}バラックに戻ります" or "{ol}Return to Barracks")
-    end
-
-    function indun_panel_frame_base_position(frame, ctrl, str, num)
-        frame:SetPos(665, 30)
-        g.settings.x = 665
-        g.settings.y = 30
-        g.save_settings()
-        indun_panel_frame_init()
-    end
-    frame:ShowWindow(1)
-
-    local configbtn = frame:CreateOrGetControl('button', 'configbtn', 115, 5, 30, 30)
-    AUTO_CAST(configbtn)
-    configbtn:SetSkinName("None")
-    configbtn:SetText("{img config_button_normal 30 30}")
-    configbtn:SetEventScript(ui.LBUTTONUP, "indun_panel_config_gb_open")
-    configbtn:SetTextTooltip(g.lang == "Japanese" and "{ol}Indun Panel 設定" or "{ol}Indun Panel Config")
-
-    if configbtn:IsVisible() == 1 then
-        button:SetEventScript(ui.LBUTTONUP, "indun_panel_frame_init")
-    end
-
-    local account_obj = GetMyAccountObj()
-    local tooltip_msg = ""
-    local coin_count = 0
-
-    if g.get_map_type() == "City" then
-
-        local market = frame:CreateOrGetControl("button", "market", 360, 6, 29, 29);
-        AUTO_CAST(market)
-        market:SetSkinName("None")
-        market:SetText("{img market_shortcut_btn02 29 29}")
-        market:SetTextTooltip(g.lang == "Japanese" and "{ol}マーケット" or "{ol}Market")
-        market:SetEventScript(ui.LBUTTONUP, "MINIMIZED_MARKET_BUTTON_CLICK")
-
-        local leticia = frame:CreateOrGetControl("button", "leticia", 420, 5, 29, 29);
-        AUTO_CAST(leticia)
-        leticia:SetSkinName("None")
-        leticia:SetText("{img icon_fullscreen_menu_letica 28 28}")
-        leticia:SetTextTooltip(g.lang == "Japanese" and "{ol}レティーシャへ移動" or "{ol}Leticia Move")
-        leticia:SetEventScript(ui.LBUTTONUP, "indun_panel_FULLSCREEN_NAVIGATION_MENU_DETAIL_MOVE_NPC")
-        leticia:SetEventScriptArgNumber(ui.LBUTTONUP, 309)
-
-        local tosshop = frame:CreateOrGetControl("button", "tosshop", 150, 8, 25, 25);
-        AUTO_CAST(tosshop)
-        tosshop:SetSkinName("None")
-        tosshop:SetText("{img icon_item_Tos_Event_Coin 25 25}")
-        coin_count = GET_COMMAED_STRING(TryGetProp(account_obj, "EVENT_TOS_WHOLE_TOTAL_COIN", "0"))
-        tooltip_msg = g.lang == "Japanese" and "{ol}TOSイベントショップ" or "{ol}TOS Event Shop"
-        tosshop:SetTextTooltip(tooltip_msg)
-        -- INDUN_PANEL_EARTHTOWERSHOP_CLOSE_RESTART
-        tosshop:SetEventScript(ui.LBUTTONDOWN, "INDUN_PANEL_EARTHTOWERSHOP_CLOSE_RESTART")
-        tosshop:SetEventScript(ui.LBUTTONUP, "indun_panel_event_tos_whole_shop_open")
-
-        local gabija = frame:CreateOrGetControl("button", "gabija", 180, 7, 29, 29);
-        AUTO_CAST(gabija)
-        gabija:SetSkinName("None")
-        gabija:SetText("{img goddess_shop_btn 29 29}")
-        coin_count = GET_COMMAED_STRING(TryGetProp(account_obj, "GabijaCertificate", "0"))
-        tooltip_msg = g.lang == "Japanese" and "{ol}ガビヤショップ{nl}" .. "{#FFFF00}" .. coin_count or
-                          "{ol}Gabija Shop{nl}" .. "{#FFFF00}" .. coin_count
-        gabija:SetTextTooltip(tooltip_msg)
-        gabija:SetEventScript(ui.LBUTTONDOWN, "INDUN_PANEL_EARTHTOWERSHOP_CLOSE_RESTART")
-        gabija:SetEventScript(ui.LBUTTONUP, "REQ_GabijaCertificate_SHOP_OPEN")
-
-        local vakarine = frame:CreateOrGetControl("button", "vakarine", 210, 7, 29, 29);
-        AUTO_CAST(vakarine)
-        vakarine:SetSkinName("None")
-        vakarine:SetText("{img goddess2_shop_btn 29 29}")
-        coin_count = GET_COMMAED_STRING(TryGetProp(account_obj, "VakarineCertificate", "0"))
-        tooltip_msg = g.lang == "Japanese" and "{ol}ヴァカリネショップ{nl}" .. "{#FFFF00}" .. coin_count or
-                          "{ol}Vakarine Shop{nl}" .. "{#FFFF00}" .. coin_count
-        vakarine:SetTextTooltip(tooltip_msg)
-        vakarine:SetEventScript(ui.LBUTTONDOWN, "INDUN_PANEL_EARTHTOWERSHOP_CLOSE_RESTART")
-        vakarine:SetEventScript(ui.LBUTTONUP, "REQ_VakarineCertificate_SHOP_OPEN")
-
-        local rada = frame:CreateOrGetControl("button", "rada", 240, 8, 29, 29);
-        AUTO_CAST(rada)
-        rada:SetSkinName("None")
-        rada:SetText("{img goddess3_shop_btn 29 29}")
-        coin_count = GET_COMMAED_STRING(TryGetProp(account_obj, "RadaCertificate", "0"))
-        tooltip_msg = g.lang == "Japanese" and "{ol}ラダショップ{nl}" .. "{#FFFF00}" .. coin_count or
-                          "{ol}Rada Shop{nl}" .. "{#FFFF00}" .. coin_count
-        rada:SetTextTooltip(tooltip_msg)
-        rada:SetEventScript(ui.LBUTTONDOWN, "INDUN_PANEL_EARTHTOWERSHOP_CLOSE_RESTART")
-        rada:SetEventScript(ui.LBUTTONUP, "REQ_RadaCertificate_SHOP_OPEN")
-
-        local jurate = frame:CreateOrGetControl("button", "jurate", 270, 7, 29, 29);
-        AUTO_CAST(jurate)
-
-        jurate:SetSkinName("None")
-        jurate:SetText("{img goddess4_shop_btn 29 29}")
-        coin_count = GET_COMMAED_STRING(TryGetProp(account_obj, "JurateCertificate", "0"))
-        tooltip_msg = g.lang == "Japanese" and "{ol}ユラテショップ{nl}" .. "{#FFFF00}" .. coin_count or
-                          "{ol}Jurate Shop{nl}" .. "{#FFFF00}" .. coin_count
-        jurate:SetTextTooltip(tooltip_msg)
-        jurate:SetEventScript(ui.LBUTTONDOWN, "INDUN_PANEL_EARTHTOWERSHOP_CLOSE_RESTART")
-        jurate:SetEventScript(ui.LBUTTONUP, "REQ_JurateCertificate_SHOP_OPEN")
-    end
-
-    local austeja = frame:CreateOrGetControl("button", "austeja", 300, 7, 29, 29);
-    AUTO_CAST(austeja)
-    if g.get_map_type() ~= "City" then
-        austeja:SetOffset(150, 7)
-    end
-    austeja:SetSkinName("None")
-    austeja:SetText("{img goddess5_shop_btn 29 29}")
-    coin_count = GET_COMMAED_STRING(TryGetProp(account_obj, "AustejaCertificate", "0"))
-    tooltip_msg = g.lang == "Japanese" and "{ol}アウステアショップ{nl}" .. "{#FFFF00}" .. coin_count or
-                      "{ol}Austeja Shop{nl}" .. "{#FFFF00}" .. coin_count
-    austeja:SetTextTooltip(tooltip_msg)
-    austeja:SetEventScript(ui.LBUTTONDOWN, "INDUN_PANEL_EARTHTOWERSHOP_CLOSE_RESTART")
-    austeja:SetEventScript(ui.LBUTTONUP, "REQ_AustejaCertificate_SHOP_OPEN")
-
-    local pvp_mine = frame:CreateOrGetControl("button", "pvp_mine", 330, 7, 29, 29);
-    AUTO_CAST(pvp_mine)
-    if g.get_map_type() ~= "City" then
-        pvp_mine:SetOffset(180, 7)
-    end
-    pvp_mine:SetSkinName("None")
-    pvp_mine:SetText("{img pvpmine_shop_btn_total 29 29}")
-    pvp_mine:SetTextTooltip(g.lang == "Japanese" and "{ol}傭兵団ショップ" or "{ol}Mercenary Shop")
-    pvp_mine:SetEventScript(ui.LBUTTONDOWN, "INDUN_PANEL_EARTHTOWERSHOP_CLOSE_RESTART")
-    -- pvp_mine:SetEventScript(ui.LBUTTONUP, "REQ_PVP_MINE_SHOP_OPEN")
-    pvp_mine:SetEventScript(ui.LBUTTONUP, "MINIMIZED_PVPMINE_SHOP_BUTTON_CLICK")
-    if g.get_map_type() == "City" then
-        local craft = frame:CreateOrGetControl("button", "craft", 390, 5, 29, 29);
-        AUTO_CAST(craft)
-        craft:SetSkinName("None")
-        craft:SetText("{img icon_fullscreen_menu_equipment_processing 28 28}")
-        craft:SetTextTooltip(g.lang == "Japanese" and "{ol}装備加工" or "{ol}Equipment Processing")
-        craft:SetEventScript(ui.LBUTTONUP, "FULLSCREEN_NAVIGATION_MENU_DEATIL_EQUIPMENT_PROCESSING_NPC")
-    end
-
-    local checkbox = frame:CreateOrGetControl('checkbox', 'checkbox', 715, 5, 30, 30)
-    AUTO_CAST(checkbox)
-    checkbox:SetCheck(g.settings.checkbox)
-    checkbox:SetEventScript(ui.LBUTTONUP, "indun_panel_ischecked")
-    checkbox:SetTextTooltip(g.lang == "Japanese" and "{ol}チェックすると常時展開" or "{ol}IsCheck AlwaysOpen")
-
-    if g.settings.season_checkbox == nil then
-        g.settings.season_checkbox = 1
-        g.save_settings()
-    end
-
-    function indun_panel_FIELD_BOSS_TIME_TAB_SETTING()
-        local frame = ui.GetFrame("induninfo")
-        if not frame then
-            return
-        end
-
-        local field_boss_ranking_control = GET_CHILD_RECURSIVELY(frame, "field_boss_ranking_control")
-        if not field_boss_ranking_control then
-            return
-        end
-
-        local sub_tab = GET_CHILD_RECURSIVELY(field_boss_ranking_control, "sub_tab")
-        if not sub_tab then
-            return
-        end
-
-        local server_time_str = date_time.get_lua_now_datetime_str()
-        if not server_time_str then
-            return
-        end
-
-        local _, _, _, hour_str, min_str, _ = server_time_str:match("(%d+)-(%d+)-(%d+) (%d+):(%d+):(%d+)")
-        if not hour_str then
-            return
-        end
-
-        local server_hour = tonumber(hour_str)
-        local server_min = tonumber(min_str)
-
-        if (server_hour < 12) or (server_hour == 12 and server_min < 5) then
-
-            sub_tab:SelectTab(0)
-        else
-
-            sub_tab:SelectTab(1)
-        end
-
-    end
-
-    if g.settings.jsr_checkbox == 1 then
-        indun_panel_FIELD_BOSS_TIME_TAB_SETTING()
-    end
-
-    local set_a = frame:CreateOrGetControl("button", "set_a", 460, 5, 80, 30)
-    AUTO_CAST(set_a)
-
-    if not g.settings.set_names then
-        g.settings.set_names = {}
-        g.save_settings()
-    end
-
-    local text = g.settings.set_names["set_a"] or "SET A"
-    set_a:SetText("{ol}" .. text)
-    set_a:Resize(80, 30)
-    set_a:AdjustFontSizeByWidth(80)
-    set_a:Resize(80, 30)
-    set_a:SetEventScript(ui.LBUTTONUP, "indun_panel_set_toggle")
-    set_a:SetEventScriptArgString(ui.LBUTTONUP, set_a:GetName())
-    if g.settings.use_set == "set_a" then
-
-        set_a:SetSkinName("test_red_button")
-    end
-
-    local set_b = frame:CreateOrGetControl("button", "set_b", 545, 5, 80, 30)
-    AUTO_CAST(set_b)
-
-    local text = g.settings.set_names["set_b"] or "SET B"
-    set_b:SetText("{ol}" .. text)
-    set_b:Resize(80, 30)
-    set_b:AdjustFontSizeByWidth(80)
-    set_b:Resize(80, 30)
-    set_b:SetEventScript(ui.LBUTTONUP, "indun_panel_set_toggle")
-    set_b:SetEventScriptArgString(ui.LBUTTONUP, set_b:GetName())
-    if g.settings.use_set == "set_b" then
-        set_b:SetSkinName("test_red_button")
-    end
-
-    local set_c = frame:CreateOrGetControl("button", "set_c", 630, 5, 80, 30)
-    AUTO_CAST(set_c)
-    local text = g.settings.set_names["set_c"] or "SET C"
-    set_c:SetText("{ol}" .. text)
-    set_c:Resize(80, 30)
-    set_c:AdjustFontSizeByWidth(80)
-    set_c:Resize(80, 30)
-    set_c:SetEventScript(ui.LBUTTONUP, "indun_panel_set_toggle")
-    set_c:SetEventScriptArgString(ui.LBUTTONUP, set_c:GetName())
-    if g.settings.use_set == "set_c" then
-        set_c:SetSkinName("test_red_button")
-    end
-
-    g.update_try = 0
-
-    g.housing_call_time = nil
-    indun_panel_frame_contents(frame)
-    configbtn:RunUpdateScript("indun_panel_frame_contents", 1.0)
-
 end
 
 function indun_panel_set_toggle(frame, ctrl, set_name, num)
@@ -1988,12 +1643,14 @@ function indun_panel_challenge_item_use(indun_panel, ctrl, str, indun_type)
 
     if indun_type == 1001 then
         local enterance_count = indun_panel_get_entrance_count(indun_type, 4)
-        if enterance_count == 1 then
+        if tonumber(enterance_count) == 1 then
             indun_panel_challenge_low(indun_type)
         end
     elseif indun_type == 1005 or indun_type == 1004 then
         local enterance_count = indun_panel_get_entrance_count(indun_type, 4)
-        if enterance_count == 0 then
+
+        if tonumber(enterance_count) == 0 then
+
             indun_panel_challenge_high(indun_type, str)
         end
     end
@@ -3475,3 +3132,854 @@ function INDUN_PANEL_LANG(str)
     return "{s20}" .. str
 end
 
+--[==[unction indun_panel_config_gb_open(frame, ctrl, argStr, argNum)
+
+    local frame = ui.GetFrame("indun_panel")
+    frame:SetSkinName("test_frame_low")
+    frame:SetLayerLevel(90)
+
+    frame:EnableHittestFrame(1)
+    frame:SetAlpha(100)
+    frame:RemoveAllChild()
+    frame:ShowWindow(1)
+
+    local closeBtn = frame:CreateOrGetControl('button', 'closeBtn', 0, 0, 30, 30)
+    AUTO_CAST(closeBtn)
+    closeBtn:SetImage("testclose_button")
+    closeBtn:SetGravity(ui.RIGHT, ui.TOP)
+    closeBtn:SetEventScript(ui.LBUTTONUP, "indun_panel_frame_init");
+
+    local button = frame:CreateOrGetControl("button", "indun_panel_open", 5, 5, 80, 30)
+    AUTO_CAST(button)
+    button:SetText("{ol}{s10}INDUNPANEL")
+    button:SetEventScript(ui.LBUTTONUP, "indun_panel_frame_init")
+
+    local position = frame:CreateOrGetControl("button", "position", 90, 5, 60, 30)
+    AUTO_CAST(position)
+    position:SetText("{ol}{s10}BASE POS")
+    position:SetEventScript(ui.LBUTTONUP, "indun_panel_frame_base_position")
+    -- indun_panel_INPUT_STRING_BOX
+    local tool_text = g.lang == "Japanese" and "{ol}右クリック: セット名変更" or
+                          "{ol}Right-click: Rename Set"
+    local set_a = frame:CreateOrGetControl("button", "set_a", 200, 5, 80, 30)
+    AUTO_CAST(set_a)
+    local text = g.settings.set_names["set_a"] or "SET A"
+    set_a:Resize(80, 30)
+    set_a:SetText("{ol}" .. text)
+    set_a:Resize(80, 30)
+    set_a:AdjustFontSizeByWidth(80)
+    set_a:SetEventScript(ui.LBUTTONUP, "indun_panel_frame_save")
+    set_a:SetEventScriptArgString(ui.LBUTTONUP, set_a:GetName())
+
+    set_a:SetEventScript(ui.RBUTTONUP, "indun_panel_INPUT_STRING_BOX")
+    set_a:SetEventScriptArgString(ui.RBUTTONUP, set_a:GetName())
+    if g.settings.use_set == "set_a" then
+        set_a:SetSkinName("test_red_button")
+    end
+    set_a:SetTextTooltip(tool_text)
+
+    local set_b = frame:CreateOrGetControl("button", "set_b", 285, 5, 80, 30)
+    AUTO_CAST(set_b)
+    local text = g.settings.set_names["set_b"] or "SET B"
+    set_b:Resize(80, 30)
+    set_b:SetText("{ol}" .. text)
+    set_b:Resize(80, 30)
+    set_b:AdjustFontSizeByWidth(80)
+    set_b:SetEventScript(ui.LBUTTONUP, "indun_panel_frame_save")
+    set_b:SetEventScriptArgString(ui.LBUTTONUP, set_b:GetName())
+    set_b:SetEventScript(ui.RBUTTONUP, "indun_panel_INPUT_STRING_BOX")
+    set_b:SetEventScriptArgString(ui.RBUTTONUP, set_b:GetName())
+    if g.settings.use_set == "set_b" then
+        set_b:SetSkinName("test_red_button")
+    end
+    set_b:SetTextTooltip(tool_text)
+
+    local set_c = frame:CreateOrGetControl("button", "set_c", 370, 5, 80, 30)
+    AUTO_CAST(set_c)
+    local text = g.settings.set_names["set_c"] or "SET C"
+    set_c:SetText("{ol}" .. text)
+    set_c:Resize(80, 30)
+    set_c:AdjustFontSizeByWidth(80)
+    set_c:Resize(80, 30)
+    set_c:SetEventScript(ui.LBUTTONUP, "indun_panel_frame_save")
+    set_c:SetEventScriptArgString(ui.LBUTTONUP, set_c:GetName())
+    set_c:SetEventScript(ui.RBUTTONUP, "indun_panel_INPUT_STRING_BOX")
+    set_c:SetEventScriptArgString(ui.RBUTTONUP, set_c:GetName())
+    if g.settings.use_set == "set_c" then
+        set_c:SetSkinName("test_red_button")
+    end
+    set_c:SetTextTooltip(tool_text)
+
+    local skin_change = frame:CreateOrGetControl("button", "skin_change", 470, 5, 80, 30)
+    AUTO_CAST(skin_change)
+    local text = g.lang == "Japanese" and "{ol}フレームスキン選択" or "{ol}Select Frame Skin"
+    skin_change:SetEventScript(ui.LBUTTONUP, "indun_panel_frame_skin_select")
+    skin_change:SetText("{ol}SKIN SELECT")
+    skin_change:SetTextTooltip("{ol}" .. text)
+
+    --[[    local droplist = ui.MakeDropListFrame(frame, 460, 5, 100, 30, 3, ui.CENTER_HORZ, 'indun_panel_frame_skin_select',
+        nil, nil); -- 最後2個はマウスオーバーとマウスアウト
+    for l = 1, 3 do
+        ui.AddDropListItem(dropBoxItem.Name, nil, dropBoxItem.ClassName)
+    end]]
+
+    ---ここから
+
+    local config_x = 15
+    local tosshop = frame:CreateOrGetControl("checkbox", "tosshop", config_x, 47, 25, 25);
+    AUTO_CAST(tosshop)
+    tosshop:SetText("{img icon_item_Tos_Event_Coin 25 25}")
+    tosshop:SetEventScript(ui.LBUTTONUP, "indun_panel_ischecked")
+    tosshop:SetEventScriptArgString(ui.LBUTTONUP, "config")
+    tosshop:SetTextTooltip(g.lang == "Japanese" and "{ol}チェックすると常に表示" or
+                               "{ol}Always visible when checked")
+    tosshop:SetCheck(g.settings.cols.tos)
+    config_x = config_x + tosshop:GetWidth() + 5
+
+    local gabija = frame:CreateOrGetControl("checkbox", "gabija", config_x, 47, 29, 29);
+    AUTO_CAST(gabija)
+    gabija:SetText("{img goddess_shop_btn 29 29}")
+    gabija:SetEventScript(ui.LBUTTONUP, "indun_panel_ischecked")
+    gabija:SetEventScriptArgString(ui.LBUTTONUP, "config")
+    gabija:SetTextTooltip(g.lang == "Japanese" and "{ol}チェックすると常に表示" or
+                              "{ol}Always visible when checked")
+    gabija:SetCheck(g.settings.cols.gabija)
+    config_x = config_x + gabija:GetWidth() + 5
+
+    local vakarine = frame:CreateOrGetControl("checkbox", "vakarine", config_x, 47, 29, 29);
+    AUTO_CAST(vakarine)
+    vakarine:SetText("{img goddess2_shop_btn 29 29}")
+    vakarine:SetEventScript(ui.LBUTTONUP, "indun_panel_ischecked")
+    vakarine:SetEventScriptArgString(ui.LBUTTONUP, "config")
+    vakarine:SetTextTooltip(g.lang == "Japanese" and "{ol}チェックすると常に表示" or
+                                "{ol}Always visible when checked")
+    vakarine:SetCheck(g.settings.cols.vakarine)
+    config_x = config_x + vakarine:GetWidth() + 5
+
+    local rada = frame:CreateOrGetControl("checkbox", "rada", config_x, 47, 29, 29);
+    AUTO_CAST(rada)
+    rada:SetText("{img goddess3_shop_btn 29 29}")
+    rada:SetEventScript(ui.LBUTTONUP, "indun_panel_ischecked")
+    rada:SetEventScriptArgString(ui.LBUTTONUP, "config")
+    rada:SetTextTooltip(g.lang == "Japanese" and "{ol}チェックすると常に表示" or
+                            "{ol}Always visible when checked")
+    rada:SetCheck(g.settings.cols.rada)
+    config_x = config_x + rada:GetWidth() + 5
+
+    local jurate = frame:CreateOrGetControl("checkbox", "jurate", config_x, 47, 29, 29);
+    AUTO_CAST(jurate)
+    jurate:SetText("{img goddess4_shop_btn 29 29}")
+    jurate:SetEventScript(ui.LBUTTONUP, "indun_panel_ischecked")
+    jurate:SetEventScriptArgString(ui.LBUTTONUP, "config")
+    jurate:SetTextTooltip(g.lang == "Japanese" and "{ol}チェックすると常に表示" or
+                              "{ol}Always visible when checked")
+    jurate:SetCheck(g.settings.cols.jurate)
+    config_x = config_x + jurate:GetWidth() + 5
+
+    local austeja = frame:CreateOrGetControl("checkbox", "austeja", config_x, 47, 29, 29);
+    AUTO_CAST(austeja)
+    austeja:SetText("{img goddess5_shop_btn 29 29}")
+    austeja:SetEventScript(ui.LBUTTONUP, "indun_panel_ischecked")
+    austeja:SetEventScriptArgString(ui.LBUTTONUP, "config")
+    austeja:SetTextTooltip(g.lang == "Japanese" and "{ol}チェックすると常に表示" or
+                               "{ol}Always visible when checked")
+    austeja:SetCheck(g.settings.cols.austeja)
+    config_x = config_x + austeja:GetWidth() + 5
+
+    local pvp_mine = frame:CreateOrGetControl("checkbox", "pvp_mine", config_x, 47, 29, 29);
+    AUTO_CAST(pvp_mine)
+    pvp_mine:SetText("{img pvpmine_shop_btn_total 29 29}")
+    pvp_mine:SetEventScript(ui.LBUTTONUP, "indun_panel_ischecked")
+    pvp_mine:SetEventScriptArgString(ui.LBUTTONUP, "config")
+    pvp_mine:SetTextTooltip(g.lang == "Japanese" and "{ol}チェックすると常に表示" or
+                                "{ol}Always visible when checked")
+    pvp_mine:SetCheck(g.settings.cols.pvp_mine)
+    config_x = config_x + pvp_mine:GetWidth() + 5
+
+    local market = frame:CreateOrGetControl("checkbox", "market", config_x, 47, 29, 29);
+    AUTO_CAST(market)
+    market:SetText("{img market_shortcut_btn02 29 29}")
+    market:SetEventScript(ui.LBUTTONUP, "indun_panel_ischecked")
+    market:SetEventScriptArgString(ui.LBUTTONUP, "config")
+    market:SetTextTooltip(g.lang == "Japanese" and "{ol}チェックすると常に表示" or
+                              "{ol}Always visible when checked")
+    market:SetCheck(g.settings.cols.market)
+    config_x = config_x + market:GetWidth() + 5
+
+    local craft = frame:CreateOrGetControl("checkbox", "craft", config_x, 47, 29, 29);
+    AUTO_CAST(craft)
+    craft:SetText("{img icon_fullscreen_menu_equipment_processing 28 28}")
+    craft:SetEventScript(ui.LBUTTONUP, "indun_panel_ischecked")
+    craft:SetEventScriptArgString(ui.LBUTTONUP, "config")
+    craft:SetTextTooltip(g.lang == "Japanese" and "{ol}チェックすると常に表示" or
+                             "{ol}Always visible when checked")
+    craft:SetCheck(g.settings.cols.craft)
+    config_x = config_x + craft:GetWidth() + 5
+
+    local leticia = frame:CreateOrGetControl("checkbox", "leticia", config_x, 47, 29, 29);
+    AUTO_CAST(leticia)
+    leticia:SetText("{img icon_fullscreen_menu_letica 28 28}")
+    leticia:SetEventScript(ui.LBUTTONUP, "indun_panel_ischecked")
+    leticia:SetEventScriptArgString(ui.LBUTTONUP, "config")
+    leticia:SetTextTooltip(g.lang == "Japanese" and "{ol}チェックすると常に表示" or
+                               "{ol}Always visible when checked")
+    leticia:SetCheck(g.settings.cols.leticia)
+    config_x = config_x + leticia:GetWidth() + 5
+
+    local label_line2 = frame:CreateControl('labelline', 'label_line2', 10, 77, config_x, 5);
+    AUTO_CAST(label_line2)
+    label_line2:SetSkinName("labelline2")
+
+    local en_ver = frame:CreateOrGetControl('checkbox', 'en_ver', 25, 85, 25, 25)
+    AUTO_CAST(en_ver)
+    if g.settings.en_ver == nil then
+        g.settings.en_ver = 0
+        g.save_settings()
+    end
+    en_ver:SetCheck(g.settings.en_ver)
+    en_ver:SetEventScript(ui.LBUTTONUP, "indun_panel_ischecked")
+    en_ver:SetText(g.lang == "Japanese" and "{ol}チェックすると英語表示に変更します" or
+                       "{ol}Check to display to English")
+
+    local move = frame:CreateOrGetControl('checkbox', 'move', 25, 120, 25, 25)
+    AUTO_CAST(move)
+    if g.settings.move == nil then
+        g.settings.move = 0
+        g.save_settings()
+    end
+    move:SetCheck(g.settings.move)
+    move:SetEventScript(ui.LBUTTONUP, "indun_panel_ischecked")
+    move:SetText(g.lang == "Japanese" and "{ol}チェックするとフレームを動かせます" or
+                     "{ol}Check to move the frame")
+
+    local field_mode = frame:CreateOrGetControl('checkbox', 'field_mode', 25, 155, 25, 25)
+    AUTO_CAST(field_mode)
+    if g.settings.field_mode == nil then
+        g.settings.field_mode = 0
+        g.save_settings()
+    end
+    field_mode:SetCheck(g.settings.field_mode)
+    field_mode:SetEventScript(ui.LBUTTONUP, "indun_panel_ischecked")
+    field_mode:SetText(g.lang == "Japanese" and "{ol}チェックするとフィールドで表示" or
+                           "{ol}Check to display in field")
+
+    local shading = frame:CreateOrGetControl('checkbox', 'shading', 25, 190, 25, 25)
+    AUTO_CAST(shading)
+    if g.settings.shading == nil then
+        g.settings.shading = 0
+        g.save_settings()
+    end
+    shading:SetCheck(g.settings.shading)
+    shading:SetEventScript(ui.LBUTTONUP, "indun_panel_ischecked")
+    shading:SetText(g.lang == "Japanese" and "{ol}チェックすると網掛け表示" or
+                        "{ol}Check to display shading")
+
+    local label_line = frame:CreateControl('labelline', 'label_line', 10, 215, config_x, 5);
+    AUTO_CAST(label_line)
+    label_line:SetSkinName("labelline2")
+
+    local posY_left = 220 -- 左の列のY座標
+    local posY_right = 220 -- 右の列のY座標
+
+    local count = #induntype
+    local half_count = math.ceil(count / 2)
+    local use_tbl = g.settings[g.settings.use_set] ~= "None" and g.settings[g.settings.use_set] or g.settings
+    for i = 1, count do
+        local entry = induntype[i]
+        for key, value in pairs(entry) do
+            local checkbox
+
+            if i <= half_count then
+
+                checkbox = frame:CreateOrGetControl('checkbox', key .. '_checkbox', 15, posY_left, 25, 25)
+                AUTO_CAST(checkbox)
+                posY_left = posY_left + 35
+            else
+
+                checkbox = frame:CreateOrGetControl('checkbox', key .. '_checkbox', 325, posY_right, 25, 25)
+                AUTO_CAST(checkbox)
+                posY_right = posY_right + 35
+            end
+
+            checkbox:SetCheck(use_tbl[key .. '_checkbox'])
+            checkbox:SetEventScript(ui.LBUTTONUP, "indun_panel_ischecked")
+            checkbox:SetText("{ol}{#FFFFFF}" .. INDUN_PANEL_LANG(convert_tbl[key] or key))
+            checkbox:SetTextTooltip(g.lang == "Japanese" and "チェックすると表示" or "Check to show")
+        end
+    end
+    local final_height = math.max(posY_left, posY_right)
+    frame:Resize(660, final_height + 5)
+end]==]
+--[[function indun_panel_frame_init()
+
+    local frame = ui.GetFrame("indun_panel")
+
+    frame:SetSkinName('None')
+    frame:SetLayerLevel(30)
+
+    frame:EnableHittestFrame(1)
+    frame:EnableMove(g.settings.move or 0)
+    frame:SetEventScript(ui.LBUTTONUP, "indun_panel_frame_drag")
+    local map_frame = ui.GetFrame("map")
+    local width = map_frame:GetWidth()
+
+    if not g.settings.x then
+        g.settings.x = 665
+        g.settings.y = 30
+        g.save_settings()
+    end
+
+    local x = g.settings.x
+    if width <= 1920 and x > 1920 then
+        x = g.settings.x / 21 * 16
+    end
+
+    frame:SetPos(x, g.settings.y)
+    frame:SetTitleBarSkin("None")
+    frame:EnableHittestFrame(1)
+    frame:RemoveAllChild()
+
+    local button = frame:CreateOrGetControl("button", "indun_panel_open", 5, 5, 80, 30)
+    AUTO_CAST(button)
+    button:SetText("{ol}{s10}INDUNPANEL")
+    button:SetEventScript(ui.LBUTTONUP, "indun_panel_frame_open")
+    button:SetEventScript(ui.RBUTTONUP, "indun_panel_always_init")
+    button:SetEventScriptArgString(ui.RBUTTONUP, "OPEN")
+    button:SetTextTooltip(g.lang == "Japanese" and "{ol}右クリック: 常時展開で開く" or
+                              "{ol}Right click: Open in Always Expand")
+
+    local ccbtn = frame:CreateOrGetControl('button', 'ccbtn', 85, 5, 30, 30)
+    AUTO_CAST(ccbtn)
+    ccbtn:SetSkinName("None")
+    ccbtn:SetText("{img barrack_button_normal 30 30}")
+
+    local lbutton_action = "APPS_TRY_MOVE_BARRACK"
+    local rbutton_action = nil
+    local tooltip_parts = {}
+
+    local lbutton_tooltip = nil
+
+    if type(_G["INSTANTCC_APPS_TRY_MOVE_BARRACK"]) == "function" then
+        lbutton_action = "INSTANTCC_APPS_TRY_MOVE_BARRACK"
+        lbutton_tooltip = "[InstantCC] Open"
+    end
+
+    if type(_G["indun_list_viewer_title_frame_open"]) == "function" then
+        lbutton_action = "indun_list_viewer_title_frame_open"
+        lbutton_tooltip = "Left-Click: [ILV] Open"
+        local indun_list_viewer = ui.GetFrame("indun_list_viewer")
+        if indun_list_viewer:IsVisible() == 1 then
+            indun_list_viewer:ShowWindow(0)
+        end
+    end
+
+    if lbutton_tooltip then
+        table.insert(tooltip_parts, lbutton_tooltip)
+    end
+
+    if type(_G["other_character_skill_list_frame_open"]) == "function" then
+        rbutton_action = "other_character_skill_list_frame_open"
+        table.insert(tooltip_parts, "Right-Click: [OCSL] Open")
+    end
+
+    ccbtn:SetEventScript(ui.LBUTTONUP, lbutton_action)
+    if rbutton_action then
+        ccbtn:SetEventScript(ui.RBUTTONUP, rbutton_action)
+    end
+
+    if #tooltip_parts > 0 then
+        ccbtn:SetTextTooltip("{ol}" .. table.concat(tooltip_parts, "{nl}"))
+    else
+        ccbtn:SetTextTooltip(g.lang == "Japanese" and "{ol}バラックに戻ります" or "{ol}Return to Barracks")
+    end
+
+    local x = 115
+
+    local temp_tbl =
+        {"tos", "gabija", "vakarine", "rada", "jurate", "austeja", "pvp_mine", "market", "craft", "leticia"}
+
+    if not g.settings.cols then
+        g.settings.cols = {}
+        for _, key_name in ipairs(temp_tbl) do
+
+            if key_name == "leticia" then
+                g.settings.cols[key_name] = 1
+            else
+                g.settings.cols[key_name] = 0
+            end
+
+        end
+
+        g.save_settings()
+    else
+        for _, key_name in ipairs(temp_tbl) do
+            if not g.settings.cols[key_name] then
+                g.settings.cols[key_name] = 0
+            end
+        end
+    end
+
+    local account_obj = GetMyAccountObj()
+    local coin_count = 0
+
+    for _, key_name in ipairs(temp_tbl) do
+        if g.settings.cols[key_name] == 1 then
+            local tooltip_msg = ""
+            if key_name == "tos" then
+                if g.get_map_type() == "City" then
+                    local tosshop = frame:CreateOrGetControl("button", "tosshop", x + 2, 8, 25, 25);
+                    AUTO_CAST(tosshop)
+                    tosshop:SetSkinName("None")
+                    tosshop:SetText("{img icon_item_Tos_Event_Coin 25 25}")
+                    coin_count = GET_COMMAED_STRING(TryGetProp(account_obj, "EVENT_TOS_WHOLE_TOTAL_COIN", "0"))
+                    tooltip_msg = g.lang == "Japanese" and "{ol}TOSイベントショップ" or "{ol}TOS Event Shop"
+                    tosshop:SetTextTooltip(tooltip_msg)
+                    tosshop:SetEventScript(ui.LBUTTONDOWN, "INDUN_PANEL_EARTHTOWERSHOP_CLOSE_RESTART")
+                    tosshop:SetEventScript(ui.LBUTTONUP, "indun_panel_event_tos_whole_shop_open")
+                end
+            elseif key_name == "gabija" then
+                if g.get_map_type() == "City" then
+                    local gabija = frame:CreateOrGetControl("button", "gabija", x, 7, 29, 29);
+                    AUTO_CAST(gabija)
+                    gabija:SetSkinName("None")
+                    gabija:SetText("{img goddess_shop_btn 29 29}")
+                    coin_count = GET_COMMAED_STRING(TryGetProp(account_obj, "GabijaCertificate", "0"))
+                    tooltip_msg =
+                        g.lang == "Japanese" and "{ol}ガビヤショップ{nl}" .. "{#FFFF00}" .. coin_count or
+                            "{ol}Gabija Shop{nl}" .. "{#FFFF00}" .. coin_count
+                    gabija:SetTextTooltip(tooltip_msg)
+                    gabija:SetEventScript(ui.LBUTTONDOWN, "INDUN_PANEL_EARTHTOWERSHOP_CLOSE_RESTART")
+                    gabija:SetEventScript(ui.LBUTTONUP, "REQ_GabijaCertificate_SHOP_OPEN")
+                end
+            elseif key_name == "vakarine" then
+                if g.get_map_type() == "City" then
+                    local vakarine = frame:CreateOrGetControl("button", "vakarine", x, 7, 29, 29);
+                    AUTO_CAST(vakarine)
+                    vakarine:SetSkinName("None")
+                    vakarine:SetText("{img goddess2_shop_btn 29 29}")
+                    coin_count = GET_COMMAED_STRING(TryGetProp(account_obj, "VakarineCertificate", "0"))
+                    tooltip_msg = g.lang == "Japanese" and "{ol}ヴァカリネショップ{nl}" .. "{#FFFF00}" ..
+                                      coin_count or "{ol}Vakarine Shop{nl}" .. "{#FFFF00}" .. coin_count
+                    vakarine:SetTextTooltip(tooltip_msg)
+                    vakarine:SetEventScript(ui.LBUTTONDOWN, "INDUN_PANEL_EARTHTOWERSHOP_CLOSE_RESTART")
+                    vakarine:SetEventScript(ui.LBUTTONUP, "REQ_VakarineCertificate_SHOP_OPEN")
+                end
+            elseif key_name == "rada" then
+                if g.get_map_type() == "City" then
+                    local rada = frame:CreateOrGetControl("button", "rada", x, 8, 29, 29);
+                    AUTO_CAST(rada)
+                    rada:SetSkinName("None")
+                    rada:SetText("{img goddess3_shop_btn 29 29}")
+                    coin_count = GET_COMMAED_STRING(TryGetProp(account_obj, "RadaCertificate", "0"))
+                    tooltip_msg = g.lang == "Japanese" and "{ol}ラダショップ{nl}" .. "{#FFFF00}" .. coin_count or
+                                      "{ol}Rada Shop{nl}" .. "{#FFFF00}" .. coin_count
+                    rada:SetTextTooltip(tooltip_msg)
+                    rada:SetEventScript(ui.LBUTTONDOWN, "INDUN_PANEL_EARTHTOWERSHOP_CLOSE_RESTART")
+                    rada:SetEventScript(ui.LBUTTONUP, "REQ_RadaCertificate_SHOP_OPEN")
+                end
+            elseif key_name == "jurate" then
+                if g.get_map_type() == "City" then
+                    local jurate = frame:CreateOrGetControl("button", "jurate", x, 7, 29, 29);
+                    AUTO_CAST(jurate)
+
+                    jurate:SetSkinName("None")
+                    jurate:SetText("{img goddess4_shop_btn 29 29}")
+                    coin_count = GET_COMMAED_STRING(TryGetProp(account_obj, "JurateCertificate", "0"))
+                    tooltip_msg =
+                        g.lang == "Japanese" and "{ol}ユラテショップ{nl}" .. "{#FFFF00}" .. coin_count or
+                            "{ol}Jurate Shop{nl}" .. "{#FFFF00}" .. coin_count
+                    jurate:SetTextTooltip(tooltip_msg)
+                    jurate:SetEventScript(ui.LBUTTONDOWN, "INDUN_PANEL_EARTHTOWERSHOP_CLOSE_RESTART")
+                    jurate:SetEventScript(ui.LBUTTONUP, "REQ_JurateCertificate_SHOP_OPEN")
+                end
+            elseif key_name == "austeja" then
+                -- if g.get_map_type() == "City" then
+                local austeja = frame:CreateOrGetControl("button", "austeja", x, 7, 29, 29);
+                AUTO_CAST(austeja)
+                if g.get_map_type() ~= "City" then
+                    austeja:SetOffset(115, 7)
+                end
+                austeja:SetSkinName("None")
+                austeja:SetText("{img goddess5_shop_btn 29 29}")
+                coin_count = GET_COMMAED_STRING(TryGetProp(account_obj, "AustejaCertificate", "0"))
+                tooltip_msg = g.lang == "Japanese" and "{ol}アウステヤショップ{nl}" .. "{#FFFF00}" ..
+                                  coin_count or "{ol}Austeja Shop{nl}" .. "{#FFFF00}" .. coin_count
+                austeja:SetTextTooltip(tooltip_msg)
+                austeja:SetEventScript(ui.LBUTTONDOWN, "INDUN_PANEL_EARTHTOWERSHOP_CLOSE_RESTART")
+                austeja:SetEventScript(ui.LBUTTONUP, "REQ_AustejaCertificate_SHOP_OPEN")
+                -- end
+            elseif key_name == "pvp_mine" then
+                local pvp_mine = frame:CreateOrGetControl("button", "pvp_mine", x, 7, 29, 29);
+                AUTO_CAST(pvp_mine)
+                if g.get_map_type() ~= "City" then
+                    pvp_mine:SetOffset(145, 7)
+                end
+                pvp_mine:SetSkinName("None")
+                pvp_mine:SetText("{img pvpmine_shop_btn_total 29 29}")
+                pvp_mine:SetTextTooltip(g.lang == "Japanese" and "{ol}傭兵団ショップ" or "{ol}Mercenary Shop")
+                pvp_mine:SetEventScript(ui.LBUTTONDOWN, "INDUN_PANEL_EARTHTOWERSHOP_CLOSE_RESTART")
+                -- pvp_mine:SetEventScript(ui.LBUTTONUP, "REQ_PVP_MINE_SHOP_OPEN")
+                pvp_mine:SetEventScript(ui.LBUTTONUP, "MINIMIZED_PVPMINE_SHOP_BUTTON_CLICK")
+                -- MINIMIZED_PVPMINE_SHOP_BUTTON_CLICK
+            elseif key_name == "market" then
+                if g.get_map_type() == "City" then
+                    local market = frame:CreateOrGetControl("button", "market", x, 6, 29, 29);
+                    AUTO_CAST(market)
+                    market:SetSkinName("None")
+                    market:SetText("{img market_shortcut_btn02 29 29}")
+                    market:SetTextTooltip(g.lang == "Japanese" and "{ol}マーケット" or "{ol}Market")
+                    market:SetEventScript(ui.LBUTTONUP, "MINIMIZED_MARKET_BUTTON_CLICK")
+                end
+            elseif key_name == "craft" then
+                if g.get_map_type() == "City" then
+                    local craft = frame:CreateOrGetControl("button", "craft", x, 5, 29, 29);
+                    AUTO_CAST(craft)
+                    craft:SetSkinName("None")
+                    craft:SetText("{img icon_fullscreen_menu_equipment_processing 28 28}")
+                    craft:SetTextTooltip(g.lang == "Japanese" and "{ol}装備加工" or "{ol}Equipment Processing")
+                    craft:SetEventScript(ui.LBUTTONUP, "FULLSCREEN_NAVIGATION_MENU_DEATIL_EQUIPMENT_PROCESSING_NPC")
+                end
+            elseif key_name == "leticia" then
+                if g.get_map_type() == "City" then
+                    local leticia = frame:CreateOrGetControl("button", "leticia", x, 5, 29, 29);
+                    AUTO_CAST(leticia)
+                    leticia:SetSkinName("None")
+                    leticia:SetText("{img icon_fullscreen_menu_letica 28 28}")
+                    leticia:SetTextTooltip(g.lang == "Japanese" and "{ol}レティーシャへ移動" or
+                                               "{ol}Leticia Move")
+                    leticia:SetEventScript(ui.LBUTTONUP, "indun_panel_FULLSCREEN_NAVIGATION_MENU_DETAIL_MOVE_NPC")
+                    leticia:SetEventScriptArgNumber(ui.LBUTTONUP, 309)
+                end
+            end
+            x = x + 30
+        end
+    end
+
+    frame:Resize(x, 40)
+    frame:ShowWindow(1)
+
+end
+
+function indun_panel_frame_open(frame)
+
+    local map_frame = ui.GetFrame("map")
+    local width = map_frame:GetWidth()
+
+    if not g.settings.x then
+        g.settings.x = 665
+        g.settings.y = 30
+        g.save_settings()
+    end
+
+    local x = g.settings.x
+    if width <= 1920 and x > 1920 then
+        x = g.settings.x / 21 * 16
+    end
+
+    local frame = ui.GetFrame("indun_panel")
+
+    frame:SetPos(x, g.settings.y)
+    frame:SetTitleBarSkin("None")
+    frame:EnableHittestFrame(1)
+    if not g.settings.move then
+        g.settings.move = 0
+    end
+    frame:EnableMove(g.settings.move)
+    if g.settings.move == 1 then
+        frame:SetEventScript(ui.LBUTTONUP, "indun_panel_frame_drag")
+    else
+        frame:SetEventScript(ui.LBUTTONUP, "None")
+    end
+    frame:RemoveAllChild()
+
+    local button = frame:CreateOrGetControl("button", "indun_panel_open", 5, 5, 80, 30)
+    AUTO_CAST(button)
+    button:SetText("{ol}{s10}INDUNPANEL")
+    button:SetEventScript(ui.RBUTTONUP, "indun_panel_always_init")
+    button:SetTextTooltip(g.lang == "Japanese" and "{ol}右クリック: 常時展開解除で閉じる" or
+                              "{ol}Right click: Close with permanent unexpand")
+
+    local ccbtn = frame:CreateOrGetControl('button', 'ccbtn', 85, 5, 30, 30)
+    AUTO_CAST(ccbtn)
+    ccbtn:SetSkinName("None")
+    ccbtn:SetText("{img barrack_button_normal 30 30}")
+    local lbutton_action = "APPS_TRY_MOVE_BARRACK"
+    local rbutton_action = nil
+    local tooltip_parts = {}
+
+    local lbutton_tooltip = nil
+
+    if type(_G["INSTANTCC_APPS_TRY_MOVE_BARRACK"]) == "function" then
+        lbutton_action = "INSTANTCC_APPS_TRY_MOVE_BARRACK"
+        lbutton_tooltip = "[InstantCC] Open"
+    end
+
+    if type(_G["indun_list_viewer_title_frame_open"]) == "function" then
+        lbutton_action = "indun_list_viewer_title_frame_open"
+        lbutton_tooltip = "Left-Click: [ILV] Open"
+        local indun_list_viewer = ui.GetFrame("indun_list_viewer")
+        if indun_list_viewer:IsVisible() == 1 then
+            indun_list_viewer:ShowWindow(0)
+        end
+    end
+
+    if lbutton_tooltip then
+        table.insert(tooltip_parts, lbutton_tooltip)
+    end
+
+    if type(_G["other_character_skill_list_frame_open"]) == "function" then
+        rbutton_action = "other_character_skill_list_frame_open"
+        table.insert(tooltip_parts, "Right-Click: [OCSL] Open")
+    end
+
+    ccbtn:SetEventScript(ui.LBUTTONUP, lbutton_action)
+    if rbutton_action then
+        ccbtn:SetEventScript(ui.RBUTTONUP, rbutton_action)
+    end
+
+    if #tooltip_parts > 0 then
+        ccbtn:SetTextTooltip("{ol}" .. table.concat(tooltip_parts, "{nl}"))
+    else
+        ccbtn:SetTextTooltip(g.lang == "Japanese" and "{ol}バラックに戻ります" or "{ol}Return to Barracks")
+    end
+
+    function indun_panel_frame_base_position(frame, ctrl, str, num)
+        frame:SetPos(665, 30)
+        g.settings.x = 665
+        g.settings.y = 30
+        g.save_settings()
+        indun_panel_frame_init()
+    end
+    frame:ShowWindow(1)
+
+    local configbtn = frame:CreateOrGetControl('button', 'configbtn', 115, 5, 30, 30)
+    AUTO_CAST(configbtn)
+    configbtn:SetSkinName("None")
+    configbtn:SetText("{img config_button_normal 30 30}")
+    configbtn:SetEventScript(ui.LBUTTONUP, "indun_panel_config_gb_open")
+    configbtn:SetTextTooltip(g.lang == "Japanese" and "{ol}Indun Panel 設定" or "{ol}Indun Panel Config")
+
+    if configbtn:IsVisible() == 1 then
+        button:SetEventScript(ui.LBUTTONUP, "indun_panel_frame_init")
+    end
+
+    local account_obj = GetMyAccountObj()
+    local tooltip_msg = ""
+    local coin_count = 0
+
+    if g.get_map_type() == "City" then
+
+        local market = frame:CreateOrGetControl("button", "market", 360, 6, 29, 29);
+        AUTO_CAST(market)
+        market:SetSkinName("None")
+        market:SetText("{img market_shortcut_btn02 29 29}")
+        market:SetTextTooltip(g.lang == "Japanese" and "{ol}マーケット" or "{ol}Market")
+        market:SetEventScript(ui.LBUTTONUP, "MINIMIZED_MARKET_BUTTON_CLICK")
+
+        local leticia = frame:CreateOrGetControl("button", "leticia", 420, 5, 29, 29);
+        AUTO_CAST(leticia)
+        leticia:SetSkinName("None")
+        leticia:SetText("{img icon_fullscreen_menu_letica 28 28}")
+        leticia:SetTextTooltip(g.lang == "Japanese" and "{ol}レティーシャへ移動" or "{ol}Leticia Move")
+        leticia:SetEventScript(ui.LBUTTONUP, "indun_panel_FULLSCREEN_NAVIGATION_MENU_DETAIL_MOVE_NPC")
+        leticia:SetEventScriptArgNumber(ui.LBUTTONUP, 309)
+
+        local tosshop = frame:CreateOrGetControl("button", "tosshop", 150, 8, 25, 25);
+        AUTO_CAST(tosshop)
+        tosshop:SetSkinName("None")
+        tosshop:SetText("{img icon_item_Tos_Event_Coin 25 25}")
+        coin_count = GET_COMMAED_STRING(TryGetProp(account_obj, "EVENT_TOS_WHOLE_TOTAL_COIN", "0"))
+        tooltip_msg = g.lang == "Japanese" and "{ol}TOSイベントショップ" or "{ol}TOS Event Shop"
+        tosshop:SetTextTooltip(tooltip_msg)
+        -- INDUN_PANEL_EARTHTOWERSHOP_CLOSE_RESTART
+        tosshop:SetEventScript(ui.LBUTTONDOWN, "INDUN_PANEL_EARTHTOWERSHOP_CLOSE_RESTART")
+        tosshop:SetEventScript(ui.LBUTTONUP, "indun_panel_event_tos_whole_shop_open")
+
+        local gabija = frame:CreateOrGetControl("button", "gabija", 180, 7, 29, 29);
+        AUTO_CAST(gabija)
+        gabija:SetSkinName("None")
+        gabija:SetText("{img goddess_shop_btn 29 29}")
+        coin_count = GET_COMMAED_STRING(TryGetProp(account_obj, "GabijaCertificate", "0"))
+        tooltip_msg = g.lang == "Japanese" and "{ol}ガビヤショップ{nl}" .. "{#FFFF00}" .. coin_count or
+                          "{ol}Gabija Shop{nl}" .. "{#FFFF00}" .. coin_count
+        gabija:SetTextTooltip(tooltip_msg)
+        gabija:SetEventScript(ui.LBUTTONDOWN, "INDUN_PANEL_EARTHTOWERSHOP_CLOSE_RESTART")
+        gabija:SetEventScript(ui.LBUTTONUP, "REQ_GabijaCertificate_SHOP_OPEN")
+
+        local vakarine = frame:CreateOrGetControl("button", "vakarine", 210, 7, 29, 29);
+        AUTO_CAST(vakarine)
+        vakarine:SetSkinName("None")
+        vakarine:SetText("{img goddess2_shop_btn 29 29}")
+        coin_count = GET_COMMAED_STRING(TryGetProp(account_obj, "VakarineCertificate", "0"))
+        tooltip_msg = g.lang == "Japanese" and "{ol}ヴァカリネショップ{nl}" .. "{#FFFF00}" .. coin_count or
+                          "{ol}Vakarine Shop{nl}" .. "{#FFFF00}" .. coin_count
+        vakarine:SetTextTooltip(tooltip_msg)
+        vakarine:SetEventScript(ui.LBUTTONDOWN, "INDUN_PANEL_EARTHTOWERSHOP_CLOSE_RESTART")
+        vakarine:SetEventScript(ui.LBUTTONUP, "REQ_VakarineCertificate_SHOP_OPEN")
+
+        local rada = frame:CreateOrGetControl("button", "rada", 240, 8, 29, 29);
+        AUTO_CAST(rada)
+        rada:SetSkinName("None")
+        rada:SetText("{img goddess3_shop_btn 29 29}")
+        coin_count = GET_COMMAED_STRING(TryGetProp(account_obj, "RadaCertificate", "0"))
+        tooltip_msg = g.lang == "Japanese" and "{ol}ラダショップ{nl}" .. "{#FFFF00}" .. coin_count or
+                          "{ol}Rada Shop{nl}" .. "{#FFFF00}" .. coin_count
+        rada:SetTextTooltip(tooltip_msg)
+        rada:SetEventScript(ui.LBUTTONDOWN, "INDUN_PANEL_EARTHTOWERSHOP_CLOSE_RESTART")
+        rada:SetEventScript(ui.LBUTTONUP, "REQ_RadaCertificate_SHOP_OPEN")
+
+        local jurate = frame:CreateOrGetControl("button", "jurate", 270, 7, 29, 29);
+        AUTO_CAST(jurate)
+
+        jurate:SetSkinName("None")
+        jurate:SetText("{img goddess4_shop_btn 29 29}")
+        coin_count = GET_COMMAED_STRING(TryGetProp(account_obj, "JurateCertificate", "0"))
+        tooltip_msg = g.lang == "Japanese" and "{ol}ユラテショップ{nl}" .. "{#FFFF00}" .. coin_count or
+                          "{ol}Jurate Shop{nl}" .. "{#FFFF00}" .. coin_count
+        jurate:SetTextTooltip(tooltip_msg)
+        jurate:SetEventScript(ui.LBUTTONDOWN, "INDUN_PANEL_EARTHTOWERSHOP_CLOSE_RESTART")
+        jurate:SetEventScript(ui.LBUTTONUP, "REQ_JurateCertificate_SHOP_OPEN")
+    end
+
+    local austeja = frame:CreateOrGetControl("button", "austeja", 300, 7, 29, 29);
+    AUTO_CAST(austeja)
+    if g.get_map_type() ~= "City" then
+        austeja:SetOffset(150, 7)
+    end
+    austeja:SetSkinName("None")
+    austeja:SetText("{img goddess5_shop_btn 29 29}")
+    coin_count = GET_COMMAED_STRING(TryGetProp(account_obj, "AustejaCertificate", "0"))
+    tooltip_msg = g.lang == "Japanese" and "{ol}アウステアショップ{nl}" .. "{#FFFF00}" .. coin_count or
+                      "{ol}Austeja Shop{nl}" .. "{#FFFF00}" .. coin_count
+    austeja:SetTextTooltip(tooltip_msg)
+    austeja:SetEventScript(ui.LBUTTONDOWN, "INDUN_PANEL_EARTHTOWERSHOP_CLOSE_RESTART")
+    austeja:SetEventScript(ui.LBUTTONUP, "REQ_AustejaCertificate_SHOP_OPEN")
+
+    local pvp_mine = frame:CreateOrGetControl("button", "pvp_mine", 330, 7, 29, 29);
+    AUTO_CAST(pvp_mine)
+    if g.get_map_type() ~= "City" then
+        pvp_mine:SetOffset(180, 7)
+    end
+    pvp_mine:SetSkinName("None")
+    pvp_mine:SetText("{img pvpmine_shop_btn_total 29 29}")
+    pvp_mine:SetTextTooltip(g.lang == "Japanese" and "{ol}傭兵団ショップ" or "{ol}Mercenary Shop")
+    pvp_mine:SetEventScript(ui.LBUTTONDOWN, "INDUN_PANEL_EARTHTOWERSHOP_CLOSE_RESTART")
+    -- pvp_mine:SetEventScript(ui.LBUTTONUP, "REQ_PVP_MINE_SHOP_OPEN")
+    pvp_mine:SetEventScript(ui.LBUTTONUP, "MINIMIZED_PVPMINE_SHOP_BUTTON_CLICK")
+    if g.get_map_type() == "City" then
+        local craft = frame:CreateOrGetControl("button", "craft", 390, 5, 29, 29);
+        AUTO_CAST(craft)
+        craft:SetSkinName("None")
+        craft:SetText("{img icon_fullscreen_menu_equipment_processing 28 28}")
+        craft:SetTextTooltip(g.lang == "Japanese" and "{ol}装備加工" or "{ol}Equipment Processing")
+        craft:SetEventScript(ui.LBUTTONUP, "FULLSCREEN_NAVIGATION_MENU_DEATIL_EQUIPMENT_PROCESSING_NPC")
+    end
+
+    local checkbox = frame:CreateOrGetControl('checkbox', 'checkbox', 715, 5, 30, 30)
+    AUTO_CAST(checkbox)
+    checkbox:SetCheck(g.settings.checkbox)
+    checkbox:SetEventScript(ui.LBUTTONUP, "indun_panel_ischecked")
+    checkbox:SetTextTooltip(g.lang == "Japanese" and "{ol}チェックすると常時展開" or "{ol}IsCheck AlwaysOpen")
+
+    if g.settings.season_checkbox == nil then
+        g.settings.season_checkbox = 1
+        g.save_settings()
+    end
+
+    function indun_panel_FIELD_BOSS_TIME_TAB_SETTING()
+        local frame = ui.GetFrame("induninfo")
+        if not frame then
+            return
+        end
+
+        local field_boss_ranking_control = GET_CHILD_RECURSIVELY(frame, "field_boss_ranking_control")
+        if not field_boss_ranking_control then
+            return
+        end
+
+        local sub_tab = GET_CHILD_RECURSIVELY(field_boss_ranking_control, "sub_tab")
+        if not sub_tab then
+            return
+        end
+
+        local server_time_str = date_time.get_lua_now_datetime_str()
+        if not server_time_str then
+            return
+        end
+
+        local _, _, _, hour_str, min_str, _ = server_time_str:match("(%d+)-(%d+)-(%d+) (%d+):(%d+):(%d+)")
+        if not hour_str then
+            return
+        end
+
+        local server_hour = tonumber(hour_str)
+        local server_min = tonumber(min_str)
+
+        if (server_hour < 12) or (server_hour == 12 and server_min < 5) then
+
+            sub_tab:SelectTab(0)
+        else
+
+            sub_tab:SelectTab(1)
+        end
+
+    end
+
+    if g.settings.jsr_checkbox == 1 then
+        indun_panel_FIELD_BOSS_TIME_TAB_SETTING()
+    end
+
+    local set_a = frame:CreateOrGetControl("button", "set_a", 460, 5, 80, 30)
+    AUTO_CAST(set_a)
+
+    if not g.settings.set_names then
+        g.settings.set_names = {}
+        g.save_settings()
+    end
+
+    local text = g.settings.set_names["set_a"] or "SET A"
+    set_a:SetText("{ol}" .. text)
+    set_a:Resize(80, 30)
+    set_a:AdjustFontSizeByWidth(80)
+    set_a:Resize(80, 30)
+    set_a:SetEventScript(ui.LBUTTONUP, "indun_panel_set_toggle")
+    set_a:SetEventScriptArgString(ui.LBUTTONUP, set_a:GetName())
+    if g.settings.use_set == "set_a" then
+
+        set_a:SetSkinName("test_red_button")
+    end
+
+    local set_b = frame:CreateOrGetControl("button", "set_b", 545, 5, 80, 30)
+    AUTO_CAST(set_b)
+
+    local text = g.settings.set_names["set_b"] or "SET B"
+    set_b:SetText("{ol}" .. text)
+    set_b:Resize(80, 30)
+    set_b:AdjustFontSizeByWidth(80)
+    set_b:Resize(80, 30)
+    set_b:SetEventScript(ui.LBUTTONUP, "indun_panel_set_toggle")
+    set_b:SetEventScriptArgString(ui.LBUTTONUP, set_b:GetName())
+    if g.settings.use_set == "set_b" then
+        set_b:SetSkinName("test_red_button")
+    end
+
+    local set_c = frame:CreateOrGetControl("button", "set_c", 630, 5, 80, 30)
+    AUTO_CAST(set_c)
+    local text = g.settings.set_names["set_c"] or "SET C"
+    set_c:SetText("{ol}" .. text)
+    set_c:Resize(80, 30)
+    set_c:AdjustFontSizeByWidth(80)
+    set_c:Resize(80, 30)
+    set_c:SetEventScript(ui.LBUTTONUP, "indun_panel_set_toggle")
+    set_c:SetEventScriptArgString(ui.LBUTTONUP, set_c:GetName())
+    if g.settings.use_set == "set_c" then
+        set_c:SetSkinName("test_red_button")
+    end
+
+    g.update_try = 0
+
+    g.housing_call_time = nil
+    indun_panel_frame_contents(frame)
+    configbtn:RunUpdateScript("indun_panel_frame_contents", 1.0)
+
+end]]
