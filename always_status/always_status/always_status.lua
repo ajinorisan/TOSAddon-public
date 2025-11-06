@@ -195,12 +195,12 @@ function ALWAYS_STATUS_ON_INIT(addon, frame)
     frame:RunUpdateScript("always_status_original_frame_reduction", 1.0)
     addon:RegisterMsg("GAME_START", "STATUS_INFO");
     addon:RegisterMsg("GAME_START_3SEC", "always_status_frame_init")
-    g.setup_hook_and_event(addon, "STATUS_ONLOAD", "always_status_STATUS_ONLOAD", false);
+    g.setup_hook_and_event(addon, "STATUS_ONLOAD", "always_status_STATUS_ONLOAD", false)
 end
 
 function always_status_original_frame_reduction(frame)
     local frame = ui.GetFrame("status")
-    frame:SetVisible(1);
+    frame:SetVisible(1)
     frame:Resize(0, 0)
 end
 
