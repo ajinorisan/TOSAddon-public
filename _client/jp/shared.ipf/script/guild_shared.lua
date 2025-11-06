@@ -1,95 +1,71 @@
-﻿
-
-
-function GET_GELE_MODELITEM(seedCls, obj)
-
+﻿function GET_GELE_MODELITEM(seedCls, obj)
 	local age = obj:GetPropIValue("Age");
 	local maxGrowTime = seedCls.FullGrowMin;
 	local curState = CLAMP(age / maxGrowTime, 0, 1);
 	if curState <= 0.5 then
 		return "Default_Sprout";
 	end
-
 	return "food_014";
-
 end
 
 function GET_SEED002_MODELITEM(seedCls, obj)
-
 	local age = obj:GetPropIValue("Age");
 	local maxGrowTime = seedCls.FullGrowMin;
 	local curState = CLAMP(age / maxGrowTime, 0, 1);
 	if curState <= 0.5 then
 		return "Default_Sprout";
 	end
-
 	return "food_007";
-
 end
 
 function GET_SEED003_MODELITEM(seedCls, obj)
-
 	local age = obj:GetPropIValue("Age");
 	local maxGrowTime = seedCls.FullGrowMin;
 	local curState = CLAMP(age / maxGrowTime, 0, 1);
 	if curState <= 0.5 then
 		return "Default_Sprout";
 	end
-
 	return "food_011";
-
 end
 
 function GET_SEED004_MODELITEM(seedCls, obj)
-
 	local age = obj:GetPropIValue("Age");
 	local maxGrowTime = seedCls.FullGrowMin;
 	local curState = CLAMP(age / maxGrowTime, 0, 1);
 	if curState <= 0.5 then
 		return "Default_Sprout";
 	end
-
 	return "food_008";
-
 end
 
 function GET_SEED005_MODELITEM(seedCls, obj)
-
 	local age = obj:GetPropIValue("Age");
 	local maxGrowTime = seedCls.FullGrowMin;
 	local curState = CLAMP(age / maxGrowTime, 0, 1);
 	if curState <= 0.5 then
 		return "Default_Sprout";
 	end
-
 	return "food_009";
-
 end
 
 function GET_SEED006_MODELITEM(seedCls, obj)
-
 	local age = obj:GetPropIValue("Age");
 	local maxGrowTime = seedCls.FullGrowMin;
 	local curState = CLAMP(age / maxGrowTime, 0, 1);
 	if curState <= 0.5 then
 		return "Default_Sprout";
 	end
-
 	return "food_036";
-
 end
 
 function GET_SEED007_MODELITEM(seedCls, obj)
-
 	local age = obj:GetPropIValue("Age");
 	local maxGrowTime = seedCls.FullGrowMin;
 	local curState = CLAMP(age / maxGrowTime, 0, 1);
 	if curState <= 0.5 then
 		return "Default_Sprout";
 	end
-
 	return "food_037";
-
 end
 
 function GET_GUILDTOWER_NAME(arg)
@@ -109,7 +85,6 @@ function GET_GUILD_PET_NAME(seedCls, obj)
 	else
 		monName = monCls.Name;
 	end
-
 	return SofS(monName, ownerName);
 end
 
@@ -184,9 +159,11 @@ function GET_BARN_OWL_TAMING_MODELMON(seedCls, obj)
 end
 
 function GET_GUILD_EXPUP_ITEM_INFO()
-
 	return "misc_talt", 20;
+end
 
+function GET_GUILD_EXPUP_ITEM_INFO2()
+	return "misc_talt_event", 20;
 end
 
 function GET_GUILD_LEVEL_BY_EXP(exp)
@@ -199,13 +176,10 @@ function GET_GUILD_LEVEL_BY_EXP(exp)
 		end
 	end
 	return lv;
-
 end
 
 function GET_GUILD_ABILITY_POINT(partyObj)
-
 	return partyObj.Level;
-
 end
 
 function GET_GUILD_ABILITY_LEVEL(guildObj, abilName)
@@ -213,14 +187,7 @@ function GET_GUILD_ABILITY_LEVEL(guildObj, abilName)
 end
 
 function GET_GUILD_MAKE_PRICE()
-
-	local isSeasonServer = IS_SEASON_SERVER(nil);
-	if isSeasonServer == "YES" then
-		return 1000000 - (1000000 * 0.9)
-	end
-
 	return 1000000;
-
 end
 
 function GET_REMAIN_TICKET_COUNT(guildObj)
@@ -241,4 +208,8 @@ end
 function GET_GUILD_NEUTRALITY_COST(guildObj)
     local guildLevel = guildObj.Level;
     return 0;
+end
+
+function GET_GUILD_PROMOTE_NOTICE_MAX_COUNT()
+	return 3;
 end

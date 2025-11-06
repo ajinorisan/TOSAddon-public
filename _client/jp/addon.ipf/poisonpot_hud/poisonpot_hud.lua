@@ -26,7 +26,7 @@ end
 function POISONPOT_HUD_CHECK_VISIBLE()
     local frame = ui.GetFrame('poisonpot_hud');
     if ui.CanOpenFrame('poisonpot_hud') == 1 then
-        frame:ShowWindow(1);
+        frame:ShowWindow(0);
     else
         frame:ShowWindow(0);
         return false;

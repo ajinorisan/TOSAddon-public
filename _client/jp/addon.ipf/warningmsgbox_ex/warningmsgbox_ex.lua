@@ -48,7 +48,13 @@ function WARNINGMSGBOX_EX_FRAME_OPEN(frame, msg, argStr, argNum, option)
 	local yes_list = SCR_STRING_CUT(yes_arg, '/')
 	local compare_msg = ''
 	if #yes_list > 0 then
-		compare_msg = ClMsg(yes_list[1])
+
+		local yes_list2 = SCR_STRING_CUT(yes_list[1], '#')
+		if #yes_list2 > 1 then
+			compare_msg = ClMsg(yes_list2[1]).."]".." or ".."["..ClMsg(yes_list2[2])
+		else
+			compare_msg = ClMsg(yes_list[1])
+		end
 	end
 
 	if compare_msg ~= '' then
@@ -128,12 +134,28 @@ function _WARNINGMSGBOX_EX_FRAME_OPEN_YES(parent, ctrl, argStr, argNum)
 			yesScp = arg_list[2]
 		end
 	end
-	compare_msg = dic.getTranslatedStr(compare_msg);
-    if input_frame:GetText() ~= compare_msg then
-        -- 확인메시지 불일치
-		ui.SysMsg(ClMsg('miss_match_confirm_text'))
-        return
-    end
+
+	local arg_list2 = SCR_STRING_CUT(arg_list[1], '#')
+	if #arg_list2 == 1 then
+		compare_msg = dic.getTranslatedStr(compare_msg);
+		if input_frame:GetText() ~= compare_msg then
+			-- 확인메시지 불일치
+			ui.SysMsg(ClMsg('miss_match_confirm_text'))
+			return
+		end
+	elseif #arg_list2 == 2 then
+
+		local compare_msg1 = ClMsg(arg_list2[1])
+		compare_msg1 = dic.getTranslatedStr(compare_msg1);
+		local compare_msg2 = ClMsg(arg_list2[2])
+		compare_msg2 = dic.getTranslatedStr(compare_msg2);
+
+		if input_frame:GetText() ~= compare_msg1 and input_frame:GetText() ~= compare_msg2 then
+			-- 확인메시지 불일치
+			ui.SysMsg(ClMsg('miss_match_confirm_text'))
+			return
+		end
+	end
 
 	IMC_LOG("INFO_NORMAL", "_WARNINGMSGBOX_EX_FRAME_OPEN_YES" .. yesScp)
 

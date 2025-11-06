@@ -123,6 +123,6 @@ function OPEN_ALCHEMY_WORKSHOP(frame)
 end
 
 function CLOSE_ALCHEMY_WORKSHOP(frame)
+    ui.CloseFrame('inventory');
     _REQ_SAVE_ALCHEMY_WORKSHOP(frame);
-    ui.CloseFrame('inventory');    
 end

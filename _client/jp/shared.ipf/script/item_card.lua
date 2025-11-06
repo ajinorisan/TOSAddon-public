@@ -26,7 +26,7 @@ function IS_ENABLE_EQUIPPED_CARD(pc, item)
 
 	local cardGroupName = item.CardGroupName;
 	local tempCount = 0;
-	for i = 1, MAX_NORMAL_MONSTER_CARD_SLOT_COUNT + LEGEND_CARD_SLOT_COUNT do
+	for i = 1, MAX_NORMAL_MONSTER_CARD_SLOT_COUNT + LEGEND_CARD_SLOT_COUNT + GODDESS_CARD_SLOT_COUNT do
 		local equipCard = nil;
 		if IsServerObj(pc) == 1 then
 			local cardName = GetEquipCardInfo(pc, i);

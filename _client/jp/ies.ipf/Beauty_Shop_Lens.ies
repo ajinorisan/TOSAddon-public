@@ -12,3 +12,6 @@ ClassID,Price,PriceRatio,StampCount,ClassName,Category,Gender,ItemClassName,Equi
 11,49,0,0,"LENS01_007","Lens","","LENS01_007","lens","","","","","YES","",""
 12,49,0,0,"LENS01_008","Lens","","LENS01_008","lens","","","","","YES","",""
 13,49,0,0,"LENS01_009","Lens","","LENS01_009","lens","","","","","YES","",""
+14,49,0,0,"LENS01_010_KOR","Lens","","LENS01_010_KOR","lens","","","","","YES","",""
+15,59,0,0,"LENS01_019","Lens","","LENS01_019","lens","","","","","YES","",""
+16,49,0,0,"LENS01_020","Lens","","LENS01_020","lens","","","","","YES","",""

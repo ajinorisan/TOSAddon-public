@@ -1,9 +1,9 @@
-﻿
+local force_papaya = false
 function RECYCLE_SHOW_TO_MEDAL(parent, ctrl, str, num)
 	if ctrl ~= nil then
-	ctrl:SetSkinName("baseyellow_btn");
-	local rcycle_group2 = GET_CHILD_RECURSIVELY(parent,"rcycle_group2");	
-	rcycle_group2:SetSkinName("base_btn");
+		ctrl:SetSkinName("baseyellow_btn");
+		local rcycle_group2 = GET_CHILD_RECURSIVELY(parent,"rcycle_group2");	
+		rcycle_group2:SetSkinName("base_btn");
 	end
 
 	local frame = ui.GetFrame('tpitem')
@@ -50,6 +50,8 @@ function RECYCLE_SHOW_TO_ITEM(parent, ctrl, str, num)
 	rcycle_mainBuyText:ShowWindow(1)
 	rcycle_mainSellText:ShowWindow(0)
 
+	frame:SetUserValue('RECYCLE_SELECTED_CATEGORY', 'TotalTabName')
+	
 	UPDATE_RECYCLE_BASKET_MONEY(frame,"buy");	
 	RECYCLE_CREATE_BUY_LIST();
 	RECYCLE_CATE_SELECT(frame, true);
@@ -59,10 +61,13 @@ function RECYCLE_CREATE_BUY_LIST()
 	local frame = ui.GetFrame('tpitem');
 	local rcycle_mainSubGbox = GET_CHILD_RECURSIVELY(frame,"rcycle_mainSubGbox");
 	DESTROY_CHILD_BYNAME(rcycle_mainSubGbox, "eachitem_");
-
 	local mainSubGbox = GET_CHILD_RECURSIVELY(frame,"rcycle_mainSubGbox");
 	mainSubGbox:RemoveAllChild();
 	local clsList, cnt = GetClassList('recycle_shop');	
+	if config.GetServiceNation() == "PAPAYA" or force_papaya == true then
+		clsList, cnt = GetClassList('recycle_shop_papaya');	
+	end
+
 	if cnt == 0 or clsList == nil then
 		return;
 	end
@@ -73,26 +78,25 @@ function RECYCLE_CREATE_BUY_LIST()
 		local obj = GetClassByIndexFromList(clsList, i);
 		if obj.BuyPrice ~= 0 then
 			local itemobj = GetClass("Item", obj.ClassName);
-			if CHECK_RECYCLE_SHOW_ITEM(frame, itemobj) == true then
-				x = ( (showitemcnt-1) % 3) * ui.GetControlSetAttribute("tpshop_recycle", 'width')
-				y = (math.ceil( (showitemcnt / 3) ) - 1) * (ui.GetControlSetAttribute("tpshop_recycle", 'height') * 1)
-				local itemcset = mainSubGbox:CreateOrGetControlSet('tpshop_recycle', 'eachitem_'..showitemcnt, x, y);
-				RECYCLE_DRAW_ITEM_DETAIL(obj, itemobj, itemcset, "buy");
+			if season_server_no_sell_item_list[obj.ClassName] == nil and itemobj then			
+				local category = obj.SubCategory;
+				if CHECK_RECYCLE_SHOW_ITEM(frame, itemobj, category) == true then
+					x = ( (showitemcnt-1) % 3) * ui.GetControlSetAttribute("tpshop_recycle", 'width')
+					y = (math.ceil( (showitemcnt / 3) ) - 1) * (ui.GetControlSetAttribute("tpshop_recycle", 'height') * 1)
+					local itemcset = mainSubGbox:CreateOrGetControlSet('tpshop_recycle', 'eachitem_'..showitemcnt, x, y);
+					RECYCLE_DRAW_ITEM_DETAIL(obj, itemobj, itemcset, "buy");
 
-				showitemcnt = showitemcnt + 1
+					showitemcnt = showitemcnt + 1
+				end
 			end
 		end
 	end
 end
 
-function CHECK_RECYCLE_SHOW_ITEM(frame, item)
+function CHECK_RECYCLE_SHOW_ITEM(frame, item, category)
 	-- category check	
 	local curSelectCate = frame:GetUserValue('RECYCLE_SELECTED_CATEGORY');		
 	if curSelectCate == 'Wiki_Accessory' and TryGetProp(item, 'ClassType') ~= 'Ring' and TryGetProp(item, 'ClassType') ~= 'Neck' then
-		return false;
-	end
-
-	if curSelectCate == 'Drug' and TryGetProp(item, 'ItemType') ~= 'Consume' then
 		return false;
 	end
 
@@ -114,9 +118,55 @@ function CHECK_RECYCLE_SHOW_ITEM(frame, item)
 			end
 		end
 	end
+	
+	local subCt = 'Recyle_Shop_' .. tostring(curSelectCate)
 
-	if curSelectCate == 'Artefact' and TryGetProp(item, 'ClassType') ~= 'Artefact' then
+	if curSelectCate == 'Equipmisc' and subCt ~= category then
 		return false;
+	end
+
+	if curSelectCate == 'Drug' and subCt ~= category then
+		return false;
+	end
+	
+	if curSelectCate == 'Misc' and subCt ~= category then
+		return false;
+	end
+	
+	if curSelectCate == 'Contents' and subCt ~= category then
+		return false;
+	end
+	
+	if curSelectCate == 'Growth' and subCt ~= category then
+		return false;
+	end
+	
+	if curSelectCate == 'Gem' and subCt ~= category then
+		return false;
+	end
+	
+	if curSelectCate == 'Equip' and subCt ~= category then
+		return false;
+	end
+	
+	if curSelectCate == 'Card' and subCt ~= category then
+		return false;
+	end
+	
+	if curSelectCate == 'Reset' and subCt ~= category then
+		return false;
+	end
+	
+	if curSelectCate == 'Etc' and subCt ~= category then
+		return false;
+	end
+
+	if curSelectCate == 'Toy' and subCt ~= category then
+		return false;
+	end
+	
+	if curSelectCate == 'recycle_special' and curSelectCate ~= category then
+        return false;
 	end
 
 	-- text check
@@ -146,8 +196,11 @@ function RECYCLE_CREATE_SELL_LIST()
 		local itemobj = GetIES(invItem:GetObject());			
 		if invItem ~= nil then
 			local obj = GetClass("recycle_shop", itemobj.ClassName)
+			if config.GetServiceNation() == "PAPAYA" then
+				obj = GetClass("recycle_shop_papaya", itemobj.ClassName)
+			end
 			if obj ~= nil then
-				if obj.SellPrice ~= 0 then
+				if obj.SellPrice ~= 0 and itemobj.TeamBelonging ~= 1 then
 					local showitemcnt = retTable.showitemcnt;
 					local x = ( (showitemcnt-1) % 3) * ui.GetControlSetAttribute("tpshop_recycle", 'width')
 					local y = (math.ceil( (showitemcnt / 3) ) - 1) * (ui.GetControlSetAttribute("tpshop_recycle", 'height') * 1)
@@ -160,7 +213,7 @@ function RECYCLE_CREATE_SELL_LIST()
 	end, false, retTable, mainSubGbox);
 end
 
-function RECYCLE_DRAW_ITEM_DETAIL(obj, itemobj, itemcset, type, itemguid)
+function RECYCLE_DRAW_ITEM_DETAIL(obj, itemobj, itemcset, type, itemguid)	
 
 	local title = GET_CHILD_RECURSIVELY(itemcset,"title");
 	local subtitle = GET_CHILD_RECURSIVELY(itemcset,"subtitle");
@@ -172,12 +225,32 @@ function RECYCLE_DRAW_ITEM_DETAIL(obj, itemobj, itemcset, type, itemguid)
 	local staticBuyMedalbox = GET_CHILD_RECURSIVELY(itemcset,"staticBuyMedalbox"); 
 	local staticSellMedalbox = GET_CHILD_RECURSIVELY(itemcset,"staticSellMedalbox");
 	local remaincnt = GET_CHILD_RECURSIVELY(itemcset,"remaincnt");
+	local isNew_mark = GET_CHILD_RECURSIVELY(itemcset,"isNew_mark");
+	isNew_mark:SetVisible(0);
+	local isHot_mark = GET_CHILD_RECURSIVELY(itemcset,"isHot_mark");
+	isHot_mark:SetVisible(0);	
+	local isSale_mark = GET_CHILD_RECURSIVELY(itemcset,"isSale_mark");
+	isSale_mark:SetVisible(0);	
+	local isSpecial_mark = GET_CHILD_RECURSIVELY(itemcset, 'isLimit_mark')
+	isSpecial_mark:SetVisible(0)
 	
 
 	local itemName = itemobj.Name;
 	local itemclsID = itemobj.ClassID;
 	local tpitem_clsName = obj.ClassName;
 	local tpitem_clsID = obj.ClassID;
+
+	if TryGetProp(obj, 'New', 'None') == 'YES' then
+		isNew_mark:SetVisible(1)
+	end
+
+	if TryGetProp(obj, 'Sale', 'None') == 'YES' then
+		isSale_mark:SetVisible(1)
+	end
+
+	if TryGetProp(obj, 'Special', 'None') == 'YES' then
+		isSpecial_mark:SetVisible(1)
+	end
 
 	local price;
 	if type == "sell" then
@@ -210,7 +283,7 @@ function RECYCLE_DRAW_ITEM_DETAIL(obj, itemobj, itemcset, type, itemguid)
 			
 	local icon = slot:GetIcon();
 	icon:SetTooltipType('wholeitem');
-	icon:SetTooltipArg('', itemclsID, 0);
+	icon:SetTooltipArg('recycleshop', itemclsID, itemguid);
 
 	local desc = GET_CHILD_RECURSIVELY(itemcset,"desc")
 	local tradeable = GET_CHILD_RECURSIVELY(itemcset,"tradeable")
@@ -368,6 +441,9 @@ function TPSHOP_ITEM_TO_RECYCLE_SELL_BASKET_PREPROCESSOR(parent, control, itemgu
 	end
 
 	local obj = GetClass("recycle_shop", itemobj.ClassName)
+	if config.GetServiceNation() == "PAPAYA" then
+		obj = GetClass("recycle_shop_papaya", itemobj.ClassName)
+	end
 	if obj == nil then
 		return;
 	end
@@ -401,6 +477,9 @@ function TPSHOP_ITEM_TO_RECYCLE_SELL_BASKET(itemguid, addcnt)
 
 	
 	local obj = GetClass("recycle_shop", itemobj.ClassName)
+	if config.GetServiceNation() == "PAPAYA" then
+		obj = GetClass("recycle_shop_papaya", itemobj.ClassName)
+	end
 	if obj == nil then
 		return;
 	end
@@ -492,6 +571,9 @@ end
 function TPSHOP_ITEM_TO_RECYCLE_BUY_BASKET_PREPROCESSOR(parent, control, tpitemname, tpitem_clsID)
 
 	local obj = GetClassByType("recycle_shop", tpitem_clsID)
+	if config.GetServiceNation() == "PAPAYA" then
+		obj = GetClassByType("recycle_shop_papaya", tpitem_clsID)
+	end
 	if obj == nil then
 		return;
 	end
@@ -540,6 +622,9 @@ function TPSHOP_ITEM_TO_RECYCLE_BUY_BASKET(tpitemname, classid)
 	end
 
 	local tpitem = GetClass("recycle_shop", item.ClassName)
+	if config.GetServiceNation() == "PAPAYA" then
+		tpitem = GetClass("recycle_shop_papaya", item.ClassName)
+	end
 	if tpitem == nil then
 		ui.MsgBox(ScpArgMsg("DataError"))
 		return
@@ -622,6 +707,9 @@ function UPDATE_RECYCLE_BASKET_MONEY(frame, type) -- buy? sell?
 			local slot  = slotset:GetSlotByIndex(i);
 			local classname = slot:GetUserValue("TPITEMNAME");
 			local alreadyItem = GetClass("recycle_shop",classname)
+			if config.GetServiceNation() == "PAPAYA" then
+				alreadyItem = GetClass("recycle_shop_papaya",classname)
+			end
 			
 			if alreadyItem ~= nil then
 
@@ -676,6 +764,9 @@ function TPSHOP_ITEM_RECYCLE_PREVIEW_PREPROCESSOR(parent, control, tpitemname, t
 	local slotset = nil;
 	
 	local obj = GetClassByType("recycle_shop", tpitem_clsID)
+	if config.GetServiceNation() == "PAPAYA" then
+		obj = GetClassByType("recycle_shop_papaya", tpitem_clsID)
+	end
 	if obj == nil then
 		return;
 	end
@@ -751,7 +842,10 @@ function EXEC_BUY_RECYCLE_ITEM()
             local itemClassName = slot:GetUserValue('CLASSNAME');
 			local item = GetClass("Item", itemClassName);
 			local tpitem = GetClass("recycle_shop",tpitemname)
-
+			
+			if config.GetServiceNation() == "PAPAYA" then
+				tpitem = GetClass("recycle_shop_papaya",tpitemname)
+			end
 			if tpitem ~= nil then
 				-- check equip
                 if IS_EQUIP(item) == true then
@@ -835,14 +929,12 @@ function _EXEC_BUY_RECYCLE_ITEM(itemListStr)
     pc.ReqExecuteTx_NumArgs("SCR_TX_RECYCLE_BUY", itemListStr);	
 	
 	local frame = ui.GetFrame("tpitem");
-	frame:ShowWindow(0);
-	TPITEM_CLOSE(frame);
+	--frame:ShowWindow(0);
+	TPITEM_RESET(frame);
 end
 
 function EXEC_SELL_RECYCLE_ITEM()
-
 	session.ResetItemList();
-	
 	local slotsetname = nil
 	local itemListStr = ""
 	
@@ -857,28 +949,37 @@ function EXEC_SELL_RECYCLE_ITEM()
 	local slotCount = slotset:GetSlotCount();
 
 	local allprice = 0
+	local isHatOption = 0
 
 	for i = 0, slotCount - 1 do
 		local slotIcon	= slotset:GetIconByIndex(i);
 
 		if slotIcon ~= nil then
-
 			local slot  = slotset:GetSlotByIndex(i);
 			local tpitemname = slot:GetUserValue("TPITEMNAME");
 			local itemguid = slot:GetUserValue("SELLITEMGUID");
+			local invitem = session.GetInvItemByGuid(itemguid);
+			if invitem ~= nil then 
+				local itemobj = GetIES(invitem:GetObject());
+				if itemobj ~= nil then
+					if TryGetProp(itemobj, "HatPropName_1", "None") ~= "None" then
+						isHatOption = 1
+					end
+				end
+			end
+
 			local cnt = tonumber(slot:GetUserValue("COUNT"));
 			local tpitem = GetClass("recycle_shop",tpitemname)
-
+			if config.GetServiceNation() == "PAPAYA" then
+				tpitem = GetClass("recycle_shop_papaya",tpitemname)
+			end
 			if tpitem ~= nil then
-							
 				allprice = allprice + (tpitem.SellPrice * cnt)
 
 				session.AddItemID(itemguid, cnt);
-				
 			else
 				return
 			end
-
 		end
 	end
 
@@ -886,12 +987,21 @@ function EXEC_SELL_RECYCLE_ITEM()
 		return
 	end
 
+	if isHatOption == 1 then
+		local msg = ScpArgMsg('ConfirmExchangeHatAccHaveOption{msg}', 'msg', ClMsg('exchange_enchant_item'));
+		WARNINGMSGBOX_FRAME_OPEN_EXCHANGE_RECYCLE(msg, 'CONFIRM_SELL_RECYCLE_ITEM');
+	else
+		CONFIRM_SELL_RECYCLE_ITEM()
+	end
+end
+
+function CONFIRM_SELL_RECYCLE_ITEM()
 	local resultlist = session.GetItemIDList();
 	item.DialogTransaction("RECYCLE_SHOP_SELL", resultlist);
 	
 	local frame = ui.GetFrame("tpitem");
-	frame:ShowWindow(0);
-	TPITEM_CLOSE(frame);
+	--frame:ShowWindow(0);
+	TPITEM_RESET(frame);
 end
 
 function RECYCLE_MAKE_TREE(frame)
@@ -900,17 +1010,26 @@ function RECYCLE_MAKE_TREE(frame)
 	recycleCateTree:SetFitToChild(true,10);
 	DESTROY_CHILD_BYNAME(recycleCateTree, 'CATEGORY_');
 	recycleCateTree:CloseNodeAll();
-
+	
 	-- TODO: 추후 카테고리를 늘릴 때에는 여기 아래를 수정하면 됨. 지금은 고정된 것들만 하기로 하였음
 	local firstItem = RECYCLE_CREATE_CATEGORY_ITEM(recycleCateTree, 'TotalTabName');
+	RECYCLE_CREATE_CATEGORY_ITEM(recycleCateTree, 'Equipmisc');
 	RECYCLE_CREATE_CATEGORY_ITEM(recycleCateTree, 'Drug');
-	RECYCLE_CREATE_CATEGORY_ITEM(recycleCateTree, 'Wiki_Accessory');
-	RECYCLE_CREATE_CATEGORY_ITEM(recycleCateTree, 'Artefact');
+	RECYCLE_CREATE_CATEGORY_ITEM(recycleCateTree, 'Misc');
+	RECYCLE_CREATE_CATEGORY_ITEM(recycleCateTree, 'Contents');
+	RECYCLE_CREATE_CATEGORY_ITEM(recycleCateTree, 'Growth');
+	RECYCLE_CREATE_CATEGORY_ITEM(recycleCateTree, 'Gem');
+	RECYCLE_CREATE_CATEGORY_ITEM(recycleCateTree, 'Equip');
+	RECYCLE_CREATE_CATEGORY_ITEM(recycleCateTree, 'Card');
+	RECYCLE_CREATE_CATEGORY_ITEM(recycleCateTree, 'Reset');
+	RECYCLE_CREATE_CATEGORY_ITEM(recycleCateTree, 'Etc');
+	RECYCLE_CREATE_CATEGORY_ITEM(recycleCateTree, 'Toy');
 	RECYCLE_CREATE_CATEGORY_ITEM(recycleCateTree, 'Com_costume_M');
 	RECYCLE_CREATE_CATEGORY_ITEM(recycleCateTree, 'War_costume_F');
 	RECYCLE_CREATE_CATEGORY_ITEM(recycleCateTree, 'Wiz_costume_F');
 	RECYCLE_CREATE_CATEGORY_ITEM(recycleCateTree, 'Arc_costume_F');
 	RECYCLE_CREATE_CATEGORY_ITEM(recycleCateTree, 'Cle_costume_F');	
+	RECYCLE_CREATE_CATEGORY_ITEM(recycleCateTree, 'recycle_special');		
 	recycleCateTree:OpenNodeAll();
 end
 

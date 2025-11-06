@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <GameList>
-    <Game Name="WTREES22_3_SUBQ8_MINI" minLv="0" maxLv="0" startWaitSec="2097200">
+    <Game Name="WTREES22_3_SUBQ8_MINI" minLv="0" maxLv="0" playerCountCheckDestroy="1" startWaitSec="2097200">
         <StageList>
             <Stage Name="Stage1">
                 <ObjList>
-                    <Obj Type="Monster" MonType="58844" Pos="-1105.29#163.30#-1251.78" angle="168" genCount="1" genTime="20000" genReadyTime="15000" objectKey="0" propList="&apos;BTree&apos; &apos;TrackWaitMonster&apos; ">
+                    <Obj Type="Monster" MonType="58844" Pos="-1105.29#163.30#-1251.78" angle="168" genCount="1" genTime="20000" genReadyTime="5000" objectKey="0" propList="&apos;BTree&apos; &apos;TrackWaitMonster&apos; ">
                         <SelfAI ActiveMessageMapInBattle="1">
                             <List>
                                 <ToolScp Scp="S_AI_ATTACK_NEAR" Client="NO" UseSleep="NO">
@@ -24,7 +24,7 @@
                             </StartList>
                         </SelfAI>
                     </Obj>
-                    <Obj Type="Monster" MonType="58844" Pos="-1126.64#163.30#-1342.50" angle="-178" genCount="1" genTime="20000" genReadyTime="15000" objectKey="1" propList="&apos;BTree&apos; &apos;TrackWaitMonster&apos; ">
+                    <Obj Type="Monster" MonType="58844" Pos="-1126.64#163.30#-1342.50" angle="-178" genCount="1" genTime="20000" genReadyTime="5000" objectKey="1" propList="&apos;BTree&apos; &apos;TrackWaitMonster&apos; ">
                         <SelfAI ActiveMessageMapInBattle="1">
                             <List>
                                 <ToolScp Scp="S_AI_ATTACK_NEAR" Client="NO" UseSleep="NO">
@@ -44,7 +44,7 @@
                             </StartList>
                         </SelfAI>
                     </Obj>
-                    <Obj Type="Monster" MonType="58848" Pos="-1075.53#133.25#-1304.93" angle="159" genCount="1" genTime="20000" genReadyTime="15000" objectKey="3" propList="&apos;BTree&apos; &apos;TrackWaitMonster&apos; ">
+                    <Obj Type="Monster" MonType="58848" Pos="-1075.53#133.25#-1304.93" angle="159" genCount="1" genTime="20000" genReadyTime="5000" objectKey="3" propList="&apos;BTree&apos; &apos;TrackWaitMonster&apos; ">
                         <SelfAI ActiveMessageMapInBattle="1">
                             <List>
                                 <ToolScp Scp="S_AI_ATTACK_NEAR" Client="NO" UseSleep="NO">
@@ -69,7 +69,7 @@
                     <Event execCount="1" eventName="STAGE1_EVENT1">
                         <condList>
                             <ToolScp Scp="GAME_ST_EVT_COND_TIMECHECK" Client="NO" UseSleep="NO">
-                                <Num Num="30"/>
+                                <Num Num="10"/>
                             </ToolScp>
                         </condList>
                         <execList>
@@ -171,9 +171,6 @@
                                 <ToolScp Scp="S_AI_ATTACK_NEAR_MAXHATECOUNT_CHECK" Client="NO" UseSleep="NO">
                                     <Num Num="500"/>
                                 </ToolScp>
-                                <ToolScp Scp="S_AI_MOVE_RALLY" Client="NO" UseSleep="YES" ExtraArg="1">
-                                    <AbsPos X="-1354.8728" Y="218.76819" Z="-1075.2034"/>
-                                </ToolScp>
                             </List>
                             <StartList>
                                 <ToolScp Scp="S_AI_SET_BTREE" Client="NO" UseSleep="NO">
@@ -190,7 +187,7 @@
                     <Event eventName="STAGE2_EVENT1">
                         <condList>
                             <ToolScp Scp="GAME_ST_EVT_COND_TIMECHECK" Client="NO" UseSleep="NO">
-                                <Num Num="50"/>
+                                <Num Num="10"/>
                             </ToolScp>
                         </condList>
                         <execList>

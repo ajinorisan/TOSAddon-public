@@ -14,7 +14,7 @@
                     <Event execCount="1" eventName="summon" execWithStart="0">
                         <condList>
                             <ToolScp Scp="GAME_ST_EVT_COND_TIMECHECK" Client="NO" UseSleep="NO">
-                                <Num Num="5"/>
+                                <Num Num="2"/>
                             </ToolScp>
                         </condList>
                         <execList>
@@ -63,7 +63,7 @@
                     <Event execCount="1" eventName="summon" execWithStart="0">
                         <condList>
                             <ToolScp Scp="GAME_ST_EVT_COND_TIMECHECK" Client="NO" UseSleep="NO">
-                                <Num Num="3"/>
+                                <Num Num="1"/>
                             </ToolScp>
                         </condList>
                         <execList>
@@ -266,11 +266,6 @@
                             </ToolScp>
                             <ToolScp Scp="GAME_ST_EVT_EXEC_STAGE_DESTROY" Client="NO" UseSleep="NO">
                                 <Str Str="3RD"/>
-                            </ToolScp>
-                            <ToolScp Scp="MGAME_EXEC_SSN_ADD" Client="NO" UseSleep="NO">
-                                <Str Str="SSN_CASTLE94_MAIN07"/>
-                                <Str Str="QuestInfoValue1"/>
-                                <Num Num="1"/>
                             </ToolScp>
                             <ToolScp Scp="MGAME_EVT_EXEC_DIRECTION_EACH" Client="NO" UseSleep="NO">
                                 <Str Str="CASTLE94_MAIN07_AFTER_TRACK"/>

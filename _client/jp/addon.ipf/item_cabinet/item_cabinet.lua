@@ -2722,12 +2722,14 @@ function ITEM_CABINET_REG_MATERIAL(frame, slot)
 		end
 		local materialCls = GetClass("Item", _name);
 		local item_name = itemCls.ClassName
-		item_name = string.gsub(item_name, "_NoTrade", "")
+		local materialCls_ClsName = TryGetProp(materialCls ,'ClassName', 'None')
+		if string.find(materialCls_ClsName, "_NoTrade") == nil then
+			item_name = string.gsub(item_name, "_NoTrade", "")
+		end
 		if TryGetProp(itemObj, 'GroupName', 'None')	== 'Icor' then
 			item_name = TryGetProp(itemObj, 'InheritanceItemName', 'None')
 		end
-		
-		if TryGetProp(materialCls ,'ClassName', 'None') == item_name then 	
+		if materialCls_ClsName == item_name then 	
 			if g_materialItem[index].count > 1 then		
 				ITEM_CABINET_INPUT_MATERIAL_CNT_BOX(invItem, index, itemID, slot);
 				return;

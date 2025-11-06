@@ -54,17 +54,23 @@ end
 
 function HAIRSHOP_REGISTER_ITEM_LIST()
 	-- Beauty_Shop_Hair.xml의 정보.
-	if HairItemList == nil then
+	if true or HairItemList == nil then
 		HairItemList={}
 		HairItemList["Male"] ={}
 		HairItemList["Female"]={}
 
-		local clsList, cnt = GetClassList('Beauty_Shop_Hair');
-		
+		local id_space = 'Beauty_Shop_Hair'
+
+		if IS_SEASON_SERVER() == 'YES' then
+			id_space = 'Beauty_Shop_Hair_Season'
+		end
+
+		local clsList, cnt = GetClassList(id_space);
+	
 		for i = 0, cnt - 1 do
-			local cls = GetClassByIndexFromList(clsList, i);
+			local cls = GetClassByIndexFromList(clsList, i);			
 			local data = {
-                IDSpace = 'Beauty_Shop_Hair',
+                IDSpace = id_space,
                 ClassName = cls.ClassName,
 				Category 		= cls.Category,
 				Gender			= cls.Gender,
@@ -93,45 +99,51 @@ function HAIRSHOP_REGISTER_ITEM_LIST()
 	return HairItemList
 end
 
-function HAIRSHOP_MAKE_ITEMLIST_PURCHASE_OVERRIDE(originList, gender)
+function HAIRSHOP_MAKE_ITEMLIST_PURCHASE_OVERRIDE(originList, gender)	
 	-- 한정판 헤어를 구매 했다면 추가한다.
 	local genderStr = 'M'
 	if gender == 2 then
 		genderStr = 'F'
 	end
-
+	
 	local cacheList = {}
 	-- 캐싱 리스트 (key=ItemClassName, Value = ClassID )
-	local clsList, cnt = GetClassList('Beauty_Shop_Hair');
+
+	local id_space = 'Beauty_Shop_Hair'
+	if IS_SEASON_SERVER() == 'YES' then
+		id_space = 'Beauty_Shop_Hair_Season'
+	end
+
+	local clsList, cnt = GetClassList(id_space);
 	for i = 0, cnt - 1 do
 		local cls = GetClassByIndexFromList(clsList, i);
 		if cacheList[cls.ItemClassName] == nil then
 			cacheList[cls.ItemClassName] = cls.ClassID
 		end
 	end
-
+	
 	-- 순회 하면서 gender에 해당하는 목록을 뽑는다. 머리이므로 같은 헤어 이름이라면 1개만 추가.
-	local count = session.beautyshop.GetPurchasedHairCount();
+	local count = session.beautyshop.GetPurchasedHairCount();	
 	local purchasedHairList = {}
 	for i=0, count-1 do	
 		local info = session.beautyshop.GetPurchasedHair(i)
 		local hairClassName = info:GetHairClassName();
 		local classID = cacheList[hairClassName]
-		local cls = GetClassByType('Beauty_Shop_Hair', classID )
+		local cls = GetClassByType(id_space, classID )		
 		if cls ~= nil then
 			if cls.Gender == genderStr then -- 성별이 같아야하고.
-				if purchasedHairList[hairClassName] == nil then
+				if true or purchasedHairList[hairClassName] == nil then
 					purchasedHairList[hairClassName] = true -- set 처럼사용해서 체크해서 다시 못넣게 함.
-					local originItem = HAIRSHOP_FIND_HAIR_ITEM_FROM_LIST(originList, hairClassName) -- 원래 목록에 있는지 확인.
+					local originItem = HAIRSHOP_FIND_HAIR_ITEM_FROM_LIST(originList, hairClassName) -- 원래 목록에 있는지 확인.										
 					if originItem  == nil then -- 원래 목록에 없으면 추가.
 						local data = {
-							IDSpace = 'Beauty_Shop_Hair',
+							IDSpace = id_space,
 							ClassName = cls.ClassName,
 							Category 		= cls.Category,
 							Gender			= cls.Gender,
 							ItemClassName	= cls.ItemClassName,
 							EquipType		= cls.EquipType,
-							Price			= tonumber(cls.Price),
+							Price			= tonumber(cls.Price),							
 							PriceRatio		= tonumber(cls.PriceRatio),
 							JobOnly			= cls.JobOnly,
 							SellStartTime	= cls.SellStartTime,
@@ -223,23 +235,12 @@ function HAIRSHOP_GET_TRANSLATE_DYE_NAME(Gender, ItemClassName, DyeColorEngName)
 	-- 헤어 Index 구함
 	local hairIndex = BEAUTYSHOP_GET_HEADINDEX(Gender, ItemClassName, DyeColorEngName)
 	
-	
-	local rootClassList = imcIES.GetClassList("HairType");	
-	if rootClassList == nil then
-		return DyeColorEngName
-	end
-	
-	local selectClass   = rootClassList:GetClass(Gender);		-- hairtype에서 성별에 해당하는 리스트 들고옴
-	if selectClass == nil then
-		return DyeColorEngName
-	end
+	local PartClass = imcIES.GetClass("CreatePcInfo", "Hair");
+	local GenderList = PartClass:GetSubClassList();
+	local Selectclass   = GenderList:GetClass(Gender);
+	local Selectclasslist = Selectclass:GetSubClassList();
 
-	local selectClassList = selectClass:GetSubClassList();
-	if selectClassList == nil then
-		return DyeColorEngName
-	end
-
-	local nowHairCls = selectClassList:GetByIndex(hairIndex-1); -- 현재 head 클래스 들고옴
+	local nowHairCls = Selectclasslist:GetClass(hairIndex); -- 현재 head 클래스 들고옴
 	if nowHairCls == nil then
 		return DyeColorEngName
 	end
@@ -300,10 +301,15 @@ function HAIRSHOP_SET_HAIR_DYE(ctrlSet, hairInfo)
 		local isSale_mark = GET_CHILD_RECURSIVELY(ctrlSet, 'isSale_mark');		
 		if beautyShopCls.PriceRatio > 0 then			
 			price = math.floor(price * (100 - beautyShopCls.PriceRatio) / 100);
-			style = parent:GetUserConfig('DISCOUNT_COLOR')..'{cl}'..originPrice..'{/}{/} ';
+		style = parent:GetUserConfig('DISCOUNT_COLOR')..'{cl}'..originPrice..'{/}{/} ';
 		else
 			isSale_mark:ShowWindow(0);
 		end
+
+		if IS_SEASON_SERVER() == "YES" then
+			price = 1;
+		end
+		
 		nxp:SetTextByKey("value", style..'{@st43}{s16}'..price);
 	end
 	-- 장바구니 버튼에 컬러 이름 기록.

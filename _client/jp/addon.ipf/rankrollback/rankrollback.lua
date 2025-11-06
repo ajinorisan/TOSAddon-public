@@ -37,12 +37,55 @@ function RANKROLLBACK_ITEM_USE(invItem)
 end
 
 function RANKROLLBACK_CHECK_PLAYER_STATE(frame)
+	GET_CHILD_RECURSIVELY(frame, "button_1"):ShowWindow(1)
+	GET_CHILD_RECURSIVELY(frame, "button_2"):ShowWindow(0)
+
+	local jobClsID = frame:GetUserIValue('TARGET_JOB_CLASS_ID')
+	local jobCls = GetClassByType('Job', jobClsID)
+	local curJobAbilPoint = GetTotalAbilityPointByJob(GetMyPCObject(), TryGetProp(jobCls, 'ClassName', 'None'), 0)
+	local curTotalAbilPoint = session.ability.GetAbilityPoint()
+
+	local abilPointStr = GET_CHILD_RECURSIVELY(frame, "strAbility")
+	abilPointStr:SetTextByKey("value", GET_COMMAED_STRING(curJobAbilPoint))
+	abilPointStr:SetTextByKey("getvalue", GET_COMMAED_STRING(curJobAbilPoint))
+	abilPointStr:SetTextByKey("curvalue", GET_COMMAED_STRING(curTotalAbilPoint))
+
 	RANKROLLBACK_PC_EQUIP_STATE(frame);
 	RANKROLLBACK_PC_WITH_COMMPANION(frame);
 	RANKROLLBACK_PC_LOCATE(frame);
 	RANKROLLBACK_PC_AUTOSELLER_STATE(frame);
 	RANKROLLBACK_PC_TIMEACTION_STATE(frame);
 end
+
+function RANKROLLBACK_CHECK_PLAYER_MULTIPLE_STATE(frame,reqList)
+	GET_CHILD_RECURSIVELY(frame, "button_1"):ShowWindow(0)
+	GET_CHILD_RECURSIVELY(frame, "button_2"):ShowWindow(1)
+
+	local curJobAbilPoint = 0;
+	local curTotalAbilPoint = session.ability.GetAbilityPoint()
+	for i = 1,#reqList do
+		if i%2 == 1 then
+			if reqList[i] ~= 0  then 
+				local jobClsID =  reqList[i]
+				local jobCls = GetClassByType('Job', jobClsID)
+				local eachpoint = GetTotalAbilityPointByJob(GetMyPCObject(), TryGetProp(jobCls, 'ClassName', 'None'), 0)
+				curJobAbilPoint = curJobAbilPoint + eachpoint
+			end	
+		end
+	end
+	local abilPointStr = GET_CHILD_RECURSIVELY(frame, "strAbility")
+	abilPointStr:SetTextByKey("value", GET_COMMAED_STRING(curJobAbilPoint))
+	abilPointStr:SetTextByKey("getvalue", GET_COMMAED_STRING(curJobAbilPoint))
+	abilPointStr:SetTextByKey("curvalue", GET_COMMAED_STRING(curTotalAbilPoint))
+	RANKROLLBACK_PC_EQUIP_STATE(frame);
+	RANKROLLBACK_PC_WITH_COMMPANION(frame);
+	RANKROLLBACK_PC_LOCATE(frame);
+	RANKROLLBACK_PC_AUTOSELLER_STATE(frame);
+	RANKROLLBACK_PC_TIMEACTION_STATE(frame);
+
+	SET_MULTIPLE_RANKROLLBACK_TARGETS(reqList)
+end
+
 
 function RANKROLLBACK_PC_TIMEACTION_STATE(frame)
 	local timeActionFrame = ui.GetFrame("timeaction");
@@ -98,8 +141,9 @@ end
 
 function RANKROLLBACK_PC_WITH_COMMPANION(frame)
 	local summonedPet = GET_SUMMONED_PET();
+	local hawk = GET_SUMMONED_PET_HAWK();
 	local com_check = GET_CHILD(frame, 'com_check', "ui::CCheckBox");
-	if summonedPet == nil then
+	if summonedPet == nil and hawk == nil then
 		com_check:SetCheck(1);
 	else
 		com_check:SetCheck(0);
@@ -125,6 +169,7 @@ function RANKROLLBACK_PC_EQUIP_STATE(frame)
 		armor_check:SetCheck(0);
 	end
 end
+
 
 function RANKROLLBACK_ITEM_USE_BUTTON_CLICK(frame, ctrl)
 	local gradeRank = session.GetPcTotalJobGrade();
@@ -167,9 +212,105 @@ function RANKROLLBACK_ITEM_USE_BUTTON_CLICK(frame, ctrl)
     if CHECK_INVENTORY_HAS_RANK_CARD() == true then
         ui.MsgBox_NonNested(ClMsg('YouHaveRankCardReallyRankReset?'), 0x00000000, frame:GetName(), 'None', 'None');
         return;
-    end
-    
+	end
+	
+	if CHECK_CURRENT_JOB_UNLOCK_STATE() == false and IS_SEASON_SERVER() ~= 'YES' and GetMyPCObject().Lv < PC_MAX_LEVEL then
+		local opt = { CompareTextDesc = ClMsg('ReallyWantChangeJobPlzInputNextStr') }
+		WARNINGMSGBOX_EX_FRAME_OPEN(frame, 'None', 'TargetJobIsLocked;CantRollbackThisChangeJob/RANKROLLBACK_REQUEST_RANK_RESET', 0, opt)
+		return;
+	end
+	
+	local frame = ui.GetFrame('rankrollback');
+	local targetJobID = frame:GetUserIValue('TARGET_JOB_CLASS_ID');
+
+	if IS_DEFAULT_COSTUME_LOCK(targetJobID) == 1 then
+    	ui.SysMsg(ClMsg('DefaultCostumeIsLock'));
+		return; 
+	end
+
     RANKROLLBACK_REQUEST_RANK_RESET();
+end
+
+function MULTIPLE_RANKROLLBACK_ITEM_USE_BUTTON_CLICK(frame,ctrl)
+	local gradeRank = session.GetPcTotalJobGrade();
+	if gradeRank <= 1 then
+		ui.SysMsg(ScpArgMsg("CantUseRankRest1Rank"));
+	    return;
+	end
+
+    local armor_check = GET_CHILD_RECURSIVELY(frame, 'armor_check');
+    if armor_check:IsChecked() == 0 then
+    	ui.SysMsg(ClMsg('CannotEquipState'));
+    	return;
+    end
+
+    local com_check = GET_CHILD_RECURSIVELY(frame, 'com_check');
+    if com_check:IsChecked() == 0 then
+    	ui.SysMsg(ClMsg('HaveToPutPetAtBarrack'));
+    	return;
+    end
+	
+    local mapprop = session.GetCurrentMapProp();
+	local mapCls = GetClassByType("Map", mapprop.type);
+	
+	if mapCls == nil then
+		ui.SysMsg(ClMsg("AllowedInTown"));
+        return;
+	end
+
+    if mapCls.MapType ~= "City" and mapCls.ClassName ~= 'onehour_test1' then
+        ui.SysMsg(ClMsg("AllowedInTown"));
+        return;
+    end
+
+    local shop_check = GET_CHILD_RECURSIVELY(frame, 'shop_check');
+    if shop_check:IsChecked() == 0 then
+    	ui.SysMsg(ClMsg('StateOpenAutoSeller'));
+    	return;
+    end
+
+    local timeaction_check = GET_CHILD_RECURSIVELY(frame, 'timeaction_check');
+    if timeaction_check:IsChecked() == 0 then
+    	ui.SysMsg(ClMsg('CannotInCurrentState'));
+    	return;
+    end
+     
+    if CHECK_INVENTORY_HAS_RANK_CARD() == true then
+        ui.MsgBox_NonNested(ClMsg('YouHaveRankCardReallyRankReset?'), 0x00000000, frame:GetName(), 'None', 'None');
+        return;
+	end
+	
+	if CHECK_CURRENT_JOB_UNLOCK_STATE() == false and IS_SEASON_SERVER() ~= 'YES' and GetMyPCObject().Lv < PC_MAX_LEVEL then
+		local opt = { CompareTextDesc = ClMsg('ReallyWantChangeJobPlzInputNextStr') }
+		WARNINGMSGBOX_EX_FRAME_OPEN(frame, 'None', 'TargetJobIsLocked;CantRollbackThisChangeJob/RANKROLLBACK_REQUEST_RANK_RESET', 0, opt)
+		return;
+	end
+	
+	local frame = ui.GetFrame('rankrollback');
+	local srclist,destlist = GET_MULTIPLE_RANKROLLBACK_TARGETS();
+	if srclist==nil and destlist==nil then
+		return
+	end
+	
+	for k,v in pairs(destlist) do
+		if IS_DEFAULT_COSTUME_LOCK(v) == 1 then
+			ui.SysMsg(ClMsg('DefaultCostumeIsLock'));
+			return; 
+		end
+	end
+
+	
+	RANKROLLBACK_REQUEST_MULTIPLE_RANK_RESET();
+end
+
+function RANKROLLBACK_REQUEST_MULTIPLE_RANK_RESET()
+	local srclist,destlist = GET_MULTIPLE_RANKROLLBACK_TARGETS();
+
+	if srclist==nil and destlist==nil then
+		return
+	end
+	
+	session.job.ReqMultipleClassExchange(srclist[1], destlist[1],srclist[2],destlist[2],srclist[3],destlist[3]);
 end
 
 function CHECK_INVENTORY_HAS_RANK_CARD()
@@ -217,6 +358,26 @@ function RANKROLLBACK_DELETE_RANK_CARD(className)
 end
 
 function OPEN_RANKROLLBACK_UI_BY_SYSMENU()
+	ui.CloseFrame('inventory')
     ui.OpenFrame('changejob');
     CHANGEJOB_SHOW_RANKROLLBACK();
+end
+
+function CHECK_CURRENT_JOB_UNLOCK_STATE()
+	local frame = ui.GetFrame('rankrollback');
+	local targetJobID = frame:GetUserIValue('TARGET_JOB_CLASS_ID');
+	local targetJobClass = GetClassByType('Job', targetJobID)
+	if targetJobClass ~= nil then
+		local funcStr = TryGetProp(targetJobClass, 'PreFunction', 'None')
+		local preFunc = _G[funcStr]
+		if preFunc ~= nil then
+			local pc = GetMyPCObject();
+			local jobCount = GetTotalJobCount(pc) - 1;
+			local result = preFunc(pc, jobCount);
+            if result == 'NO' then
+                return false;
+            end
+        end
+	end
+	return true;
 end

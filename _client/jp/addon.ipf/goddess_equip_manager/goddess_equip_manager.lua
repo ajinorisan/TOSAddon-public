@@ -5021,7 +5021,7 @@ function GODDESS_MGR_INHERIT_EXEC(parent, btn)
 	option.CompareTextColor = nil
 	option.CompareTextDesc = ClMsg('ReallyGoddessInherit')
 
-	WARNINGMSGBOX_EX_FRAME_OPEN(frame, nil, clmsg .. ';Succession/' .. yesscp, 0, option)
+	WARNINGMSGBOX_EX_FRAME_OPEN(frame, nil, clmsg .. ';Succession#Succession2/' .. yesscp, 0, option)
 end
 
 function WARNINGMSGBOX_FRAME_INHERIT()

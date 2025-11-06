@@ -31,3 +31,4 @@ ClassID,GenType,Lv,Range,GenRange,RespawnTime,MaxPop,Minimap,Hide,UseAIOufOfPC,A
 104,104,0,40,30,0,30,0,0,0,0,0,0,"beetow_blue","","","","","","","","","","","NO","YES","NO","Monster","SmartGen","","",""
 105,105,0,40,9999,0,15,0,0,0,0,0,0,"beetow_blue","","","","","","","","","","","NO","YES","NO","Monster","","","",""
 106,106,1,40,1,60000,1,0,0,0,1,0,0,"id_gate_npc","UnvisibleName","","","","","","","BRACKEN_42_2_TO_GUILD_FIELD_BOSS","","","NO","YES","NO","Neutral","","","",""
+107,107,1,40,1,60000,1,1,0,0,0,0,0,"master_JAG_npc","[재규어 마스터]{nl}엘 이트샤","","","","","","","MASTER_JAGUAR_NPC","","","NO","YES","NO","Neutral","","","",""

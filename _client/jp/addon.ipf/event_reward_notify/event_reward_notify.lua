@@ -20,7 +20,9 @@ function EVENT_REWARD_NOTIFY_ON_MSG(frame, msg, argStr, argNum)
 	end
 end
 
-function EVENT_REWARD_NOTIFY_SHOW(frame, eventName, rewardName)	
+function EVENT_REWARD_NOTIFY_SHOW(frame, eventName, rewardName)			
+	eventName = dic.getTranslatedStr(eventName)
+	rewardName = dic.getTranslatedStr(rewardName)
 	local bg = GET_CHILD(frame, "bg", "ui::CGroupBox");
 
 	local margin = tonumber(frame:GetUserConfig("TEXT_MARGIN"));

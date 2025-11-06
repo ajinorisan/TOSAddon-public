@@ -13,6 +13,6 @@
 		<picture name="itembgimg" rect="0 0 120 120" margin="0 0 0 0" layout_gravity="center top" changecursor="false" hittest="false" image="gacha_01" stretch="true"/>
     	<picture name="itemimg" rect="0 0 70 70" margin="0 25 0 0" layout_gravity="center top" changecursor="false" hittest="false" image="gacha_01" stretch="true"/>
 		<richtext name="title" rect="0 0 200 30" margin="0 120 0 0" layout_gravity="center top" caption="{@st43}{/}"/>
-    	<picture name="bonusimg" rect="0 0 45 45" margin="30 10 0 0" layout_gravity="center top" changecursor="false" hittest="false" image="gacha_bonus" stretch="true"/>    	
+    	<picture name="bonusimg" rect="0 0 45 45" margin="30 10 0 0" layout_gravity="center top" changecursor="false" hittest="false" image="gacha_bonus" stretch="true"/>    
 	</controls>
 </uiframe>

@@ -103,15 +103,15 @@ end
 
 function ADVENTURE_BOOK_SELLER_CONTENT.FILTER_LIST(list, sortOption, categoryOption)
 	if categoryOption == 1 then
-		list = ADVENTURE_BOOK_FILTER_ITEM(list, ADVENTURE_BOOK_SELLER_CONTENT['FIND_SKILL_CTRL_TYPE'], 'Warrior')
+		list = ADVENTURE_BOOK_FILTER_ITEM(list, ADVENTURE_BOOK_SELLER_CONTENT['FIND_SKILL_CTRL_TYPE'], {'Warrior'})
 	elseif categoryOption == 2 then
-		list = ADVENTURE_BOOK_FILTER_ITEM(list, ADVENTURE_BOOK_SELLER_CONTENT['FIND_SKILL_CTRL_TYPE'], 'Wizard')
+		list = ADVENTURE_BOOK_FILTER_ITEM(list, ADVENTURE_BOOK_SELLER_CONTENT['FIND_SKILL_CTRL_TYPE'], {'Wizard'})
 	elseif categoryOption == 3 then
-		list = ADVENTURE_BOOK_FILTER_ITEM(list, ADVENTURE_BOOK_SELLER_CONTENT['FIND_SKILL_CTRL_TYPE'], 'Archer')
+		list = ADVENTURE_BOOK_FILTER_ITEM(list, ADVENTURE_BOOK_SELLER_CONTENT['FIND_SKILL_CTRL_TYPE'], {'Archer'})
 	elseif categoryOption == 4 then
-		list = ADVENTURE_BOOK_FILTER_ITEM(list, ADVENTURE_BOOK_SELLER_CONTENT['FIND_SKILL_CTRL_TYPE'], 'Cleric')
+		list = ADVENTURE_BOOK_FILTER_ITEM(list, ADVENTURE_BOOK_SELLER_CONTENT['FIND_SKILL_CTRL_TYPE'], {'Cleric'})
 	elseif categoryOption == 5 then
-		list = ADVENTURE_BOOK_FILTER_ITEM(list, ADVENTURE_BOOK_SELLER_CONTENT['FIND_SKILL_CTRL_TYPE'], 'Scout')
+		list = ADVENTURE_BOOK_FILTER_ITEM(list, ADVENTURE_BOOK_SELLER_CONTENT['FIND_SKILL_CTRL_TYPE'], {'Scout'})
 	end
 
 	if sortOption == 0 then
@@ -135,7 +135,8 @@ end
 
 function ADVENTURE_BOOK_LIVING_SET_POINT()
     local adventure_book = ui.GetFrame('adventure_book');
-    local page_living = adventure_book:GetChild('page_living');
+    local gb_adventure = adventure_book:GetChild('gb_adventure');
+    local page_living = gb_adventure:GetChild('page_living');
     local total_score_text = page_living:GetChild('total_score_text');
     local totalScore = GET_ADVENTURE_BOOK_SHOP_POINT();
     total_score_text:SetTextByKey('value', totalScore);

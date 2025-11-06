@@ -19,14 +19,16 @@ end
 
 function ADVENTURE_BOOK_INDUN.CLEAR()
 	local frame = ui.GetFrame('adventure_book');
-	local page = GET_CHILD(frame, "page_indun", "ui::CGroupBox");
+	local gb_adventure = GET_CHILD(frame, "gb_adventure", "ui::CGroupBox");
+	local page = GET_CHILD(gb_adventure, "page_indun", "ui::CGroupBox");
 	local list_box = GET_CHILD(page, "indun_list", "ui::CGroupBox");
 	list_box:RemoveAllChild();
 end
 
 function ADVENTURE_BOOK_INDUN.FILL_INDUN_LIST()	
 	local frame = ui.GetFrame('adventure_book');
-	local page = GET_CHILD(frame, "page_indun", "ui::CGroupBox");
+	local gb_adventure = GET_CHILD(frame, "gb_adventure", "ui::CGroupBox");
+	local page = GET_CHILD(gb_adventure, "page_indun", "ui::CGroupBox");
 	local list_box = GET_CHILD(page, "indun_list", "ui::CGroupBox");
 	local sort_opt_list = GET_CHILD(page, "sort_opt_list", "ui::CDropList");
 	local category_opt_list = GET_CHILD(page, "category_opt_list", "ui::CDropList");
@@ -57,7 +59,8 @@ end
 
 function ADVENTURE_BOOK_INDUN.FILL_INDUN_INFO()
 	local frame = ui.GetFrame('adventure_book');
-	local page = GET_CHILD(frame, "page_indun", "ui::CGroupBox");
+	local gb_adventure = GET_CHILD(frame, "gb_adventure", "ui::CGroupBox");
+	local page = GET_CHILD(gb_adventure, "page_indun", "ui::CGroupBox");
 	local indun_info_gb = GET_CHILD(page, "indun_info_gb", "ui::CGroupBox");
 	
 	if ADVENTURE_BOOK_INDUN.SELECTED_INDUN == "" then
@@ -78,7 +81,8 @@ end
 
 function ADVENTURE_BOOK_INDUN.DROPDOWN_LIST_INIT()
 	local frame = ui.GetFrame('adventure_book');
-	local page = GET_CHILD(frame, "page_indun", "ui::CGroupBox");
+	local gb_adventure = GET_CHILD(frame, "gb_adventure", "ui::CGroupBox");
+	local page = GET_CHILD(gb_adventure, "page_indun", "ui::CGroupBox");
 	local sort_opt_list = GET_CHILD(page, "sort_opt_list", "ui::CDropList");
 	local category_opt_list = GET_CHILD(page, "category_opt_list", "ui::CDropList");
 
@@ -102,7 +106,8 @@ end
 
 function ADVENTURE_BOOK_INDUN_SET_POINT()
     local adventure_book = ui.GetFrame('adventure_book');
-    local page_indun = adventure_book:GetChild('page_indun');
+    local gb_adventure = adventure_book:GetChild('gb_adventure');
+    local page_indun = gb_adventure:GetChild('page_indun');
     local total_score_text = page_indun:GetChild('total_score_text');
     local totalPoint = GET_ADVENTURE_BOOK_INDUN_POINT();
     total_score_text:SetTextByKey('value', totalPoint);

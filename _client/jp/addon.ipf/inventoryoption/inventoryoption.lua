@@ -2,10 +2,10 @@
 
 
 g_invenOptionType = {"Equip", "Card", "Etc", "Gem"};
-g_invenOptionDetail_defaultOn = {{"All", "Normal", "Magic", "Rare", "Unique", "Legend"}, 
+g_invenOptionDetail_defaultOn = {{"All", "Normal", "Magic", "Rare", "Unique", "Legend", "Goddess"}, 
 								 {"All", "Red", "Blue", "Green", "Purple", "Legend", "Etc"},
-								 {"All", "Usual", "Quest", "Etc", "Collect", "Special", "Mineral"},
-								 {"All", "Red", "Blue", "Yellow", "Green", "White", "Skill"}}
+								 {"All", "Usual", "Etc", "Collect", "Special", "Mineral"},
+								 {"All", "Red", "Blue", "Yellow", "Green", "White", "Skill", "Cyan", "Magenta", "Black", "Aether"}}
 g_invenOptionDetail_defaultOff = {{"Upgrade", "Random"},
 								  {""}, {""}, {""}}
 

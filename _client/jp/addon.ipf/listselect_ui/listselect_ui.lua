@@ -40,15 +40,41 @@ function ATTENDANCE_LIST_CHECK(frame)
 		return false;
 	end
 
+	local curlist = {}
 	local curcnt = 0;
+	local scrollbar = false;
 	for i = 0, cnt - 1 do
 		local cls = GetClassByIndexFromList(Attendancelist, i);
 		local attendanceData = session.attendance.GetAttendanceData(cls.ClassID);
 		if attendanceData ~= nil then
-			local ctrlset = list:CreateOrGetControlSet("listselect", "listselect_"..cls.ClassID, 0, curcnt*height);
-			AUTO_CAST(ctrlset);
-			ATTENDANCE_CTRLSET(list, ctrlset, cls.ClassID, cls.Name);
-			curcnt = curcnt +1;
+			curcnt = curcnt + 1;
+			curlist[curcnt] = cls.ClassID..";"..cls.Name;
+		end
+	end
+
+	if (curcnt - 1)*height >= list:GetHeight() then
+		scrollbar = true;
+	end
+
+	local ctrlIdx = 1
+	for i = 1, curcnt do
+		local attendancestr = curlist[i];
+		local strlist = StringSplit(attendancestr, ";");
+		local classid = strlist[1];
+		local classname = strlist[2];
+
+		local attendanceData = session.attendance.GetAttendanceData(classid);
+		if attendanceData ~= nil and CHECK_ATTENDANCE_VALID(classid) == true then
+			local ctrlset = list:CreateOrGetControlSet("listselect", "listselect_"..classid, 0, (ctrlIdx - 1)*height);
+			AUTO_CAST(ctrlset)
+			if scrollbar == true then
+				ctrlset:Resize(ctrlset:GetUserConfig("SCROLL_BAR_TRUE_WIDTH"), ctrlset:GetHeight());
+			else
+				ctrlset:Resize(ctrlset:GetUserConfig("SCROLL_BAR_FALSE_WIDTH"), ctrlset:GetHeight());
+			end
+
+			ATTENDANCE_CTRLSET(list, ctrlset, classid, classname);
+			ctrlIdx = ctrlIdx + 1
 		end
 
 	end
@@ -110,5 +136,25 @@ function ATTENDANCE_CTRLSET(list, classCtrl, AttendanceID, AttendanceName)
 	else
 		addBtn:SetSkinName('test_red_button');
 	end
+end
 
+function CHECK_ATTENDANCE_VALID(AttendanceID)
+	local LastRewardData = session.attendance.GetLastRewardData(AttendanceID);
+	if LastRewardData ~= nil then
+		local attendanceData = session.attendance.GetAttendanceData(AttendanceID);				
+		local attendanceCls = GetClassByType('TPEventAttendance', AttendanceID);
+		local todayDayOffset;
+		if attendanceCls.AttendancePass == 'YES' then
+			return true
+		else
+			todayDayOffset = LastRewardData.dayOffset + 1;
+		end
+		
+		local attendanceClassData = session.attendance.GetAttendanceClassData(AttendanceID, todayDayOffset);
+		if attendanceClassData == nil then
+			return false
+		end
+	end
+
+	return true
 end

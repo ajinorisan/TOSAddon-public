@@ -10,6 +10,9 @@ function MAP_EXPLORE_NOTIFY_ON_MSG(frame, msg, argStr, argNum)
 		return;
 	elseif msg == "MAP_EXPLORE_NOTIFY_COMPLETE" then
 		local map_name = GET_CHILD(frame, "map_name", "ui::CRichText");
+		if argStr ~= "None" then
+			argStr = TranArgMsg(argStr);
+		end
 		map_name:SetTextByKey("value", argStr);
 		frame:ShowWindow(1);
 		frame:SetDuration(3);

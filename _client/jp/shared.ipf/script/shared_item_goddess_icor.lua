@@ -714,7 +714,7 @@ shared_item_goddess_icor.get_cost = function(lv, count, grade, cost_list)
         else    
             local cost_count = 1 + math.floor(count / 2.5)
             cost_count = cost_count * 1.5
-            cost_list['misc_BlessedStone_1'] = math.floor(cost_count)
+            cost_list['misc_BlessedStone_2'] = math.floor(cost_count)
 
             cost_count = 300 * math.pow(1.04, count)
             cost_count = cost_count * 1.3

@@ -78,6 +78,11 @@
 			<img name="middle" imgrect="542 1653 84 74"/>
 			<img name="right" imgrect="627 1653 148 74"/>
 		</skin>
+		<skin name="worldmap2_bar_category" texture="\skin\worldmap2.tga">
+			<img name="left" imgrect="165 191 30 38"/>
+			<img name="middle" imgrect="196 191 30 38"/>
+			<img name="right" imgrect="227 191 30 38"/>
+		</skin>
 	</skinlist>
 	<skinlist category="scrollbars">
 		<skin name="verticalscrollbar2" texture="\skin\pip_test.tga">
@@ -144,6 +149,78 @@
 			<img name="btntrform" imgrect="648 771 18 18"/>
 			<img name="btntrform_cursoron" imgrect="667 771 18 18"/>
 			<img name="btntrform_click" imgrect="686 771 18 18"/>
+		</skin>
+		<skin name="worldmap2_scrollbar" texture="\skin\worldmap2.tga">
+			<img name="background" imgrect="284 0 18 26"/>
+			<img name="btnup" imgrect="303 0 18 15"/>
+			<img name="btnup_cursoron" imgrect="303 32 18 15"/>
+			<img name="btnup_click" imgrect="303 64 18 15"/>
+			<img name="btndown" imgrect="303 16 18 15"/>
+			<img name="btndown_cursoron" imgrect="303 48 18 15"/>
+			<img name="btndown_click" imgrect="303 80 18 15"/>
+			<img name="bartop" imgrect="322 0 14 10"/>
+			<img name="bartop_cursoron" imgrect="337 0 14 10"/>
+			<img name="bartop_click" imgrect="352 0 14 10"/>
+			<img name="barmiddle" imgrect="322 11 14 20"/>
+			<img name="barmiddle_cursoron" imgrect="337 11 14 20"/>
+			<img name="barmiddle_click" imgrect="352 11 14 20"/>
+			<img name="barbottom" imgrect="322 32 14 10"/>
+			<img name="barbottom_cursoron" imgrect="337 32 14 10"/>
+			<img name="barbottom_click" imgrect="352 32 14 10"/>
+		</skin>
+		<skin name="alchemy_cupboard_scroll" texture="\skin\alchemy.tga">
+			<img name="background" imgrect="631 1782 19 179"/>
+			<img name="btnup" imgrect="631 1763 19 18"/>
+			<img name="btnup_cursoron" imgrect="651 1763 19 18"/>
+			<img name="btnup_click" imgrect="671 1763 19 18"/>
+			<img name="btndown" imgrect="631 1962 19 18"/>
+			<img name="btndown_cursoron" imgrect="651 1962 19 18"/>
+			<img name="btndown_click" imgrect="671 1962 19 18"/>
+			<img name="bartop" imgrect="631 1981 19 8"/>
+			<img name="bartop_cursoron" imgrect="651 1981 19 8"/>
+			<img name="bartop_click" imgrect="671 1981 19 8"/>
+			<img name="barmiddle" imgrect="631 1989 19 23"/>
+			<img name="barmiddle_cursoron" imgrect="651 1989 19 23"/>
+			<img name="barmiddle_click" imgrect="671 1989 19 23"/>
+			<img name="barbottom" imgrect="631 2012 19 8"/>
+			<img name="barbottom_cursoron" imgrect="651 2012 19 8"/>
+			<img name="barbottom_click" imgrect="671 2012 19 8"/>
+		</skin>
+		<skin name="tribal_scroll" texture="\skin\tribal.tga">
+			<img name="background" imgrect="285 35 16 26"/>
+			<img name="btnup" imgrect="357 35 16 16"/>
+			<img name="btnup_cursoron" imgrect="375 35 16 16"/>
+			<img name="btnup_click" imgrect="392 35 16 16"/>
+			<img name="btndown" imgrect="357 52 16 16"/>
+			<img name="btndown_cursoron" imgrect="375 52 16 16"/>
+			<img name="btndown_click" imgrect="392 52 16 16"/>
+			<img name="bartop" imgrect="304 35 16 12"/>
+			<img name="bartop_cursoron" imgrect="321 35 16 12"/>
+			<img name="bartop_click" imgrect="338 35 16 12"/>
+			<img name="barmiddle" imgrect="304 48 16 14"/>
+			<img name="barmiddle_cursoron" imgrect="321 48 16 14"/>
+			<img name="barmiddle_click" imgrect="338 48 16 14"/>
+			<img name="barbottom" imgrect="304 63 16 12"/>
+			<img name="barbottom_cursoron" imgrect="321 63 16 12"/>
+			<img name="barbottom_click" imgrect="338 63 16 12"/>
+		</skin>
+		<skin name="verticalscrollbar4" texture="\skin\essential_guide.tga">
+			<img name="background" imgrect="0 17 12 14"/>
+			<img name="btnup" imgrect="0 0 12 16"/>
+			<img name="btnup_cursoron" imgrect="13 0 12 16"/>
+			<img name="btnup_click" imgrect="26 0 12 16"/>
+			<img name="btndown" imgrect="0 32 12 16"/>
+			<img name="btndown_cursoron" imgrect="13 32 12 16"/>
+			<img name="btndown_click" imgrect="26 32 12 16"/>
+			<img name="bartop" imgrect="0 49 12 10"/>
+			<img name="bartop_cursoron" imgrect="13 49 12 10"/>
+			<img name="bartop_click" imgrect="26 49 12 10"/>
+			<img name="barmiddle" imgrect="0 60 12 10"/>
+			<img name="barmiddle_cursoron" imgrect="13 60 12 10"/>
+			<img name="barmiddle_click" imgrect="26 60 12 10"/>
+			<img name="barbottom" imgrect="0 71 12 10"/>
+			<img name="barbottom_cursoron" imgrect="13 71 12 10"/>
+			<img name="barbottom_click" imgrect="26 71 12 10"/>
 		</skin>
 	</skinlist>
 </skinset>

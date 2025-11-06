@@ -22,6 +22,17 @@ end
 
 function GET_COLONY_REWARD_ITEM()
     local guild_colony_rule = GetClass('guild_colony_rule', 'GuildColony_Rule_Default');
+
+    if IsServerSection() == 1 then
+        if GetServiceNation() == 'PAPAYA' then
+            guild_colony_rule = GetClass('guild_colony_rule', 'GuildColony_Rule_PAPAYA')
+        end
+    else
+        if config.GetServiceNation() == 'PAPAYA' then
+            guild_colony_rule = GetClass('guild_colony_rule', 'GuildColony_Rule_PAPAYA')
+        end
+    end
+
     local rewardItem = TryGetProp(guild_colony_rule, 'RewardItem');
     if rewardItem == nil then
         return 'None';
@@ -31,7 +42,12 @@ end
 
 function IS_COLONY_SPOT(mapClassName)
     local cls = GetClass("SharedConst", "COLONY_WAR_OPEN");
-    local curValue = TryGetProp(cls, "Value")
+    local curValue = TryGetProp(cls, "Value");
+
+    if CHECK_TOSW_FISHING_AND_COLONY_RESTRICT_TIME() == true then
+        curValue = 0
+    end
+
     if curValue == 0 then
         return false;
     end
@@ -87,30 +103,58 @@ end
 
 function GET_COLONY_MONSTER_CLASS_NAME()
     local ruleCls = GetClass('guild_colony_rule', 'GuildColony_Rule_Default');
+    if IsServerSection() == 1 then
+        if GetServiceNation() == 'PAPAYA' then
+            ruleCls = GetClass('guild_colony_rule', 'GuildColony_Rule_PAPAYA')
+        end
+    else
+        if config.GetServiceNation() == 'PAPAYA' then
+            ruleCls = GetClass('guild_colony_rule', 'GuildColony_Rule_PAPAYA')
+        end
+    end
     return ruleCls.GuildColonyBossClassName;
 end
 
 function GET_COLONY_TOWER_CLASS_NAME()
     local ruleCls = GetClass('guild_colony_rule', 'GuildColony_Rule_Default');
+    if IsServerSection() == 1 then
+        if GetServiceNation() == 'PAPAYA' then
+            ruleCls = GetClass('guild_colony_rule', 'GuildColony_Rule_PAPAYA')
+        end
+    else
+        if config.GetServiceNation() == 'PAPAYA' then
+            ruleCls = GetClass('guild_colony_rule', 'GuildColony_Rule_PAPAYA')
+        end
+    end
     return ruleCls.GuildColonyTowerClassName;
 end
 
 function GET_COLONY_ENHANCER_CLASS_NAME()
     local ruleCls = GetClass('guild_colony_rule', 'GuildColony_Rule_Default');
+    if IsServerSection() == 1 then
+        if GetServiceNation() == 'PAPAYA' then
+            ruleCls = GetClass('guild_colony_rule', 'GuildColony_Rule_PAPAYA')
+        end
+    else
+        if config.GetServiceNation() == 'PAPAYA' then
+            ruleCls = GetClass('guild_colony_rule', 'GuildColony_Rule_PAPAYA')
+        end
+    end
     return ruleCls.GuildColonyEnhancerClassName;
 end
 
 function GET_COLONY_MARKET_PERCENTAGE_LIST()
-    local grade_A = COLONY_TAX_MARKET_RATE_A
-    local grade_B = COLONY_TAX_MARKET_RATE_B
+    local grade_A = tonumber(string.format('%.1f', COLONY_TAX_MARKET_RATE_A / 10))
+    local grade_B = tonumber(string.format('%.1f', COLONY_TAX_MARKET_RATE_B / 10))
+    local grade_C = tonumber(string.format('%.1f', COLONY_TAX_MARKET_RATE_C / 10))
 
-    local gradeList = { {"A", grade_A}, {"B", grade_B} }
+    local gradeList = { {"A", grade_A}, {"B", grade_B}, {"C", grade_C} }
     local clslist, cnt = GetClassList('guild_colony');
     local list = {}
 	for i = 0 , cnt - 1 do
 		local cls = GetClassByIndexFromList(clslist, i);
         if cls.ID == 1 then
-            local zoneGrade = TryGetProp(cls, "ZoneGrade")
+            local zoneGrade = TryGetProp(cls, "ZoneGrade", 'None')
             for j = 1, #gradeList do
                 local grade = table.find(gradeList[j], zoneGrade)
                 if grade ~= 0 then

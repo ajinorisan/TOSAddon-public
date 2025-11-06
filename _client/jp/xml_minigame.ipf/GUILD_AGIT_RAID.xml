@@ -45,6 +45,28 @@
                             </ToolScp>
                         </execList>
                     </Event>
+                    <Event eventName="BOSS_DEAD_CHECK" execWithStart="0">
+                        <condList>
+                            <ToolScp Scp="GAME_ST_EVT_COND_VALUE" Client="NO" UseSleep="NO">
+                                <Str Str="is_start"/>
+                                <Str Str="OVER"/>
+                                <Num Num="1"/>
+                            </ToolScp>
+                            <ToolScp Scp="GAME_ST_EVT_COND_VALUE" Client="NO" UseSleep="NO">
+                                <Str Str="agit_raid_boss_dead"/>
+                                <Str Str="OVER"/>
+                                <Num Num="1"/>
+                            </ToolScp>
+                            <ToolScp Scp="GAME_ST_EVT_COND_TIMECHECK" Client="NO" UseSleep="NO">
+                                <Num Num="3"/>
+                            </ToolScp>
+                        </condList>
+                        <execList>
+                            <ToolScp Scp="MGAME_EVT_SCP_CMD" Client="NO" UseSleep="NO">
+                                <Str Str="SCR_SUMMON_BOSS_DATA_RESET_AFTER_KILL"/>
+                            </ToolScp>
+                        </execList>
+                    </Event>
                     <Event execCount="1" eventName="END" execWithStart="0">
                         <condList>
                             <ToolScp Scp="GAME_ST_EVT_COND_VALUE" Client="NO" UseSleep="NO">
@@ -54,6 +76,9 @@
                             </ToolScp>
                         </condList>
                         <execList>
+                            <ToolScp Scp="GAME_EVT_OFF_BYNAME" Client="NO" UseSleep="NO">
+                                <Str Str="BOSS_DEAD_CHECK"/>
+                            </ToolScp>
                             <ToolScp Scp="MGAME_END" Client="NO" UseSleep="NO">
                                 <Num Num="1"/>
                             </ToolScp>

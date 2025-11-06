@@ -31,7 +31,8 @@ end
 
 function ADVENTURE_BOOK_MAP.TOTAL_RATE_TEXT()
 	local frame = ui.GetFrame('adventure_book');
-	local page_explore = GET_CHILD(frame, "page_explore", "ui::CGroupBox");
+	local gb_adventure = GET_CHILD(frame, "gb_adventure", "ui::CGroupBox");
+	local page_explore = GET_CHILD(gb_adventure, "page_explore", "ui::CGroupBox");
 	local total_rate_text = GET_CHILD(page_explore, "total_rate_text", "ui::CGroupBox");
     total_rate_text:ShowWindow(1);
 	local total_rate_func = ADVENTURE_BOOK_MAP_CONTENT['TOTAL_MAP_REVEAL_RATE']
@@ -41,7 +42,8 @@ end
 
 function ADVENTURE_BOOK_MAP.CLEAR()
 	local frame = ui.GetFrame('adventure_book');
-	local page_explore = GET_CHILD(frame, "page_explore", "ui::CGroupBox");
+	local gb_adventure = GET_CHILD(frame, "gb_adventure", "ui::CGroupBox");
+	local page_explore = GET_CHILD(gb_adventure, "page_explore", "ui::CGroupBox");
 	local page = GET_CHILD(page_explore, "page_map", "ui::CGroupBox");
 	local map_list = GET_CHILD(page, "map_list", "ui::CGroupBox");
 	map_list:RemoveAllChild();
@@ -49,7 +51,8 @@ end
 
 function ADVENTURE_BOOK_MAP.FILL_REGION_LIST()
 	local frame = ui.GetFrame('adventure_book');
-	local page_explore = GET_CHILD(frame, "page_explore", "ui::CGroupBox");
+	local gb_adventure = GET_CHILD(frame, "gb_adventure", "ui::CGroupBox");
+	local page_explore = GET_CHILD(gb_adventure, "page_explore", "ui::CGroupBox");
 	local page = GET_CHILD(page_explore, "page_map", "ui::CGroupBox");
 	local map_list_gb = GET_CHILD(page, "map_list", "ui::CGroupBox");
 	local search_editbox = GET_CHILD(page, "search_editbox");
@@ -88,7 +91,8 @@ end
 
 function ADVENTURE_BOOK_MAP.FILL_MAP_LIST(regionName, regionIndex)
 	local frame = ui.GetFrame('adventure_book');
-	local page_explore = GET_CHILD(frame, "page_explore", "ui::CGroupBox");
+	local gb_adventure = GET_CHILD(frame, "gb_adventure", "ui::CGroupBox");
+	local page_explore = GET_CHILD(gb_adventure, "page_explore", "ui::CGroupBox");
 	local page = GET_CHILD(page_explore, "page_map", "ui::CGroupBox");
 	local map_list_gb = GET_CHILD(page, "map_list", "ui::CGroupBox");
 	local sort_opt_list = GET_CHILD(page, "sort_opt_list", "ui::CDropList");
@@ -135,7 +139,8 @@ end
 
 function ADVENTURE_BOOK_MAP.FILL_MAP_INFO()
 	local frame = ui.GetFrame('adventure_book');
-	local page_explore = GET_CHILD(frame, "page_explore", "ui::CGroupBox");
+	local gb_adventure = GET_CHILD(frame, "gb_adventure", "ui::CGroupBox");
+	local page_explore = GET_CHILD(gb_adventure, "page_explore", "ui::CGroupBox");
 	local page = GET_CHILD(page_explore, "page_map", "ui::CGroupBox");
 	local map_list_gb = GET_CHILD(page, "map_info_gb", "ui::CGroupBox");
 	
@@ -155,7 +160,8 @@ end
 
 function ADVENTURE_BOOK_MAP.DROPDOWN_LIST_INIT()
 	local frame = ui.GetFrame('adventure_book');
-	local page_explore = GET_CHILD(frame, "page_explore", "ui::CGroupBox");
+	local gb_adventure = GET_CHILD(frame, "gb_adventure", "ui::CGroupBox");
+	local page_explore = GET_CHILD(gb_adventure, "page_explore", "ui::CGroupBox");
 	local page = GET_CHILD(page_explore, "page_map", "ui::CGroupBox");
 	local sort_opt_list = GET_CHILD(page, "sort_opt_list", "ui::CDropList");
 	local state_opt_list = GET_CHILD(page, "state_opt_list", "ui::CDropList");
@@ -269,7 +275,8 @@ end
 
 function ADVENTURE_BOOK_MAP_SET_POINT()
     local adventure_book = ui.GetFrame('adventure_book');
-    local page_explore = adventure_book:GetChild('page_explore');
+    local gb_adventure = adventure_book:GetChild('gb_adventure');
+    local page_explore = gb_adventure:GetChild('page_explore');
     local total_rate_text = page_explore:GetChild('total_rate_text');
     local total_score_text = page_explore:GetChild('total_score_text');
     total_rate_text:ShowWindow(1);

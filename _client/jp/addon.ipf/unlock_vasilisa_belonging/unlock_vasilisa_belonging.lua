@@ -50,7 +50,7 @@ function UNLOCK_VASILISA_BELONGING_SCROLL_EXEC_ASK_AGAIN(frame, btn)
 	option.CompareTextColor = nil
 	option.CompareTextDesc =  ScpArgMsg('ReallyGoddessUnlock','item', itemObj.Name)
 
-	WARNINGMSGBOX_EX_FRAME_OPEN(frame, nil, 'ReallyUnlockBelonging' .. ';UnlockBelonging/' .. yesscp, 0, option)
+	WARNINGMSGBOX_EX_FRAME_OPEN(frame, nil, 'ReallyUnlockBelonging' .. ';UnlockBelonging#UnlockBelonging2/' .. yesscp, 0, option)
 end
 
 function UNLOCK_VASILISA_BELONGING_SCROLL_RESULT(isSuccess)

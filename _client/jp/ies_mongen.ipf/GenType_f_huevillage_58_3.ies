@@ -31,3 +31,4 @@ ClassID,GenType,Lv,Range,GenRange,RespawnTime,MaxPop,Minimap,Hide,UseAIOufOfPC,P
 53,53,1,180,-1,60000,1,0,0,0,0,1,0,"FishingPlace","낚시터","","","","","","","","","","NO","YES","NO","Neutral","","","",""
 54,54,1,40,1,60000,1,0,0,0,0,1,0,"fishing_sign","","","","","","","","KLAPEDA_FISHING_BOARD","","","NO","YES","NO","Neutral","","","",""
 55,55,1,20,1,60000,1,0,0,0,0,0,0,"HiddenTrigger4","UnvisibleName","","","","","","","","EXPLORER_MISLE22","","NO","YES","NO","Neutral","","","",""
+57,57,1,40,1,60000,1,2,0,0,0,0,0,"Event_FishingBox","[낚시 상점]요하의 살림통","","","","","","","EVENT_2107_FISHING_KOR_EVENT","","","NO","YES","NO","Neutral","","","",""

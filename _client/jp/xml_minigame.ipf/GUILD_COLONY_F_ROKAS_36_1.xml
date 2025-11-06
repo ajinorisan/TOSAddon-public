@@ -7,7 +7,7 @@
 				<ObjList>
 					<Obj Type="Monster" MonType="20024" Pos="631.00#-60.00#17.00" genCount="1" genTime="20000" objectKey="0" UseAiOutOfPc="1" SimpleAI="GUILD_COLONY_OCCUPATION_BUFF"/>
 					<Obj Type="Monster" MonType="20024" Pos="631.00#-60.00#17.00" genCount="1" genTime="20000" objectKey="1" UseAiOutOfPc="1" SimpleAI="GUILD_COLONY_SUMMON_MONSTER"/>
-					<Obj Type="Monster" MonType="156150" Pos="631.00#-60.00#17.00" angle="-70" genCount="1" genTime="20000" objectKey="2" autoDestroy="0" UseAiOutOfPc="1" SimpleAI="GUILD_COLONY_TOWER"/>
+					<Obj Type="Monster" MonType="156150" Pos="631.00#-60.00#17.00" angle="-70" genCount="1" genTime="20000" objectKey="2" autoDestroy="0" UseAiOutOfPc="1" propList="&apos;MaxDialog&apos; &apos;1&apos; &apos;Dialog&apos; &apos;GUILD_COLONY_TOWER_DRIECTION&apos; " SimpleAI="GUILD_COLONY_TOWER"/>
 					<Obj Type="Monster" MonType="20024" Pos="-852.00#44.23#-174.00" genCount="1" genTime="20000" objectKey="3" UseAiOutOfPc="1" SimpleAI="GUILD_COLONY_SUMMON_ROOTCRYSTAL"/>
 					<Obj Type="Monster" MonType="20024" Pos="809.78#-61.08#-156.87" genCount="1" genTime="20000" objectKey="4" UseAiOutOfPc="1" SimpleAI="GUILD_COLONY_SUMMON_ROOTCRYSTAL"/>
 					<Obj Type="Monster" MonType="20024" Pos="513.53#-61.08#128.99" genCount="1" genTime="20000" objectKey="5" UseAiOutOfPc="1" SimpleAI="GUILD_COLONY_SUMMON_ROOTCRYSTAL"/>

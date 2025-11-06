@@ -12,6 +12,7 @@ local MARKET_OPTION_GROUP_PROP_LIST = {
 		"ADD_HR",
 		"ADD_DR",
 		"CRTHR",
+		"CRTDR",
 		"MHP",
 		"MSP",
 		"MSTA",
@@ -34,6 +35,18 @@ local MARKET_OPTION_GROUP_PROP_LIST = {
 		"RES_HOLY",
 		"RES_DARK",
 		"CRTDR",
+		"Cloth_Def",
+		"Leather_Def",
+		"Iron_Def",
+		"MiddleSize_Def",
+		"ResAdd_Damage",		
+		"stun_res",
+		"high_fire_res",
+		"high_freezing_res",
+		"high_lighting_res",
+		"high_poison_res",
+		"high_laceration_res",
+		"portion_expansion",
 	},
     MARKET_ATK = {
 		"PATK",
@@ -60,18 +73,60 @@ local MARKET_OPTION_GROUP_PROP_LIST = {
 		"ADD_SOUL",
 		"ADD_HOLY",
 		"ADD_DARK",
+		"Add_Damage_Atk",
+		"ADD_BOSS_ATK",
+		"AllMaterialType_Atk",		
+		"AllRace_Atk",
+		"perfection",
+		"revenge"
 	},
     ETC = {
 		"SR",
 		"MSPD",
-		"SDR",
+		"SDR",		
 	},
+	MARKET_ENCHANT ={
+		"RareOption_SR",
+		"RareOption_MSPD",
+		"RareOption_BlockRate",
+		"RareOption_BlockBreakRate",
+		"RareOption_DodgeRate",
+		"RareOption_HitRate",
+		"RareOption_CriticalDodgeRate",
+		"RareOption_CriticalHitRate",
+		"RareOption_PVPReducedRate",
+		"RareOption_MeleeReducedRate",
+		"RareOption_MagicReducedRate",
+		"RareOption_CriticalDamage_Rate",
+		"RareOption_PVPDamageRate",
+		"RareOption_BossDamageRate",
+		"RareOption_MainWeaponDamageRate"
+	},
+	MARKET_SPECIAL = {
+		"normalatk_enhance",
+		"heal_dark_sphere",
+		"chain_lightning", 
+		"meteor", 
+		"dark_lash",
+		"whirlwind",
+		"poison_arrow",
+		"energy_bullet",
+		"ice_orb",
+		"gravitation_spear",
+		"carnage_scythe",
+		"ice_arrow",
+		"walking_recover_sta",
+		"reduce_rsp_time",
+		"secret_medicine_time",
+		"ignore_deadremove",
+	}
 };
 
 local MARKET_DETAIL_SETTING_LIST = {
 	"Transcend",
 	"Reinforce_2",
 	"PR",
+	"Grade"
 };
 
 local MARKET_ITEM_COUNT_PER_PAGE = {
@@ -80,7 +135,9 @@ local MARKET_ITEM_COUNT_PER_PAGE = {
 	Accessory = 7,	
 	HairAcc = 7,
 	RecipeMaterial = 7,
-	Recipe_Detail = 3,
+	Recipe_Detail = 3,    
+	OPTMisc = 7,    
+	Gem = 7,
 	Default = 11
 };
 

@@ -1,25 +1,18 @@
 
 function BEATKEYBOARD_ON_INIT(addon, frame)
-
 	addon:RegisterMsg('BEAT_KEYBOARD', 'ON_BEAT_KEYBOARD');
-
 end
 
 function BEATKEYBOARD_TEST(frame)
-
 	local startAnim = GET_CHILD(frame, 'start_anim', 'ui::CAnimPicture');
 	startAnim:PlayAnimation();	
-
 end
 
 function END_BEAT(frame)
-
 	frame:ShowWindow(0);
-
 end
 
 function ON_BEAT_KEYBOARD(frame, msg, beatCnt, second)
-	
 	if second == 0 then
 		END_BEAT(frame);
 		return;
@@ -39,11 +32,9 @@ function ON_BEAT_KEYBOARD(frame, msg, beatCnt, second)
 	local timer = GET_CHILD(frame, "addontimer", "ui::CAddOnTimer");
 	timer:SetUpdateScript("UPDATE_BEAT_KEYBOARD");
 	timer:Start(0.01);
-
 end
 
 function UPDATE_BEAT_KEYBOARD(frame)
-
 	local endTime = frame:GetValue();
 	local curTime = imcTime.GetAppTime();
 	if curTime > endTime then
@@ -53,7 +44,6 @@ function UPDATE_BEAT_KEYBOARD(frame)
 
 	frame:SetValue(endTime);
 	local isBeat = 0;
-
 	local last_input = frame:GetUserIValue("LAST_INPUT");
 	local input_l = keyboard.IsKeyDown("LEFT");
 	local input_r = keyboard.IsKeyDown("RIGHT");
@@ -79,7 +69,6 @@ function UPDATE_BEAT_KEYBOARD(frame)
 			packet.SendKeyboardBeat();
 		end
 	end
-
 end
 
 

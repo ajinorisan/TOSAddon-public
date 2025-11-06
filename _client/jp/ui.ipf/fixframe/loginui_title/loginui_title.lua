@@ -2,30 +2,17 @@ function LOGINUI_TITLE_ON_INIT(addon, frame)
 	login.LoadServerList();
 
 	TOGGLE_SINGLE_MODE_UI(frame);
-		
-	local view1 = GET_CHILD(frame, "login_img", "ui::CPicture")
-	if view1 ~= nil then
-        view1:ShowWindow(0)
-    end
-    
-    local view2 = GET_CHILD(frame, "login_img2", "ui::CPicture")
-    if view2 ~= nil then
-        view2:ShowWindow(0)
-    end
 
-    local view3 = GET_CHILD(frame, "login_img3", "ui::CPicture")
-    if view3 ~= nil then
-        view3:ShowWindow(0)
-    end
-    
-    local rand = IMCRandom(1,2)
-    if rand == 1 then
-        view1:ShowWindow(1)
-    elseif rand == 2 then
-        view2:ShowWindow(1)
-    elseif rand == 0 then
-        view3:ShowWindow(1)
-    end
+	local frame_top = GET_CHILD(frame, 'frame_top', 'ui::CPicture')
+	local frame_width = frame:GetUserConfig('FRAME_WIDTH')
+	local clientWidth = option.GetClientWidth()
+	local clientHeight = option.GetClientHeight()
+	if clientWidth * 9 > clientHeight * 16 then
+		-- resolution width over 16:9(21:9, 32:9)
+		frame_width = frame:GetUserConfig('FRAME_WIDTH_WIDE')
+	end
+	frame_top:Resize(frame_width, frame_top:GetHeight())
+	
 --	ENABLE_ANIMATE_BACKGROUND_ILLUSTRATION();
 end
 

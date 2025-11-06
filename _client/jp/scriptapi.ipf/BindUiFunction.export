@@ -112,30 +112,6 @@ public:
 	void		SetRotation(float startAngle, int spinCount, float rotEndTime);
 };
 
-class CImageItem
-{
-public:
-		
-	void		SetCaption(const char* caption);
-
-	void		SetPos(int x, int y);
-	void		SetAngle(float angle);
-	void		SetAlphaBlend(float alpha);
-	void		SetScale(float scaleWidth, float scaleHeight);		
-	void		SetSize(int imageWidth, int imageHeight);	
-
-	void		SetLifeTime(float lifeTime);
-	void		SetMoveDest(int x, int y);	
-	void		SetAngleSpd(float angleSpeed);
-	void		SetScaleDest(float scaleWidth, float scaleHeight);
-	void		SetAlphaBlendDest(float alphaDest);
-	
-	
-	void		SetTickTime(float tickTime);	
-	void		SetImage(const char* imageName);
-	void		AddImage(const char* imageName);
-};
-
 class CFrame : public CObject
 {
 public:
@@ -456,12 +432,6 @@ int				GetClientHeight();
 
 int				GetCursorPosX();
 int				GetCursorPosY();
-
-CImageItem*		CreateImageItem(const char* name, int x, int y, const char* caption = NULL);	
-void			DeleteImageItem(const char* name);	
-void			DeleteAllImageItem();
-int				GetImageItemCount();
-CImageItem*		GetImageItem(const char* name);
 
 IObject*		AddTextFrame(const char* frameName, RECT& rect, GRAVITY_HORZ horzAlign = LEFT, GRAVITY_VERT vertAlignP = TOP);
 void			DestroyTextFrame(const char* frameName);

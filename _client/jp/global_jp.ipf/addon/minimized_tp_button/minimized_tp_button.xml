@@ -1,5 +1,2 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- edited with XMLSPY v2004 rel. 2 U (http://www.xmlspy.com) by imc (imc) -->
-<uiframe name="minimized_tp_button" x="0" y="0" width="80" height="80">
-	<frame fullheight="false" fasthide="false" scale_align="center center" layout_gravity="right top" margin="0 250 345 0"/>
-</uiframe>
+<uiframe/>

@@ -32,6 +32,14 @@ function GET_ICON_BY_STATE_MODE(state, questIES)
     elseif tail == '_key' then
         modeicon = 'KEYQUEST'
     end
+
+    -- 평판 퀘스트
+    local classList = GetClassList("reputation_quest")
+    local class = GetClassByNameFromList(classList, questIES.ClassName)
+
+    if class ~= nil then
+        modeicon = 'REPUTATION'
+    end
     
 	if state == 'SUCCESS' then
 		return "minimap_3_" ..modeicon;

@@ -2,7 +2,6 @@
 function DEMONLAIR_USER_SELECT_UI_ON_INIT(addon, frame)
     addon:RegisterMsg("DEMONLAIR_USER_SELECT_START", "ON_DEMONLAIR_USER_SELECT_MSG")
     addon:RegisterMsg("DEMONLAIR_USER_SELECT_END", "ON_DEMONLAIR_USER_SELECT_MSG")
-    addon:RegisterMsg("DEMONLAIR_USER_SELECT_UPDATE", "ON_DEMONLAIR_USER_SELECT_MSG")
 end
 
 function OPEN_DEMONLAIR_USER_SELECT_UI(frame)
@@ -19,8 +18,6 @@ function ON_DEMONLAIR_USER_SELECT_MSG(frame, msg, arg_str, arg_num)
         MAKE_DEMONLAIR_USER_SELECT_GROUP(frame, arg_str, arg_num)
     elseif msg == "DEMONLAIR_USER_SELECT_END" then
         ui.CloseFrame("demonlair_user_select_ui")
-    elseif msg == "DEMONLAIR_USER_SELECT_UPDATE" then
-        UPDATE_DEMONLAIR_USER_SELECT_INFO(frame, arg_str, arg_num)
     end
 end
 
@@ -121,6 +118,36 @@ function VISIBLE_DEMONLAIR_USER_SELECT_GROUP(frame)
     end
 end
 
+local round_to_2dp = function(value)
+    local fractional_part = value - math.floor(value)
+    if fractional_part == 0 then
+        return value  -- 정수면 그대로 반환
+    else
+        return math.floor(value * 100 + 0.5) / 100  -- 소수점이 있으면 반올림 처리
+    end
+end
+
+function GET_DEMONLAIR_USER_SELECT_INFO_DESC_WITH_STEP(base_value, reinforce_value, step, desc)
+    local update_desc = desc
+   
+    local percent_pattern = "(%d+)%%"
+    local percent_match = string.match(update_desc, percent_pattern)
+    if percent_match then
+        local final_percent = base_value + (step * reinforce_value * 100)
+        final_percent = round_to_2dp(final_percent)
+        update_desc = string.gsub(update_desc, percent_pattern, final_percent.."%%", 1)
+    end
+
+    local sec_pattern = "(%d+%.?%d*)%s*"..ClMsg("Auto_Cho")
+    local sec_match = string.match(update_desc, sec_pattern)
+    if sec_match then
+        local final_sec = base_value + round_to_2dp((step * reinforce_value) / 1000)
+        update_desc = string.gsub(update_desc, sec_pattern, final_sec..ClMsg("Auto_Cho"), 1)
+    end
+
+    return update_desc
+end
+
 ---- select info
 function MAKE_DEMONLAIR_USER_SELECT_INFO(group, arg_str)
     local select_list = StringSplit(arg_str, '#')
@@ -135,24 +162,42 @@ function MAKE_DEMONLAIR_USER_SELECT_INFO(group, arg_str)
                 local buff_str = pair[1]
                 local buff = StringSplit(buff_str, ';')
                 if #buff > 0 then
-                    buff_id = buff[1]
-                    buff_name = buff[2]
-                    buff_icon = buff[3]
-                    buff_desc = buff[4]
-                    if buff[5] ~= nil then
-                        buff_step = tonumber(buff[5])
+                    buff_id = tonumber(buff[1])
+                    if buff[2] ~= nil then
+                        buff_step = tonumber(buff[2])
+                    end
+                   
+                    local cls = GetClassByType("demonlair_user_select_info", buff_id)
+                    if cls ~= nil then
+                        buff_name = dic.getTranslatedStr(TryGetProp(cls, "Name", "None"))
+                        buff_icon = TryGetProp(cls, "Icon", "None")
+                        buff_desc = dic.getTranslatedStr(TryGetProp(cls, "Desc", "None"))
+                        if buff_step ~= nil and buff_step > 0 then
+                            local base_value = TryGetProp(cls, "BaseValue", 0)
+                            local reinforce_value = TryGetProp(cls, "ReinforceValue", 0)
+                            buff_desc = GET_DEMONLAIR_USER_SELECT_INFO_DESC_WITH_STEP(base_value, reinforce_value, buff_step, buff_desc)
+                        end
                     end
                 end
 
                 local penalty_str = pair[2]
                 local penalty = StringSplit(penalty_str, ';')
                 if #penalty > 0 then
-                    penalty_id = penalty[1]
-                    penalty_name = penalty[2]
-                    penalty_icon = penalty[3]
-                    penalty_desc = penalty[4]
-                    if penalty[5] ~= nil then
-                        penalty_step = tonumber(penalty[5])
+                    penalty_id = tonumber(penalty[1])
+                    if penalty[2] ~= nil then
+                        penalty_step = tonumber(penalty[2])
+                    end
+
+                    local cls = GetClassByType("demonlair_user_select_info", penalty_id)
+                    if cls ~= nil then
+                        penalty_name = dic.getTranslatedStr(TryGetProp(cls, "Name", "None"))
+                        penalty_icon = TryGetProp(cls, "Icon", "None")
+                        penalty_desc = dic.getTranslatedStr(TryGetProp(cls, "Desc", "None"))
+                        if penalty_step ~= nil and penalty_step > 0 then
+                            local base_value = TryGetProp(cls, "BaseValue", 0)
+                            local reinforce_value = TryGetProp(cls, "ReinforceValue", 0)
+                            penalty_desc = GET_DEMONLAIR_USER_SELECT_INFO_DESC_WITH_STEP(base_value, reinforce_value, penalty_step, penalty_desc)
+                        end
                     end
                 end
 
@@ -217,86 +262,6 @@ function MAKE_DEMONLAIR_USER_SELECT_INFO(group, arg_str)
                             btn_select:SetUserValue("GROUP_GUID", group:GetUserIValue("GUID"))
                             btn_select:SetUserValue("BUFF_ID", buff_id)
                             btn_select:SetUserValue("PENALTY_ID", penalty_id)
-                        end
-                    end
-                end
-            end
-        end
-    end
-end
-
-function UPDATE_DEMONLAIR_USER_SELECT_INFO(frame, arg_str, arg_num)
-    if frame ~= nil then
-        local gbox = GET_CHILD_RECURSIVELY(frame, "gbox_info")
-        if gbox ~= nil then
-            local group = gbox:GetControlSet("demonlair_user_select_group", "DemonLairUserSelectGroup_"..arg_num)
-            if group ~= nil then
-                local select_list = StringSplit(arg_str, '#')
-                if #select_list > 0 then
-                    for i = 1, #select_list do
-                        local pair_str = select_list[i]
-                        local pair = StringSplit(pair_str, '/')
-                        if #pair > 0 then
-                            local buff_id, buff_name, buff_icon, buff_desc, buff_step = nil, nil, nil, nil, nil
-                            local penalty_id, penalty_name, penalty_icon, penalty_desc, penalty_step = nil, nil, nil, nil, nil
-
-                            local buff_str = pair[1]
-                            local buff = StringSplit(buff_str, ';')
-                            if #buff > 0 then
-                                buff_id = buff[1]
-                                buff_name = buff[2]
-                                buff_icon = buff[3]
-                                buff_desc = buff[4]
-                                if buff[5] ~= nil then
-                                    buff_step = tonumber(buff[5])
-                                end
-                            end
-
-                            local penalty_str = pair[2]
-                            local penalty = StringSplit(penalty_str, ';')
-                            if #penalty > 0 then
-                                penalty_id = penalty[1]
-                                penalty_name = penalty[2]
-                                penalty_icon = penalty[3]
-                                penalty_desc = penalty[4]
-                                if penalty[5] ~= nil then
-                                    penalty_step = tonumber(penalty[5])
-                                end
-                            end
-
-                            local ctrlset = GET_CHILD_RECURSIVELY(group, "select_"..i)
-                            if ctrlset ~= nil then
-                                local text_buff_name = GET_CHILD_RECURSIVELY(ctrlset, "buff_name")
-                                if text_buff_name ~= nil then
-                                    local name = text_buff_name:GetTextByKey("buff_name")
-                                    if name == buff_name then
-                                        if buff_step ~= nil and buff_step > 0 then
-                                            local step_cl_msg = ClMsg("Step")
-                                            text_buff_name:SetFormat("{@st56}%s(%s"..step_cl_msg.."){/}")
-                                            text_buff_name:SetTextByKey("penalty_step", buff_step)
-                                        else
-                                            text_buff_name:SetFormat("{@st56}%s{/}")
-                                            text_buff_name:SetTextByKey("penalty_step", "")
-                                        end
-                                    end
-                                end
-
-                                local text_penalty_name = GET_CHILD_RECURSIVELY(ctrlset, "penalty_name")
-                                if text_penalty_name ~= nil then
-                                    local name = text_penalty_name:GetTextByKey("penalty_name")
-                                    if name == penalty_name then
-                                        if penalty_step ~= nil and penalty_step > 0 then
-                                            local step_cl_msg = ClMsg("Step")
-                                            text_penalty_name:SetFormat("{@st56}%s(%s"..step_cl_msg.."){/}")
-                                            text_penalty_name:SetTextByKey("penalty_step", penalty_step)
-                                        else
-                                            text_penalty_name:SetFormat("{@st56}%s{/}")
-                                            text_penalty_name:SetTextByKey("penalty_step", "")
-                                        end
-                                    end
-                                end
-                                ctrlset:Invalidate()
-                            end
                         end
                     end
                 end

@@ -74,3 +74,6 @@ ClassID,Upgrade,MakeCostSilver,MaxUpgrade,Basic,Category,ClassName,GetItemFunc,R
 73,0,10000,1,0,"Artefact","ep17postman_staff","GET_CABINET_ITEM_NAME","TX_REGISTER_CABINET_ITEM","TX_BRIQUET_GODDESS_ITEM","ep17postman_staff_cabinet","","곰돌이 우체부 로드"
 74,0,10000,1,0,"Artefact","ep17postman_shield","GET_CABINET_ITEM_NAME","TX_REGISTER_CABINET_ITEM","TX_BRIQUET_GODDESS_ITEM","ep17postman_shield_cabinet","","곰돌이 우체부 실드"
 75,0,10000,1,0,"Artefact","ep17postman_crossbow","GET_CABINET_ITEM_NAME","TX_REGISTER_CABINET_ITEM","TX_BRIQUET_GODDESS_ITEM","ep17postman_crossbow_cabinet","","곰돌이 우체부 크로스보우"
+76,0,10000,1,0,"Artefact","ep17couplelook_shield","GET_CABINET_ITEM_NAME","TX_REGISTER_CABINET_ITEM","TX_BRIQUET_GODDESS_ITEM","ep17couplelook_shield_cabinet","","설레는 마음 실드"
+77,0,10000,1,0,"Artefact","ep17couplelook_thspear","GET_CABINET_ITEM_NAME","TX_REGISTER_CABINET_ITEM","TX_BRIQUET_GODDESS_ITEM","ep17couplelook_thspear_cabinet","","설레는 마음 파이크"
+78,0,10000,1,0,"Artefact","ep17couplelook_crossbow","GET_CABINET_ITEM_NAME","TX_REGISTER_CABINET_ITEM","TX_BRIQUET_GODDESS_ITEM","ep17couplelook_crossbow_cabinet","","설레는 마음 크로스보우"

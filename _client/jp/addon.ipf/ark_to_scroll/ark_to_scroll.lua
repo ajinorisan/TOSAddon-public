@@ -103,7 +103,7 @@ function ARK_TO_SCROLL_EXEC_ASK_AGAIN(frame, btn)
 	option.CompareTextColor = nil
 	option.CompareTextDesc =  ScpArgMsg('ReallyArkToScroll','item', itemObj.Name)
 
-	WARNINGMSGBOX_EX_FRAME_OPEN(frame, nil, 'ReallyArkToScroll2' .. ';ArkExtraction/' .. yesscp, 0, option)
+	WARNINGMSGBOX_EX_FRAME_OPEN(frame, nil, 'ReallyArkToScroll2' .. ';ArkExtraction#ArkExtraction2/' .. yesscp, 0, option)
 end
 
 function ARK_TO_SCROLL_RESULT(isSuccess)

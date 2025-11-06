@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- edited with XMLSPY v2004 rel. 2 U (http://www.xmlspy.com) by IMC (IMCGames Co., Ltd) -->
+<!-- edited with XMLSPY v2004 rel. 2 U (http://www.xmlspy.com) by imc (imc) -->
 <!-- edited with XMLSpy v2008 sp1 (http://www.altova.com) by MinstFaith (EMBRACE) -->
 <List>
 	<Spine>
@@ -153,5 +153,99 @@
 	</Spine>
 	<Spine>
 		<Element Name="velclipse" root="velclipse" atlas="velclipse" json="velclipse" scale="0.94" offsetX="0" offsetY="0" animation="animation"/>
+	</Spine>
+	<Spine>
+		<Element Name="velclipse" root="velclipse" atlas="velclipse" json="velclipse" scale="0.94" offsetX="0" offsetY="0" animation="animation"/>
+	</Spine>
+	<Spine>
+		<Element Name="medeina" root="medeina" atlas="medeina" json="medeina" scale="0.6" offsetX="0" offsetY="0" animation="animation"/>
+	</Spine>
+	<Spine>
+		<Element Name="dalia" root="dalia" atlas="dalia" json="dalia" scale="1" offsetX="0" offsetY="0" animation="animation"/>
+	</Spine>
+	<Spine>
+		<Element Name="zanas" root="zanas" atlas="zanas" json="zanas" scale="1" offsetX="0" offsetY="0" animation="animation"/>
+	</Spine>
+	<Spine>
+		<Element Name="Kupole_Austeja_UR" root="austeja_m" atlas="austeja_m" json="austeja_m" scale="0.6" offsetX="0" offsetY="0" animation="animation" isPremultiplied="true"/>
+	</Spine>
+	<Spine>
+		<Element Name="Kupole_gabija_UR" root="gabija_m" atlas="gabija_m" json="gabija_m" scale="0.6" offsetX="0" offsetY="0" animation="animation" isPremultiplied="true"/>
+	</Spine>
+	<Spine>
+		<Element Name="vakarine_student" root="vakarine_student" atlas="vakarine_student" json="vakarine_student" scale="1" offsetX="0" offsetY="0" animation="animation" isPremultiplied="true"/>
+	</Spine>
+	<Spine>
+		<Element Name="Kupole_jurate_UR" root="jurate_m" atlas="jurate_m" json="jurate_m" scale="0.6" offsetX="0" offsetY="0" animation="animation" isPremultiplied="true"/>
+	</Spine>
+	<Spine>
+		<Element Name="Kupole_laima_UR" root="laima_m" atlas="laima_m" json="laima_m" scale="0.6" offsetX="0" offsetY="0" animation="animation" isPremultiplied="true"/>
+	</Spine>
+	<Spine>
+		<Element Name="Kupole_maid_ruta_UR" root="ruta_maid" atlas="ruta_maid" json="ruta_maid" scale="0.6" offsetX="0" offsetY="0" animation="animation" isPremultiplied="true"/>
+	</Spine>
+	<Spine>
+		<Element Name="Kupole_saule_UR" root="saule_m" atlas="saule_m" json="saule_m" scale="0.6" offsetX="0" offsetY="0" animation="animation" isPremultiplied="true"/>
+	</Spine>
+	<Spine>
+		<Element Name="Kupole_vakarine_UR" root="vakarine_m" atlas="vakarine_m" json="vakarine_m" scale="0.6" offsetX="0" offsetY="0" animation="animation" isPremultiplied="true"/>
+	</Spine>
+	<Spine>
+		<Element Name="Kupole_Summer_Zesty_UR" root="zesty_swimsuit" atlas="zesty_swimsuit" json="zesty_swimsuit" scale="0.6" offsetX="0" offsetY="0" animation="animation" isPremultiplied="true"/>
+	</Spine>
+	<Spine>
+		<Element Name="Kupole_Lecifer_UR" root="rexipher_m" atlas="rexipher_m" json="rexipher_m" scale="0.6" offsetX="0" offsetY="0" animation="animation" isPremultiplied="true"/>
+	</Spine>
+	<Spine>
+		<Element Name="Kupole_SantaZemyna_UR" root="zemyna_santa" atlas="zemyna_santa" json="zemyna_santa" scale="0.6" offsetX="0" offsetY="0" animation="animation" isPremultiplied="true"/>
+	</Spine>
+	<Spine>
+		<Element Name="Kupole_Lada_UR" root="rada_m" atlas="rada_m" json="rada_m" scale="0.6" offsetX="0" offsetY="0" animation="animation" isPremultiplied="true"/>
+	</Spine>
+	<Spine>
+		<Element Name="Kupole_Naktis_UR" root="naktis" atlas="naktis" json="naktis" scale="0.6" offsetX="0" offsetY="0" animation="animation" isPremultiplied="true"/>
+	</Spine>
+	<Spine>
+		<Element Name="Kupole_Zesty_UR" root="zesty_m" atlas="zesty_m" json="zesty_m" scale="0.6" offsetX="0" offsetY="0" animation="animation" isPremultiplied="true"/>
+	</Spine>
+	<Spine>
+		<Element Name="Cache" root="Cache" atlas="cacheshop" json="cacheshop" scale="" offsetX="0" offsetY="0" animation="animation"/>
+	</Spine>
+	<Spine>
+		<Element Name="medeinacon01" root="medeinacon01" atlas="medeinacon01" json="medeinacon01" scale="1" offsetX="-10" offsetY="0" animation="animation"/>
+		<Element Name="medeinacon02" root="medeinacon02" atlas="medeinacon02" json="medeinacon02" scale="1" offsetX="0" offsetY="0" animation="animation"/>
+	</Spine>
+	<Spine>
+		<Element Name="kupolecon01" root="kupolecon01" atlas="kupolecon01" json="kupolecon01" scale="1" offsetX="-10" offsetY="0" animation="animation"/>
+		<Element Name="kupolecon02" root="kupolecon02" atlas="kupolecon02" json="kupolecon02" scale="1" offsetX="-10" offsetY="0" animation="animation"/>
+		<Element Name="kupolecon03" root="kupolecon03" atlas="kupolecon03" json="kupolecon03" scale="1" offsetX="-10" offsetY="0" animation="animation"/>
+	</Spine>
+	<Spine>
+		<Element Name="dionyscon01" root="dionyscon01" atlas="dionyscon01" json="dionyscon01" scale="1" offsetX="-10" offsetY="-10" animation="animation"/>
+		<Element Name="dionyscon02" root="dionyscon02" atlas="dionyscon02" json="dionyscon02" scale="1" offsetX="0" offsetY="-10" animation="animation"/>
+		<Element Name="dionyscon03" root="dionyscon03" atlas="dionyscon03" json="dionyscon03" scale="1" offsetX="-15" offsetY="-10" animation="animation"/>
+	</Spine>
+	<Spine>
+		<Element Name="bakarinecon1" root="bakarinecon1" atlas="bakarinecon1" json="bakarinecon1" scale="1" offsetX="15" offsetY="-18" animation="animation"/>
+		<Element Name="bakarinecon2" root="bakarinecon2" atlas="bakarinecon2" json="bakarinecon2" scale="1" offsetX="0" offsetY="-10" animation="animation"/>
+		<Element Name="bakarinecon3" root="bakarinecon3" atlas="bakarinecon3" json="bakarinecon3" scale="0.8" offsetX="-1" offsetY="-10" animation="animation"/>
+	</Spine>
+	<Spine>
+		<Element Name="lagana" root="lagana" atlas="lagana" json="lagana" scale="0.6" offsetX="0" offsetY="0" animation="animation"/>
+	</Spine>
+	<Spine>
+		<Element Name="medeinacon1" root="medeinacon1" atlas="medeinacon1" json="medeinacon1" scale="1" offsetX="-4" offsetY="-8" animation="animation"/>
+		<Element Name="medeinacon2" root="medeinacon2" atlas="medeinacon2" json="medeinacon2" scale="0.7" offsetX="-10" offsetY="-5" animation="animation"/>
+		<Element Name="medeinacon3" root="medeinacon3" atlas="medeinacon3" json="medeinacon3" scale="0.5" offsetX="-3" offsetY="-10" animation="animation"/>
+	</Spine>
+	<Spine>
+		<Element Name="popocon1" root="popocon1" atlas="popocon1" json="popocon1" scale="0.8" offsetX="-2" offsetY="0" animation="animation"/>
+		<Element Name="popocon2" root="popocon2" atlas="popocon2" json="popocon2" scale="1" offsetX="0" offsetY="0" animation="animation"/>
+		<Element Name="popocon3" root="popocon3" atlas="popocon3" json="popocon3" scale="1" offsetX="-3" offsetY="0" animation="animation"/>
+	</Spine>
+	<Spine>
+		<Element Name="malsuns_emotion82" root="malsuns_emotion82" atlas="malsuns_emotion82" json="malsuns_emotion82" scale="1" offsetX="6" offsetY="-10" animation="animation"/>
+		<Element Name="malsuns_emotion100" root="malsuns_emotion100" atlas="malsuns_emotion100" json="malsuns_emotion100" scale="1" offsetX="0" offsetY="-20" animation="animation"/>
+		<Element Name="malsuns_emotion77" root="malsuns_emotion77" atlas="malsuns_emotion77" json="malsuns_emotion77" scale="1" offsetX="-10" offsetY="0" animation="animation"/>
 	</Spine>
 </List>

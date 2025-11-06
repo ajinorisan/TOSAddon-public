@@ -38,14 +38,25 @@ local function make_shared_upgrade_equip_table()
 
     for i = 1, 7 do
         material_table['EP16_fierce_shoulder_' .. i .. '_high'] = {}
-        material_table['EP16_fierce_shoulder_' .. i .. '_high']['AustejaCertificate'] = 5000
-        material_table['EP16_fierce_shoulder_' .. i .. '_high']['misc_BlessedStone_2'] = 2
-        material_table['EP16_fierce_shoulder_' .. i .. '_high']['misc_ore29'] = 300
+        material_table['EP16_fierce_shoulder_' .. i .. '_high']['JurateCertificate'] = 5000
+        material_table['EP16_fierce_shoulder_' .. i .. '_high']['misc_BlessedStone_1'] = 2
+        material_table['EP16_fierce_shoulder_' .. i .. '_high']['misc_ore28'] = 300
 
         material_table['NoTrade_EP16_fierce_shoulder_' .. i .. '_high'] = {}
-        material_table['NoTrade_EP16_fierce_shoulder_' .. i .. '_high']['AustejaCertificate'] = 5000
-        material_table['NoTrade_EP16_fierce_shoulder_' .. i .. '_high']['misc_BlessedStone_2'] = 2
-        material_table['NoTrade_EP16_fierce_shoulder_' .. i .. '_high']['misc_ore29'] = 300
+        material_table['NoTrade_EP16_fierce_shoulder_' .. i .. '_high']['JurateCertificate'] = 5000
+        material_table['NoTrade_EP16_fierce_shoulder_' .. i .. '_high']['misc_BlessedStone_1'] = 2
+        material_table['NoTrade_EP16_fierce_shoulder_' .. i .. '_high']['misc_ore28'] = 300
+
+        material_table['EP17_fierce_shoulder_' .. i .. '_high'] = {}
+        material_table['EP17_fierce_shoulder_' .. i .. '_high']['AustejaCertificate'] = 5000
+        material_table['EP17_fierce_shoulder_' .. i .. '_high']['misc_BlessedStone_2'] = 2
+        material_table['EP17_fierce_shoulder_' .. i .. '_high']['misc_ore29'] = 300
+
+        material_table['NoTrade_EP17_fierce_shoulder_' .. i .. '_high'] = {}
+        material_table['NoTrade_EP17_fierce_shoulder_' .. i .. '_high']['AustejaCertificate'] = 5000
+        material_table['NoTrade_EP17_fierce_shoulder_' .. i .. '_high']['misc_BlessedStone_2'] = 2
+        material_table['NoTrade_EP17_fierce_shoulder_' .. i .. '_high']['misc_ore29'] = 300
+
     end
 
     local item_list = {

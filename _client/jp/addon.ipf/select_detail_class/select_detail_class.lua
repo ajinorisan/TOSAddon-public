@@ -463,7 +463,7 @@ function SELECT_DETAIL_CLASS_DISCARD_SELECT(parent, ctrl)
 	option.ChangeTitle = nil
 	option.CompareTextColor = "{#ffa200}"
 	option.CompareTextDesc = nil
-    WARNINGMSGBOX_EX_FRAME_OPEN(frame, nil, 'ReallyDiscardSpecialCreateTicket' .. ';AgreeDiscardSpecialCreateTicket/' .. yesscp, 0, option)
+    WARNINGMSGBOX_EX_FRAME_OPEN(frame, nil, 'ReallyDiscardSpecialCreateTicket' .. ';AgreeDiscardSpecialCreateTicket#AgreeDiscardSpecialCreateTicket2/' .. yesscp, 0, option)
 end
 
 function _SELECT_DETAIL_CLASS_DISCARD_SELECT()

@@ -82,6 +82,10 @@ function GET_TIME_TXT_NO_LANG(sec, hour)
 end
 
 function GET_TIME_TXT_TWO_FIGURES(sec)
+	if sec < 1 then
+		sec = string.format('%.1f', sec)
+		return sec.. ScpArgMsg("{Sec}","Sec",s)
+	end
 
 	sec = math.floor(sec)
 

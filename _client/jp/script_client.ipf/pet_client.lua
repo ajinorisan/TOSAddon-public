@@ -26,6 +26,11 @@ function REQ_PET_EQUIP(invItem)
 		ui.SysMsg(ClMsg("NotEnoughLevelToEquipItem"));
 		return;
 	end
+
+	if TryGetProp(itemObj, "ItemGrade", 0) > 5 then
+		ui.SysMsg(ClMsg("ThisItemIsNotForCompanion"));
+		return;
+	end
 	
 	geClientPet.RequestEquipPet( petInfo:GetStrGuid(), invItem:GetIESID(), itemEnum, -1 );
 	

@@ -54,12 +54,12 @@ function test_zone_evballgame1_act(self, pc, argNum, evt)
 end
 
 function test_zone_evballgame1_quest()
-
-        local pc_obj = RegisterCls('SessionObject', 1103263, 'ssn_test_zone_evballgame1')
+		
+		--local pc_obj = RegisterCls('SessionObject', 1103263, 'ssn_test_zone_evballgame1')
 
         --ChangeClassValue(pc_obj, 'Name', ScpArgMsg("Auto_yaKuKeim1"))
 
-        ChangeClassValue(pc_obj, 'Script', 'ssn_test_zone_evballgame1')
+        --ChangeClassValue(pc_obj, 'Script', 'ssn_test_zone_evballgame1')
 
 
 

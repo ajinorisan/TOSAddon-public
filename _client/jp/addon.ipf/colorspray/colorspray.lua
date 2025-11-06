@@ -124,10 +124,10 @@ function IMPL_EXEC_ROLLBACK_BRIQUETTING(rollbackItemGuid, equipItemGuid)
 	session.AddItemID(rollbackItemGuid, 1);
 	session.AddItemID(equipItemGuid, 1);
     local resultlist = session.GetItemIDList();
-	item.DialogTransaction('EXECUTE_ROLLBACK_BRIQUETTING', resultlist);
 
 	ui.CloseFrame('colorspray');
 	ui.CloseFrame('inventory');	
+	item.DialogTransaction('EXECUTE_ROLLBACK_BRIQUETTING', resultlist);
 end
 
 function EXEC_ROLLBACK_BRIQUETTING(parent, ctrl)

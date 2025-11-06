@@ -1,15 +1,3 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- edited with XMLSpy v2006 U (http://www.altova.com) by Administrator (EMBRACE) -->
 <idspace id="AchievePoint">
-	<Category Name="Event">
-		<Class ClassID="6006" ClassName="Translator1" OverrideType="ADD" Name="완벽한 번역가" UseDaily="NO" UseWeekly="NO"/>
-		<Class ClassID="6052" ClassName="Event_Fanart_JP_01" OverrideType="ADD" Name="제1회 일러스트 콘테스트 도전자" UseDaily="NO" UseWeekly="NO"/>
-		<Class ClassID="6099" ClassName="Event_Fanart_JP_02" OverrideType="ADD" Name="제2회 일러스트 콘테스트 도전자" UseDaily="NO" UseWeekly="NO"/>
-		<Class ClassID="6104" ClassName="Achieve_Event_Happy_Ever_After" OverrideType="ADD" Name="Happy Ever After" UseDaily="NO" UseWeekly="NO"/>
-		<Class ClassID="6105" ClassName="Achieve_Event_Wonderful_ToS_life" OverrideType="ADD" Name="Wonderful ToS life" UseDaily="NO" UseWeekly="NO"/>
-		<Class ClassID="6110" ClassName="Achieve_Event_Gold_Pig_JP" OverrideType="ADD" Name="돼지를 추구하는 자" UseDaily="NO" UseWeekly="NO"/>
-		<Class ClassID="6111" ClassName="Achieve_Event_KePa_JP" OverrideType="ADD" Name="이터널 케파" UseDaily="NO" UseWeekly="NO"/>
-		<Class ClassID="6112" ClassName="Achieve_Event_JP_GILTINE" OverrideType="ADD" Name="길티네 님으로부터 도망치지 말아라" UseDaily="NO" UseWeekly="NO"/>
-	</Category>
 </idspace>
-<!-- edited with XMLSPY v2004 rel. 2 U (http://www.xmlspy.com) by imc (imc) -->

@@ -1,4 +1,4 @@
-
+﻿
 function PCBANG_SHOP_ON_INIT(addon, frame)
     addon:RegisterMsg("PCBANG_SHOP_TOGGLE", "ON_PCBANG_SHOP_TOGGLE_MSG");
     addon:RegisterMsg("UPDATE_PCBANG_SHOP_POINT", "ON_UPDATE_PCBANG_SHOP_POINT");
@@ -19,25 +19,32 @@ function PCBANG_SHOP_ON_INIT(addon, frame)
     PCBANG_SHOP_TABLE["RENTAL_CATEGORY"] = "Weapon";
 end
 
+function UI_TOGGLE_PCBANG_SHOP()
+    local frame = ui.GetFrame("pcbang_shop");
+    if frame ~= nil then
+        ui.OpenFrame("pcbang_shop");
+        ON_PCBANG_SHOP_OPEN(frame);
+    end
+end
+
 function ON_PCBANG_SHOP_TOGGLE_MSG(frame, msg, argstr, argnum)
     frame:ShowWindow(argnum);
 end
 
 function ON_PCBANG_SHOP_OPEN(frame)
-    local tab = GET_CHILD_RECURSIVELY(frame, "tab")
+    local tab = GET_CHILD_RECURSIVELY(frame, "tab")    
+    tab:SetTabVisible(tab:GetIndexByName("main_tab"), false);
+    tab:SetTabVisible(tab:GetIndexByName("rental_tab"), false);
+    tab:SetTabVisible(tab:GetIndexByName("guide_tab"), false);
+    tab:SelectTab(tab:GetIndexByName("pointshop_tab"));
     local tabName = tab:GetSelectItemName();
 
     pcBang.ReqPCBangShopPage("COMMON");
 
-    if tabName == "main_tab" then
-        ON_PCBANG_SHOP_TAB_MAIN(frame);
-    elseif tabName == "pointshop_tab" then
+    if tabName == "pointshop_tab" then
         ON_PCBANG_SHOP_TAB_POINTSHOP(frame);
-    elseif tabName == "rental_tab" then
-        ON_PCBANG_SHOP_TAB_RENTAL(frame);
-    elseif tabName == "guide_tab" then
-        ON_PCBANG_SHOP_TAB_GUIDE(frame);
     end
+    GET_CHILD_RECURSIVELY(frame,"trust_point_text"):ShowWindow(0);
 end
 
 function ON_PCBANG_SHOP_CLOSE(frame)
@@ -94,12 +101,9 @@ function ON_UPDATE_PCBANG_SHOP_POINT(frame)
     
     local resetTime = session.pcBang.GetQuarterResetTime();
     local now  = geTime.GetServerSystemTime();
-    local dif = imcTime.GetDifSec(resetTime, now);
-    SET_PCBANG_SHOP_RESET_TIME_TEXT(point_timer_text, dif)
-    SET_PCBANG_SHOP_TOTAL_TIME_TEXT(total_time_text, session.pcBang.GetTime("Total"))
-    
-	point_timer_text:RunUpdateScript("UPDATE_PCBANG_SHOP_POINT_TIMER_TEXT", 60);
-	total_time_text:RunUpdateScript("UPDATE_PCBANG_SHOP_TOTAL_TIME_TEXT", 60);
+    local dif = imcTime.GetDifSec(resetTime, now);    
+    SET_PCBANG_SHOP_TOTAL_TIME_TEXT(total_time_text, session.pcBang.GetTime("Total"))    
+    total_time_text:RunUpdateScript("UPDATE_PCBANG_SHOP_TOTAL_TIME_TEXT", 60);
 end
 
 function SET_PCBANG_SHOP_TOTAL_TIME_TEXT(total_time_text, totalSec)
@@ -114,28 +118,28 @@ end
 
 function UPDATE_PCBANG_SHOP_TOTAL_TIME_TEXT(ctrl, elapsedTime)
     local totalSec = session.pcBang.GetTime("Total") + elapsedTime;
-
     SET_PCBANG_SHOP_TOTAL_TIME_TEXT(ctrl, totalSec)
     return 1;
 end
 
 function SET_PCBANG_SHOP_RESET_TIME_TEXT(point_timer_text, remainSec)
-    local day = math.floor(remainSec / 86400);
-    local remainder  = remainSec % 86400;
-    local hour = math.floor(remainder  / 3600);
-    remainder  = remainder  % 3600;
-    local min = math.floor(remainder  / 60);
+    -- if config.GetServiceNation() ~= "GLOBAL_KOR" then return end
+    
+    -- local day = math.floor(remainSec / 86400);
+    -- local remainder  = remainSec % 86400;
+    -- local hour = math.floor(remainder  / 3600);
+    -- remainder  = remainder  % 3600;
+    -- local min = math.floor(remainder  / 60);
 
-    point_timer_text:SetTextByKey("day", day);
-    point_timer_text:SetTextByKey("hour", hour);
-    point_timer_text:SetTextByKey("min", min);
+    -- point_timer_text:SetTextByKey("day", day);
+    -- point_timer_text:SetTextByKey("hour", hour);
+    -- point_timer_text:SetTextByKey("min", min);    
 end
 
 function UPDATE_PCBANG_SHOP_POINT_TIMER_TEXT(ctrl, elapsedTime)    
     local resetTime = session.pcBang.GetQuarterResetTime()
     local now  = geTime.GetServerSystemTime();
-    local dif = imcTime.GetDifSec(resetTime, now) - elapsedTime;
-    SET_PCBANG_SHOP_RESET_TIME_TEXT(ctrl, dif)
+    local dif = imcTime.GetDifSec(resetTime, now) - elapsedTime;    
     return 1;
 end
 
@@ -216,4 +220,26 @@ end
 
 function ON_PCBANG_SHOP_BOUGHTCOUNT_CHANGED(frame, msg, argstr, argnum)
     pcBang.ReqPCBangShopPage("POINTSHOP_HISTORY");
+end
+
+function ON_UPDATE_POPO_TRUST_POINT(frame, msg, argStr, trustPoint)
+    if config.GetServiceNation() ~= "GLOBAL" then return end
+
+	local frame = ui.GetFrame("pcbang_shop")
+	if frame == nil then
+		return
+    end
+    
+    if frame:IsVisible() == 0 then
+        return
+    end
+
+    local checkbox = GET_CHILD_RECURSIVELY(frame, "show_timer_checkbox")
+    local trustText = GET_CHILD_RECURSIVELY(frame, "trust_point_text")
+    
+    if trustPoint < 5 then
+        checkbox:ShowWindow(0)
+        trustText:ShowWindow(1)
+        trustText:SetText("임시 경고 메세지") --ScpArgMsg("PcBangNeedTrustPoint"))
+    end
 end

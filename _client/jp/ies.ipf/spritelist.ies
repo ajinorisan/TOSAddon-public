@@ -9,6 +9,8 @@ ClassID,ColorIndex,DeadHideTime,DeadHideBlendTime,MoveCompleteLoop,TopOffset,Mid
 8,0,2,0.500000,0,12,6,0,0,120,120,"PC_CLR_F","Cleric_f","Cleric_f","","YES","","","YES"
 9,0,2,0.500000,0,12,6,0,0,120,120,"PC_SOR_M","Sorcerer_m","sorcerer_m","","YES","","","YES"
 10,0,2,0.500000,0,12,6,0,0,120,120,"PC_SOR_F","Sorcerer_f","sorcerer_f","","YES","","","YES"
+11,0,0,0,0,12,6,0,0,120,120,"PC_WIZ_M_ILLUSION","Wizard_m","wiz_m","","YES","","","YES"
+12,0,0,0,0,12,6,0,0,120,120,"PC_WIZ_F_ILLUSION","Wizard_f","wiz_f","","YES","","","YES"
 400003,1,2,0.500000,1,20,15,0,0,120,300,"Onion_Red","onion","monster_onion","","YES","","","YES"
 400004,1,2,0.500000,1,20,15,0,0,120,300,"Onion_Red_Elite","onion","monster_onion","F_smoke092_orange","YES","","","YES"
 400005,2,2,0.500000,1,20,15,0,0,300,1200,"POnion","onion","monster_onion","","YES","","","YES"

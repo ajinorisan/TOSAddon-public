@@ -7,6 +7,7 @@
 	addon:RegisterMsg('RESPONSE_MIN_PRICE', 'ON_RESPONSE_MIN_PRICE');
 	addon:RegisterMsg('WEB_RELOAD_SELL_LIST', 'ON_WEB_RELOAD_SELL_LIST');
 	addon:RegisterMsg('UPDATE_MARKET_TRADE_LIMIT', 'ON_UPDATE_MARKET_TRADE_LIMIT');
+	addon:RegisterMsg("SUCCESS_LOAD_REGISTERED_ITEM_LIST", "callback_SUCCESS_LOAD_REGISTERED_ITEM_LIST")
 end
 
 function ON_WEB_RELOAD_SELL_LIST(frame, msg, argStr, argNum)	
@@ -14,6 +15,13 @@ function ON_WEB_RELOAD_SELL_LIST(frame, msg, argStr, argNum)
 end
 
 function MARKET_SELL_OPEN(frame)
+	if config.GetServiceNation() == "GLOBAL_JP" then
+		local priceText = GET_CHILD_RECURSIVELY(frame, 'priceText')
+		if priceText ~= nil then
+			priceText:Resize(260, 26)
+		end
+	end
+
 	MARKET_SELL_UPDATE_SLOT_ITEM(frame);
 	RequestMarketSellList();
 	packet.RequestItemList(IT_WAREHOUSE);
@@ -55,9 +63,18 @@ function MARKET_SELL_OPEN(frame)
 
 	MARKET_SELL_ITEM_POP_BY_SLOT(frame, nil);
 	CLEAR_SELL_INFO(frame)
+	MARKET_SELL_OPTIONCTRL_INIT(frame);
 end
 
-function MARKET_SELL_UPDATE_SLOT_ITEM(frame)
+function MARKET_SELL_OPTIONCTRL_INIT(frame)
+	if frame == nil then return; end
+	local marketFilter = GET_CHILD_RECURSIVELY(frame, "marketfilter");
+	if marketFilter ~= nil then
+		marketFilter:SetTextByKey("option_name", ClMsg("ApplyFilter"));
+	end
+end
+
+function MARKET_SELL_UPDATE_SLOT_ITEM(frame)	
 	local groupbox = frame:GetChild("groupbox");
 
 	local slot_item = GET_CHILD_RECURSIVELY(groupbox, "slot_item", "ui::CSlot");
@@ -66,11 +83,19 @@ function MARKET_SELL_UPDATE_SLOT_ITEM(frame)
 	local itemObj = nil;
 	if slotItem == nil then
 		itemname:SetTextByKey("name", frame:GetUserConfig("ITEM_NAME_DEF"));
+		SET_SLOT_STAR_TEXT(slot_item, nil);		
 	else
 		itemObj = GetIES(slotItem:GetObject());
 		itemname:SetTextByKey("name", GET_FULL_NAME(itemObj));
+		-- 아이커 종류 표시	
+		if itemObj.GroupName == 'Icor' or TryGetProp(itemObj, 'GroupName', 'None') == 'Arcane' then
+			SET_SLOT_ICOR_CATEGORY(slot_item, itemObj);
+		else
+			local msg = ''
+			slot_item:SetText(msg, 'quickiconfont', ui.CENTER_VERT, ui.CENTER_HORZ, -2, 1);
+		end
+		SET_SLOT_STAR_TEXT(slot_item, itemObj);
 	end
-
 end
 
 function ON_MARKET_SELL_LIST(frame, msg, argStr, argNum)
@@ -103,15 +128,25 @@ function ON_MARKET_SELL_LIST(frame, msg, argStr, argNum)
 		SET_SLOT_ITEM_CLS(pic, itemObj)
 		icon:SetImage(imgName);
         SET_SLOT_STYLESET(pic, itemObj)
-        if itemObj.MaxStack > 1 then        	
-			SET_SLOT_COUNT_TEXT(pic, marketItem.count, '{s16}{ol}{b}');
+		if itemObj.MaxStack > 1 then
+			local font = '{s16}{ol}{b}';
+			if 100000 <= marketItem.count then	-- 6자리 수 폰트 크기 조정
+				font = '{s14}{ol}{b}';
+			end
+			SET_SLOT_COUNT_TEXT(pic, marketItem.count, font);
 		end
 
 		local nameCtrl = ctrlSet:GetChild("name");
-		nameCtrl:SetTextByKey("value", GET_FULL_NAME(itemObj));
+		local name_text = GET_FULL_NAME(itemObj)
+		local grade = shared_item_earring.get_earring_grade(itemObj)		
+		if grade > 0 then
+			name_text = name_text .. '(' .. grade .. ClMsg('Grade') .. ')'
+		end
+
+		nameCtrl:SetTextByKey("value", name_text);
 
 		local totalPriceCtrl = ctrlSet:GetChild("totalPrice");
-		local totalPriceValue = math.mul_int_for_lua(marketItem:GetSellPrice(), marketItem.count);
+		local totalPriceValue, b, c = math.mul_int_for_lua(marketItem:GetSellPrice(), marketItem.count);
 		local totalPrice = GET_COMMAED_STRING(totalPriceValue);
 		totalPriceCtrl:SetTextByKey("value", totalPrice);
 
@@ -135,7 +170,7 @@ function ON_MARKET_SELL_LIST(frame, msg, argStr, argNum)
 		local cashValue = GetCashValue(marketItem.premuimState, "marketSellCom") * 0.01;
 		local stralue = GetCashValue(marketItem.premuimState, "marketSellCom");
 		local feeValueCtrl = ctrlSet:GetChild("feeValue");
-		local feeValue =  math.floor(math.mul_int_for_lua(totalPriceValue, cashValue));
+		local feeValue, b, c =  math.floor(math.mul_int_for_lua(totalPriceValue, cashValue));
 
 		local feeStr = GET_COMMAED_STRING(feeValue);
 		feeValueCtrl:SetTextByKey("value", feeStr);
@@ -144,6 +179,10 @@ function ON_MARKET_SELL_LIST(frame, msg, argStr, argNum)
 		feeValueStrCtrl:SetTextByKey("value", feeValueStr);
 
 		SET_ITEM_TOOLTIP_ALL_TYPE(ctrlSet, marketItem, itemObj.ClassName, "market", marketItem.itemType, marketItem:GetMarketGuid());
+		
+		-- 아이커 종류 표시	
+		SET_SLOT_ICOR_CATEGORY(pic, itemObj);
+		SET_SLOT_STAR_TEXT(pic, itemObj);
 
 		local btn = GET_CHILD(ctrlSet, "btn");
 		btn:SetTextByKey("value", ClMsg("Cancel"));
@@ -179,7 +218,7 @@ function ON_MARKET_REGISTER(frame, msg, argStr, argNum)
 	CLEAR_SELL_INFO(frame)
 end
 
-function MARKET_SELL_UPDATE_REG_SLOT_ITEM(frame, invItem, slot)	
+function MARKET_SELL_UPDATE_REG_SLOT_ITEM(frame, invItem, slot)
 	if true == invItem.isLockState then
 		ui.SysMsg(ClMsg("MaterialItemIsLock"));
 		return false;
@@ -191,7 +230,26 @@ function MARKET_SELL_UPDATE_REG_SLOT_ITEM(frame, invItem, slot)
 		return false;
 	end
 
-	local obj = GetIES(invItem:GetObject());
+	local obj = GetIES(invItem:GetObject());	
+	local check = GetClassByType('market_trade_restrict', TryGetProp(obj, 'ClassID', 0))
+	if check ~= nil then
+		if TryGetProp(check, 'Type', 'None') == 'NoTrade' then
+			ui.AlarmMsg("ItemIsNotTradable");	
+			return false
+		end
+
+		if IS_SEASON_SERVER() == "YES" then
+			if TryGetProp(check, 'Type', 'None') == 'NoTrade2' then
+				ui.AlarmMsg("ItemIsNotTradable");	
+				return false;
+			end
+		end
+	end
+
+    if TryGetProp(obj, 'TeamBelonging', 0) ~= 0 or TryGetProp(obj, 'CharacterBelonging', 0) ~= 0 then
+        ui.AlarmMsg("ItemIsNotTradable");
+		return false;
+    end
 
 	local itemProp = geItemTable.GetProp(obj.ClassID);
 	local pr = TryGetProp(obj, "PR");
@@ -237,7 +295,7 @@ function MARKET_SELL_UPDATE_REG_SLOT_ITEM(frame, invItem, slot)
 	if obj.ClassName == "PremiumToken" then
 		edit_count:SetText("1");
 		edit_count:SetMaxNumber(1);
-		edit_price:SetMaxNumber(TOKEN_MARKET_REG_MAX_PRICE * invItem.count);
+		edit_price:SetMaxNumberString(TOKEN_MARKET_REG_MAX_PRICE * invItem.count);
 		edit_price:SetMaxLen(edit_price:GetMaxLen() + 3);
 	else
 		edit_price:ClearMaxNumber();
@@ -274,7 +332,7 @@ function IMPL_MARKET_SELL_UPDATE_REG_SLOT_ITEM(guid, tradeCount)
 	if obj.ClassName == "PremiumToken" then
 		edit_count:SetText("1");
 		edit_count:SetMaxNumber(1);
-		edit_price:SetMaxNumber(TOKEN_MARKET_REG_MAX_PRICE * invItem.count);
+		edit_price:SetMaxNumberString(TOKEN_MARKET_REG_MAX_PRICE * invItem.count);
 		edit_price:SetMaxLen(edit_price:GetMaxLen() + 3);
 	else
 		edit_price:ClearMaxNumber();
@@ -304,7 +362,7 @@ function IMPL_MARKET_SELL_UPDATE_REG_SLOT_ITEM(guid, tradeCount)
 	MARKET_SELL_REQUEST_PRICE_INFO(frame, invItem:GetIESID(), invItem.type);
 end
 
-function MARKET_SELL_RBUTTON_ITEM_CLICK(frame, invItem)
+function MARKET_SELL_LBUTTON_ITEM_CLICK(frame, invItem)
 	local groupbox = frame:GetChild("groupbox");
 	local edit_price = GET_CHILD_RECURSIVELY(groupbox, "edit_price", "ui::CEditControl");
 	local edit_count = GET_CHILD_RECURSIVELY(groupbox, "edit_count", "ui::CEditControl");
@@ -355,7 +413,7 @@ function MARKET_SELL_ITEM_POP_BY_SLOT(parent, slot)
 	CLEAR_SELL_INFO(frame)
 end
 
-function MARKET_SELL_ITEM_DROP_BY_SLOT(parent, slot)
+function MARKET_SELL_ITEM_DROP_BY_SLOT(parent, slot)	
 	local frame = parent:GetTopParentFrame();
 	local liftIcon = ui.GetLiftIcon();
 	local groupbox = slot:GetParent();
@@ -413,14 +471,14 @@ function ON_MARKET_MINMAX_INFO(frame, msg, argStr, argNum)
 		edit_price:SetText(GET_COMMAED_STRING(avg));
 		if IGNORE_ITEM_AVG_TABLE_FOR_TOKEN == 1 then
 			if false == session.loginInfo.IsPremiumState(ITEM_TOKEN) then
-				edit_price:SetMaxNumber(maxAllow);
+				edit_price:SetMaxNumberString(maxAllow);
 				edit_price:SetMaxLen(edit_price:GetMaxLen() + 3);
 			else
 				edit_price:ClearMaxNumber();
 				edit_price:SetMaxLen(edit_price:GetMaxLen() + 3);
 			end
 		else
-			edit_price:SetMaxNumber(maxAllow);
+			edit_price:SetMaxNumberString(maxAllow);
 			edit_price:SetMaxLen(edit_price:GetMaxLen() + 3);
 		end
 
@@ -470,8 +528,8 @@ function MARKET_SELL_REGISTER(parent, ctrl)
 
 	local count = tonumber(edit_count:GetText());
     local price = GET_NOT_COMMAED_NUMBER(edit_price:GetText());
-	if price < 100 then
-		ui.SysMsg(ClMsg("SellPriceMustOverThen100Silver"));		
+	if price < 10 then
+		ui.SysMsg(ClMsg("SellPriceMustOverThen10Silver"));		
 		return;
 	end
 
@@ -481,18 +539,25 @@ function MARKET_SELL_REGISTER(parent, ctrl)
 		return;
 	end
 
-	if IsGreaterThanForBigNumber(math.mul_int_for_lua(price, count), limitMoneyStr) == 1 then
+	local a, b, c = math.mul_int_for_lua(price, count)
+
+	if IsGreaterThanForBigNumber(a, limitMoneyStr) == 1 then
 		ui.SysMsg(ScpArgMsg('MarketMaxSilverLimit{LIMIT}Over', 'LIMIT', GET_COMMAED_STRING(limitMoneyStr)));
 		return;
 	end
 
 	local strprice = tostring(price);
-	if string.len(strprice) < 3 then
+	local start_idx = 1	
+	if string.len(strprice) < 2 then
 		return
 	end
+	
+	if price > 99 then		
+		start_idx = 2
+	end
 
-	local floorprice = strprice.sub(strprice, 0, 2);
-	for i = 0 , string.len(strprice) - 3 do
+	local floorprice = strprice.sub(strprice, 0, start_idx);	
+	for i = 0 , string.len(strprice) - (start_idx + 1) do
 		floorprice = floorprice .. "0"
 	end
 	
@@ -611,15 +676,18 @@ function MARKET_SELL_REGISTER(parent, ctrl)
 	commission = registerFeeValueCtrl:GetTextByKey("value");	
 	commission = string.gsub(commission, ",", "");
 	commission = math.max(tonumber(commission), 1);
+	
+	local price_text = GET_CHILD_RECURSIVELY(frame, "priceText");
+	local price_msg = ScpArgMsg("RegMarketItem{Price}","Price", price_text:GetTextByKey("priceText"));	
 	if nil~= obj and obj.ItemType =='Equip' then
 		if 0 < obj.BuffValue then
 			-- 장비그룹만 buffValue가 있다.
-			ui.MsgBox(ScpArgMsg("BuffDestroy{Price}","Price", tostring(commission)), yesScp, "None");
+			ui.MsgBox(price_msg..ScpArgMsg("BuffDestroy{Price}","Price", tostring(commission)), yesScp, "None");
 		else
-			ui.MsgBox(ScpArgMsg("CommissionRegMarketItem{Price}","Price", GetMonetaryString(commission)), yesScp, "None");			
+			ui.MsgBox(price_msg..ScpArgMsg("CommissionRegMarketItem{Price}","Price", GetMonetaryString(commission)), yesScp, "None");			
 		end
 	else
-		ui.MsgBox(ScpArgMsg("CommissionRegMarketItem{Price}","Price", GetMonetaryString(commission)), yesScp, "None");
+		ui.MsgBox(price_msg..ScpArgMsg("CommissionRegMarketItem{Price}","Price", GetMonetaryString(commission)), yesScp, "None");
 	end
 end
 
@@ -687,7 +755,8 @@ function UPDATE_MARKET_MONEY_STRING(parent, ctrl)
 
 	local limitTradeStr = GET_REMAIN_MARKET_TRADE_AMOUNT_STR();
 	if limitTradeStr ~= nil then
-		if IsGreaterThanForBigNumber(math.mul_int_for_lua(moneyText, itemCount), limitTradeStr) == 1 then			
+		local a, b, c = math.mul_int_for_lua(moneyText, itemCount)
+		if IsGreaterThanForBigNumber(a, limitTradeStr) == 1 then			
 			ui.SysMsg(ScpArgMsg('MarketMaxSilverLimit{LIMIT}Over', 'LIMIT', GET_COMMAED_STRING(limitTradeStr)));			
 			moneyText = limitTradeStr;
 		end		
@@ -744,23 +813,29 @@ function UPDATE_FEE_INFO(frame, free, count, price)
 	
 	--소수점 단위 버림
 	local totalPrice = math.mul_int_for_lua(price, count);
-	local registerFeeValue = math.max(math.floor(tonumber(math.mul_int_for_lua(math.mul_int_for_lua(totalPrice, free), 0.01))), 1);	
+	local total_price_fee = math.mul_int_for_lua(totalPrice, free)
+	local fee_ratio = math.mul_int_for_lua(total_price_fee, tostring(0.01))
+	local registerFeeValue = math.max( math.floor(tonumber(fee_ratio)), 1);
 	local feeValue = 0;
 	local isTokenState = session.loginInfo.IsPremiumState(ITEM_TOKEN);
 	local isPremiumStateNexonPC = session.loginInfo.IsPremiumState(NEXON_PC);
 	if isTokenState == true then
-		feeValue = tonumber(math.mul_for_lua(GetCashValue(ITEM_TOKEN, "marketSellCom"), 0.01));		
+		feeValue = math.mul_for_lua(GetCashValue(ITEM_TOKEN, "marketSellCom"), 0.01);
+		feeValue = tonumber(feeValue);
 	elseif isPremiumStateNexonPC == true then
-		feeValue = tonumber(math.mul_for_lua(GetCashValue(NEXON_PC, "marketSellCom"), 0.01));		
+		feeValue = math.mul_for_lua(GetCashValue(NEXON_PC, "marketSellCom"), 0.01);
+		feeValue = tonumber(feeValue);
 	else
-		feeValue = tonumber(math.mul_for_lua(GetCashValue(NONE_PREMIUM, "marketSellCom"), 0.01))		
+		feeValue = math.mul_for_lua(GetCashValue(NONE_PREMIUM, "marketSellCom"), 0.01);
+		feeValue = tonumber(feeValue);
 	end	
-
+	
 	feeValue = math.mul_int_for_lua(totalPrice, feeValue)
 	feeValue = tonumber(feeValue)
 	feeValue = math.floor(feeValue)
 	if feeValue > 0 then
-		feeValue = tonumber(math.mul_int_for_lua(feeValue, -1));
+		feeValue = math.mul_int_for_lua(feeValue, -1);
+		feeValue = tonumber(feeValue);
 	end
 	feeValue = math.floor(feeValue)	
 	local finalValue =SumForBigNumberInt64(totalPrice, feeValue);
@@ -815,4 +890,27 @@ function ON_UPDATE_MARKET_TRADE_LIMIT(frame, msg, argStr, argNum)
 	local limitAmountText = GET_CHILD_RECURSIVELY(frame, 'limitAmountText');
 	limitAmountText:SetTextByKey('cur', GET_COMMAED_STRING(session.inventory.GetCurMarketTradeAmount()));
 	limitAmountText:SetTextByKey('max', GET_COMMAED_STRING(session.inventory.GetMarketLimitAmount()));
+end
+
+function REFRESH_SELL_LIST()
+	LoadRegisteredMarketItemList()
+end
+
+function callback_SUCCESS_LOAD_REGISTERED_ITEM_LIST(msg)
+	RequestMarketSellList()
+end
+
+function MARKET_SELL_FILTER(frame, ctrl)
+	if frame == nil or ctrl == nil then return; end
+    local isCheck = ctrl:IsChecked();
+    ui.inventory.ApplyInventoryFilter("inventory", IVF_MARKET_TRADE, isCheck);
+end
+
+function MARKET_SELL_FILTER_RESET(frame)
+	if frame == nil then return; end
+	local option = GET_CHILD_RECURSIVELY(frame, "marketfilter", "ui::CCheckBox");
+	if option ~= nil then
+		option:SetCheck(0);
+	end
+	ui.inventory.ApplyInventoryFilter("inventory", IVF_MARKET_TRADE, 0);
 end

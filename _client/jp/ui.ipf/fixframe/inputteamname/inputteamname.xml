@@ -5,6 +5,7 @@
     <draw drawtitlebar="false" drawframe="true"/>
     <input moveable="false" hittestframe="false"/>
     <option hideable="false" closebutton="false"/>
+    <script OpenScp="INPUT_TEAMNAME_OPEN"/>
     <controls>
         <groupbox name="bg" margin="0 26 0 0" rect="0 0 547 30" draw="false" hittestbox="false" skin="bg" layout_gravity="center top" autosizebychild="true"/>
         <richtext name="richtext_1" margin="0 46 0 0" rect="0 0 420 100" caption="{@st43}{s30}{#f0dcaa}팀 이름 입력!" textalign="center top" resizebytext="true" spacey="0" maxwidth="0" fontname="white_16_ol" fixwidth="true" updateparent="false" drawbackground="false" slideshow="false" layout_gravity="center top" parent="bg"/>

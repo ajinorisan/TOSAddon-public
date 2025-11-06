@@ -2,39 +2,56 @@
 
 PET_ACTIVATE_COOLDOWN = 5;
 
+PET_STAT_BY_OWNER_RATE = 0.5
+
+function PET_STAT_BY_OWNER(self, statName)
+    local value = 0
+    local owner = nil
+    if IsServerSection() == 1 then
+        owner = GetOwner(self)
+    else
+        owner = GetMyPCObject()
+    end
+
+    if owner ~= nil then
+        value = TryGetProp(owner, statName, 0) * PET_STAT_BY_OWNER_RATE
+    end
+
+    return math.floor(value)
+end
 
 function PET_STR(self)
-    local ret = GetSumOfPetEquip(self, "STR") + GET_MON_STAT(self, self.Lv, "STR");
+    local ret = GET_MON_STAT(self, self.Lv, "STR") + PET_STAT_BY_OWNER(self, "STR");
     return math.floor(ret);
 end
 
 function PET_DEX(self)
-    local ret = GetSumOfPetEquip(self, "DEX") + GET_MON_STAT(self, self.Lv, "DEX");
+    local ret = GET_MON_STAT(self, self.Lv, "DEX") + PET_STAT_BY_OWNER(self, "DEX");
     return math.floor(ret);
 end
 
 function PET_CON(self)
-    local ret = GetSumOfPetEquip(self, "CON") + GET_MON_STAT(self, self.Lv, "CON");
+    local ret = GET_MON_STAT(self, self.Lv, "CON") + PET_STAT_BY_OWNER(self, "CON");
     return math.floor(ret);
 end
 
 function PET_INT(self)
-    local ret = GetSumOfPetEquip(self, "INT") + GET_MON_STAT(self, self.Lv, "INT");
+    local ret = GET_MON_STAT(self, self.Lv, "INT") + PET_STAT_BY_OWNER(self, "INT");
     return math.floor(ret);
 end
 
 function PET_MNA(self)
-    local ret = GetSumOfPetEquip(self, "MNA") + GET_MON_STAT(self, self.Lv, "MNA");
+    local ret = GET_MON_STAT(self, self.Lv, "MNA") + PET_STAT_BY_OWNER(self, "MNA");
     return math.floor(ret);
 end
 
 function PET_GET_MOUNTPATK(self)
-    local ret = GetSumOfPetEquip(self, "MountPATK");
+    local ret = 0;
     return ret;
 end
 
 function PET_GET_MOUNTMATK(self)
-    local ret = GetSumOfPetEquip(self, "MountMATK");
+    local ret = 0;
     return ret;
 end
 
@@ -71,7 +88,21 @@ function PET_GET_MHP(self)
     local byLevel = (standardMHP / 4) * lv;
     local stat = TryGetProp(self, "CON", 1);
     local byStat = (byLevel * (stat * 0.0015)) + (byLevel * (math.floor(stat / 10) * 0.005)) + PET_MHP_BY_ABIL(self.Stat_MHP);
-    local value = standardMHP + byLevel + byStat + GetSumOfPetEquip(self, "MHP");
+    local value = standardMHP + byLevel + byStat + PET_STAT_BY_OWNER(self, "MHP");
+    
+    local abilCompMastery4 = GetAbility(owner, 'CompMastery4')
+    local abilCompMastery5 = GetAbility(owner, 'CompMastery5')
+    if abilCompMastery4 ~= nil and TryGetProp(abilCompMastery4, 'ActiveState', 0) == 1 then
+        value = value * 1.25
+    end
+    if abilCompMastery5 ~= nil and TryGetProp(abilCompMastery5, 'ActiveState', 0) == 1 then
+        value = value * 0.75
+    end
+
+    if IsBuffApplied(self, 'BeastMaster_Buff') == 'YES' then
+        value = value * 1.25
+    end
+
     return math.floor(value);
 end
 
@@ -79,10 +110,6 @@ function PET_GET_MHP_C(self, addAbil)
     if addAbil == nil then
         addAbil = 0;
     end
---    local lv = self.Lv;
---    local addLv = self.Level;
---    local ret = (addLv + lv) * 17 + self.CON * 34 + GetSumOfPetEquip_C(self, "MHP") + PET_MHP_BY_ABIL(self.Stat_MHP + addAbil);
---    return math.floor(ret);
     
     local owner = GetMyPCObject()
     local lv = 1
@@ -93,7 +120,21 @@ function PET_GET_MHP_C(self, addAbil)
     local byLevel = (standardMHP / 4) * lv;
     local stat = TryGetProp(self, "CON", 1);
     local byStat = (byLevel * (stat * 0.0015)) + (byLevel * (math.floor(stat / 10) * 0.005));
-    local value = standardMHP + byLevel + byStat + GetSumOfPetEquip_C(self, "MHP") + PET_MHP_BY_ABIL(self.Stat_MHP + addAbil);
+    local value = standardMHP + byLevel + byStat + PET_STAT_BY_OWNER(self, "MHP") + PET_MHP_BY_ABIL(self.Stat_MHP + addAbil);
+
+    local abilCompMastery4 = GetAbility(owner, 'CompMastery4')
+    local abilCompMastery5 = GetAbility(owner, 'CompMastery5')
+    if abilCompMastery4 ~= nil and TryGetProp(abilCompMastery4, 'ActiveState', 0) == 1 then
+        value = value * 1.25
+    end
+    if abilCompMastery5 ~= nil and TryGetProp(abilCompMastery5, 'ActiveState', 0) == 1 then
+        value = value * 0.75
+    end
+
+    if IsBuffApplied(self, 'BeastMaster_Buff') == 'YES' then
+        value = value * 1.25
+    end
+
     return math.floor(value);
 end
 
@@ -101,8 +142,8 @@ function PET_GET_RHP(self)
     local baseMHP = self.MHP;
     local lv = self.Lv;
     local addLv = self.Level;
-    local byItem = GetSumOfPetEquip(self, "RHP");
-    local value = (lv + addLv) * 0.5 + self.CON + self.RHP_BM + byItem;
+    local byOwner = PET_STAT_BY_OWNER(self, "RHP");
+    local value = (lv + addLv) * 0.5 + self.CON + self.RHP_BM + byOwner;
 
     if value < 1 then
         value = 1;
@@ -112,8 +153,7 @@ function PET_GET_RHP(self)
 end
 
 function PET_GET_RHPTIME(self)
-    local byItem = GetSumOfPetEquip(self, 'RHPTIME');
-    local value = 10000 - byItem;
+    local value = 10000
     return value;
 end
 
@@ -125,26 +165,60 @@ function PET_ATK(self)
     local addLv = self.Level;
     local atk = self.Lv + self.STR + addLv + PET_ATK_BY_ABIL(self.Stat_ATK) + self.Stat_ATK_BM;
 
-    local average = GetSumOfPetEquip(self, "MINATK") + GetSumOfPetEquip(self, "MAXATK");
+    local average = PET_STAT_BY_OWNER(self, "MINPATK") + PET_STAT_BY_OWNER(self, "MAXPATK");
     if average ~= 0 then
         average = average / 2;
-        average = average + GetSumOfPetEquip(self, "PATK");
     end
 
-    return math.floor(atk + average);
+    local value = atk + average
+
+    local owner = GetOwner(self)
+    if owner ~= nil then
+        local abilCompMastery4 = GetAbility(owner, 'CompMastery4')
+        local abilCompMastery5 = GetAbility(owner, 'CompMastery5')
+        if abilCompMastery4 ~= nil and TryGetProp(abilCompMastery4, 'ActiveState', 0) == 1 then
+            value = value * 0.75
+        end
+        if abilCompMastery5 ~= nil and TryGetProp(abilCompMastery5, 'ActiveState', 0) == 1 then
+            value = value * 1.25
+        end
+    end
+
+    if value < 1 then
+        value = 1
+    end
+
+    return math.floor(value);
 end
 
 function PET_ATK_C(self, addAbil)
     local addLv = self.Level;
     local atk = self.Lv + self.STR + addLv + PET_ATK_BY_ABIL(self.Stat_ATK + addAbil) + self.Stat_ATK_BM;
 
-    local average = GetSumOfPetEquip_C(self, "MINATK") + GetSumOfPetEquip_C(self, "MAXATK");
+    local average = PET_STAT_BY_OWNER(self, "MINPATK") + PET_STAT_BY_OWNER(self, "MAXPATK");
     if average ~= 0 then
         average = average / 2;
-        average = average + GetSumOfPetEquip_C(self, "PATK");
     end
 
-    return math.floor(atk + average);
+    local value = atk + average
+
+    local owner = GetMyPCObject()
+    if owner ~= nil then
+        local abilCompMastery4 = GetAbility(owner, 'CompMastery4')
+        local abilCompMastery5 = GetAbility(owner, 'CompMastery5')
+        if abilCompMastery4 ~= nil and TryGetProp(abilCompMastery4, 'ActiveState', 0) == 1 then
+            value = value * 0.75
+        end
+        if abilCompMastery5 ~= nil and TryGetProp(abilCompMastery5, 'ActiveState', 0) == 1 then
+            value = value * 1.25
+        end
+    end
+
+    if value < 1 then
+        value = 1
+    end
+
+    return math.floor(value);
 end
 
 function PET_MINPATK(self)
@@ -163,28 +237,56 @@ end
 
 function PET_MINMATK(self)
     local byStat = self.ATK;
-    local byItem = GetSumOfPetEquip(self, "MATK") + GetSumOfPetEquip(self, "MINATK");
+    local byOwner = PET_STAT_BY_OWNER(self, "MINMATK");
     local byBuff = self.PATK_BM
-    local value = byStat + byItem + byBuff;
+    local value = byStat + byOwner + byBuff;
+    local owner = GetOwner(self)
+    if owner ~= nil then
+        local abilCompMastery4 = GetAbility(owner, 'CompMastery4')
+        local abilCompMastery5 = GetAbility(owner, 'CompMastery5')
+        if abilCompMastery4 ~= nil and TryGetProp(abilCompMastery4, 'ActiveState', 0) == 1 then
+            value = value * 0.75
+        end
+        if abilCompMastery5 ~= nil and TryGetProp(abilCompMastery5, 'ActiveState', 0) == 1 then
+            value = value * 1.25
+        end
+    end
+    if value < 1 then
+        value = 1
+    end
     return math.floor(value);
 end
 
 function PET_MAXMATK(self)
     local byStat = self.ATK;
-    local byItem = GetSumOfPetEquip(self, "MATK") + GetSumOfPetEquip(self, "MAXATK");
+    local byOwner = PET_STAT_BY_OWNER(self, "MAXMATK");
     local byBuff = self.PATK_BM
-    local value = byStat + byItem + byBuff;
+    local value = byStat + byOwner + byBuff;
+    local owner = GetOwner(self)
+    if owner ~= nil then
+        local abilCompMastery4 = GetAbility(owner, 'CompMastery4')
+        local abilCompMastery5 = GetAbility(owner, 'CompMastery5')
+        if abilCompMastery4 ~= nil and TryGetProp(abilCompMastery4, 'ActiveState', 0) == 1 then
+            value = value * 0.75
+        end
+        if abilCompMastery5 ~= nil and TryGetProp(abilCompMastery5, 'ActiveState', 0) == 1 then
+            value = value * 1.25
+        end
+    end
+    if value < 1 then
+        value = 1
+    end
     return math.floor(value)
 end
 
 function PET_SR(self)
-    local value = SCR_Get_MON_SR(self) + GetSumOfPetEquip(self, "SR");
+    local value = SCR_Get_MON_SR(self) + PET_STAT_BY_OWNER(self, "SR");
     return value;
 end
 
 function PET_MHR(self)
     local value = 0;
-    local itemStat = GetSumOfPetEquip(self, "MHR")
+    local itemStat = PET_STAT_BY_OWNER(self, "MHR")
 
     value = itemStat + self.MHR_BM;
     return math.floor(value);
@@ -194,9 +296,9 @@ function PET_BLK(self)
     local byLv = self.Lv;
     local addLv = self.Level;
     local byStat = self.CON;
-    local byItem = GetSumOfPetEquip(self, 'BLK');
+    local byOwner = PET_STAT_BY_OWNER(self, 'BLK');
     
-    local blkrate = (byLv + addLv) * 0.5 + byStat + byItem + self.BLK_BM;
+    local blkrate = (byLv + addLv) * 0.5 + byStat + byOwner + self.BLK_BM;
     local value = blkrate;
     
     return math.floor(value);
@@ -206,18 +308,18 @@ function PET_BLK_BREAK(self)
     local byLv = self.Lv;
     local addLv = self.Level;
     local byStat = self.MNA;
-    local byItem = GetSumOfPetEquip(self, 'BLK_BREAK');
+    local byOwner = PET_STAT_BY_OWNER(self, 'BLK_BREAK');
     
-    local value = (byLv + addLv) * 0.5 + byStat + byItem + self.BLK_BREAK_BM;
+    local value = (byLv + addLv) * 0.5 + byStat + byOwner + self.BLK_BREAK_BM;
 
     return math.floor(value);
 end
 
 function PET_CRTATK(self)
     local byStat = self.STR;
-    local byItem = GetSumOfPetEquip(self, "CRTATK");
+    local byOwner = PET_STAT_BY_OWNER(self, "CRTATK");
     local byBuff = self.CRTATK_BM;
-    local value = byStat + byItem + byBuff;
+    local value = byStat + byOwner + byBuff;
     return math.floor(value);
 end
 
@@ -227,22 +329,22 @@ end
 
 function PET_CRTHR(self)
     local byStat = self.DEX;
-    local byItem = GetSumOfPetEquip(self, "CRTHR");
-    local value = byStat + byItem + PET_CRTHR_BY_ABIL(self.Stat_CRTHR) + self.CRTHR_BM + self.Stat_CRTHR_BM;
+    local byOwner = PET_STAT_BY_OWNER(self, "CRTHR");
+    local value = byStat + byOwner + PET_CRTHR_BY_ABIL(self.Stat_CRTHR) + self.CRTHR_BM + self.Stat_CRTHR_BM;
     return math.floor(value);
 end
 
 function PET_CRTHR_C(self, addAbil)
     local byStat = self.DEX;
-    local byItem = GetSumOfPetEquip_C(self, "CRTHR");
-    local value = byStat + byItem + PET_CRTHR_BY_ABIL(self.Stat_CRTHR + addAbil) + self.CRTHR_BM + self.Stat_CRTHR_BM;
+    local byOwner = PET_STAT_BY_OWNER(self, "CRTHR");
+    local value = byStat + byOwner + PET_CRTHR_BY_ABIL(self.Stat_CRTHR + addAbil) + self.CRTHR_BM + self.Stat_CRTHR_BM;
     return math.floor(value);
 end
 
 function PET_CRTDR(self)
     local byStat = self.CON;
-    local byItem = GetSumOfPetEquip(self, 'CRTDR');
-    local value = byStat + byItem + self.CRTDR_BM;
+    local byOwner = PET_STAT_BY_OWNER(self, 'CRTDR');
+    local value = byStat + byOwner + self.CRTDR_BM;
     return math.floor(value);
 end
 
@@ -253,17 +355,45 @@ end
 function PET_DEF(self)
     local byLv = self.Lv;
     local addLv = self.Level;
-    local byItem = GetSumOfPetEquip(self, 'DEF');
-    local ret = (byLv + addLv) / 2 + byItem + PET_DEF_BY_ABIL(self.Stat_DEF);
-    return math.floor(ret);
+    local byOwner = PET_STAT_BY_OWNER(self, 'DEF');
+    local value = (byLv + addLv) / 2 + byOwner + PET_DEF_BY_ABIL(self.Stat_DEF);
+    local owner = GetOwner(self)
+    if owner ~= nil then
+        local abilCompMastery4 = GetAbility(owner, 'CompMastery4')
+        local abilCompMastery5 = GetAbility(owner, 'CompMastery5')
+        if abilCompMastery4 ~= nil and TryGetProp(abilCompMastery4, 'ActiveState', 0) == 1 then
+            value = value * 1.25
+        end
+        if abilCompMastery5 ~= nil and TryGetProp(abilCompMastery5, 'ActiveState', 0) == 1 then
+            value = value * 0.75
+        end
+    end
+    if value < 1 then
+        value = 1
+    end
+    return math.floor(value);
 end
 
 function PET_DEF_C(self, addAbil)
     local byLv = self.Lv;
     local addLv = self.Level;
-    local byItem = GetSumOfPetEquip_C(self, 'DEF');
-    local ret = (byLv + addLv) / 2 + byItem + PET_DEF_BY_ABIL(self.Stat_DEF + addAbil);
-    return math.floor(ret);
+    local byOwner = PET_STAT_BY_OWNER(self, 'DEF');
+    local value = (byLv + addLv) / 2 + byOwner + PET_DEF_BY_ABIL(self.Stat_DEF + addAbil);
+    local owner = GetMyPCObject()
+    if owner ~= nil then
+        local abilCompMastery4 = GetAbility(owner, 'CompMastery4')
+        local abilCompMastery5 = GetAbility(owner, 'CompMastery5')
+        if abilCompMastery4 ~= nil and TryGetProp(abilCompMastery4, 'ActiveState', 0) == 1 then
+            value = value * 1.25
+        end
+        if abilCompMastery5 ~= nil and TryGetProp(abilCompMastery5, 'ActiveState', 0) == 1 then
+            value = value * 0.75
+        end
+    end
+    if value < 1 then
+        value = 1
+    end
+    return math.floor(value);
 end
 
 function PET_MDEF_BY_ABIL(statValue)
@@ -273,23 +403,53 @@ end
 function PET_MDEF(self)
     local byLv = self.Lv;
     local addLv = self.Level;
-    local byItem = GetSumOfPetEquip(self, 'MDEF') + GetSumOfPetEquip(self, 'ADD_MDEF');
-    local ret = (byLv + addLv) / 2 + byItem + PET_MDEF_BY_ABIL(self.Stat_MDEF);
-    return math.floor(ret);
+    local byOwner = PET_STAT_BY_OWNER(self, 'MDEF');
+    local value = (byLv + addLv) / 2 + byOwner + PET_MDEF_BY_ABIL(self.Stat_MDEF);
+    local owner = GetOwner(self)
+    if owner ~= nil then
+        local abilCompMastery4 = GetAbility(owner, 'CompMastery4')
+        local abilCompMastery5 = GetAbility(owner, 'CompMastery5')
+        if abilCompMastery4 ~= nil and TryGetProp(abilCompMastery4, 'ActiveState', 0) == 1 then
+            value = value * 1.25
+        end
+        if abilCompMastery5 ~= nil and TryGetProp(abilCompMastery5, 'ActiveState', 0) == 1 then
+            value = value * 0.75
+        end
+    end
+    if value < 1 then
+        value = 1
+    end
+    return math.floor(value);
 end
 
 function PET_MDEF_C(self, addAbil)
     local byLv = self.Lv;
     local addLv = self.Level;
-    local byItem = GetSumOfPetEquip_C(self, 'MDEF') + GetSumOfPetEquip_C(self, 'ADD_MDEF');
-    local ret = (byLv + addLv) / 2 + byItem + PET_MDEF_BY_ABIL(self.Stat_MDEF + addAbil);
-    return math.floor(ret);
+    local byOwner = PET_STAT_BY_OWNER(self, 'MDEF');
+    local value = (byLv + addLv) / 2 + byOwner + PET_MDEF_BY_ABIL(self.Stat_MDEF + addAbil);
+    local owner = GetMyPCObject()
+    if owner ~= nil then
+        local abilCompMastery4 = GetAbility(owner, 'CompMastery4')
+        local abilCompMastery5 = GetAbility(owner, 'CompMastery5')
+        if abilCompMastery4 ~= nil and TryGetProp(abilCompMastery4, 'ActiveState', 0) == 1 then
+            value = value * 1.25
+        end
+        if abilCompMastery5 ~= nil and TryGetProp(abilCompMastery5, 'ActiveState', 0) == 1 then
+            value = value * 0.75
+        end
+    end
+    if value < 1 then
+        value = 1
+    end
+    return math.floor(value);
 end
 
 function PET_SDR(self)
+    local value = 1
+    if IsPVPServer(self) == 1 then
+        value = 0
+    end
 
-    local value = SCR_Get_MON_SDR(self) + GetSumOfPetEquip(self, "SDR");
-    
     return value;
 end
 
@@ -300,16 +460,16 @@ end
 function PET_DR(self)
     local byLv = self.Lv;
     local addLv = self.Level;
-    local byItem = GetSumOfPetEquip(self, "DR")
-    local ret = byLv + addLv + byItem + self.DEX + PET_DR_BY_ABIL(self.Stat_DR);
+    local byOwner = PET_STAT_BY_OWNER(self, "DR")
+    local ret = byLv + addLv + byOwner + self.DEX + PET_DR_BY_ABIL(self.Stat_DR);
     return math.floor(ret);
 end
 
 function PET_DR_C(self, addAbil)
     local byLv = self.Lv;
     local addLv = self.Level;
-    local byItem = GetSumOfPetEquip_C(self, "DR")
-    local ret = byLv + addLv + byItem + self.DEX + PET_DR_BY_ABIL(self.Stat_DR + addAbil);
+    local byOwner = PET_STAT_BY_OWNER(self, "DR")
+    local ret = byLv + addLv + byOwner + self.DEX + PET_DR_BY_ABIL(self.Stat_DR + addAbil);
     return math.floor(ret);
 end
 
@@ -320,16 +480,16 @@ end
 function PET_HR(self)
     local byLv = self.Lv;
     local addLv = self.Level;
-    local byItem = GetSumOfPetEquip(self, "HR")
-    local ret = byLv + addLv + byItem + self.DEX + PET_HR_BY_ABIL(self.Stat_HR) + self.Stat_HR_BM;
+    local byOwner = PET_STAT_BY_OWNER(self, "HR")
+    local ret = byLv + addLv + byOwner + self.DEX + PET_HR_BY_ABIL(self.Stat_HR) + self.Stat_HR_BM;
     return math.floor(ret);
 end
 
 function PET_HR_C(self, addAbil)
     local byLv = self.Lv;
     local addLv = self.Level;
-    local byItem = GetSumOfPetEquip_C(self, "HR")
-    local ret = byLv + addLv + byItem + self.DEX + PET_HR_BY_ABIL(self.Stat_HR + addAbil) + self.Stat_HR_BM;
+    local byOwner = PET_STAT_BY_OWNER(self, "HR")
+    local ret = byLv + addLv + byOwner + self.DEX + PET_HR_BY_ABIL(self.Stat_HR + addAbil) + self.Stat_HR_BM;
     return math.floor(ret);
 end
 

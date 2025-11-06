@@ -6,11 +6,9 @@ end
 
 function C_PAD_MONSTER(actor, obj, padGuid, monName, scale, animName, aniXmlKey, lifeTime)
 	-- actor 는 nil 일 수도 있다.
-	
 	if lifeTime == nil then
 		lifeTime = 3.0;
 	end
-
 	geClientPadSkill.AddClientMonster(padGuid, monName, scale, animName, aniXmlKey, lifeTime);
 end
 
@@ -27,27 +25,67 @@ end
 
 function PAD_SET_HOLD(actor, obj, padGuid)
 	-- actor 는 nil 일 수도 있다.
-
 	geClientPadSkill.SetPadHoldMove(padGuid);
 end
 
-function C_PAD_EFFECT_POS(actor, obj, padGuid, eftName, scl, x, y, z, lifeTime, activeEffect, activeEffect_arg, isEnablePositionCompensation)
+function C_PAD_EFFECT_POS(actor, obj, padGuid, eftName, scl, x, y, z, lifeTime, activeEffect, activeEffect_arg, isEnablePositionCompensation, ignoreVisibleOption, delayTime)
 	-- actor 는 nil 일 수도 있다.
-
+	-- lifeTime 은 second 단위이다.
 	if isEnablePositionCompensation == nil then
 		isEnablePositionCompensation = 1;
 	end
-	effect.PlayPadEffect(actor, eftName, scl, x, y, z, lifeTime, activeEffect, padGuid, isEnablePositionCompensation);
+
+	if ignoreVisibleOption == nil then
+		ignoreVisibleOption = 0;
+	end
+
+	if delayTime == nil then
+		delayTime = 0
+	end
+	effect.PlayPadEffect(actor, eftName, scl, x, y, z, lifeTime, activeEffect, padGuid, isEnablePositionCompensation, ignoreVisibleOption, delayTime);
+end
+
+function C_PAD_EFFECT_POS_ANGLE(actor, obj, padGuid, eftName, scl, x, y, z, lifeTime, angle, isEnablePositionCompensation, fixHeight, delayTime)
+	-- actor 는 nil 일 수도 있다.
+	if isEnablePositionCompensation == nil then
+		isEnablePositionCompensation = 1;
+	end
+
+	if delayTime == nil then
+		delayTime = 0;
+	end
+
+	local padOwner = geClientPadSkill.GetPadOwner(padGuid);
+	if padOwner ~= nil then
+		effect.PlayPadEffectAngle(padOwner, eftName, scl, x, y, z, lifeTime, "None", padGuid, isEnablePositionCompensation, angle, fixHeight, delayTime);
+	end
+end
+
+function C_PAD_EFFECT_POS_LOCAL(actor, obj, padGuid, eftName, scl, x, y, z, lifeTime, activeEffect, activeEffect_arg, isEnablePositionCompensation, ignoreVisibleOption, delayTime)	
+	-- actor 는 nil 일 수도 있다.
+	if isEnablePositionCompensation == nil then
+		isEnablePositionCompensation = 1;
+	end
+
+	if ignoreVisibleOption == nil then
+		ignoreVisibleOption = 0;
+	end
+
+	if delayTime == nil then
+		delayTime = 0
+	end
+
+	if GetMyActor() == actor then
+		effect.PlayPadEffect(actor, eftName, scl, x, y, z, lifeTime, activeEffect, padGuid, isEnablePositionCompensation, ignoreVisibleOption, delayTime);
+	end
 end
 
 function C_FORM_PAD_CHANGE_ACTIVE_EFFECT(actor, obj, padGuid, index, activeEffect)
 	-- actor 는 nil 일 수도 있다.
-
 	effect.ChangeFormationPadActiveEffect(index, activeEffect, padGuid);
 end
 
 function C_PAD_DESTROY_EFFECT_POS(pad, obj, padGuid, x, y, z, eftName, scl, lifeTime, delay)
-
 	local padOwner = geClientPadSkill.GetPadOwner(padGuid);
 	if padOwner ~= nil then
 		effect.PlayGroundEffect(padOwner, eftName, scl, x, y, z, lifeTime, "None", 0, delay);
@@ -59,13 +97,11 @@ end
 
 function C_PAD_EFFECT_FORCE(actor, obj, padGuid, eftName, scl, fixHeight)
 	-- actor 는 nil 일 수도 있다.
-
 	effect.PlayPadForceEffect(actor, eftName, scl, fixHeight, padGuid);
 end
 
 function C_PAD_CHANGE_EFFECT(actor, obj, padGuid, padName, range, padStyle, eftName, scl)
 	-- actor 는 nil 일 수도 있다.
-
 	if actor ~= nil then
 		local pos = actor:GetPos();
 		local padList = SelectPad_C(actor, padName, pos.x, pos.y, pos.z, range, padStyle);
@@ -80,11 +116,35 @@ function C_PAD_CHANGE_EFFECT(actor, obj, padGuid, padName, range, padStyle, eftN
 	end
 end
 
+function PAD_OWNER_SHOW_PARTS_MODEL_C(actor, obj, padGuid, parts, isShow, refreshSklEnd, key)
+	if actor == nil then
+		return
+	end
+	
+	if refreshSklEnd == nil then
+        refreshSklEnd = 1;
+    end
+	actor:ShowModelByPart(parts, isShow, refreshSklEnd, key);
+end
+
 function PAD_PLANT_ATTACK_C(actor, obj, padGuid)
 	-- actor 는 nil 일 수도 있다.
 	geClientPadSkill.SetPadPlantAttack(padGuid);
 end
 
+function C_PAD_MON_HOVER_ITEM_EQUIP(actor, obj, pad_guid, xac_head_name, spot, range, speed, height, start_angle, rot_x, rot_y, rot_z, mon_name, mon_scale, anim_name, ani_xml_key, life_time, eft_name, eft_scale)
+	-- actor 는 nil 일 수도 있다.
+	if life_time == nil then 
+		life_time = 3.0; 
+	end
+	geClientPadSkill.AddClientMonsterItemEquip(pad_guid, xac_head_name, spot, range, speed, height, start_angle, rot_x, rot_y, rot_z, mon_name, mon_scale, anim_name, ani_xml_key, life_time, eft_name, eft_scale);
+end
+
+function C_PAD_EFFECT_REMOVE(actor, obj, pad_guid, force)
+	if actor ~= nil then
+		effect.DestroyAllPadEffect(actor, pad_guid, force)
+	end
+end
 
 ------ formation
 function CREATE_FORMATION_NUM_BTN(uiName, value)
@@ -111,4 +171,3 @@ function SELECT_FORMATION_NUM_BTN(uiName, isSelect)
 		ctrlSet:StopUIEffect("Formation", true, 0.5);
 	end
 end
-

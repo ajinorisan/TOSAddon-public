@@ -149,7 +149,8 @@ function UPDATE_OBLATION_INV_COUNT(frame)
 		FOR_EACH_INVENTORY(itemList, function(invItemList, invItem, retTable)			
 			local itemProp = geItemTable.GetProp(invItem.type);
 			local sellPrice = geItemTable.GetSellPrice(itemProp);
-			local givenSilver = math.floor(sellPrice * GET_OBLATION_PRICE_PERCENT());
+			local itemObj = invItem:GetIES();
+			local givenSilver = math.floor(sellPrice * GET_OBLATION_PRICE_PERCENT(itemObj));
 			local getSilver = sellPrice - givenSilver;
 			retTable.givenPrice = retTable.givenPrice + givenSilver * invItem.count;
 			retTable.expectedSilver = retTable.expectedSilver + getSilver * invItem.count;

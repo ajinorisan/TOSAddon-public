@@ -1,7 +1,2 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!-- edited with XMLSPY v2004 rel. 2 U (http://www.xmlspy.com) by imc (imc) -->
-<idspace id="Anchor_c_orsha">
-	<Category>
-		<Class OverrideType="ADD" ClassID="10001" GenType="50001" PosX="125" PosY="176" PosZ="489" Direction="-90" Name="게시판"/>
-	</Category>
-</idspace>
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<idspace/>

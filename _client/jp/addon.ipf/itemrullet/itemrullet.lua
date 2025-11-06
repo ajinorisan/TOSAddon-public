@@ -48,7 +48,7 @@ local function _INIT_COMPONENT(frame)
 		checkScp = 'REINFORCE_SEAL_CHECK_ADDITIONAL_ITEM',
 		isAlwaysWithMax = true,
 	});
-	local additionalItemCls = GetClass('Item', GET_SEAL_ADDITIONAL_ITEM());
+	local additionalItemCls = GetClass('Item', GET_SEAL_ADDITIONAL_ITEM()[1]);
 	local additionalInvItem = session.GetInvItemByType(additionalItemCls.ClassID);
 	s_reinforceSeal.UpDownMax:SetMinMax(0, 0);
 	s_reinforceSeal.UpDownMax:SetStyle('{#FF0000}');
@@ -148,6 +148,10 @@ local function _INIT_APPLY_OPTION_BOX(frame, itemObj)
 		return;
 	end
 
+	if itemObj.StringArg == "Seal_Material" then
+		return;
+	end
+
 	if itemObj.SealType == 'random' then
 		local targetSeal = s_reinforceSeal.TargetSeal:GetItemInfo();
 		_REQUEST_SEAL_MINMAX_INFO(targetSeal);
@@ -177,14 +181,33 @@ local function _INIT_APPLY_OPTION_BOX(frame, itemObj)
 	end
 end
 
-local function _GET_ADDITIONAL_ITEM(frame)
+local function _GET_ADDITIONAL_ITEM(frame)		
 	local itemSlot = GET_CHILD_RECURSIVELY(frame, 'itemSlot');
 	local additionalItemID = GET_SLOT_ITEM_TYPE(itemSlot);
-	local additionalInvItem = session.GetInvItemByType(additionalItemID);	
+	
+	local additionalInvItem = nil
+	local additionalItem = nil
+
+	local sort_item = {}  
+	table.insert(sort_item, 'misc_0530_seal');
+	table.insert(sort_item, 'misc_0530');
+
+	for i = 1, #sort_item do
+		additionalInvItem = session.GetInvItemByName(sort_item[i])
+		if additionalInvItem ~= nil then
+			break;
+		end
+	end
+
+	if not additionalInvItem then
+		additionalInvItem = session.GetInvItemByType(additionalItemID);	
+	end
+	
 	if additionalInvItem == nil or additionalInvItem:GetObject() == nil then
 		return nil, 0;
 	end
-	local additionalItem = GetIES(additionalInvItem:GetObject());
+
+	additionalItem = GetIES(additionalInvItem:GetObject());
 	return additionalItem, s_reinforceSeal.UpDownMax:GetNumber(), additionalInvItem;
 end
 
@@ -205,12 +228,12 @@ local function _UPDATE_PRICE(frame)
 	local targetSeal, targetSealObj = s_reinforceSeal.TargetSeal:GetItemInfo();
 	local materialSeal, materialSealObj = s_reinforceSeal.MaterialSeal:GetItemInfo();
 	local additionalItem, additionalItemCount = _GET_ADDITIONAL_ITEM(frame);
-	priceText:SetTextByKey('price', GET_COMMAED_STRING(GET_SEAL_PRICE(targetSealObj, materialSealObj, additionalItem, additionalItemCount, GET_COLONY_TAX_RATE_CURRENT_MAP())));
+	priceText:SetTextByKey('price', GET_COMMAED_STRING(GET_SEAL_PRICE(GetMyPCObject(), targetSealObj, materialSealObj, additionalItem, additionalItemCount, GET_COLONY_TAX_RATE_CURRENT_MAP())));
 end
 
 local function _INIT_ADDITIONAL_ITEM(frame)
 	local itemSlot = GET_CHILD_RECURSIVELY(frame, 'itemSlot');
-	local additionalItemCls = GetClass('Item', GET_SEAL_ADDITIONAL_ITEM());
+	local additionalItemCls = GetClass('Item', GET_SEAL_ADDITIONAL_ITEM()[1]);
 	SET_SLOT_ITEM_CLS(itemSlot, additionalItemCls);
 
 	local icon = itemSlot:GetIcon();
@@ -286,7 +309,7 @@ function REINFORCE_SEAL_DROP_MATERIAL(parent, slot)
 	_UPDATE_PRICE(frame);
 end
 
-function REINFORCE_SEAL_DROP_ADDITIONAL_ITEM(parent, slot)
+function REINFORCE_SEAL_DROP_ADDITIONAL_ITEM(parent, slot)	
 	local frame = parent:GetTopParentFrame();
 	local liftIcon = ui.GetLiftIcon();
 	local iconInfo = liftIcon:GetInfo();
@@ -330,8 +353,13 @@ function REINFORCE_SEAL_CHECK_MATERIAL(parent, ctrl, itemObj)
 	end
 
 	local targetSeal, targetSealObj = s_reinforceSeal.TargetSeal:GetItemInfo();	
-	if IS_VALID_SEAL_MATERIAL_ITEM(targetSealObj, itemObj) == false then
-		ui.SysMsg(ClMsg('CantUseSeal'));
+	local ret, reson = IS_VALID_SEAL_MATERIAL_ITEM(targetSealObj, itemObj);
+	if ret == false then
+		if reson == "SealMaterialTargetItemWarning" then
+			ui.SysMsg(ClMsg("SealMaterialTargetItemWarning"));
+		else
+			ui.SysMsg(ClMsg('CantUseSeal'));
+		end
 		return false;
 	end
 
@@ -367,7 +395,7 @@ function RESET_REINFORCE_SEAL(parent, ctrl)
 
 	local costBox = GET_CHILD_RECURSIVELY(frame, 'costBox');
 	local priceText = GET_CHILD_RECURSIVELY(costBox, 'priceText');
-	priceText:SetTextByKey('price', GET_SEAL_PRICE());
+	priceText:SetTextByKey('price', GET_SEAL_PRICE(GetMyPCObject()));
 	costBox:ShowWindow(1);
 end
 
@@ -396,11 +424,22 @@ function REINFORCE_SEAL_EXECUTE(parent, ctrl)
 	else
 		clmsg = ClMsg('AdditionalItemCountIsNotMax');
 	end
+
 	if successRatio < 100 then
 		clmsg = clmsg..'{nl}'..ClMsg('SealReinforceInfo');
 	end
 
-	clmsg = clmsg..'{nl}'..ClMsg('ReallyReinforceSeal');
+	local teambelonging = TryGetProp(targetSealObj, 'TeamBelonging', 0) == 1 or TryGetProp(materialSealObj, 'TeamBelonging', 0) == 1
+	local CharacterBelonging = TryGetProp(targetSealObj, 'CharacterBelonging', 0) == 1 or TryGetProp(materialSealObj, 'CharacterBelonging', 0) == 1
+	if teambelonging and not CharacterBelonging then
+		clmsg = clmsg..'{nl} {nl}'..ClMsg('SealReinforceInfo3');	
+	end
+	if CharacterBelonging then
+		clmsg = clmsg..'{nl} {nl}'..ClMsg('SealReinforceInfo4');	
+	end
+
+
+	clmsg = clmsg..'{nl} {nl}'..ClMsg('ReallyReinforceSeal');
 
 	ui.MsgBox(clmsg, 'IMPL_REINFORCE_SEAL_EXECUTE', 'None');
 end
@@ -447,11 +486,20 @@ function REFINFORCE_SEAL_RBTN_CLICK(itemObj, invSlot, invItemGuid)
 	end
 end
 
-function REINFORCE_SEAL_UPDATE_SIMULATE(parent, ctrl)	
+function REINFORCE_SEAL_UPDATE_SIMULATE(parent, ctrl)		
 	local frame = parent:GetTopParentFrame();	
-	local curHaveCnt = GET_INV_ITEM_COUNT_BY_PROPERTY({}, false, nil, function(item)
-		return IS_SEAL_ADDITIONAL_ITEM(item);
-	end);
+	local list = GET_SEAL_ADDITIONAL_ITEM()
+	local curHaveCnt = 0
+	for i = 1, #list do
+		local itemCls = GetClass('Item', list[i]);
+		if itemCls ~= nil then
+			local invItem = session.GetInvItemByType(itemCls.ClassID);
+			if invItem ~= nil then
+				curHaveCnt = curHaveCnt + invItem.count;
+			end
+		end
+	end
+
 	if s_reinforceSeal.UpDownMax:GetNumber() > curHaveCnt then
 		s_reinforceSeal.UpDownMax:SetNumber(curHaveCnt);
 	end
@@ -515,13 +563,16 @@ function ON_SUCCESS_REINFORCE_SEAL(frame, msg, result, argNum)
 	if materialItemObj == nil then
 		s_reinforceSeal.MaterialSeal:Clear();
 	end
-
+	
 	if result ~= 'Success' then
 		return;
 	end
-
-	local nextOptionBox = _GET_NEXT_OPTION_BOX(frame);
-	imcGroupBox:StartAlphaEffect(nextOptionBox, 2, 0.1);
+	
+	if targetItemObj.StringArg ~= "Seal_Material" then
+		local nextOptionBox = _GET_NEXT_OPTION_BOX(frame);
+		imcGroupBox:StartAlphaEffect(nextOptionBox, 2, 0.1);
+	end
+	
 	ReserveScript("SUCESS_REINFORCE_SEAL_EFFECT()", 2);
 end
 
@@ -622,8 +673,16 @@ end
 
 function REINFORCE_SEAL_CHECK_ADDITIONAL_ITEM(parent, ctrl)
 	local curCnt = s_reinforceSeal.UpDownMax:GetNumber();
-	local curHaveCnt = GET_INV_ITEM_COUNT_BY_PROPERTY({}, false, nil, function(item)
-		return IS_SEAL_ADDITIONAL_ITEM(item);
-	end);
+	local list = GET_SEAL_ADDITIONAL_ITEM()
+	local curHaveCnt = 0
+	for i = 1, #list do
+		local itemCls = GetClass('Item', list[i]);
+		if itemCls ~= nil then
+			local invItem = session.GetInvItemByType(itemCls.ClassID);
+			if invItem ~= nil then
+				curHaveCnt = curHaveCnt + invItem.count;
+			end
+		end
+	end
 	return curHaveCnt > curCnt;
 end

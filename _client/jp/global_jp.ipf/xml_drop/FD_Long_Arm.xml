@@ -1,5 +1,2 @@
-<idspace id="MonsterDropItemList_FD_Long_Arm">
-	<Category>
-	    <Class ClassName="1" DropRatio="2000" Money_Min="816" Money_Max="858"/>
-	</Category>
-</idspace>
+<?xml version="1.0" encoding="UTF-8"?>
+<idspace/>

@@ -77,6 +77,8 @@ ClassID,BuyPrice,SellPrice,ClassName,Category,SubCategory,PackageList,New,Sale
 424,900,0,"HiddenJobUnlock_Char1_28_NoTrade","Recyle_Shop_Buy","Recyle_Shop_Growth","","",""
 425,900,0,"HiddenJobUnlock_Char4_25_NoTrade","Recyle_Shop_Buy","Recyle_Shop_Growth","","",""
 426,900,0,"HiddenJobUnlock_Char3_26_NoTrade","Recyle_Shop_Buy","Recyle_Shop_Growth","","",""
+430,900,0,"HiddenJobUnlock_Char4_26_NoTrade","Recyle_Shop_Buy","Recyle_Shop_Growth","","",""
+431,900,0,"HiddenJobUnlock_Char2_28_NoTrade","Recyle_Shop_Buy","Recyle_Shop_Growth","","",""
 501,90,0,"Gacha_SKLGEM_ReCycle","Recyle_Shop_Buy","Recyle_Shop_Gem","","",""
 502,135,0,"Gacha_ran_SKLGEM_ReCycle","Recyle_Shop_Buy","Recyle_Shop_Gem","","",""
 600,200,0,"vibora_Vision_Select_Box_NoTrade_14d_Recycle","Recyle_Shop_Buy","Recyle_Shop_Equip","","",""

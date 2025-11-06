@@ -40,5 +40,7 @@ ClassID,ClassName,ButtonScp
 39,"Goddess_Raid_Redania_Party","RAID_RECORD_OPEN"
 43,"Goddess_Raid_Laimara_Auto","RAID_RECORD_OPEN"
 44,"Goddess_Raid_Laimara_Solo","RAID_RECORD_OPEN"
+45,"Goddess_Raid_Laimara_Party","RAID_RECORD_OPEN"
 46,"Goddess_Raid_Veliora_Auto","RAID_RECORD_OPEN"
 47,"Goddess_Raid_Veliora_Solo","RAID_RECORD_OPEN"
+48,"Goddess_Raid_Veliora_Party","RAID_RECORD_OPEN"

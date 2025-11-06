@@ -8,3 +8,7 @@ end
 function C_PAD_MON_ANI(pad, padGuid, actor, monName, aniName, delay)
 	geClientPadSkill.PlayClientMonsterAnim(padGuid, monName, aniName, delay);
 end
+
+function C_PAD_ATTACHED_MON_ANI(pad, padGuid, actor, monName, aniName, delay)
+	geClientPadSkill.PlayAttachedMonsterAnim(padGuid, monName, aniName, delay);
+end

@@ -765,15 +765,51 @@ function SSN_CLIENT_UPDATE_QUEST_POSSIBLE(sObj, list, questPossible)
 	end
 end
 
+local CachingDialog = {};
+local CachingEnter = {};
+local CachingLeave = {};
+
 function SSN_CLIENT_UPDATE_QUEST_POSSIBLE_UI_OPEN_CHECK(self, questIES)
 	local result2
     local subQuestZoneList = {}
     result2, subQuestZoneList = SCR_POSSIBLE_UI_OPEN_CHECK(self, questIES, subQuestZoneList, 'ZoneMap')
 
     if result2 == 'OPEN' then
-        local genDlgIESList = SCR_GET_XML_IES('GenType_'..questIES.StartMap, 'Dialog', questIES.StartNPC)
-        local genEntIESList = SCR_GET_XML_IES('GenType_'..questIES.StartMap, 'Enter', questIES.StartNPC)
-        local genLevIESList = SCR_GET_XML_IES('GenType_'..questIES.StartMap, 'Leave', questIES.StartNPC)
+		local genDlgIESList = nil;
+		if CachingDialog['GenType_'..questIES.StartMap] == nil then
+			CachingDialog['GenType_'..questIES.StartMap] = {};
+		end
+		
+		if CachingDialog['GenType_'..questIES.StartMap][questIES.StartNPC] == nil then
+			genDlgIESList = SCR_GET_XML_IES('GenType_'..questIES.StartMap, 'Dialog', questIES.StartNPC);
+			CachingDialog['GenType_'..questIES.StartMap][questIES.StartNPC] = genDlgIESList
+		else
+			genDlgIESList = CachingDialog['GenType_'..questIES.StartMap][questIES.StartNPC];
+		end
+
+		local genEntIESList = nil;
+		if CachingEnter['GenType_'..questIES.StartMap] == nil then
+			CachingEnter['GenType_'..questIES.StartMap] = {};
+		end
+		
+		if CachingEnter['GenType_'..questIES.StartMap][questIES.StartNPC] == nil then
+			genEntIESList = SCR_GET_XML_IES('GenType_'..questIES.StartMap, 'Enter', questIES.StartNPC);
+			CachingEnter['GenType_'..questIES.StartMap][questIES.StartNPC] = genEntIESList
+		else
+			genEntIESList = CachingEnter['GenType_'..questIES.StartMap][questIES.StartNPC];
+		end
+
+		local genLevIESList = nil;
+		if CachingLeave['GenType_'..questIES.StartMap] == nil then
+			CachingLeave['GenType_'..questIES.StartMap] = {};
+		end
+		
+		if CachingLeave['GenType_'..questIES.StartMap][questIES.StartNPC] == nil then
+			genLevIESList = SCR_GET_XML_IES('GenType_'..questIES.StartMap, 'Leave', questIES.StartNPC);
+			CachingLeave['GenType_'..questIES.StartMap][questIES.StartNPC] = genLevIESList
+		else
+			genLevIESList = CachingLeave['GenType_'..questIES.StartMap][questIES.StartNPC];
+		end
 
         if #genDlgIESList > 0 or #genEntIESList > 0 or #genLevIESList > 0 then
             local genType

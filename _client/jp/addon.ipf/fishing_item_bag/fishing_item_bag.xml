@@ -19,8 +19,8 @@
 		<slotset name="itemSlotset" rect="0 0 480 500" margin="0 145 0 0" layout_gravity="center top" row="5" col="5" size="65 65" skin="invenslot2" spc="2 2" enabledrop="false" enablepop="false"/>
 		<button name="getItemBtn" rect="0 0 150 50" margin="-80 0 0 20" layout_gravity="center bottom" skin="test_red_button" caption="{@st42b}아이템 수령{/}" LBtnUpScp="FISHING_ITEM_BAG_GET_ITEM_BTN"/>
 		<button name="exitBtn" rect="0 0 150 50" margin="80 0 0 20" layout_gravity="center bottom" skin="test_gray_button" caption="{@st42b}낚시 종료{/}" LBtnUpScp="FISHING_ITEM_BAG_EXIT_BTN"/>
-		<groupbox name="countBox" rect="0 0 200 30" margin="0 0 30 80" layout_gravity="right bottom" draw="false"/>
-		<richtext name="countInfoText" parent="countBox" rect="0 0 150 30" margin="0 0 60 0" layout_gravity="right center" caption="{@sti1}낚시 횟수{/}"/>
-		<richtext name="countText" rect="0 0 150 30" parent="countBox" margin="0 0 0 0" layout_gravity="right center" format="{@sti1}%s/%s{/}" param1="current" param1_def="0" param2="max" param2_def="10"/>
+		<groupbox name="countBox" rect="0 0 335 30" margin="0 0 30 80" layout_gravity="right bottom" draw="false"/>
+		<richtext name="countInfoText" parent="countBox" rect="0 0 150 30" margin="25 0 0 0" layout_gravity="left center" caption="{@sti1}낚시 횟수{/}"/>
+		<richtext name="countText" rect="0 0 150 30" parent="countBox" margin="0 0 40 0" layout_gravity="right center" format="{@sti1}%s/%s{/}" param1="current" param1_def="0" param2="max" param2_def="10"/>
 	</controls>
 </uiframe>

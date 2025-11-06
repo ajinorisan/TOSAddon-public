@@ -75,7 +75,7 @@ function SCR_ITEMDUNGEON_SKL_UI(skillType)
 	
 	local pc = GetMyPCObject();
 	local x, y, z = GetPos(pc);
-	if 0 == IsFarFromNPC(pc, x, y, z, 50) then
+	if 0 == IsFarFromNPC(pc, x, y, z, 60) then
 		ui.SysMsg(ClMsg("TooNearFromNPC"));	
 		return 0;
 	end
@@ -224,6 +224,20 @@ function FOODTABLE_SKILL(skillType)
 		return 0;
 	end
 
+	-- NPC 옆에 설치 막기
+	local pc = GetMyPCObject();
+	local x, y, z = GetPos(pc);
+	if 0 == IsFarFromNPC(pc, x, y, z, 60) then
+		ui.SysMsg(ClMsg("TooNearFromNPC"));	
+		return 0;
+	end
+	
+	local zoneName = session.GetMapName();
+	if SCR_ZONE_KEYWORD_CHECK(zoneName, "NoShop") == "YES" then
+		ui.SysMsg(ClMsg('DontOpenThisAria'));
+		return 0;
+	end
+	
 	local obj = GetIES(skill:GetObject());
 	local frame = ui.GetFrame("foodtable_register");
 	if nil == frame then
@@ -274,4 +288,27 @@ function GET_LH_SOUND_SKILL(sklID)
 	end
 
 	return 0;
+end
+
+function SCR_SET_EXPROP_C(name, value)
+	local pc = GetMyPCObject()
+	SetExProp(pc, name, tonumber(value))
+end
+
+function SCR_DEL_EXPROP_C(name)
+	local pc = GetMyPCObject()
+	DelExProp(pc, name)
+end
+
+function REQ_RIDE_RIDEPET_C(skillType)
+	local skill = session.GetSkill(skillType)
+	if skill == nil then
+		return 0
+	end
+
+	-- need to manage client exception
+
+	ride_pet.RequestSummonRidePet()
+
+	return 0
 end

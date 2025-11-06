@@ -479,6 +479,7 @@ function UPDATE_GROUPLIST_TEXT(groupboxname)
 	local tableforsort = {}
 
 	local gbox = btn:GetParent()
+	if gbox == nil then return end
 	local btncnt = 0;
 	local gboxcount = gbox:GetChildCount();
 	for  i = 0, gboxcount-1 do 

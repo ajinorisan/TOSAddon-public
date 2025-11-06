@@ -41,3 +41,4 @@ ClassID,GenType,Lv,Range,GenRange,RespawnTime,MaxPop,Minimap,Hide,UseAIOufOfPC,A
 47,47,0,40,40,60000,5,0,0,0,1,0,0,"Waglog","","","","","","","STARTOWER_91_MQ_80_MON","","","","NO","YES","NO","Monster","","","",""
 48,48,0,40,40,60000,2,0,0,0,1,0,0,"glovegolem","","","","","","","STARTOWER_91_MQ_80_MON","","","","NO","YES","NO","Monster","","","",""
 49,49,1,40,200,10000,33,0,0,0,1,0,0,"rootcrystal_03","","","","","MON_TORCH","","","","","","NO","YES","NO","RootCrystal","","","",""
+50,50,1,20,1,60000,1,0,0,0,1,0,0,"HiddenTrigger4","UnvisibleName","","","","","","","","EXPLORER_MISLE34","","NO","YES","NO","Neutral","","","",""

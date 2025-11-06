@@ -1,13 +1,35 @@
 -- lib_recipe.lua
 
+local _boost_token_material_list = nil
+
+local function make_premium_boost_token_material_list()
+    if _boost_token_material_list ~= nil then
+        return
+    end
+
+    _boost_token_material_list = {}
+    -- StringArg 검사          Premium_boostToken 은 Premium_boostToken02 의 재료
+    _boost_token_material_list['Premium_boostToken'] = 'Premium_boostToken02'
+    _boost_token_material_list['Premium_boostToken02'] = 'Premium_boostToken03'
+    _boost_token_material_list['Premium_boostToken03'] = 'Premium_boostToken06'    
+end
+
+make_premium_boost_token_material_list()
+
+-- 재료를 넣어서 완성품을 가져온다. -- 재료가 아닌경우 nil
+function GET_PREMIUM_BOOSTTOKEN_TARGET(mat)
+    return _boost_token_material_list[mat]
+end
+
 function SCR_GET_RECIPE_ITEM(recipeMaterialCls)
      return GET_INVITEMS_BY_TYPE_WORTH_SORTED('IS_VALID_RECIPE_MATERIAL', recipeMaterialCls.ClassID);
 end
 
-function SCR_GET_RECIPE_ITEM_BOOSTTOKEN(recipeMaterialCls)   
-     return GET_INVITEMS_BY_TYPE_WORTH_SORTED('IS_VALID_RECIPE_MATERIAL_FOR_BOOSTTOKEN', recipeMaterialCls.ClassName);
+function SCR_GET_RECIPE_ITEM_BOOSTTOKEN(recipeMaterialCls)
+    return GET_INVITEMS_BY_TYPE_WORTH_SORTED('IS_VALID_RECIPE_MATERIAL_FOR_BOOSTTOKEN', recipeMaterialCls.ClassName);
 end
 
+-- compareProperty 재료 ClassName
 function GET_INVITEMS_BY_TYPE_WORTH_SORTED(compareScript, compareProperty)
 	local resultlist = {};
 	local invItemList = session.GetInvItemList();
@@ -15,7 +37,7 @@ function GET_INVITEMS_BY_TYPE_WORTH_SORTED(compareScript, compareProperty)
 	FOR_EACH_INVENTORY(invItemList, function(invItemList, invItem, CompareFunction, compareProperty, resultlist)
 		if invItem ~= nil then
 			local itemobj = GetIES(invItem:GetObject());		
-			if CompareFunction(compareProperty, itemobj) then
+            if CompareFunction(compareProperty, itemobj) then                
 				resultlist[#resultlist+1] = invItem;
 			end
 		end
@@ -29,16 +51,7 @@ function IS_VALID_RECIPE_MATERIAL_FOR_BOOSTTOKEN(compareProperty, itemObj, pc)
         return false;
     end
 
-    -- 네이밍 규칙을 통한 검사
-    local itemClassName = itemObj.ClassName;
-    if itemClassName ~= compareProperty and string.find(itemClassName, compareProperty..'_') == nil then
-        return false;
-    end
-    -- 1분짜리 경험의서는 예외처리 해달라고 하셨음
-    if itemClassName == 'Premium_boostToken_test1min' and compareProperty == 'Premium_boostToken' then
-        return false;
-    end
-     -- 기간 지난 것도 안돼
+    -- 기간 지난 것도 안돼
     if itemObj.ItemLifeTimeOver > 0 then
         if pc ~= nil then
             SendSysMsg(pc, 'CannotUseLifeTimeOverItem');
@@ -46,6 +59,23 @@ function IS_VALID_RECIPE_MATERIAL_FOR_BOOSTTOKEN(compareProperty, itemObj, pc)
         return false;
     end
 
+    local string_arg = TryGetProp(itemObj, 'StringArg', 'None')
+    if string_arg ~= 'None' then
+        if compareProperty == string_arg then            
+            return true
+        end
+    end
+
+    -- 네이밍 규칙을 통한 검사
+    local itemClassName = itemObj.ClassName;    
+    if itemClassName ~= compareProperty and string.find(itemClassName, compareProperty..'_') == nil then            
+        return false;
+    end
+    -- 1분짜리 경험의서는 예외처리 해달라고 하셨음
+    if itemClassName == 'Premium_boostToken_test1min' and compareProperty == 'Premium_boostToken' then                
+        return false;
+    end
+    
     return true;
 end
 
@@ -140,15 +170,64 @@ function IS_ALL_MATERIAL_CHECKED(checkList, numCheckList)
     return true;
 end
 
-function GET_RECIPE_MATERIAL_INFO(recipeCls, index)
+function GET_RECIPE_MATERIAL_INFO(recipeCls, index,pc)
     local clsName = "Item_"..index.."_1";
 	local itemName = recipeCls[clsName];
 	if itemName == "None" then
 		return nil;
-	end
-		
-	local dragRecipeItem = GetClass('Item', itemName);
-	local recipeItemCnt, recipeItemLv = GET_RECIPE_REQITEM_CNT(recipeCls, clsName);
+    end
+    
+    local recipeItemCnt, recipeItemLv = GET_RECIPE_REQITEM_CNT(recipeCls, clsName,pc);
+    local dragRecipeItem = GetClass('Item', itemName);
+
+    if itemName == "misc_pvp_mine2" then
+        local aObj = GetMyAccountObj()
+        local propCount = TryGetProp(aObj, 'MISC_PVP_MINE2', '0')
+        if propCount == 'None' then
+            propCount = '0'
+        end
+        return recipeItemCnt, propCount,dragRecipeItem,nil,recipeItemLv,nil
+    end
+
+    if itemName == 'misc_silver_gacha_mileage' then
+        local aObj = GetMyAccountObj()
+        local propCount = TryGetProp(aObj, 'Mileage_SilverGacha', '0')
+        if propCount == 'None' then
+            propCount = '0'
+        end
+        return recipeItemCnt, propCount,dragRecipeItem,nil,recipeItemLv,nil
+    end
+    
+    -- 여신의 증표
+    -- dummy_RadaCertificate
+    if itemName ~= nil and string.find(itemName, 'dummy') ~= nil and string.find(itemName, 'Certificate') ~= nil then
+        local aObj = GetMyAccountObj()
+        local name = StringSplit(itemName, '_')        
+        local propCount = TryGetProp(aObj, name[2], '0')
+        if propCount == 'None' then
+            propCount = '0'
+        end
+        return recipeItemCnt, propCount, dragRecipeItem, nil,recipeItemLv,nil
+    end
+
+    if itemName == 'Tos_Event_Coin' then -- EVENT_TOS_WHOLE
+        local aObj = GetMyAccountObj()
+        local propCount = TryGetProp(aObj, 'EVENT_TOS_WHOLE_TOTAL_COIN', '0')
+        if propCount == 'None' then
+            propCount = '0'
+        end
+        return recipeItemCnt, propCount, dragRecipeItem, nil,recipeItemLv,nil
+    end
+    
+
+    if itemName == 'dummy_TeamBattleCoin' then -- 팀배코인
+        local aObj = GetMyAccountObj()
+        local propCount = TryGetProp(aObj, 'TeamBattleCoin', '0')
+        if propCount == 'None' then
+            propCount = '0'
+        end
+        return recipeItemCnt, propCount, dragRecipeItem, nil,recipeItemLv,nil
+    end
 
 	local invItem = nil;
 	local invItemlist = nil;
@@ -160,18 +239,18 @@ function GET_RECIPE_MATERIAL_INFO(recipeCls, index)
     end
     local GetMaterialItemListFunc = _G[getMaterialScript];
 
-	if dragRecipeItem.MaxStack > 1 then
+	if TryGetProp(dragRecipeItem, 'MaxStack', 0) > 1 then
 		invItem = session.GetInvItemByType(dragRecipeItem.ClassID);
 	else
 		invItemlist = GetMaterialItemListFunc(dragRecipeItem); -- 기간제는 스택형 ㄴㄴ라서 비스택형만 대체
         ignoreType = true; -- 개수 셀 때 type만 검사하지 않도록 함
 	end
 
-	local invItemCnt = GET_PC_ITEM_COUNT_BY_LEVEL(dragRecipeItem.ClassID, recipeItemLv);
+    local invItemCnt = GET_PC_ITEM_COUNT_BY_LEVEL(dragRecipeItem.ClassID, recipeItemLv);
     if ignoreType then
         invItemCnt = #invItemlist;
     end
-
+    
 	return recipeItemCnt, invItemCnt, dragRecipeItem, invItem, recipeItemLv, invItemlist;
 
 end

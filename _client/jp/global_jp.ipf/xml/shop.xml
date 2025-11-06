@@ -1,13 +1,2 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- edited with XMLSPY v2004 rel. 2 U (http://www.xmlspy.com) by imc (imc) -->
-<idspace id="Shop">
-	<Category Name="Klapeda_Misc">
-		<Class OverrideType="REMOVE" ClassID="721" ItemName="R_Premium_Clear_dungeon_02"/>
-	</Category>
-	<Category Name="Fedimian_Misc">
-		<Class OverrideType="REMOVE" ClassID="2017" ItemName="R_Premium_Clear_dungeon_02"/>
-	</Category>
-	<Category Name="Orsha_Misc">
-		<Class OverrideType="REMOVE" ClassID="3221" ItemName="R_Premium_Clear_dungeon_02"/>
-	</Category>
-</idspace>
+<idspace/>

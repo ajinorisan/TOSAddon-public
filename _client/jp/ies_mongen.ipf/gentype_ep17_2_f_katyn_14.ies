@@ -13,7 +13,7 @@ ClassID,GenType,Lv,Range,GenRange,RespawnTime,MaxPop,Minimap,Hide,UseAIOufOfPC,A
 15,15,35,30,1,60000,1,1,0,0,0,100,0,"npc_intermediate_officer_men2","선임장교 필리파스","","","","","","","","","","NO","YES","NO","Neutral","","","",""
 29,29,35,30,1,60000,1,1,0,1,0,100,0,"soldier6","다뉴스 정찰병","","","","","","","","","","NO","YES","NO","Neutral","Anim/INJURY2","ChangeDialogRotate/0","",""
 30,30,35,180,1,60000,10,0,0,0,1,0,1,"pedlar_lose_2","흩어진 보급낭","","","","MON_DUMMY","","","","","","NO","YES","NO","Neutral","","","",""
-100,100,35,30,1,60000,1,2,0,0,0,0,0,"Warp_arrow","EP17 레터스 개울가","","","","MON_DUMMY","","","","EP17_2_KATYN_14_KATYN_12","","NO","YES","NO","Neutral","","","",""
+100,100,35,30,1,60000,1,2,0,0,0,0,0,"Warp_arrow","EP17 레타스 개울가","","","","MON_DUMMY","","","","EP17_2_KATYN_14_KATYN_12","","NO","YES","NO","Neutral","","","",""
 201,201,0,1,1,1,1,0,0,0,0,0,0,"HiddenTrigger6","부엉이소환용","","","","KATYN_10_HQ_01_OWL","","","","","","NO","YES","NO","Neutral","","","",""
 500,500,0,30,30,0,50,0,0,0,0,0,0,"ep17_2_puragi_blue","푸른 푸라기","","","","","","","","","","NO","YES","NO","Monster","SmartGen","","",""
 501,501,0,30,9999,0,20,0,0,0,0,0,0,"ep17_2_honey_bee","바이트","","","","","","","","","","NO","YES","NO","Monster","","","",""

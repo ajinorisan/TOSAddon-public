@@ -1,5 +1,7 @@
 ﻿-- barrack_charlist.lua
 local prev_select_slot = 0
+local private_channel = false
+local private_dic = nil
 
 function BARRACK_CHARLIST_ON_INIT(addon, frame)
 	addon:RegisterMsg("BARRACK_ADDCHARACTER", "SELECTTEAM_ON_MSG");
@@ -20,7 +22,8 @@ function BARRACK_CHARLIST_ON_INIT(addon, frame)
 	addon:RegisterMsg("BARRACK_ACCOUNT_PROP_UPDATE", "SELECTTEAM_ON_MSG");
 	addon:RegisterMsg('RESULT_CHECK_MARKET', 'ON_RESULT_CHECK_MARKET');
     addon:RegisterMsg("BARRACK_CHARACTER_SWAP_FAIL", "SET_SWAP_REQUEST_FLAG_FALSE")
-    addon:RegisterMsg("BARRACK_CHARACTER_SWAP_SUCCESS", "SET_SWAP_REQUEST_FLAG_FALSE")
+	addon:RegisterMsg("BARRACK_CHARACTER_SWAP_SUCCESS", "SET_SWAP_REQUEST_FLAG_FALSE")
+	addon:RegisterMsg("ACTIVE_PRIVATE_CHANNEL", "ON_ACTIVE_PRIVATE_CHANNEL")
 
 	frame:SetUserValue("BarrackMode", "Barrack");
 
@@ -29,6 +32,49 @@ function BARRACK_CHARLIST_ON_INIT(addon, frame)
 	CHAR_LIST_OPEN_HEIGHT = 450;
 	CUR_SELECT_GUID = 'None';
 	current_layer = 1   
+end
+
+function GET_PRIVATE_CHANNEL_ACTIVE_STATE()
+	return private_channel
+end
+
+function ON_ACTIVE_PRIVATE_CHANNEL(frame)	
+	private_channel = true
+end
+
+function GET_SUFFIX_PRIVATE_CHANNEL(map_id, channel_id)	
+	if private_dic ~= nil and private_dic[map_id] ~= nil and private_dic[map_id][channel_id] ~= nil then
+		return private_dic[map_id][channel_id]
+	end
+
+	private_dic = {}
+	local list, cnt = GetClassList('region_channel_info')
+	for i = 0, cnt - 1 do		
+		local cls = GetClassByIndexFromList(list, i)
+		local map_cls = GetClass('Map', TryGetProp(cls, 'City', 'None'))
+		local id = TryGetProp(map_cls, 'ClassID', 0)
+		local c_id = TryGetProp(cls, 'Channel', 0)
+		local suffix = TryGetProp(cls, 'Suffix', 'None')
+		if private_dic[id] == nil then
+			private_dic[id] = {}
+		end
+		private_dic[id][c_id] = suffix
+	end
+
+	if private_dic[map_id] == nil or private_dic[map_id][channel_id] == nil then
+		return ''
+	else
+		return private_dic[map_id][channel_id]
+	end
+end
+
+function BARRACK_START_FRAME_OPEN(frame)
+	if frame == nil then
+		return;
+	end
+	
+	local hidelogin = GET_CHILD_RECURSIVELY(frame, "hidelogin", "ui::CCheckBox");
+	hidelogin:SetCheck(barrack.IsHideLogin());
 end
 
 local swap_flag = false
@@ -72,6 +118,16 @@ function enable_layer_btn()
     layerCtrl_2:SetAlpha(100)
     layerCtrl_3:EnableHitTest(1)
     layerCtrl_3:SetAlpha(100)
+end
+
+function reset_moving_barrack_layer()
+	local frame = ui.GetFrame('barrack_charlist')
+	if frame == nil then 
+		return 
+	end
+
+	frame:SetUserValue("MovingBarrackLayer", 0);
+
 end
 
 function disable_layer_btn(frame)
@@ -131,13 +187,12 @@ function INIT_BARRACK_NAME(frame)
 		return;
 	end
 
-	local myCharCont = barrackOwner:GetPCCount() + barrackOwner:GetPetCount();
+	local myCharCont = barrackOwner:GetPCCount();
 	local buySlot = barrackOwner:GetBuySlotCount();
 	local barrackCls = GetClass("BarrackMap", barrackOwner:GetThemaName());
 	pccount:SetTextByKey("curpc", tostring(myCharCont));
 	local maxpcCount = barrackCls.BaseSlot + buySlot;
 	pccount:SetTextByKey("maxpc", tostring(maxpcCount));
-
 
 	local totalBarrackSlotCount = barrackOwner:GetTotalSlotCount();
 	local layercount = GET_CHILD(frame, "layercount", "ui::CRichText");
@@ -206,7 +261,7 @@ function SELECTTEAM_NEW_CTRL(frame, actor)
 
 	teamlevel:SetTextByKey("value", account:GetTeamLevel());
 	local buySlot = myaccount:GetBuySlotCount();
-	local myCharCont = myaccount:GetPCCount() + myaccount:GetPetCount();
+	local myCharCont = myaccount:GetPCCount();
 	local barrackCls = GetClass("BarrackMap", myaccount:GetThemaName());
 	local maxpcCount = barrackCls.BaseSlot + buySlot;
 
@@ -341,7 +396,7 @@ function SELECT_CHARINFO_CHANGE_TARGET_LAYER_CHARACTER(frame, target, inputframe
         return
     end
 
-	barrack.ChangeBarrackTargetLayer(cid, target);
+	barrack.ChangeBarrackTargetLayer(cid, target, false);
 	local frame = ui.GetFrame("barrack_charlist");
 	local scrollBox = frame:GetChild("scrollBox");
 	scrollBox:RemoveAllChild();
@@ -360,7 +415,7 @@ function SELECT_CHARINFO_CHANGE_TARGET_LAYER_COMPANION(frame, target, inputframe
         return
     end
 
-	barrack.ChangeBarrackTargetLayer(cid, target);
+	barrack.ChangeBarrackTargetLayer(cid, target, true);
 	local frame = ui.GetFrame("barrack_charlist");
 	local scrollBox = frame:GetChild("scrollBox");
 	scrollBox:RemoveAllChild();
@@ -418,59 +473,8 @@ function SELECT_BARRACK_LAYER(frame, ctrl, arg, layer)
 	scrollBox:RemoveAllChild();
     disable_char_btn(frame)
     disable_layer_btn(frame)
-    AddLuaTimerFunc('enable_layer_btn', 5000, 0)
-end
-
-function BARRACK_GET_CHAR_INDUN_ENTRANCE_COUNT(cid, resetGroupID)
-    local accountInfo = session.barrack.GetMyAccount();
-	local acc_obj = GetMyAccountObj()
-
-    local indunClsList, cnt = GetClassList('Indun');
-    local indunCls = nil;
-    for i = 0, cnt - 1 do
-        indunCls = GetClassByIndexFromList(indunClsList, i);
-        if indunCls ~= nil and indunCls.PlayPerResetType == resetGroupID and indunCls.Category ~= 'None' then
-            break;
-        end
-    end
-	if indunCls.WeeklyEnterableCount ~= nil and indunCls.WeeklyEnterableCount ~= "None" and indunCls.WeeklyEnterableCount ~= 0 then
-		if indunCls.UnitPerReset == 'PC' then
-			return accountInfo:GetBarrackCharEtcProp(cid,'IndunWeeklyEnteredCount_'..resetGroupID)  --매주 남은 횟수
-		else
-			return(acc_obj['IndunWeeklyEnteredCount_'..resetGroupID])   							--매주 남은 횟수
-		end
-        
-	else
-		if indunCls.UnitPerReset == 'PC' then
-			return accountInfo:GetBarrackCharEtcProp(cid, 'InDunCountType_'..resetGroupID);         --매일 남은 횟수
-		else
-			return (acc_obj['InDunCountType_'..resetGroupID]);            							--매일 남은 횟수
-		end        
-    end
-end
-
-function BARRACK_GET_INDUN_MAX_ENTERANCE_COUNT(resetGroupID)
-    local indunClsList, cnt = GetClassList('Indun');
-    local indunCls = nil;
-    for i = 0, cnt - 1 do
-        indunCls = GetClassByIndexFromList(indunClsList, i);
-        if indunCls ~= nil and indunCls.PlayPerResetType == resetGroupID and indunCls.Category ~= 'None' then
-            break;
-        end
-    end
-    
-    local infinity = TryGetProp(indunCls, 'EnableInfiniteEnter', 'NO')
-    if indunCls.AdmissionItemName ~= "None" or infinity == 'YES'  then
-        local a = "{img infinity_text 20 10}"
-        return a;
-    end
-    
-    local bonusCount = 0;
-    if indunCls.WeeklyEnterableCount ~= nil and indunCls.WeeklyEnterableCount ~= "None" and indunCls.WeeklyEnterableCount ~= 0 then
-        return indunCls.WeeklyEnterableCount + bonusCount;  --매주 max
-    else
-        return indunCls.PlayPerReset + bonusCount;          --매일 max
-    end
+	AddLuaTimerFunc('enable_layer_btn', 5000, 0)
+	AddLuaTimerFunc('reset_moving_barrack_layer', 5000, 0) -- 5초뒤에 강제로 해제.
 end
 
 local function toint(n)
@@ -483,7 +487,9 @@ local function toint(n)
     end
 end
 
-function CREATE_SCROLL_CHAR_LIST(frame, actor)   
+local skin_list = {}
+
+function CREATE_SCROLL_CHAR_LIST(frame, actor)   	
     local barrackMode = frame:GetUserValue("BarrackMode");
 	local name = actor:GetName();    
 	local brk = GetBarrackSystem(actor);
@@ -512,6 +518,14 @@ function CREATE_SCROLL_CHAR_LIST(frame, actor)
 		indunBtn:SetTooltipArg(key, 0, 0, actor)
 	else
 		indunBtn:SetVisible(0)
+	end
+
+	local popoBtn = mainBox:GetChild("popoBtn")
+	local val = IS_POPOBOOST_PARTICIPATE_CHAR_BARRACK(key)
+	if val and val > 0 then
+		popoBtn:ShowWindow(1)
+	else
+		popoBtn:ShowWindow(0)
 	end
 
 	if session.barrack.GetMyAccount():GetByStrCID(key) ~= nil and "Barrack" == barrackMode then
@@ -546,15 +560,15 @@ function CREATE_SCROLL_CHAR_LIST(frame, actor)
 	local detail = GET_CHILD(charCtrl,'detailBox','ui::CGroupBox');
 	local mapNameCtrl = GET_CHILD(detail,'mapName','ui::CRichText');	
 	local mapCls = GetClassByType("Map", apc.mapID);
-	local mapName = mapCls.Name;
-	mapNameCtrl:SetText("{@st66b}".. mapName);
-		
-	local isDraw = 0;
+	if mapCls ~= nil then
+		local mapName = mapCls.Name;
+		mapNameCtrl:SetText("{@st66b}".. mapName);
+	end
+	
 	local spotCount = item.GetEquipSpotCount() - 1;
 	for i = 0 , spotCount do
 		local eqpObj = bpc:GetEquipObj(i);
 		local esName = item.GetEquipSpotName(i);
-		
 		if eqpObj ~= nil then
 			local obj = GetIES(eqpObj);
 			local eqpType = TryGet_Str(obj, "EqpType");
@@ -563,10 +577,18 @@ function CREATE_SCROLL_CHAR_LIST(frame, actor)
 					esName = "HAIR";
 				end
 			end
+
+			if esName == "TRINKET" and obj ~= nil and item.IsNoneItem(obj.ClassID) == 0 then
+			     esName = "LH"
+		        end
 		end
 		
-		local eqpSlot = GET_CHILD(detail, esName, "ui::CSlot");
+		local eqpSlot = GET_CHILD(detail, esName, "ui::CSlot");		
 		if eqpSlot ~= nil then
+			if skin_list[esName] == nil then
+				skin_list[esName] = eqpSlot:GetSkinName()
+			end
+
 			eqpSlot:EnableDrag(0);
 			if eqpObj == nil then
 				CLEAR_SLOT_ITEM_INFO(eqpSlot);
@@ -581,19 +603,14 @@ function CREATE_SCROLL_CHAR_LIST(frame, actor)
 				if 0 == item.IsNoneItem(obj.ClassID) then
 					CLEAR_SLOT_ITEM_INFO(eqpSlot);
 					SET_SLOT_ITEM_OBJ(eqpSlot, obj, gender, 1);
-					if obj.ItemType == 'Equip' and obj.DBLHand == 'YES' then
-						local LhSlot = GET_CHILD(detail, 'LH', "ui::CSlot");
-						if nil ~= LhSlot then
-							LhSlot:EnableDrag(0);
-							SET_SLOT_ITEM_OBJ(LhSlot, obj, gender, 1);
-							isDraw = 1;
-						end
-					end
 				else
-					if 'LH' == esName and 1 == isDraw then
-					else
-						CLEAR_SLOT_ITEM_INFO(eqpSlot);
+					local skin_name = skin_list[esName]
+					if skin_name ~= nil then
+						eqpSlot:SetSkinName(skin_name)
 					end
+					SET_SLOT_TRANSCEND_LEVEL(eqpSlot, 0)
+					SET_SLOT_REINFORCE_LEVEL(eqpSlot, 0)					
+					CLEAR_SLOT_ITEM_INFO(eqpSlot);					
 				end
 			end
 		end
@@ -640,17 +657,21 @@ function UPDATE_SELECT_CHAR_SCROLL(frame)
 			local detail = GET_CHILD(child,'detailBox','ui::CGroupBox');
 			local mainBox = GET_CHILD(child,'mainBox','ui::CGroupBox');
 			local btn = mainBox:GetChild("btn");
+			local petCnt = GET_CHILD_CNT_BYNAME(child, "attached_pet_");
 
 			if CUR_SELECT_GUID == guid then
-				child:Resize(child:GetWidth(), CHAR_LIST_OPEN_HEIGHT);				
+				local addY = (petCnt * 30);
+				detail:SetOffset(detail:GetOriginalX(), detail:GetOriginalY()+addY); 
+				child:Resize(child:GetWidth(), CHAR_LIST_OPEN_HEIGHT + addY);					
 				detail:ShowWindow(1);
 				btn:SetSkinName('character_on');
 
 			elseif child:GetName() ~= 'char_add' then
-				if GET_CHILD_CNT_BYNAME(child, "attached_pet_") == 0 then
-					child:Resize(child:GetWidth(), CHAR_LIST_CLOSE_HEIGHT-20);
-				else
-					child:Resize(child:GetWidth(), CHAR_LIST_CLOSE_HEIGHT);
+				if petCnt == 0 then
+					child:Resize(child:GetWidth(), CHAR_LIST_CLOSE_HEIGHT - 20);
+				elseif petCnt >= 1 then
+					local height = CHAR_LIST_CLOSE_HEIGHT + ((petCnt-1) * 35) + 5;
+					child:Resize(child:GetWidth(), height);
 				end
 				detail:ShowWindow(0);
 				btn:SetSkinName('character_off');
@@ -786,7 +807,6 @@ function SELECTTEAM_UPDATE_BTN_TITLE(frame)
 end
 
 function SELECTTEAM_ON_MSG(frame, msg, argStr, argNum, ud)
-
 	if g_barrackIndunCategoryList == nil then
 		g_barrackIndunCategoryList = {100, 10000, 400, 800, 200, 300, 500};
 	end
@@ -807,6 +827,7 @@ function SELECTTEAM_ON_MSG(frame, msg, argStr, argNum, ud)
 
 		local account = session.barrack.GetMyAccount();
 		local bpc = account:GetBySlot(argNum);
+		frame:SetUserValue('select_slot', argNum)
         session.barrack.SetSelectSlot(tonumber(argNum))
 		local gameStartFrame = ui.GetFrame('barrack_gamestart')
 		if argNum == 0 or bpc == nil then
@@ -828,6 +849,8 @@ function SELECTTEAM_ON_MSG(frame, msg, argStr, argNum, ud)
 			START_GAME_SET_MAP(gameStartFrame, argNum, bpc:GetApc().mapID, bpc:GetApc().channelID);
 			end
 			gameStartFrame:ShowWindow(1);
+			BARRACK_INIT_LANGUAGE_CONFIG(gameStartFrame)
+			
 		end
 	elseif msg == "BARRACK_SELECTCHARACTER" then    
 		ON_CLOSE_BARRACK_SELECT_MONSTER();
@@ -856,17 +879,32 @@ function SELECTTEAM_ON_MSG(frame, msg, argStr, argNum, ud)
 		DRAW_BARRACK_MEDAL_COUNT(frame);
 	end
 	SELECTCHAR_RE_ALIGN(frame);
-	--frame:Invalidate();	
 end
 
 function BARRACK_GO_CREATE()
+	if IS_SEASON_SERVER(GetMyPCObject()) == 'YES' then
+		local cnt = GET_TOTAL_CHARACTER_COUNT()		
+		if cnt >= 4 then
+			ui.SysMsg(ClMsg('MaxCharacterSlotForSeasonServer'))
+			return	
+		end	
+	end
+-- 	BARRACK_STARTMAP_SELECT_INIT()
+-- end
+
+-- function _BARRACK_GO_CREATE(select)
     if IS_FULL_SLOT_CURRENT_LAYER() == true then
         ui.SysMsg(ScpArgMsg("{layer}LayerFull", 'layer', current_layer))
         return
-    end
+	end
 	barrack.GoCreate()
 	ui.CloseFrame("inputstring")
 	ui.CloseFrame("barrackthema")
+
+	-- local createcharframe = ui.GetFrame("pub_createchar")
+	-- if createcharframe ~= nil then
+	-- 	createcharframe:SetUserValue("SELECTED_NUM", select)
+	-- end
 end
 
 function BARRACK_GO_CREATE_RETRY()	
@@ -930,7 +968,7 @@ function SELECTCHARINFO_DELETE_CTRL(frame, obj, argStr, argNum)
 	local pccount = barrackName:GetChild("pccount");
 	pccount:ShowWindow(1);
 	local buySlot = myaccount:GetBuySlotCount();
-	local myCharCont = myaccount:GetPCCount() + myaccount:GetPetCount();
+	local myCharCont = myaccount:GetPCCount();
 	local barrackCls = GetClass("BarrackMap", myaccount:GetThemaName());
 	pccount:SetTextByKey("curpc", tostring(myCharCont));
 	local maxpcCount = barrackCls.BaseSlot + buySlot;
@@ -988,9 +1026,8 @@ function SELECTTEAM_OPEN_CHAT(frame)
 end
 
 function UPDATE_BARRACK_MODE(frame)
-
 	local argStr = frame:GetUserValue("BarrackMode");
-
+	
 	if argStr == "Barrack" then
 		SELECTCHAR_RE_ALIGN(frame);
 		SHOW_BTNS(frame, 1)
@@ -1000,26 +1037,28 @@ function UPDATE_BARRACK_MODE(frame)
 		SHOW_BTNS(frame, 0)
 
 		local barrack_nameUI = ui.GetFrame("barrack_name");
-		local tp = barrack_nameUI:GetChild("gbox_tp_all");
-		tp:RemoveAllChild();
-		barrack_nameUI:RemoveChild("gbox_tp_all");
-		barrack_nameUI:RemoveChild("upgrade");
-		barrack_nameUI:RemoveChild("teaminfo");
-		barrack_nameUI:RemoveChild("teaminfo_1");
-		barrack_nameUI:RemoveChild("postbox_new");
+		local gbox_tp_all = barrack_nameUI:GetChild("gbox_tp_all");
+		if gbox_tp_all ~= nil then
+			gbox_tp_all:RemoveAllChild();
+			barrack_nameUI:RemoveChild("gbox_tp_all");
+			barrack_nameUI:RemoveChild("upgrade");
+			barrack_nameUI:RemoveChild("teaminfo");
+			barrack_nameUI:RemoveChild("postbox");
+			barrack_nameUI:RemoveChild("postbox_new");
+		end;
 
 		local pccount = frame:GetChild("pccount");
 		pccount:ShowWindow(0);
 
-		local barrack_exit = ui.GetFrame("barrack_exit");
-		local postbox = barrack_exit:GetChild("postbox");
-		if nil == postbox then
-			return;
-		end
+		-- local barrack_exit = ui.GetFrame("barrack_exit");
+		-- local postbox = barrack_exit:GetChild("postbox");
+		-- if nil == postbox then
+		-- 	return;
+		-- end
 
-		local postbox_new = GET_CHILD(barrack_exit, "postbox_new");
-		postbox:ShowWindow(0);
-		postbox_new:ShowWindow(0);
+		-- local postbox_new = GET_CHILD(barrack_exit, "postbox_new");
+		-- postbox:ShowWindow(0);
+		-- postbox_new:ShowWindow(0);
 	end
 end
 
@@ -1049,7 +1088,7 @@ function DRAW_SELECT_LAYER_BUTTON_ACTIVITY(frame, layer)
     current_layer = layer  
 end
 
-function SET_BARRACK_MODE(frame, argStr, layer)    
+function SET_BARRACK_MODE(frame, argStr, layer)
 	frame:SetUserValue("BarrackMode", argStr);
 	UPDATE_BARRACK_MODE(frame);
 	if argStr == "Preview" then
@@ -1079,12 +1118,15 @@ function SET_BARRACK_MODE(frame, argStr, layer)
 		create_info:ShowWindow(1);
 		zone:ShowWindow(1);
 		channels:ShowWindow(1);
+		
+		BARRACK_INIT_LANGUAGE_CONFIG(gameStartUI)
 	else
 		start_game:SetTextByKey("value", ClMsg("Return"));
 		create_info:ShowWindow(0);
 		zone:ShowWindow(0);
 		channels:ShowWindow(0);
 	end
+	
 	DRAW_SELECT_LAYER_BUTTON_ACTIVITY(frame, layer)
 	frame:SetUserValue("MovingBarrackLayer", 0);
 end
@@ -1107,30 +1149,38 @@ function START_GAME_SET_MAP(frame, slotID, mapID, channelID)
             local zoneInst = zoneInsts:GetZoneInstByIndex(channelID)
             if zoneInst.channel < 10000 then
                 local str, gaugeString = GET_CHANNEL_STRING(zoneInst, true)
-			    channels:AddItem(zoneInst.channel, str, 0, nil, gaugeString)
+			    channels:AddItem(zoneInst.channel, str, 0, nil, gaugeString.." ")
                 channels:SelectItemByKey(0)
             else
                 local cnt = zoneInsts:GetZoneInstCount();
 		        for i = 0  , cnt - 1 do
 			        local zoneInst = zoneInsts:GetZoneInstByIndex(i);
 			        local str, gaugeString = GET_CHANNEL_STRING(zoneInst, true);
-			        channels:AddItem(zoneInst.channel, str, 0, nil, gaugeString);
-		        end
+					channels:AddItem(zoneInst.channel, str, 0, nil, gaugeString.." ");					
+				end				
                 channels:SelectItemByKey(channelID);
             end            
         else
             local cnt = zoneInsts:GetZoneInstCount();
 		    for i = 0  , cnt - 1 do
 			    local zoneInst = zoneInsts:GetZoneInstByIndex(i);
-			    local str, gaugeString = GET_CHANNEL_STRING(zoneInst, true);
-			    channels:AddItem(zoneInst.channel, str, 0, nil, gaugeString);
+				
+				if private_channel == false then
+					local str, gaugeString = GET_CHANNEL_STRING(zoneInst, true);
+					channels:AddItem(zoneInst.channel, str, 0, nil, gaugeString.." ");
+				else					
+					local suffix = GET_SUFFIX_PRIVATE_CHANNEL(zoneInst.mapID, zoneInst.channel + 1)
+					local str, gaugeString = GET_CHANNEL_STRING(zoneInst, true, suffix);					
+					channels:AddItem(zoneInst.channel, str, 0, nil, gaugeString.." ");					
+				end
+				
 		    end
             channels:SelectItemByKey(channelID);
         end        
 	end
 end
 
-function SELECT_GAMESTART_CHANNEL(parent, ctrl)
+function SELECT_GAMESTART_CHANNEL(parent, ctrl)	
 	local frame = parent:GetTopParentFrame();
 	local channels = GET_CHILD(frame, "channels", "ui::CDropList");
 
@@ -1143,14 +1193,12 @@ function SELECT_GAMESTART_CHANNEL(parent, ctrl)
 
 end
 
-function BARRACK_TO_GAME()
-	
+function BARRACK_TO_GAME()	
 	local myaccount = session.barrack.GetMyAccount();
 	if nil == myaccount then
 		return;
 	end
-	local myCharCount = myaccount:GetTotalSlotCount();
-	
+	local myCharCount = myaccount:GetTotalSlotCount();	
 	local buySlot = myaccount:GetBuySlotCount();
 	local barrackCls = GetClass("BarrackMap", myaccount:GetThemaName());
 	local maxCharCount = barrackCls.BaseSlot + buySlot;
@@ -1159,16 +1207,17 @@ function BARRACK_TO_GAME()
 		ui.SysMsg(ScpArgMsg("Many{CharCount}Than{CharSlot}CantStartGame", "CharCount", myCharCount, "CharSlot", maxCharCount));
 	else
 		local bpc = barrack.GetGameStartAccount();
-		local apc = bpc:GetApc();
+		if bpc ~= nil then
+			local apc = bpc:GetApc();
 
-		local jobid	= apc:GetJob();
-		local level = apc:GetLv();
-	
-		local JobCtrlType = GetClassString('Job', jobid, 'CtrlType');
+			local jobid	= apc:GetJob();
+			local level = apc:GetLv();
+		
+			local JobCtrlType = GetClassString('Job', jobid, 'CtrlType');
 
-		config.SetConfig("LastJobCtrltype", JobCtrlType);
-		config.SetConfig("LastPCLevel", level);
-
+			config.SetConfig("LastJobCtrltype", JobCtrlType);
+			config.SetConfig("LastPCLevel", level);
+		end
 		local frame = ui.GetFrame("barrack_gamestart")
 		local channels = GET_CHILD(frame, "channels", "ui::CDropList");
 		local key = channels:GetSelItemIndex();
@@ -1199,10 +1248,15 @@ function UPDATE_BARRACK_PET_BTN_LIST()
 			local charCtrl = scrollBox:GetChild("char_" .. pcID);
 			if charCtrl ~= nil then
 				
-				local bpcPetCount = charCtrl:GetUserValue("PET_COUNT");
-				
+				local bpcPetCount = charCtrl:GetUserIValue("PET_COUNT");
 				charCtrl:SetUserValue("PET_COUNT", bpcPetCount + 1);
-				local petCtrl = charCtrl:CreateOrGetControlSet('barrack_pet_mini', 'attached_pet_'..pet:GetStrGuid(), 50, 70);
+				local addtionalY = 0;
+				if bpcPetCount > 0 then
+				 	addtionalY = 5;
+				end
+				local height = ui.GetControlSetAttribute("barrack_pet_mini", "height") / 2;
+				local petCtrl = charCtrl:CreateOrGetControlSet('barrack_pet_mini', 'attached_pet_'..pet:GetStrGuid(), 50, 75 + (height * bpcPetCount) + addtionalY );
+				
 				UPDATE_PET_BTN(petCtrl, pet, true);
 			end
 		end
@@ -1213,7 +1267,7 @@ function UPDATE_BARRACK_PET_BTN_LIST()
 	UPDATE_SELECT_CHAR_SCROLL(frame)
 end
 
-function UPDATE_PET_BTN_SELECTED()	
+function UPDATE_PET_BTN_SELECTED()
 	local frame = ui.GetFrame("barrack_petlist");
 	local bg = frame:GetChild("bg");
 	for i = 0 , bg:GetChildCount() - 1 do
@@ -1228,7 +1282,6 @@ function UPDATE_PET_BTN_SELECTED()
 				btn:SetSkinName('companion_off');
 			end		
 		end
-
 	end
 end
 
@@ -1260,14 +1313,27 @@ function UPDATE_PET_BTN(petCtrl, petInfo, useDetachBtn)
 		
 		char_icon:SetImage(obj.Icon);
 		local btn = mainBox:GetChild("btn");
-		btn:SetEventScript(ui.LBUTTONUP, "SELECT_COMPANION_BTNUP");
 		btn:SetSkinName('companion_on');
 		if account == myaccount then
 			btn:SetEventScript(ui.LBUTTONUP, "SELECT_COMPANION_BTNUP");
 		end
 	
 		local job = mainBox:GetChild("job");
-		job:SetTextByKey("value", obj.Name);
+		if job ~= nil then
+			AUTO_CAST(job);
+			job:SetTextFixWidthUseSpace(false);
+			job:SetAutoFontSizeByWidth(job:GetWidth());
+			
+			local obj_name = obj.Name;
+			job:SetTextByKey("value", obj_name);
+		end
+		--[[ AUTO_CAST(job);
+		print(obj.Name, job:GetWidth(), job:GetTextWidth());
+		if job:GetWidth() < job:GetTextWidth() then
+			job:SetCompareTextWidthBySlideShow(true);
+			job:EnableSlideShow(1);
+			job:SetTextByKey("value", obj.Name);
+		end ]]
 
 		local detach_btn = GET_CHILD(mainBox, "detach_btn", "ui::CButton");
 		if account ~= myaccount then
@@ -1275,18 +1341,18 @@ function UPDATE_PET_BTN(petCtrl, petInfo, useDetachBtn)
 			return;
 		end
 
-			detach_btn:SetImage('barrack_delete_btn');
-			detach_btn:SetEventScript(ui.LBUTTONUP, "REQUEST_DELETE_PET");
-			if obj.OverDate == 10 then
-				if revive_btn ~= nil then
-					revive_btn:ShowWindow(1);
-					revive_btn:SetEventScript(ui.LBUTTONUP, "REQUEST_PET_REVIVE");
-				end
-			end		
+		detach_btn:SetImage('barrack_delete_btn');
+		detach_btn:SetEventScript(ui.LBUTTONUP, "REQUEST_DELETE_PET");
+		
+		if obj.OverDate == 10 then
+			if revive_btn ~= nil then
+				revive_btn:ShowWindow(1);
+				revive_btn:SetEventScript(ui.LBUTTONUP, "REQUEST_PET_REVIVE");
+			end
+		end
 			
 	elseif useDetachBtn == true then
 
-		
 		local iconName = 'test_companion_01';
 		
 		if obj ~= nil then
@@ -1327,7 +1393,7 @@ function REQUEST_PET_REVIVE(parent, ctrl)
 	local monCls = GetClassByType("Monster", petInfo:GetPetType());
 	local obj = GetIES(petInfo:GetObject());
 
-	local priceStr = PET_REVIVE_PRICE(obj) .. " " .. ScpArgMsg("NXP");
+	local priceStr = PET_REVIVE_PRICE(obj) .. " " .. 'TP'
 	local msg = ScpArgMsg("ReviveCompanion?{Price}WillBeConsumed", "Price", priceStr);
 	local execScript = string.format("_EXEC_REVIVE_PET(\"%s\")", petGuid);
 	ui.MsgBox(msg, execScript, "None");
@@ -1398,4 +1464,70 @@ function ON_RESULT_CHECK_MARKET(frame, msg, cid, registered)
 		clmsg = ClMsg('RegisterItemAtMarketPC')..clmsg;
 	end
 	ui.MsgBox(clmsg, 'SELECTCHARINFO_DELETECHARACTER', 'SELECTCHARINFO_DELETECHARACTER_CANCEL');
+end
+
+function UPDATE_BARRACK_HIDELOGIN_OPTION(parent, ctrl)
+	if ctrl == nil then 
+		return; 
+	end
+	local isCheck = ctrl:IsChecked();
+	barrack.SetHideLogin(isCheck);
+end
+
+function GET_TOTAL_CHARACTER_COUNT()
+	local accountInfo = session.barrack.GetMyAccount();
+	local cnt = accountInfo:GetTotalSlotCount();
+	return cnt
+end
+
+function IS_POPOBOOST_PARTICIPATE_CHAR_BARRACK(cid)
+	local accountInfo = session.barrack.GetMyAccount();
+	local popoetcprop = GET_POPOBOOST_ETCPROP();
+	if popoetcprop == "None" or popoetcprop == nil then
+		return;
+	end
+	local val = accountInfo:GetBarrackCharEtcProp(cid, popoetcprop)
+	return tonumber(val);
+end
+
+function BARRACK_INIT_LANGUAGE_CONFIG(frame)	
+	local catelist = GET_CHILD(frame, "languageList")	
+	catelist:ClearItems();
+
+	if dictionary.IsEnableDic() == false then
+		catelist:ShowWindow(0);
+		local language_title = frame:GetChild("language_title");
+		language_title:ShowWindow(0);
+	end
+
+	local selIndex = 0;
+	local cnt = option.GetNumCountry();
+	for i = 0 , cnt - 1 do
+		local lanUIString =  option.GetPossibleCountryUIName(i);
+		local lanUIString2 =  string.format("{@st42b}%s", option.GetPossibleCountryUIName(i));
+		local NationGroup = GetServerNation();
+		if (lanUIString ~= "kr") then 
+			if NationGroup == "GLOBAL" then
+				if (lanUIString ~= "Japanese")then
+					catelist:AddItem(lanUIString, lanUIString2);
+				end
+			else
+				catelist:AddItem(lanUIString, lanUIString2);
+			end
+		end
+	end
+	
+	local lanString = option.GetCurrentCountry();
+	catelist:SelectItemByKey(lanString);
+end
+
+function APPLY_LANGUAGE_BARRACK(frame)
+	
+	local lanCtrl = GET_CHILD_RECURSIVELY(frame, "languageList", "ui::CDropList");
+	local lanString = lanCtrl:GetSelItemKey();
+	option.SetCountry(lanString)
+
+	config.SaveConfig();
+
+	barrack.ReloadBarrackCharInfo()
 end

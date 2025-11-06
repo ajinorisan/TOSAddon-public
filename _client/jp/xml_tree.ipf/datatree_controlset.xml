@@ -16,7 +16,7 @@
 			<Node1 ClassID="13" ClassName="StatusInfo13" ControlSetName="Status_infoType01" EngName="ASPD" Name="공격속도" Value="Custom" NameFont="{s16}{#fff0db}" ValueFont="{s16}{#ffffff}"/>
 			<Node1 ClassID="14" ClassName="StatusInfo14" ControlSetName="Status_infoType01" EngName="MSPD" Name="이동속도" Value="Custom" NameFont="{s16}{#fff0db}" ValueFont="{s16}{#ffffff}"/>
 			<Node1 ClassID="15" ClassName="StatusInfo15" ControlSetName="Status_infoType01" EngName="HitRange" Name="사거리" Value="Custom" NameFont="{s16}{#fff0db}" ValueFont="{s16}{#ffffff}"/>
-			<Node1 ClassID="16" ClassName="StatusInfo16" ControlSetName="Status_infoType01" EngName="BLK" Name="블럭율" Value="BLK" NameFont="{s16}{#fff0db}" ValueFont="{s16}{#ffffff}"/>
+			<Node1 ClassID="16" ClassName="StatusInfo16" ControlSetName="Status_infoType01" EngName="BLK" Name="블록율" Value="BLK" NameFont="{s16}{#fff0db}" ValueFont="{s16}{#ffffff}"/>
 			<Node1 ClassID="17" ClassName="StatusInfo17" ControlSetName="Status_infoType01" EngName="CRTATK" Name="크리공격" Value="CRTATK" NameFont="{s16}{#fff0db}" ValueFont="{s16}{#ffffff}"/>
 			<Node1 ClassID="18" ClassName="StatusInfo18" ControlSetName="Status_infoType01" EngName="CRTDEF" Name="크리방어" Value="CRTDEF" NameFont="{s16}{#fff0db}" ValueFont="{s16}{#ffffff}"/>
 			<Node1 ClassID="19" ClassName="StatusInfo19" ControlSetName="Status_infoType01" EngName="RHP" Name="체력회복량" Value="RHP" NameFont="{s16}{#fff0db}" ValueFont="{s16}{#ffffff}"/>

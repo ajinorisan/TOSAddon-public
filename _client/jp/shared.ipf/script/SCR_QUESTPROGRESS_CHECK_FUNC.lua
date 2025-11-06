@@ -1,4 +1,4 @@
-s_warpDestYPos	 = 20.0;
+﻿s_warpDestYPos	 = 20.0;
 
 function SCR_STEPREWARD_QUEST_REMAINING_CHECK(pc, questName)
     local questIES = GetClass('QuestProgressCheck',questName)
@@ -128,7 +128,9 @@ function DROPITEM_REQUEST1_PROGRESS_CHECK_FUNC_SUB(pc)
     for i = 0, class_count -1 do
         local mapIES = GetClassByIndex('Map', i)
         if mapIES ~= nil then
-            if (mapIES.MapType == 'Field' or mapIES.MapType == 'Dungeon') and mapIES.WorldMapPreOpen == 'YES' and IS_FREE_DUNGEON(mapIES.ClassName) == 'NO' then
+            local keywordTable = StringSplit(mapIES.Keyword, ";");
+            local NoRequestCheck = table.find(keywordTable, 'NoRequest')
+            if (mapIES.MapType == 'Field' or mapIES.MapType == 'Dungeon') and mapIES.WorldMapPreOpen == 'YES' and IS_FREE_DUNGEON(mapIES.ClassName) == 'NO' and NoRequestCheck == 0 then
                 if mapIES.QuestLevel >= pcLv - minRange and mapIES.QuestLevel <= pcLv + maxRange then
                     zoneClassNameList[#zoneClassNameList + 1] = mapIES.ClassName
                 end
@@ -508,6 +510,9 @@ function SCR_QUEST_REASON_TXT(pc, questIES, quest_reason)
                         end
                         
                         if reasonQuestName ~= nil and reasonQuestName ~= '' then
+                            if reasonQuestName ~= "None" then
+                                reasonQuestName = TranArgMsg(reasonQuestName);
+                            end
                             txt = txt..reasonQuestName..' '..reasonQuestState
                         end
                     end
@@ -825,4 +830,377 @@ function SCR_GUILD_QUEST_WEEK1_START_CHECK(pc)
     end
     
     return 'NO'
+end
+
+
+function SCR_AQ_TEAMCLEAR_CHECK(pc, questname, scriptInfo)
+    local aObj
+    
+    if IsServerSection(pc) == 1 then
+        aObj = GetAccountObj(pc);
+    else
+        aObj = GetMyAccountObj();
+    end
+        
+    if aObj == nil then
+        return
+    end
+    local aprop = TryGetProp(aObj, "ASSISTORQUEST_TEAMCLEAR_CHECK", 0)
+    if aprop == 0 then
+        return 'YES'
+    end
+    return 'NO'
+end
+
+function SCR_AQ_TEAMCLEAR(pc, questname, scriptInfo)
+    local aObj
+    
+    if IsServerSection(pc) == 1 then
+        aObj = GetAccountObj(pc);
+    else
+        aObj = GetMyAccountObj();
+    end
+    
+    if aObj == nil then
+        return
+    end
+        
+    if aObj.ASSISTORQUEST_TEAMCLEAR_CHECK == 0 then
+        local tx = TxBegin(pc)
+        TxSetIESProp(tx,  aObj, 'ASSISTORQUEST_TEAMCLEAR_CHECK', 1)
+        local ret = TxCommit(tx)
+    else
+        return
+    end
+    CustomMongoLog(pc, "AssistorQuestClearTeamCheck", "Qeust", questname, "Count", aObj.ASSISTORQUEST_TEAMCLEAR_CHECK);
+end
+
+function SCR_AQ_TEAMCLEAR_RE(pc, tx)
+    local aObj
+    
+    if IsServerSection(pc) == 1 then
+        aObj = GetAccountObj(pc);
+    else
+        aObj = GetMyAccountObj();
+    end
+    
+    if aObj == nil then
+        return
+    end
+    
+    local aprop = TryGetProp(aObj, "ASSISTORQUEST_TEAMCLEAR_CHECK", 0)
+    if aprop ~= 0 then
+        TxSetIESProp(tx,  aObj, 'ASSISTORQUEST_TEAMCLEAR_CHECK', 0)
+    else
+        return
+    end
+end
+
+function SCR_CQ_01_ITEM_RE(pc, tx)
+    local aObj
+    
+    if IsServerSection(pc) == 1 then
+        aObj = GetAccountObj(pc);
+    else
+        aObj = GetMyAccountObj();
+    end
+    
+    if aObj == nil then
+        return
+    end
+    
+    local itemcnt = GetInvItemCount(pc, 'F_TABLELAND_28_2_RAID_02_ITEM')
+    if itemcnt ~= 0 then
+        TxTakeItem(tx, 'F_TABLELAND_28_2_RAID_02_ITEM', itemcnt,  'F_TABLELAND_28_2_RAID_02')
+    else
+        return
+    end
+end
+
+function SCR_CQ_06_ITEM_RE(pc, tx)
+    local aObj
+    
+    if IsServerSection(pc) == 1 then
+        aObj = GetAccountObj(pc);
+    else
+        aObj = GetMyAccountObj();
+    end
+    
+    
+    if aObj == nil then
+        return
+    end
+    
+    local itemcnt = GetInvItemCount(pc, 'SNOW_RAID_BOOK_01')
+    if itemcnt ~= 0 then
+        TxTakeItem(tx, 'SNOW_RAID_BOOK_01', itemcnt,  'F_TABLELAND_28_2_RAID_07')
+    else
+        return
+    end
+end
+
+function SCR_CQ_11_ITEM_RE(pc, tx)
+    local aObj
+    
+    if IsServerSection(pc) == 1 then
+        aObj = GetAccountObj(pc);
+    else
+        aObj = GetMyAccountObj();
+    end
+    
+    
+    if aObj == nil then
+        return
+    end
+    
+    local itemcnt = GetInvItemCount(pc, 'SNOW_RAID_BOOK_02')
+    if itemcnt ~= 0 then
+        TxTakeItem(tx, 'SNOW_RAID_BOOK_02', itemcnt,  'F_TABLELAND_28_2_RAID_11')
+    else
+        return
+    end
+end
+
+-- 마스터 의뢰 퀘스트 시작 조건 Account 체크
+function SCR_UQ_CLEAR_CHECK(pc, questName, scriptInfo)
+    local aObj
+    
+    if IsServerSection(pc) == 1 then
+        aObj = GetAccountObj(pc);
+    else
+        aObj = GetMyAccountObj();
+    end
+        
+    if aObj == nil then
+        return
+    end
+
+    local aprop = TryGetProp(aObj, questName, 0)
+    if aprop == 0 then
+        return 'YES'
+    end
+    return 'NO'
+end
+
+-- 마스터 의뢰 퀘스트 수락 후 시작 NPC 대사에 삽입
+function SCR_SET_UNLOCK_AOBJ_UNLOCK(pc, questName, scriptInfo, argStr1, argStr2)--퀘스트 시작/성공 시 퀘스트 이름과 같은 Account On
+    local aObj = nil;
+    if IsServerSection(pc) == 1 then
+        aObj = GetAccountObj(pc);
+        SCR_UQ_ACHIEVE_START(pc, questName);
+    else
+        aObj = GetMyAccountObj();
+    end
+
+    if aObj == nil then return; end
+
+    local After_Str = "None"
+    if argStr2 ~= nil then
+        After_Str = argStr2[1]
+    end
+
+    local Target_aObj = TryGetProp(aObj, questName)
+    if Target_aObj == 0 then
+
+        _SCR_SET_UNLOCK_AOBJ(pc, aObj, 1, questName, After_Str)
+    end
+end
+
+-- 마스터 의뢰 퀘스트 완료 시 NPC 대사에 삽입
+function SCR_SET_UNLOCK_AOBJ_LOCK(pc, questName, scriptInfo)--퀘스트 시작/성공 시 퀘스트 이름과 같은 Account Off
+    local aObj
+    
+    if IsServerSection(pc) == 1 then
+        aObj = GetAccountObj(pc);
+    else
+        aObj = GetMyAccountObj();
+    end
+
+    if aObj == nil then return end
+
+    local Target_aObj = TryGetProp(aObj, questName)
+    if Target_aObj == 1 then
+        _SCR_SET_UNLOCK_AOBJ(pc, aObj, 2, questName)
+    end
+end
+
+function _SCR_SET_UNLOCK_AOBJ(pc, aObj, state, questName, argStr)
+    local tx = TxBegin(pc)
+
+    TxSetIESProp(tx, aObj, questName, state)
+    local ret = TxCommit(tx)
+
+    if ret == "SUCCESS" then
+        CustomMongoLog(pc, "UnlockQuest", "Quest", questName, "On/Off", state, "QuestState", SCR_QUEST_CHECK(pc, questName));
+        if argStr ~= nil and argStr ~= "None" then
+            ShowOkDlg(pc, argStr, 1)
+        end
+    end
+end
+
+-- 마스터 의뢰 퀘스트 포기/실패/시스템 취소 시 함수에 삽입
+function SCR_SET_UNLOCK_AOBJ_ABANDON(pc, tx, funcCutList, questName)--퀘스트 실패/포기 시 Account 0으로 설정
+    local aObj
+    
+    if IsServerSection(pc) == 1 then
+        aObj = GetAccountObj(pc);
+    else
+        aObj = GetMyAccountObj();
+    end
+
+    if aObj == nil then return end
+    TxSetIESProp(tx, aObj, questName, 0)
+end
+
+-- 마스터 의뢰 관련 업적 리스트 가져오기.
+function GET_UNLOCK_QUEST_ACHIEVE_LIST(quest_name)
+    -- unlock quest class check
+    local unlock_quest_cls = GetClassByStrProp("job_unlockquest", "MasterQuest", quest_name);
+    if unlock_quest_cls == nil then 
+        return false, nil; 
+    end
+    
+    -- unlock quest class name check
+    local unlock_quest_class_name = TryGetProp(unlock_quest_cls, "ClassName", "None"); 
+    if unlock_quest_class_name == nil or unlock_quest_class_name == "None" then 
+        return false, nil; 
+    end
+
+    -- unlock quest achieve list check
+    local under_achieve_list = UQ_GET_UNDER_ACHIEVE_LIST(unlock_quest_class_name);
+    if under_achieve_list == nil or #under_achieve_list <= 0 then
+        return false, nil;
+    end
+
+    local achieve_cls_list = {};
+    for i = 1, #under_achieve_list do
+        local under_achieve_cls = under_achieve_list[i];
+        if under_achieve_cls ~= nil then
+            local under_achieve_class_name = TryGetProp(under_achieve_cls, "ClassName", "None");
+            local achieve_cls = GetClass("Achieve", under_achieve_class_name);
+            if achieve_cls ~= nil then
+                achieve_cls_list[#achieve_cls_list + 1] = achieve_cls;
+            end
+        end
+    end
+
+    if achieve_cls_list == nil or #achieve_cls_list <= 0 then
+        return false, nil;
+    end
+
+    -- achieve hidden, hidden_veiw_check prop
+    local unlock_quest_achieve_list = {};
+    for i = 1, #achieve_cls_list do
+        local achieve_cls = achieve_cls_list[i];
+        if achieve_cls ~= nil then
+            local class_name = TryGetProp(achieve_cls, "ClassName", "None");
+            local hidden = TryGetProp(achieve_cls, "Hidden", "NO");
+            local hidden_view_check = TryGetProp(achieve_cls, "HiddenViewCheck", "NO");
+            if hidden == "YES" and hidden_view_check == "YES" then
+                unlock_quest_achieve_list[#unlock_quest_achieve_list + 1] = class_name;
+            end
+        end
+    end
+
+    --over achieve insert table
+    table.insert(unlock_quest_achieve_list, 1, unlock_quest_class_name);
+
+    if unlock_quest_achieve_list == nil or #unlock_quest_achieve_list <= 0 then
+        return false, nil;
+    end
+
+    -- return : check_value, send_addon_msg_achieve_list
+    return true, unlock_quest_achieve_list;
+end
+
+-- 마스터 의뢰 퀘스트 시작했는지 체크
+function IS_UNLOCK_QUEST_STARTED(pc, achieve_name)
+    if IsServerSection() == 0 then
+        local account_obj = GetMyAccountObj();
+        if account_obj ~= nil then
+            local prop_name = "AchieveUnlockQuest_"..achieve_name;
+            local value = TryGetProp(account_obj, prop_name, 0);
+            if value == 1 then
+                return true;
+            end
+        end
+    else 
+        local account_obj = GetAccountObj(pc);
+        if account_obj ~= nil then
+            local prop_name = "AchieveUnlockQuest_"..achieve_name;
+            local value = TryGetProp(account_obj, prop_name, 0);
+            if value == 1 then
+                return true;
+            end
+        end
+    end
+    return false;
+end
+
+
+-- 영웅담 퀘스트 시작 조건 기본 클래스 포함 4개 이상
+function GET_TOSHERO_TUTO_01_ENABLE(pc, questName)
+    local Job = GetJobHistoryList(pc)
+    
+    if #Job >= 4 then
+        return "YES"
+    else
+        return "NO"
+    end
+
+end
+
+--뷰티샵 튜토리얼 퀘스트 체크 함수
+function SCR_PRE_TUTO_BEAUTYSHOP(pc, questname, scriptInfo)
+    local aObj
+    local etcObj
+    local sObj = GetSessionObject(pc, 'ssn_klapeda');
+
+
+    if IsServerSection(pc) == 1 then
+        aObj = GetAccountObj(pc);
+        etcObj = GetETCObject(pc);
+    else
+        aObj = GetMyAccountObj();
+        etcObj = GetMyEtcObject();
+    end
+    
+    if aObj == nil or etcObj == nil or sObj == nil then
+        return "NO";
+    end
+
+    local s_line = TryGetProp(sObj, "QSTARTZONETYPE");
+
+    if s_line == "StartLine3" then
+        local sObj_TUTOClear = TryGetProp(sObj, 'TUTO_START_LINE3');
+        local etcObj_TUTOClear = TryGetProp(etcObj, 'StartLine3_Clear');
+
+        if sObj_TUTOClear ~= 300 or etcObj_TUTOClear ~= 300 then
+            return "NO";
+        end
+    end
+    
+    local prop_name = "BeautyShop_Tuto_Achieve";
+    local achievePoint = GetAchievePoint(pc, prop_name)
+    if achievePoint >= 1 then
+        return "NO"
+    end
+
+
+    return "YES";
+end
+
+
+-- 퀘스트 포기/실패/시스템 취소 시 함수에 삽입
+function SCR_SET_ETC_OBJ_ABANDON(pc, tx, funcCutList, questName)--퀘스트 실패/포기 시 etc 0으로 설정
+    local etc    
+    
+    if IsServerSection(pc) == 1 then
+        etc = GetETCObject(pc)
+    else
+        etc = GetMyEtcObject()
+    end
+
+    if etc == nil then return end
+    TxSetIESProp(tx, etc, questName, 0)
 end

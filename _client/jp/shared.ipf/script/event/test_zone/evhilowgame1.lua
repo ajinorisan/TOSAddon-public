@@ -55,11 +55,11 @@ end
 
 function test_zone_evhilowgame1_quest()
 
-        local pc_obj = RegisterCls('SessionObject', 1103265, 'ssn_test_zone_evhilowgame1')
+        -- local pc_obj = RegisterCls('SessionObject', 1103265, 'ssn_test_zone_evhilowgame1')
 
-        ChangeClassValue(pc_obj, 'Name', ScpArgMsg("Auto_HaiLouKeim1"))
+        -- ChangeClassValue(pc_obj, 'Name', ScpArgMsg("Auto_HaiLouKeim1"))
 
-        ChangeClassValue(pc_obj, 'Script', 'ssn_test_zone_evhilowgame1')
+        -- ChangeClassValue(pc_obj, 'Script', 'ssn_test_zone_evhilowgame1')
 
 
 

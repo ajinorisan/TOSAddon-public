@@ -8,11 +8,18 @@
     if owner == nil then
         return lv, grade, reinforceValue, reinforceRatio;
     end
-    
+
+    local is_accessory = false;
+    local class_type = TryGetProp(item, "ClassType", "None");
+    if class_type == "Neck" or class_type == "Ring" then
+        is_accessory = true;
+    end
+
     if IsPVPServer(owner) == 1 then
         local pvpLv = PVP_TEAMBATTLE_ITEM_LV;
         local pvpGrade = PVP_TEAMBATTLE_ITEM_GRADE;
         local pvpReinforceValue = PVP_TEAMBATTLE_ITEM_REINFORCE;
+        local pvpReinforceValueByAccessory = PVP_TEAMBATTLE_ITEM_ACCESSORY_REINFORCE;
         local pvpReinforceRatio = PVP_TEAMBATTLE_ITEM_REINFORCERATIO;
         
         if pvpLv ~= nil then
@@ -30,6 +37,13 @@
         if pvpReinforceRatio ~= nil then
             reinforceRatio = pvpReinforceRatio
         end
+
+        -- 악세사리 아이템 처리
+        if is_accessory == true then
+            if pvpReinforceValueByAccessory ~= nil then
+                reinforceValue = pvpReinforceValueByAccessory;
+            end
+        end
     end
     
     local itemstring = TryGetProp(item, 'StringArg','None')
@@ -43,7 +57,7 @@
     if IsBuffApplied(owner, "PVP_MINE_Authority") == "YES" then
         local pvpLv = 400;
         local pvpGrade = 5;
-        local pvpReinforceValue = 21;
+        local pvpReinforceValue = 40;
         local pvpReinforceRatio = reinforceRatio;
         
         if pvpLv ~= nil then
@@ -63,8 +77,8 @@
         end
     elseif IsBuffApplied(owner, "PVP_MINE_Divine_Protection") == "YES" then
         local pvpLv = 400;
-        local pvpGrade = 4;
-        local pvpReinforceValue = 11;
+        local pvpGrade = 5;
+        local pvpReinforceValue = 16;
         local pvpReinforceRatio = reinforceRatio;
         
         if pvpLv ~= nil then
@@ -83,7 +97,7 @@
             reinforceRatio = pvpReinforceRatio
         end
     end
-    
+
     return lv, grade, reinforceValue, reinforceRatio;
 end
 

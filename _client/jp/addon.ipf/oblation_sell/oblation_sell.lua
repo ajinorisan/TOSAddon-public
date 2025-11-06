@@ -38,7 +38,7 @@ function OBLATION_SELL_CLOSE(frame)
 	INVENTORY_CLEAR_SELECT();
 end
 
-function OBLATION_SELL_ADD_SELL_ITEM(frame, invItem, addCount, iesID, countSet)
+function OBLATION_SELL_ADD_SELL_ITEM(frame, invItem, addCount, iesID, countSet)	
 	local slotset = OBLATION_SELL_GET_SLOTSET(frame);
 	if true == invItem.isLockState then
 		ui.SysMsg(ClMsg("MaterialItemIsLock"));
@@ -46,6 +46,15 @@ function OBLATION_SELL_ADD_SELL_ITEM(frame, invItem, addCount, iesID, countSet)
 	end
 
 	local itemCls = GetIES(invItem:GetObject());
+	local name = TryGetProp(itemCls, 'StringArg', 'None')	
+	if name ~= 'None' then
+		local cls = GetClass("Housing_Furniture", name)
+		if cls ~= nil then		
+			ui.SysMsg(ClMsg("Auto_SangJeom_PanMae_BulKaNeung"));
+			return
+		end
+	end
+
 	local itemProp = geItemTable.GetPropByName(itemCls.ClassName);
 	if itemProp:IsEnableShopTrade() == false then
 		ui.SysMsg(ClMsg("Auto_SangJeom_PanMae_BulKaNeung"));
@@ -118,7 +127,7 @@ function INV_RBTN_DOWN_OBLATION_SELL(itemObj, slot, iesID)
 end
 
 
-function OBLATION_SELL_SLOT_RBTN(parent, slot)
+function OBLATION_SELL_SLOT_RBTN(parent, slot)	
 	local frame = parent:GetTopParentFrame();
 	local slotset = OBLATION_SELL_GET_SLOTSET(frame);
 	local invItem = GET_SLOT_ITEM(slot);
@@ -151,7 +160,7 @@ function GET_SLOT_OBLATION_SELL_PRICE(slot)
 	end
 
 	local itemProp = geItemTable.GetPropByName(itemCls.ClassName);
-	local price = math.floor(geItemTable.GetSellPrice(itemProp) * GET_OBLATION_PRICE_PERCENT());    
+	local price = math.floor(geItemTable.GetSellPrice(itemProp) * GET_OBLATION_PRICE_PERCENT(itemCls));    
     if geItemTable.GetSellPrice(itemProp) <= 0 then
         price = 0
     elseif geItemTable.GetSellPrice(itemProp) <= 1 then

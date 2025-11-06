@@ -117,3 +117,7 @@ ClassID,ClassName,Thema,ItemClassName,Group
 168,"dress_costume_ep17postman01_f","ep17postman_theme","costume_ep17postman01_f","dress_room_blessed_cube"
 169,"dress_costume_ep17postman02_m","ep17postman_theme","costume_ep17postman02_m","dress_room_blessed_cube"
 170,"dress_costume_ep17postman02_f","ep17postman_theme","costume_ep17postman02_f","dress_room_blessed_cube"
+171,"dress_costume_ep17couplelook01_m","ep17couplelook_theme","costume_ep17couplelook01_m","dress_room_blessed_cube"
+172,"dress_costume_ep17couplelook01_f","ep17couplelook_theme","costume_ep17couplelook01_f","dress_room_blessed_cube"
+173,"dress_costume_ep17couplelook02_m","ep17couplelook_theme","costume_ep17couplelook02_m","dress_room_blessed_cube"
+174,"dress_costume_ep17couplelook02_f","ep17couplelook_theme","costume_ep17couplelook02_f","dress_room_blessed_cube"

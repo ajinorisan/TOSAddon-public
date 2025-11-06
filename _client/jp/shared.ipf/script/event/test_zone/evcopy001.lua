@@ -45,11 +45,11 @@ end
 
 function test_zone_evcopy001_quest()
 
-        local pc_obj = RegisterCls('SessionObject', 1103264, 'ssn_test_zone_evcopy001')
+        --local pc_obj = RegisterCls('SessionObject', 1103264, 'ssn_test_zone_evcopy001')
 
         --ChangeClassValue(pc_obj, 'Name', ScpArgMsg("Auto_NPCMalTtaLaHaKi0"))
 
-        ChangeClassValue(pc_obj, 'Script', 'ssn_test_zone_evcopy001')
+        --ChangeClassValue(pc_obj, 'Script', 'ssn_test_zone_evcopy001')
 
 
 

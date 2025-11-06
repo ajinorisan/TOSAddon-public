@@ -19,7 +19,8 @@ end
 
 function ADVENTURE_BOOK_FISHING.TOTAL_FISHING_COUNT()
 	local frame = ui.GetFrame('adventure_book');
-	local page_living = GET_CHILD(frame, "page_living", "ui::CGroupBox");
+	local gb_adventure = GET_CHILD(frame, "gb_adventure", "ui::CGroupBox");
+	local page_living = GET_CHILD(gb_adventure, "page_living", "ui::CGroupBox");
 	local page = GET_CHILD(page_living, "page_fishing", "ui::CGroupBox");
 	local fishing_count_text = GET_CHILD(page, "fishing_count_text");
 	fishing_count_text:SetTextByKey("value", ADVENTURE_BOOK_FISHING_CONTENT['TOTAL_FISH_COUNT']());
@@ -27,7 +28,8 @@ end
 
 function ADVENTURE_BOOK_FISHING.CLEAR()
 	local frame = ui.GetFrame('adventure_book');
-	local page_living = GET_CHILD(frame, "page_living", "ui::CGroupBox");
+	local gb_adventure = GET_CHILD(frame, "gb_adventure", "ui::CGroupBox");
+	local page_living = GET_CHILD(gb_adventure, "page_living", "ui::CGroupBox");
 	local page = GET_CHILD(page_living, "page_fishing", "ui::CGroupBox");
 	local fish_list = GET_CHILD(page, "fish_list", "ui::CGroupBox");
 	fish_list:RemoveAllChild();
@@ -35,7 +37,8 @@ end
 
 function ADVENTURE_BOOK_FISHING.FILL_FISH_LIST()
 	local frame = ui.GetFrame('adventure_book');
-	local page_living = GET_CHILD(frame, "page_living", "ui::CGroupBox");
+	local gb_adventure = GET_CHILD(frame, "gb_adventure", "ui::CGroupBox");
+	local page_living = GET_CHILD(gb_adventure, "page_living", "ui::CGroupBox");
 	local page = GET_CHILD(page_living, "page_fishing", "ui::CGroupBox");
 	local fish_list_gb = GET_CHILD(page, "fish_list", "ui::CGroupBox");
 	local fish_sort_gb = GET_CHILD(page, "fish_sort_gb", "ui::CGroupBox");
@@ -72,7 +75,8 @@ end
 
 function ADVENTURE_BOOK_FISHING.FILL_FISH_INFO()
 	local frame = ui.GetFrame('adventure_book');
-	local page_living = GET_CHILD(frame, "page_living", "ui::CGroupBox");
+	local gb_adventure = GET_CHILD(frame, "gb_adventure", "ui::CGroupBox");
+	local page_living = GET_CHILD(gb_adventure, "page_living", "ui::CGroupBox");
 	local page = GET_CHILD(page_living, "page_fishing", "ui::CGroupBox");
 	local fish_info_gb = GET_CHILD(page, "fish_info_gb", "ui::CGroupBox");
 	local fish_info_sub_gb = GET_CHILD(fish_info_gb, "fish_info_sub_gb", "ui::CGroupBox");
@@ -104,7 +108,8 @@ end
 
 function ADVENTURE_BOOK_FISHING_SET_POINT()
     local adventure_book = ui.GetFrame('adventure_book');
-    local page_living = adventure_book:GetChild('page_living');
+    local gb_adventure = adventure_book:GetChild('gb_adventure');
+    local page_living = gb_adventure:GetChild('page_living');
     local total_score_text = page_living:GetChild('total_score_text');
     total_score_text:SetTextByKey('value', GET_ADVENTURE_BOOK_FISHING_POINT());
 end

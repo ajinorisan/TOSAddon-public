@@ -11,7 +11,8 @@ end
 
 function ADVENTURE_BOOK_QUEST_ACHIEVE.CLEAR()
 	local frame = ui.GetFrame('adventure_book');
-	local page_explore = GET_CHILD(frame, "page_explore", "ui::CGroupBox");
+	local gb_adventure = GET_CHILD(frame, "gb_adventure", "ui::CGroupBox");
+	local page_explore = GET_CHILD(gb_adventure, "page_explore", "ui::CGroupBox");
 	local page = GET_CHILD(page_explore, "page_quest_and_achieve", "ui::CGroupBox");
 	local page_quest = GET_CHILD(page, "page_quest", "ui::CGroupBox");
 	local page_achieve = GET_CHILD(page, "page_achieve", "ui::CGroupBox");
@@ -23,7 +24,8 @@ end
 
 function ADVENTURE_BOOK_QUEST_ACHIEVE.FILL_QUEST_LIST()
 	local frame = ui.GetFrame('adventure_book');
-	local page_explore = GET_CHILD(frame, "page_explore", "ui::CGroupBox");
+	local gb_adventure = GET_CHILD(frame, "gb_adventure", "ui::CGroupBox");
+	local page_explore = GET_CHILD(gb_adventure, "page_explore", "ui::CGroupBox");
 	local page = GET_CHILD(page_explore, "page_quest_and_achieve", "ui::CGroupBox");
 	local page_quest = GET_CHILD(page, "page_quest", "ui::CGroupBox");
     ADVENTURE_BOOK_QUEST_INIT_REGION(page_quest);
@@ -33,7 +35,8 @@ end
 
 function ADVENTURE_BOOK_QUEST_ACHIEVE.FILL_ACHIEVE_LIST()
 	local frame = ui.GetFrame('adventure_book');
-	local page_explore = GET_CHILD(frame, "page_explore", "ui::CGroupBox");
+	local gb_adventure = GET_CHILD(frame, "gb_adventure", "ui::CGroupBox");
+	local page_explore = GET_CHILD(gb_adventure, "page_explore", "ui::CGroupBox");
 	local page = GET_CHILD(page_explore, "page_quest_and_achieve", "ui::CGroupBox");
 	local page_achieve = GET_CHILD(page, "page_achieve", "ui::CGroupBox");
 	local achieve_list_box = GET_CHILD(page_achieve, "achieve_list", "ui::CGroupBox");
@@ -70,7 +73,8 @@ function ADVENTURE_BOOK_QUEST_ACHIEVE_INIT_POINT()
 end
 
 function ADVENTURE_BOOK_CONTENTS_SET_POINT(adventure_book)
-    local page_explore = adventure_book:GetChild('page_explore');
+    local gb_adventure = adventure_book:GetChild('gb_adventure');
+    local page_explore = gb_adventure:GetChild('page_explore');
     local total_rate_text = page_explore:GetChild('total_rate_text');
     local total_score_text = page_explore:GetChild('total_score_text');
     total_rate_text:ShowWindow(0);
@@ -440,7 +444,8 @@ function ADVENTURE_BOOK_QUEST_DROPLIST_INIT(page_quest)
     questLevelDrop:AddItem(1, 'Lv.100 ~ Lv.199');
     questLevelDrop:AddItem(2, 'Lv.200 ~ Lv.299');
     questLevelDrop:AddItem(3, 'Lv.300 ~ Lv.399');
-    questLevelDrop:AddItem(4, 'Lv.400 ~ Lv.420');
+    questLevelDrop:AddItem(4, 'Lv.400 ~ Lv.499');
+
 end
 
 function ADVENTURE_BOOK_QUEST_DROPLIST(parent, ctrl)

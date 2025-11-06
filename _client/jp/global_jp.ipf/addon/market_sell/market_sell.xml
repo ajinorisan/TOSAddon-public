@@ -1,7 +1,2 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- edited with XMLSPY v2004 rel. 2 U (http://www.xmlspy.com) by imc (imc) -->
-<uiframe name="market_sell" x="0" y="0" width="1425" height="1000" create="open">
-	<controls>
-		<richtext name="priceText" margin="0 140 10 0" rect="0 0 260 26" parent="sellPriceGbox" format="{@st66b}{s14}(개당 %s실버)" layout_gravity="right top" param1="priceText" param1_def="0" textalign="right center" fixwidth="true" resizebytext="false" spacey="0" maxwidth="0" fontname="brown_16_b" updateparent="false" drawbackground="false" slideshow="false"/>
-	</controls>
-</uiframe>
+<uiframe/>

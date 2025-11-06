@@ -48,84 +48,84 @@ local item_data = {
         [1] = {
             open_ticket_cabinet_vibora_lv4 = 3,
             Premium_boostToken05_14d = 1,
-            Exchange_Weapon_Book_500_1d = 4,
+            Exchange_Weapon_Book_520_1d = 4,
             misc_pvp_mine2_NotLimit_10000 = 4
         },
         [2] = {
-            misc_upinis_wing_NoTrade = 180,
-            misc_reinforce_percentUp_510_NoTrade = 70,
-            RadaCertificateCoin_50000p = 2,
-            Ticket_DreamyForest_Auto_Enter_LimitTime = 2
+            misc_boss_CrystalGolem_NoTrade = 180,
+            misc_reinforce_percentUp_520_NoTrade = 70,
+            JurateCertificateCoin_50000p = 2,
+            Ticket_Golem_Auto_Enter_LimitTime = 2
         },
         [3] = {
-            misc_upinis_wing_NoTrade = 540,
-            misc_reinforce_percentUp_510_NoTrade = 205,
-            RadaCertificateCoin_50000p = 4,
-            Ticket_DreamyForest_Auto_Enter_LimitTime = 2
+            misc_boss_CrystalGolem_NoTrade = 540,
+            misc_reinforce_percentUp_520_NoTrade = 205,
+            JurateCertificateCoin_50000p = 4,
+            Ticket_Golem_Auto_Enter_LimitTime = 2
         },
         [4] = {
-            misc_slogutis_fragments_NoTrade = 720,
-            misc_reinforce_percentUp_510_NoTrade = 270,
-            RadaCertificateCoin_50000p = 5,
-            Ticket_AbyssalObserver_Auto_Enter_LimitTime = 2,
+            misc_boss_DarkNeringa_NoTrade = 720,
+            misc_reinforce_percentUp_520_NoTrade = 270,
+            JurateCertificateCoin_50000p = 5,
+            Ticket_Neringa_Auto_Enter_LimitTime = 2,
         },
         [5] = {
             misc_merregina_blackpearl_NoTrade = 520,
-            misc_reinforce_percentUp_510_NoTrade = 205,
-            RadaCertificateCoin_50000p = 4,
+            misc_reinforce_percentUp_520_NoTrade = 205,
+            JurateCertificateCoin_50000p = 4,
             Ticket_DespairIsland_Auto_Enter_LimitTime = 2,
         },
         [6] = {
-            piece_fierce_shoulder_high_NoTrade_Belonging = 1,
-            piece_penetration_belt_high_Belonging = 1,
-            selectbox_specialclass_allinone = 1,
-            Event_Roulette_Coin_PoPo_2506 = 5
+            EP16_fierce_shoulder_event_box_NoTrade = 1,
+            EP16_penetration_belt_event_box_NoTrade = 1,
+            selectbox_specialclass_allinone2 = 1,
+            Event_Roulette_Coin_PoPo_2510 = 5
         }
     },
     premium = {
         [0] = {
-            emoticonItem_2506_popo = 1,
+            emoticonItem_2510_popo = 1,
             class_unlock_achievement_select = 1,
             EVENT_2403_Friend_Invite_Coin = 8,
-            misc_Ether_Gem_Socket_500_NoTrade = 4,
-            Piece_Gem_High_500 = 4,
-            lv500_aether_lvup_scroll_lv100 = 4
+            misc_Ether_Gem_Socket_520_NoTrade = 4,
+            Piece_Gem_High_520 = 4,
+            lv520_aether_lvup_scroll_lv100 = 4
         },
         [1] = {
             Gem_Select_Box_Color = 8,
             misc_gemExpStone12_NoTrade = 8,
-            Exchange_Weapon_Book_500 = 4,
+            Exchange_Weapon_Book_520 = 4,
             misc_pvp_mine2_NotLimit_10000 = 4
         },
         [2] = {
-            misc_upinis_wing_NoTrade = 75,
-            misc_reinforce_percentUp_510_NoTrade = 30,
+            misc_boss_CrystalGolem_NoTrade = 75,
+            misc_reinforce_percentUp_520_NoTrade = 30,
             misc_Premium_reinforce_percentUp_460 = 15,
             misc_pvp_mine2_NotLimit_10000 = 4
         },
         [3] = {
-            misc_upinis_wing_NoTrade = 225,
-            misc_reinforce_percentUp_510_NoTrade = 85,
+            misc_boss_CrystalGolem_NoTrade = 225,
+            misc_reinforce_percentUp_520_NoTrade = 85,
             misc_Premium_reinforce_percentUp_460 = 15,
             misc_pvp_mine2_NotLimit_10000 = 4
         },
         [4] = {
-            misc_slogutis_fragments_NoTrade = 300,
-            misc_reinforce_percentUp_510_NoTrade = 115,
+            misc_boss_DarkNeringa_NoTrade = 300,
+            misc_reinforce_percentUp_520_NoTrade = 115,
             misc_Premium_reinforce_percentUp_460 = 15,
             misc_pvp_mine2_NotLimit_10000 = 4,
         },
         [5] = {
             misc_merregina_blackpearl_NoTrade = 220,
-            misc_reinforce_percentUp_510_NoTrade = 85,
+            misc_reinforce_percentUp_520_NoTrade = 85,
             misc_Premium_reinforce_percentUp_460 = 15,
             misc_pvp_mine2_NotLimit_10000 = 4,
         },
         [6] = {
-            plate_achieve_First_Emperor = 1,
-            Event_Roulette_Coin_PoPo_2506 = 5,
+            plate_achieve_Spider_Sisters = 1,
+            Event_Roulette_Coin_PoPo_2510 = 5,
             piece_GabijaEarring_select_job_NoTrade_Belonging = 1,
-            JurateCertificateCoin_50000p = 5,
+            AustejaCertificateCoin_50000p = 5,
         }
     },
     papaya = {
@@ -351,8 +351,8 @@ end
 function GET_BUFF_EXCEPTION_LIST()
     return get_cached("buff_except_list", function()
         return {
-            "Raid_DreamyForest",
-            "Raid_AbyssalObserver",
+            "Raid_DarkNeringa",
+            "Raid_CrystalGolem",
             "raid_kivotos_island"
         }
     end, 3600) -- 1시간 캐싱

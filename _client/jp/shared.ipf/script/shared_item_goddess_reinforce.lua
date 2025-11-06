@@ -2,7 +2,7 @@
 -- item_goddess_reinforce.xml
 
 local equip_end_lv = 540
-local popoboost_item_lv = 510;
+local popoboost_item_lv = 520;
 
 item_goddess_reinforce = {}  -- namespace
 

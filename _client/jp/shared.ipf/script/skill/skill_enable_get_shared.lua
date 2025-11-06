@@ -1,4 +1,22 @@
 local s_skillTreeCache = {};
+
+function is_spearmaster_atk_skill(skill_name)
+    local list = {
+        'SpearMaster_StanceChange',
+        'SpearMaster_WildTigerSpear',
+        'SpearMaster_RushSpear',
+        'SpearMaster_FlyingSerpentFall',
+        'SpearMaster_UniqueSpearDance',
+	};
+	for i = 1, #list do
+		local name = list[i];
+		if string.find(skill_name, name) ~= nil then
+			return true;
+		end
+	end
+	return false;
+end
+
 function GET_SKILLTREE_CLS(skillClsName)
 	if #s_skillTreeCache < 1 then
 		local clslist, cnt = GetClassList('SkillTree');
@@ -60,7 +78,7 @@ function SCR_ENABLE_GET_SKILL_COMMON(pc, skillClsName, targetLv)
 		IMC_LOG('ERROR_LOGIC', 'Skill info not exist in skilltree.xml: skillName['..skillClsName..']');
 		return false, 'SkillTreeError';
 	end
-
+	
 	-- check char job level
 	local unlockClassLv = TryGetProp(skillTreeCls, 'UnlockClassLevel', 0);
 	local jobClsName = GET_JOB_NAME_BY_SKILLTREE_CLS(skillTreeCls);
@@ -68,7 +86,7 @@ function SCR_ENABLE_GET_SKILL_COMMON(pc, skillClsName, targetLv)
 	local curJobLv = GetJobLevelByName(pc, curJobClsName);
 	
 	if unlockClassLv > 0 then
-		if jobClsName == curJobClsName then -- check only current job. previous job maybe satisfied max level					
+		if jobClsName == curJobClsName then -- check only current job. previous job maybe satisfied max level
 			if curJobLv < unlockClassLv then
 				return false, ScpArgMsg('TooLowClassLevelForGetSkill{Level}', 'Level', unlockClassLv);
 			end
@@ -82,7 +100,7 @@ function SCR_ENABLE_GET_SKILL_COMMON(pc, skillClsName, targetLv)
 			if IsServerSection(pc) == 0 then
 				local canNotGetSkillMessage = "CannotGetSkillMessage_" .. skillClsName;
 				if GetClass("ClientMessage", canNotGetSkillMessage) ~= nil then
-        			return false, ScpArgMsg(canNotGetSkillMessage);
+					return false, ScpArgMsg(canNotGetSkillMessage);
 				end
 			else
 				return false, ScpArgMsg('CannotGetSkill{Reason}', 'Reason', ClMsg('PreTraining'));
@@ -94,7 +112,6 @@ function SCR_ENABLE_GET_SKILL_COMMON(pc, skillClsName, targetLv)
 	if targetLv > GET_LIMIT_SKILL_LEVEL(pc, skillTreeCls, jobClsName, curJobLv, curJobClsName) then
 		return false, ScpArgMsg('MaxSkillLevel');
 	end
-	
 	return true;
 end
 
@@ -135,6 +152,413 @@ function SCR_ENABLE_GET_SKILL_Monk_HandKnife(pc, skillClsName)
 	end
 
 	if palmstrikeSkl == nil then
+		return false;
+	end
+	return true;
+end
+
+
+function SCR_ENABLE_GET_SKILL_Crusader_HolySmash(pc, skillClsName)
+	local palmstrikeSkl = nil;
+	if IsServerObj(pc) == 1 then
+		palmstrikeSkl = GetSkill(pc, 'Crusader_Chants');
+	else
+		palmstrikeSkl = session.GetSkillByName('Crusader_Chants');
+	end
+
+	if palmstrikeSkl == nil then
+		return false;
+	end
+	return true;
+end
+
+function SCR_ENABLE_GET_SKILL_Crusader_ProtectionOfGoddess(pc, skillClsName)
+	local palmstrikeSkl = nil;
+	if IsServerObj(pc) == 1 then
+		palmstrikeSkl = GetSkill(pc, 'Crusader_Chants');
+	else
+		palmstrikeSkl = session.GetSkillByName('Crusader_Chants');
+	end
+
+	if palmstrikeSkl == nil then
+		return false;
+	end
+	return true;
+end
+
+function SCR_ENABLE_GET_SKILL_Crusader_Sacred(pc, skillClsName)
+	local palmstrikeSkl = nil;
+	if IsServerObj(pc) == 1 then
+		palmstrikeSkl = GetSkill(pc, 'Crusader_Chants');
+	else
+		palmstrikeSkl = session.GetSkillByName('Crusader_Chants');
+	end
+
+	if palmstrikeSkl == nil then
+		return false;
+	end
+	return true;
+end
+
+function SCR_ENABLE_GET_SKILL_Crusader_Retaliation(pc, skillClsName)
+	local palmstrikeSkl = nil;
+	if IsServerObj(pc) == 1 then
+		palmstrikeSkl = GetSkill(pc, 'Crusader_Chants');
+	else
+		palmstrikeSkl = session.GetSkillByName('Crusader_Chants');
+	end
+
+	if palmstrikeSkl == nil then
+		return false;
+	end
+	return true;
+end
+
+function SCR_ENABLE_GET_SKILL_Crusader_Condemn(pc, skillClsName)
+	local palmstrikeSkl = nil;
+	if IsServerObj(pc) == 1 then
+		palmstrikeSkl = GetSkill(pc, 'Crusader_Chants');
+	else
+		palmstrikeSkl = session.GetSkillByName('Crusader_Chants');
+	end
+
+	if palmstrikeSkl == nil then
+		return false;
+	end
+	return true;
+end
+
+function SCR_ENABLE_GET_SKILL_Crusader_RingOfLight(pc, skillClsName)
+	local palmstrikeSkl = nil;
+	if IsServerObj(pc) == 1 then
+		palmstrikeSkl = GetSkill(pc, 'Crusader_Chants');
+	else
+		palmstrikeSkl = session.GetSkillByName('Crusader_Chants');
+	end
+
+	if palmstrikeSkl == nil then
+		return false;
+	end
+	return true;
+end
+
+function SCR_ENABLE_GET_SKILL_Bulletmarker_RestInPeace(pc, skillClsName)
+	local palmstrikeSkl = nil;
+	if IsServerObj(pc) == 1 then
+		palmstrikeSkl = GetSkill(pc, 'Bulletmarker_DoubleGunStance');
+	else
+		palmstrikeSkl = session.GetSkillByName('Bulletmarker_DoubleGunStance');
+	end
+
+	if palmstrikeSkl == nil then
+		return false;
+	end
+	return true;
+end
+
+function SCR_ENABLE_GET_SKILL_Bulletmarker_BloodyOverdrive(pc, skillClsName)
+	local palmstrikeSkl = nil;
+	if IsServerObj(pc) == 1 then
+		palmstrikeSkl = GetSkill(pc, 'Bulletmarker_DoubleGunStance');
+	else
+		palmstrikeSkl = session.GetSkillByName('Bulletmarker_DoubleGunStance');
+	end
+
+	if palmstrikeSkl == nil then
+		return false;
+	end
+	return true;
+end
+
+function SCR_ENABLE_GET_SKILL_Bulletmarker_TracerBullet(pc, skillClsName)
+	local palmstrikeSkl = nil;
+	if IsServerObj(pc) == 1 then
+		palmstrikeSkl = GetSkill(pc, 'Bulletmarker_DoubleGunStance');
+	else
+		palmstrikeSkl = session.GetSkillByName('Bulletmarker_DoubleGunStance');
+	end
+
+	if palmstrikeSkl == nil then
+		return false;
+	end
+	return true;
+end
+
+function SCR_ENABLE_GET_SKILL_Bulletmarker_MozambiqueDrill(pc, skillClsName)
+	local palmstrikeSkl = nil;
+	if IsServerObj(pc) == 1 then
+		palmstrikeSkl = GetSkill(pc, 'Bulletmarker_DoubleGunStance');
+	else
+		palmstrikeSkl = session.GetSkillByName('Bulletmarker_DoubleGunStance');
+	end
+
+	if palmstrikeSkl == nil then
+		return false;
+	end
+	return true;
+end
+
+function SCR_ENABLE_GET_SKILL_Bulletmarker_FreezeBullet(pc, skillClsName)
+	local palmstrikeSkl = nil;
+	if IsServerObj(pc) == 1 then
+		palmstrikeSkl = GetSkill(pc, 'Bulletmarker_DoubleGunStance');
+	else
+		palmstrikeSkl = session.GetSkillByName('Bulletmarker_DoubleGunStance');
+	end
+
+	if palmstrikeSkl == nil then
+		return false;
+	end
+	return true;
+end
+
+function SCR_ENABLE_GET_SKILL_Bulletmarker_Outrage(pc, skillClsName)
+	local palmstrikeSkl = nil;
+	if IsServerObj(pc) == 1 then
+		palmstrikeSkl = GetSkill(pc, 'Bulletmarker_DoubleGunStance');
+	else
+		palmstrikeSkl = session.GetSkillByName('Bulletmarker_DoubleGunStance');
+	end
+
+	if palmstrikeSkl == nil then
+		return false;
+	end
+	return true;
+end
+
+function SCR_ENABLE_GET_SKILL_Bulletmarker_NapalmBullet(pc, skillClsName)
+	local palmstrikeSkl = nil;
+	if IsServerObj(pc) == 1 then
+		palmstrikeSkl = GetSkill(pc, 'Bulletmarker_DoubleGunStance');
+	else
+		palmstrikeSkl = session.GetSkillByName('Bulletmarker_DoubleGunStance');
+	end
+
+	if palmstrikeSkl == nil then
+		return false;
+	end
+	return true;
+end
+
+function SCR_ENABLE_GET_SKILL_Sadhu_Possession(pc, skillClsName)
+	local palmstrikeSkl = nil;
+	if IsServerObj(pc) == 1 then
+		palmstrikeSkl = GetSkill(pc, 'Sadhu_Soulmaster');
+	else
+		palmstrikeSkl = session.GetSkillByName('Sadhu_Soulmaster');
+	end
+
+	if palmstrikeSkl == nil then
+		return false;
+	end
+	return true;
+end
+
+function SCR_ENABLE_GET_SKILL_Sadhu_Prakriti(pc, skillClsName)
+	local palmstrikeSkl = nil;
+	if IsServerObj(pc) == 1 then
+		palmstrikeSkl = GetSkill(pc, 'Sadhu_Soulmaster');
+	else
+		palmstrikeSkl = session.GetSkillByName('Sadhu_Soulmaster');
+	end
+
+	if palmstrikeSkl == nil then
+		return false;
+	end
+	return true;
+end
+
+function SCR_ENABLE_GET_SKILL_Sadhu_Anila(pc, skillClsName)
+	local palmstrikeSkl = nil;
+	if IsServerObj(pc) == 1 then
+		palmstrikeSkl = GetSkill(pc, 'Sadhu_Soulmaster');
+	else
+		palmstrikeSkl = session.GetSkillByName('Sadhu_Soulmaster');
+	end
+
+	if palmstrikeSkl == nil then
+		return false;
+	end
+	return true;
+end
+
+function SCR_ENABLE_GET_SKILL_Sadhu_Tanoti(pc, skillClsName)
+	local palmstrikeSkl = nil;
+	if IsServerObj(pc) == 1 then
+		palmstrikeSkl = GetSkill(pc, 'Sadhu_Soulmaster');
+	else
+		palmstrikeSkl = session.GetSkillByName('Sadhu_Soulmaster');
+	end
+
+	if palmstrikeSkl == nil then
+		return false;
+	end
+	return true;
+end
+
+function SCR_ENABLE_GET_SKILL_Sadhu_Patati(pc, skillClsName)
+	local palmstrikeSkl = nil;
+	if IsServerObj(pc) == 1 then
+		palmstrikeSkl = GetSkill(pc, 'Sadhu_Soulmaster');
+	else
+		palmstrikeSkl = session.GetSkillByName('Sadhu_Soulmaster');
+	end
+
+	if palmstrikeSkl == nil then
+		return false;
+	end
+	return true;
+end
+
+function SCR_ENABLE_GET_SKILL_Sadhu_Moksha(pc, skillClsName)
+	local palmstrikeSkl = nil;
+	if IsServerObj(pc) == 1 then
+		palmstrikeSkl = GetSkill(pc, 'Sadhu_Soulmaster');
+	else
+		palmstrikeSkl = session.GetSkillByName('Sadhu_Soulmaster');
+	end
+
+	if palmstrikeSkl == nil then
+		return false;
+	end
+	return true;
+end
+
+function SCR_ENABLE_GET_SKILL_Fletcher_BodkinPoint(pc, skillClsName)
+	local FletcherArrowShot = nil;
+	if IsServerObj(pc) == 1 then
+		FletcherArrowShot = GetSkill(pc, 'Fletcher_FletcherArrowShot');
+	else
+		FletcherArrowShot = session.GetSkillByName('Fletcher_FletcherArrowShot');
+	end
+
+	if FletcherArrowShot == nil then
+		return false;
+	end
+	return true;
+end
+
+function SCR_ENABLE_GET_SKILL_Fletcher_BarbedArrow(pc, skillClsName)
+	local FletcherArrowShot = nil;
+	if IsServerObj(pc) == 1 then
+		FletcherArrowShot = GetSkill(pc, 'Fletcher_FletcherArrowShot');
+	else
+		FletcherArrowShot = session.GetSkillByName('Fletcher_FletcherArrowShot');
+	end
+
+	if FletcherArrowShot == nil then
+		return false;
+	end
+	return true;
+end
+
+function SCR_ENABLE_GET_SKILL_Fletcher_CrossFire(pc, skillClsName)
+	local FletcherArrowShot = nil;
+	if IsServerObj(pc) == 1 then
+		FletcherArrowShot = GetSkill(pc, 'Fletcher_FletcherArrowShot');
+	else
+		FletcherArrowShot = session.GetSkillByName('Fletcher_FletcherArrowShot');
+	end
+
+	if FletcherArrowShot == nil then
+		return false;
+	end
+	return true;
+end
+
+function SCR_ENABLE_GET_SKILL_Fletcher_Singijeon(pc, skillClsName)
+	local FletcherArrowShot = nil;
+	if IsServerObj(pc) == 1 then
+		FletcherArrowShot = GetSkill(pc, 'Fletcher_FletcherArrowShot');
+	else
+		FletcherArrowShot = session.GetSkillByName('Fletcher_FletcherArrowShot');
+	end
+
+	if FletcherArrowShot == nil then
+		return false;
+	end
+	return true;
+end
+
+function SCR_ENABLE_GET_SKILL_Fletcher_CatenaChainArrow(pc, skillClsName)
+	local FletcherArrowShot = nil;
+	if IsServerObj(pc) == 1 then
+		FletcherArrowShot = GetSkill(pc, 'Fletcher_FletcherArrowShot');
+	else
+		FletcherArrowShot = session.GetSkillByName('Fletcher_FletcherArrowShot');
+	end
+
+	if FletcherArrowShot == nil then
+		return false;
+	end
+	return true;
+end
+
+function SCR_ENABLE_GET_SKILL_TigerHunter_EyeofBeast(pc, skillClsName)
+	local Tracking = nil;
+	if IsServerObj(pc) == 1 then
+		Tracking = GetSkill(pc, 'TigerHunter_Tracking');
+	else
+		Tracking = session.GetSkillByName('TigerHunter_Tracking');
+	end
+
+	if Tracking == nil then
+		return false;
+	end
+	return true;
+end
+
+function SCR_ENABLE_GET_SKILL_Lama_StrongfistHanginglegs(pc, skillClsName)
+	local Lamapose = nil;
+	if IsServerObj(pc) == 1 then
+		Lamapose = GetSkill(pc, 'Lama_Lamapose');
+	else
+		Lamapose = session.GetSkillByName('Lama_Lamapose');
+	end
+
+	if Lamapose == nil then
+		return false;
+	end
+	return true;
+end
+
+function SCR_ENABLE_GET_SKILL_Lama_PointkickEarthshock(pc, skillClsName)
+	local Lamapose = nil;
+	if IsServerObj(pc) == 1 then
+		Lamapose = GetSkill(pc, 'Lama_Lamapose');
+	else
+		Lamapose = session.GetSkillByName('Lama_Lamapose');
+	end
+
+	if Lamapose == nil then
+		return false;
+	end
+	return true;
+end
+
+function SCR_ENABLE_GET_SKILL_Lama_FlyingkickSuddenkick(pc, skillClsName)
+	local Lamapose = nil;
+	if IsServerObj(pc) == 1 then
+		Lamapose = GetSkill(pc, 'Lama_Lamapose');
+	else
+		Lamapose = session.GetSkillByName('Lama_Lamapose');
+	end
+
+	if Lamapose == nil then
+		return false;
+	end
+	return true;
+end
+
+function SCR_ENABLE_GET_SKILL_Lama_Endlessattacks(pc, skillClsName)
+	local Lamapose = nil;
+	if IsServerObj(pc) == 1 then
+		Lamapose = GetSkill(pc, 'Lama_Lamapose');
+	else
+		Lamapose = session.GetSkillByName('Lama_Lamapose');
+	end
+
+	if Lamapose == nil then
 		return false;
 	end
 	return true;

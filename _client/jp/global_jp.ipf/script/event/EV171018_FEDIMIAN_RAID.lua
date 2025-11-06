@@ -1,3 +1,1 @@
---function SCR_EVENT171018_FEDIMIAN_RAID_DIALOG(self,pc)
---    AUTOMATCH_INDUN_DIALOG(pc, nil, 'E_c_fedimian')
---end
+-- EV171018_FEDIMIAN_RAID.lua

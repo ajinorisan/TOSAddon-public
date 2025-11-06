@@ -1,8 +1,2 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- edited with XMLSPY v2004 rel. 3 U (http://www.xmlspy.com) by imc (imc) -->
-<idspace id="reward_tp">
-  <Class ClassID="8" OverrideType="REMOVE"/>
-  <Class ClassID="19" OverrideType="REMOVE"/>
-  <Class ClassID="1007" OverrideType="REMOVE"/>
-  <Class ClassID="1010" OverrideType="REMOVE"/>
-</idspace>
+<idspace/>

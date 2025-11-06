@@ -15,7 +15,7 @@
     <!-- 관리탭 -->
         <groupbox name="managerTab" rect="0 0 1080 720" margin="0 0 0 0" layout_gravity="center center" draw="true"  scrollbar="false" skin="test_frame_low"/>
 		<groupbox name="relicmanager_top" rect="0 0 1080 70" margin="0 0 0 0" layout_gravity="center top" draw="true" scrollbar="false" skin="TPshop_title" stretch="true" hittest="true"/>
-		<richtext name="title" parent="relicmanager_top" rect="0 0 800 50" margin="0 0 110 0" layout_gravity="center center" format="{@st43}{s24}블랙 마켓 - 여신의 증표(유라테)" drawbackground="false" fixwidth="true" 	fontname="white_18_ol" textalign="center center"/>
+		<richtext name="title" parent="relicmanager_top" rect="0 0 800 50" margin="0 0 110 0" layout_gravity="center center" format="{@st43}{s24}블랙 마켓 - 여신의 증표(아우스테야)" drawbackground="false" fixwidth="true" 	fontname="white_18_ol" textalign="center center"/>
 
 			<groupbox name="processGbox" parent="managerTab" rect="0 0 1035 675" margin="-13 0 0 0" layout_gravity="center center" draw="true"  scrollbar="false" skin="relic_frame_bg"/>
 				<groupbox name="processinfo" parent="processGbox" rect="0 0 1035 675" margin="0 0 0 0" layout_gravity="center center" draw="true"  scrollbar="false" skin=""/>
@@ -43,7 +43,7 @@
 
 			<button name="close" rect="0 0 44 44" margin="0 15 10 0" layout_gravity="right top" LBtnUpArgNum="" LBtnUpScp="CLOSE_DARK_MARKET" oversound="button_over" MouseOffAnim="btn_mouseoff" 	MouseOnAnim="btn_mouseover" clicksound="button_click_big" image="testclose_button"/>
 
-			<groupbox name="scheduleGbox" parent="managerTab" rect="0 0 1035 675" margin="-13 0 0 0" layout_gravity="center center" draw="true"  scrollbar="true" skin="relic_frame_bg"/>
+			<groupbox name="scheduleGbox" parent="managerTab" rect="0 45 1035 605" margin="-13 0 0 0" layout_gravity="center center" draw="true"  scrollbar="true" skin="relic_frame_bg"/>
 
 			<groupbox name="myMarketGbox" parent="managerTab" rect="0 0 1035 675" margin="-13 0 0 0" layout_gravity="center center" draw="true"  scrollbar="false" skin="relic_frame_bg"/>
 				<groupbox name="myinfo" parent="myMarketGbox" rect="0 0 1035 675" margin="0 0 0 0" layout_gravity="center center" draw="true" scrollbar="false" skin=""/>

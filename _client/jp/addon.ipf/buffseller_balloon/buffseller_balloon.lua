@@ -9,10 +9,11 @@ function AUTOSELLER_BALLOON(title, sellType, handle, skillID, skillLv)
 	if title == "" then
 		local frame = nil;
 		if AUTO_SELL_BUFF == sellType then
-			 frame = ui.GetFrame("buffseller_target");
+			frame = ui.GetFrame("buffseller_target");
 		elseif sellType == AUTO_SELL_PERSONAL_SHOP then
 			frame = ui.GetFrame("personal_shop_register");
 		elseif sellType == AUTO_TITLE_FOOD_TABLE then
+			frame = ui.GetFrame("foodtable_register");
 		elseif sellType == AUTO_SELL_OBLATION then
 			frame = ui.GetFrame("oblation_sell");
 		elseif sellType == AUTO_SELL_ORACLE_SWITCHGENDER then
@@ -93,9 +94,6 @@ function AUTOSELLER_BALLOON(title, sellType, handle, skillID, skillLv)
 	frame:ShowWindow(1);
 
 	local offsetY = - 100;
-	if sellType == AUTO_TITLE_FOOD_TABLE then
-		offsetY = -50;
-	end
 	
 	local actor = world.GetActor(handle);
 	if actor ~= nil then
@@ -106,16 +104,13 @@ function AUTOSELLER_BALLOON(title, sellType, handle, skillID, skillLv)
 end
 
 function BUFFSELLER_OPEN(parent, ctrl)
+	if GetCraftState() == 1 then
+		return;
+	end
 	local frame = parent:GetTopParentFrame();
 	local sellType = frame:GetUserIValue("SELL_TYPE");
 	local handle = parent:GetUserIValue("HANDLE");
-
-	if sellType == AUTO_TITLE_FOOD_TABLE then
-		local frame = ui.GetFrame("foodtable_ui");
-		session.camp.RequestOpenFoodTable(handle);
-	else
-		session.autoSeller.RequestOpenShop(handle, sellType);
-	end
+	session.autoSeller.RequestOpenShop(handle, sellType);
 end
 
 function CLOSE_SQUIRE_STORE(handle, skillID)

@@ -6,11 +6,10 @@ function ENTER_CATA_STONE(actor)
 	rideObj:GetFSMActor():PlayFixAnim("ATK", 1.0, 1);
 	
 	mg.TargetCam(actor:GetHandleVal());	
-	actor:SetFSMArg1(0);
-	
-	actor:SetFSMTime( imcTime.GetAppTime());
-	actor:SetFSMArg2( 0.7 );
-	
+
+	actor:SetUserValue("CATA_STONE_Arg1", 0);
+	actor:SetUserValue("CATA_STONE_Arg2", 0.7);
+	actor:SetUserValue("CATA_STONE_AppTime", imcTime.GetAppTime());
 end
 
 function CATA_STONE_TO_DEST_POS(actor)
@@ -25,10 +24,10 @@ function CATA_STONE_TO_DEST_POS(actor)
 	local destPos = actor:GetMoveDestPos();
 	local dist = imcMath.Vec3Dist(destPos, curPos);
 	local moveSpeed = 100.0;
-	actor:SetFSMTime( imcTime.GetAppTime());
+	actor:SetUserValue("CATA_STONE_AppTime", imcTime.GetAppTime());
 	
 	local moveToTime = dist / moveSpeed;
-	actor:SetFSMArg2(moveToTime + 0.3);
+	actor:SetUserValue("CATA_STONE_Arg2", moveToTime + 0.3);
 	
 	local gravityA = 150;
 	local jumpPower = gravityA * moveToTime * 2; 
@@ -52,9 +51,9 @@ function UPDATE_CATA_STONE_THROW(actor, elapsedTime)
 	actor:ProcessVerticalMove(elapsedTime);
 			
 	if ratio >= 1.0 and actor:GetVerticalSpeed() == 0.0 then
-		actor:SetFSMTime( imcTime.GetAppTime());
-		actor:SetFSMArg1(2);
-		actor:SetFSMArg2(1);
+		actor:SetUserValue("CATA_STONE_Arg1", 2);
+		actor:SetUserValue("CATA_STONE_Arg2", 1);
+		actor:SetUserValue("CATA_STONE_AppTime", imcTime.GetAppTime());
 		actor:GetForce():FlushNotShootedForceDamage();
 		return;
 	end
@@ -66,7 +65,7 @@ function UPDATE_CATA_STONE_READY(actor, elapsedTime)
 	local ridePos = actor:GetRidePos();
 	actor:SetPos(ridePos);
 	if (imcTime.GetAppTime() - actor:GetFSMTime()) > actor:GetFSMArg2() then
-		actor:SetFSMArg1(1);
+		actor:SetUserValue("CATA_STONE_Arg1", 1);
 		CATA_STONE_TO_DEST_POS(actor, elapsedTime);
 	end
 	

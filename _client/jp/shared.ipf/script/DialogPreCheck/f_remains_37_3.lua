@@ -78,3 +78,11 @@ function SCR_CHAR220_MSETP2_5_OBJ2_4_PRE_DIALOG(pc, dialog)
     end
     return 'NO'
 end
+
+function SCR_REMAINS37_3_WELL_PRE_DIALOG(pc, dialog)
+    local result = SCR_QUEST_CHECK(pc,'REMAINS37_3_SQ_041')
+    if result == 'PROGRESS' or result == 'SUCCESS' then
+        return 'YES'
+    end
+    return 'NO'
+end

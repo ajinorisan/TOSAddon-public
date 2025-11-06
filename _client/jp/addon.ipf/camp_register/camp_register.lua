@@ -124,6 +124,11 @@ function CAMP_REGISTER_EXEC(parent, ctrl)
 		ui.SysMsg(ClMsg("TooNearFromNPC"));	
 		return 0;
 	end
+
+	if 1 == CheckDynamicOBB(pc, x, y, z, 15) then
+		ui.SysMsg(ClMsg("AbnormalTerrain"));	
+		return 0;
+	end
 	
 	local strScp = "_CAMP_REGISTER_EXEC()";
 	ui.MsgBox(ScpArgMsg("REALLY_DO"), strScp, "None");

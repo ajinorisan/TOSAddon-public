@@ -24,13 +24,7 @@ end
 
 
 function FOODTABLE_NEED_PRICE(skillName, sklLevel)
-
-	local itemList = {};
-	itemList[#itemList + 1] = "misc_campkit";
-	itemList[#itemList + 1] = 10;
-	
-	return 1000, itemList;
-	
+	return 0;
 end
 
 function IS_ENALBE_APPLY_CAMP_BUFF(self, buffName)

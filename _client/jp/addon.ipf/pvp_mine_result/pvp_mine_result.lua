@@ -61,7 +61,7 @@ function PVP_MINE_RESULT_INIT(frame, isWin, Team, M_kill_mvp_list, M_score_mvp_l
 
         if config.GetServiceNation() == 'GLOBAL' then
             imcSound.PlayMusicQueueLocal('colonywar_win')
-        elseif config.GetServiceNation() == 'KOR' then
+        elseif config.GetServiceNation() == 'KOR' or config.GetServiceNation() == 'GLOBAL_KOR' then
             imcSound.PlayMusicQueueLocal('colonywar_win_k')
         end
 
@@ -77,11 +77,11 @@ function PVP_MINE_RESULT_INIT(frame, isWin, Team, M_kill_mvp_list, M_score_mvp_l
 
         if config.GetServiceNation() == 'GLOBAL' then
             imcSound.PlayMusicQueueLocal('colonywar_lose')
-        elseif config.GetServiceNation() == 'KOR' then
+        elseif config.GetServiceNation() == 'KOR' or config.GetServiceNation() == 'GLOBAL_KOR' then
             imcSound.PlayMusicQueueLocal('colonywar_lose_k')
         end
 
-        if frame:GetUserValue('SERVICE_NATION') == 'KOR' then            
+        if frame:GetUserValue('SERVICE_NATION') == 'KOR' or frame:GetUserValue('SERVICE_NATION') == 'GLOBAL_KOR' then            
             loseBox:PlayUIEffect(LOSE_EFFECT_NAME, EFFECT_SCALE, 'COLONY_LOSE');
         else
             winUIBox:ShowWindow(0);

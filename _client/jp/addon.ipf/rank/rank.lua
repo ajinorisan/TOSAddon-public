@@ -7,8 +7,7 @@ function RANK_OPEN(frame, ctrl, argStr, argNum)
 	local minimap = ui.GetFrame('minimap')
 	minimap:ShowWindow(0)
 
-	local quest = ui.GetFrame('questinfoset_2')
-	quest:ShowWindow(0)
+	CHASEINFO_CLOSE_FRAME()
 end
 
 function RANK_CLOSE(frame)
@@ -16,8 +15,7 @@ function RANK_CLOSE(frame)
 	local minimap = ui.GetFrame('minimap')
 	minimap:ShowWindow(1)
 
-	local quest = ui.GetFrame('questinfoset_2')
-	quest:ShowWindow(1)
+	CHASEINFO_OPEN_FRAME()
 end
 
 function RANK_UPDATE_TITLE_PAGE(str)
@@ -25,7 +23,7 @@ function RANK_UPDATE_TITLE_PAGE(str)
 	local frame = ui.GetFrame('rank')
 	if frame == nil then return end
 
-	-- µ¥¹ÌÁö Å¾100 1À§Ç¥½Ã
+	-- ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ Å¾100 1ï¿½ï¿½Ç¥ï¿½ï¿½
 	local page = GET_CHILD(frame, 'main', 'ui::CPage');
 	local ctrlSet = GET_CHILD(page, 'AttackTop100', 'ui::CControlSet');
 	local desc = GET_CHILD(ctrlSet, 'desc', 'ui::CRichText');
@@ -36,7 +34,7 @@ function RANK_UPDATE_TITLE_PAGE(str)
 	end
 
 
-	-- Å³ Å¾100 1À§Ç¥½Ã
+	-- Å³ Å¾100 1ï¿½ï¿½Ç¥ï¿½ï¿½
 	page = GET_CHILD(frame, 'main', 'ui::CPage');
 	ctrlSet = GET_CHILD(page, 'KillTop100', 'ui::CControlSet');
 	desc = GET_CHILD(ctrlSet, 'desc', 'ui::CRichText');
@@ -47,7 +45,7 @@ function RANK_UPDATE_TITLE_PAGE(str)
 	end
 
 
-	-- µ·È¹µæ Å¾100 1À§Ç¥½Ã
+	-- ï¿½ï¿½È¹ï¿½ï¿½ Å¾100 1ï¿½ï¿½Ç¥ï¿½ï¿½
 	page = GET_CHILD(frame, 'main', 'ui::CPage');
 	ctrlSet = GET_CHILD(page, 'MoneyTop100', 'ui::CControlSet');
 	desc = GET_CHILD(ctrlSet, 'desc', 'ui::CRichText');
@@ -58,7 +56,7 @@ function RANK_UPDATE_TITLE_PAGE(str)
 	end
 
 
-	-- ·¹º§ Å¾100 1À§Ç¥½Ã
+	-- ï¿½ï¿½ï¿½ï¿½ Å¾100 1ï¿½ï¿½Ç¥ï¿½ï¿½
 	page = GET_CHILD(frame, 'main', 'ui::CPage');
 	ctrlSet = GET_CHILD(page, 'LevelTop100', 'ui::CControlSet');
 	desc = GET_CHILD(ctrlSet, 'desc', 'ui::CRichText');
@@ -69,7 +67,7 @@ function RANK_UPDATE_TITLE_PAGE(str)
 	end
 
 	--[[
-	-- ¸ðÇèÀÏÁö Å¾100 1À§Ç¥½Ã
+	-- ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ Å¾100 1ï¿½ï¿½Ç¥ï¿½ï¿½
 	page = GET_CHILD(frame, 'main', 'ui::CPage');
 	ctrlSet = GET_CHILD(page, 'LevelTop100', 'ui::CControlSet');
 	desc = GET_CHILD(ctrlSet, 'desc', 'ui::CRichText');

@@ -1,9 +1,13 @@
 ---- zoneinst_lib.lua --
 
-function GET_CHANNEL_STRING(zoneInst, isShowPCCount)
+function GET_CHANNEL_STRING(zoneInst, isShowPCCount, suffix)
 	if zoneInst == nil then 
 		return
 	end
+	
+	if suffix == nil then
+		suffix = ''
+	end	
 
     local maxCount = zoneInst.maxCount
 	local fontStr = "{@st42b}";
@@ -12,7 +16,7 @@ function GET_CHANNEL_STRING(zoneInst, isShowPCCount)
 	local emptyColor = "{#FFFFFF}";
 
 	local ret = string.format("%s %d", ClMsg("Channel"), zoneInst.channel + 1);
-	
+	ret = ret .. suffix
 	if isShowPCCount == true and zoneInst.pcCount >= 0 then
 		ret = ret..string.format(" (%d/%d)", zoneInst.pcCount, maxCount)
 	end

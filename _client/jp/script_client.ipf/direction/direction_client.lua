@@ -1,7 +1,5 @@
-
-
-function DRT_C_PLAY_ANIM(actor, cmd, animName, fixAnim, duplicationPlay, delayTime, passedTime, resetAfterPlay)
-
+﻿
+function DRT_C_PLAY_ANIM(actor, cmd, animName, fixAnim, duplicationPlay, delayTime, passedTime)
 	if fixAnim == nil then
 		fixAnim = 1;
 	end
@@ -19,9 +17,13 @@ function DRT_C_PLAY_ANIM(actor, cmd, animName, fixAnim, duplicationPlay, delayTi
 		startTime = passedTime;
 	end
 
-	if resetAfterPlay ~= nil and resetAfterPlay == 1 then
-		actor:GetAnimation():ResetAnim();
-	end
+		local isPubUsePoseActor = customizing_ui.IsPubUsePoseByActor(actor:GetHandleVal());
+		if isPubUsePoseActor == true then
+			local pubUsePoseName = customizing_ui.GetUsePoseName();
+			if pubUsePoseName ~= "None" then
+				animName = pubUsePoseName;
+			end
+		end
 
 	actor:GetAnimation():PlayFixAnim(animName, 1.0, fixAnim, 1, delayTime, skipIfExist, false, startTime);
 end
@@ -84,11 +86,9 @@ function DRT_C_SHOCKWAVE(actor, cmd, type, range, intensity, time, freq, angle)
 end
 
 function DRT_C_CAM_ZOOM_NEW(actor, cmd, dist, time, easing)
-	
 	if false == cmd:UseCameraZoom() then
 		return;
 	end
-	
 	camera.CustomZoom(dist, time, easing);
 end
 
@@ -307,9 +307,9 @@ function DRT_C_HIDE_MY_CHAR(pc, cmd, isHide)
 		movie.ShowModel(pc:GetHandleVal(), 1)
 	else
 		movie.ShowModel(pc:GetHandleVal(), 0)
-	end;
-	
+	end
 end
+
 function DRT_FUNC_RUNSCRIPT_C(pc, cmd, funcName)
 	local func = _G[funcName];
 	func(pc ,cmd);

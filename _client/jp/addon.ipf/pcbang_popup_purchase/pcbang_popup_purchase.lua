@@ -2,7 +2,7 @@
 function PCBANG_POPUP_PURCHASE_ON_INIT(addon, frame)
 end
 
-function PCBANG_POPUP_PURCHASE_OPEN(productClsID)
+function PCBANG_POPUP_PURCHASE_OPEN(productClsID)    
     local itemName = nil;
     local infoCnt = session.pcBang.GetSellingListCount();
     local info = nil;
@@ -43,15 +43,47 @@ function PCBANG_POPUP_PURCHASE_OPEN(productClsID)
     buycount_text:SetTextByKey("limit", buylimit)
     
     frame:SetUserValue("Product", productClsID);
+    frame:SetUserValue("buylimit", buylimit);
     frame:ShowWindow(1);
+end
+
+function INPUT_NUMBER_BOX_PCBANG_PURCHASE(cbframe, titleName, strscp, defNumber, minNumber, maxNumber)
+	local frame = INPUT_STRING_BOX_CB(cbframe, titleName, strscp, defNumber, nil, nil, nil, true)
+	local edit = GET_CHILD(frame, 'input', "ui::CEditControl");	
+	edit:SetNumberMode(1);
+	edit:SetMaxNumber(maxNumber);
+	edit:SetMinNumber(minNumber);
+    edit:AcquireFocus();
+    
+    local f = ui.GetFrame('pcbang_shop')
+    if f ~= nil then
+        frame:SetLayerLevel(f:GetLayerLevel() + 1)
+    end
 end
 
 function ON_PCBANG_POPUP_PURCHASE_YES(frame)
     local productClsID = frame:GetUserIValue("Product");
-    pcBang.ReqPCBangShopPurchase(productClsID);
+    local buylimit = frame:GetUserIValue("buylimit");
+
+    if buylimit == 1 then
+        pcBang.ReqPCBangShopPurchase(productClsID, 1);
+    else
+        local maxCount = tonumber(buylimit)
+        if maxCount > 20 then
+            maxCount = 20
+        end
+        local titleText = ScpArgMsg("INPUT_CNT_D_D", "Auto_1", 1, "Auto_2", maxCount);
+        INPUT_NUMBER_BOX_PCBANG_PURCHASE(frame, titleText, "RUN_PCBANG_POPUP_PURCHASE", 1, 1, maxCount);
+    end
+    
     frame:ShowWindow(0);
 end
 
 function ON_PCBANG_POPUP_PURCHASE_NO(frame)
     frame:ShowWindow(0);
+end
+
+function RUN_PCBANG_POPUP_PURCHASE(frame, count, input_frame)
+    productClsID = frame:GetUserIValue("Product")    
+    pcBang.ReqPCBangShopPurchase(productClsID, count);
 end

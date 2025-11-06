@@ -6,7 +6,7 @@ ClassID,GenType,Lv,Range,GenRange,RespawnTime,MaxPop,Minimap,Hide,UseAIOufOfPC,A
 6,6,1,1,1,60000,1,1,0,0,1,50,0,"npc_paladin_follower1_3","추종자 바이다스","","","","","","","CHAPEL_VIDAS","","","NO","YES","NO","Neutral","","","",""
 8,8,1,250,1,15000,1,0,0,0,1,0,0,"holly_sphere_chapel_02","지하 중앙 제단","","","","","","","","CHAPEL575_BASIC_1","CHAPEL575_BASIC_1","NO","YES","NO","Neutral","","","",""
 9,9,1,1,1,60000,1,0,0,0,1,0,0,"npc_Unknocker","","","","","","","CHAPLE575_MQ_UNKNOCK","","CHAPLE575_MQ_04","","NO","YES","NO","Neutral","","","",""
-14,14,1,1,1,60000,1,0,0,0,1,0,0,"block_fence_2","UnvisibleName","","","","","","GELE574_MQ_10_GATE","CHAPLE575_MQ_09","","","NO","YES","NO","Neutral","","","",""
+14,14,1,1,1,60000,1,0,0,0,1,0,0,"block_fence_2","마족 결계","","","","","","GELE574_MQ_10_GATE","CHAPLE575_MQ_09","","","NO","YES","NO","Neutral","","","",""
 17,17,0,40,9999,0,20,0,0,0,0,0,0,"Yognome","","","","","","","","","","","NO","YES","NO","Monster","","","","Attack"
 19,19,0,0,200,30000,15,0,0,0,1,0,0,"rootcrystal_01","","","","","MON_TORCH","","","","","","NO","YES","NO","RootCrystal","","","",""
 20,20,0,40,9999,0,20,0,0,0,0,0,0,"zombiegirl2_chpel","","","","","","","","","","","NO","YES","NO","Monster","","","","Attack"

@@ -1,13 +1,24 @@
-function ADVENTURE_BOOK_MAIN_INIT(parent, mainPage, showReward)
+function ADVENTURE_BOOK_MAIN_TAB_SELECTED(parent, mainPage)
+    ADVENTURE_BOOK_MAIN_INIT(parent, mainPage)
+end
+
+function ADVENTURE_BOOK_MAIN_INIT(parent, mainPage)
+    local frame = ui.GetFrame('adventure_book')
+
+    if parent == nil then
+        parent = frame:GetChild('gb_adventure')
+    end
+
+    if mainPage == nil then
+        mainPage = parent:GetChild('page_main')
+    end
+
     ReqAdventureBookRankingForMainPage();
 
     ADVENTURE_BOOK_MAIN_INIT_MY_CHAR_INFO(mainPage);
     ADVENTURE_BOOK_MAIN_INIT_POINT_GAGUE(parent);
 
-    if showReward ~= 'None' then
-        mainPage:SetUserValue('SHOW_REWARD', showReward);
-    end
-    ADVENTURE_BOOK_MAIN_REWARD(parent);
+    ADVENTURE_BOOK_MAIN_REWARD(frame);
 end
 
 function ADVENTURE_BOOK_MAIN_INIT_MY_CHAR_INFO(mainPage)
@@ -214,7 +225,7 @@ function ADVENTURE_BOOK_MAIN_SET_MY_RANK_INFO(frame)
     local FG_MARGIN = 10;
     gauge_fg:Resize(gauge_fg:GetWidth(), height);
 
-    local arrowY = math.min(gauge_fg:GetOriginalHeight() - gauge_fg:GetHeight(), 348);
+    local arrowY = math.min(gauge_fg:GetOriginalHeight() - gauge_fg:GetHeight(), gauge_fg:GetHeight());
     arrow_pic:SetOffset(arrow_pic:GetX(), arrow_pic:GetOriginalY() + arrowY);
 
     return existRank;
@@ -238,8 +249,9 @@ function GET_ADVENTURE_BOOK_REWARD_STEP(category, curPoint)
 end
 
 function ADVENTURE_BOOK_MAIN_REWARD(frame)
-    local mainPage = GET_CHILD_RECURSIVELY(frame, 'page_main');
-    local page_main_left = GET_CHILD_RECURSIVELY(mainPage, 'page_main_left');
+    local gb_adventure = frame:GetChild('gb_adventure')
+    local page_main = GET_CHILD(gb_adventure, 'page_main');
+    local page_main_left = GET_CHILD(page_main, 'page_main_left');
     local childCount = page_main_left:GetChildCount();
     for i = 0, childCount - 1 do
         local child = page_main_left:GetChildByIndex(i);
@@ -257,8 +269,12 @@ function ADVENTURE_BOOK_MAIN_REWARD(frame)
 end
 
 function ADVENTURE_BOOK_MAIN_SELECT(frame)
-    local bookmark = GET_CHILD(frame, 'bookmark');
-    bookmark:SelectTab(0);
+    local mainTab = GET_CHILD(frame, 'mainTab')
+    mainTab:SelectTab(1)
+
+    local gb_adventure = GET_CHILD(frame, 'gb_adventure');
+    local bookmark = GET_CHILD(gb_adventure, 'bookmark');
+    bookmark:SelectTab(0)
 end
 
 function ADVENTURE_BOOK_MAIN_INIT_REWARD_BTN(ctrlSet, rewardCategory)
@@ -282,8 +298,21 @@ end
 
 function ADVENTURE_BOOK_SHOW_REWARD_INFO(ctrlSet, rewardBtn)
     local adventure_book = ctrlSet:GetTopParentFrame();
-    local page_main = GET_CHILD_RECURSIVELY(adventure_book, 'page_main');
+    local gb_adventure = GET_CHILD(adventure_book, 'gb_adventure');
+    local page_main = GET_CHILD(gb_adventure, 'page_main');
     local rewardCategory = ctrlSet:GetUserValue('REWARD_CATEGORY');
     local curLevel = ctrlSet:GetUserIValue('CUR_REWARD_LEVEL');
     ADVENTURE_BOOK_REWARD_OPEN(rewardCategory, curLevel, page_main:GetUserValue('SHOW_REWARD'));
+end
+
+function ADVENTURE_BOOK_ISOPENBYNPC(isOpenByNPC)
+    local frame = ui.GetFrame("adventure_book")
+    local gb_adventure = GET_CHILD(frame, 'gb_adventure');
+    local page_main = GET_CHILD(gb_adventure, 'page_main');
+
+    if isOpenByNPC == 'YES' then
+        page_main:SetUserValue('SHOW_REWARD', 'YES');
+    else
+        page_main:SetUserValue('SHOW_REWARD', 'NO');
+    end
 end

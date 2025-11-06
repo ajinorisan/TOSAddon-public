@@ -55,10 +55,23 @@ function GUILD_PR_GET(code, ret_json)
         return;
 	end
 
-	if ret_json == "true" then
+	local result_list = StringSplit(ret_json, " ")
+	if #result_list ~= 2 then
+		introText:SetCheck(0)
+		introText:SetEnable(0)
+		return
+	end
+
+	if result_list[1] == "true" then
 		introText:SetCheck(1)
 	else
 		introText:SetCheck(0);
+	end
+
+	if result_list[2] == "True" then
+		introText:SetEnable(1)
+	else
+		introText:SetEnable(0)
 	end
 end
 

@@ -1,16 +1,6 @@
-function SCR_ATTACKER_TS_NONE(selfAi)
-
-	sleep(100);
-
-	while true do
-		sleep(100);
-	 end
- end
-
 AUTO_MOVE_CNT = 5;
 
 function SCR_ATTACKER_TS_CHASE(selfAi)
-
 
 	local destAction = selfAi:GetDestAction();
 	if 'ATTACK' == destAction then
@@ -138,8 +128,7 @@ s_warpPCHideTime = 1.8;
 s_warpSleepTime  = 0.3;
 s_warpEffect	 = 0;
  
- function ENTER_QUEST_WARP(actor)
-
+ function ENTER_QUEST_WARP(actor, argString, warpUpdateType, isMoveMap)
 	local fsmActor = GetMyActor();
 	if fsmActor:IsDead() == 1 then
 		return;
@@ -152,36 +141,30 @@ s_warpEffect	 = 0;
 	actor:ReserveArgPos(1);
 	actor:SetArgPos(0, world.GetActorPos(actor:GetHandleVal()));
 	movie.PlayAnim(actor:GetHandleVal(), "WARP", 1.0, 1);
-	
-	actor:SetFSMTime( imcTime.GetAppTime());
-	actor:SetFSMArg1(0);	
 end
 
-function UPDATE_QUEST_WARP(actor, elapsedTime)	
-
-	-- �����ϴ��߿� ���ݴ��ϸ� ���� ĵ��
+function UPDATE_QUEST_WARP(actor, elapsedTime, argString, warpUpdateType, isMoveMap, enterAppTime)
 	local fsmActor = GetMyActor();	
 	if fsmActor:IsHitState() == 1 or fsmActor:IsDead() == 1 then
 		actor:ActorMoveStop();
 		movie.ShowModel(actor:GetHandleVal(), 1);
 		return;		
 	end
-
-	local arg = actor:GetFSMArg1();	
-	if arg == 0 then		-- warp ready
-		UPDATE_QUEST_WARP_READY(actor);		
-	elseif arg == 1 then	-- warp
-		UPDATE_QUEST_WARP_PROC(actor);		
-	elseif arg == 2 then	-- warp end
-		UPDATE_QUEST_WARP_END(actor, elapsedTime);	
+	
+	if warpUpdateType == 0 then		-- warp ready
+		UPDATE_QUEST_WARP_READY(actor, elapsedTime, argString, warpUpdateType, isMoveMap, enterAppTime);
+	elseif warpUpdateType == 1 then	-- warp
+		UPDATE_QUEST_WARP_PROC(actor, elapsedTime, argString, warpUpdateType, isMoveMap, enterAppTime);
+	elseif warpUpdateType == 2 then	-- warp end
+		UPDATE_QUEST_WARP_END(actor, elapsedTime, argString, warpUpdateType, isMoveMap, enterAppTime);
 	end	
 end
 
-function UPDATE_QUEST_WARP_READY(actor)
+function UPDATE_QUEST_WARP_READY(actor, elapsedTime, argString, warpUpdateType, isMoveMap, enterAppTime)
 	local startPos = actor:GetArgPos(0);
 	local destPos = actor:GetMoveDestPos();
 	
-	local ratio = (imcTime.GetAppTime() - actor:GetFSMTime()) / s_warpTotalTime;
+	local ratio = (imcTime.GetAppTime() - enterAppTime) / s_warpTotalTime;
 	
 	local yPos  = s_warpDestYPos * ratio * ratio * ratio * ratio * ratio + startPos.y;
 	startPos.y = yPos;
@@ -189,46 +172,40 @@ function UPDATE_QUEST_WARP_READY(actor)
 	if ratio < 1.0 then
 		actor:SetPos(startPos);
 	else
-		if s_warpEffect == 0 then
-			--movie.StopAnimToStd(actor:GetHandleVal());		
-			actor:GetEffect():PlayEffect("F_light029_blue", 0.2);
-			--movie.ShowModel(actor:GetHandleVal(), 0);
-			s_warpEffect = 1;
+		local isEnableWarpEffect = actor:GetUserIValue("IsEnableWarpEffect");
+		if isEnableWarpEffect == 1 then
+			local isPlayedWarpEffect = actor:GetUserIValue("IsPlayedWarpEffect");
+			if isPlayedWarpEffect == 0 then
+				actor:GetEffect():PlayEffect("F_light029_blue", 0.2);
+				actor:SetUserValue("IsPlayedWarpEffect", 1);
+			end
 		end
 	end		
 	
-	if ratio >= 1.0 and (imcTime.GetAppTime() - actor:GetFSMTime()) > s_warpPCHideTime then				
-		actor:SetFSMArg1(1);
-		actor:SetFSMTime(imcTime.GetAppTime());
-		local strArg = actor:GetFSMStrArg();
-		if strArg ~= "None" then
-			ui.Chat(strArg);
+	if ratio >= 1.0 and (imcTime.GetAppTime() - enterAppTime) > s_warpPCHideTime then				
+		if argString == nil or argString ~= "None" then
+			ui.Chat(argString);
 		end
 
-		s_warpEffect = 0;
+		actor:SetUserValue("IsEnableWarpEffect", 1);
 		return;
 	end
 end
  
-function UPDATE_QUEST_WARP_PROC(actor)
+function UPDATE_QUEST_WARP_PROC(actor, elapsedTime, argString, warpUpdateType, isMoveMap, enterAppTime)
 	actor:SetJumpAniType(1);
-	-- movie.StopAnimToStd(actor:GetHandleVal());
-	--movie.ShowModel(actor:GetHandleVal(), 0);
-	
-	if actor:GetFSMArg2() == 1 then
+
+	if isMoveMap == true then
 		s_warpSleepTime = 5.0;
 	else
 		s_warpSleepTime = 0.3;
 	end
-	if (imcTime.GetAppTime() - actor:GetFSMTime()) > s_warpSleepTime then
+	if (imcTime.GetAppTime() - enterAppTime) > s_warpSleepTime then
 		local scenePos = world.GetActorPos(actor:GetHandleVal());
 		scenePos.y = scenePos.y - s_warpDestYPos;
 		actor:SetMoveDestPos(scenePos);
 		actor:ReserveArgPos(1);
 		actor:SetArgPos(0, world.GetActorPos(actor:GetHandleVal()));
-		
-		actor:SetFSMArg1(2);
-		actor:SetFSMTime(imcTime.GetAppTime());
 		
 		actor:GetEffect():RemoveEffect("F_light029_blue", 1);
 		
@@ -236,24 +213,23 @@ function UPDATE_QUEST_WARP_PROC(actor)
 	end
 end
 
-function UPDATE_QUEST_WARP_END(actor, elapsedTime)	
-	local ratio = (imcTime.GetAppTime() - actor:GetFSMTime()) / s_warpEndTime;
+function UPDATE_QUEST_WARP_END(actor, elapsedTime, argString, warpUpdateType, isMoveMap, enterAppTime)
+	local ratio = (imcTime.GetAppTime() - enterAppTime) / s_warpEndTime;
 	
 	if ratio >= 0.2 and ratio < 1.0 then
-		if s_warpEffect == 0 then
-			actor:GetEffect():PlayEffect("F_light029_blue", 0.2);
-			s_warpEffect = 1;
+		local isEnableWarpEffect = actor:GetUserIValue("IsEnableWarpEffect");
+		if isEnableWarpEffect == 1 then
+			local isPlayedWarpEffect = actor:GetUserIValue("IsPlayedWarpEffect");
+			if isPlayedWarpEffect == 0 then
+				actor:GetEffect():PlayEffect("F_light029_blue", 0.2);
+				actor:SetUserValue("IsPlayedWarpEffect", 1);
+			end
 		end
 	end
 
 	if ratio >= 1.0 then
-		actor:ProcessVerticalMove(elapsedTime);		
-		movie.ShowModel(actor:GetHandleVal(), 1);		
-		-- if actor:IsOnGround() == true then
-			actor:ActorMoveStop();
-		-- end
-		
-		s_warpEffect = 0;
+		actor:ProcessVerticalMove(elapsedTime);
+		movie.ShowModel(actor:GetHandleVal(), 1);
 		return;
 	end	
 end
@@ -274,9 +250,13 @@ function SELECT_QUEST_WARP()
 	OPEN_QUESTWARP_FRAME(frame);
 end
 
-function ENTER_INTE_WARP(actor)    
-
+function ENTER_INTE_WARP(actor, argString, warpUpdateType, isMoveMap)
 	local fsmActor = GetMyActor();
+	
+	if fsmActor == nil then
+		return
+	end
+
 	if fsmActor:IsDead() == 1 then
 		return;
 	end
@@ -287,13 +267,11 @@ function ENTER_INTE_WARP(actor)
 	actor:SetMoveDestPos(scenePos);
 	actor:ReserveArgPos(1);
 	actor:SetArgPos(0, world.GetActorPos(actor:GetHandleVal()));
+	actor:SetUserValue("WarpRequested", 0);
 	movie.PlayAnim(actor:GetHandleVal(), "WARP", 1.0, 1);
-	
-	actor:SetFSMTime( imcTime.GetAppTime());
-	actor:SetFSMArg1(0);	
 end
 
-function UPDATE_INTE_WARP(actor, elapsedTime)	    
+function UPDATE_INTE_WARP(actor, elapsedTime, argString, warpUpdateType, isMoveMap, enterAppTime)
 	local fsmActor = GetMyActor();	
 	if fsmActor:IsHitState() == 1 or fsmActor:IsDead() == 1 then
 		actor:ActorMoveStop();
@@ -301,103 +279,75 @@ function UPDATE_INTE_WARP(actor, elapsedTime)
 		return;		
 	end
 
-	local arg = actor:GetFSMArg1();		
-	if arg == 0 then		-- warp ready
-		UPDATE_INTE_WARP_READY(actor);		
-	elseif arg == 1 then	-- warp
-		UPDATE_INTE_WARP_PROC(actor);		
+	if warpUpdateType == 0 then		-- warp ready
+		UPDATE_INTE_WARP_READY(actor, elapsedTime, argString, warpUpdateType, isMoveMap, enterAppTime);
+	elseif warpUpdateType == 1 then	-- warp
+		UPDATE_INTE_WARP_PROC(actor, elapsedTime, argString, warpUpdateType, isMoveMap, enterAppTime);
 	end	
 end
 
-function UPDATE_INTE_WARP_READY(actor)    
+function UPDATE_INTE_WARP_READY(actor, elapsedTime, argString, warpUpdateType, isMoveMap, enterAppTime)
+    local ratio = (imcTime.GetAppTime() - enterAppTime) / s_warpTotalTime;
+    local isHide = (imcTime.GetAppTime() - enterAppTime) > s_warpPCHideTime;
 
-	local startPos = actor:GetArgPos(0);
-	local destPos = actor:GetMoveDestPos();
+    local startPos = actor:GetArgPos(0);
+    local destPos = actor:GetMoveDestPos();
+    
+    startPos.y = s_warpDestYPos * ratio * ratio * ratio * ratio * ratio + startPos.y;
 	
-	local ratio = (imcTime.GetAppTime() - actor:GetFSMTime()) / s_warpTotalTime;
-	
-	local yPos  = s_warpDestYPos * ratio * ratio * ratio * ratio * ratio + startPos.y;
-	startPos.y = yPos;
-	
-	if ratio < 1.0 then
-		actor:SetPos(startPos);
-	else
-		if s_warpEffect == 0 then
-			--movie.StopAnimToStd(actor:GetHandleVal());		
-			actor:GetEffect():PlayEffect("F_light029_blue", 0.2);
-			--movie.ShowModel(actor:GetHandleVal(), 0);
-			s_warpEffect = 1;
-		end
-	end		
-	
-	if ratio >= 1.0 and (imcTime.GetAppTime() - actor:GetFSMTime()) > s_warpPCHideTime then				
-		actor:SetFSMArg1(1);
-		actor:SetFSMTime(imcTime.GetAppTime());
-		local strArg = actor:GetFSMStrArg();
-		local sageWarp, sageWarpEnd= string.find(strArg,'friends.SageSkillGoFriend');
-		if nil ~= sageWarp then
-			local length = string.len(strArg);
-			local string = string.sub(strArg, sageWarpEnd+2, length-1)
-			local sList = StringSplit(string, ",");
-			if #sList >= 6 then
-				friends.SageSkillGoFriend(sList[1], tonumber(sList[2]), tonumber(sList[2]), tonumber(sList[2]), tonumber(sList[2]), tonumber(sList[2]));
-			end
-		else
-			if strArg ~= 'None' then
-				ui.Chat(strArg);	
-			end
-		end
-		s_warpEffect = 0;
-		return;
-	end
+    if ratio < 1.0 then
+        actor:SetPos(startPos);
+        return;
+    end
+
+    if actor:GetUserIValue("WarpRequested") == 1 then
+        return;
+    end
+
+    if isHide then
+        INTE_WARP_EXEC(argString);
+
+        actor:GetEffect():PlayEffect("F_light029_blue", 0.2);
+        actor:SetUserValue("WarpRequested", 1);
+
+        return;
+    end
+end
+
+function INTE_WARP_EXEC(argString)
+    local sageWarp, sageWarpEnd= string.find(argString,'friends.SageSkillGoFriend');
+    if nil ~= sageWarp then
+        local length = string.len(argString);
+        local string = string.sub(argString, sageWarpEnd+2, length-1)
+        local sList = StringSplit(string, ",");
+        if #sList >= 6 then
+            friends.SageSkillGoFriend(sList[1], tonumber(sList[2]), tonumber(sList[2]), tonumber(sList[2]), tonumber(sList[2]), tonumber(sList[2]));
+        end
+    else
+        if argString == nil or argString ~= "None" then
+            ui.Chat(argString);	
+        end
+    end
 end
  
-function UPDATE_INTE_WARP_PROC(actor)
+function UPDATE_INTE_WARP_PROC(actor, elapsedTime, argString, warpUpdateType, isMoveMap, enterAppTime)
 	actor:SetJumpAniType(1);
 	movie.ShowModel(actor:GetHandleVal(), 0);
 	
-	if actor:GetFSMArg2() == 1 then
+	if isMoveMap == true then
 		s_warpSleepTime = 5.0;
 	else
 		s_warpSleepTime = 0.3;
 	end
 	
-	if (imcTime.GetAppTime() - actor:GetFSMTime()) > s_warpSleepTime then
+	if (imcTime.GetAppTime() - enterAppTime) > s_warpSleepTime then
 		local scenePos = world.GetActorPos(actor:GetHandleVal());
 		scenePos.y = scenePos.y - s_warpDestYPos;
 		actor:SetMoveDestPos(scenePos);
 		actor:ReserveArgPos(1);
 		actor:SetArgPos(0, world.GetActorPos(actor:GetHandleVal()));
 		
-		actor:SetFSMArg1(2);
-		actor:SetFSMTime(imcTime.GetAppTime());
-		
 		actor:GetEffect():RemoveEffect("F_light029_blue", 1);		
 		return;
 	end
 end
-
---[[
-function UPDATE_INTE_WARP_END(actor, elapsedTime)	
-
-	local ratio = (imcTime.GetAppTime() - actor:GetFSMTime()) / s_warpEndTime;
-	
-	if ratio >= 0.2 and ratio < 1.0 then
-		if s_warpEffect == 0 then
-			actor:GetEffect():PlayEffect("F_light029_blue 0.2);
-			s_warpEffect = 1;
-		end
-	end
-	
-	if ratio >= 1.0 then
-		actor:ProcessVerticalMove(elapsedTime);		
-		movie.ShowModel(actor:GetHandleVal(), 1);		
-		if actor:IsOnGround() == true then
-			actor:ActorMoveStop();
-		end
-		
-		s_warpEffect = 0;
-		return;
-	end	
-end
-]]--

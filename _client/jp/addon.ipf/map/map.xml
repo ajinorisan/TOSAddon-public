@@ -23,6 +23,10 @@
 		<richtext name="mapRank" parent="map" rect="0 48 200 30" layout_gravity="center top" caption="" fontname="white_20" hittest="false" spacey="0"/>
 		<richtext name="rate" rect="0 55 200 30" layout_gravity="center top" caption="탐사율 : 50.0%" format="{@st45tw}[탐사율 %s%]{/}" param1="rate"/>
 		<button name="close_map" rect="0 0 44 44" margin="0 18 18 0" layout_gravity="right top" LBtnDownScp="" LBtnUpArgNum="" LBtnUpScp="ui.CloseFrame(&apos;map&apos;)" MouseOffAnim="btn_mouseoff" MouseOnAnim="btn_mouseover" caption="" image="testclose_button" clicksound="button_click_big" oversound="button_over" texttooltip="{@st59}지도를 닫습니다 (M){/}"/>
-		<button name="open_map" rect="0 0 120 40" margin="0 18 80 0" layout_gravity="right top" LBtnUpArgNum="" LBtnUpScp="CLOSE_AND_OPEN_UI" LBtnUpArgStr="worldmap" MouseOffAnim="btn_mouseoff" MouseOnAnim="btn_mouseover" caption="{@st66b}전체 지도{/}" skin="test_pvp_btn" clicksound="button_click_big" oversound="button_over" texttooltip="{@st59}전체 지도를 엽니다{/}"/>
+		<button name="open_map" rect="0 0 120 40" margin="0 18 80 0" layout_gravity="right top" LBtnUpArgNum="" LBtnUpScp="CLOSE_AND_OPEN_UI" LBtnUpArgStr="worldmap2_mainmap" MouseOffAnim="btn_mouseoff" MouseOnAnim="btn_mouseover" caption="{@st66b}월드맵{/}" skin="test_pvp_btn" clicksound="button_click_big" oversound="button_over" texttooltip="{@st59}월드맵을 엽니다.{/}"/>
+		<groupbox name="gbox_info" parent="bg" rect="0 0 300 300" margin="750 265 0 0" layout_gravity="center center" hittest="true" hittestbox="true" draw="true" skin="chat_window" scrollbar="false"/>
+		<groupbox name="gbox_info_title" parent="gbox_info" rect="0 0 300 30" margin="0 0 0 0" layout_gravity="center top" draw="false" hittest="false" hittestbox="false" resizebyparent="false" scrollbar="false"/>
+		<richtext name="text_info_title" parent="gbox_info_title" rect="0 0 300 30" margin="8 0 0 0" spacey="0" fontname="brown_18_b" layout_gravity="center center" hittest="false" textalign="left center" format="{@st43}{#d0bda8}{s18}%s" param1="title" param1_def="현황"/>
+		<groupbox name="gbox_info_list" parent="gbox_info" rect="0 0 300 265" margin="0 30 0 0" layout_gravity="center top" draw="false" hittest="false" hittestbox="false" resizebyparent="false" scrollbar="true"/>
 	</controls>
 </uiframe>

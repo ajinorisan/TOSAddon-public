@@ -1,3 +1,4 @@
+-- EV2018_REWARD_GUIDE.lua
 -- function SCR_EV2018_REWARD_GUIDE_DIALOG(self, pc) --초보, 복귀 이벤트 --
 
 --     local aObj = GetAccountObj(pc); 

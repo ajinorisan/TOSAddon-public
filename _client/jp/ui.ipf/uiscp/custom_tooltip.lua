@@ -216,7 +216,7 @@ function tooltip_EP17_Kalentis_BRC_01(item)
     local a = '2,250'
     local b = '675'
     
-    local msg = ScpArgMsg('tooltip_EP16_NECK_01', 'aa', aa, 'a', a, 'b', b, 'c', 0.5)
+    local msg = ScpArgMsg('tooltip_EP16_NECK_01', 'aa', aa, 'a', a, 'b', b, 'c', 0.25)
     
     optionname = get_item_effect_name(item)
 

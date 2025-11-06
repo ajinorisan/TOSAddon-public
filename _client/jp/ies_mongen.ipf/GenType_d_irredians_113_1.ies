@@ -19,3 +19,8 @@ ClassID,GenType,Lv,Range,GenRange,RespawnTime,MaxPop,Minimap,Hide,UseAIOufOfPC,A
 18,18,1,40,1,1,1,0,0,0,1,0,0,"white_paper2","종이에 쓰인 낙서","","","","","","","IRREDIANS1131_SCROLL_2_NPC","","","NO","YES","NO","Neutral","","","",""
 19,19,1,40,1,1,1,0,0,0,1,0,0,"white_paper2","종이에 쓰인 낙서","","","","","","","IRREDIANS1131_SCROLL_3_NPC","","","NO","YES","NO","Neutral","","","",""
 20,20,1,40,1,1,1,0,0,0,1,0,0,"white_paper2","종이에 쓰인 낙서","","","","","","","IRREDIANS1131_SCROLL_4_NPC","","","NO","YES","NO","Neutral","","","",""
+21,21,1,40,1,60000,1,1,0,0,0,0,0,"dialog_warp_npc_1","마돈메이드[포탈]","","","","","","IRREDIAN1131_CENTER_LEFT_PORTAL_AI","IRREDIAN1131_CLP_NPC","","","NO","YES","NO","Neutral","","","",""
+22,22,1,40,1,60000,1,1,0,0,0,0,0,"dialog_warp_npc_1","어미스독[포탈]","","","","","","IRREDIAN1131_CENTER_RIGHT_PORTAL_AI","IRREDIAN1131_CRP_NPC","","","NO","YES","NO","Neutral","","","",""
+27,27,1,40,1,60000,1,1,0,0,0,0,0,"npc_Irredians_TelHarsha","텔하르샤","","","","","","","FREEDUNGEON_TELHARSHA_ENTER","","","NO","YES","NO","Neutral","","","",""
+28,28,1,300,1,60000,1,1,0,0,0,0,0,"HiddenTrigger_CantGen300","CantGen","","","","","","","","","","NO","YES","NO","Neutral","","","",""
+29,29,1,20,1,60000,1,0,0,0,1,0,0,"HiddenTrigger4","UnvisibleName","","","","","","","","EXPLORER_MISLE16","","NO","YES","NO","Neutral","","","",""

@@ -1,11 +1,14 @@
 --- mgame_action.lua --
 
-function MGAME_MSG(actor, msgStr)
-    addon.BroadMsg("NOTICE_Dm_!", msgStr, 3);
+function MGAME_MSG(actor, msgStr, msgDuration)
+    if msgDuration == nil or msgDuration <= 0 then
+        msgDuration = 3;
+    end
+    
+    addon.BroadMsg("NOTICE_Dm_!", msgStr, msgDuration);
 end
 
 function SHOW_SIMPLE_MSG(msgStr)
-
 	local pvpmsg = ui.GetFrame("pvpmsg");
 	pvpmsg:ShowWindow(1);
 	local text = pvpmsg:GetChild("text");
@@ -14,6 +17,26 @@ function SHOW_SIMPLE_MSG(msgStr)
 	local number = 0;
 	if #sList > 1 then
 		number = tonumber(sList[2]);
+	end
+
+	if number > 0 then
+	text:SetTextByKey("text", msgStr);
+	else
+		text:SetTextByKey("text", "");
+	end
+	pvpmsg:SetDuration(120);
+
+end
+
+function SHOW_SIMPLE_MSG_2(msgStr)
+	local pvpmsg = ui.GetFrame("pvpmsg");
+	pvpmsg:ShowWindow(1);
+	local text = pvpmsg:GetChild("text");
+	text:SetTextByKey("font", "");
+	local sList = StringSplit(msgStr, "}");
+	local number = 0;
+	if #sList > 1 then
+		number = tonumber(sList[3]);
 	end
 
 	if number > 0 then
@@ -70,6 +93,16 @@ function MGAME_EVT_SCRIPT_CLIENT(actor, scriptName)
 end
    
 function MGAME_MSG_ICON(actor, msgStr, icon,  sec)
+	-- EVENT_2101_SUPPLY
+	local objList, objCount = SelectBaseObject(actor, 1000, 'NEUTRAL');
+	for i = 1 , objCount do
+		local _obj = objList[i];
+		local obj = GetBaseObjectIES(_obj);
+		if IS_EVENT_2101_SUPPLY_CONTENT_NPC(obj.ClassName) == true then
+			return;
+		end
+	end
+
     local msg_int = "NOTICE_Dm_"..icon
 	addon.BroadMsg(msg_int, msgStr, sec);
 end

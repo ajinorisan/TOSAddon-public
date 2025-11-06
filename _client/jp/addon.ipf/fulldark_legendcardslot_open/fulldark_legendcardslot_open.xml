@@ -6,7 +6,7 @@
 	<option hideable="false" closebutton="false" autoopen="false"/>
 	<sound opensound="win_open" closesound="win_close"/>
 	<layer layerlevel="97"/>
-	<userconfig LEGENDCARD_OPEN_EFFECT="UI_card_lock" LEGENDCARD_OPEN_EFFECT_SCALE="12" FRAME_DURATION="6"/>
+	<userconfig LEGENDCARD_OPEN_EFFECT_SCALE="12" FRAME_DURATION="6"/>
 	<animation frameCloseAnim="chat_balloon_end2"/>
 	<script OpenScp="" CloseScp=""/>
 	<controls>

@@ -3,11 +3,21 @@
 -- done, 해당 함수 내용은 cpp로 이전되었습니다. 변경 사항이 있다면 반드시 프로그램팀에 알려주시기 바랍니다.
 function GET_OBLATION_MAX_COUNT(skillLevel)
     local value = skillLevel * 100
-	return value;
-
+	return value
 end
 
-function GET_OBLATION_PRICE_PERCENT()
+function GET_OBLATION_PRICE_PERCENT(item)
+	if item == nil then
+		return 0
+	end
+	
+	local name = TryGetProp(item, 'StringArg', 'None')
+	if name ~= 'None' then
+		local cls = GetClass("Housing_Furniture", name)
+		if cls ~= nil then		
+			return 0
+		end
+	end
 	return 0.8;
 end
 

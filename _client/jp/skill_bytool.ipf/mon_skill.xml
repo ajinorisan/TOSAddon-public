@@ -263,20 +263,8 @@
 					<Str Str="Dummy002" />
 					<Num Num="0" />
 				</Scp>
-				<Scp Client="NO" Scp="SKL_HIT_CIRCLE_ADJUSTMENT" Time="300" UseSleep="NO">
-					<Pos Angle="0" Dist="0" />
-					<Num Num="80" />
-					<Str Str="None" />
-					<Str Str="Magic" />
-					<Num Num="0" />
-					<Num Num="0" />
-					<Num Num="3" />
-					<Num Num="0" />
-					<Num Num="150" />
-					<Num Num="10" />
-					<Num Num="0" />
-					<Num Num="1" />
-					<Num Num="2" />
+				<Scp Client="NO" Scp="SKL_RUN_SCRIPT" Time="300" UseSleep="NO">
+					<Str Str="SKL_HIT_CIRCLE_OWL" />
 				</Scp>
 			</EtcList>
 			<ResultList>
@@ -1043,20 +1031,8 @@
 					<Str Str="Dummy002" />
 					<Num Num="0" />
 				</Scp>
-				<Scp Client="NO" Scp="SKL_HIT_CIRCLE_ADJUSTMENT" Time="500" UseSleep="NO">
-					<Pos Angle="0" Dist="0" />
-					<Num Num="80" />
-					<Str Str="None" />
-					<Str Str="Magic" />
-					<Num Num="0" />
-					<Num Num="0" />
-					<Num Num="3" />
-					<Num Num="0" />
-					<Num Num="150" />
-					<Num Num="10" />
-					<Num Num="0" />
-					<Num Num="1" />
-					<Num Num="2" />
+				<Scp Client="NO" Scp="SKL_RUN_SCRIPT" Time="500" UseSleep="NO">
+					<Str Str="SKL_HIT_CIRCLE_OWL" />
 				</Scp>
 			</EtcList>
 			<ResultList>

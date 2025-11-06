@@ -7,5 +7,4 @@
     <layer bottomlayer="true" layerlevel="-10000"/>
     <skin frameskin="bg2"/>
     <input hittest="true"/>
-    <controls/>
 </uiframe>

@@ -40,11 +40,11 @@ end
 
 function test_zone_ev_1_BoardWrite1_quest()
 
-        local pc_obj = RegisterCls('SessionObject', 1103262, 'ssn_test_zone_ev_1_BoardWrite1')
+        -- local pc_obj = RegisterCls('SessionObject', 1103262, 'ssn_test_zone_ev_1_BoardWrite1')
 
-        ChangeClassValue(pc_obj, 'Name', ScpArgMsg("Auto_KeSiPanKeulNamKiKi1"))
+        -- ChangeClassValue(pc_obj, 'Name', ScpArgMsg("Auto_KeSiPanKeulNamKiKi1"))
 
-        ChangeClassValue(pc_obj, 'Script', 'ssn_test_zone_ev_1_BoardWrite1')
+        -- ChangeClassValue(pc_obj, 'Script', 'ssn_test_zone_ev_1_BoardWrite1')
 
 
 

@@ -1,5 +1,28 @@
 -- test_client.lua
 
+testent = testent -- or ecs.null
+
+function TEST_ECS() -- 줄넘기 예제
+    local world = ecs.GetWorld()
+    if not world:IsValid(testent) then
+        testent = world:Create("줄넘기")
+    end
+
+    local trsf = ecs.TransformComponent.GetOrCreate(world, testent)
+    local cable = ecs.CableComponent.GetOrCreate(world, testent)
+
+    local ref = OBJHANDLE.new(GetMyActor():GetHandleVal())
+    trsf.parent.ref = ref
+    trsf.parent.node = "Bip01 L Hand"
+    cable.attachEndTo.ref = ref
+    cable.attachEndTo.node = "Bip01 R Hand"
+
+    cable.endLocation.z = 0
+    cable.width = 1
+    cable.color = imc.Color.new(0.9, 0.8, 0.7)
+    cable.texture = imc.LoadTexture("char_texture/npc/npc_gacha_cube/gacha_cube.dds")
+end
+
 function SCR_CLIENTTESTSCP(handle)
     session.friends.TestAddManyFriend(FRIEND_LIST_COMPLETE, 200);
     session.friends.TestAddManyFriend(FRIEND_LIST_BLOCKED, 100);
@@ -11,13 +34,16 @@ function SCR_OPER_RELOAD_HOTKEY(handle)
 end
 
 function TEST_CLIENT_CHAT_PET_EXP()
-    local summonedPet = GET_SUMMONED_PET();
-    if summonedPet == nil then
-	ui.SysMsg(ClMsg("SummonedPetDoesNotExist"));
-	return;
+    local pet = GET_SUMMONED_PET()
+    if pet == nil then
+        pet = GET_SUMMONED_PET_HAWK()
     end
 
-    local pet = GET_SUMMONED_PET()
+    if pet == nil then
+        ui.SysMsg(ClMsg("SummonedPetDoesNotExist"));
+        return;
+    end
+
     local petInfo = session.pet.GetPetByGUID(summonedPet:GetStrGuid());
     local curTotalExp = petInfo:GetExp();
     local xpInfo = gePetXP.GetXPInfo(gePetXP.EXP_PET, curTotalExp);
@@ -208,3 +234,30 @@ function TEST_SOUND_EFFECT_FADE_OUT()
     actor:GetEffect():SetSoundFadeOut(soundName);
 end
 
+function TEST_RELIC_GEM_INFO_C(type)
+    local item = session.GetInvItemByType(type)
+    if item ~= nil then
+        for i = 0, 3 do
+            local class_id = item:GetEquipGemID(i)
+            if class_id ~= 0 then
+                local gemclass = GetClassByType("Item", class_id)
+                if gemclass ~= nil then
+                    print(gemclass.ClassName)
+                end
+            else
+                print(0)
+            end
+        end
+    end
+end
+
+function TEST_RELIC_RP_GET_C()
+    local relic_item = session.GetEquipItemBySpot(item.GetEquipSpotNum('RELIC'))
+	local relic_obj = GetIES(relic_item:GetObject())
+	if IS_NO_EQUIPITEM(relic_obj) == 1 then
+		return
+    end
+
+    local acc = GetMyAccountObj()
+    print(TryGetProp(acc, 'RP', 0))
+end

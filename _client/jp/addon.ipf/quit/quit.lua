@@ -159,32 +159,6 @@ function CHANGE_SCALE(handle)
 
 end
 
-function TEST_PLAYANIM(handle)
-
-	movie.PlayAnim(handle, "DEAD", 1.0);
-
-end
-
-function TEST_THROW(handle)
-
-	local mobj = GetMyActor();
-	local pos = mobj:GetPos();
-	
-	debug.ForceMoveToJump(handle, pos);
-	--print(handle);
-	
-
-end
-
-function TEST_MOVE_COBJ(handle)
-
-	local c = world.GetActor(handle);
-	local vv = c:GetPos();	
-	vv.z = vv.z + 50;
-	c:SetPos(vv);
-
-end
-
 function EXEC_IES_MANAGE(idSpace, type)
 
 	local obj = GetClassByType(idSpace, type);

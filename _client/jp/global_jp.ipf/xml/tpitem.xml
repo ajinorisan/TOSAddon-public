@@ -1,16 +1,2 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- edited with XMLSpy v2008 sp1 (http://www.altova.com) by tachyon (EMBRACE) -->
-<!-- edited with XMLSPY v2004 rel. 2 U (http://www.xmlspy.com) by imc (imc) -->
-<!-- 카테고리 : 1차 카테고리, 서브카테고리 : 1차 카테고리 눌렀을 때 나오는 서브 카테고리. 필요 없으면 "None" 으로 지정 가능, 아이템클래스테임 : Item idspace에 등록되어 있는 아이템의 클래스네임, 프라이스 : 가격  -->
-<idspace id="TPitem">
-	<Category Name="소모품 /잡화">
-		<SecondCategory Name="소모품">
-			<Class ClassID="101" ClassName="ClassName101" ItemClassName="Mic_bundle10" Price="8"/>
-			<Class ClassID="103" ClassName="ClassName103" ItemClassName="RestartCristal_bundle10" Price="32"/>
-			<Class ClassID="104" ClassName="ClassName104" ItemClassName="RestartCristal" Price="4"/>
-			<Class ClassID="105" ClassName="ClassName105" ItemClassName="Premium_WarpScroll_bundle10" Price="16"/>
-			<Class ClassID="106" ClassName="ClassName106" ItemClassName="Premium_WarpScroll" Price="2"/>
-			<Class ClassID="108" ClassName="ClassName108" ItemClassName="Premium_Enchantchip_10" Price="64"/>
-		</SecondCategory>
-	</Category>
-</idspace>
+<idspace/>

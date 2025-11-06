@@ -7,7 +7,7 @@ function DIALOGILLUST_ON_INIT(addon, frame)
 	addon:RegisterMsg('DIALOG_CLOSE', 'DIALOGILLUST_ON_MSG');
 end
 
---ClassNameÀ» ¹Þ¾Æ, ±×°ÍÀ» ClientÀÇ µ¥ÀÌÅÍÅÂÀÌºí¿¡¼­, °ªÀ» ¹Þ¾Æ ¿À´Â Çü½ÄÀ» ±¸¼ºÇÑ´Ù
+--ClassNameï¿½ï¿½ ï¿½Þ¾ï¿½, ï¿½×°ï¿½ï¿½ï¿½ Clientï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ìºï¿½ï¿½ï¿½ï¿½ï¿½, ï¿½ï¿½ï¿½ï¿½ ï¿½Þ¾ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ñ´ï¿½
 function DIALOGILLUST_TEXTVIEW(frame, msg, argStr, argNum)
 		
     local frame = ui.GetFrame('dialogillust');
@@ -46,6 +46,10 @@ function DIALOGILLUST_ON_MSG(frame, msg, argStr, argNum)
 	end
 
     if  msg == 'DIALOG_CHANGE_SELECT'  then
+		DIALOGILLUST_TEXTVIEW(frame, msg, argStr, argNum)
+    end
+
+    if  msg == 'DIALOG_STAY'  then
 		DIALOGILLUST_TEXTVIEW(frame, msg, argStr, argNum)
     end
 

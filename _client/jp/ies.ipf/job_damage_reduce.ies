@@ -25,7 +25,7 @@ ClassID,ReduceRate,ClassName,Name,EngName,CtrlType
 2016,5,"Char2_16","페더풋","Featherfoot","Wizard"
 2022,5,"Char2_22","보코르","Bokor","Wizard"
 2027,10,"Char2_27","본맨서[W]","Bonemancer","Wizard"
-3026,10,"Char3_26","본맨서[A]","Bonemancer","Archer"
+3109,10,"Char3_26","본맨서[A]","Bonemancer","Archer"
 4003,5,"Char4_3","크리비","Kriwi","Cleric"
 4006,5,"Char4_6","사두","Sadhu","Cleric"
 4009,10,"Char4_9","몽크","Monk","Cleric"

@@ -1168,6 +1168,10 @@ item_goddess_craft.is_able_to_unlock_scroll = function(scrollObj, itemObj)
 	local popoboostProp = TryGetProp(itemObj, 'popoboost', 'None')
 	local UseLv = TryGetProp(itemObj, 'UseLv', 0)
 
+	if TryGetProp(scrollObj, 'NumberArg1', 0) == 540 and TryGetProp(itemObj, 'ClassName', 'None') == 'EP17_RAID_LEATHER_FOOT' then
+		return true, 'None'
+	end
+
 	if stringArg ~= armor and stringArg ~= weapon then
 		return false, 'NotValidItem'
 	end

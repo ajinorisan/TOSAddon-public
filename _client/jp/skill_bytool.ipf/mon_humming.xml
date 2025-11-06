@@ -1,5 +1,6 @@
 <?xml version='1.0' encoding='utf-8'?>
-<ToolSkill><Skill Name="Mon_Humming_duke_Skill_2">
+<ToolSkill>
+    <Skill Name="Mon_Humming_duke_Skill_2">
 		<MainSkl JumpFlee="NO" MSPDToUsePos="0" ScrLock="None">
 			<HitList>
 				<Frame Angle="0" AniTime="600" Dist="0" ForceATK="0" HitCount="1" Length="35" PosType="0" RandDist="0" RandomPerHit="0" RotAngle="0" SklAngle="0.52359879" TermMax="0" TermMin="0" Time="400" Type="FAN" Width="30" />
@@ -84,7 +85,7 @@
 					<Str Str="UC_poison" />
 					<Num Num="1" />
 					<Num Num="0" />
-					<Num Num="60000" />
+                    <Num Num="5000"/>
 					<Num Num="1" />
 					<Num Num="15" />
 					<Num Num="-1" />

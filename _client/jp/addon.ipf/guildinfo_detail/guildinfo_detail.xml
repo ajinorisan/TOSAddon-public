@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- edited with XMLSPY v2004 rel. 2 U (http://www.xmlspy.com) by imc (imc) -->
+<!-- edited with XMLSPY v2004 rel. 3 U (http://www.xmlspy.com) by Hey (IMCGames Co., Ltd) -->
 <uiframe name="guildinfo_detail" x="0" y="0" width="1090" height="900" create="open" version="2">
 	<frame title="{@st43}{s22}길드 상세정보{/}" titlepos="0 0" layout_gravity="center center" scale_align="center top"/>
 	<draw drawframe="true" drawtitlebar="false"/>
@@ -21,7 +21,7 @@
 				<layout name="promoteLayout" orientation="horizontal">
 					<layoutsection name="stub0" size="20"/>
 					<layoutsection name="tabSection">
-						<tab name="itembox" itemspc="0" skin="tab2" margin="0 15 0 0" vertical="false" targetcontrol="tabArea">
+						<tab name="itembox" itemspc="0" skin="tab2" margin="0 15 0 0" vertical="false" targetcontrol="tabArea" LBtnDownScp="GUILDINFO_DETAIL_TAB_CLICK">
 							<!-- targetcontrol="" -->
 							<tabitem name="info" caption=" {@st66}정보" width="100" skinspace="0"/>
 							<tabitem name="page" caption=" {@st66}홍보 페이지" skinspace="0" width="100"/>
@@ -119,7 +119,7 @@
 																	<richtext name="recruitingText" caption="{@s18}모집중{/}" textalign="left center" resizebytext="false" fontname="brown_16" fixwidth="false" drawbackground="false" slideshow="false"/>
 																</layoutsection>
 																<layoutsection name="recruitBtn">
-																	<button name="joinBtn" skin="test_red_button" margin="0 0 0 -4" caption="{@st41}가입 신청" LBtnUpScp="OPEN_REQUEST_GUILDJOIN" textalign="center center"/>
+																	<button name="joinBtn" skin="test_red_button" margin="0 0 0 -4" caption="{@st41}가입 신청" LBtnUpScp="OPEN_REQUEST_GUILDJOIN_CHECK" textalign="center center"/>
 																</layoutsection>
 															</layout>
 														</layoutsection>
@@ -146,6 +146,22 @@
 																</layoutsection>
 																<layoutsection name="avgTeamLvlTextSection">
 																	<richtext name="avgTeamLvlText" caption="{@s18}999{/}" textalign="left center" resizebytext="false" fontname="brown_16" fixwidth="false" drawbackground="false" slideshow="false"/>
+																</layoutsection>
+															</layout>
+														</layoutsection>
+														<layoutsection name="agitLevel">
+															<layout name="agitLevelLayout" spacing="10">
+																<layoutsection name="agitLevelLabel" size="30%">
+																	<overlap name="agitLevelOverlap">
+																		<picture name="agitLevelBg" image="name_box_beige" stretch="true"/>
+																		<richtext name="agitLevelTitleText" caption="{@s18}아지트 레벨{/}" textalign="center center" resizebytext="false" fontname="brown_16" fixwidth="false" drawbackground="false" slideshow="false"/>
+																	</overlap>
+																</layoutsection>
+																<layoutsection name="agitLevelTextSection">
+																	<richtext name="agitLevelText" format="{@s18}%s{/}" param1="level" param1_Def="1" textalign="left center" resizebytext="false" fontname="brown_16" fixwidth="false" drawbackground="false" slideshow="false"/>
+																</layoutsection>
+																<layoutsection name="preview_housing">
+																	<button name="btn_preview_housing" skin="test_red_button" margin="0 0 0 -4" caption="{@st41}미리보기" LBtnUpScp="BTN_PREVIEW_HOUSING" textalign="center center"/>
 																</layoutsection>
 															</layout>
 														</layoutsection>
@@ -177,7 +193,7 @@
 									</overlap>
 								</layoutsection>
 								<layoutsection name="memberListOptSec" size="5%">
-									<checkbox name="showMemberWithAccept" caption="가입 승인 직급이 있는 접속한 길드원 표시"  fontname="white_18_ol" LBtnUpScp="SHOW_GUILD_MEMBER_WITH_ACCEPT_AUTH" />
+									<checkbox name="showMemberWithAccept" caption="가입 승인 직급이 있는 접속한 길드원 표시" fontname="white_18_ol" LBtnUpScp="SHOW_GUILD_MEMBER_WITH_ACCEPT_AUTH"/>
 								</layoutsection>
 								<layoutsection name="memberListSec" size="free">
 									<overlap name="memberListoverlap">
@@ -219,7 +235,6 @@
 														<layoutsection name="topCharacterLvl2Sec">
 															<richtext name="topCharacterLvl2" caption="최고 캐릭터 레벨" textalign="center center" fontname="black_18_b"/>
 														</layoutsection>
-														
 													</layout>
 												</overlap>
 											</layoutsection>
@@ -236,5 +251,7 @@
 			</layoutsection>
 		</layout>
 		<button name="closeBtn" rect="0 0 60 60" margin="0 35 35 0" hittest="true" layout_gravity="right top" image="testclose_button" LBtnUpScp="ui.CloseFrame(&apos;guildinfo_detail&apos;)"/>
+		<groupbox name="joinballoongb" rect="0 0 308 40" margin="0 90 100 0" layout_gravity="right top" skin="textballoon"/>
+		<richtext name="joinText" rect="0 0 280 25" margin="0 98 110 0" layout_gravity="right top" caption="{#001100}{s18}가입을 신청할 수 있습니다." textalign="center center" resizebytext="false"/>
 	</controls>
 </uiframe>

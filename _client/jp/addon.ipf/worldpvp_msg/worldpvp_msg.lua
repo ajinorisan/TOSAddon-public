@@ -28,16 +28,13 @@ end
 
 function WORLDPVP_GET_ICON(iconString, myTeam)
 	local iconInfo = ui.GetPCIconInfoByString(iconString);
-
 	local outLineColor = "";
 	if myTeam == true then
 		outLineColor = "CC00FF00";
 	else
 		outLineColor = "CCFF0000";
 	end
-
 	return ui.CaptureModelHeadImage_IconInfo(iconInfo);
-	
 end
 
 function WORLDPVP_UI_MSG_KILL(argString)
@@ -73,6 +70,30 @@ function WORLDPVP_UI_MSG_KILL(argString)
 		text:SetTextByKey("value", "{#FFFFFF}" .. msgString);
 	end
 
+end
+
+function TEAM_BATTLE_LEAGUE_UI_MSG_KILL(arg_str)
+	local frame = ui.GetFrame("worldpvp_msg");
+	local worldpvp_offset_y = frame:GetUserConfig("WORLDPVP_OFFSET_Y");
+	frame:SetOffset(frame:GetGlobalX(), worldpvp_offset_y);
+	frame:ShowWindow(1);
+	frame:SetDuration(3);
+	local text = frame:GetChild("text");
+	if text ~= nil then
+		local msgs = StringSplit(arg_str, '#');
+		local killer_team_name = msgs[1];
+		local self_team_name = msgs[2];
+		local killer_team_id = tonumber(msgs[3]);
+		local actor = GetMyActor();
+		local my_team_id = actor:GetTeamID();
+		if my_team_id == killer_team_id then
+			local msg = ScpArgMsg("{Killer}Killed{Killee}", "Killer", "{#99CC00}"..killer_team_name.."{/}", "Killee", "{#FF5500}"..self_team_name.."{/}");
+			text:SetTextByKey("value", msg);
+		else
+			local msg = ScpArgMsg("{Killee}BeKilled{Killer}", "Killee", "{#FF5500}".. self_team_name.."{/}", "Killer", "{#99CC00}"..killer_team_name.."{/}");
+			text:SetTextByKey("value", "{#FFFFFF}"..msg);
+		end
+	end
 end
 
 

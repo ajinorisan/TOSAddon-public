@@ -24,3 +24,7 @@ function SCR_PRECHECK_LETICIA_CONSUME(isServer)
     
     return "NO"
 end
+
+function SCR_PRECHECK_END_GACHA(isServer)
+	return "NO"
+end

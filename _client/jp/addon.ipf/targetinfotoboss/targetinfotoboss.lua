@@ -1,16 +1,16 @@
-function TARGETINFOTOBOSS_ON_INIT(addon, frame)
-
+﻿function TARGETINFOTOBOSS_ON_INIT(addon, frame)
 	addon:RegisterMsg('TARGET_SET_BOSS', 'TARGETINFOTOBOSS_TARGET_SET');
 	addon:RegisterMsg('TARGET_BUFF_UPDATE', 'TARGETINFOTOBOSS_ON_MSG');
 	addon:RegisterMsg('TARGET_CLEAR_BOSS', 'TARGETINFOTOBOSS_ON_MSG');
 	addon:RegisterMsg('TARGET_UPDATE', 'TARGETINFOTOBOSS_ON_MSG');
 	addon:RegisterMsg('UPDATE_SDR', 'TARGETINFOTOBOSS_UPDATE_SDR');
+	addon:RegisterMsg("MISS_CHECK_SHOW_ICON", "TARGETINFOTOBOSS_MISSCHECK");
+	addon:RegisterMsg("MISS_CHECK_REMOVE_ICON", "TARGETINFOTOBOSS_MISSCHECK_ICON_REMOVE");
 
 	local timer = frame:GetChild("addontimer");
 	tolua.cast(timer, "ui::CAddOnTimer");
 	timer:SetUpdateScript("UPDATE_BOSS_DISTANCE");
 	timer:Start(0.1);
-
  end
  
  function UPDATE_BOSS_DISTANCE(frame)
@@ -24,12 +24,10 @@ function TARGETINFOTOBOSS_ON_INIT(addon, frame)
  end
 
 function TARGETINFOTOBOSS_UPDATE_SDR(frame, msg, argStr, SDR)
-
 	local imagename = "dice_" .. SDR;
 	local animpic = GET_CHILD(frame, "spl", "ui::CAnimPicture");
 	animpic:SetFixImage(imagename);
 	animpic:PlayAnimation();
-
 end
 
 function TARGETINFOTOBOSS_BUFF_UPDATE(frame, msg, argStr, argNum)
@@ -89,18 +87,55 @@ function TARGETINFOTOBOSS_TARGET_SET(frame, msg, argStr, argNum)
 	-- hp
 	local stat = targetinfo.stat;
 	local hpGauge = GET_CHILD(frame, "hp", "ui::CGauge");
-    local hpText = frame:GetChild('hpText');
+	if hpGauge ~= nil then
 	hpGauge:SetPoint(stat.HP, stat.maxHP);
-
-	local strHPValue = TARGETINFO_TRANS_HP_VALUE(targetHandle, stat.HP, frame:GetUserConfig("HPTEXT_STYLESHEET") ); 
-    hpText:SetText(strHPValue);
-
 	if targetinfo.isInvincible ~= hpGauge:GetValue() then
 		hpGauge:SetValue(targetinfo.isInvincible);
 		if targetinfo.isInvincible == 1 then
 			hpGauge:SetColorTone("FF111111");
 		else
 			hpGauge:SetColorTone("FFFFFFFF");
+		end
+	end
+	end
+	
+	-- hp text
+	local strHPValue = TARGETINFO_TRANS_HP_VALUE(targetHandle, stat.HP, frame:GetUserConfig("HPTEXT_STYLESHEET")); 
+	local hpText = frame:GetChild('hpText');
+	if hpText ~= nil then
+		hpText:SetText(strHPValue);
+	end
+
+	-- shield
+	local boss_shield_update_from_server = frame:GetUserIValue("boss_shield_update_from_server");
+	if boss_shield_update_from_server == 0 then
+	local shield = stat:GetShieldStr();
+	if shield ~= nil and shield ~= "None" and shield ~= "0" then
+		local shield_gauge = GET_CHILD_RECURSIVELY(frame, "shield", "ui::CGauge");
+		if shield_gauge ~= nil then
+			shield_gauge:ShowWindow(1);
+			shield_gauge:SetShieldPoint(shield, stat.maxHP);
+		end
+	else
+		local shield_gauge = GET_CHILD_RECURSIVELY(frame, "shield", "ui::CGauge");
+		shield_gauge:ShowWindow(0);		
+	end
+	end
+
+	-- faint
+	local cur_faint = targetinfo.cur_faint;
+	local max_faint = targetinfo.max_faint;
+	if cur_faint > 0 and max_faint > 0 then
+		local faint_gauge = GET_CHILD_RECURSIVELY(frame, "faint", "ui::CGauge");
+		if faint_gauge ~= nil then
+			local diff_faint = max_faint - cur_faint;
+			faint_gauge:ShowWindow(1);
+			faint_gauge:SetShieldPoint(diff_faint, max_faint);
+		end
+	else
+		local faint_gauge = GET_CHILD_RECURSIVELY(frame, "faint", "ui::CGauge");
+		if faint_gauge ~= nil then
+			faint_gauge:ShowWindow(0);
 		end
 	end
 
@@ -126,11 +161,44 @@ function TARGETINFOTOBOSS_ON_MSG(frame, msg, argStr, argNum)
 		
 		local stat = info.GetStat(session.GetTargetBossHandle());	
 		if stat ~= nil then
+			-- hp
 			local hpGauge = GET_CHILD(frame, "hp", "ui::CGauge");
 			hpGauge:SetPoint(stat.HP, stat.maxHP);
+			-- hp text
 			local strHPValue = TARGETINFO_TRANS_HP_VALUE(session.GetTargetBossHandle(), stat.HP, frame:GetUserConfig("HPTEXT_STYLESHEET"));
 			local hpText = frame:GetChild('hpText');
             hpText:SetText(strHPValue);
+			-- shield
+			local boss_shield_update_from_server = frame:GetUserIValue("boss_shield_update_from_server");
+			if boss_shield_update_from_server == 0 then
+			local shield = stat:GetShieldStr();
+			if shield ~= nil and shield ~= "None" and shield ~= "0" then
+				local shield_gauge = GET_CHILD_RECURSIVELY(frame, "shield", "ui::CGauge");
+				if shield_gauge ~= nil then
+					shield_gauge:ShowWindow(1);
+					shield_gauge:SetShieldPoint(shield, stat.maxHP);
+				end
+			else
+				local shield_gauge = GET_CHILD_RECURSIVELY(frame, "shield", "ui::CGauge");
+				shield_gauge:ShowWindow(0);		
+			end
+			end
+			-- faint
+			local cur_faint = stat.cur_faint;
+			local max_faint = stat.max_faint;
+			if cur_faint > 0 and max_faint > 0 then
+				local faint_gauge = GET_CHILD_RECURSIVELY(frame, "faint", "ui::CGauge");
+				if faint_gauge ~= nil then
+					local diff_faint = max_faint - cur_faint;
+					faint_gauge:ShowWindow(1);
+					faint_gauge:SetShieldPoint(diff_faint, max_faint);
+				end
+			else
+				local faint_gauge = GET_CHILD_RECURSIVELY(frame, "faint", "ui::CGauge");
+				if faint_gauge ~= nil then
+					faint_gauge:ShowWindow(0);
+				end
+			end
 			if frame:IsVisible() == 0 then
 				frame:ShowWindow(1)
 			end
@@ -156,3 +224,91 @@ function TARGETINFOTOBOSS_ON_MSG(frame, msg, argStr, argNum)
     end
     return raceStr;
  end
+
+function TARGETINFOTOBOSS_MISSCHECK(frame, msg, iconName, count)
+	if frame == nil then return; end
+
+	local boss_misscheck = GET_CHILD_RECURSIVELY(frame, "boss_misscheck");
+	if boss_misscheck == nil then return; end
+
+	local icon = CreateIcon(boss_misscheck);
+	if icon ~= nil then
+		icon:SetImage(iconName);
+		boss_misscheck:SetVisible(1);
+		boss_misscheck:SetText("{s13}{ol}{b}"..count, "count", ui.RIGHT, ui.BOTTOM, -5, -3);
+	end
+end
+
+function TARGETINFOTOBOSS_MISSCHECK_ICON_REMOVE(frame, msg)
+	if frame == nil then return; end
+
+	local boss_misscheck = GET_CHILD_RECURSIVELY(frame, "boss_misscheck");
+	if boss_misscheck == nil then return; end
+
+	local timer = GET_CHILD_RECURSIVELY(frame, "misschecktimer");
+	tolua.cast(timer, "ui::CAddOnTimer");
+	timer:SetArgNum(2);
+	timer:SetUpdateScript("UPDATE_MISSCHECK_ICON_REMOVE");
+	timer:Start(1);
+end
+
+function UPDATE_MISSCHECK_ICON_REMOVE(frame, timer, argStr, argNum, time)
+	if frame == nil then return; end
+	local boss_misscheck = GET_CHILD_RECURSIVELY(frame, "boss_misscheck");
+	if boss_misscheck ~= nil then
+		if time >= argNum then
+			if boss_misscheck:IsBlinking() == 1 then
+				boss_misscheck:ReleaseBlink();
+			end
+			boss_misscheck:SetVisible(0);
+			boss_misscheck:SetText("");
+			timer:Stop();
+		else
+			if boss_misscheck:IsBlinking() == 0 then
+				boss_misscheck:SetBlink(600000, 1.0, "55FFFFFF", 1);
+			end
+		end
+	end
+end
+
+function TARGETINFOTOBOSS_UPDATE_SHIELD(data)
+	if data ~= nil and data ~= "None" then
+		local frame = ui.GetFrame("targetinfotoboss");
+		if frame ~= nil then
+			if data == "shield_remove" then
+				frame:SetUserValue("boss_shield_update_from_server", 0);
+				local shield_gauge = GET_CHILD_RECURSIVELY(frame, "shield", "ui::CGauge");
+				if shield_gauge ~= nil then
+					shield_gauge:ShowWindow(0);		
+				end
+			else
+				-- HP 설정.
+				local target_boss_handle = session.GetTargetBossHandle();
+				local stat = info.GetStat(target_boss_handle);	
+				if stat ~= nil then
+					-- hp
+					local hp_gauge = GET_CHILD(frame, "hp", "ui::CGauge");
+					hp_gauge:SetPoint(stat.HP, stat.maxHP);
+					-- hp text
+					local str_hp_value = TARGETINFO_TRANS_HP_VALUE(target_boss_handle, stat.HP, frame:GetUserConfig("HPTEXT_STYLESHEET"));
+					local hp_text = frame:GetChild('hpText');
+					hp_text:SetText(str_hp_value);
+				end
+				-- 실드 설정.
+				frame:SetUserValue("boss_shield_update_from_server", 1);
+				local data_list = StringSplit(data, '/');
+				if #data_list > 0 then
+					local shield = data_list[1];
+					local mhp = tonumber(data_list[2]);
+					local shield_gauge = GET_CHILD_RECURSIVELY(frame, "shield", "ui::CGauge");
+					if shield_gauge ~= nil then
+						shield_gauge:ShowWindow(1);
+						shield_gauge:SetShieldPoint(shield, mhp);
+					end
+				end
+			end
+			frame:ShowWindow(1);
+			frame:Invalidate();
+		end
+	end
+end

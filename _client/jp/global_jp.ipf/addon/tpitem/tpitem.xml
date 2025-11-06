@@ -1,7 +1,2 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- edited with XMLSPY v2004 rel. 2 U (http://www.xmlspy.com) by IMC (IMCGames Co., Ltd) -->
-<uiframe name="tpitem" x="0" y="0" width="1920" height="1080" create="open">
-	<controls>
-		<webpicture OverrideType="ADD" name="banner1" parent="rightgbox" rect="0 0 520 300" margin="0 30 0 0" check_pattern="false" stretch="true" resizebyresolution="false" layout_gravity="center top"/>
-	</controls>
-</uiframe>
+<uiframe/>

@@ -1,6 +1,7 @@
 ﻿local json = require "json_imc"
 
 local firstOpen = true;
+local _guild_notice = ''
 function GUILDINFO_ON_INIT(addon, frame)
 	addon:RegisterMsg("GUILD_NEUTRALITY_UPDATE", 'ON_GUILD_NEUTRALITY_UPDATE');
     addon:RegisterMsg('GUILD_UPDATE_PROFILE', 'ON_GUILD_UPDATE_PROFILE');
@@ -22,10 +23,14 @@ function GUILDINFO_ON_INIT(addon, frame)
     addon:RegisterMsg('COLONY_OCCUPATION_INFO_UPDATE', 'GUILDINFO_COLONY_UPDATE_OCCUPY_INFO');
     addon:RegisterMsg("GUILD_MASTER_REQUEST", "ON_GUILD_MASTER_REQUEST");
     addon:RegisterMsg("GUILD_JOINT_INV_ITEM_LIST", "ON_GUILD_JOINT_INV_ITEM_LIST_GET");
-    addon:RegisterMsg("UPDATE_GUILD_MILEAGE", "ON_UPDATE_GUILD_MILEAGE");   
+    addon:RegisterMsg("UPDATE_GUILD_MILEAGE", "ON_UPDATE_GUILD_MILEAGE");
+    addon:RegisterMsg("UPDATE_GUILD_MILEAGE", "ON_UPDATE_GUILD_AGIT_INFO_GUILD_MILEAGE");
     addon:RegisterMsg("TOGGLEON_GUILD_NEUTRALITY", "GUILDINFO_WAR_INIT_CHECKBOX");
+    addon:RegisterMsg('RECEIVE_GUILD_AGIT_INFO', 'INIT_GUILD_AGIT_FACILITY_INFO');
+	addon:RegisterMsg("GUILD_MEMBER_PROP_UPDATE", "ON_UPDATE_GUILD_AGIT_INFO_GUILD_CONTRIBUTION");
+	addon:RegisterMsg('START_GUILD_HOUSING_SHOP', 'RESET_GUILD_AGIT_FACILITY_INFO');
+    addon:RegisterMsg('POPUP_GUILD_NOTICE', 'ZONE_ENTER_GET_GUILD_NOTICE')
     firstOpen = true;
-    g_ENABLE_GUILD_MEMBER_SHOW = false;
 end
 
 function UI_CHECK_GUILD_UI_OPEN(propname, propvalue)    
@@ -55,6 +60,8 @@ function GUILDINFO_OPEN_UI(frame)
         mainTab:SelectTab(0);
         firstOpen = false    
     end
+	
+	housing.RequestGuildAgitInfo("RECEIVE_GUILD_AGIT_INFO");
 
     GUILDINFO_COLONY_INIT(frame, frame)
     INIT_UI_BY_CLAIM();
@@ -73,11 +80,14 @@ function GUILDINFO_OPEN_UI(frame)
     
     local guildObj = GET_MY_GUILD_OBJECT();
     if guildObj.Level == nil or guildObj.Level < 8 then
-        mainTab:SetTabVisible(5, false)
+        mainTab:SetTabVisible(6, false)
     else
-        mainTab:SetTabVisible(5, true)
+        mainTab:SetTabVisible(6, true)
     end
 
+    GUILDINFO_MEMBER_LIST_INIT();
+
+    pc.ReqExecuteTx('GUIDE_QUEST_OPEN_UI', frame:GetName())
 end
 
 function GUILDNOTICE_GET(code, ret_json)
@@ -91,7 +101,6 @@ function GUILDNOTICE_GET(code, ret_json)
         notifyText:SetText(ret_json)
         notifyText:Invalidate()
     end
-
 end
 
 
@@ -114,16 +123,10 @@ function GUILDINFO_INIT_PROFILE(frame)
     -- leader name
     local masterText = GET_CHILD_RECURSIVELY(guildInfoTab, 'guildMasterName');
     local leaderAID = guild.info:GetLeaderAID();
-	local list = session.party.GetPartyMemberList(PARTY_GUILD);
-	local count = list:Count();
-	for i = 0 , count - 1 do
-		local partyMemberInfo = list:Element(i);
-		if leaderAID == partyMemberInfo:GetAID() then
-			leaderName = partyMemberInfo:GetName();
-            masterText:SetText("{@st66b}" .. leaderName .. "{/}");
-            break;
-		end
-	end
+    local memberInfo = session.party.GetPartyMemberInfoByAID(PARTY_GUILD, leaderAID);
+    if memberInfo ~= nil then
+        masterText:SetText("{@st66b}" .. memberInfo:GetName() .. "{/}");
+    end
 
     -- opening date
     local openText = GET_CHILD_RECURSIVELY(guildInfoTab, 'foundtxt');
@@ -132,6 +135,7 @@ function GUILDINFO_INIT_PROFILE(frame)
     openText:SetTextByKey('date', openDateStr);
 
     -- member
+    local count = session.party.GetAllMemberCount(PARTY_GUILD);
     local memberText = GET_CHILD_RECURSIVELY(guildInfoTab, 'memberNum');
     memberText:SetTextByKey('current', count);
     memberText:SetTextByKey('max',  guild:GetMaxGuildMemberCount());
@@ -272,7 +276,6 @@ function ON_UPDATE_GUILD_EMBLEM(frame,  msg, argStr, argNum)
    GUILDINFO_PROFILE_INIT_EMBLEM(frame)
 end
 
-
 function UI_TOGGLE_GUILD()
     if app.IsBarrackMode() == true then
 		return;
@@ -286,7 +289,7 @@ function UI_TOGGLE_GUILD()
     if guildinfo == nil then
         return;
     end
-    g_ENABLE_GUILD_MEMBER_SHOW = true;
+
 	ui.ToggleFrame('guildinfo');
 end
 
@@ -294,19 +297,44 @@ function ON_GUILD_MASTER_REQUEST(frame, msg, argStr)
 	local pcparty = session.party.GetPartyInfo(PARTY_GUILD);
 	if nil == pcparty then
 		return;
-	end
-	local leaderAID = pcparty.info:GetLeaderAID();
-	local list = session.party.GetPartyMemberList(PARTY_GUILD);
-	local count = list:Count();
-	local leaderName = 'None'
-	for i = 0 , count - 1 do
-		local partyMemberInfo = list:Element(i);
-		if leaderAID == partyMemberInfo:GetAID() then
-			leaderName = partyMemberInfo:GetName();
-		end
-	end
-
+    end
+    local leaderAID = pcparty.info:GetLeaderAID();
+    local leaderName = "";
+    local memberInfo = session.party.GetPartyMemberInfoByAID(PARTY_GUILD, leaderAID);
+    if memberInfo ~= nil then
+        leaderName = memberInfo:GetName();
+    end
+    
 	local yesScp = string.format("ui.Chat('/agreeGuildMasterByWeb')");
 	local noScp = string.format("ui.Chat('/disagreeGuildMaster')");
 	ui.MsgBox(ScpArgMsg("DoYouWantGuildLeadr{N1}{N2}",'N1',leaderName,'N2', pcparty.info.name), yesScp, noScp);
 end
+
+function ZONE_ENTER_GET_GUILD_NOTICE()
+    local guild = session.party.GetPartyInfo(PARTY_GUILD);    
+	if nil == guild then
+		return;
+    end
+    
+    GetGuildNotice("GUILDNOTICE_GET_FOR_CHAT")
+end
+
+function GUILDNOTICE_GET_FOR_CHAT(code, ret_json)       
+    if code ~= 200 then
+        return
+    end
+    if TrimString(ret_json) ~= '' then
+        --ret_json = TrimString(ret_json)
+        local myGuild = session.party.GetPartyInfo(PARTY_GUILD);
+        if myGuild ~= nil then
+            local myGuildID = myGuild.info:GetPartyID();
+            local msg = ScpArgMsg('GuildNotice{msg}', 'msg', ret_json)        
+            local name = myGuild.info:GetLeaderName()            
+            if _guild_notice ~= ret_json then
+                _guild_notice = ret_json
+            session.ui.GetChatMsg():AddGuildMsg(name, msg, myGuildID, session.GetDBSysTime(), true, true, 'Notice');
+        end
+    end
+end
+end
+

@@ -106,3 +106,7 @@ ClassID,DecomposeItemMaxCnt,MaterialItemSlotCnt,MaterialItemCnt_1,MaterialItemRe
 105,0,2,16,0,0,100,0,0,"GoddessEquipRecipe_520_105","EP16_RAID_CANNON","검은 계시의 캐논","weapon_520","goddess_Equip","","[Lv.520] 검은 계시","WeaponAndArmor","misc_boss_DarkNeringa_NoTrade","misc_BlessedStone_2"
 106,0,2,16,0,0,100,0,0,"GoddessEquipRecipe_520_106","EP16_RAID_MUSKET","검은 계시의 머스킷","weapon_520","goddess_Equip","","[Lv.520] 검은 계시","WeaponAndArmor","misc_boss_DarkNeringa_NoTrade","misc_BlessedStone_2"
 107,0,2,16,0,0,100,0,0,"GoddessEquipRecipe_520_107","EP16_RAID_TRINKET","검은 계시의 트링킷","weapon_520","goddess_Equip","","[Lv.520] 검은 계시","WeaponAndArmor","misc_boss_DarkNeringa_NoTrade","misc_BlessedStone_2"
+108,0,2,16,0,0,50,0,0,"GoddessAccRecipe_108","EP14_BRC_01","바우드 피크티스 브레이슬릿","Baudzi","bg_acc_paulius","","[Lv.490] 바우드","WeaponAndArmor","misc_ribbonRoze_NoTrade","misc_BlessedStone"
+109,0,2,16,0,0,50,0,0,"GoddessAccRecipe_109","EP14_BRC_02","바우드 칸트리베 브레이슬릿","Baudzi","bg_acc_paulius","","[Lv.490] 바우드","WeaponAndArmor","misc_ribbonRoze_NoTrade","misc_BlessedStone"
+110,0,2,32,0,0,100,0,0,"GoddessAccRecipe_110","EP14_NECK_01","바우드 피크티스 네클리스","Baudzi","bg_acc_paulius","","[Lv.490] 바우드","WeaponAndArmor","misc_ribbonRoze_NoTrade","misc_BlessedStone"
+111,0,2,32,0,0,100,0,0,"GoddessAccRecipe_111","EP14_NECK_02","바우드 칸트리베 네클리스","Baudzi","bg_acc_paulius","","[Lv.490] 바우드","WeaponAndArmor","misc_ribbonRoze_NoTrade","misc_BlessedStone"

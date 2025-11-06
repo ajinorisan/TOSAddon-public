@@ -37,6 +37,7 @@ function PUT_ITEM_TO_WAREHOUSE(parent, slot)
             local dest_id = "0"
             startSlot:ClearIcon()
             startSlot:ClearText()
+			SET_SLOT_STAR_TEXT(startSlot,nil)
 
             DESTROY_CHILD_BYNAME(startSlot, "styleset_")
             startSlot:SetSkinName("invenslot2")
@@ -54,11 +55,11 @@ function PUT_ITEM_TO_WAREHOUSE(parent, slot)
 
                 local item = session.GetWarehouseItemByGuid(start_id)                
                 SET_SLOT_INFO_FOR_WAREHOUSE(dest_slot, item, 'warehouse')
-                session.SwapWarehouseItem(startIndex, destIndex)
+				session.SwapWarehouseItem(startIndex, destIndex)
             else  -- move                
                 local item = session.GetWarehouseItemByGuid(start_id)
                 SET_SLOT_INFO_FOR_WAREHOUSE(dest_slot, item, 'warehouse')
-                session.SetWarehouseItemIndex(startIndex, destIndex)
+				session.SetWarehouseItemIndex(startIndex, destIndex)
             end
             
             item.SwapItemInWarehouse(startIndex, destIndex, start_id, dest_id)
@@ -86,6 +87,13 @@ function PUT_ITEM_TO_WAREHOUSE(parent, slot)
 	
 	if tonumber(itemCls.LifeTime) > 0 and obj.ItemLifeTimeOver > 0 then
 		ui.MsgBox(ScpArgMsg("WrongDropItem"));
+		return;
+	end
+
+	if itemCls.MarketCategory == 'Housing_Furniture' or 
+	    itemCls.MarketCategory == 'Housing_Laboratory' or 
+	    itemCls.MarketCategory == 'Housing_Contract' then
+		ui.MsgBox(ScpArgMsg("IT_ISNT_REINFORCEABLE_ITEM"));
 		return;
 	end
     	
@@ -122,8 +130,8 @@ function ON_WAREHOUSE_ITEM_LIST(frame)
 	local slotset = gbox:GetChild("slotset");
 	if slotset == nil then
 		local gbox_warehouse = gbox:GetChild("gbox_warehouse");
-			slotset = gbox_warehouse:GetChild("slotset");
-		end
+		slotset = gbox_warehouse:GetChild("slotset");
+	end
 
 	AUTO_CAST(slotset);
 	local etc = GetMyEtcObject();
@@ -167,9 +175,16 @@ function WAREHOUSE_INV_RBTN(itemObj, slot)
 		ui.MsgBox(ScpArgMsg("IT_ISNT_REINFORCEABLE_ITEM"));
 		return;
 	end
-	
+
 	if tonumber(itemCls.LifeTime) > 0 and obj.ItemLifeTimeOver > 0 then
 		ui.MsgBox(ScpArgMsg("WrongDropItem"));
+		return;
+	end
+
+	if itemCls.MarketCategory == 'Housing_Furniture' or 
+	    itemCls.MarketCategory == 'Housing_Laboratory' or 
+	    itemCls.MarketCategory == 'Housing_Contract' then
+		ui.MsgBox(ScpArgMsg("IT_ISNT_REINFORCEABLE_ITEM"));
 		return;
 	end
     	
@@ -264,18 +279,18 @@ function CHECK_EMPTYSLOT(frame, obj)
 
 	AUTO_CAST(slotset);
 
-	local wareItem = session.GetWarehouseItemByType(obj.ClassID);
+	local wareItem = session.GetWarehouseItemByType(obj.ClassID);	
 	if wareItem ~= nil then
 		if obj.MaxStack > 1 then
 			return 0;
 		end
 	end
 
-	local warehouseSlot = GET_EMPTY_SLOT(slotset);
-	if warehouseSlot == nil then
+	local warehouseSlot, index = GET_EMPTY_SLOT(slotset);
+	if warehouseSlot == nil and obj.MaxStack == 1 then
 		ui.SysMsg(ScpArgMsg("NoEmptySlot"))
 		return 1;
 	end
 
-	return 0;
+	return 0, index;
 end

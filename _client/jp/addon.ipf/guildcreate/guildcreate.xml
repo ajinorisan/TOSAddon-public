@@ -4,6 +4,7 @@
 <uiframe name="guildcreate" x="0" y="104" width="500" height="200" create="open">
     <frame title="{@st44}길드생성{/}" titlepos="0 -6" layout_gravity="center center" margin="0 -7 0 0"/>
     <draw drawtitlebar="true" drawframe="true" margin="0 -3 0 0"/>
+	<layer layerlevel="93"/>
     <option closebutton="false" hideable="true" margin="0 -3 0 0"/>
     <script OpenScp="CLEAR_GUILDCREATE_INPUT" margin="0 -3 0 0"/>
     <controls>

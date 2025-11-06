@@ -14,10 +14,11 @@ function POISONPOT_MSG(frame, msg, argStr, argNum)
 end
 
 function POISONPOT_FRAME_OPEN(frame)
-	local selectallbutton = GET_CHILD_RECURSIVELY(frame,"selectAllBtn","ui::CButton")
-	selectallbutton:SetUserValue("SELECTED", "notselected");
-
 	UPDATE_POISONPOT_UI(frame)
+	if POISONPOT_HUD_CHECK_VISIBLE()==true then
+		local frame = ui.GetFrame('poisonpot_hud');
+		frame:ShowWindow(0);
+	end
 end
 
 function POISONPOT_FRAME_CLOSE(frame)
@@ -47,15 +48,9 @@ end
 function UPDATE_POISONPOT_UI(frame)
 	
 	local etc_pc = GetMyEtcObject();
-	local poisonAmount = etc_pc['Wugushi_PoisonAmount']
 	local poisonMaxAmount = etc_pc['Wugushi_PoisonMaxAmount']
 
-	local poisonAmountGauge = GET_CHILD_RECURSIVELY(frame,"poisonAmountGauge","ui::CGauge")
-	poisonAmountGauge:SetPoint(poisonAmount, poisonMaxAmount);
-
-	local poisonAmountText = GET_CHILD_RECURSIVELY(frame,"poisonAmount")
-	poisonAmountText:SetTextByKey("amount",poisonAmount);
-
+	
 	--local slottextname = 'subbosstext'..i
 	local bosscardid = etc_pc['Wugushi_bosscard']
 	local bosscardcls = GetClassByType("Item", bosscardid)
@@ -68,8 +63,6 @@ function UPDATE_POISONPOT_UI(frame)
 	end
 
 
-	local slotSet = GET_CHILD_RECURSIVELY(frame,"slotlist","ui::CSlotSet")
-	slotSet:ClearIconAll();
 
 	local invItemList = session.GetInvItemList();
 	local bExistsCard = false;
@@ -105,8 +98,7 @@ function UPDATE_POISONPOT_UI(frame)
 	end
 
     local showHUDGauge = config.GetXMLConfig('PoisonPotHUD');
-    local hudCheck = GET_CHILD_RECURSIVELY(frame, 'hudCheck');
-    hudCheck:SetCheck(showHUDGauge);
+
 end
 
 function IS_USEABLEITEM_IN_POISONPOT(itemobj)
@@ -128,8 +120,6 @@ end
 function POISONPOT_SELECT_ALL(frame, ctrl) 
 
 	local isselected =  ctrl:GetUserValue("SELECTED");
-
-	local slotSet = GET_CHILD_RECURSIVELY_AT_TOP(ctrl, "slotlist", "ui::CSlotSet")
 	
 	local slotCount = slotSet:GetSlotCount();
 
@@ -202,9 +192,6 @@ function EXECUTE_POISONPOT(frame)
 	session.ResetItemList();
 
 	local totalprice = 0;
-
-	local slotSet = GET_CHILD_RECURSIVELY(frame, "slotlist", "ui::CSlotSet")
-	
 	if slotSet:GetSelectedSlotCount() < 1 then
 		ui.MsgBox(ScpArgMsg("SelectSomeItemPlz"))
 		return;

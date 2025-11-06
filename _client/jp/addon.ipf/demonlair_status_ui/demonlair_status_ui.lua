@@ -112,22 +112,30 @@ function GET_DEMONLAIR_STATUS_UI_USER_SELECT_INFO(arg_str)
                             local buff_data_str = string.sub(info_str, 6)
                             local buff_info = StringSplit(buff_data_str, ';')
                             if buff_info ~= nil and buff_info ~= "" and #buff_info > 0 then
-                                name = buff_info[1]
-                                icon = buff_info[2]
-                                step = tonumber(buff_info[3]) 
+                                id = tonumber(buff_info[1])
+                                step = tonumber(buff_info[2])
                                 is_penalty = false
-                                select_info = { name = name, icon = icon, step = step, is_penalty = is_penalty }
+                                local cls = GetClassByType("demonlair_user_select_info", id)
+                                if cls ~= nil then
+                                    name = dic.getTranslatedStr(TryGetProp(cls, "Name", "None"))
+                                    icon = TryGetProp(cls, "Icon", "None")
+                                    select_info = { name = name, icon = icon, step = step, is_penalty = is_penalty }
+                                end
                             end
                         elseif info_str ~= nil and info_str ~= "" and string.sub(info_str, 1, 8) == "Penalty;" then
                             -- penalty
                             local penalty_data_str = string.sub(info_str, 9)
                             local penalty_info = StringSplit(penalty_data_str, ';')
                             if penalty_info ~= nil and penalty_info ~= "" and #penalty_info > 0 then
-                                name = penalty_info[1]
-                                icon = penalty_info[2]
-                                step = tonumber(penalty_info[3])
+                                id = tonumber(penalty_info[1])
+                                step = tonumber(penalty_info[2])
                                 is_penalty = true
-                                select_info = { name = name, icon = icon, step = step, is_penalty = is_penalty }
+                                local cls = GetClassByType("demonlair_user_select_info", id)
+                                if cls ~= nil then
+                                    name = dic.getTranslatedStr(TryGetProp(cls, "Name", "None"))
+                                    icon = TryGetProp(cls, "Icon", "None")
+                                    select_info = { name = name, icon = icon, step = step, is_penalty = is_penalty }
+                                end
                             end
                         end
                     end
@@ -169,7 +177,6 @@ function MAKE_DEMONLAIR_STATUS_UI_USER_SELECT_LIST(frame, msg, arg_str, arg_num)
                         local icon = select_info.icon
                         local step = select_info.step
                         local is_penalty = select_info.is_penalty
-
                         y = ctrlset_height * (i - 1)
                         local ctrlset = gbox:CreateOrGetControlSet(ctrlset_name, "DemonLairUserSelectInfo_"..i, x, y)
                         if ctrlset ~= nil then
