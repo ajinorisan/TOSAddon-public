@@ -370,6 +370,7 @@ Tree of Savior 用のアドオンを作成・改変しています。
 
 ![TreeOfSavior_20240327_170950](https://github.com/ajinorisan/TOSAddon-public/assets/128560971/c6ebb908-e3c4-40e5-affe-f546c1a788ca)
 
+*   v1.2.0 コア表示。ilvとジョブアイコン連携
 *   v1.1.9 イヤリング表示。
 *   v1.1.8 キャラ名左クリックでICC連携。
 *   v1.1.7 バラックに戻れないバグ修正。反省。完成。
@@ -480,6 +481,7 @@ Tree of Savior 用のアドオンを作成・改変しています。
 
 ![キャプチャ](https://github.com/ajinorisan/TOSAddon-public/assets/128560971/a7d82d3f-1571-4e36-abb0-3d22e022d497)
 
+*   v1.3.1 ジョブIDのアイコン作るトコのバグ修正
 *   v1.3.0 デルムーアのダンジョンタイプ変わってたの修正
 *   v1.2.9 アラクネ姉妹対応、他鯖のリセット時間修正
 *   v1.2.8 indun panelとの連携のための修正
