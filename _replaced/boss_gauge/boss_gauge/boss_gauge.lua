@@ -57,7 +57,6 @@ function boss_gauge_TARGETINFOTOBOSS_ON_MSG(frame, msg)
                         g.stun_text = "STUN:(0.00%)"
                     end
                     stun_richtext:SetText(g.stun_text)
-
                 end
             end
         end
