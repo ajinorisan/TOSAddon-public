@@ -7,10 +7,11 @@
 -- v1.0.7.1 コード全部見直し。スッキリ。回数制限機能追加、色々機能追加
 -- v1.0.7.4 インベントリRボタンの挙動見直し
 -- v1.0.8 軽微なバグ修正
+-- v1.0.9 フレームで続けるバグ修正
 local addon_name = "CONTINUERF"
 local addon_name_lower = string.lower(addon_name)
 local author = "norisan"
-local ver = "1.0.8"
+local ver = "1.0.9"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -147,8 +148,22 @@ function CONTINUERF_ON_INIT(addon, frame)
     g.setup_hook_and_event(addon, "_END_REFORGE_REINFORCE_EXEC", "continuerf__END_REFORGE_REINFORCE_EXEC", true)
     g.setup_hook_and_event(addon, "GODDESS_MGR_REFORGE_ITEM_REMOVE", "continuerf_GODDESS_MGR_REFORGE_ITEM_REMOVE", true)
     g.setup_hook_and_event(addon, "GODDESS_MGR_REFORGE_TAB_CHANGE", "continuerf_GODDESS_MGR_REFORGE_TAB_CHANGE", true)
+    g.setup_hook_and_event(addon, "GODDESS_MGR_TAB_CHANGE", "continuerf_GODDESS_MGR_TAB_CHANGE", true)
 end
 -- メインUI構築 / UIイベントハンドラ
+
+function continuerf_GODDESS_MGR_TAB_CHANGE()
+    local goddess_equip_manager = ui.GetFrame('goddess_equip_manager')
+    local main_tab = GET_CHILD_RECURSIVELY(goddess_equip_manager, 'main_tab')
+    local tab_index = main_tab:GetSelectItemIndex()
+
+    if tab_index == 0 then
+        continuerf_GODDESS_EQUIP_MANAGER_OPEN()
+    else
+        goddess_equip_manager:RemoveChild("gbox")
+    end
+end
+
 function continuerf_GODDESS_EQUIP_MANAGER_OPEN()
 
     local goddess_equip_manager = ui.GetFrame('goddess_equip_manager')
@@ -222,6 +237,7 @@ function continuerf_GODDESS_EQUIP_MANAGER_OPEN()
     use_toggle:SetEventScript(ui.LBUTTONUP, "continuerf_setting_change")
 
     goddess_equip_manager:RemoveChild("gbox")
+
     if g.settings.use then
         local gbox = goddess_equip_manager:CreateOrGetControl("groupbox", "gbox", 1035, 755, 180, 110)
         AUTO_CAST(gbox)
@@ -392,9 +408,8 @@ end
 function continuerf_stop_process(goddess_equip_manager)
     goddess_equip_manager:StopUpdateScript("continuerf_GODDESS_MGR_REFORGE_REINFORCE_EXEC")
     g.is_first = false
-
+    continuerf_next_mat_set(goddess_equip_manager, false) -- falseは解除を意味する
     if g.settings.limit_clear then
-        continuerf_next_mat_set(goddess_equip_manager, false) -- falseは解除を意味する
         g.settings.rf_count = 0
         continuerf_save_settings()
         continuerf_GODDESS_EQUIP_MANAGER_OPEN()
@@ -817,4 +832,13 @@ end
 
 function continuerf_GODDESS_MGR_REFORGE_TAB_CHANGE()
     INVENTORY_SET_CUSTOM_RBTNDOWN('GODDESS_MGR_REFORGE_INV_RBTN')
+
+    local goddess_equip_manager = ui.GetFrame('goddess_equip_manager')
+    local reforge_tab = GET_CHILD_RECURSIVELY(goddess_equip_manager, 'reforge_tab')
+    local tab_index = reforge_tab:GetSelectItemIndex()
+    if tab_index == 0 then
+        continuerf_GODDESS_EQUIP_MANAGER_OPEN()
+    else
+        goddess_equip_manager:RemoveChild("gbox")
+    end
 end

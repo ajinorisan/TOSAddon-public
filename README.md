@@ -1025,6 +1025,7 @@ Tree of Savior 用のアドオンを作成・改変しています。
 <details>
 <summary>更新履歴 (Continue Reinforce)</summary>
 
+*   v1.0.9 フレーム表示バグ修正
 *   v1.0.8 回数制限機能追加、色々機能追加
 *   v1.0.7 素材丁度0時の表示バグ修正
 *   v1.0.6 細かいバグ修正
