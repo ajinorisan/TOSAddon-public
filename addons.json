@@ -314,10 +314,10 @@
     "name": "Muteki2ex Rebuild",
     "file": "muteki2ex",
     "extension": "ipf",
-    "fileVersion": "v2.0.7",
+    "fileVersion": "v3.0.1",
     "releaseTag": "muteki2ex",
     "unicode": "⛄",
-    "description": "【v2.0.7: ニコチャット機能追加】WRIT様作成のmuteki2ex改造版。アイコン表示/回転モード、オーバーロードレイドCD管理、PTチャット通知、エフェクト表示機能付き。<br>【v2.0.7: Added Nico Chat feature】Modified version of muteki2ex by WRIT. Features icon display/rotation modes, Overload Raid CD management, party chat notifications, and effect display.<br>【v2.0.7: 니코 채팅 기능 추가】WRIT님이 만든 muteki2ex 개조판. 아이콘 표시/회전 모드, 오버로드 레이드 CD 관리, 파티 채팅 알림, 이펙트 표시 기능 포함.",
+    "description": "WRIT様作成のmuteki2ex改造版。アイコン表示/回転モード、オーバーロードレイドCD管理、PTチャット通知、エフェクト表示機能付き。<br>Modified version of muteki2ex by WRIT. Features icon display/rotation modes, Overload Raid CD management, party chat notifications, and effect display.<br>WRIT님이 만든 muteki2ex 개조판. 아이콘 표시/회전 모드, 오버로드 레이드 CD 관리, 파티 채팅 알림, 이펙트 표시 기능 포함.",
     "tags": [
       "ajinori",
       "ajinorisan",

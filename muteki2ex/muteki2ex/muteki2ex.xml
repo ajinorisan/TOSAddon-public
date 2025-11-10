@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<uiframe name="muteki2ex" x="0" y="0" width="0" height="0" create="open">
+  <option visible="true" alwaysVisible="true" closebutton="false" useimageitem="true" autoopen="true" hideable="false"/>
+  <input moveable="true" hittestframe="true"/>
+  <controls>
+  </controls>
+</uiframe>
