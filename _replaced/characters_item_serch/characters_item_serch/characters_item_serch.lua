@@ -628,42 +628,41 @@ function characters_item_serch_open(frame, select_name)
 end
 
 function characters_item_serch_load_data(select_name)
-    local dat_tbl = {string.format("../addons/%s/%s/warehouse.dat", addonNameLower, active_id),
-                     string.format("../addons/%s/%s/inventory.dat", addonNameLower, active_id),
-                     string.format("../addons/%s/%s/equips.dat", addonNameLower, active_id)}
-
-    local function split(input, delimiter)
-        local parts = {}
-        for part in input:gmatch("([^" .. delimiter .. "]+)") do
-            table.insert(parts, part)
-        end
-        return parts
-    end
-
+    local dat_tbl =
+        {string.format("../addons/%s/%s/characters_item_serch_warehouse.dat", addon_name_lower, g.active_id),
+         string.format("../addons/%s/%s/characters_item_serch_inventory.dat", addon_name_lower, g.active_id),
+         string.format("../addons/%s/%s/characters_item_serch_equips.dat", addon_name_lower, g.active_id)}
     local items = {}
-    for _, dat_file_path in ipairs(dat_tbl) do
-        for line in io.lines(dat_file_path) do
-            local name = line:match("^(.-):::")
-            local select_name = select_name == nil and g.login_name or select_name
-            if name == select_name then
-                local parts = {}
-                local start = string.len(name) + 4 -- 「name:::」の長さをスキップ
-                while true do
-                    local s, e = string.find(line, ":::", start, true)
-                    if not s then
-                        local last_part = string.sub(line, start)
-                        if last_part ~= "" then
-                            table.insert(parts, last_part)
-                        end
-                        break
-                    end
-                    local part = string.sub(line, start, s - 1)
-                    table.insert(parts, part)
-                    start = e + 1
-                end
-                parts[2] = tonumber(parts[2]) or 0
 
-                table.insert(items, parts)
+    local target_name = (select_name == "") and g.login_name or select_name
+
+    for _, dat_file_path in ipairs(dat_tbl) do
+        local file = io.open(dat_file_path, "r")
+        if file then
+            local content = file:read("*all")
+            file:close()
+
+            for line in content:gmatch("([^\n]+)") do
+                if line:find(target_name, 1, true) == 1 then
+                    local parts = {}
+                    for part in (line .. ":::"):gmatch("(.-):::") do
+                        table.insert(parts, part)
+                    end
+
+                    -- ★★★ここからが修正点★★★
+                    -- もし最後の要素が空文字列なら、それを削除する
+                    if #parts > 0 and parts[#parts] == "" then
+                        table.remove(parts) -- 引数なしで最後の要素を削除
+                    end
+                    -- ★★★ここまで修正★★★
+
+                    table.remove(parts, 1) -- 名前を削除
+
+                    if #parts > 0 then
+                        parts[2] = tonumber(parts[2]) or 0
+                        table.insert(items, parts)
+                    end
+                end
             end
         end
     end
@@ -809,6 +808,7 @@ function characters_item_serch_insert_item_to_tree(new_slots, clsid, item_count)
 
     local slot_count = new_slots:GetSlotCount()
     local count = new_slots:GetUserIValue("SLOT_ITEM_COUNT") or 0
+    ts(count)
 
     while slot_count <= count do
         new_slots:ExpandRow()

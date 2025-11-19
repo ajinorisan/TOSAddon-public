@@ -592,13 +592,12 @@ function quickslot_operate_check_all_slots(atk_pid, def_pid)
 end
 
 function quickslot_operate_load_all_slot(name, title)
-
     local frame = ui.GetFrame('quickslotnexpbar')
     local slot_count = MAX_QUICKSLOT_CNT
-
-    for i = 0, slot_count - 1 do
-        local str_index = tostring(i + 1)
-        local slot = GET_CHILD_RECURSIVELY(frame, "slot" .. str_index, "ui::CSlot")
+    for i = 1, MAX_QUICKSLOT_CNT do
+        local str_index = tostring(i)
+        local slot = GET_CHILD_RECURSIVELY(frame, "slot" .. str_index)
+        AUTO_CAST(slot)
         local slot_info = g.settings.slotset[name][title][str_index]
         if slot_info then
             local category = slot_info.category
@@ -614,7 +613,6 @@ function quickslot_operate_load_all_slot(name, title)
     quickslot.RequestSave()
     QUICKSLOTNEXPBAR_UPDATE_HOTKEYNAME(frame)
     DebounceScript("QUICKSLOTNEXTBAR_UPDATE_ALL_SLOT", 0.1)
-
 end
 
 function quickslot_operate_set_rshift_script()

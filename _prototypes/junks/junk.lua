@@ -2544,7 +2544,7 @@ end]==] --[==[unction indun_panel_config_gb_open(frame, ctrl, argStr, argNum)
     end
     local final_height = math.max(posY_left, posY_right)
     frame:Resize(660, final_height + 5)
-end]==] --[[function indun_panel_frame_init()
+end --[[function indun_panel_frame_init()
 
     local frame = ui.GetFrame("indun_panel")
 
@@ -3593,3 +3593,344 @@ local entbl = {
     main_frame:SetPos((map_width - current_frame_w) / 2, 0)
     main_frame:ShowWindow(1)
 end]] 
+[=[
+function debuff_notice_frame_init(buff_id, handle, buff_index, image_name)
+    local targetbuff = ui.GetFrame("targetbuff")
+    local debuff_notice = ui.CreateNewFrame("notice_on_pc", addon_name_lower .. "debuff_notice" .. handle, 0, 0, 0, 0)
+    debuff_notice:SetSkinName("None")
+    debuff_notice:SetTitleBarSkin("None")
+    debuff_notice:Resize(400, 50)
+    debuff_notice:SetPos(targetbuff:GetX() + 100, targetbuff:GetY() + targetbuff:GetHeight() + 50)
+    local debuff_slotset = GET_CHILD(debuff_notice, "debuff_slotset")
+    if not debuff_slotset then
+        debuff_slotset = debuff_notice:CreateOrGetControl("slotset", "debuff_slotset", 0, 0, 415, 50)
+        AUTO_CAST(debuff_slotset)
+        debuff_slotset:SetColRow(8, 1)
+        debuff_slotset:SetSlotSize(50, 50)
+        debuff_slotset:SetSpc(0, 0)
+        debuff_slotset:EnablePop(0)
+        debuff_slotset:EnableDrag(0)
+        debuff_slotset:EnableDrop(0)
+        debuff_slotset:CreateSlots()
+    else
+        AUTO_CAST(debuff_slotset)
+    end
+    debuff_notice:ShowWindow(1)
+    debuff_notice:StopUpdateScript("debuff_notice_frame_resize")
+    debuff_notice:RunUpdateScript("debuff_notice_frame_resize", 0.1)
+end
+
+function debuff_notice_frame_resize(debuff_notice)
+    local debuff_slotset = GET_CHILD(debuff_notice, "debuff_slotset")
+    AUTO_CAST(debuff_slotset)
+    local slot_count = debuff_slotset:GetSlotCount()
+    for i = 1, slot_count do
+        local slot = GET_CHILD(debuff_slotset, "slot" .. i)
+        AUTO_CAST(slot)
+        for handle, buffs in pairs(g.debuff_notice.slot_table) do
+            for buff_id, buff_data in pairs(buffs) do
+                local buff_index = buff_data.buff_index
+                local image_name = buff_data.image_name
+                local buff = info.GetBuff(handle, buff_id, buff_index)
+                if buff then
+                    local icon = slot:GetIcon()
+                    if not icon then
+                        icon = CreateIcon(slot)
+                        AUTO_CAST(icon)
+                    end
+                    icon:Set(image_name, 'BUFF', buff_id, 0)
+                    icon:SetTooltipType('buff');
+                    icon:SetTooltipArg(handle, buff_id, buff_index)
+                    local time_text = slot:CreateOrGetControl('richtext', "time_text", 10, 35, 20, 20);
+                    AUTO_CAST(time_text)
+                    if buff.time <= 0 then
+                        time_text:SetText("")
+                    end
+                    local count_text = slot:CreateOrGetControl('richtext', "count_text", 5, 0, 40, 35);
+                    AUTO_CAST(count_text)
+                    if buff.over <= 0 then
+                        count_text:SetText("")
+                    end
+                    break
+                end
+            end
+            break
+        end
+    end
+    return 1
+end
+
+function debuff_notice_TARGETBUFF_ON_MSG(frame, msg, arg_str, buff_id)
+    ts(3, frame, msg, arg_str, buff_id)
+    local debuff_notice = ui.GetFrame(addon_name_lower .. "debuff_notice")
+    local handle = session.GetTargetHandle()
+    local buff_cls = GetClassByType('Buff', buff_id)
+    if not buff_cls then
+        return
+    end
+    if buff_cls and buff_cls.Group1 ~= "Debuff" then
+        return
+    end
+    if buff_cls.ShowIcon == "FALSE" then
+        return
+    end
+    local image_name = GET_BUFF_ICON_NAME(buff_cls)
+    if image_name == "icon_None" then
+        return
+    end
+    local buff_index = tonumber(arg_str)
+    local buff = info.GetBuff(handle, buff_id, buff_index)
+    if not buff then
+        buff = info.GetBuff(handle, buff_id)
+    end
+    local my_handle = session.GetMyHandle()
+    if buff then
+        local caster_handle = buff:GetHandle()
+        if caster_handle ~= my_handle then
+            return
+        end
+    end
+    local actor = world.GetActor(handle)
+    local mon_cls = GetClassByType("Monster", actor:GetType())
+    if TryGetProp(mon_cls, "MonRank", "None") ~= "Boss" and not g.debuff_notice.highlander then
+        return
+    else
+        if not g.debuff_notice.slot_table[handle] then
+            g.debuff_notice.slot_table[handle] = {}
+        end
+    end
+    local handle = session.GetTargetHandle();
+    local buffIndex = tonumber(argStr)
+    if msg == "TARGET_BUFF_ADD" then
+        -- if TARGETDEBUFF_SELFAPPLIED_CHECK(handle, argNum, buffIndex) == true then return; end
+        if TARGETBUFF_DEBUFF_LIMIT(frame, handle, argNum) == false then
+            COMMON_BUFF_MSG(frame, "ADD", argNum, handle, t_buff_ui, argStr);
+        end
+    elseif msg == "TARGET_BUFF_REMOVE" then
+        -- if TARGETDEBUFF_SELFAPPLIED_CHECK(handle, argNum, buffIndex) == true then return; end
+        COMMON_BUFF_MSG(frame, "REMOVE", argNum, handle, t_buff_ui, argStr);
+    elseif msg == "TARGET_BUFF_UPDATE" then
+        -- if TARGETDEBUFF_SELFAPPLIED_CHECK(handle, argNum, buffIndex) == true then return; end
+        COMMON_BUFF_MSG(frame, "UPDATE", argNum, handle, t_buff_ui, argStr);
+    elseif msg == "TARGET_SET" then
+        if s_lsgmsg == msg and s_lasthandle == handle then
+            return;
+        end
+        s_lsgmsg = msg;
+        s_lasthandle = handle;
+        COMMON_BUFF_MSG(frame, "CLEAR", argNum, handle, t_buff_ui);
+        local isLimitDebuff = tonumber(frame:GetUserValue("IS_LIMIT_DEBUFF"));
+        if isLimitDebuff == 1 then
+            ui.TargetDebuffMinimizeAddonMsg(frame:GetName(), "SET", handle);
+        else
+            COMMON_BUFF_MSG(frame, "SET", argNum, handle, t_buff_ui);
+        end
+        TARGETBUFF_VISIBLE(frame, 1);
+    elseif msg == "TARGET_CLEAR" then
+        if s_lsgmsg == msg then
+            return;
+        end
+        s_lsgmsg = msg;
+        COMMON_BUFF_MSG(frame, "CLEAR", argNum, handle, t_buff_ui);
+        TARGETBUFF_VISIBLE(frame, 0);
+    end
+end
+
+--[[function debuff_notice_COMMON_BUFF_MSG(my_frame, my_msg)
+    local frame, msg, buffType, handle, buff_ui, buffIndex = g.get_event_args(my_msg)
+    local debuff_notice = ui.GetFrame(addon_name_lower .. "debuff_notice")
+    if msg == "SET" or msg == 'ADD' or msg == "UPDATE" then
+        local buffCount = info.GetBuffCount(handle)
+        for i = 0, buffCount - 1 do
+            local buff = info.GetBuffIndexed(handle, i)
+            if buff then
+                -- ts(1, msg, buffIndex, buff.index)
+                -- ts(2, msg, buffType, buff.buffID)
+                -- debuff_notice_TARGETBUFF_ON_MSG(debuff_notice, "ADD", buff.index, buff.buffID)
+            end
+        end
+        -- elseif msg == 'REMOVE' or msg == "CLEAR" then
+        -- debuff_notice_TARGETBUFF_ON_MSG(debuff_notice, "REMOVE", buffIndex, buffType)
+    end
+end]]
+
+function debuff_notice_common_buff_msg(debuff_notice, msg, buff_id, handle, buff_index)
+    local debuff_notice = ui.GetFrame(addon_name_lower .. "debuff_notice")
+    if not g.debuff_notice.slot_table[handle] then
+        g.debuff_notice.slot_table[handle] = {}
+    end
+    if "None" == buff_index or not buff_index then
+        buff_index = 0
+    end
+    buff_index = tonumber(buff_index)
+    if msg == 'ADD' or msg == "UPDATE" then
+        g.debuff_notice.slot_table[handle][buff_id] = buff_index
+    elseif msg == 'REMOVE' then
+        g.debuff_notice.slot_table[handle][buff_id] = nil
+    end
+    debuff_notice_frame_redraw(debuff_notice, handle)
+end
+
+--[[function debuff_notice_frame_redraw(debuff_notice, handle)
+    local debuff_slotset = debuff_notice:GetChild("debuff_slotset")
+    if not debuff_slotset then
+        return
+    end
+    AUTO_CAST(debuff_slotset)
+    local buffs_to_display = {}
+    if handle and g.debuff_notice.slot_table and g.debuff_notice.slot_table[handle] then
+        for buff_id, buff_index in pairs(g.debuff_notice.slot_table[handle]) do
+            table.insert(buffs_to_display, {
+                buff_id = buff_id,
+                buff_index = buff_index
+            })
+        end
+    end
+
+    if #buffs_to_display == 0 then
+        debuff_notice:Resize(0, 50)
+    else
+        -- 変更: UIのリサイズは表示するバフの数に基づいて行う
+        debuff_notice:Resize(#buffs_to_display * 50, 50)
+    end
+
+    local slot_count = debuff_slotset:GetSlotCount()
+    for i = 1, slot_count do
+        local slot = GET_CHILD(debuff_slotset, "slot" .. i)
+        AUTO_CAST(slot)
+        local buff_data = buffs_to_display[i]
+        if buff_data then
+            local target_buff_id = tonumber(buff_data.buff_id)
+            local target_buff_index = tonumber(buff_data.buff_index)
+            local buff_cls = GetClassByType('Buff', target_buff_id)
+            if buff_cls then
+                -- 変更: 毎回CreateIconするのではなく、既存のアイコンを取得して更新します
+                local icon = slot:GetIcon()
+                if not icon then
+                    icon = CreateIcon(slot)
+                    AUTO_CAST(icon)
+                end
+
+                local image_name = GET_BUFF_ICON_NAME(buff_cls)
+                icon:Set(image_name, 'BUFF', target_buff_id, 0)
+                icon:SetTooltipType('buff');
+                icon:SetTooltipArg(handle, target_buff_id, target_buff_index);
+                slot:SetUserValue("DEBUFF_HANDLE", tonumber(handle))
+                slot:SetUserValue("DEBUFF_ID", target_buff_id)
+                slot:SetUserValue("DEBUFF_INDEX", target_buff_index)
+
+                -- 変更: タイマーも毎回作り直すのではなく、存在チェックをします
+                local addon_timer = slot:GetTimer("addon_timer")
+                if not addon_timer then
+                    addon_timer = slot:CreateOrGetControl("timer", "addon_timer", 0, 0);
+                    AUTO_CAST(addon_timer)
+                    addon_timer:SetUpdateScript("debuff_notice_time_update");
+                end
+                addon_timer:Start(0.1);
+            end
+        else
+            -- 変更: 不要になったスロットはアイコンを消し、タイマーを止めます
+            slot:ClearIcon()
+            slot:StopTimer("addon_timer")
+        end
+    end
+    debuff_notice:Invalidate()
+end]]
+
+function debuff_notice_frame_redraw(debuff_notice, handle)
+    local debuff_slotset = debuff_notice:GetChild("debuff_slotset")
+    if not debuff_slotset then
+        return
+    end
+    AUTO_CAST(debuff_slotset)
+    local buffs_to_display = {}
+    if handle and g.debuff_notice.slot_table and g.debuff_notice.slot_table[handle] then
+        for buff_id, buff_index in pairs(g.debuff_notice.slot_table[handle]) do
+            table.insert(buffs_to_display, {
+                buff_id = buff_id,
+                buff_index = buff_index
+            })
+        end
+    end
+    if #buffs_to_display == 0 then
+        debuff_notice:Resize(0, 50)
+        return
+    end
+    local slot_count = debuff_slotset:GetSlotCount()
+    for i = 1, slot_count do
+        local slot = GET_CHILD(debuff_slotset, "slot" .. i)
+        AUTO_CAST(slot)
+        slot:ClearIcon()
+        local icon = CreateIcon(slot)
+        AUTO_CAST(icon)
+        local buff_data = buffs_to_display[i]
+        if buff_data then
+            local target_buff_id = tonumber(buff_data.buff_id)
+            local target_buff_index = tonumber(buff_data.buff_index)
+            local buff_cls = GetClassByType('Buff', target_buff_id)
+            if buff_cls then
+                local image_name = GET_BUFF_ICON_NAME(buff_cls)
+                icon:Set(image_name, 'BUFF', target_buff_id, 0)
+                icon:SetTooltipType('buff');
+                icon:SetTooltipArg(handle, target_buff_id, target_buff_index);
+                slot:SetUserValue("DEBUFF_HANDLE", tonumber(handle))
+                slot:SetUserValue("DEBUFF_ID", target_buff_id)
+                slot:SetUserValue("DEBUFF_INDEX", target_buff_index)
+                local addon_timer = slot:CreateOrGetControl("timer", "addon_timer", 0, 0);
+                AUTO_CAST(addon_timer)
+                addon_timer:SetUpdateScript("debuff_notice_time_update");
+                addon_timer:Start(0.1);
+                local x = #buffs_to_display * 50
+                debuff_notice:Resize(x, 50)
+            end
+        end
+    end
+    debuff_notice:Invalidate()
+end
+
+function debuff_notice_time_update(slot, timer)
+    local handle = slot:GetUserIValue("DEBUFF_HANDLE")
+    local buff_id = slot:GetUserIValue("DEBUFF_ID")
+    local buff_index = slot:GetUserIValue("DEBUFF_INDEX")
+    local debuff_notice = slot:GetTopParentFrame()
+    local time_text = GET_CHILD(slot, "time_text")
+    local count_text = GET_CHILD(slot, "count_text")
+    local buff = info.GetBuff(handle, buff_id, buff_index) or info.GetBuff(handle, buff_id)
+    if buff then
+        if buff.time > 0 then
+            local sec = buff.time / 1000
+            sec = math.floor(sec * 10 + 0.5) / 10
+            sec = string.format("%.1f", sec)
+            time_text:SetText("{ol}{s15}{#FFFF00}" .. sec .. "s")
+        end
+        if buff.over > 0 then
+            count_text:SetText("{ol}{s35}{#FFFFFF}" .. buff.over)
+        end
+    else
+        slot:ClearIcon();
+        debuff_notice_common_buff_msg(debuff_notice, "REMOVE", buff_id, handle, buff_index)
+    end
+end
+
+--[[function debuff_notice_frame_resize(debuff_notice)
+    -- 変更: この関数の役割を「無効なバフ/ターゲットのチェック」に限定します
+    for handle, buffs in pairs(g.debuff_notice.slot_table) do
+        local boss_actor = world.GetActor(handle)
+        if not boss_actor then
+            -- ターゲットがいなくなったら、そのハンドル情報をクリアして再描画
+            g.debuff_notice.slot_table[handle] = nil
+            debuff_notice_frame_redraw(debuff_notice, handle)
+            return 1
+        end
+
+        for buff_id, buff_index in pairs(buffs) do
+            local buff = info.GetBuff(handle, buff_id, buff_index) or info.GetBuff(handle, buff_id)
+            if not buff then
+                -- バフが消えていたら、そのバフ情報をクリアして再描画
+                debuff_notice_common_buff_msg(debuff_notice, "REMOVE", buff_id, handle, buff_index)
+                return 1 -- 一度に一つの変更を処理
+            end
+        end
+    end
+    return 1
+end]==] 

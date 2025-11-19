@@ -661,6 +661,7 @@ function always_status_frame_init()
                             title:SetText("{ol}{s16}" .. g.settings["color"][status] ..
                                               ScpArgMsg("EquipedItemGearScore"))
                             local text = string.gsub(original_status:GetText(), "{@sti8}", "")
+
                             text = string.gsub(text, ",", "")
                             stat:SetText(g.settings["color"][status] .. "{ol}{s16}: " .. text)
                         elseif status == "ability_point_score" then

@@ -146,7 +146,7 @@ function g.get_event_args(origin_func_name)
     return nil
 end
 
-g.translations = {
+g.trans = {
     Japanese = {
         ["Sale Date/Time:"] = "販売日時 : ",
         ["Purchase Date/Time:"] = "購入日時 : ",
@@ -165,7 +165,6 @@ g.translations = {
         ["sell"] = "販売",
         ["buy"] = "購入"
     },
-    -- Default/English strings (Corrected)
     Default = {
         ["Sale Date/Time:"] = "Sale Date : ",
         ["Purchase Date/Time:"] = "Purch. Date : ",
@@ -188,11 +187,10 @@ g.translations = {
 
 function g.lang_trans(key)
     local lang_code = option.GetCurrentCountry()
-    -- local lang_code = "en"
-    if g.translations[lang_code] and g.translations[lang_code][key] then
-        return g.translations[lang_code][key]
+    if g.trans[g.lang] and g.trans[g.lang][key] then
+        return g.trans[g.lang][key]
     end
-    return g.translations.Default[key] or key
+    return g.trans.Default[key] or key
 end
 
 function g.ui_text(key)

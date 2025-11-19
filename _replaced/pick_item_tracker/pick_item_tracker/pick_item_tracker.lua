@@ -144,11 +144,9 @@ function PICK_ITEM_TRACKER_ON_INIT(addon, frame)
 
     pick_item_tracker_load_settings()
 
-    local pc = GetMyPCObject();
+    local pc = GetMyPCObject()
     local current_map = GetZoneName(pc)
-
     if g.get_map_type() ~= "City" and g.get_map_type() ~= "Instance" then
-
         if not g.current_map or current_map ~= g.current_map then
             g.current_map = current_map
             addon:RegisterMsg('ITEM_PICK', 'pick_item_tracker_ITEMMSG_ITEM_COUNT')
@@ -162,22 +160,18 @@ function PICK_ITEM_TRACKER_ON_INIT(addon, frame)
             pick_item_tracker_frame_init()
         end
     else
-
         pick_item_tracker_frame_init("is_city")
         g.y = 45
         g.current_map = current_map
     end
-
 end
 
 function pick_item_tracker_frame_move(frame, ctrl, str, num)
-
     if g.settings.x ~= frame:GetX() or g.settings.y ~= frame:GetY() then
         g.settings.x = frame:GetX()
         g.settings.y = frame:GetY()
         pick_item_tracker_save_settings()
     end
-
 end
 
 function pick_item_tracker_frame_lock(frame)
@@ -224,9 +218,9 @@ function pick_item_tracker_frame_init(msg)
     itemlock:SetGravity(ui.LEFT, ui.TOP);
 
     if g.settings.move == 1 then
-        itemlock:SetGrayStyle(1);
+        itemlock:SetGrayStyle(1)
     else
-        itemlock:SetGrayStyle(0);
+        itemlock:SetGrayStyle(0)
     end
 
     frame:Resize(120, g.y or 25)
