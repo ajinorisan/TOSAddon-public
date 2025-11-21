@@ -3933,4 +3933,48 @@ end
         end
     end
     return 1
+end
+function g.setup_hook_before(origin_func_name, my_func_name)
+    local previous_func = _G[origin_func_name]
+    if not previous_func then
+        return
+    end
+    _G[origin_func_name] = function(...)
+        if _G[my_func_name] then
+            _G[my_func_name](...)
+        end
+        return previous_func(...)
+    end
+end
+
+        --[[local my_handle = session.GetMyHandle()
+        local buffs_to_remove = {}
+        for i = 0, s_buff_ui["slotcount"][1] - 1 do
+            local slot = s_buff_ui["slotlist"][1][i]
+            if slot:IsVisible() == 1 then
+                local icon = slot:GetIcon()
+                if icon and g.my_buffs_control_settings.buffs[tostring(icon:GetInfo().type)] == false then
+                    table.insert(buffs_to_remove, {
+                        id = icon:GetInfo().type,
+                        index = tostring(icon:GetUserIValue("BuffIndex"))
+                    })
+                end
+            end
+        end
+        for i = #buffs_to_remove, 1, -1 do
+            local buff_info = buffs_to_remove[i]
+            COMMON_BUFF_MSG(buff_frame, "REMOVE", buff_info.id, my_handle, s_buff_ui, buff_info.index)
+        end]]
+        
+function g.setup_hook_before_with_filter(origin_func_name, my_filter_func_name)
+    local previous_func = _G[origin_func_name]
+    if not previous_func then
+        return
+    end
+    _G[origin_func_name] = function(...)
+        if _G[my_filter_func_name] and _G[my_filter_func_name](...) then
+            return
+        end
+        return previous_func(...)
+    end
 end]==] 
