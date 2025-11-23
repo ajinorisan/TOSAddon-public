@@ -88,65 +88,6 @@ function g.get_event_args(origin_func_name)
     return nil
 end
 
-function g.setup_hook_before(origin_func_name, my_func_name)
-    local previous_func = _G[origin_func_name]
-    if not previous_func then
-        return
-    end
-    _G[origin_func_name] = function(...)
-
-        if _G[my_func_name] then
-            _G[my_func_name](...)
-        end
-        return previous_func(...)
-    end
-end
-
-function g.setup_hook_before_with_filter(origin_func_name, my_filter_func_name)
-    local previous_func = _G[origin_func_name]
-    if not previous_func then
-        return
-    end
-    _G[origin_func_name] = function(...)
-        if _G[my_filter_func_name] and _G[my_filter_func_name](...) then
-            return
-        end
-        return previous_func(...)
-    end
-end
-
---[[function g.setup_hook_before(origin_func_name, my_func_name)
-    g.FUNCS_BEFORE = g.FUNCS_BEFORE or {}
-    if not g.FUNCS_BEFORE[origin_func_name] then
-        g.FUNCS_BEFORE[origin_func_name] = _G[origin_func_name]
-    end
-    local previous_func = _G[origin_func_name]
-    _G[origin_func_name] = function(...)
-        if _G[my_func_name] then
-            _G[my_func_name](...)
-        end
-        return previous_func(...)
-    end
-end
-
-function g.setup_hook_before_with_filter(origin_func_name, my_filter_func_name)
-    g.FUNCS_BEFORE = g.FUNCS_BEFORE or {}
-    if not g.FUNCS_BEFORE[origin_func_name] then
-        g.FUNCS_BEFORE[origin_func_name] = _G[origin_func_name]
-    end
-    local previous_func = _G[origin_func_name]
-    if not previous_func then
-        return
-    end
-    _G[origin_func_name] = function(...)
-
-        if _G[my_filter_func_name] and _G[my_filter_func_name](...) then
-            return
-        end
-        return previous_func(...)
-    end
-end]]
-
 function g.load_json(path)
     local file = io.open(path, "r")
     if not file then
@@ -209,36 +150,13 @@ end
 g.active_id = session.loginInfo.GetAID()
 g.settings_path = string.format("../addons/%s/%s/settings.json", addon_name_lower, g.active_id)
 g.all_in_one = {{
-    key = "bulk_sales",
+    key = "aethergem_manager",
     data = {
         use = 0,
-        name = "Bulk Sales",
+        name = "Aethergem Manager",
         frame_use = false,
-        config_func = ""
-    }
-}, {
-    key = "auto_map_change",
-    data = {
-        use = 0,
-        name = "Auto Map Change",
-        frame_use = false,
-        config_func = ""
-    }
-}, {
-    key = "ancient_auto_set",
-    data = {
-        use = 0,
-        name = "Ancient Auto Set",
-        frame_use = false,
-        config_func = ""
-    }
-}, {
-    key = "auto_pet_summon",
-    data = {
-        use = 0,
-        name = "Auto Pet Summon",
-        frame_use = false,
-        config_func = ""
+        config_func = "",
+        old_init_func = "KLCOUNT_ON_INIT"
     }
 }, {
     key = "acquire_relic_reward",
@@ -246,87 +164,17 @@ g.all_in_one = {{
         use = 0,
         name = "Acquire Relic Reward",
         frame_use = false,
-        config_func = ""
+        config_func = "",
+        old_init_func = "ACQUIRERELICREWARD_ON_INIT"
     }
 }, {
-    key = "auto_repair",
+    key = "ancient_auto_set",
     data = {
         use = 0,
-        name = "Auto Repair",
-        frame_use = true,
-        config_func = "auto_repair_settings_frame_init"
-    }
-}, {
-    key = "boss_direction",
-    data = {
-        use = 0,
-        name = "Boss Direction",
-        frame_use = true,
-        config_func = "boss_direction_settings_frame_init"
-    }
-}, {
-    key = "cupole_manager",
-    data = {
-        use = 0,
-        name = "Cupole Manager",
+        name = "Ancient Auto Set",
         frame_use = false,
-        config_func = ""
-    }
-}, {
-    key = "dungeon_rp_charger",
-    data = {
-        use = 0,
-        name = "Dungeon RP Charger",
-        frame_use = false,
-        config_func = ""
-    }
-}, {
-    key = "guild_event_warp",
-    data = {
-        use = 0,
-        name = "Guild Event Warp",
-        frame_use = false,
-        config_func = ""
-    }
-}, {
-    key = "instant_cc",
-    data = {
-        use = 0,
-        name = "Instant CC",
-        frame_use = true,
-        config_func = "instant_cc_settings_frame_init"
-    }
-}, {
-    key = "job_change_helper",
-    data = {
-        use = 0,
-        name = "Job Change Helper",
-        frame_use = false,
-        config_func = ""
-    }
-}, {
-    key = "aethergem_manager",
-    data = {
-        use = 0,
-        name = "Aethergem Manager",
-        frame_use = false,
-        config_func = ""
-    }
-}, {
-    key = "party_marker",
-    data = {
-        use = 0,
-        name = "Party Marker",
-        frame_use = false,
-        config_func = ""
-    }
-}, {
-    key = "boss_gauge",
-    data = {
-        use = 0,
-        name = "Boss Gauge",
-        frame_use = false,
-        config_func = ""
+        config_func = "",
+        old_init_func = "ANCIENT_AUTOSET_ON_INIT"
     }
 }, {
     key = "always_status",
@@ -334,7 +182,62 @@ g.all_in_one = {{
         use = 0,
         name = "Always Status",
         frame_use = true,
-        config_func = "always_status_info_setting"
+        config_func = "always_status_info_setting",
+        old_init_func = "ALWAYS_STATUS_ON_INIT"
+    }
+}, {
+    key = "auto_map_change", --
+    data = {
+        use = 0,
+        name = "Auto Map Change",
+        frame_use = false,
+        config_func = "",
+        old_init_func = "AUTOMAPCHANGE_ON_INIT"
+    }
+}, {
+    key = "auto_pet_summon",
+    data = {
+        use = 0,
+        name = "Auto Pet Summon",
+        frame_use = false,
+        config_func = "",
+        old_init_func = "AUTO_PET_SUMMON_ON_INIT"
+    }
+}, {
+    key = "auto_repair",
+    data = {
+        use = 0,
+        name = "Auto Repair",
+        frame_use = true,
+        config_func = "auto_repair_settings_frame_init",
+        old_init_func = "AUTO_REPAIR_ON_INIT"
+    }
+}, {
+    key = "boss_direction",
+    data = {
+        use = 0,
+        name = "Boss Direction",
+        frame_use = true,
+        config_func = "boss_direction_settings_frame_init",
+        old_init_func = "BOSS_DIRECTION_ON_INIT"
+    }
+}, {
+    key = "boss_gauge",
+    data = {
+        use = 0,
+        name = "Boss Gauge",
+        frame_use = false,
+        config_func = "",
+        old_init_func = "BOSS_GAUGE_ON_INIT"
+    }
+}, {
+    key = "bulk_sales",
+    data = {
+        use = 0,
+        name = "Bulk Sales",
+        frame_use = false,
+        config_func = "",
+        old_init_func = "BULK_SALES_ON_INIT"
     }
 }, {
     key = "characters_item_serch",
@@ -342,7 +245,8 @@ g.all_in_one = {{
         use = 0,
         name = "Characters Item Serch",
         frame_use = true,
-        config_func = "characters_item_serch_toggle_frame"
+        config_func = "characters_item_serch_toggle_frame",
+        old_init_func = "CHARACTERS_ITEM_SERCH_ON_INIT"
     }
 }, {
     key = "continue_reinforce",
@@ -350,7 +254,17 @@ g.all_in_one = {{
         use = 0,
         name = "Continue Reinforce",
         frame_use = false,
-        config_func = ""
+        config_func = "",
+        old_init_func = "CONTINUERF_ON_INIT"
+    }
+}, {
+    key = "cupole_manager",
+    data = {
+        use = 0,
+        name = "Cupole Manager",
+        frame_use = false,
+        config_func = "",
+        old_init_func = "CUPOLE_MANAGER_ON_INIT"
     }
 }, {
     key = "debuff_notice",
@@ -358,7 +272,17 @@ g.all_in_one = {{
         use = 0,
         name = "Debuff Notice",
         frame_use = false,
-        config_func = ""
+        config_func = "",
+        old_init_func = "DEBUFF_NOTICE_ON_INIT"
+    }
+}, {
+    key = "dungeon_rp_charger",
+    data = {
+        use = 0,
+        name = "Dungeon RP Charger",
+        frame_use = false,
+        config_func = "",
+        old_init_func = "DUNGEONRPCHARGER_ON_INIT"
     }
 }, {
     key = "easy_buff",
@@ -366,23 +290,35 @@ g.all_in_one = {{
         use = 0,
         name = "Easy Buff",
         frame_use = true,
-        config_func = "easy_buff_config_frame"
+        config_func = "easy_buff_config_frame",
+        old_init_func = "EASYBUFF_ON_INIT"
     }
 }, {
-    key = "monster_kill_count",
+    key = "guild_event_warp",
     data = {
         use = 0,
-        name = "Monster Kill Count",
-        frame_use = true,
-        config_func = "monster_kill_count_information_context"
-    }
-}, {
-    key = "pick_item_tracker",
-    data = {
-        use = 0,
-        name = "Pick Item Tracker",
+        name = "Guild Event Warp",
         frame_use = false,
-        config_func = ""
+        config_func = "",
+        old_init_func = "GUILDEVENTWARP_ON_INIT"
+    }
+}, {
+    key = "instant_cc",
+    data = {
+        use = 0,
+        name = "Instant CC",
+        frame_use = true,
+        config_func = "instant_cc_settings_frame_init",
+        old_init_func = "INSTANTCC_ON_INIT"
+    }
+}, {
+    key = "job_change_helper",
+    data = {
+        use = 0,
+        name = "Job Change Helper",
+        frame_use = false,
+        config_func = "",
+        old_init_func = "JOB_CHANGE_HELPER_ON_INIT"
     }
 }, {
     key = "lets_go_home",
@@ -390,7 +326,8 @@ g.all_in_one = {{
         use = 0,
         name = "Lets Go Home",
         frame_use = true,
-        config_func = "lets_go_home_settings_frame"
+        config_func = "lets_go_home_settings_frame",
+        old_init_func = "LETS_GO_HOME_ON_INIT"
     }
 }, {
     key = "market_voucher",
@@ -398,7 +335,8 @@ g.all_in_one = {{
         use = 0,
         name = "Market Voucher",
         frame_use = false,
-        config_func = ""
+        config_func = "",
+        old_init_func = "MARKET_VOUCHER_ON_INIT"
     }
 }, {
     key = "monster_card_changer",
@@ -406,7 +344,17 @@ g.all_in_one = {{
         use = 0,
         name = "Monster Card Changer",
         frame_use = false,
-        config_func = ""
+        config_func = "",
+        old_init_func = "MONSTERCARD_CHANGE_ON_INIT"
+    }
+}, {
+    key = "monster_kill_count",
+    data = {
+        use = 0,
+        name = "Monster Kill Count",
+        frame_use = true,
+        config_func = "monster_kill_count_information_context",
+        old_init_func = "KLCOUNT_ON_INIT"
     }
 }, {
     key = "my_buffs_control",
@@ -414,7 +362,35 @@ g.all_in_one = {{
         use = 0,
         name = "My Buffs Control",
         frame_use = true,
-        config_func = "my_buffs_control_setting_menu"
+        config_func = "my_buffs_control_setting_menu",
+        old_init_func = "MY_BUFFS_ON_INIT"
+    }
+}, {
+    key = "no_check",
+    data = {
+        use = 0,
+        name = "No Check",
+        frame_use = false,
+        config_func = "",
+        old_init_func = "NOCHECK_ON_INIT"
+    }
+}, {
+    key = "party_marker",
+    data = {
+        use = 0,
+        name = "Party Marker",
+        frame_use = false,
+        config_func = "",
+        old_init_func = "PARTYMARKER_ON_INIT"
+    }
+}, {
+    key = "pick_item_tracker",
+    data = {
+        use = 0,
+        name = "Pick Item Tracker",
+        frame_use = false,
+        config_func = "",
+        old_init_func = "PICK_ITEM_TRACKER_ON_INIT"
     }
 }, {
     key = "quickslot_operate",
@@ -422,7 +398,8 @@ g.all_in_one = {{
         use = 0,
         name = "Quickslot Operate",
         frame_use = false,
-        config_func = ""
+        config_func = "",
+        old_init_func = "QUICKSLOT_OPERATE_ON_INIT"
     }
 }, {
     key = "relic_change",
@@ -430,7 +407,8 @@ g.all_in_one = {{
         use = 0,
         name = "Relic Change",
         frame_use = false,
-        config_func = ""
+        config_func = "",
+        old_init_func = "RELIC_CHANGE_ON_INIT"
     }
 }, {
     key = "revival_timer",
@@ -438,126 +416,189 @@ g.all_in_one = {{
         use = 0,
         name = "Revival Timer",
         frame_use = true,
-        config_func = "revival_timer_setting"
+        config_func = "revival_timer_setting",
+        old_init_func = "REVIVAL_TIMER_ON_INIT"
+    }
+}, {
+    key = "sub_map",
+    data = {
+        use = 0,
+        name = "Sub Map",
+        frame_use = true,
+        config_func = "sub_map_settings",
+        old_init_func = "SUB_MAP_ON_INIT"
+    }
+}, {
+    key = "vakarine_equip",
+    data = {
+        use = 0,
+        name = "Vakarine Equip",
+        frame_use = true,
+        config_func = "vakarine_equip_config_frame_open",
+        old_init_func = "VAKARINE_EQUIP_ON_INIT"
     }
 }}
 
 g.all_in_one_trans = {
     ["bulk_sales"] = {
         ja = "{ol}雑貨屋で大量販売出来るスロットセットを提供",
-        etc = "{ol}Provide a set of slots that can be sold in bulk{nl}at a grocery store"
+        etc = "{ol}Provide a set of slots that can be sold in bulk{nl}at a grocery store",
+        kr = "{ol}잡화점에서 대량으로 판매 가능한 슬롯 세트 제공"
     },
     ["auto_map_change"] = {
         ja = "{ol}マップ移動時のダイアログ選択を自動化",
-        etc = "{ol}Automate Dialogue Selection during Map Movement"
+        etc = "{ol}Automate Dialogue Selection during Map Movement",
+        kr = "{ol}맵 이동 시 다이얼로그 선택 자동화"
     },
     ["ancient_auto_set"] = {
         ja = "{ol}アシスターセットをキャラ毎に自動で付け替えます{nl}事前にアシスター保管箱で設定必要",
-        etc = "{ol}Automatically switch Ancient Sets per character{nl}Requires prior setup in the Ancient Storage"
+        etc = "{ol}Automatically switch Ancient Sets per character{nl}Requires prior setup in the Ancient Storage",
+        kr = "{ol}어시스터 세트를 캐릭터별로 자동으로 교체{nl}미리 어시스터 보관함에서 설정 필요"
     },
     ["auto_pet_summon"] = {
         ja = "{ol}キャラ毎に最後に連れていたペットを自動で召喚します",
-        etc = "{ol}Automatically summon the last-used pet for each character"
+        etc = "{ol}Automatically summon the last-used pet for each character",
+        kr = "{ol}캐릭터별로 마지막에 데리고 있던 펫을 자동으로 소환"
     },
     ["acquire_relic_reward"] = {
         ja = "{ol}ebisukeさん作成{nl}自動でレリッククエスト報酬を受け取ります{nl}マップ切替時などにゲームがクラッシュするバグ修正済",
-        etc = "{ol}Created by ebisuke{nl}Automatically accepts Relic Quest rewards{nl}Fixed a bug causing the game to crash during map transitions"
+        etc = "{ol}Created by ebisuke{nl}Automatically accepts Relic Quest rewards{nl}Fixed a bug causing the game to crash during map transitions",
+        kr = "{ol}ebisuke님 제작{nl}레릭 퀘스트 보상을 자동으로 수령{nl}맵 전환 시 게임이 충돌하는 버그 수정 완료"
     },
     ["auto_repair"] = {
         ja = "{ol}装備の耐久を監視して30%未満になると緊急修理キットを使用して自動で修理します{nl}女神の証商店からの自動補充機能付き",
-        etc = "{ol}Monitors equipment durability and automatically repairs it using an Emergency Repair Kit{nl}when durability drops below 30%{nl}Includes an automatic resupply function from the Goddess's Token Shop"
+        etc = "{ol}Monitors equipment durability and automatically repairs it using an Emergency Repair Kit{nl}when durability drops below 30%{nl}Includes an automatic resupply function from the Goddess's Token Shop",
+        kr = "{ol}장비 내구도를 감시하여 30% 미만 시 긴급 수리 키트로 자동 수리{nl}여신의 증표 상점 자동 보충 기능 포함"
     },
     ["boss_direction"] = {
         ja = "{ol}ボスが向いている方向を矢印でお知らせ",
-        etc = "{ol}Arrow indicates the direction the boss is facing"
+        etc = "{ol}Arrow indicates the direction the boss is facing",
+        kr = "{ol}보스가 향하는 방향을 화살표로 표시"
     },
     ["cupole_manager"] = {
         ja = "{ol}クポル未登録キャラでも自動で呼び出します",
-        etc = "{ol}Automatically summons the Cupole{nl}even for characters without a registered one"
+        etc = "{ol}Automatically summons the Cupole{nl}even for characters without a registered one",
+        kr = "{ol}쿠폴 미등록 캐릭터라도 자동으로 소환"
     },
     ["dungeon_rp_charger"] = {
         ja = "{ol}meldavyさん作成{nl}聖域で自動でレリックポイントを補充します",
-        etc = "{ol}Created by meldavy{nl}Automatically restocks Relic Points in Sanctuary"
+        etc = "{ol}Created by meldavy{nl}Automatically restocks Relic Points in Sanctuary",
+        kr = "{ol}meldavy님 제작{nl}성역에서 레릭 포인트를 자동으로 보충"
     },
     ["guild_event_warp"] = {
         ja = "{ol}画面右上の小さいボタンから封鎖戦マップの1チャンネルにワープ",
-        etc = "{ol}Warp to Channel 1 of the Blockade Battle Map{nl}from the button in the upper right corner of the screen"
+        etc = "{ol}Warp to Channel 1 of the Blockade Battle Map{nl}from the button in the upper right corner of the screen",
+        kr = "{ol}화면 오른쪽 상단의 작은 버튼으로 봉쇄전 맵의 1채널로 워프"
     },
     ["instant_cc"] = {
         ja = "{ol}ebisukeさん作成{nl}キャラクターチェンジを簡易にします",
-        etc = "{ol}Created by ebisuke{nl}Simplifies character changing"
+        etc = "{ol}Created by ebisuke{nl}Simplifies character changing",
+        kr = "{ol}ebisuke님 제작{nl}캐릭터 변경을 간소화"
     },
     ["job_change_helper"] = {
         ja = "{ol}装備解除など、転職を簡易にします",
-        etc = "{ol}Simplifies job change, such as unequipping gear"
+        etc = "{ol}Simplifies job change, such as unequipping gear",
+        kr = "{ol}장비 해제 등, 전직을 간소화"
     },
     ["aethergem_manager"] = {
         ja = "{ol}エーテルジェムの付け替えを自動化{nl}キャラ毎の設定が必要です",
-        etc = "{ol}Automate Aethergem equipping/swapping{nl}Settings are required for each character"
+        etc = "{ol}Automate Aethergem equipping/swapping{nl}Settings are required for each character",
+        kr = "{ol}에테르 젬 교체 자동화{nl}캐릭터별 설정이 필요합니다"
     },
     ["party_marker"] = {
         ja = "{ol}Charbonさん作成{nl}パーティーメンバーの頭上にアイコンを付けます",
-        etc = "{ol}Created by Charbon{nl}Add an icon above the party members' heads"
+        etc = "{ol}Created by Charbon{nl}Add an icon above the party members' heads",
+        kr = "{ol}Charbon님 제작{nl}파티 멤버의 머리 위에 아이콘을 표시"
     },
     ["boss_gauge"] = {
         ja = "{ol}ボスゲージにスタン値とシールド値を表示します",
-        etc = "{ol}Display Stun value and Shield value on the boss gauge"
+        etc = "{ol}Display Stun value and Shield value on the boss gauge",
+        kr = "{ol}보스 게이지에 스턴 수치와 쉴드 수치 표시"
     },
     ["always_status"] = {
         ja = "{ol}ステータスを常に表示します",
-        etc = "{ol}Always display status"
+        etc = "{ol}Always display status",
+        kr = "{ol}스테이터스를 항상 표시"
     },
     ["characters_item_serch"] = {
         ja = "{ol}各キャラクターのアイテム検索{nl}インベントリボタン右クリックでも作動",
-        etc = "{ol}Item search for each character{nl}Also activates by right-clicking the Inventory button"
+        etc = "{ol}Item search for each character{nl}Also activates by right-clicking the Inventory button",
+        kr = "{ol}각 캐릭터의 아이템 검색{nl}인벤토리 버튼 오른쪽 클릭으로도 작동"
     },
     ["continue_reinforce"] = {
         ja = "{ol}ゴッデス装備連続強化",
-        etc = "{ol}Goddes equipment continuous reinforcement"
+        etc = "{ol}Goddes equipment continuous reinforcement",
+        kr = "{ol}갓데스 장비 연속 강화"
     },
     ["debuff_notice"] = {
         ja = "{ol}自分が与えたデバフを見やすく表示",
-        etc = "{ol}Clearly display the debuffs inflicted by oneself"
+        etc = "{ol}Clearly display the debuffs inflicted by oneself",
+        kr = "{ol}자신이 부여한 디버프를 보기 쉽게 표시"
     },
     ["easy_buff"] = {
         ja = "{ol}Kiicchanさん作成{nl}各種商店でバフ自動付与",
-        etc = "{olCreated by Kiicchan{nl}Automatic buff application at various shops"
+        etc = "{ol}Created by Kiicchan{nl}Automatic buff application at various shops",
+        kr = "{ol}Kiicchan님 제작{nl}각종 상점에서 버프 자동 부여"
     },
     ["monster_kill_count"] = {
         ja = "{ol}フィールド狩りで倒したモンスターをカウント{nl}アイテムドロップ情報取得",
-        etc = "{ol}Count monsters defeated in field hunting{nl}Acquire item drop information"
+        etc = "{ol}Count monsters defeated in field hunting{nl}Acquire item drop information",
+        kr = "{ol}필드 사냥으로 처치한 몬스터 카운트{nl}아이템 드롭 정보 획득"
     },
     ["pick_item_tracker"] = {
         ja = "{ol}アイテム取得情報表示",
-        etc = "{ol}Display item acquisition information"
+        etc = "{ol}Display item acquisition information",
+        kr = "{ol}아이템 획득 정보 표시"
     },
     ["lets_go_home"] = {
         ja = "{ol}ホームタウンのホームチャンネルにワープします",
-        etc = "{ol}Warp to the hometown's home channel"
+        etc = "{ol}Warp to the hometown's home channel",
+        kr = "{ol}홈타운의 홈 채널로 워프"
     },
     ["market_voucher"] = {
         ja = "{ol}マーケットでの取引履歴表示",
-        etc = "{olShow market trade history"
+        etc = "{ol}Show market trade history",
+        kr = "{ol}마켓에서의 거래 내역 표시"
     },
     ["monster_card_changer"] = {
         ja = "{ol}モンスターカードプリセットを使いやすくします{nl}カード自動着脱、自動搬出入",
-        etc = "{ol}Improve usability of monster card presets{nl}Automatic card equipping/unequipping, automatic transfer in/out"
+        etc = "{ol}Improve usability of monster card presets{nl}Automatic card equipping/unequipping, automatic transfer in/out",
+        kr = "{ol}몬스터 카드 프리셋을 사용하기 쉽게 개선{nl}카드 자동 장착/해제, 자동 반출입"
     },
     ["my_buffs_control"] = {
         ja = "{ol}バフ欄を移動可能にして、選択したバフを非表示にします{nl}街では動作しません",
-        etc = "{ol}buff panel movable and hide selected buffs{nl}Does not operate in town"
+        etc = "{ol}buff panel movable and hide selected buffs{nl}Does not operate in town",
+        kr = "{ol}버프 목록을 이동 가능하게 하고, 선택한 버프를 숨깁니다{nl}마을에서는 동작하지 않습니다"
     },
     ["quickslot_operate"] = {
         ja = "{ol}クイックスロットの女神ポーションをレイド毎に付け替えます{nl}ストレートモード、保存、読込機能もあります",
-        etc = "{ol}Change the Goddess Potion in the quick slot for each raid{nl}Straight mode, save, and load functions are also available"
+        etc = "{ol}Change the Goddess Potion in the quick slot for each raid{nl}Straight mode, save, and load functions are also available",
+        kr = "{ol}퀵슬롯의 여신 포션을 레이드마다 교체{nl}스트레이트 모드, 저장, 불러오기 기능도 제공"
     },
     ["relic_change"] = {
         ja = "{ol}レリックシアンジェム付替えを簡易に",
-        etc = "{ol}Simplify relic Cyan Gem swapping"
+        etc = "{ol}Simplify relic Cyan Gem swapping",
+        kr = "{ol}레릭 시안 젬 교체를 간소화"
     },
     ["revival_timer"] = {
-        ja = "{ol}普通のタイマー",
-        etc = "{ol}Normal timer"
+        ja = "{ol}普通のタイマー{nl}チャットコマンド'/timer'で作動",
+        etc = "{ol}Normal timer{nl}Operates with the chat command '/timer'",
+        kr = "{ol}일반 타이머{nl}채팅 명령어 '/timer'로 작동"
+    },
+    ["vakarine_equip"] = {
+        ja = "{ol}ヴァカリネの恩恵を5箇所装着している場合{nl}レイドなどで装備を脱着します",
+        etc = "{ol}If you have 5 Vakarine's Blessings equipped{nl}you will equip/unequip the gear",
+        kr = "{ol}바카리네의 은총 5부위 장착 시{nl}레이드 등에서 장비를 장착/해제"
+    },
+    ["no_check"] = {
+        ja = "{ol}各種確認を消します{nl}インベントリ検索窓横にボタンあります",
+        etc = "{ol}Disable various confirmations{nl}Button is next to the inventory search window",
+        kr = "{ol}각종 확인 창을 끕니다{nl}인벤토리 검색창 옆에 버튼 위치"
+    },
+    ["sub_map"] = {
+        ja = "{ol}小さなマップを表示します",
+        etc = "{ol}Show small map",
+        kr = "{ol}미니맵을 표시"
     }
 }
 
@@ -632,84 +673,54 @@ function all_in_one_GAME_START(frame, msg)
         menu_frame:ShowWindow(1)
     end
     local all_in_one = ui.GetFrame("all_in_one")
-    local update_frames_timer = all_in_one:CreateOrGetControl("timer", "update_frames_timer", 0, 0)
-    AUTO_CAST(update_frames_timer)
-    update_frames_timer:SetUpdateScript("all_in_one_update_frames")
-    update_frames_timer:Start(0.5)
+    all_in_one:SetVisible(1)
+    all_in_one:RunUpdateScript("all_in_one_update_frames", 0.5)
 end
 
 function all_in_one_update_frames(all_in_one)
-    local always_status = ui.GetFrame(addon_name_lower .. "always_status")
-    if always_status and always_status:IsVisible() == 0 then
-        AUTO_CAST(always_status)
-        always_status:ShowWindow(1)
-    end
-    local pick_item_tracker = ui.GetFrame(addon_name_lower .. "pick_item_tracker")
-    if pick_item_tracker and pick_item_tracker:IsVisible() == 0 then
-        if g.get_map_type() ~= "City" and g.get_map_type() ~= "Instance" then
-            AUTO_CAST(pick_item_tracker)
-            pick_item_tracker:ShowWindow(1)
+    local frames_to_check = {"always_status", "pick_item_tracker", "monster_kill_count", "debuff_notice",
+                             "guild_event_warp", "lets_go_home", "relic_change", "vakarine_equip", "sub_map"}
+    for _, frame_key in ipairs(frames_to_check) do
+        local frame_name = addon_name_lower .. frame_key
+        local frame = ui.GetFrame(frame_name)
+        if frame and frame:IsVisible() == 0 then
+            if frame_key == "pick_item_tracker" then
+                if g.get_map_type() ~= "City" and g.get_map_type() ~= "Instance" then
+                    AUTO_CAST(frame)
+                    frame:ShowWindow(1)
+                end
+            else
+                AUTO_CAST(frame)
+                frame:ShowWindow(1)
+            end
         end
     end
-    local monster_kill_count = ui.GetFrame(addon_name_lower .. "monster_kill_count")
-    if monster_kill_count and monster_kill_count:IsVisible() == 0 then
-        AUTO_CAST(monster_kill_count)
-        monster_kill_count:ShowWindow(1)
-    end
-    local debuff_notice = ui.GetFrame(addon_name_lower .. "debuff_notice")
-    if debuff_notice and debuff_notice:IsVisible() == 0 then
-        AUTO_CAST(debuff_notice)
-        debuff_notice:ShowWindow(1)
-    end
-    local guild_event_warp = ui.GetFrame(addon_name_lower .. "guild_event_warp")
-    if guild_event_warp and guild_event_warp:IsVisible() == 0 then
-        AUTO_CAST(guild_event_warp)
-        guild_event_warp:ShowWindow(1)
-    end
-    local lets_go_home = ui.GetFrame(addon_name_lower .. "lets_go_home")
-    if lets_go_home and lets_go_home:IsVisible() == 0 then
-        AUTO_CAST(lets_go_home)
-        lets_go_home:ShowWindow(1)
-    end
-    local relic_change = ui.GetFrame(addon_name_lower .. "relic_change")
-    if relic_change and relic_change:IsVisible() == 0 then
-        AUTO_CAST(relic_change)
-        relic_change:ShowWindow(1)
-    end
+    return 1
 end
 
 function all_in_one_list_close(frame)
-    local frame_name = frame:GetName()
-    ui.DestroyFrame(frame_name)
-    local boss_direction_settings = ui.GetFrame("boss_direction_settings")
-    if boss_direction_settings then
-        ui.DestroyFrame("boss_direction_settings")
+    local frame_to_close = {"boss_direction_settings", "auto_repair_settings", "instant_cc_settings",
+                            "my_buffs_control_setting", "revival_timer_setting", "vakarine_equip_config_frame",
+                            "easy_buff", "always_status_settings", "lets_go_home_setting", "characters_item_serch",
+                            "sub_map_setting_frame"}
+    for _, suffix in ipairs(frame_to_close) do
+        local frame_name = addon_name_lower .. suffix
+        local frame_to_close = ui.GetFrame(frame_name)
+        if frame_to_close then
+            ui.DestroyFrame(frame_name)
+        end
     end
-    local auto_repair_settings = ui.GetFrame("auto_repair_settings")
-    if auto_repair_settings then
-        ui.DestroyFrame("auto_repair_settings")
-    end
-    local instant_cc_settings = ui.GetFrame("instant_cc_settings")
-    if instant_cc_settings then
-        ui.DestroyFrame("instant_cc_settings")
-    end
-    local my_buffs_control_setting = ui.GetFrame(addon_name_lower .. "my_buffs_control_setting")
-    if my_buffs_control_setting then
-        ui.DestroyFrame(addon_name_lower .. "my_buffs_control_setting")
-    end
-    local revival_timer_setting = ui.GetFrame(addon_name_lower .. "revival_timer_setting")
-    if revival_timer_setting then
-        ui.DestroyFrame(addon_name_lower .. "revival_timer_setting")
-    end
+    ui.DestroyFrame(frame:GetName())
 end
 
 function all_in_one_frame_init()
     local list_frame_name = addon_name_lower .. "list_frame"
     local list_frame = ui.CreateNewFrame("notice_on_pc", list_frame_name, 0, 0, 10, 10)
     AUTO_CAST(list_frame)
+    list_frame:RemoveAllChild()
     list_frame:SetSkinName("test_frame_low")
     list_frame:SetTitleBarSkin("None")
-    list_frame:SetLayerLevel(80)
+    list_frame:SetLayerLevel(92)
     local title = list_frame:CreateOrGetControl('richtext', 'title', 20, 10, 10, 30)
     AUTO_CAST(title)
     title:SetText("{#000000}{s25}All in One")
@@ -723,17 +734,18 @@ function all_in_one_frame_init()
     list_gb:SetSkinName("bg")
     list_gb:RemoveAllChild()
     list_frame:ShowWindow(1)
+    local base_num = 20
     local col1_x = 20
     local row_height = 40
     local max_width1 = 0
     local max_width2 = 0
     for i, entry in ipairs(g.all_in_one) do
         local name = entry.data.name
-        local current_y = (i <= 15) and (i - 1) * row_height or (i - 16) * row_height
+        local current_y = (i <= base_num) and (i - 1) * row_height or (i - (base_num + 1)) * row_height
         local name_text = list_gb:CreateOrGetControl('richtext', 'name_text' .. i, col1_x, current_y + 10, 10, 30)
         AUTO_CAST(name_text)
         name_text:SetText("{ol}{s20}" .. name)
-        if i <= 15 then
+        if i <= base_num then
             max_width1 = math.max(max_width1, name_text:GetWidth())
         else
             max_width2 = math.max(max_width2, name_text:GetWidth())
@@ -745,14 +757,14 @@ function all_in_one_frame_init()
         local data = entry.data
         local use = g.settings[child_addon_name].use
         local buttons_x, current_y
-        if i <= 15 then
+        if i <= base_num then
             buttons_x = col1_x + max_width1 + 25
             current_y = (i - 1) * row_height
         else
             local name_text = GET_CHILD(list_gb, 'name_text' .. i)
             name_text:SetPos(col2_x, name_text:GetY())
             buttons_x = col2_x + max_width2 + 25
-            current_y = (i - 16) * row_height
+            current_y = (i - (base_num + 1)) * row_height
         end
         local use_toggle = list_gb:CreateOrGetControl('picture', "use_toggle" .. i, buttons_x, current_y + 10, 60, 25)
         AUTO_CAST(use_toggle)
@@ -777,18 +789,25 @@ function all_in_one_frame_init()
         local help_btn = list_gb:CreateOrGetControl('button', 'help_btn' .. i, buttons_x + 100, current_y + 5, 40, 30)
         AUTO_CAST(help_btn)
         help_btn:SetText("{ol}{img question_mark 20 15}")
-        help_btn:SetTextTooltip(g.lang == "Japanese" and g.all_in_one_trans[child_addon_name].ja or
-                                    g.all_in_one_trans[child_addon_name].etc)
+        local tooltip_text
+        if g.lang == "Japanese" then
+            tooltip_text = g.all_in_one_trans[child_addon_name].ja
+        elseif g.lang == "kr" then
+            tooltip_text = g.all_in_one_trans[child_addon_name].kr
+        else
+            tooltip_text = g.all_in_one_trans[child_addon_name].etc
+        end
+        help_btn:SetTextTooltip(tooltip_text)
         help_btn:SetSkinName("test_pvp_btn")
     end
     local total_width = col2_x + max_width2 + 200
-    local total_rows = 15
-    local total_height = total_rows * row_height + 70
+    local total_height = base_num * row_height + 70
     list_frame:Resize(total_width, total_height)
     list_gb:Resize(list_frame:GetWidth() - 20, list_frame:GetHeight() - 50)
     local map_frame = ui.GetFrame("map")
     local height = map_frame:GetHeight()
     list_frame:SetPos(310, (height / 2) - (list_frame:GetHeight() / 2))
+    return list_frame
 end
 
 function all_in_one_toggle_addons(list_gb, use_toggle, child_addon_name, num)
@@ -800,48 +819,13 @@ function all_in_one_toggle_addons(list_gb, use_toggle, child_addon_name, num)
         g.settings[child_addon_name].use = 1
         ui.SysMsg(g.lang == "Japanese" and g.settings[child_addon_name].name .. " 有効にしました" or
                       g.settings[child_addon_name].name .. " Enabled")
-        if child_addon_name == "auto_pet_sumoon" then
-            auto_pet_summon_on_init()
-        end
     end
-    if child_addon_name == "job_change_helper" then
-        job_change_helper_on_init()
-    elseif child_addon_name == "acquire_relic_reward" then
-        acquire_relic_reward_on_init()
-    elseif child_addon_name == "ancient_auto_set" then
-        ancient_auto_set_on_init()
-    elseif child_addon_name == "aethergem_manager" then -- 
-        aethergem_manager_on_init()
-    elseif child_addon_name == "party_marker" then
-        party_marker_on_init()
-    elseif child_addon_name == "always_status" then
-        always_status_on_init() --
-    elseif child_addon_name == "characters_item_serch" then
-        characters_item_serch_on_init()
-    elseif child_addon_name == "continue_reinforce" then
-        continue_reinforce_on_init()
-    elseif child_addon_name == "monster_kill_count" then
-        monster_kill_count_on_init(true)
-    elseif child_addon_name == "pick_item_tracker" then
-        pick_item_tracker_on_init()
-    elseif child_addon_name == "lets_go_home" then
-        lets_go_home_on_init()
-    elseif child_addon_name == "monster_card_changer" then
-        monster_card_changer_on_init()
-    elseif child_addon_name == "my_buffs_control" then
-        my_buffs_control_on_init()
-    elseif child_addon_name == "quickslot_operate" then
-        quickslot_operate_on_init()
-    elseif child_addon_name == "relic_change" then
-        relic_change_on_init()
-    elseif child_addon_name == "revival_timer" then
-        revival_timer_on_init()
-    end
+    all_in_one_init_addons(true, child_addon_name)
     all_in_one_save_settings()
     all_in_one_frame_init()
 end
 
-function all_in_one_GAME_START_3SEC(frame, msg)
+function all_in_one_init_addons(is_toggle, toggled_addon_name)
     local error_count = 0
     local function safe_call(func, name)
         if type(func) == "function" then
@@ -855,41 +839,2133 @@ function all_in_one_GAME_START_3SEC(frame, msg)
             ts(string.format("Error: Function '%s_on_init' not found.", name))
         end
     end
-    safe_call(bulk_sales_on_init, "bulk_sales")
-    safe_call(auto_map_change_on_init, "auto_map_change")
-    safe_call(ancient_auto_set_on_init, "ancient_auto_set")
-    safe_call(auto_pet_summon_on_init, "auto_pet_summon")
-    safe_call(acquire_relic_reward_on_init, "acquire_relic_reward")
-    safe_call(auto_repair_on_init, "auto_repair")
-    safe_call(boss_direction_on_init, "boss_direction")
-    safe_call(cupole_manager_on_init, "cupole_manager")
-    safe_call(dungeon_rp_charger_on_init, "dungeon_rp_charger")
-    safe_call(guild_event_warp_on_init, "guild_event_warp")
-    safe_call(instant_cc_on_init, "instant_cc")
-    safe_call(job_change_helper_on_init, "job_change_helper")
-    safe_call(aethergem_manager_on_init, "aethergem_manager")
-    safe_call(party_marker_on_init, "party_marker")
-    safe_call(boss_gauge_on_init, "boss_gauge")
-    safe_call(always_status_on_init, "always_status")
-    safe_call(characters_item_serch_on_init, "characters_item_serch")
-    safe_call(continue_reinforce_on_init, "continue_reinforce")
-    safe_call(debuff_notice_on_init, "debuff_notice")
-    safe_call(easy_buff_on_init, "easy_buff")
-    safe_call(monster_kill_count_on_init, "monster_kill_count")
-    safe_call(pick_item_tracker_on_init, "pick_item_tracker")
-    safe_call(lets_go_home_on_init, "lets_go_home")
-    safe_call(market_voucher_on_init, "market_voucher")
-    safe_call(monster_card_changer_on_init, "monster_card_changer")
-    safe_call(my_buffs_control_on_init, "my_buffs_control")
-    safe_call(quickslot_operate_on_init, "quickslot_operate")
-    safe_call(relic_change_on_init, "relic_change")
-    safe_call(revival_timer_on_init, "revival_timer")
-    if error_count == 0 then
-        ts("All add-ons initialized successfully.")
-    else
-        ts(string.format("%d add-on(s) failed to initialize. Please check the error messages above.", error_count))
+    for _, entry in ipairs(g.all_in_one) do
+        local key = entry.key
+        local old_init_func_name = entry.old_init_func
+        if old_init_func_name and old_init_func_name ~= "" and _G[old_init_func_name] then
+            local message
+            if g.lang == "Japanese" then
+                message = string.format(
+                    "{ol}{#FF6347}[All in One] 競合する古いアドオン '%s' が検出されました{nl}'%s' を無効化しました{nl}addonsフォルダとdataフォルダから、古いアドオンのipfファイルを削除してください",
+                    old_init_func_name, key)
+            else
+                message = string.format(
+                    "{ol}{#FF6347}[All in One] Conflicting old addon '%s' detected{nl}Disabled '%s'{nl}Please remove the old addon's ipf file from your addons and data folders",
+                    old_init_func_name, key)
+            end
+            CHAT_SYSTEM(message)
+            if g.settings[key].use == 1 then
+                g.settings[key].use = 0
+            end
+        else
+            local on_init_func = _G[key .. "_on_init"]
+            if g.settings[key].use == 1 then
+                if is_toggle and key == toggled_addon_name then
+                    safe_call(on_init_func, key, true)
+                elseif not is_toggle then
+                    safe_call(on_init_func, key)
+                end
+            end
+        end
+    end
+    if not is_toggle then
+        if error_count == 0 then
+            ts("All add-ons initialized successfully.")
+        else
+            ts(string.format("%d add-on(s) failed to initialize...", error_count))
+        end
     end
 end
+
+function all_in_one_GAME_START_3SEC(frame, msg)
+    all_in_one_init_addons(false, nil)
+end
+-- sub_map ここから
+g.sub_map_path = string.format("../addons/%s/%s/sub_map.json", addon_name_lower, g.active_id)
+function sub_map_save_settings()
+    g.save_json(g.sub_map_path, g.sub_map_settings)
+end
+
+function sub_map_load_settings()
+    local settings = g.load_json(g.sub_map_path)
+    if not settings then
+        settings = {
+            visible = 1,
+            x = 0,
+            y = 0,
+            skin_name = "None",
+            move = 1,
+            size = 200
+        }
+    end
+    g.sub_map_settings = settings
+    sub_map_save_settings()
+end
+
+function sub_map_on_init()
+    if not g.sub_map_settings then
+        sub_map_load_settings()
+    end
+    if g.settings.sub_map.use == 0 then
+        ui.DestroyFrame(addon_name_lower .. "sub_map")
+        return
+    end
+    g.sub_map_handles = {}
+    g.addon:RegisterMsg("MAP_CHARACTER_UPDATE", "sub_map_MAP_CHARACTER_UPDATE")
+    g.addon:RegisterMsg("MON_MINIMAP", "sub_map_MAP_MON_MINIMAP")
+    g.addon:RegisterMsg('MON_MINIMAP_END', 'sub_map_ON_MON_MINIMAP_END')
+    g.addon:RegisterMsg("PARTY_INST_UPDATE", "sub_map_MAP_UPDATE_PARTY_INST")
+    g.addon:RegisterMsg("PARTY_UPDATE", "sub_map_update_party_or_guild")
+    g.addon:RegisterMsg("GUILD_INFO_UPDATE", "sub_map_update_party_or_guild")
+    local all_in_one = ui.GetFrame("all_in_one")
+    all_in_one:SetVisible(1)
+    local init_sub_map_timer = all_in_one:CreateOrGetControl("timer", "init_sub_map_timer", 0, 0)
+    AUTO_CAST(init_sub_map_timer)
+    init_sub_map_timer:SetUpdateScript("sub_map_frame_init")
+    init_sub_map_timer:Stop()
+    if g.get_map_type() ~= "Instance" then
+        init_sub_map_timer:Start(2.0)
+    end
+    local colony_list, cnt = GetClassList('guild_colony')
+    for i = 0, cnt - 1 do
+        local colonyCls = GetClassByIndexFromList(colony_list, i)
+        local check_word = "GuildColony_"
+        if string.find(g.map_name, check_word) then
+            init_sub_map_timer:Start(2.5)
+            break
+        end
+    end
+end
+
+function sub_map_settings()
+    local list_frame = ui.GetFrame(addon_name_lower .. "list_frame")
+    local config = ui.CreateNewFrame("notice_on_pc", addon_name_lower .. "sub_map_setting_frame", 0, 0, 0, 0)
+    AUTO_CAST(config)
+    config:RemoveAllChild()
+    config:SetLayerLevel(999)
+    config:SetSkinName("test_frame_low")
+    local title_text = config:CreateOrGetControl("richtext", "title_text", 10, 10)
+    AUTO_CAST(title_text)
+    title_text:SetText("{ol}Sub Map")
+    local config_gb = config:CreateOrGetControl("groupbox", "config_gb", 10, 40, 0, 0)
+    AUTO_CAST(config_gb)
+    config_gb:SetSkinName("bg")
+    config:SetPos(list_frame:GetX() + list_frame:GetWidth(), list_frame:GetY())
+    local close = config:CreateOrGetControl("button", "close", 0, 0, 20, 20)
+    AUTO_CAST(close)
+    close:SetImage("testclose_button")
+    close:SetGravity(ui.RIGHT, ui.TOP)
+    close:SetEventScript(ui.LBUTTONUP, "sub_map_setting_close")
+    local y = 10
+    local info_text = config_gb:CreateOrGetControl('richtext', 'info_text', 10, y + 5, 0, 30)
+    AUTO_CAST(info_text)
+    info_text:SetText(g.lang == "Japanese" and "{ol}サイズ設定" or "{ol}Size setting")
+    local size_edit = config_gb:CreateOrGetControl('edit', 'size_edit', info_text:GetWidth() + 20, y, 100, 30)
+    AUTO_CAST(size_edit)
+    size_edit:SetFontName("white_16_ol")
+    size_edit:SetTextAlign("center", "center")
+    size_edit:SetNumberMode(1)
+    size_edit:SetText("{ol}" .. g.sub_map_settings.size)
+    size_edit:SetTextTooltip(g.lang == "Japanese" and "{ol}150~350の間で設定" or "{ol}Setting range: 150 to 350")
+    size_edit:SetEventScript(ui.ENTERKEY, "sub_map_setting_change")
+    y = y + 40
+    local move_check = config_gb:CreateOrGetControl('checkbox', "move_check", 10, y, 30, 30)
+    AUTO_CAST(move_check)
+    move_check:SetCheck(g.sub_map_settings.move == 1 and 0 or 1)
+    move_check:SetText(g.lang == "Japanese" and "{ol}チェックするとフレーム固定" or
+                           "{ol}If checked, the frame is fixed")
+    move_check:SetEventScript(ui.LBUTTONUP, "sub_map_setting_change")
+    y = y + 40
+    local default_btn = config_gb:CreateOrGetControl("button", "default_btn", 20, y, 120, 30)
+    AUTO_CAST(default_btn)
+    default_btn:SetText(g.lang == "Japanese" and "{ol}フレーム初期位置" or "{ol}Init frame pos")
+    default_btn:SetEventScript(ui.LBUTTONUP, "sub_map_setting_change")
+    y = y + 40
+    local skin_change = config_gb:CreateOrGetControl("button", "skin_change", 20, y, 120, 30)
+    AUTO_CAST(skin_change)
+    skin_change:SetText(g.lang == "Japanese" and "{ol}フレームスキン変更" or "{ol}Change frame skin")
+    skin_change:SetEventScript(ui.LBUTTONUP, "sub_map_skin_change_context")
+    y = y + 30
+    config:Resize(300, y + 60)
+    config_gb:Resize(config:GetWidth() - 20, y + 10)
+    config:ShowWindow(1)
+end
+
+function sub_map_setting_close(config)
+    ui.DestroyFrame(config:GetName())
+end
+
+function sub_map_setting_change(parent, ctrl)
+    local ctrl_name = ctrl:GetName()
+    if ctrl_name == "size_edit" then
+        local size = tonumber(ctrl:GetText())
+        if size and size >= 150 and size <= 350 then
+            g.sub_map_settings.size = size
+        else
+            ui.SysMsg(g.lang == "Japanese" and "{ol}範囲外です" or "{ol}Out of range")
+            sub_map_settings()
+            return
+        end
+    elseif ctrl_name == "move_check" then
+        local is_check = ctrl:IsChecked()
+        g.sub_map_settings.move = is_check == 1 and 0 or 1
+    elseif ctrl_name == "default_btn" then
+        g.sub_map_settings.x = 0
+        g.sub_map_settings.y = 0
+    end
+    sub_map_save_settings()
+    sub_map_frame_init()
+end
+
+function sub_map_skin_change_context(frame, ctrl)
+    ts("test")
+    local context = ui.CreateContextMenu("sub_map_context", "{ol}Sub Map Change Skin", 0, 0, 0, 0)
+    ui.AddContextMenuItem(context, "-----", "None")
+    ui.AddContextMenuItem(context, g.lang == "Japanese" and "{ol}無し" or "{ol}None",
+        string.format("sub_map_skin_change('%s')", "None"))
+    ui.AddContextMenuItem(context, g.lang == "Japanese" and "{ol}薄め" or "{ol}Faint",
+        string.format("sub_map_skin_change('%s')", "bg2"))
+    ui.AddContextMenuItem(context, g.lang == "Japanese" and "{ol}濃いめ" or "{ol}Darker",
+        string.format("sub_map_skin_change('%s')", "bg"))
+    ui.OpenContextMenu(context)
+end
+
+function sub_map_skin_change(skin_name)
+    g.sub_map_settings.skin_name = skin_name
+    sub_map_save_settings()
+    sub_map_frame_init()
+end
+
+function sub_map_frame_init(all_in_one, init_sub_map_timer)
+    if init_sub_map_timer then
+        init_sub_map_timer:Stop()
+    end
+    local sub_map = ui.CreateNewFrame("notice_on_pc", addon_name_lower .. "sub_map", 0, 0, 0, 0)
+    AUTO_CAST(sub_map)
+    local is_auto_challenge = session.IsAutoChallengeMap()
+    local is_solo_challenge = session.IsSoloChallengeMap()
+    local challenge = 0
+    if is_auto_challenge or is_solo_challenge then
+        challenge = 1
+    end
+    sub_map:SetUserValue("CHALLENGE", challenge)
+    sub_map:StopUpdateScript("sub_map_frame_init")
+    sub_map:RemoveAllChild()
+    sub_map:EnableMove(g.sub_map_settings.move)
+    sub_map:EnableHittestFrame(1)
+    sub_map:SetSkinName(g.sub_map_settings.skin_name)
+    sub_map:SetTitleBarSkin("None")
+    sub_map:SetGravity(ui.RIGHT, ui.TOP)
+    sub_map:SetLayerLevel(12)
+    local rect = sub_map:GetMargin()
+    sub_map:SetMargin(rect.left - rect.left, rect.top - rect.top + 50,
+        rect.right == 0 and rect.right + 550 or rect.right, rect.bottom)
+    if g.sub_map_settings.x ~= 0 and g.sub_map_settings.y ~= 0 then
+        sub_map:SetPos(g.sub_map_settings.x, g.sub_map_settings.y)
+    end
+    sub_map:SetEventScript(ui.LBUTTONUP, "sub_map_frame_end_drag")
+    local title = sub_map:CreateOrGetControl("richtext", "title", 25, 2)
+    AUTO_CAST(title)
+    local map_real_name = GetClassByType("Map", g.map_id).Name
+    title:SetText("{ol}{S12}" .. map_real_name)
+    local display = sub_map:CreateOrGetControl("picture", "display", 5, 3, 15, 15)
+    AUTO_CAST(display)
+    display:SetEnableStretch(1)
+    display:EnableHitTest(1)
+    display:SetEventScript(ui.LBUTTONUP, "sub_map_frame_toggle")
+    display:SetTextTooltip("{ol}Display / hide")
+    display:ShowWindow(1)
+    local size = g.sub_map_settings.size
+    if g.sub_map_settings.visible == 1 then
+        display:SetImage("btn_minus")
+        sub_map:Resize(size + 10, size + 40)
+    else
+        display:SetImage("btn_plus")
+        sub_map:Resize(size + 10, 40)
+        sub_map:ShowWindow(1)
+        return
+    end
+    local gbox = sub_map:CreateOrGetControl("groupbox", "gbox", size + 10, size + 10, ui.LEFT, ui.BOTTOM, 0, 30, 0, 0)
+    AUTO_CAST(gbox)
+    gbox:SetEventScript(ui.MOUSEON, "sub_map_frame_layer_change")
+    gbox:SetEventScriptArgString(ui.MOUSEON, "mouse_on")
+    gbox:SetEventScript(ui.MOUSEOFF, "sub_map_frame_layer_change")
+    gbox:SetEventScriptArgString(ui.MOUSEOFF, "mouse_off")
+    gbox:SetEventScript(ui.LBUTTONDOWN, "sub_map_frame_map_link")
+    gbox:SetTextTooltip(g.lang == "Japanese" and
+                            "{ol}LCTRL+右クリック: ミニマップモード{nl}LCTRL+左クリック: マップリンク" or
+                            "{ol}LCTRL+Right click: Minimap mode{nl}LCTRL+Left click: Map Link")
+    local map_pic = gbox:CreateOrGetControl("picture", "map_pic", size, size, ui.LEFT, ui.TOP, 0, 0, 0, 0)
+    AUTO_CAST(map_pic)
+    map_pic:SetEnableStretch(1)
+    map_pic:EnableHitTest(0)
+    local icon_size = g.sub_map_settings.size * 0.08
+    sub_map:SetUserValue("ICON_SIZE", icon_size)
+    local my = gbox:CreateOrGetControl("picture", "my", icon_size * 2, icon_size * 2, ui.LEFT, ui.TOP, 0, 0, 0, 0)
+    AUTO_CAST(my)
+    my:ShowWindow(0)
+    my:SetImage("minimap_leader")
+    my:SetEnableStretch(1)
+    map_pic:SetImage(g.map_name)
+    sub_map:ShowWindow(1)
+    sub_map_char_update(sub_map, my, map_pic)
+    if not challenge then
+        sub_map_set_warp_point(sub_map, gbox, map_pic, g.map_name, icon_size, map_real_name)
+        sub_map_mapicon_update(sub_map, map_pic)
+    end
+    local sub_map_timer = sub_map:CreateOrGetControl("timer", "sub_map_timer", 0, 0)
+    AUTO_CAST(sub_map_timer)
+    sub_map_timer:SetUpdateScript("sub_map_timer_update")
+    sub_map_timer:Start(0.5)
+end
+
+function sub_map_frame_end_drag(sub_map)
+    g.sub_map_settings.x = sub_map:GetX()
+    g.sub_map_settings.y = sub_map:GetY()
+    sub_map_save_settings()
+end
+
+function sub_map_frame_toggle(frame, ctrl)
+    if g.sub_map_settings.visible == 1 then
+        g.sub_map_settings.visible = 0
+    else
+        g.sub_map_settings.visible = 1
+    end
+    sub_map_save_settings()
+    sub_map_frame_init()
+end
+
+function sub_map_frame_map_link(sub_map, gbox)
+    if keyboard.IsKeyPressed("LCTRL") ~= 1 then
+        return
+    end
+    local x, y = GET_LOCAL_MOUSE_POS(gbox)
+    local map_prop = geMapTable.GetMapProp(g.map_name)
+    local world_pos = map_prop:MinimapPosToWorldPos(x, y, gbox:GetWidth(), gbox:GetHeight())
+    LINK_MAP_POS(g.map_name, world_pos.x, world_pos.y)
+end
+
+function sub_map_frame_layer_change(sub_map, gbox, str)
+    if str == "mouse_on" then
+        sub_map:SetLayerLevel(999)
+    elseif str == "mouse_off" then
+        sub_map:SetLayerLevel(12)
+    end
+end
+
+function sub_map_char_update(sub_map, my, map_pic)
+    local my_handle = session.GetMyHandle()
+    local pos = info.GetPositionInMap(my_handle, map_pic:GetWidth(), map_pic:GetHeight())
+    my:SetOffset(pos.x - my:GetWidth() / 2, pos.y - my:GetHeight() / 2)
+    local map_prop = session.GetCurrentMapProp()
+    local angle = info.GetAngle(my_handle) - map_prop.RotateAngle
+    my:SetAngle(angle)
+    my:ShowWindow(1)
+    map_pic:Invalidate()
+end
+
+function sub_map_set_warp_point(sub_map, gbox, map_pic, map_name, icon_size, map_real_name)
+    local map_prop = geMapTable.GetMapProp(map_name)
+    local mongens = map_prop.mongens
+    local count = mongens:Count()
+    for i = 0, count - 1 do
+        local mon_prop = mongens:Element(i)
+        local icon_name = mon_prop:GetMinimapIcon()
+        if icon_name == "minimap_portal" or icon_name == "minimap_erosion" then
+            local gen_list = mon_prop.GenList
+            local gen_count = gen_list:Count()
+            for j = 0, gen_count - 1 do
+                local dialog = mon_prop:GetDialog()
+                local warp_cls = GetClass("Warp", mon_prop:GetDialog())
+                if not warp_cls then
+                    for match in mon_prop:GetDialog():gmatch("[a-zA-Z]+_(.*)") do
+                        warp_cls = GetClass("Warp", match)
+                    end
+                end
+                if warp_cls then
+                    local pos = gen_list:Element(j)
+                    local map_pos = map_prop:WorldPosToMinimapPos(pos.x, pos.z, map_pic:GetWidth(), map_pic:GetHeight())
+                    local icon = gbox:CreateOrGetControl("picture", "icon_" .. i, icon_size, icon_size, ui.LEFT, ui.TOP,
+                        0, 0, 0, 0)
+                    AUTO_CAST(icon)
+                    icon:SetTextTooltip("{ol}{s10}" .. map_real_name)
+                    icon:SetImage(mon_prop:GetMinimapIcon())
+                    icon:SetOffset(map_pos.x - icon:GetWidth() / 2, map_pos.y - icon:GetHeight() / 2)
+                    icon:SetEnableStretch(1)
+                end
+            end
+        end
+    end
+    gbox:Invalidate()
+end
+
+function sub_map_timer_update(sub_map, sub_map_timer)
+    if MAP_USE_FOG(g.map_name) ~= 0 then
+        sub_map_draw_fog(sub_map)
+    end
+    local challenge = sub_map:GetUserIValue("CHALLENGE")
+    if challenge == 1 then
+        sub_map_callenge_pcicon_update(sub_map)
+        -- sub_map_update_monster(sub_map)
+    end
+    sub_map_update_remove_member(sub_map)
+end
+
+function sub_map_draw_fog(sub_map)
+    local map_pic = GET_CHILD_RECURSIVELY(sub_map, "map_pic")
+    AUTO_CAST(map_pic)
+    HIDE_CHILD_BYNAME(map_pic, "sub_map_fog_")
+    local map_frame = ui.GetFrame('map')
+    local map = GET_CHILD(map_frame, "map")
+    AUTO_CAST(map)
+    local map_zoom = math.abs(tonumber(map_pic:GetWidth()) / tonumber(map:GetWidth()))
+    local list = session.GetMapFogList(g.map_name)
+    local cnt = list:Count()
+    for i = 0, cnt - 1 do
+        local tile = list:PtrAt(i)
+        if tile.revealed == 0 then
+            local name = string.format("sub_map_fog_%d", i)
+            local tile_X = (tile.x * map_zoom)
+            local tile_Y = (tile.y * map_zoom)
+            local tile_width = math.ceil(tile.w * map_zoom)
+            local tile_height = math.ceil(tile.h * map_zoom)
+            local pic = map_pic:CreateOrGetControl("picture", name, tile_X, tile_Y, tile_width, tile_height)
+            AUTO_CAST(pic)
+            pic:SetImage("fullred")
+            pic:SetEnableStretch(1)
+            pic:SetAlpha(40)
+            pic:EnableHitTest(0)
+            pic:ShowWindow(1)
+        end
+    end
+    sub_map:Invalidate()
+end
+
+function sub_map_callenge_pcicon_update(sub_map)
+    local gbox = GET_CHILD(sub_map, "gbox")
+    local names = {}
+    for i = 0, gbox:GetChildCount() - 1 do
+        local child = gbox:GetChildByIndex(i)
+        if child and child:GetName() ~= "map_pic" and child:GetName() ~= "my" then
+            local aid = tonumber(child:GetName())
+            if aid then
+                gbox:RemoveChild(child:GetName())
+            end
+            names[child:GetName()] = true
+        end
+    end
+    local map_pic = GET_CHILD(gbox, "map_pic")
+    local mapprop = session.GetCurrentMapProp()
+    local party_list = session.party.GetPartyMemberList(PARTY_NORMAL)
+    local party_count = party_list:Count()
+    local my_info = session.party.GetMyPartyObj(PARTY_NORMAL)
+    local my_handle = session.GetMyHandle()
+    local icon_size = sub_map:GetUserIValue("ICON_SIZE")
+    local selected_objects, selected_objects_count = SelectObject(GetMyPCObject(), 5000, "ALL")
+    for i = 1, selected_objects_count do
+        local handle = GetHandle(selected_objects[i])
+        if handle and my_handle ~= handle and info.IsPC(handle) == 1 then
+            for j = 0, party_count - 1 do
+                local pc_info = party_list:Element(j)
+                local name = pc_info:GetName()
+                local actor = world.GetActor(handle)
+                if actor then
+                    local apc = actor:GetPCApc();
+                    if apc then
+                        local actor_name = apc:GetFamilyName()
+                        if my_info ~= pc_info and name == actor_name then
+                            names[name] = false
+                            local inst_info = pc_info:GetInst()
+                            local world_pos = actor:GetPos()
+                            local hp = inst_info.hp
+                            local pc_icon = GET_CHILD(gbox, name)
+                            if not pc_icon then
+                                pc_icon = gbox:CreateOrGetControl("picture", name, 0, 0, icon_size * 1.25,
+                                    icon_size * 1.25)
+                            end
+                            AUTO_CAST(pc_icon)
+                            pc_icon:SetTextTooltip("{ol}{s10}" .. name)
+                            pc_icon:SetEnableStretch(1)
+                            local pos = mapprop:WorldPosToMinimapPos(world_pos, map_pic:GetWidth(), map_pic:GetHeight())
+                            local x = (pos.x - icon_size * 1.25 / 2)
+                            local y = (pos.y - icon_size * 1.25 / 2)
+                            pc_icon:SetPos(x, y)
+                            pc_icon:ShowWindow(1)
+                            local image_name = 'Archer_party'
+                            if hp <= 0 then
+                                image_name = 'die_party'
+                            end
+                            pc_icon:SetImage(image_name)
+                            break
+                        end
+                    end
+                end
+            end
+        end
+    end
+    for check_name, bool in pairs(names) do
+        if bool == true and not string.find(check_name, "_MONPOS_") and not string.find(check_name, "SCR") then
+            local icon = GET_CHILD(gbox, check_name)
+            if icon then
+                gbox:RemoveChild(check_name)
+            end
+        end
+    end
+end
+
+function sub_map_update_remove_member(sub_map)
+    local gbox = GET_CHILD(sub_map, "gbox")
+    local icons = {}
+    for i = 0, gbox:GetChildCount() - 1 do
+        local child = gbox:GetChildByIndex(i)
+        if child then
+            local aid = tonumber(child:GetName())
+            if aid then
+                icons[aid] = true
+            end
+        end
+    end
+    local function process_member_list(party_type)
+        local list = session.party.GetPartyMemberList(party_type)
+        local my_handle = session.GetMyHandle()
+        local my_info = session.party.GetMyPartyObj(party_type)
+        if my_info then
+            for i = 0, list:Count() - 1 do
+                local pc_info = list:Element(i)
+                local aid = tonumber(pc_info:GetAID())
+                local handle = pc_info:GetHandle()
+                if handle ~= my_handle and pc_info:GetMapID() == my_info:GetMapID() and pc_info:GetChannel() ==
+                    my_info:GetChannel() then
+                    icons[aid] = false
+                end
+            end
+        end
+    end
+    process_member_list(PARTY_NORMAL)
+    process_member_list(PARTY_GUILD)
+    for aid, remove in pairs(icons) do
+        if remove == true then
+            gbox:RemoveChild(tostring(aid))
+        end
+    end
+end
+
+--[[function sub_map_update_monster(sub_map) -- 雑魚は画面に映ってる分しか取れない。仕様っぽい
+    local gbox = GET_CHILD(sub_map, "gbox")
+    local icon_size = sub_map:GetUserIValue("ICON_SIZE")
+    g.sub_map_handles = g.sub_map_handles or {}
+    local selected_objects, selected_objects_count = SelectObject(GetMyPCObject(), 5000, 'ENEMY')
+    for i = 1, selected_objects_count do
+        local handle = GetHandle(selected_objects[i])
+        if handle and info.IsMonster(handle) == 1 then
+            local actor = world.GetActor(handle)
+            if actor then
+                local cls_name = info.GetMonsterClassName(handle)
+                local mon_cls = GetClass("Monster", cls_name)
+                if mon_cls and TryGetProp(mon_cls, "MonRank", "None") ~= "Boss" and
+                    not g.sub_map_handles[tostring(handle)] then
+                    g.sub_map_handles[tostring(handle)] = true
+                    local mon_pic = GET_CHILD_RECURSIVELY(gbox, "_MONPOS_" .. handle)
+                    if not mon_pic then
+                        mon_pic = gbox:CreateOrGetControl("picture", "_MONPOS_" .. handle, 0, 0, icon_size / 2,
+                            icon_size / 2)
+                        AUTO_CAST(mon_pic)
+                        mon_pic:SetUserValue("HANDLE", handle)
+                        local img_name = "colonymonster"
+                        mon_pic:SetImage(img_name)
+                        mon_pic:SetEnableStretch(1)
+                        local map_prop = session.GetCurrentMapProp()
+                        local map_pic = GET_CHILD_RECURSIVELY(sub_map, "map_pic")
+                        AUTO_CAST(map_pic)
+                        if map_pic then
+                            local world_pos = actor:GetPos()
+                            local pos =
+                                map_prop:WorldPosToMinimapPos(world_pos, map_pic:GetWidth(), map_pic:GetHeight())
+                            local init_x = pos.x - mon_pic:GetWidth() / 2
+                            local init_y = pos.y - mon_pic:GetHeight() / 2
+                            mon_pic:SetOffset(init_x, init_y)
+                        end
+                        mon_pic:ShowWindow(1)
+                        if not mon_pic:HaveUpdateScript("sub_map_monpic_auto_update") then
+                            mon_pic:RunUpdateScript("sub_map_monpic_auto_update", 0.5)
+                        end
+                    end
+                end
+            end
+        end
+    end
+end]]
+
+function sub_map_MAP_CHARACTER_UPDATE()
+    local sub_map = ui.GetFrame(addon_name_lower .. "sub_map")
+    if not sub_map then
+        return
+    end
+    AUTO_CAST(sub_map)
+    local my_handle = session.GetMyHandle()
+    local map_pic = GET_CHILD_RECURSIVELY(sub_map, "map_pic")
+    AUTO_CAST(map_pic)
+    local pos = info.GetPositionInMap(my_handle, map_pic:GetWidth(), map_pic:GetHeight())
+    local my = GET_CHILD_RECURSIVELY(sub_map, "my")
+    AUTO_CAST(my)
+    my:ShowWindow(0)
+    my:SetOffset(pos.x - my:GetWidth() / 2, pos.y - my:GetHeight() / 2)
+    local mapprop = session.GetCurrentMapProp()
+    local angle = info.GetAngle(my_handle) - mapprop.RotateAngle
+    my:SetAngle(angle)
+    my:ShowWindow(1)
+    map_pic:Invalidate()
+    local challenge = sub_map:GetUserIValue("CHALLENGE")
+    if challenge == 0 then
+        sub_map_mapicon_update(sub_map, map_pic)
+    end
+end
+
+function sub_map_mapicon_update(sub_map, map_pic)
+    local now = imcTime.GetAppTimeMS()
+    if g.sub_map_last_update_time then
+        if now - g.sub_map_last_update_time < 1000 then
+            return
+        end
+    end
+    g.sub_map_last_update_time = now
+    local map_tbl = sub_map_get_mapinfo(sub_map, map_pic)
+    local gbox = GET_CHILD(sub_map, "gbox")
+    local function split(str, delim)
+        local return_data = {}
+        for match in string.gmatch(str, "[^" .. delim .. "]+") do
+            table.insert(return_data, match)
+        end
+        return return_data
+    end
+    local icon_size = sub_map:GetUserIValue("ICON_SIZE")
+    for i, data in ipairs(map_tbl) do
+        if string.find(data.class_type, "treasure_box") then
+            local item_split = split(data.argstr2, ":")
+            local item_name = GetClass("Item", item_split[2]).Name
+            local icon = GET_CHILD(gbox, "icon_" .. i)
+            if not icon then
+                icon = gbox:CreateOrGetControl("picture", "icon_" .. i, 0, 0, icon_size, icon_size)
+                AUTO_CAST(icon)
+                icon:SetOffset(data.map_pos.x - icon:GetWidth() / 2, data.map_pos.y - icon:GetHeight() / 2)
+                icon:SetEnableStretch(1)
+            end
+            icon:SetTextTooltip("{ol}{s10}" .. data.argstr1 .. "{nl}" .. item_name)
+            if data.state then
+                icon:SetImage("icon_item_box")
+            else
+                icon:SetText("{ol}{s10}" .. data.argstr1)
+                icon:SetImage("compen_btn")
+            end
+        end
+        if string.find(data.class_type, "statue_vakarine") or string.find(data.class_type, "klaipeda_square_statue") or
+            string.find(data.class_type, "npc_orsha_goddess") or string.find(data.class_type, "statue_zemina") then
+            local icon = GET_CHILD(gbox, "icon_" .. i)
+            if not icon then
+                icon = gbox:CreateOrGetControl("picture", "icon_" .. i, 0, 0, icon_size, icon_size)
+                AUTO_CAST(icon)
+                icon:SetOffset(data.map_pos.x - icon:GetWidth() / 2, data.map_pos.y - icon:GetHeight() / 2)
+                icon:SetEnableStretch(1)
+                icon:SetTextTooltip("{ol}{s10}" .. data.name)
+                icon:SetImage(data.icon_name)
+            end
+            if data.state then
+                icon:SetColorTone("FFFFFFFF")
+            else
+                icon:SetColorTone("FF555555")
+            end
+        end
+    end
+    gbox:Invalidate()
+end
+
+function sub_map_get_mapinfo(sub_map, map_pic)
+    if not g.map_name or g.map_name == "" or g.map_name == "None" then
+        return
+    end
+    local property = geMapTable.GetMapProp(g.map_name)
+    local class_list, class_count = GetClassList("GenType_" .. g.map_name)
+    local mongens = property.mongens
+    local map_tbl = {}
+    local count = mongens:Count()
+    for i = 0, count - 1 do
+        local mon_prop = mongens:Element(i)
+        local ies_data = GetClassByIndexFromList(class_list, i)
+        local class_type = ies_data.ClassType
+        local state = GetNPCState(g.map_name, ies_data.GenType)
+        if not state then
+            state = false
+        end
+        local gen_list = mon_prop.GenList
+        local map_pos
+        if gen_list:Count() > 0 then
+            map_pos = property:WorldPosToMinimapPos(gen_list:Element(0), map_pic:GetWidth(), map_pic:GetHeight())
+        end
+        local icon_name = mon_prop:GetMinimapIcon()
+        if string.find(class_type, "treasure_box") then
+            if ies_data.ArgStr1 ~= "None" then
+                local data = {
+                    class_type = class_type,
+                    state = state,
+                    map_pos = map_pos,
+                    icon_name = icon_name,
+                    argstr1 = ies_data.ArgStr1,
+                    argstr2 = ies_data.ArgStr2,
+                    argstr3 = ies_data.ArgStr3,
+                    name = ies_data.Name
+                }
+                table.insert(map_tbl, data)
+            end
+        elseif string.find(class_type, "statue_zemina") or string.find(class_type, "statue_vakarine") or
+            string.find(class_type, "klaipeda_square_statue") or string.find(class_type, "npc_orsha_goddess") then
+            local data = {
+                class_type = class_type,
+                state = state,
+                map_pos = map_pos,
+                icon_name = icon_name,
+                argstr1 = ies_data.ArgStr1,
+                argstr2 = ies_data.ArgStr2,
+                argstr3 = ies_data.ArgStr3,
+                name = ies_data.Name
+            }
+            table.insert(map_tbl, data)
+        end
+    end
+    return map_tbl
+end
+
+function sub_map_MAP_MON_MINIMAP(frame, msg, str, num, info)
+    local sub_map = ui.GetFrame(addon_name_lower .. "sub_map")
+    if not sub_map then
+        return
+    end
+    AUTO_CAST(sub_map)
+    local gbox = GET_CHILD(sub_map, "gbox")
+    local handle = info.handle
+    local mon_cls = GetClassByType("Monster", info.type)
+    g.sub_map_handles = g.sub_map_handles or {}
+    local icon_size = sub_map:GetUserIValue("ICON_SIZE")
+    if mon_cls and TryGetProp(mon_cls, "MonRank", "None") == "Boss" and not g.sub_map_handles[tostring(handle)] then
+        g.sub_map_handles[tostring(handle)] = true
+        local mon_pic = GET_CHILD_RECURSIVELY(gbox, "_MONPOS_" .. handle)
+        if not mon_pic then
+            mon_pic = gbox:CreateOrGetControl("picture", "_MONPOS_" .. handle, 0, 0, icon_size, icon_size)
+            AUTO_CAST(mon_pic)
+            mon_pic:SetUserValue("HANDLE", handle)
+            local img_name = mon_cls.MinimapIcon
+            mon_pic:SetImage(img_name)
+            mon_pic:SetEnableStretch(1)
+            local map_prop = session.GetCurrentMapProp()
+            local map_pic = GET_CHILD_RECURSIVELY(sub_map, "map_pic")
+            AUTO_CAST(map_pic)
+            if map_pic then
+                local pos = map_prop:WorldPosToMinimapPos(info.x, info.z, map_pic:GetWidth(), map_pic:GetHeight())
+                local init_x = pos.x - mon_pic:GetWidth() / 2
+                local init_y = pos.y - mon_pic:GetHeight() / 2
+                mon_pic:SetOffset(init_x, init_y)
+            end
+            mon_pic:ShowWindow(1)
+            if not mon_pic:HaveUpdateScript("sub_map_monpic_auto_update") then
+                mon_pic:RunUpdateScript("sub_map_monpic_auto_update", 0.5)
+            end
+        end
+    end
+end
+
+function sub_map_monpic_auto_update(mon_pic)
+    local sub_map = mon_pic:GetTopParentFrame()
+    local gbox = GET_CHILD(sub_map, "gbox")
+    local handle = mon_pic:GetUserIValue("HANDLE")
+    local actor = world.GetActor(handle)
+    if actor then
+        local map_prop = session.GetCurrentMapProp()
+        local map_pic = GET_CHILD_RECURSIVELY(sub_map, "map_pic")
+        AUTO_CAST(map_pic)
+        local actor_pos = actor:GetPos()
+        local mon_cls = GetClassByType("Monster", actor:GetType())
+        if mon_cls and TryGetProp(mon_cls, "MonRank", "None") == "Boss" then
+            local pos = map_prop:WorldPosToMinimapPos(actor_pos, map_pic:GetWidth(), map_pic:GetHeight())
+            local x = pos.x - mon_pic:GetWidth() / 2
+            local y = pos.y - mon_pic:GetHeight() / 2
+            mon_pic:SetOffset(x, y)
+        end
+        return 1
+    else
+        local gbox = mon_pic:GetParent()
+        if gbox then
+            gbox:RemoveChild(mon_pic:GetName())
+        end
+        if g.sub_map_handles then
+            g.sub_map_handles[tostring(handle)] = nil
+        end
+        return 0
+    end
+end
+
+function sub_map_ON_MON_MINIMAP_END(frame, msg, str, handle)
+    local sub_map = ui.GetFrame(addon_name_lower .. "sub_map")
+    if not sub_map then
+        return
+    end
+    AUTO_CAST(sub_map)
+    local gbox = GET_CHILD(sub_map, "gbox")
+    local mon_pic = GET_CHILD(gbox, "_MONPOS_" .. handle)
+    if mon_pic then
+        if g.sub_map_handles then
+            g.sub_map_handles[tostring(handle)] = nil
+        end
+        gbox:RemoveChild("_MONPOS_" .. handle)
+        gbox:Invalidate()
+    end
+end
+
+function sub_map_MAP_UPDATE_PARTY_INST(frame, msg, str, party_type)
+    local sub_map = ui.GetFrame(addon_name_lower .. "sub_map")
+    if not sub_map then
+        return
+    end
+    AUTO_CAST(sub_map)
+    local gbox = GET_CHILD(sub_map, "gbox")
+    local map_prop = session.GetCurrentMapProp()
+    local my_info = session.party.GetMyPartyObj(party_type)
+    local list = session.party.GetPartyMemberList(party_type)
+    local count = list:Count()
+    for i = 0, count - 1 do
+        local pc_info = list:Element(i)
+        if my_info ~= pc_info then
+            local aid = pc_info:GetAID()
+            local pc_icon = GET_CHILD(gbox, aid)
+            if pc_icon then
+                local inst_info = pc_info:GetInst()
+                sub_map_SET_MINIMAP_ICON(pc_icon, inst_info.hp, aid)
+                sub_map_SET_MAPPOS(sub_map, pc_icon, inst_info, map_prop)
+            end
+        end
+    end
+end
+
+function sub_map_SET_MINIMAP_ICON(pc_icon, hp, aid)
+    local image_name = 'die_party'
+    if hp > 0 then
+        if session.party.GetPartyMemberInfoByAID(PARTY_NORMAL, aid) then
+            image_name = 'Archer_party'
+        elseif session.party.GetPartyMemberInfoByAID(PARTY_GUILD, aid) then
+            image_name = 'Wizard_party'
+        end
+    end
+    pc_icon:SetImage(image_name)
+end
+
+function sub_map_SET_MAPPOS(sub_map, pc_icon, inst_info, map_prop, info)
+    local world_pos = inst_info:GetPos()
+    local map_pic = GET_CHILD_RECURSIVELY(sub_map, 'map_pic')
+    local pos
+    if info then
+        pos = map_prop:WorldPosToMinimapPos(info.x, info.z, map_pic:GetWidth(), map_pic:GetHeight())
+    else
+        pos = map_prop:WorldPosToMinimapPos(world_pos, map_pic:GetWidth(), map_pic:GetHeight())
+    end
+    local icon_size = sub_map:GetUserIValue("ICON_SIZE")
+    local x = (pos.x - icon_size / 2)
+    local y = (pos.y - icon_size / 2)
+    pc_icon:SetPos(x, y)
+end
+
+function sub_map_update_party_or_guild(frame, msg, arg, num, info)
+    local sub_map = ui.GetFrame(addon_name_lower .. "sub_map")
+    if not sub_map then
+        return
+    end
+    AUTO_CAST(sub_map)
+    local party_type = 0
+    if msg == "GUILD_INFO_UPDATE" then
+        party_type = 1
+    end
+    local list = session.party.GetPartyMemberList(party_type)
+    local count = list:Count()
+    if count == 1 then
+        return
+    end
+    local my_info = session.party.GetMyPartyObj(party_type)
+    if not my_info then
+        return
+    end
+    local map_prop = session.GetCurrentMapProp()
+    for i = 0, count - 1 do
+        local pc_info = list:Element(i)
+        if my_info ~= pc_info and my_info:GetMapID() == pc_info:GetMapID() and my_info:GetChannel() ==
+            pc_info:GetChannel() then
+            sub_map_CREATE_PICTURE(sub_map, pc_info, party_type, map_prop, info)
+        end
+    end
+end
+
+function sub_map_CREATE_PICTURE(sub_map, pc_info, party_type, mapprop, info)
+    local aid = pc_info:GetAID()
+    local gbox = GET_CHILD(sub_map, "gbox")
+    local pc_icon = GET_CHILD(gbox, aid)
+    if not pc_icon then
+        local icon_size = sub_map:GetUserIValue("ICON_SIZE")
+        pc_icon = gbox:CreateOrGetControl("picture", aid, 0, 0, icon_size, icon_size)
+        AUTO_CAST(pc_icon)
+    end
+    pc_icon:SetEnableStretch(1)
+    pc_icon:SetTooltipType("partymap")
+    local name = ""
+    --[[if type(_G["NATIVE_LANG_ON_INIT"]) == "function" then
+        local ntr = _G["ADDONS"]["norisan"]["NATIVE_LANG"]
+        name = ntr.names[pc_info:GetName()] or pc_info:GetName() -- {#FF0000}★
+        name = string.gsub(name, "{#FF0000}★", "")
+        name = string.gsub(name, "{/}", "")
+        ts(name)
+    end]]
+    pc_icon:SetTooltipArg(pc_info:GetName(), party_type)
+    pc_icon:ShowWindow(1)
+    local inst_info = pc_info:GetInst()
+    sub_map_SET_MINIMAP_ICON(pc_icon, inst_info.hp, aid)
+    sub_map_SET_MAPPOS(sub_map, pc_icon, inst_info, mapprop, info)
+end
+-- sub_map ここまで
+
+-- no_check ここから
+function no_check_on_init()
+    if g.no_check_settings then
+        no_check_load_settings()
+    end
+    no_check_inventory_frame_init()
+    g.setup_hook_and_event(g.addon, "BEFORE_APPLIED_YESSCP_OPEN_BASIC_MSG",
+        "no_check_BEFORE_APPLIED_YESSCP_OPEN_BASIC_MSG", false)
+    g.setup_hook_and_event(g.addon, "CARD_SLOT_EQUIP", "no_check_CARD_SLOT_EQUIP", false)
+    g.setup_hook_and_event(g.addon, "EQUIP_CARDSLOT_INFO_OPEN", "no_check_EQUIP_CARDSLOT_INFO_OPEN", false)
+    g.setup_hook_and_event(g.addon, "EQUIP_GODDESSCARDSLOT_INFO_OPEN", "no_check_EQUIP_GODDESSCARDSLOT_INFO_OPEN", false)
+    g.setup_hook_and_event(g.addon, "GODDESS_MGR_SOCKET_REQ_GEM_REMOVE", "no_check_GODDESS_MGR_SOCKET_REQ_GEM_REMOVE",
+        false)
+    g.setup_hook_and_event(g.addon, "UNLOCK_TRANSMUTATIONSPREADER_BELONGING_SCROLL_EXEC_ASK_AGAIN",
+        "no_check_UNLOCK_TRANSMUTATIONSPREADER_BELONGING_SCROLL_EXEC_ASK_AGAIN", false)
+    g.setup_hook_and_event(g.addon, "UNLOCK_ACC_BELONGING_SCROLL_EXEC_ASK_AGAIN",
+        "no_check_UNLOCK_ACC_BELONGING_SCROLL_EXEC_ASK_AGAIN", false)
+    g.setup_hook_and_event(g.addon, "SELECT_ZONE_MOVE_CHANNEL", "no_check_SELECT_ZONE_MOVE_CHANNEL", false)
+    g.setup_hook_and_event(g.addon, "BEFORE_APPLIED_NON_EQUIP_ITEM_OPEN", "no_check_BEFORE_APPLIED_NON_EQUIP_ITEM_OPEN",
+        false)
+    g.setup_hook_and_event(g.addon, "INVENTORY_CLOSE", "no_check_frame_close", true)
+    g.setup_hook_and_event(g.addon, "MORU_LBTN_CLICK", "no_check_MORU_LBTN_CLICK", true)
+    if g.get_map_type() == "City" then
+        local all_in_one = ui.GetFrame("all_in_one")
+        all_in_one:SetVisible(1)
+        local no_check_timer = all_in_one:CreateOrGetControl("timer", "no_check_timer", 0, 0)
+        AUTO_CAST(no_check_timer)
+        no_check_timer:SetUpdateScript("no_check_timer")
+        no_check_timer:Start(0.3)
+    end
+end
+
+function no_check_inventory_frame_init()
+    local inventory = ui.GetFrame("inventory")
+    local searchSkin = GET_CHILD_RECURSIVELY(inventory, "searchSkin")
+    if g.settings.no_check.use == 1 then -- !
+        local searchGbox = GET_CHILD_RECURSIVELY(inventory, "searchGbox")
+        local btn = searchGbox:CreateOrGetControl("button", "btn", 160, -3, 35, 38)
+        AUTO_CAST(btn)
+        searchSkin:Resize(284, 30)
+        searchSkin:SetMargin(38, 0, 0, 5)
+        btn:SetSkinName("test_pvp_btn")
+        local tool_tip = g.lang == "Japanese" and
+                             "{ol}[No Check]{nl}左クリック: アイテム連続フレーム表示{nl}右クリック: ゴミ箱フレーム表示" or
+                             "{ol}[No Check]{nl}Left Click: Item continuous frame display{nl}Right Click: Trash frame display"
+        btn:SetTextTooltip(tool_tip)
+        btn:SetText("{img equipment_info_btn_mark2 32 32}")
+        btn:SetEventScript(ui.LBUTTONUP, "no_check_continuous_use_frame")
+        btn:SetEventScript(ui.RBUTTONUP, "no_check_delete_item_frame")
+    else
+        searchSkin:Resize(317, 30)
+        searchSkin:SetMargin(5, 0, 0, 5)
+        DESTROY_CHILD_BYNAME(inventory, "btn")
+    end
+end
+-- アイテム連続使用
+function no_check_continuous_use_frame(frame, ctrl, str, num)
+    local inventory = ui.GetFrame("inventory")
+    local no_check_use = ui.CreateNewFrame("notice_on_pc", addon_name_lower .. "no_check_use", 0, 0, 0, 0)
+    AUTO_CAST(no_check_use)
+    no_check_use:SetGravity(ui.RIGHT, ui.TOP)
+    no_check_use:SetSkinName("test_win_lastpopup")
+    local rect = no_check_use:GetMargin()
+    no_check_use:SetMargin(rect.left - rect.left, rect.top - rect.top + 300,
+        rect.right == 0 and rect.right + 310 + 200 or rect.right, rect.bottom)
+    no_check_use:Resize(300, 300)
+    no_check_use:RemoveAllChild()
+    no_check_use:ShowWindow(1)
+    local item_slot = no_check_use:CreateOrGetControl('slot', 'item_slot', 115, 100, 70, 70)
+    AUTO_CAST(item_slot)
+    item_slot:SetSkinName("slot")
+    INVENTORY_SET_CUSTOM_RBTNDOWN("no_check_inv_rbtn")
+    item_slot:SetEventScript(ui.RBUTTONUP, "no_check_use_icon_clear")
+    local notice = no_check_use:CreateOrGetControl('richtext', 'notice', 30, 180, 0, 0)
+    AUTO_CAST(notice)
+    notice:SetText(g.lang == "Japanese" and "{ol}{s20}アイテムを連続使用します" or
+                       "{ol}{s18}Use the item continuously")
+    local continuous_use = no_check_use:CreateOrGetControl('button', 'continuous_use', 40, 220, 100, 50)
+    AUTO_CAST(continuous_use)
+    continuous_use:SetSkinName("test_red_button")
+    continuous_use:SetText(g.lang == "Japanese" and "{ol}{s16}連続使用" or "{ol}{s16}Continu")
+    continuous_use:SetEventScript(ui.LBUTTONUP, "no_check_continuous_use")
+    local cancel = no_check_use:CreateOrGetControl('button', 'cancel', 155, 220, 100, 50)
+    AUTO_CAST(cancel)
+    cancel:SetSkinName("test_gray_button")
+    cancel:SetText(g.lang == "Japanese" and "{ol}{s16}キャンセル" or "{ol}{s16}Cancel")
+    cancel:SetEventScript(ui.LBUTTONUP, "no_check_frame_close")
+end
+
+function no_check_use_icon_clear(no_check_use, item_slot)
+    CLEAR_SLOT_ITEM_INFO(item_slot)
+end
+
+function no_check_continuous_use(no_check_use, ctrl, str, num)
+    local item_slot = GET_CHILD(no_check_use, "item_slot")
+    AUTO_CAST(item_slot)
+    local clsid = item_slot:GetUserIValue("CLASS_ID")
+    if clsid == 0 then
+        return
+    end
+    local inv_item = session.GetInvItemByType(clsid)
+    if inv_item then
+        no_check_use:RunUpdateScript("no_check_icontinuous_use_result", 0.5)
+    end
+end
+
+function no_check_icontinuous_use_result(no_check_use)
+    local item_slot = GET_CHILD(no_check_use, "item_slot")
+    AUTO_CAST(item_slot)
+    local clsid = item_slot:GetUserIValue("CLASS_ID")
+    local inv_item = session.GetInvItemByType(clsid)
+    if inv_item then
+        INV_ICON_USE(inv_item)
+        local item_cls = GetClassByType("Item", clsid)
+        SET_SLOT_ITEM_CLS(item_slot, item_cls)
+        SET_SLOT_ITEM_TEXT(item_slot, inv_item, item_cls)
+        return 1
+    else
+        no_check_use_icon_clear(no_check_use, item_slot)
+    end
+end
+-- ゴミ箱フレーム
+function no_check_delete_item_frame()
+    local no_check_delete = ui.CreateNewFrame("notice_on_pc", addon_name_lower .. "no_check_delete", 0, 0, 10, 10)
+    AUTO_CAST(no_check_delete)
+    no_check_delete:SetSkinName("test_frame_low")
+    no_check_delete:SetGravity(ui.RIGHT, ui.TOP)
+    local rect = no_check_delete:GetMargin()
+    no_check_delete:SetMargin(rect.left - rect.left, rect.top - rect.top + 100,
+        rect.right == 0 and rect.right + 310 + 200 or rect.right, rect.bottom)
+    no_check_delete:SetLayerLevel(100)
+    no_check_delete:Resize(300, 698)
+    no_check_delete:RemoveAllChild()
+    local title = no_check_delete:CreateOrGetControl('richtext', 'title', 10, 15, 0, 0)
+    AUTO_CAST(title)
+    title:SetText(g.lang == "Japanese" and "{ol}{s18}ゴミ箱スロット" or "{ol}{s18}Discard item Slots")
+    local close = no_check_delete:CreateOrGetControl("button", "close", 0, 0, 25, 25)
+    AUTO_CAST(close)
+    close:SetImage("testclose_button")
+    close:SetGravity(ui.RIGHT, ui.TOP)
+    close:SetEventScript(ui.LBUTTONUP, "no_check_frame_close")
+    close:SetEventScriptArgString(ui.LBUTTONUP, "true")
+    local delete_gb = no_check_delete:CreateOrGetControl("groupbox", "delete_gb", 10, 40, 380, 380)
+    AUTO_CAST(delete_gb)
+    delete_gb:SetSkinName("test_frame_midle_light")
+    delete_gb:Resize(280, 600)
+    no_check_delete:ShowWindow(1)
+    local delete_slotset = delete_gb:CreateOrGetControl('slotset', 'delete_slotset', 0, 0, 0, 0)
+    AUTO_CAST(delete_slotset)
+    delete_slotset:SetSlotSize(40, 40)
+    delete_slotset:EnablePop(0)
+    delete_slotset:EnableDrag(1)
+    delete_slotset:EnableDrop(1)
+    delete_slotset:SetColRow(7, 15)
+    delete_slotset:SetSpc(0, 0)
+    delete_slotset:SetSkinName('slot')
+    delete_slotset:CreateSlots()
+    local slot_count = delete_slotset:GetSlotCount()
+    local go_func = no_check_delete:CreateOrGetControl("button", "go_func", 0, 0, 100, 43)
+    AUTO_CAST(go_func)
+    go_func:SetText(g.lang == "Japanese" and "{ol}{s16}スタート" or "{ol}{s16}START")
+    go_func:SetMargin(190, 645, 100, 0)
+    go_func:SetSkinName("test_red_button")
+    go_func:SetEventScript(ui.LBUTTONUP, "no_check_delete_item_msgbox")
+    local stop_func = no_check_delete:CreateOrGetControl("button", "stop_func", 0, 0, 100, 43)
+    AUTO_CAST(stop_func)
+    stop_func:SetText(g.lang == "Japanese" and "{ol}{s16}ストップ" or "{ol}{s16}STOP")
+    stop_func:SetMargin(10, 645, 100, 0)
+    stop_func:SetSkinName("test_gray_button")
+    stop_func:SetEventScript(ui.LBUTTONUP, "no_check_delete_item")
+    stop_func:SetEventScriptArgString(ui.LBUTTONUP, "true")
+    INVENTORY_SET_CUSTOM_RBTNDOWN("no_check_inv_rbtn")
+    g.no_check_iesids = {}
+end
+
+function no_check_delete_item_clear(parent, slot, iesid, num)
+    CLEAR_SLOT_ITEM_INFO(slot)
+    slot:SetUserValue("DELETE_IDSID", "None")
+    slot:SetUserValue("DELETE_NAME", "None")
+    slot:SetUserValue("DELETE_COUNT", 0)
+    g.no_check_iesids[iesid] = nil
+    local inventory = ui.GetFrame("inventory")
+    local inv_slot = INV_GET_SLOT_BY_ITEMGUID(iesid)
+    if inv_slot then
+        AUTO_CAST(inv_slot)
+        inv_slot:Select(0)
+        inv_slot:RunUpdateScript("no_check_inv_invalidate", 0.1)
+        inv_slot:Invalidate()
+    end
+end
+
+function no_check_delete_check(iesid, cls_id)
+    if GetCraftState() == 1 then
+        return false
+    end
+    if true == BEING_TRADING_STATE() then
+        return false
+    end
+    local inventory = ui.GetFrame("inventory")
+    local inv_item = session.GetInvItemByGuid(iesid)
+    if not inv_item then
+        return false
+    end
+    if true == inv_item.isLockState or true == IS_TEMP_LOCK(inventory, inv_item) then
+        ui.SysMsg(ClMsg("MaterialItemIsLock"))
+        return false
+    end
+    local item_cls = GetClassByType("Item", cls_id)
+    if not item_cls then
+        return false
+    end
+    local item_prop = geItemTable.IsDestroyable(cls_id)
+    if item_cls.Destroyable == 'NO' or item_prop == false then
+        local item_obj = GetIES(inv_item:GetObject())
+        if item_obj.ItemLifeTimeOver == 0 then
+            ui.AlarmMsg("ItemIsNotDestroy")
+            return false
+        end
+    end
+    return true
+end
+
+function no_check_delete_item_msgbox()
+    local yes_scp = string.format("no_check_delete_item_reserve()")
+    local msg = g.lang == "Japanese" and
+                    "{ol}{#FF0000}本当にゴミ捨てを開始しますか？{nl}(リカバリーサービス対象外かも)" or
+                    "{ol}{#FF0000}Are you sure you want to start trashing?{nl}(might not be covered by the{nl} recovery service)"
+    ui.MsgBox(msg, yes_scp, "None")
+end
+
+function no_check_delete_item_reserve()
+    local no_check_delete = ui.GetFrame(addon_name_lower .. "no_check_delete")
+    no_check_delete_item(no_check_delete)
+    no_check_delete:RunUpdateScript("no_check_delete_item", 0.5)
+end
+
+function no_check_delete_item(no_check_delete, stop_func)
+    if stop_func then
+        return 0
+    end
+    if no_check_delete and no_check_delete:IsVisible() == 0 then
+        return 0
+    end
+    local delete_slotset = GET_CHILD_RECURSIVELY(no_check_delete, "delete_slotset")
+    AUTO_CAST(delete_slotset)
+    local slot_count = delete_slotset:GetSlotCount()
+    for i = 1, slot_count do
+        local slot = GET_CHILD(delete_slotset, "slot" .. i)
+        AUTO_CAST(slot)
+        local icon = slot:GetIcon()
+        if icon then
+            local iesid = slot:GetUserValue("DELETE_IDSID")
+            local name = slot:GetUserValue("DELETE_NAME")
+            local count = slot:GetUserIValue("DELETE_COUNT")
+            local trans_name = dic.getTranslatedStr(name)
+            no_check_delete_item_execute(slot, iesid, trans_name, count)
+            return 1
+        end
+    end
+    no_check_frame_close(no_check_delete, delete_slotset)
+    return 0
+end
+
+function no_check_delete_item_execute(slot, iesid, trans_name, count)
+    IMC_LOG("INFO_NORMAL", "EXEC_DELETE_ITEMDROP")
+    local pc = GetMyPCObject()
+    local msg = g.lang == "Japanese" and "{ol}{#FFFF00}[" .. trans_name .. "]{/}{ol}{#FFFFFF}を" .. "{ol}{#FFFF00}[" ..
+                    count .. "個]{/}" .. "{ol}{#FFFFFF}捨てました" or "{ol}{#FFFFFF}Discarded {/}" ..
+                    "{ol}{#FFFF00}[" .. count .. "]{ol}{#FFFFFF} piece " .. "{ol}{#FFFF00}[" .. trans_name .. "]{/}"
+    imcAddOn.BroadMsg("NOTICE_Dm_!", msg, 0.4)
+    item.DropDelete(iesid, count)
+    no_check_delete_item_clear(nil, slot, iesid, nil)
+end
+-- 連続使用とゴミ捨ての共通。インベントリマウス制御
+function no_check_inv_rbtn(item_obj, slot)
+    local icon = slot:GetIcon()
+    local icon_info = icon:GetInfo()
+    local no_check_use = ui.GetFrame(addon_name_lower .. "no_check_use")
+    if no_check_use and no_check_use:IsVisible() == 1 then
+        local clsid = icon_info.type
+        local inv_item = session.GetInvItemByType(clsid)
+        local item_slot = GET_CHILD(no_check_use, "item_slot")
+        local item_cls = GetClassByType("Item", clsid)
+        item_slot:SetUserValue("CLASS_ID", clsid)
+        SET_SLOT_ITEM_CLS(item_slot, item_cls)
+        SET_SLOT_ITEM_TEXT(item_slot, inv_item, item_cls)
+        return
+    end
+    local no_check_delete = ui.GetFrame(addon_name_lower .. "no_check_delete")
+    if no_check_delete and no_check_delete:IsVisible() == 1 then
+        AUTO_CAST(no_check_delete)
+        local iesid = icon_info:GetIESID()
+        local inv_item = session.GetInvItemByGuid(iesid)
+        local item_obj = GetIES(inv_item:GetObject())
+        if g.no_check_iesids[iesid] then
+            local msg = g.lang == "Japanese" and "{ol}既に登録されています" or "{ol}Already registered"
+            ui.SysMsg(msg)
+            return
+        end
+        if not no_check_delete_check(iesid, item_obj.ClassID) then
+            return
+        end
+        local delete_slotset = GET_CHILD_RECURSIVELY(no_check_delete, "delete_slotset")
+        AUTO_CAST(delete_slotset)
+        local slot_count = delete_slotset:GetSlotCount()
+        for i = 1, slot_count do
+            local slot = GET_CHILD(delete_slotset, "slot" .. i)
+            AUTO_CAST(slot)
+            local icon = slot:GetIcon()
+            if not icon then
+                icon = CreateIcon(slot)
+                slot:SetUserValue("DELETE_IDSID", iesid)
+                slot:SetUserValue("DELETE_NAME", item_obj.Name)
+                slot:SetUserValue("DELETE_COUNT", inv_item.count)
+                g.no_check_iesids[iesid] = true
+                SET_SLOT_ITEM_CLS(slot, item_obj)
+                SET_SLOT_ITEM_TEXT(slot, inv_item, item_obj)
+                SET_SLOT_STYLESET(slot, item_obj)
+                SET_SLOT_IESID(slot, iesid)
+                SET_SLOT_ICOR_CATEGORY(slot, item_obj)
+                icon:SetTooltipArg("None", 0, iesid)
+                SET_ITEM_TOOLTIP_TYPE(icon, item_obj.ClassID, item_obj, "None")
+                SET_SLOT_ICOR_CATEGORY(slot, item_obj)
+                slot:SetEventScript(ui.RBUTTONUP, "no_check_delete_item_clear")
+                slot:SetEventScriptArgString(ui.RBUTTONUP, iesid)
+                local inventory = ui.GetFrame("inventory")
+                local inv_slot = INV_GET_SLOT_BY_ITEMGUID(iesid)
+                if inv_slot then
+                    AUTO_CAST(inv_slot)
+                    inv_slot:SetSelectedImage('socket_slot_check')
+                    inv_slot:Select(1)
+                    inv_slot:RunUpdateScript("no_check_inv_invalidate", 0.1)
+                    inv_slot:Invalidate()
+                end
+                return
+            end
+        end
+    end
+end
+
+function no_check_frame_close(frame, ctrl)
+    ui.DestroyFrame(frame:GetName())
+    INVENTORY_SET_CUSTOM_RBTNDOWN('None')
+    INVENTORY_CLEAR_SELECT(nil)
+    if ctrl:GetName() == "delete_slotset" then
+        ui.SysMsg("{ol}[No Check]End of Operation")
+    end
+end
+
+function no_check_inv_invalidate(inv_slot)
+    inv_slot:Invalidate()
+end
+-- 欠片アイテム他使用時のメッセージボックス非表示
+function no_check_BEFORE_APPLIED_YESSCP_OPEN_BASIC_MSG(my_frame, my_msg)
+    local inv_item = g.get_event_args(my_msg)
+    if g.settings.no_check.use == 1 then
+        if not inv_item then
+            return
+        end
+        local item_obj = GetIES(inv_item:GetObject())
+        if not item_obj then
+            return
+        end
+        local inventory = ui.GetFrame("inventory")
+        inventory:SetUserValue("REQ_USE_ITEM_GUID", inv_item:GetIESID())
+        REQUEST_SUMMON_BOSS_TX()
+    else
+        g.FUNCS["BEFORE_APPLIED_YESSCP_OPEN_BASIC_MSG"](inv_item)
+    end
+end
+-- レジェンドカード装着時のメッセージボックス非表示
+function no_check_CARD_SLOT_EQUIP(my_frame, my_msg)
+    local slot, item, group_name_str = g.get_event_args(my_msg)
+    if g.settings.no_check.use == 1 then
+        local item_obj = GetIES(item:GetObject())
+        if item_obj.GroupName == "Card" then
+            local slot_index = CARD_SLOT_GET_SLOT_INDEX(group_name_str, slot:GetSlotIndex())
+            local card_info = equipcard.GetCardInfo(slot_index + 1)
+            if card_info then
+                ui.SysMsg(ClMsg("AlreadyEquippedThatCardSlot"))
+                return
+            end
+            if item.isLockState == true then
+                ui.SysMsg(ClMsg("MaterialItemIsLock"))
+                return
+            end
+            local item_guid = item:GetIESID()
+            local inventory = ui.GetFrame("inventory")
+            inventory:SetUserValue("EQUIP_CARD_GUID", item_guid)
+            inventory:SetUserValue("EQUIP_CARD_SLOTINDEX", slot_index)
+            local pc_etc = GetMyEtcObject()
+            if pc_etc.IS_LEGEND_CARD_OPEN ~= 1 and group_name_str == 'LEG' then
+                ui.SysMsg(ClMsg("LegendCard_Slot_NotOpen"))
+                return
+            end
+            REQUEST_EQUIP_CARD_TX()
+        end
+    else
+        g.FUNCS["CARD_SLOT_EQUIP"](slot, item, group_name_str)
+    end
+end
+-- レジェンドカード脱着時
+function no_check_EQUIP_CARDSLOT_INFO_OPEN(my_frame, my_msg)
+    local slot_index = g.get_event_args(my_msg)
+    if g.settings.no_check.use == 1 then
+        slot_index = slot_index .. " 1"
+        pc.ReqExecuteTx_NumArgs("SCR_TX_UNEQUIP_CARD_SLOT", slot_index)
+    else
+        g.FUNCS["EQUIP_CARDSLOT_INFO_OPEN"](slot_index)
+    end
+end
+-- ゴッデスカード脱着時
+function no_check_EQUIP_GODDESSCARDSLOT_INFO_OPEN(my_frame, my_msg)
+    local slot_index = g.get_event_args(my_msg)
+    if g.settings.no_check.use == 1 then
+        slot_index = slot_index .. " 1"
+        pc.ReqExecuteTx_NumArgs("SCR_TX_UNEQUIP_CARD_SLOT", slot_index)
+    else
+        g.FUNCS["EQUIP_GODDESSCARDSLOT_INFO_OPEN"](slot_index)
+    end
+end
+-- エーテルジェム着脱時のメッセージ非表示
+function no_check_GODDESS_MGR_SOCKET_REQ_GEM_REMOVE(my_frame, my_msg)
+    local parent, btn = g.get_event_args(my_msg)
+    if g.settings.no_check.use == 1 then
+        local frame = parent:GetTopParentFrame()
+        local slot = GET_CHILD_RECURSIVELY(frame, 'socket_slot')
+        local guid = slot:GetUserValue('ITEM_GUID')
+        if guid ~= 'None' then
+            local index = parent:GetUserValue('SLOT_INDEX')
+            local inv_item = session.GetInvItemByGuid(guid)
+            if not inv_item then
+                return
+            end
+            local item_obj = GetIES(inv_item:GetObject())
+            local item_name = dic.getTranslatedStr(TryGetProp(item_obj, 'Name', 'None'))
+            local gem_id = inv_item:GetEquipGemID(index)
+            local gem_cls = GetClassByType('Item', gem_id)
+            local gem_numarg1 = TryGetProp(gem_cls, 'NumberArg1', 0)
+            local price = gem_numarg1 * 100
+            local clmsg = 'None'
+            local msg_cls_name = ''
+            if TryGetProp(gem_cls, 'GemType', 'None') == 'Gem_High_Color' then
+                _GODDESS_MGR_SOCKET_REQ_GEM_REMOVE(index)
+            else
+                local pc = GetMyPCObject()
+                local is_gem_remove_care = IS_GEM_EXTRACT_FREE_CHECK(pc)
+                local free_gem = nil
+                for optionIdx = 1, 4 do
+                    free_gem = GET_GEM_PROPERTY_TEXT(item_obj, optionIdx, index)
+                    if free_gem then
+                        _GODDESS_MGR_SOCKET_REQ_GEM_REMOVE(index)
+                        return
+                    end
+                end
+                if is_gem_remove_care then
+                    msg_cls_name = "ReallyRemoveGem_Care"
+                else
+                    msg_cls_name = "ReallyRemoveGem"
+                end
+                local clmsg = "'" .. item_name .. ScpArgMsg("Auto_'_SeonTaeg") .. ScpArgMsg(msg_cls_name)
+                local yes_scp = string.format('_GODDESS_MGR_SOCKET_REQ_GEM_REMOVE(%s)', index)
+                local msgbox = ui.MsgBox(clmsg, yes_scp, '')
+                SET_MODAL_MSGBOX(msgbox)
+            end
+        end
+    else
+        g.FUNCS["GODDESS_MGR_SOCKET_REQ_GEM_REMOVE"](parent, btn)
+    end
+end
+-- ゴッデス装備帰属解除時の簡易化
+function no_check_UNLOCK_TRANSMUTATIONSPREADER_BELONGING_SCROLL_EXEC_ASK_AGAIN(my_frame, my_msg)
+    local frame, btn = g.get_event_args(my_msg)
+    if g.settings.no_check.use == 1 then
+        local scroll_type = frame:GetUserValue("ScrollType")
+        local clickable = frame:GetUserValue("EnableTranscendButton")
+        if tonumber(clickable) ~= 1 then
+            return
+        end
+        local slot = GET_CHILD(frame, "slot")
+        local inv_item = GET_SLOT_ITEM(slot)
+        if not inv_item then
+            ui.MsgBox(ScpArgMsg("DropItemPlz"))
+            imcSound.PlaySoundEvent(frame:GetUserConfig("TRANS_BTN_OVER_SOUND"))
+            return
+        end
+        local item_obj = GetIES(inv_item:GetObject())
+        local scroll_guid = frame:GetUserValue("ScrollGuid")
+        local scroll_inv_item = session.GetInvItemByGuid(scroll_guid)
+        if not scroll_inv_item then
+            return
+        end
+        UNLOCK_TRANSMUTATIONSPREADER_BELONGING_SCROLL_EXEC()
+    else
+        g.FUNCS["UNLOCK_TRANSMUTATIONSPREADER_BELONGING_SCROLL_EXEC_ASK_AGAIN"](frame, btn)
+    end
+end
+-- ゴッデスアクセ帰属解除時の簡易化
+function no_check_UNLOCK_ACC_BELONGING_SCROLL_EXEC_ASK_AGAIN(my_frame, my_msg)
+    local frame, btn = g.get_event_args(my_msg)
+    if g.settings.no_check.use == 1 then
+        local scroll_type = frame:GetUserValue("ScrollType")
+        local clickable = frame:GetUserValue("EnableTranscendButton")
+        if tonumber(clickable) ~= 1 then
+            return
+        end
+        local slot = GET_CHILD(frame, "slot")
+        local inv_item = GET_SLOT_ITEM(slot)
+        if not inv_item then
+            ui.MsgBox(ScpArgMsg("DropItemPlz"))
+            imcSound.PlaySoundEvent(frame:GetUserConfig("TRANS_BTN_OVER_SOUND"))
+            return
+        end
+        local item_obj = GetIES(invItem:GetObject())
+        local scroll_guid = frame:GetUserValue("ScrollGuid")
+        local scroll_inv_item = session.GetInvItemByGuid(scroll_guid)
+        if not scroll_inv_item then
+            return
+        end
+        UNLOCK_ACC_BELONGING_SCROLL_EXEC()
+    else
+        g.FUNCS["UNLOCK_ACC_BELONGING_SCROLL_EXEC_ASK_AGAIN"](frame, btn)
+    end
+end
+-- チャンネル移動時の確認を削除
+function no_check_SELECT_ZONE_MOVE_CHANNEL(my_frame, my_msg)
+    local index, channel_id = g.get_event_args(my_msg)
+    if g.settings.no_check.use == 1 then
+        local zone_insts = session.serverState.GetMap()
+        if not zone_insts or zone_insts.pcCount == -1 then
+            ui.SysMsg(ClMsg("ChannelIsClosed"))
+            return
+        end
+        local pc = GetMyPCObject()
+        if IS_BOUNTY_BATTLE_BUFF_APPLIED(pc) == 1 then
+            ui.SysMsg(ClMsg("DoingBountyBattle"))
+            return
+        end
+        if IS_JUMP_MAP_BUFF_APPLIED(pc) == 1 then
+            return
+        end
+        RUN_GAMEEXIT_TIMER("Channel", channel_id)
+    else
+        g.FUNCS["SELECT_ZONE_MOVE_CHANNEL"](index, channel_id)
+    end
+end
+-- カードブック使用時の確認削除
+function no_check_BEFORE_APPLIED_NON_EQUIP_ITEM_OPEN(my_frame, my_msg)
+    local inv_item = g.get_event_args(my_msg)
+    if g.settings.no_check.use == 1 then
+        if not inv_item then
+            return
+        end
+        local inventory = ui.GetFrame("inventory")
+        local item_obj = GetIES(inv_item:GetObject())
+        if not item_obj then
+            return
+        end
+        inventory:SetUserValue("REQ_USE_ITEM_GUID", inv_item:GetIESID())
+        if item_obj.Script == 'SCR_SUMMON_MONSTER_FROM_CARDBOOK' then
+            REQUEST_SUMMON_BOSS_TX()
+        elseif item_obj.Script == 'SCR_QUEST_CLEAR_LEGEND_CARD_LIFT' then
+            local textmsg = string.format("[ %s ]{nl}%s", item_obj.Name, ScpArgMsg("Use_Item_LegendCard_Slot_Open2"))
+            ui.MsgBox_NonNested(textmsg, item_obj.Name, "REQUEST_SUMMON_BOSS_TX", "None")
+            return
+        end
+    else
+        g.FUNCS["BEFORE_APPLIED_NON_EQUIP_ITEM_OPEN"](inv_item)
+    end
+end
+
+function no_check_timer(all_in_one, no_check_timer)
+    if g.settings.no_check.use == 0 then
+        return
+    end
+    no_check_WARNINGMSGBOX_FRAME_OPEN()
+    no_check_WARNINGMSGBOX_EX_FRAME_OPEN()
+end
+-- warning_boxs制御
+function no_check_WARNINGMSGBOX_FRAME_OPEN()
+    local warningmsgbox = ui.GetFrame("warningmsgbox")
+    if warningmsgbox:IsVisible() == 0 then
+        return
+    end
+    local warningtext = GET_CHILD_RECURSIVELY(warningmsgbox, "warningtext")
+    local msg = ClMsg("destory_now")
+    msg = dictionary.ReplaceDicIDInCompStr(msg)
+    if string.find(warningtext:GetText(), msg) then
+        local input = GET_CHILD_RECURSIVELY(warningmsgbox, "input")
+        input:SetText(msg)
+    end
+end
+
+function no_check_WARNINGMSGBOX_EX_FRAME_OPEN()
+    local warningmsgbox_ex = ui.GetFrame('warningmsgbox_ex')
+    if warningmsgbox_ex:IsVisible() == 0 then
+        return
+    end
+    local compareText = GET_CHILD_RECURSIVELY(warningmsgbox_ex, "comparetext")
+    local start, finish = string.find(compareText:GetText(), "nl%}%[")
+    if start and finish then
+        local next_sub_string = compareText:GetText():sub(finish + 1)
+        local next_start, next_finish = string.find(next_sub_string, "%]")
+        if next_start and next_finish then
+            local desiredText = next_sub_string:sub(1, next_start - 1)
+            local input = GET_CHILD_RECURSIVELY(warningmsgbox_ex, "input")
+            input:SetText(desiredText)
+        end
+    end
+end
+-- 連続金床強化
+function no_check_MORU_LBTN_CLICK(my_frame, my_msg)
+    if g.settings.no_check.use == 0 then
+        return
+    end
+    no_check_REINFORCE_131014_MSGBOX()
+end
+
+function no_check_REINFORCE_131014_MSGBOX()
+    local reinforce_131014 = ui.GetFrame("reinforce_131014")
+    local from_item, from_moru = GET_REINFORCE_TARGET_AND_MORU(reinforce_131014)
+    local from_item_obj = GetIES(from_item:GetObject())
+    local moru_obj = GetIES(from_moru:GetObject())
+    local exec = GET_CHILD_RECURSIVELY(reinforce_131014, "exec")
+    local skipOver5 = GET_CHILD_RECURSIVELY(reinforce_131014, "skipOver5")
+    skipOver5:SetCheck(1)
+    exec:ShowWindow(0)
+    no_check_REINFORCE_131014_EXEC(reinforce_131014, from_item, from_moru)
+end
+
+function no_check_REINFORCE_131014_EXEC(reinforce_131014)
+    if reinforce_131014:IsVisible() == 0 then
+        reinforce_131014:StopUpdateScript("no_check_REINFORCE_131014_EXEC")
+        return 0
+    end
+    local from_item, from_moru = GET_REINFORCE_TARGET_AND_MORU(reinforce_131014)
+    if from_item and from_moru ~= nil and reinforce_131014:IsVisible() == 1 then
+        session.ResetItemList()
+        session.AddItemID(fromItem:GetIESID())
+        session.AddItemID(fromMoru:GetIESID())
+        local resultlist = session.GetItemIDList()
+        item.DialogTransaction("ITEM_REINFORCE_131014", resultlist)
+        reinforce_131014:RunUpdateScript("no_check_REINFORCE_131014_EXEC", 0.3)
+    end
+    REINFORCE_131014_UPDATE_MORU_COUNT(reinforce_131014)
+    return 1
+end
+-- no_check ここまで
+
+-- vakarine_equip ここから
+g.vakarine_equip_path = string.format("../addons/%s/%s/vakarine_equip.json", addon_name_lower, g.active_id)
+function vakarine_equip_save_settings()
+    g.save_json(g.vakarine_equip_path, g.vakarine_equip_settings)
+end
+
+function vakarine_equip_load_settings()
+    local settings = g.load_json(g.vakarine_equip_path)
+    if not settings then
+        settings = {
+            buffid = {},
+            delay = 0.1,
+            jsr = 0,
+            x = 0,
+            y = 0,
+            move = 1,
+            chars = {},
+            auto_remove = 0
+        }
+    end
+    g.vakarine_equip_settings = settings
+    vakarine_equip_save_settings()
+end
+
+function vakarine_equip_on_init()
+    ui.SetHoldUI(false)
+    if not g.vakarine_equip_settings then
+        vakarine_equip_load_settings()
+    end
+    if not g.vakarine_equip_settings.chars[g.cid] then
+        vakarine_equip_chrs_settings()
+    end
+    if g.settings.vakarine_equip.use == 0 then
+        ui.DestroyFrame(addon_name_lower .. "vakarine_equip")
+        return
+    end
+    g.addon:RegisterMsg('STAT_UPDATE', 'vakarine_equip_stat_update')
+    g.addon:RegisterMsg('TAKE_DAMAGE', 'vakarine_equip_stat_update')
+    g.addon:RegisterMsg('TAKE_HEAL', 'vakarine_equip_stat_update')
+    g.addon:RegisterMsg('BUFF_ADD', 'vakarine_equip_BUFF_ON_MSG')
+    g.addon:RegisterMsg('BUFF_UPDATE', 'vakarine_equip_BUFF_ON_MSG')
+    vakarine_equip_frame_init()
+    if g.get_map_type() ~= "City" then
+        vakarine_equip_start_operation()
+    end
+end
+
+function vakarine_equip_chrs_settings()
+    local equips = {"RH", "LH", "RH_SUB", "LH_SUB", "RING1", "RING2", "SHIRT", "PANTS", "GLOVES", "BOOTS", "SHOULDER",
+                    "BELT", "NECK"}
+    g.vakarine_equip_settings.chars[g.cid] = {
+        use = 0
+    }
+    for _, equip in ipairs(equips) do
+        g.vakarine_equip_settings.chars[g.cid][equip] = 0
+    end
+    vakarine_equip_save_settings()
+end
+
+function vakarine_equip_frame_init()
+    local vakarine_equip = ui.CreateNewFrame("notice_on_pc", addon_name_lower .. "vakarine_equip", 0, 0, 0, 0)
+    AUTO_CAST(vakarine_equip)
+    vakarine_equip:SetSkinName("None")
+    vakarine_equip:SetTitleBarSkin("None")
+    vakarine_equip:Resize(40, 30)
+    vakarine_equip:SetGravity(ui.RIGHT, ui.TOP)
+    vakarine_equip:EnableMove(g.vakarine_equip_settings.move == 1 and 0 or 1)
+    vakarine_equip:EnableHittestFrame(1)
+    local rect = vakarine_equip:GetMargin()
+    vakarine_equip:SetMargin(rect.left - rect.left, rect.top - rect.top + 300,
+        rect.right == 0 and rect.right + 10 or rect.right, rect.bottom)
+    if g.vakarine_equip_settings.x ~= 0 and g.vakarine_equip_settings.y ~= 0 then
+        vakarine_equip:SetPos(g.vakarine_equip_settings.x, g.vakarine_equip_settings.y)
+    end
+    vakarine_equip:SetEventScript(ui.LBUTTONUP, "vakarine_equip_location_save")
+    local vaka_pic = vakarine_equip:CreateOrGetControl("picture", "vaka_pic", 0, 0, 30, 30)
+    AUTO_CAST(vaka_pic)
+    vaka_pic:SetImage("bakarine_emotion68") -- vaka_pic:SetImage("bakarine_emotion61") vaka_pic:SetImage("emoticon_0024")
+    vaka_pic:SetColorTone("FFFFFFFF")
+    vaka_pic:SetEnableStretch(1)
+    vaka_pic:EnableHitTest(1)
+    vaka_pic:SetGravity(ui.LEFT, ui.TOP)
+    vaka_pic:SetTextTooltip(g.lang == "Japanese" and
+                                "{ol}Vakarine Equip{nl} {nl}左クリック{nl}街: 設定{nl}街以外: 手動起動{nl} {nl}右クリック{nl}自動起動ON/OFF" or
+                                "{ol}Vakarine Equip{nl} {nl}Left click{nl}City: Setup{nl}Outside City: Manual activation{nl} {nl}Right click: Auto-activation ON/OFF")
+    if g.vakarine_equip_settings.chars[g.cid].use == 0 then
+        vaka_pic:SetColorTone("FF555555")
+    else
+        vaka_pic:SetColorTone("FFFFFFFF")
+    end
+    vaka_pic:SetEventScript(ui.RBUTTONUP, "vakarine_equip_onoff_switch")
+    vaka_pic:SetEventScript(ui.LBUTTONUP, "vakarine_equip_config_or_startup")
+    vakarine_equip:ShowWindow(1)
+    if g.vakarine_equip_animas_iesid and g.get_map_type() == "City" then
+        vakarine_equip:RunUpdateScript("vakarine_equip_animas_equip", 1.0)
+    end
+end
+
+function vakarine_equip_location_save(frame, ctrl)
+    if frame:GetName() == addon_name_lower .. "vakarine_equip" then
+        g.vakarine_equip_settings.x = frame:GetX()
+        g.vakarine_equip_settings.y = frame:GetY()
+    elseif ctrl:GetName() == "default_btn" then
+        g.vakarine_equip_settings.x = 0
+        g.vakarine_equip_settings.y = 0
+        ui.DestroyFrame(addon_name_lower .. "vakarine_equip")
+        ReserveScript("vakarine_equip_frame_init()", 0.1)
+    end
+    vakarine_equip_save_settings()
+end
+
+function vakarine_equip_onoff_switch(vakarine_equip, vaka_pic)
+    if keyboard.IsKeyPressed("LSHIFT") == 1 then
+        vakarine_equip_buff_list(nil, nil, "")
+        return
+    end
+    if g.vakarine_equip_settings.chars[g.cid].use == 0 then
+        g.vakarine_equip_settings.chars[g.cid].use = 1
+        vaka_pic:SetColorTone("FFFFFFFF")
+    else
+        vaka_pic:SetColorTone("FF555555")
+        g.vakarine_equip_settings.chars[g.cid].use = 0
+    end
+    vakarine_equip_save_settings()
+end
+
+function vakarine_equip_animas_equip(vakarine_equip)
+    local equip_item_list = session.GetEquipItemList()
+    local equip_item = equip_item_list:GetEquipItemByIndex(19)
+    if equip_item then
+        local iesid = equip_item:GetIESID()
+        local try = vakarine_equip:GetUserIValue("TRY")
+        if iesid ~= g.vakarine_equip_animas_iesid and try < 3 then
+            local equip_item = session.GetInvItemByGuid(g.vakarine_equip_animas_iesid)
+            item.Equip(equip_item.invIndex)
+            vakarine_equip:GetUserIValue("TRY", try + 1)
+            return 1
+        end
+    end
+    vakarine_equip:GetUserIValue("TRY", 0)
+    g.vakarine_equip_animas_iesid = nil
+    return 0
+end
+
+function vakarine_equip_config_or_startup(frame, ctrl)
+    if g.get_map_type() == "City" then
+        vakarine_equip_config_frame_open()
+    else
+        vakarine_equip_start_operation(true)
+    end
+end
+
+function vakarine_equip_start_operation(is_manual)
+    local is_vakarine = vakarine_equip_is_vakarine()
+    if not is_vakarine and not is_manual then
+        return
+    end
+    local vakarine_equip = ui.GetFrame(addon_name_lower .. "vakarine_equip") -- 11244 聖域3F 11227 分裂 8022 ヴェルニケ
+    if (g.get_map_type() == "Instance" and g.map_id ~= 11227) or g.map_id == 8022 or g.map_id == 11244 or not is_manual or
+        g.vakarine_equip_settings.jsr == 1 then
+        g.vakarine_equip_field_boss = nil
+        local inventory = ui.GetFrame("inventory")
+        inventory:ShowWindow(1)
+        DO_WEAPON_SLOT_CHANGE(inventory, 1)
+        ui.SetHoldUI(true)
+        local vakarine_equip = ui.GetFrame(addon_name_lower .. "vakarine_equip")
+        vakarine_equip:RunUpdateScript("vakarine_equip_holdui_release", 10.0)
+        local equip_map = {
+            RH = 8,
+            LH = 9,
+            RH_SUB = 30,
+            LH_SUB = 31,
+            RING1 = 17,
+            RING2 = 18,
+            SHIRT = 3,
+            PANTS = 14,
+            GLOVES = 4,
+            BOOTS = 5,
+            SHOULDER = 34,
+            BELT = 33,
+            NECK = 19
+        }
+        g.vakarine_equip_queue = {}
+        local char_settings = g.vakarine_equip_settings.chars[g.cid]
+        local equip_item_list = session.GetEquipItemList()
+        for spot_name, index in pairs(equip_map) do
+            local current_item = equip_item_list:GetEquipItemByIndex(index)
+            if char_settings[spot_name] == 1 and current_item then
+                table.insert(g.vakarine_equip_queue, {
+                    spot = spot_name,
+                    index = index,
+                    iesid = current_item:GetIESID()
+                })
+            end
+        end
+        local animas_item = session.GetInvItemByName("NECK04_103")
+        g.vakarine_equip_animas_iesid = animas_item and animas_item:GetIESID() or nil
+        if #g.vakarine_equip_queue == 0 then
+            ui.SetHoldUI(false)
+            return
+        end
+        for i, data in ipairs(g.vakarine_equip_queue) do
+            if data.spot == "RH_SUB" then
+                item.UnEquip(data.index)
+                break
+            end
+        end
+        g.vakarine_equip_process_step = "unequip"
+        vakarine_equip:RunUpdateScript("vakarine_equip_main_loop", g.vakarine_equip_settings.delay)
+    end
+end
+
+function vakarine_equip_main_loop(vakarine_equip)
+    local equip_item_list = session.GetEquipItemList()
+    if g.vakarine_equip_process_step == "unequip" then
+        local all_unequipped = true
+        for _, data in ipairs(g.vakarine_equip_queue) do
+            local current_item = equip_item_list:GetEquipItemByIndex(data.index)
+            if current_item and current_item:GetIESID() ~= "0" then
+                item.UnEquip(data.index)
+                return 1
+            end
+        end
+        if all_unequipped then
+            g.vakarine_equip_process_step = "equip"
+        end
+        return 1
+    elseif g.vakarine_equip_process_step == "equip" then
+        local weapon_order = {"RH", "LH", "RH_SUB", "LH_SUB"}
+        for _, spot_name in ipairs(weapon_order) do
+            for _, data in ipairs(g.vakarine_equip_queue) do
+                if data.spot == spot_name then
+                    local current_item = equip_item_list:GetEquipItemByIndex(data.index)
+                    if not current_item or current_item:GetIESID() ~= data.iesid then
+                        local inv_item = session.GetInvItemByGuid(data.iesid)
+                        if inv_item then
+                            ITEM_EQUIP(inv_item.invIndex, data.spot)
+                            return 1
+                        end
+                    end
+                    break
+                end
+            end
+        end
+        for _, data in ipairs(g.vakarine_equip_queue) do
+            local spot_name = data.spot
+            if spot_name ~= "RH" and spot_name ~= "LH" and spot_name ~= "RH_SUB" and spot_name ~= "LH_SUB" and spot_name ~=
+                "NECK" then
+                local current_item = equip_item_list:GetEquipItemByIndex(data.index)
+                if not current_item or current_item:GetIESID() ~= data.iesid then
+                    local inv_item = session.GetInvItemByGuid(data.iesid)
+                    if inv_item then
+                        ITEM_EQUIP(inv_item.invIndex, data.spot)
+                        return 1
+                    end
+                end
+            end
+        end
+        for _, data in ipairs(g.vakarine_equip_queue) do
+            if data.spot == "NECK" then
+                local iesid_to_equip = g.vakarine_equip_animas_iesid or data.iesid
+                local current_item = equip_item_list:GetEquipItemByIndex(data.index)
+                local current_iesid = current_item and current_item:GetIESID() or "0"
+                if current_iesid ~= iesid_to_equip then
+                    local inv_item = session.GetInvItemByGuid(iesid_to_equip)
+                    if inv_item then
+                        ITEM_EQUIP(inv_item.invIndex, data.spot)
+                        return 1
+                    end
+                end
+                break
+            end
+        end
+        local inventory = ui.GetFrame("inventory")
+        inventory:ShowWindow(0)
+        imcAddOn.BroadMsg("NOTICE_Dm_stage_start", "[VE]End of Operation", 3)
+        ui.SetHoldUI(false)
+        return 0
+    end
+    return 1
+end
+
+function vakarine_equip_is_vakarine()
+    local equip_item_list = session.GetEquipItemList()
+    local equip_guid_list = equip_item_list:GetGuidList()
+    local count = equip_guid_list:Count()
+    local vakarine_count = 0
+    for i = 0, count - 1 do
+        local guid = equip_guid_list:Get(i)
+        if guid ~= '0' then
+            local equip_item = equip_item_list:GetItemByGuid(guid)
+            local item = GetIES(equip_item:GetObject())
+            for j = 1, MAX_OPTION_EXTRACT_COUNT do
+                local prop_name = "RandomOption_" .. j
+                local cls_msg = ScpArgMsg(item[prop_name])
+                if string.find(cls_msg, "vakarine_bless") then
+                    vakarine_count = vakarine_count + 1
+                    break
+                end
+            end
+        end
+    end
+    if vakarine_count >= 5 then
+        return true
+    elseif vakarine_count == 4 then
+        return false
+    else
+        return false
+    end
+end
+
+function vakarine_equip_holdui_release(frame)
+    ui.SetHoldUI(false)
+    return 0
+end
+
+function vakarine_equip_config_frame_open()
+    local list_frame = ui.GetFrame(addon_name_lower .. "list_frame")
+    local config = ui.CreateNewFrame("notice_on_pc", addon_name_lower .. "vakarine_equip_config_frame", 0, 0, 0, 0)
+    AUTO_CAST(config)
+    config:RemoveAllChild()
+    config:SetLayerLevel(999)
+    config:SetSkinName("test_frame_low")
+    local title_text = config:CreateOrGetControl("richtext", "title_text", 10, 10)
+    AUTO_CAST(title_text)
+    title_text:SetText("{ol}Vakarine Equip")
+    local config_gb = config:CreateOrGetControl("groupbox", "config_gb", 10, 40, 0, 0)
+    AUTO_CAST(config_gb)
+    config_gb:SetSkinName("bg")
+    config:SetPos(list_frame:GetX() + list_frame:GetWidth(), list_frame:GetY())
+    local close = config:CreateOrGetControl("button", "close", 0, 0, 20, 20)
+    AUTO_CAST(close)
+    close:SetImage("testclose_button")
+    close:SetGravity(ui.RIGHT, ui.TOP)
+    close:SetEventScript(ui.LBUTTONUP, "vakarine_equip_frame_close")
+    local jsr_check = config_gb:CreateOrGetControl('checkbox', "jsr_check", 10, 5, 30, 30)
+    AUTO_CAST(jsr_check)
+    jsr_check:SetCheck(g.vakarine_equip_settings.jsr)
+    local text = g.lang == "Japanese" and "チェックするとJSRで作動" or "Activated in JSR when checked"
+    jsr_check:SetText("{ol}" .. text)
+    jsr_check:SetEventScript(ui.LBUTTONUP, "vakarine_equip_check_switch")
+    local x = 0
+    local width = jsr_check:GetWidth()
+    if x < width then
+        x = width
+    end
+    local y = 40
+    local equips = {"RH", "LH", "RH_SUB", "LH_SUB", "RING1", "RING2", "SHIRT", "PANTS", "GLOVES", "BOOTS", "SHOULDER",
+                    "BELT", "NECK"}
+    for i, equip_name in ipairs(equips) do
+        local check_box = config_gb:CreateOrGetControl('checkbox', "check_box" .. i, 20, y, 30, 30)
+        AUTO_CAST(check_box)
+        check_box:SetCheck(g.vakarine_equip_settings.chars[g.cid][equip_name])
+        check_box:SetTextTooltip(g.lang == "Japanese" and "{ol}チェックした装備を脱着します" or
+                                     "{ol}Remove and detach checked equipment")
+        check_box:SetEventScript(ui.LBUTTONUP, "vakarine_equip_check_switch")
+        check_box:SetEventScriptArgString(ui.LBUTTONUP, equip_name)
+        if equip_name == "RING1" then
+            equip_name = "Ring1"
+        elseif equip_name == "RING2" then
+            equip_name = "Ring2"
+        elseif equip_name == "SHIRT" then
+            equip_name = "Shirt"
+        elseif equip_name == "PANTS" then
+            equip_name = "Pants"
+        end
+        check_box:SetText("{ol}" .. ClMsg(equip_name))
+        y = y + 30
+    end
+    y = y + 10
+    local move_check = config_gb:CreateOrGetControl('checkbox', "move_check", 10, y, 30, 30)
+    AUTO_CAST(move_check)
+    move_check:SetCheck(g.vakarine_equip_settings.move)
+    move_check:SetText(g.lang == "Japanese" and "{ol}チェックするとフレーム固定" or
+                           "{ol}If checked, the frame is fixed")
+    move_check:SetEventScript(ui.LBUTTONUP, "vakarine_equip_check_switch")
+    y = y + 40
+    local default_btn = config_gb:CreateOrGetControl("button", "default_btn", 20, y, 120, 30)
+    AUTO_CAST(default_btn)
+    default_btn:SetText(g.lang == "Japanese" and "{ol}フレーム初期位置" or "{ol}Init frame pos")
+    default_btn:SetEventScript(ui.LBUTTONUP, "vakarine_equip_location_save")
+    y = y + 30
+    config:Resize(x + 70, y + 60)
+    config_gb:Resize(x + 50, y + 10)
+    config:ShowWindow(1)
+end
+
+function vakarine_equip_check_switch(config, ctrl, equip_name, num)
+    local ischeck = ctrl:IsChecked()
+    if ctrl:GetName() == "jsr_check" then
+        g.vakarine_equip_settings.jsr = ischeck
+    elseif ctrl:GetName() == "move_check" then
+        g.vakarine_equip_settings.move = ischeck
+        vakarine_equip_frame_init()
+    elseif string.find(ctrl:GetName(), "check_box") then
+        g.vakarine_equip_settings.chars[g.cid][equip_name] = ischeck
+        if equip_name == "RH_SUB" then
+            g.vakarine_equip_settings.chars[g.cid]["LH_SUB"] = ischeck
+        elseif equip_name == "LH_SUB" then
+            g.vakarine_equip_settings.chars[g.cid]["RH_SUB"] = ischeck
+        end
+        vakarine_equip_config_frame_open()
+    end
+    vakarine_equip_save_settings()
+end
+
+function vakarine_equip_stat_update()
+    if g.settings.vakarine_equip.use == 0 then
+        return
+    end
+    local charbaseinfo1_my = ui.GetFrame("charbaseinfo1_my")
+    if not charbaseinfo1_my then
+        return
+    end
+    local hp = GET_CHILD(charbaseinfo1_my, "pcHpGauge")
+    AUTO_CAST(hp)
+    local handle = session.GetMyHandle()
+    local stat = info.GetStat(handle)
+    local hp_now = (stat.HP * 100) / stat.maxHP
+    local status = ''
+    local color = ""
+    if (hp_now == 100) then
+        color = '#00EC00'
+        status = 'Perfect'
+    elseif g.vakarine and (hp_now <= 45) then
+        color = '#EA0000'
+        status = 'Revenge'
+    elseif not g.vakarine and (hp_now <= 35) then
+        color = '#EA0000'
+        status = 'Revenge'
+    elseif hp_now == 0 then
+        color = '#FFFFFF'
+    else
+        color = '#FFFFFF'
+    end
+    local effecttext =
+        charbaseinfo1_my:CreateOrGetControl("richtext", "effecttext", 0, 0, hp:GetWidth(), hp:GetHeight())
+    effecttext:SetText(string.format('{ol}{%s}{%s}%s', "s15", color, status))
+    effecttext:SetGravity(ui.RIGHT, ui.TOP)
+    effecttext:SetOffset(hp:GetX(), hp:GetY() - 25 - (15 - 15))
+    local hptext = charbaseinfo1_my:CreateOrGetControl("richtext", "hptext", 0, 0, hp:GetWidth(), hp:GetHeight())
+    hptext:SetText(string.format('{%s}{ol}{%s}%d%%', "s15", color, hp_now))
+    hptext:SetGravity(ui.RIGHT, ui.TOP)
+    hptext:SetOffset(hp:GetX(), hp:GetY() - 10 - (15 - 15))
+end
+
+function vakarine_equip_BUFF_ON_MSG(frame, msg, str, buff_id)
+    if g.settings.vakarine_equip.use == 0 then
+        return
+    end
+    if g.vakarine_equip_settings and g.vakarine_equip_settings["buffid"] then
+        for id_str, val in pairs(g.vakarine_equip_settings["buffid"]) do
+            if tonumber(id_str) == buff_id then
+                if g.vakarine_equip_settings.auto_remove == 1 then
+                    if val == 1 and g.vakarine then
+                        REMOVE_BUF(nil, nil, nil, buff_id) -- 良くないね
+                        return
+                    end
+                end
+            end
+        end
+    end
+end
+
+function vakarine_equip_buff_list(buff_list, ctrl, ctrl_text)
+    local buff_list = ui.GetFrame(addon_name_lower .. "vakarine_equip_buff_list")
+    if not buff_list then
+        buff_list = ui.CreateNewFrame("notice_on_pc", addon_name_lower .. "vakarine_equip_buff_list", 0, 0, 0, 0)
+        AUTO_CAST(buff_list)
+        buff_list:SetSkinName("test_frame_low")
+        buff_list:Resize(500, 1060)
+        buff_list:SetPos(150, 10)
+        buff_list:SetLayerLevel(121)
+        local search_edit = buff_list:CreateOrGetControl("edit", "search_edit", 40, 10, 305, 38)
+        AUTO_CAST(search_edit)
+        search_edit:SetFontName("white_18_ol")
+        search_edit:SetTextAlign("left", "center")
+        search_edit:SetSkinName("inventory_serch")
+        search_edit:SetEventScript(ui.ENTERKEY, "vakarine_equip_buff_list_search")
+        local search_btn = search_edit:CreateOrGetControl("button", "search_btn", 0, 0, 40, 38)
+        AUTO_CAST(search_btn)
+        search_btn:SetImage("inven_s")
+        search_btn:SetGravity(ui.RIGHT, ui.TOP)
+        search_btn:SetEventScript(ui.LBUTTONUP, "vakarine_equip_buff_list_search")
+        local func_toggle = buff_list:CreateOrGetControl('checkbox', 'func_toggle', 415, 15, 25, 25)
+        AUTO_CAST(func_toggle)
+        func_toggle:SetTextTooltip(g.lang == "Japanese" and "{ol}チェックすると自動バフ削除有効化" or
+                                       "{ol}Check to enable auto buff removal")
+        func_toggle:SetEventScript(ui.LBUTTONUP, "vakarine_equip_buff_aoto_remove")
+        func_toggle:SetCheck(g.vakarine_equip_settings.auto_remove or 0)
+        local close = buff_list:CreateOrGetControl('button', 'close', 0, 0, 20, 20)
+        AUTO_CAST(close)
+        close:SetImage("testclose_button")
+        close:SetGravity(ui.RIGHT, ui.TOP)
+        close:SetEventScript(ui.LBUTTONUP, "vakarine_equip_frame_close")
+    end
+    local buff_list_gb = buff_list:CreateOrGetControl("groupbox", "buff_list_gb", 10, 50, 480,
+        buff_list:GetHeight() - 60)
+    AUTO_CAST(buff_list_gb)
+    buff_list_gb:SetSkinName("bg")
+    buff_list_gb:RemoveAllChild()
+    local cls_list, count = GetClassList("Buff")
+    local all_buffs = {}
+    for i = 0, count - 1 do
+        local buff_cls = GetClassByIndexFromList(cls_list, i)
+        if buff_cls then
+            if buff_cls.Group1 ~= 'Debuff' and buff_cls.Group1 ~= 'Deuff' then
+                local buff_name = dictionary.ReplaceDicIDInCompStr(buff_cls.Name)
+                if not ctrl_text or ctrl_text == "" or string.find(buff_name, ctrl_text) then
+                    local image_name = GET_BUFF_ICON_NAME(buff_cls)
+                    if image_name ~= "icon_None" and buff_name ~= "None" then
+                        local is_checked = g.vakarine_equip_settings["buffid"][tostring(buff_cls.ClassID)] == true
+                        table.insert(all_buffs, {
+                            cls = buff_cls,
+                            name = buff_name,
+                            image = image_name,
+                            is_checked = is_checked
+                        })
+                    end
+                end
+            end
+        end
+    end
+    table.sort(all_buffs, function(a, b)
+        if a.is_checked and not b.is_checked then
+            return true
+        elseif not a.is_checked and b.is_checked then
+            return false
+        else
+            return a.cls.ClassID < b.cls.ClassID
+        end
+    end)
+    local y = 0
+    for _, buff_data in ipairs(all_buffs) do
+        local buff_cls = buff_data.cls
+        local buff_id = buff_cls.ClassID
+        local buff_slot = buff_list_gb:CreateOrGetControl('slot', 'buffslot' .. buff_id, 10, y + 5, 30, 30)
+        AUTO_CAST(buff_slot)
+        SET_SLOT_IMG(buff_slot, buff_data.image)
+        local icon = CreateIcon(buff_slot)
+        AUTO_CAST(icon)
+        icon:SetTooltipType('buff')
+        icon:SetTooltipArg(buff_data.name, buff_id, 0)
+        local buff_check = buff_list_gb:CreateOrGetControl('checkbox', 'buff_check' .. buff_id, 50, y + 10, 200, 30)
+        AUTO_CAST(buff_check)
+        buff_check:SetText("{ol}" .. buff_id .. " : " .. buff_data.name)
+        buff_check:SetTextTooltip(g.lang == "Japanese" and "{ol}チェックすると自動でバフ削除" or
+                                      "{ol}Check to automatically remove buff")
+        buff_check:SetCheck(buff_data.is_checked and 1 or 0)
+        buff_check:SetEventScript(ui.LBUTTONUP, "vakarine_equip_buff_toggle")
+        buff_check:SetEventScriptArgString(ui.LBUTTONUP, buff_id)
+        y = y + 35
+    end
+    buff_list:ShowWindow(1)
+end
+
+function vakarine_equip_buff_list_search(buff_list, ctrl, ctrl_text, num)
+    local search_edit = GET_CHILD_RECURSIVELY(buff_list, "search_edit")
+    local ctrl_text = search_edit:GetText()
+    if ctrl_text ~= "" then
+        vakarine_equip_buff_list(buff_list, ctrl, ctrl_text)
+    else
+        vakarine_equip_buff_list(buff_list, ctrl, "")
+    end
+end
+
+function vakarine_equip_buff_aoto_remove()
+    if g.vakarine_equip_settings.auto_remove == 0 then
+        g.vakarine_equip_settings.auto_remove = 1
+    else
+        g.vakarine_equip_settings.auto_remove = 0
+    end
+    vakarine_equip_save_settings()
+end
+
+function vakarine_equip_buff_toggle(frame, ctrl, str_buff_id, num)
+    local is_check = ctrl:IsChecked()
+    if is_check == 1 then
+        g.vakarine_equip_settings["buffid"][str_buff_id] = true
+    else
+        g.vakarine_equip_settings["buffid"][str_buff_id] = false
+    end
+    vakarine_equip_save_settings()
+end
+
+function vakarine_equip_frame_close(frame, ctrl, str, num)
+    ui.DestroyFrame(frame:GetName())
+end
+-- vakarine_equip ここまで
+
 -- revival_timer ここから
 g.revival_timer_path = string.format("../addons/%s/%s/revival_timer.json", addon_name_lower, g.active_id)
 function revival_timer_save_settings()
@@ -915,9 +2991,9 @@ function revival_timer_load_settings()
 end
 
 function revival_timer_on_init()
-    -- if not g.revival_timer_settings then
-    revival_timer_load_settings()
-    -- end
+    if not g.revival_timer_settings then
+        revival_timer_load_settings()
+    end
     if g.settings.revival_timer.use == 1 then
         revival_timer_frame_init()
     else
@@ -1328,10 +3404,10 @@ function relic_change_relicmanager_open(relic_change, slot)
         inventype_Tab:SelectTab(6)
     end
     local relicmanager = ui.GetFrame("relicmanager")
-    RELICMANAGER_OPEN(relicmanager)
     relicmanager:ShowWindow(1)
     local tab = GET_CHILD_RECURSIVELY(relicmanager, 'type_Tab')
     tab:SelectTab(2)
+    RELICMANAGER_SOCKET_UPDATE(relicmanager)
     relic_change_context()
 end
 
@@ -1868,9 +3944,9 @@ function quickslot_operate_map_change(all_in_one, quickslot_operate_map_timer)
     for _, eventmap_id in ipairs(g.quickslot_guild_eventmap) do
         if eventmap_id == g.map_id then
             if eventmap_id == 11285 or eventmap_id == 11286 then
-                quickslotnexpbar:SetUserValue("POT_TYPE", "Velnias")
-            else
                 quickslotnexpbar:SetUserValue("POT_TYPE", "Paramune")
+            else
+                quickslotnexpbar:SetUserValue("POT_TYPE", "Velnias")
             end
             quickslotnexpbar:RunUpdateScript("quickslot_operate_get_potion", 2.0)
             quickslot_operate_map_timer:Stop()
@@ -2062,23 +4138,151 @@ function my_buffs_control_on_init()
         my_buffs_control_load_settings()
     end
     g.addon:RegisterMsg("BUFF_ADD", "my_buffs_control_BUFF_ADD")
+    g.setup_hook_and_event(g.addon, "BUFF_ON_MSG", "my_buffs_BUFF_ON_MSG", true)
     if g.settings.my_buffs_control.use == 1 then
         my_buffs_control_frame()
-        g.setup_hook_before_with_filter("BUFF_ON_MSG", "my_buffs_control_buff_filter")
     else
         my_buffs_control_reset_ui()
-        _G.BUFF_ON_MSG = g.FUNCS_BEFORE["BUFF_ON_MSG"]
+    end
+    my_buffs_common_buff_msg()
+end
+
+function my_buffs_common_buff_msg()
+    if g.get_map_type() == 'City' then
+        return
+    end
+    local buff_frame = ui.GetFrame("buff")
+    local my_handle = session.GetMyHandle()
+    local buff_count = info.GetBuffCount(my_handle)
+    if g.settings.my_buffs_control.use == 0 then
+        COMMON_BUFF_MSG(buff_frame, "CLEAR", 0, 0, s_buff_ui, 0)
+        for i = 0, buff_count - 1 do
+            local buff = info.GetBuffIndexed(my_handle, i)
+            if buff then
+                g.FUNCS["BUFF_ON_MSG"](buff_frame, "BUFF_ADD", tostring(buff.index), buff.buffID)
+            end
+        end
+    else
+        local displayed_buffs = {}
+        for group_index = 0, s_buff_ui["buff_group_cnt"] do
+            if s_buff_ui["slotlist"][group_index] and s_buff_ui["slotcount"][group_index] then
+                for i = 0, s_buff_ui["slotcount"][group_index] - 1 do
+                    local slot = s_buff_ui["slotlist"][group_index][i]
+                    if slot:IsVisible() == 1 then
+                        local icon = slot:GetIcon()
+                        if icon then
+                            local info = icon:GetInfo()
+                            displayed_buffs[info.type] = {
+                                index = tostring(icon:GetUserIValue("BuffIndex"))
+                            }
+                        end
+                    end
+                end
+            end
+        end
+
+        -- 2. あるべき姿: プレイヤーが持っているバフをリストアップ
+        local player_buffs = {}
+        for i = 0, buff_count - 1 do
+            local buff = info.GetBuffIndexed(my_handle, i)
+            if buff and BUFF_CHECK_SEPARATELIST(buff.buffID) ~= true then
+                player_buffs[buff.buffID] = {
+                    index = buff.index
+                }
+            end
+        end
+
+        -- 3. 差分更新 (REMOVE): UIにあるが、あるべき姿にない or 非表示設定のものを消す
+        for buff_id, data in pairs(displayed_buffs) do
+            local str_buff_id = tostring(buff_id)
+            if not player_buffs[buff_id] or g.my_buffs_control_settings.buffs[str_buff_id] == false then
+                COMMON_BUFF_MSG(buff_frame, "REMOVE", buff_id, my_handle, s_buff_ui, data.index)
+            end
+        end
+
+        -- 4. 差分更新 (ADD): あるべき姿にあるが、UIにないものを追加する
+        for buff_id, data in pairs(player_buffs) do
+            local str_buff_id = tostring(buff_id)
+            if g.my_buffs_control_settings.buffs[str_buff_id] ~= false and not displayed_buffs[buff_id] then
+                COMMON_BUFF_MSG(buff_frame, "ADD", buff_id, my_handle, s_buff_ui, data.index)
+            end
+        end
+
+        --[[local buffs_to_remove = {}
+        local displayed_buffs = {}
+        for group_index = 0, s_buff_ui["buff_group_cnt"] do
+            if s_buff_ui["slotlist"][group_index] and s_buff_ui["slotcount"][group_index] then
+                for i = 0, s_buff_ui["slotcount"][group_index] - 1 do
+                    local slot = s_buff_ui["slotlist"][group_index][i]
+                    if slot:IsVisible() == 1 then
+                        local icon = slot:GetIcon()
+                        if icon then
+                            local icon_info = icon:GetInfo()
+                            local buff_id = icon_info.type
+                            displayed_buffs[buff_id] = {
+                                index = tostring(icon:GetUserIValue("BuffIndex"))
+                            }
+                            if g.my_buffs_control_settings.buffs[tostring(buff_id)] == false then
+                                table.insert(buffs_to_remove, {
+                                    id = buff_id,
+                                    index = tostring(icon:GetUserIValue("BuffIndex"))
+                                })
+                            end
+                        end
+                    end
+                end
+            end
+        end
+        for i = #buffs_to_remove, 1, -1 do
+            local buff_info = buffs_to_remove[i]
+            COMMON_BUFF_MSG(buff_frame, "REMOVE", buff_info.id, my_handle, s_buff_ui, buff_info.index)
+        end
+        local player_buffs = {}
+        for i = 0, buff_count - 1 do
+            local buff = info.GetBuffIndexed(my_handle, i)
+            if buff then
+                if BUFF_CHECK_SEPARATELIST(buff.buffID) ~= true then
+                    local str_buff_id = tostring(buff.buffID)
+                    player_buffs[buff.buffID] = true
+                    if g.my_buffs_control_settings.buffs[str_buff_id] ~= false and not displayed_buffs[buff.buffID] then
+                        COMMON_BUFF_MSG(buff_frame, "ADD", buff.buffID, my_handle, s_buff_ui, buff.index)
+                    end
+                end
+            end
+        end
+        for buff_id, data in pairs(displayed_buffs) do
+            local str_buff_id = tostring(buff_id)
+            if not player_buffs[buff_id] or g.my_buffs_control_settings.buffs[str_buff_id] == false then
+                COMMON_BUFF_MSG(buff_frame, "REMOVE", buff_id, my_handle, s_buff_ui, data.index)
+            end
+        end]]
     end
 end
 
-function my_buffs_control_buff_filter(frame, msg, str, num)
-    if g.get_map_type() ~= 'City' then
-        local str_buff_id = tostring(num)
-        if g.my_buffs_control_settings.buffs[str_buff_id] == false then
-            return true
-        end
+function my_buffs_BUFF_ON_MSG(my_frame, my_msg)
+    local frame, msg, str, num = g.get_event_args(my_msg)
+    if g.settings.my_buffs_control.use == 0 then
+        return
     end
-    return false
+    if g.get_map_type() == 'City' then
+        return
+    end
+    local buff = ui.GetFrame("buff")
+    local handle = session.GetMyHandle()
+    local str_buff_id = tostring(num)
+    if g.my_buffs_control_settings.buffs[str_buff_id] == false then
+        if BUFF_CHECK_SEPARATELIST(num) == true then
+            return
+        end
+        if type(_G["COMMON_BUFF_MSG_OLD"]) == "function" then
+            COMMON_BUFF_MSG_OLD(frame, "REMOVE", num, handle, s_buff_ui, str)
+        else
+            COMMON_BUFF_MSG(frame, "REMOVE", num, handle, s_buff_ui, str)
+        end
+        MY_BUFF_TIME_UPDATE(buff)
+        BUFF_RESIZE(buff, s_buff_ui)
+        return
+    end
 end
 
 function my_buffs_control_reset_ui()
@@ -2158,6 +4362,7 @@ function my_buffs_control_setting_menu()
     my_buffs_control_setting:EnableHittestFrame(1)
     my_buffs_control_setting:EnableHitTest(1)
     my_buffs_control_setting:ShowWindow(1)
+    my_buffs_control_setting:SetLayerLevel(999)
     local title_text = my_buffs_control_setting:CreateOrGetControl('richtext', 'title_text', 20, 15, 50, 30)
     AUTO_CAST(title_text)
     title_text:SetText("{ol}My Buffs Control Config")
@@ -2259,9 +4464,6 @@ function my_buffs_control_buff_list_open(frame, ctrl, ctrl_text, num)
                         })
                     end
                 end
-            else
-                local buff_id = buff_cls.ClassID
-                g.my_buffs_control_settings.buffs[tostring(buff_id)] = true
             end
         end
     end
@@ -3318,7 +5520,6 @@ function lets_go_home_settings_frame_close(list_frame)
 end
 
 function lets_go_home_settings_frame()
-    local list_frame_name = addon_name_lower .. "list_frame"
     local list_frame = ui.GetFrame(addon_name_lower .. "list_frame")
     local lets_go_home_setting = ui.CreateNewFrame("notice_on_pc", addon_name_lower .. "lets_go_home_setting", 0, 0, 0,
         0)
@@ -3327,6 +5528,7 @@ function lets_go_home_settings_frame()
     lets_go_home_setting:SetSkinName("test_frame_low")
     lets_go_home_setting:EnableHittestFrame(1)
     lets_go_home_setting:EnableHitTest(1)
+    lets_go_home_setting:SetLayerLevel(999)
     lets_go_home_setting:ShowWindow(1)
     local title_text = lets_go_home_setting:CreateOrGetControl('richtext', 'title_text', 20, 15, 50, 30)
     AUTO_CAST(title_text)
@@ -3957,7 +6159,7 @@ function monster_kill_count_handle_map_change(is_change)
         return
     end
     if g.get_map_type() == "Field" or g.get_map_type() == "Dungeon" then
-        g.setup_hook_before('ON_GAMEEXIT_TIMER_END', 'monster_kill_count_ON_GAMEEXIT_TIMER_END')
+        g.addon:RegisterMsg("GAMEEXIT_TIMER_END", "monster_kill_count_ON_GAMEEXIT_TIMER_END")
         g.addon:RegisterMsg("EXP_UPDATE", "monster_kill_count_EXP_UPDATE")
         g.addon:RegisterMsg('ITEM_PICK', 'monster_kill_count_ITEM_PICK')
         g.monster_kill_count_autosave_counter = 0
@@ -4328,7 +6530,7 @@ function easy_buff_config_frame()
     local easy_buff = ui.CreateNewFrame("notice_on_pc", frame_name, 0, 0, 0, 0)
     easy_buff:RemoveAllChild()
     easy_buff:SetSkinName("test_frame_low")
-    easy_buff:SetLayerLevel(80)
+    easy_buff:SetLayerLevel(999)
     easy_buff:Resize(490, 410)
     local list_frame_name = addon_name_lower .. "list_frame"
     local list_frame = ui.GetFrame(addon_name_lower .. "list_frame")
@@ -5672,10 +7874,10 @@ function characters_item_serch_on_init()
     if not g.characters_item_serch_settings then
         characters_item_serch_load_settings()
     end
-    g.setup_hook_before('ON_GAMEEXIT_TIMER_END', 'characters_item_serch_ON_GAMEEXIT_TIMER_END')
-    g.setup_hook_before("INVENTORY_CLOSE", "characters_item_serch_INVENTORY_CLOSE")
-    g.setup_hook_before('ACCOUNTWAREHOUSE_CLOSE', "characters_item_serch_ACCOUNTWAREHOUSE_CLOSE")
-    g.setup_hook_before('WAREHOUSE_CLOSE', 'characters_item_serch_WAREHOUSE_CLOSE')
+    g.addon:RegisterMsg("GAMEEXIT_TIMER_END", "characters_item_serch_ON_GAMEEXIT_TIMER_END")
+    g.setup_hook_and_event(g.addon, "INVENTORY_CLOSE", "characters_item_serch_INVENTORY_CLOSE", true)
+    g.setup_hook_and_event(g.addon, "ACCOUNTWAREHOUSE_CLOSE", "characters_item_serch_ACCOUNTWAREHOUSE_CLOSE", true)
+    g.setup_hook_and_event(g.addon, "'WAREHOUSE_CLOSE", "characters_item_serch_WAREHOUSE_CLOSE", true)
     local sysmenu = ui.GetFrame("sysmenu")
     local inven = GET_CHILD(sysmenu, "inven")
     AUTO_CAST(inven)
@@ -5700,6 +7902,8 @@ function characters_item_serch_toggle_frame()
     end
     local characters_item_serch = ui.GetFrame(addon_name_lower .. "characters_item_serch")
     if not characters_item_serch then
+        characters_item_frame_init(nil, nil, g.login_name, 0)
+    elseif characters_item_serch and characters_item_serch:IsVisible() == 0 then
         characters_item_frame_init(nil, nil, g.login_name, 0)
     elseif characters_item_serch:IsVisible() == 1 then
         characters_item_serch_close(characters_item_serch)
@@ -5750,8 +7954,9 @@ function characters_item_serch_char_data()
     characters_item_serch_save_settings()
 end
 
-function characters_item_serch_ON_GAMEEXIT_TIMER_END(frame)
-    local type = frame:GetUserValue("EXIT_TYPE")
+function characters_item_serch_ON_GAMEEXIT_TIMER_END()
+    local gameexitpopup = ui.GetFrame("gameexitpopup")
+    local type = gameexitpopup:GetUserValue("EXIT_TYPE")
     if type == "Exit" or type == "Logout" or type == "Barrack" then
         characters_item_serch_inventory_save_list()
     end
@@ -5761,7 +7966,7 @@ function characters_item_serch_INVENTORY_CLOSE()
     characters_item_serch_inventory_save_list()
 end
 
-function characters_item_serch_ACCOUNTWAREHOUSE_CLOSE(frame)
+function characters_item_serch_ACCOUNTWAREHOUSE_CLOSE()
     local item_list = session.GetEtcItemList(IT_ACCOUNT_WAREHOUSE)
     local sorted_guid_list = item_list:GetSortedGuidList()
     local count = sorted_guid_list:Count()
@@ -5787,10 +7992,6 @@ function characters_item_serch_ACCOUNTWAREHOUSE_CLOSE(frame)
             end
         end
     end
-    --[[local another_warehouse = ui.GetFrame("another_warehouse")
-    if another_warehouse then
-        another_warehouse:ShowWindow(0)
-    end]]
     local dat_file_path = g.characters_item_serch_dat_tbl[4]
     characters_item_serch_save_item_list_to_dat(dat_file_path, items_to_save, true)
 end
@@ -5878,7 +8079,7 @@ function characters_item_serch_inventory_save_list()
     characters_item_serch_save_item_list_to_dat(equips_dat, items)
 end
 
-function characters_item_serch_WAREHOUSE_CLOSE(frame)
+function characters_item_serch_WAREHOUSE_CLOSE()
     local warehouse = ui.GetFrame('warehouse')
     local gbox = warehouse:GetChild("gbox")
     local slotset = gbox:GetChild("slotset")
@@ -6059,14 +8260,19 @@ function characters_item_serch_get_sorted_sub_categories(items)
 end
 
 function characters_item_frame_init(frame, ctrl, select_name, num)
+    local list_frame = ui.GetFrame(addon_name_lower .. "list_frame")
+    if not list_frame then
+        list_frame = all_in_one_frame_init()
+        list_frame:ShowWindow(0)
+    end
     local characters_item_serch = ui.CreateNewFrame("notice_on_pc", addon_name_lower .. "characters_item_serch", 0, 0,
         70, 30)
     AUTO_CAST(characters_item_serch)
     characters_item_serch:SetSkinName("test_frame_low")
     characters_item_serch:Resize(670, 1080)
-    characters_item_serch:SetPos(0, 0)
+    characters_item_serch:SetPos(list_frame:GetX() + list_frame:GetWidth(), 0)
     characters_item_serch:EnableMove(0)
-    characters_item_serch:SetLayerLevel(100)
+    characters_item_serch:SetLayerLevel(999)
     characters_item_serch:SetTitleBarSkin("None")
     characters_item_serch:RemoveAllChild()
     characters_item_serch:ShowWindow(1)
@@ -6790,12 +8996,14 @@ function always_status_frame_move(always_status)
 end
 
 function always_status_info_setting()
+    local list_frame = ui.GetFrame(addon_name_lower .. "list_frame")
     local settings_frame = ui.CreateNewFrame("notice_on_pc", addon_name_lower .. "always_status_settings", 0, 0, 70, 30)
     AUTO_CAST(settings_frame)
     settings_frame:EnableHittestFrame(1)
     settings_frame:EnableHitTest(1)
     settings_frame:Resize(555, 900)
-    settings_frame:SetPos(510, 10)
+    settings_frame:SetPos(list_frame:GetX() + list_frame:GetWidth(), list_frame:GetY())
+    settings_frame:SetLayerLevel(999)
     settings_frame:RemoveAllChild()
     local gb = settings_frame:CreateOrGetControl("groupbox", "gb", 10, 10, settings_frame:GetWidth() - 10,
         settings_frame:GetHeight() - 10)
@@ -6859,7 +9067,7 @@ function always_status_info_setting_load(use_set)
     local memo = GET_CHILD_RECURSIVELY(settings_frame, "memo")
     AUTO_CAST(memo)
     memo:SetText(display.memo)
-    settings_frame:SetLayerLevel(150)
+    settings_frame:SetLayerLevel(999)
     local y = 10
     for _, data in ipairs(always_status_master_list) do
         local status = data.key
@@ -7865,11 +10073,12 @@ function instant_cc_on_init()
 end
 
 function instant_cc_settings_frame_init()
-    local settings = ui.CreateNewFrame("chat_memberlist", "instant_cc_settings")
-    AUTO_CAST(settings)
     local list_frame = ui.GetFrame(addon_name_lower .. "list_frame")
-    settings:SetPos(list_frame:GetX() + list_frame:GetWidth(), list_frame:GetY() + list_frame:GetHeight() / 2)
+    local settings = ui.CreateNewFrame("chat_memberlist", addon_name_lower .. "instant_cc_settings")
+    AUTO_CAST(settings)
+    settings:SetPos(list_frame:GetX() + list_frame:GetWidth(), list_frame:GetY())
     settings:EnableHitTest(1)
+    settings:SetLayerLevel(999)
     settings:SetSkinName("test_frame_low")
     local width = 0
     local title = settings:CreateOrGetControl('richtext', 'title', 20, 10, 10, 30)
@@ -7898,7 +10107,7 @@ function instant_cc_settings_frame_init()
 end
 
 function instant_cc_settings_frame_close(frame)
-    local frame_name = "instant_cc_settings"
+    local frame_name = addon_name_lower .. "instant_cc_settings"
     ui.DestroyFrame(frame_name)
 end
 
@@ -8342,10 +10551,10 @@ function cupole_manager_save_settings()
 end
 
 function cupole_manager_on_init()
+    if not g.cupole_manager_settings then
+        cupole_manager_load_settings()
+    end
     if g.get_map_type() == "City" then
-        if not g.cupole_manager_settings then
-            cupole_manager_load_settings()
-        end
         local equip_cupole_list = GET_EQUIP_CUPOLE_LIST()
         for i = 1, 3 do
             if equip_cupole_list[i] == "-1" then
@@ -8510,9 +10719,9 @@ function boss_direction_settings_frame_init()
     local boss_direction_settings = ui.CreateNewFrame("chat_memberlist", addon_name_lower .. "boss_direction_settings")
     AUTO_CAST(boss_direction_settings)
     local list_frame = ui.GetFrame(addon_name_lower .. "list_frame")
-    boss_direction_settings:SetPos(list_frame:GetX() + list_frame:GetWidth(),
-        list_frame:GetY() + list_frame:GetHeight() / 2)
+    boss_direction_settings:SetPos(list_frame:GetX() + list_frame:GetWidth(), list_frame:GetY())
     boss_direction_settings:EnableHitTest(1)
+    boss_direction_settings:SetLayerLevel(999)
     boss_direction_settings:SetSkinName("test_frame_low")
     local width = 0
     local title = boss_direction_settings:CreateOrGetControl('richtext', 'title', 20, 10, 10, 30)
@@ -8727,13 +10936,14 @@ function auto_repair_end_drag(auto_repair_settings)
 end
 
 function auto_repair_settings_frame_init()
+    local list_frame = ui.GetFrame(addon_name_lower .. "list_frame")
     local auto_repair_settings = ui.CreateNewFrame("chat_memberlist", addon_name_lower .. "auto_repair_settings")
     AUTO_CAST(auto_repair_settings)
-    auto_repair_settings:SetPos(g.auto_repair_settings.setting_x, g.auto_repair_settings.setting_y)
+    auto_repair_settings:SetPos(list_frame:GetX() + list_frame:GetWidth(), list_frame:GetY())
     auto_repair_settings:EnableHitTest(1)
     auto_repair_settings:SetSkinName("test_frame_low")
     auto_repair_settings:SetEventScript(ui.LBUTTONUP, "auto_repair_end_drag")
-    auto_repair_settings:SetLayerLevel(81)
+    auto_repair_settings:SetLayerLevel(999)
     local title = auto_repair_settings:CreateOrGetControl('richtext', 'title', 20, 10, 10, 30)
     AUTO_CAST(title)
     title:SetText("{#000000}{s20}Auto Repair Settings")
