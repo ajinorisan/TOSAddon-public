@@ -8,10 +8,11 @@
 -- v3.0.0 作り直した
 -- v3.0.0.9 読込遅い問題修正、クラッシュする要因かも知れない部分修正
 -- v3.0.1 公開
+-- v3.0.2 設定フレームが開かなかったバグ修正
 local addon_name = "muteki2ex"
 local addon_name_lower = string.lower(addon_name)
 local org_ver = "1.2.7"
-local ver = "3.0.1"
+local ver = "3.0.2"
 
 local author = "WRIT"
 local maintainer = "norisan"
@@ -1287,7 +1288,6 @@ function muteki2ex_setting_frame_init()
     close:SetImage("testclose_button")
     close:SetGravity(ui.RIGHT, ui.TOP)
     close:SetEventScript(ui.LBUTTONUP, "muteki2ex_setting_frame_close")
-
     local gb = setting_frame:CreateOrGetControl("groupbox", "gb", 10, 110, 580, setting_frame:GetHeight() - 120)
     AUTO_CAST(gb)
     gb:SetSkinName("bg")
@@ -1536,7 +1536,8 @@ function muteki2ex_setting_gbox_init(setting_frame, gb)
         if buff_cls.Group1 == "Debuff" or buff_cls.Group1 == "Deuff" then
 
             local debuff_manage = g.settings.buff_list[tostring(buff_id)].debuff_manage[g.cid]
-            if debuff_manage.debuff_time and debuff_manage.debuff_time > 0 then
+
+            if debuff_manage and debuff_manage.debuff_time and debuff_manage.debuff_time > 0 then
                 debuff_time = debuff_manage.debuff_time
             end
 
@@ -1574,7 +1575,8 @@ function muteki2ex_setting_gbox_init(setting_frame, gb)
         else
 
             local buff_manage = g.settings.buff_list[tostring(buff_id)].buff_manage[g.cid]
-            if buff_manage.buff_time and buff_manage.buff_time > 0 then
+
+            if buff_manage and buff_manage.buff_time and buff_manage.buff_time > 0 then
                 buff_time = buff_manage.buff_time
             end
 
