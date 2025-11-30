@@ -163,7 +163,7 @@
     "name": "Always Status",
     "file": "always_status",
     "extension": "ipf",
-    "fileVersion": "v1.2.3",
+    "fileVersion": "v1.2.4",
     "releaseTag": "always_status",
     "unicode": "⛄",
     "description": "Wide monitor supported<br>ステータスを好きな場所に常に表示します。<br>Always display status where you want it.<br>상태를 원하는 곳에 항상 표시할 수 있습니다.",

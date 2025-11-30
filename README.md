@@ -397,6 +397,7 @@ Tree of Savior 用のアドオンを作成・改変しています。
 
 ![TreeOfSavior_20240413_155248](https://github.com/ajinorisan/TOSAddon-public/assets/128560971/e298d483-af49-4acd-b3d1-0aabaef96a0d)
 
+*   v1.2.4 インベントリとか開いた後動かなくなるバグ修正、ステータスフレームから転記せずに自前で計算に変更、HP回復力追加
 *   v1.2.3 読込速度でバグってたの修正
 *   v1.2.2 区切り文字修正
 *   v1.2.1 ローディング最適化
