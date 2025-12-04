@@ -6,7 +6,7 @@ ClassID,Factor,MaxLevel,PointByLevel,RefundPenalty,ClassName,Name,ExpAccountProp
 5,60,200,3,0.200000,"BLK_BREAK","블록 관통","AccountAbility_BLK_BREAK_Exp","BLK_BREAK_BM","ability_account_BLK_Penetration"
 6,60,200,3,0.200000,"BLK","블록","AccountAbility_BLK_Exp","BLK_BM","ability_account_BLK"
 7,60,200,3,0.200000,"HR","명중","AccountAbility_HR_Exp","HR_BM","ability_account_HIT"
-8,60,200,3,0.200000,"DR","회피","AccountAbility_DR_Exp","DR_BM","ability_account_Dodge"
+8,60,200,3,0.200000,"DR","회피","AccountAbility_DR_Exp","DR_CONST","ability_account_Dodge"
 9,60,200,3,0.200000,"RHP","HP 회복력","AccountAbility_RHP_Exp","RHP_BM","ability_account_HPRecovery"
 10,60,200,5,0.200000,"Cloth_Atk","천 방어 대상 공격력","AccountAbility_Cloth_Atk_Exp","Cloth_Atk_BM","ability_account_Cloth_ATK"
 11,60,200,5,0.200000,"Leather_Atk","가죽 방어 대상 공격력","AccountAbility_Leather_Atk_Exp","Leather_Atk_BM","ability_account_Leather_ATK"

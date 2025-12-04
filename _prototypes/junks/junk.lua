@@ -5598,9 +5598,7 @@ function another_warehouse_base_accountwarehouse_open(frame, msg, str, num)
     slot_set:CreateSlots()
 
     local slot_count = slot_set:GetSlotCount()
-end]] 
-
---[=[
+end]] --[=[
 function another_warehouse_setting_drop(parent, slot, str, num)
     --[[local lift_icon = ui.GetLiftIcon()
     local fromframe = lift_icon:GetTopParentFrame()]]
@@ -5781,9 +5779,7 @@ function another_warehouse_auto_item_start(awh)
         end
     end
     another_warehouse_item_take(awh)
-end]=]
-
---[[function another_warehouse_ACCOUNTWAREHOUSE_OPEN(_nexus_addons)
+end]=] --[[function another_warehouse_ACCOUNTWAREHOUSE_OPEN(_nexus_addons)
     local accountwarehouse = ui.GetFrame("accountwarehouse")
     local accountwarehousefilter = GET_CHILD_RECURSIVELY(accountwarehouse, "accountwarehousefilter")
     accountwarehousefilter:SetMargin(490, 705)
@@ -5985,9 +5981,7 @@ endfunction another_warehouse_frame_update(awh, gb)
     AUTO_CAST(count_text)
     count_text:SetText("{@st42}" .. item_count .. "/" .. max_count .. "{/}")
     count_text:SetFontName("white_16_ol")
-end]]
-
---[[local label_slot =
+end]] --[[local label_slot =
                         slot:CreateOrGetControl('slot', 'label_slot' .. inv_item:GetIESID(), 0, 0, 60, 63)
                     AUTO_CAST(label_slot)
                     local margin = label_slot:GetMargin();
@@ -6005,8 +5999,7 @@ end]]
                         icon_label:SetImage('legendopen_cardslot')
                     elseif baseid_cls.ClassName == 'Card_CardGoddess' then
                         icon_label:SetImage('legendopen_cardslot')
-                    end]]
---[[local accountwarehouse = ui.GetFrame("accountwarehouse")
+                    end]] --[[local accountwarehouse = ui.GetFrame("accountwarehouse")
     for type_no = 1, #g_invenTypeStrList do
         if g_invenTypeStrList[type_no] ~= 'Quest' then
             local tree = gb:CreateOrGetControl("tree", g_invenTypeStrList[type_no], 50, 5, 0, 0) -- 50, 5, 605, 560)
@@ -6097,8 +6090,7 @@ end]]
         local savedPos = active_tree_box:GetUserIValue("INVENTORY_CUR_SCROLL_POS")
         active_tree_box:SetScrollPos(savedPos)
         active_tree_box:InvalidateScrollBar()
-    end]]
---[[function another_warehouse_insert_item_to_tree(awh, tree, inv_item, item_cls, baseid_cls, type_str)
+    end]] --[[function another_warehouse_insert_item_to_tree(awh, tree, inv_item, item_cls, baseid_cls, type_str)
     local tree_group_name = baseid_cls.TreeGroup
     local tree_group = tree:FindByValue(tree_group_name)
     if tree:IsExist(tree_group) == 0 then
@@ -6402,8 +6394,7 @@ function another_warehouse_make_inven_slotset(tree, name)
     slotset:CreateSlots()
     ui.inventory.AddInvenSlotSetName(name)
     return slotset
-end]]
---[[local tree_group_name = baseid_cls.TreeGroup
+end]] --[[local tree_group_name = baseid_cls.TreeGroup
 
     local tree_group = tree:FindByValue(tree_group_name);
 
@@ -6426,9 +6417,7 @@ end]]
         -- local newSlotsname = MAKE_INVEN_SLOTSET_NAME(tree, slotset_title, baseid_cls.TreeSSetTitle)
 
         another_warehouse_inven_slotset_and_title(tree, tree_group, slotset_name, baseid_cls);
-    end]]
-
---[[function another_warehouse_setting_drop(parent, slot, str, num)
+    end]] --[[function another_warehouse_setting_drop(parent, slot, str, num)
     local lift_icon = ui.GetLiftIcon()
     local fromframe = lift_icon:GetTopParentFrame()
     local fromslot = lift_icon:GetParent()
@@ -6500,4 +6489,75 @@ end]]
             another_warehouse_save_settings()
         end
     end
-end]]
+end]] --[[local _nexus_addons = ui.GetFrame("_nexus_addons")
+        _nexus_addons:ShowWindow(1)
+        local another_warehouse_timer = _nexus_addons:CreateOrGetControl("timer", "another_warehouse_timer", 0, 0)
+        AUTO_CAST(another_warehouse_timer)
+        another_warehouse_timer:SetUpdateScript("another_warehouse_token_Judgment")
+        another_warehouse_timer:Start(1.0)]] --[[function another_warehouse_token_Judgment(_nexus_addons, another_warehouse_timer)
+    if g.settings.another_warehouse.use == 0 then
+        another_warehouse_timer:Stop()
+        another_warehouse_frame_close()
+        return
+    end
+    if session.loginInfo.IsPremiumState(ITEM_TOKEN) ~= true then
+        g.awh_token = false
+        local try = another_warehouse_timer:GetUserIValue("TRY")
+        if try == 60 then
+            ui.SysMsg(
+                g.lang == "Japanese" and "[AWH]トークンが適用されていないため利用できません" or
+                    "[AWH]is not available because the token has not been applied")
+            g.awh_token = false
+            another_warehouse_timer:Stop()
+        end
+        another_warehouse_timer:SetUserIValue("TRY", try + 1)
+    else
+        if not g.awh_token then
+            ui.SysMsg("[AWH]ready")
+            g.awh_token = true
+        end
+        another_warehouse_timer:Stop()
+        another_warehouse_accountwarehouse_init()
+    end
+end]] --[[function monster_kill_count_ON_GAMEEXIT_TIMER_END(frame)
+    local type = frame:GetUserValue("EXIT_TYPE")
+    if type == "Exit" or type == "Logout" or type == "Barrack" or type == "Channel" then
+        if g.monster_kill_count_map_id and g.monster_kill_count_map_data then
+            local map_file_path = string.format("../addons/%s/%s/%s/%s.json", addon_name_lower, g.active_id,
+                "monster_kill_count", g.monster_kill_count_map_id)
+            if not g.monster_kill_count_diff_ms then
+                g.monster_kill_count_diff_ms = imcTime.GetAppTimeMS() - g.monster_kill_count_start_time
+            end
+            g.monster_kill_count_map_data.stay_time = g.monster_kill_count_map_data.stay_time +
+                                                          g.monster_kill_count_diff_ms
+            g.save_json(map_file_path, g.monster_kill_count_map_data)
+        end
+    end
+end]] --[[local setting = gbox:CreateOrGetControl("button", "setting", 150, 80, 30, 30)
+        AUTO_CAST(setting)
+        setting:SetSkinName("None")
+        setting:SetText("{img config_button_normal 30 30}")
+        setting:SetTextTooltip("{ol}}Left-click delay setting")
+        setting:SetEventScript(ui.LBUTTONUP, "continue_reinforce_setting_context")]] --[[function continue_reinforce_setting_context()
+    local context = ui.CreateContextMenu("SET_DELAY", "{ol}SET DELAY", 50, -200, 100, 100)
+    for i = 1, 5 do
+        local delay = i / 10
+        local text =
+            string.format(g.lang == "Japanese" and "{ol}ディレイ設定 %.1f" or "{ol}Set Delay %.1f", delay)
+        ui.AddContextMenuItem(context, text, string.format("continue_reinforce_delay_save(%.1f)", delay))
+    end
+    ui.OpenContextMenu(context)
+end
+
+function continue_reinforce_delay_save(delay)
+    local msg = string.format(g.lang == "Japanese" and "{ol}ディレイを %.1f 秒に設定しました" or
+                                  "{ol}Delay is set to %.1f sec", delay)
+    ui.SysMsg(msg)
+    g.continue_reinforce.delay = tonumber(delay)
+end]] --[[function characters_item_serch_ON_GAMEEXIT_TIMER_END()
+    local gameexitpopup = ui.GetFrame("gameexitpopup")
+    local type = gameexitpopup:GetUserValue("EXIT_TYPE")
+    if type == "Exit" or type == "Logout" or type == "Barrack" then
+        characters_item_serch_inventory_save_list()
+    end
+end]] 

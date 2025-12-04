@@ -1916,6 +1916,7 @@
 		<Class ClassID="5339" ClassName="ARCHEOLOGY_HP_ON_KILL" Data="몬스터 처치 시 HP 회복"/>
 		<Class ClassID="5330" ClassName="ARCHEOLOGY_DMG_REDUCE" Data="받는 데미지 감소"/>
 		<Class ClassID="5331" ClassName="ARCHEOLOGY_MOVE_SPEED" Data="이동 속도"/>
+		<Class ClassID="5332" ClassName="DR_CONST" Data="회피"/>
 	</Category>
 	<Category Name="PeriodicTitle">
 		<Class ClassID="6001" ClassName="TournamentChampion" Data="토너먼트 챔피언"/>

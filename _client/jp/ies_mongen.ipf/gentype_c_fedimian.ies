@@ -72,4 +72,3 @@ ClassID,GenType,Lv,Range,GenRange,RespawnTime,MaxPop,Minimap,Hide,UseAIOufOfPC,A
 5504,5504,1,40,1,60000,1,1,0,0,0,0,0,"npc_vulture","[벌처 마스터]{nl}구스타프 디젤","","","","","","","NPC_VULTURE","","","NO","YES","NO","Neutral","","","",""
 5505,5505,1,40,1,60000,1,1,0,0,0,0,0,"npc_blitzhunter","[블리츠 헌터 마스터]{nl}라이제스","","","","","","","NPC_BLITZHUNTER","","","NO","YES","NO","Neutral","","","",""
 5261,5261,1,60,1,60000,1,1,0,0,0,0,0,"gacha_machine","여신의 축복","","","","","","","BLESSED_CUBE","","","NO","YES","NO","Neutral","","","",""
-6100,6100,1,40,1,1,1,2,0,0,0,0,0,"Tos_Coin_Shop_NPC","[이벤트] 단풍맞이 NPC","","","","","","","EVENT_2510_AUTUMN_MAPLE","","","NO","YES","NO","Neutral","","","",""

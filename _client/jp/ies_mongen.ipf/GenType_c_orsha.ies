@@ -91,4 +91,3 @@ ClassID,GenType,Lv,Range,GenRange,RespawnTime,MaxPop,Minimap,Hide,UseAIOufOfPC,A
 5506,5506,1,40,1,60000,1,2,0,0,0,0,0,"npc_wingedhussar","[윙드후사르 마스터]{nl}얀 카롤라스","","","","","","","NPC_WINGEDHUSSAR","","","NO","YES","NO","Neutral","","","",""
 5508,5508,1,40,1,60000,1,1,0,0,0,0,0,"npc_bowmaster","[신궁 마스터]{nl}앙겔레 틸러","","","","","","","NPC_BOWMASTER","","","NO","YES","NO","Neutral","","","",""
 5289,5289,1,60,1,60000,1,1,0,0,0,0,0,"gacha_machine","여신의 축복","","","","","","","BLESSED_CUBE","","","NO","YES","NO","Neutral","","","",""
-6100,6100,1,40,1,1,1,2,0,0,0,0,0,"Tos_Coin_Shop_NPC","[이벤트] 단풍맞이 NPC","","","","","","","EVENT_2510_AUTUMN_MAPLE","","","NO","YES","NO","Neutral","","","",""

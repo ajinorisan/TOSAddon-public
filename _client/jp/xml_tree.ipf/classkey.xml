@@ -10130,6 +10130,82 @@
         <Key Name="ep17couplelook_shield_cabinet" Value="116742"/>
         <Key Name="ep17couplelook_theme" Value="116747"/>
         <Key Name="ep17couplelook_thspear_cabinet" Value="116749"/>
+        <Key Name="EVENT_FIELD_BOSS_10TH" Value="116752"/>
+        <Key Name="AchieveReward_WEEKLY_BOSS_RANK_CLASS_109" Value="116760"/>
+        <Key Name="GEM_Grimmark_BloodEruption_Scout_cabinet" Value="116761"/>
+        <Key Name="GEM_Grimmark_BloodEruption_Swordman_cabinet" Value="116772"/>
+        <Key Name="GEM_Grimmark_BloodspearPierce_Scout_cabinet" Value="116769"/>
+        <Key Name="GEM_Grimmark_BloodspearPierce_Swordman_cabinet" Value="116766"/>
+        <Key Name="GEM_Grimmark_ChainOfThirst_Scout_cabinet" Value="116763"/>
+        <Key Name="GEM_Grimmark_ChainOfThirst_Swordman_cabinet" Value="116762"/>
+        <Key Name="GEM_Grimmark_ExploitWeakness_Scout_cabinet" Value="116771"/>
+        <Key Name="GEM_Grimmark_ExploitWeakness_Swordman_cabinet" Value="116768"/>
+        <Key Name="GEM_Grimmark_HamstringPin_Scout_cabinet" Value="116767"/>
+        <Key Name="GEM_Grimmark_HamstringPin_Swordman_cabinet" Value="116773"/>
+        <Key Name="GEM_Grimmark_PiercingLeap_Scout_cabinet" Value="116775"/>
+        <Key Name="GEM_Grimmark_PiercingLeap_Swordman_cabinet" Value="116770"/>
+        <Key Name="GEM_Grimmark_StakeOfTerminus_Scout_cabinet" Value="116774"/>
+        <Key Name="GEM_Grimmark_StakeOfTerminus_Swordman_cabinet" Value="116765"/>
+        <Key Name="TSF04_132_1_cabinet" Value="116764"/>
+        <Key Name="TSF04_132_1_cabinet_upgrade" Value="116757"/>
+        <Key Name="UnlockQuest_Char1_29" Value="116759"/>
+        <Key Name="UnlockQuest_Char5_23" Value="116758"/>
+        <Key Name="CollectionDressRoomRead_175" Value="116788"/>
+        <Key Name="CollectionDressRoomRead_176" Value="116785"/>
+        <Key Name="CollectionDressRoomRead_177" Value="116795"/>
+        <Key Name="CollectionDressRoomRead_178" Value="116784"/>
+        <Key Name="ContentsTotalShop_EP17_21" Value="116786"/>
+        <Key Name="EVENT_POPOBOOST_WINTER" Value="116779"/>
+        <Key Name="EVENT_SANTA_2512_GACHA_FREE_CNT" Value="116780"/>
+        <Key Name="EVENT_SANTA_2512_GACHA_PAID_CNT" Value="116776"/>
+        <Key Name="HaveEmoticon_184" Value="116787"/>
+        <Key Name="HaveEmoticon_185" Value="116782"/>
+        <Key Name="dress_Hat_winter_f" Value="116797"/>
+        <Key Name="dress_Hat_winter_m" Value="116781"/>
+        <Key Name="dress_costume_wintercoat_f" Value="116777"/>
+        <Key Name="dress_costume_wintercoat_m" Value="116798"/>
+        <Key Name="ep1710winter_theme" Value="116783"/>
+        <Key Name="event_2512_ice_piece_01" Value="116791"/>
+        <Key Name="event_2512_ice_piece_02" Value="116796"/>
+        <Key Name="event_2512_ice_piece_03" Value="116778"/>
+        <Key Name="event_2512_ice_piece_04" Value="116794"/>
+        <Key Name="event_2512_ice_piece_05" Value="116792"/>
+        <Key Name="event_2512_ice_piece_06" Value="116789"/>
+        <Key Name="event_2512_ice_piece_07" Value="116793"/>
+        <Key Name="event_2512_ice_piece_08" Value="116790"/>
+        <Key Name="COLLECT_451" Value="116832"/>
+        <Key Name="CONTENTS_TOTAL_SHOP_POSE_25" Value="116819"/>
+        <Key Name="CONTENTS_TOTAL_SHOP_POSE_26" Value="116811"/>
+        <Key Name="CONTENTS_TOTAL_SHOP_POSE_27" Value="116834"/>
+        <Key Name="CONTENTS_TOTAL_SHOP_POSE_28" Value="116821"/>
+        <Key Name="CONTENTS_TOTAL_SHOP_POSE_29" Value="116822"/>
+        <Key Name="CONTENTS_TOTAL_SHOP_POSE_30" Value="116828"/>
+        <Key Name="EVENT_2512_10YEAR_MAX_COIN_COUNT" Value="116820"/>
+        <Key Name="EVENT_2512_10YEAR_WEEK_COIN_COUNT" Value="116814"/>
+        <Key Name="event_2512_shop_01" Value="116836"/>
+        <Key Name="event_2512_shop_02" Value="116816"/>
+        <Key Name="event_2512_shop_03" Value="116804"/>
+        <Key Name="event_2512_shop_04" Value="116810"/>
+        <Key Name="event_2512_shop_05" Value="116824"/>
+        <Key Name="event_2512_shop_06" Value="116805"/>
+        <Key Name="event_2512_shop_07" Value="116808"/>
+        <Key Name="event_2512_shop_08" Value="116831"/>
+        <Key Name="event_2512_shop_09" Value="116825"/>
+        <Key Name="event_2512_shop_10" Value="116817"/>
+        <Key Name="event_2512_shop_11" Value="116827"/>
+        <Key Name="event_2512_shop_12" Value="116826"/>
+        <Key Name="event_2512_shop_13" Value="116809"/>
+        <Key Name="event_2512_shop_14" Value="116833"/>
+        <Key Name="event_2512_shop_15" Value="116812"/>
+        <Key Name="event_2512_shop_16" Value="116823"/>
+        <Key Name="event_2512_shop_17" Value="116806"/>
+        <Key Name="event_2512_shop_18" Value="116818"/>
+        <Key Name="event_2512_shop_19" Value="116830"/>
+        <Key Name="event_2512_shop_20" Value="116815"/>
+        <Key Name="event_2512_shop_21" Value="116829"/>
+        <Key Name="event_2512_shop_22" Value="116835"/>
+        <Key Name="event_2512_shop_23" Value="116813"/>
+        <Key Name="event_2512_shop_24" Value="116807"/>
     </KeyIDSpc>
     <KeyIDSpc Name="PC">
         <Key Name="ResHoly" Value="7032"/>
@@ -10750,6 +10826,7 @@
         <Key Name="SlashDefFactor_PC_NT" Value="11480"/>
         <Key Name="StrikeAtkFactor_PC_NT" Value="11472"/>
         <Key Name="StrikeDefFactor_PC_NT" Value="11481"/>
+        <Key Name="DR_CONST" Value="116754"/>
     </KeyIDSpc>
     <KeyIDSpc Name="Guild">
         <Key Name="RewardBidStartTime" Value="9943"/>
@@ -30908,6 +30985,14 @@
         <Key Name="STARTOWER_92_MQ_30_TRACK" Value="102514"/>
         <Key Name="HaveEmoticon_182" Value="116733"/>
         <Key Name="HaveEmoticon_183" Value="116734"/>
+        <Key Name="Kill_Gold_MolaMola2" Value="116753"/>
+        <Key Name="HiddenJob_Char1_29" Value="116756"/>
+        <Key Name="HiddenJob_Char5_23" Value="116755"/>
+        <Key Name="EVENT_POPOBOOST_MAX_GEARSCORE_WINTER" Value="116802"/>
+        <Key Name="HaveEmoticon_184" Value="116801"/>
+        <Key Name="HaveEmoticon_185" Value="116800"/>
+        <Key Name="popoboost_participate_winter" Value="116799"/>
+        <Key Name="Pose_sodapop" Value="116803"/>
     </KeyIDSpc>
     <KeyIDSpc Name="GuildMember">
         <Key Name="Contribution" Value="9012"/>

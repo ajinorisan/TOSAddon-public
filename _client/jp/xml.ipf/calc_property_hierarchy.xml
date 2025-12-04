@@ -160,6 +160,7 @@
 		<Child Name="ADD_DR"/>
 		<Child Name="DR_BM"/>
 		<Child Name="DR_RATE_BM"/>
+		<Child Name="DR_CONST"/>
 	</hierarchy>
 	<hierarchy Name="CRTATK">
 		<Child Name="DEX"/>
