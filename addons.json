@@ -194,7 +194,7 @@
     "name": "Mini Addons",
     "file": "mini_addons",
     "extension": "ipf",
-    "fileVersion": "v1.7.8",
+    "fileVersion": "v1.7.9",
     "releaseTag": "mini_addons",
     "unicode": "⛄",
     "description": "Wide monitor supported<br>v1.7.4で設定フレームの場所を変更しました。コロニーの時の街で復活のタイマーを修正。色々と便利です。<br>In v1.7.4, the location of the settings frame has been changed. The revival timer in the Colony city has also been fixed, making various things more convenient.<br>v1.7.4에서 설정 프레임의 위치를 변경했습니다. 콜로니 지역의 도시에서 부활 타이머를 수정하여 여러모로 편리해졌습니다.",
