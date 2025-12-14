@@ -14,10 +14,11 @@
 -- v1.1.1 英語版バグってたの修正
 -- v1.1.2 名前の最後に半角入れたら削除しない様に変更。PT名翻訳
 -- v1.1.3 コロニー周り強化。他バグ修正
+-- v1.1.4 名前の最後の半角の所バグってたので修正。韓国語入力モード追加。
 local addon_name = "NATIVE_LANG"
 local addon_name_lower = string.lower(addon_name)
 local author = "norisan"
-local ver = "1.1.3"
+local ver = "1.1.4"
 local exe = "0.0.6"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
@@ -112,7 +113,6 @@ local function WITH_JAPANESE(str)
         if (code >= 0x3040 and code <= 0x309F) or -- ひらがな
         (code >= 0x30A0 and code <= 0x30FF) or -- カタカナ
         (code >= 0x4E00 and code <= 0x9FFF) or -- CJK統合漢字 (基本)
-        -- 変更点：ここから下の、広い範囲の漢字もOKにするわよ！
         (code >= 0x3400 and code <= 0x4DBF) or -- CJK統合漢字拡張A
         (code >= 0x20000 and code <= 0x2A6DF) or -- CJK統合漢字拡張B
         (code >= 0xF900 and code <= 0xFAFF) then -- CJK互換漢字
@@ -557,6 +557,9 @@ function native_lang_GAME_START_3SEC()
     g.setup_hook_and_event(g.addon, "ON_EVENTBANNER_GEARSCORE", "native_lang_ON_EVENTBANNER_GEARSCORE", true)
     g.setup_hook_and_event(g.addon, "DRAW_CHAT_MSG", "native_lang_DRAW_CHAT_MSG", true)
 
+    g.setup_hook_and_event(g.addon, "CHAT_CLOSE_SCP", "native_lang_CHAT_CLOSE_SCP", true)
+    g.setup_hook_and_event(g.addon, "CHAT_OPEN_INIT", "native_lang_CHAT_OPEN_INIT", true)
+
     g.setup_hook_and_event(g.addon, "UI_CHAT", "native_lang_UI_CHAT", false)
 
     g.SetupHook(native_lang_ON_COLONYWAR_GUILD_KILL_MSG, "ON_COLONYWAR_GUILD_KILL_MSG")
@@ -578,34 +581,39 @@ function native_lang_GAME_START_3SEC()
         end
         g.load = true
     end
-
     local lines_to_keep = {}
-
     local name_file = io.open(g.recv_name, "r")
     if name_file then
         local content = name_file:read("*a")
         name_file:close()
-
         for line in string.gmatch(content, "[^\r\n]+") do
             local separator_count = 0
             for _ in string.gmatch(line, ":::") do
                 separator_count = separator_count + 1
             end
-
             if separator_count == 1 then
                 local org_name, trans_name = line:match("^(.-):::(.*)$")
                 if org_name and trans_name then
-                    if not org_name:find("Party#", 1, true) and not org_name:find("파티#", 1, true) and
-                        trans_name:find("{#FF0000}★{/}", 1, true) then
-                        local clean_trans_name = trans_name:gsub("{#FF0000}★{/}", "")
+                    local clean_trans_name = ""
+                    if trans_name:find("{#FF0000}★{/}", 1, true) then
+                        clean_trans_name = trans_name:gsub("{#FF0000}★{/}", "")
+                    end
+                    if clean_trans_name and not org_name:find("Party#", 1, true) and
+                        not org_name:find("파티#", 1, true) then
                         if not native_lang_is_translation(clean_trans_name) or clean_trans_name:match("%s$") then
                             if clean_trans_name:match("%s$") then
-
+                                table.insert(lines_to_keep, line)
+                            else
+                                g.names[org_name] = trans_name
+                                table.insert(lines_to_keep, line)
                             end
-                            g.names[org_name] = trans_name
-                            table.insert(lines_to_keep, line)
                         end
+                    else
+                        table.insert(lines_to_keep, line)
                     end
+                    -- separator_count != 1 の行もファイルに維持
+                else
+                    table.insert(lines_to_keep, line)
                 end
             end
         end
@@ -691,7 +699,6 @@ function native_lang_GAME_START_3SEC()
     chatframe:RunUpdateScript("native_lang_check_my_speech", 0.1)
     chatframe:RunUpdateScript("native_lang_name_update", 1.0)
     chatframe:RunUpdateScript("native_lang_periodic_update", 0.1)
-
     native_lang_force_full_redraw()
 end
 
@@ -1652,6 +1659,10 @@ function native_lang_context()
             language = "Korean"
         elseif g.settings.recv_lang == "ja" then
             language = "Japanese"
+        elseif g.settings.recv_lang == "ko_only" then
+            language = "Korean Only"
+        elseif g.settings.recv_lang == "jp_only" then
+            language = "Japanese Input"
         end
         msg = g.language == "Japanese" and "{ol}自分の発言翻訳" .. " to {#FFFF00}" .. language or
                   "{ol}Translation of my speech to {#FFFF00}" .. language
@@ -1714,27 +1725,61 @@ function native_lang_speech_switching(lang)
         ja = "Japanese",
         ko = "Korean",
         en = "English",
+        ko_only = "Korean Only",
+        jp_only = "Japanese Only",
         None = "Off"
     }
-    local text = g.language == "Japanese" and "発言の翻訳先を " .. (lang_map[lang] or "Off") ..
-                     " に変更しました" or "Speech translation target changed to " .. (lang_map[lang] or "Off")
+    local display_lang = lang_map[lang] or "Off"
+    local text
+    if g.language == "Japanese" then
+        text = string.format("発言の翻訳先を %s に変更しました", display_lang)
+    else
+        text = string.format("Speech translation target changed to %s", display_lang)
+    end
     ui.SysMsg("[Native Lang] " .. text)
 end
 
 function native_lang_speech_select()
     local context = ui.CreateContextMenu("native_lang_lang_select_context", "{ol}Speech Select", 0, 0, 0, 0)
     ui.AddContextMenuItem(context, "-----")
-    local lang_tbl = {
-        ["ja"] = "Japanese",
-        ["ko"] = "Korean",
-        ["en"] = "English",
-        ["None"] = "Off"
-    }
-    for short, long in pairs(lang_tbl) do
-        local str_scp
-        str_scp = string.format("native_lang_speech_switching('%s')", short)
-        ui.AddContextMenuItem(context, g.language == "Japanese" and "{ol}自分の発言翻訳 to {#FFFF00}" .. long or
-            "{ol}Translation of my speech to {#FFFF00}" .. long, str_scp)
+    local lang_tbl = {{
+        short = "ja",
+        long = "Japanese",
+        display = "日本語"
+    }, {
+        short = "ko",
+        long = "Korean",
+        display = "韓国語"
+    }, {
+        short = "en",
+        long = "English",
+        display = "英語"
+    }, {
+        short = "ko_only",
+        long = "Korean Only",
+        display = "韓国語のみ"
+    }, {
+        short = "jp_only",
+        long = "Japanese Input",
+        display = "日本語入力"
+    }, {
+        short = "None",
+        long = "Off",
+        display = "OFF"
+    }}
+
+    for _, data in ipairs(lang_tbl) do
+        local short = data.short
+        local long = data.long
+        local display_name = data.display
+        local menu_text
+        if g.language == "Japanese" then
+            menu_text = string.format("{ol}自分の発言翻訳 to {#FFFF00}%s", display_name)
+        else
+            menu_text = string.format("{ol}Translation of my speech to {#FFFF00}%s", long)
+        end
+        local str_scp = string.format("native_lang_speech_switching('%s')", short)
+        ui.AddContextMenuItem(context, menu_text, str_scp)
     end
     ui.OpenContextMenu(context)
 end
@@ -1761,7 +1806,9 @@ function native_lang_name_dat_check()
         for line in string.gmatch(new_content, "[^\r\n]+") do
             local org_name, trans_name = line:match("^(.-):::(.*)$")
             if org_name and trans_name then
-                g.names[org_name] = trans_name
+                if not trans_name:match("%s$") then
+                    g.names[org_name] = trans_name
+                end
             end
         end
     end
@@ -2610,6 +2657,305 @@ function native_lang_DAMAGE_METER_GAUGE_SET_(ctrl, leftStr, point, rightStr, ski
 end
 
 -- 自分の発言翻訳
+local CHO = {
+    r = "ㄱ",
+    R = "ㄲ",
+    s = "ㄴ",
+    e = "ㄷ",
+    E = "ㄸ",
+    f = "ㄹ",
+    a = "ㅁ",
+    q = "ㅂ",
+    Q = "ㅃ",
+    t = "ㅅ",
+    T = "ㅆ",
+    d = "ㅇ",
+    w = "ㅈ",
+    W = "ㅉ",
+    c = "ㅊ",
+    z = "ㅋ",
+    x = "ㅌ",
+    v = "ㅍ",
+    g = "ㅎ"
+}
+local JUNG = {
+    k = "ㅏ",
+    o = "ㅐ",
+    i = "ㅑ",
+    O = "ㅒ",
+    j = "ㅓ",
+    p = "ㅔ",
+    u = "ㅕ",
+    P = "ㅖ",
+    h = "ㅗ",
+    hk = "ㅘ",
+    ho = "ㅙ",
+    hl = "ㅚ",
+    y = "ㅛ",
+    n = "ㅜ",
+    nj = "ㅝ",
+    np = "ㅞ",
+    nl = "ㅟ",
+    b = "ㅠ",
+    m = "ㅡ",
+    ml = "ㅢ",
+    l = "ㅣ"
+}
+local JONG = {
+    r = "ㄱ",
+    R = "ㄲ",
+    rt = "ㄳ",
+    s = "ㄴ",
+    sw = "ㄵ",
+    sg = "ㄶ",
+    e = "ㄷ",
+    f = "ㄹ",
+    fr = "ㄺ",
+    fa = "ㄻ",
+    fq = "ㄼ",
+    ft = "ㄽ",
+    fx = "ㄾ",
+    fv = "ㄿ",
+    fg = "ㅀ",
+    a = "ㅁ",
+    q = "ㅂ",
+    qt = "ㅄ",
+    t = "ㅅ",
+    T = "ㅆ",
+    d = "ㅇ",
+    w = "ㅈ",
+    c = "ㅊ",
+    z = "ㅋ",
+    x = "ㅌ",
+    v = "ㅍ",
+    g = "ㅎ"
+}
+local CHO_IDX = {
+    ["ㄱ"] = 0,
+    ["ㄲ"] = 1,
+    ["ㄴ"] = 2,
+    ["ㄷ"] = 3,
+    ["ㄸ"] = 4,
+    ["ㄹ"] = 5,
+    ["ㅁ"] = 6,
+    ["ㅂ"] = 7,
+    ["ㅃ"] = 8,
+    ["ㅅ"] = 9,
+    ["ㅆ"] = 10,
+    ["ㅇ"] = 11,
+    ["ㅈ"] = 12,
+    ["ㅉ"] = 13,
+    ["ㅊ"] = 14,
+    ["ㅋ"] = 15,
+    ["ㅌ"] = 16,
+    ["ㅍ"] = 17,
+    ["ㅎ"] = 18
+}
+local JUNG_IDX = {
+    ["ㅏ"] = 0,
+    ["ㅐ"] = 1,
+    ["ㅑ"] = 2,
+    ["ㅒ"] = 3,
+    ["ㅓ"] = 4,
+    ["ㅔ"] = 5,
+    ["ㅕ"] = 6,
+    ["ㅖ"] = 7,
+    ["ㅗ"] = 8,
+    ["ㅘ"] = 9,
+    ["ㅙ"] = 10,
+    ["ㅚ"] = 11,
+    ["ㅛ"] = 12,
+    ["ㅜ"] = 13,
+    ["ㅝ"] = 14,
+    ["ㅞ"] = 15,
+    ["ㅟ"] = 16,
+    ["ㅠ"] = 17,
+    ["ㅡ"] = 18,
+    ["ㅢ"] = 19,
+    ["ㅣ"] = 20
+}
+local JONG_IDX = {
+    [""] = 0,
+    ["ㄱ"] = 1,
+    ["ㄲ"] = 2,
+    ["ㄳ"] = 3,
+    ["ㄴ"] = 4,
+    ["ㄵ"] = 5,
+    ["ㄶ"] = 6,
+    ["ㄷ"] = 7,
+    ["ㄹ"] = 8,
+    ["ㄺ"] = 9,
+    ["ㄻ"] = 10,
+    ["ㄼ"] = 11,
+    ["ㄽ"] = 12,
+    ["ㄾ"] = 13,
+    ["ㄿ"] = 14,
+    ["ㅀ"] = 15,
+    ["ㅁ"] = 16,
+    ["ㅂ"] = 17,
+    ["ㅄ"] = 18,
+    ["ㅅ"] = 19,
+    ["ㅆ"] = 20,
+    ["ㅇ"] = 21,
+    ["ㅈ"] = 22,
+    ["ㅊ"] = 23,
+    ["ㅋ"] = 24,
+    ["ㅌ"] = 25,
+    ["ㅍ"] = 26,
+    ["ㅎ"] = 27
+}
+function ConvertEngToHangul(input)
+    local res = ""
+    local len = string.len(input)
+    local i = 1
+    while i <= len do
+        local c1 = string.sub(input, i, i)
+        local c2 = string.sub(input, i + 1, i + 1)
+        local c3 = string.sub(input, i + 2, i + 2)
+        -- 初声(Cho)があるかチェック
+        if CHO[c1] then
+            local cho = CHO[c1]
+            local jung = nil
+            local jong = nil
+            local consumed = 1
+            -- 中声(Jung)チェック (2文字合成含む)
+            if i + 1 <= len and JUNG[c2] then
+                -- 複合母音チェック (hk, ho 等)
+                if i + 2 <= len and JUNG[c2 .. c3] then
+                    jung = JUNG[c2 .. c3]
+                    consumed = 3
+                else
+                    jung = JUNG[c2]
+                    consumed = 2
+                end
+                -- 終声(Jong)チェック
+                if i + consumed <= len then
+                    local next_c = string.sub(input, i + consumed, i + consumed)
+                    local next_c2 = string.sub(input, i + consumed + 1, i + consumed + 1)
+                    -- ここで最も重要なのは、「次の文字の打鍵が、次の音節の中声（母音）ではないこと」
+                    if CHO[next_c] and not JUNG[next_c] then
+                        -- 複合終声チェック (rt, sw 等)
+                        if i + consumed + 1 <= len and JONG[next_c .. next_c2] and
+                            -- 次の次の文字が母音ではないことを確認 (貪欲防止)
+                            not JUNG[string.sub(input, i + consumed + 2, i + consumed + 2)] then
+                            jong = JONG[next_c .. next_c2]
+                            consumed = consumed + 2
+                            -- 単独終声チェック
+                        elseif JONG[next_c] and -- 次の次の文字が母音ではないことを確認 (貪欲防止)
+                        not JUNG[next_c2] then
+                            -- ただし、次の文字が「初声として利用され、次の音節の中声と続く」ケースを除外する必要があるが、
+                            -- 既存のロジックではこれを完全に分離するのは困難。ここでは貪欲な終声読み込みを少し緩和する
+                            jong = JONG[next_c]
+                            consumed = consumed + 1
+                        end
+                    end
+                end
+            end
+            if cho and jung then
+                -- Unicode結合: 0xAC00 + (初声*588) + (中声*28) + 終声
+                local code = 0xAC00 + (CHO_IDX[cho] * 588) + (JUNG_IDX[jung] * 28) + (JONG_IDX[jong or ""] or 0)
+                -- Lua 5.1でのUnicode文字生成 (UTF-8エンコード)
+                local char = ""
+                if code <= 0x7FF then
+                    char = string.char(math.floor(code / 64) + 192, code % 64 + 128)
+                elseif code <= 0xFFFF then
+                    char = string.char(math.floor(code / 4096) + 224, math.floor((code % 4096) / 64) + 128,
+                        code % 64 + 128)
+                end
+                local used_input = string.sub(input, i, i + consumed - 1)
+                --[[ts(string.format("[IME DEBUG] Result: %s (Used: '%s' | Cho:%s, Jung:%s, Jong:%s)", char, used_input,
+                    cho, jung, jong or "None"))]]
+                res = res .. char
+                i = i + consumed
+            else
+                res = res .. c1
+                i = i + 1
+            end
+        else
+            res = res .. c1
+            i = i + 1
+        end
+    end
+    return res
+end
+
+function Hangul_keymap_frame_open()
+
+    local frame = ui.CreateNewFrame("notice_on_pc", "hangul_keymap", 0, 0, 0, 0)
+    AUTO_CAST(frame)
+    frame:SetSkinName("bg2")
+    frame:Resize(360, 200) -- ★ コンパクト化
+
+    frame:SetLayerLevel(999)
+
+    frame:EnableHittestFrame(1)
+    frame:EnableHitTest(1)
+    frame:EnableMove(1)
+    frame:RemoveAllChild()
+    local close_button = frame:CreateOrGetControl("button", "close_button", 0, 0, 30, 30)
+    AUTO_CAST(close_button)
+    close_button:SetImage("testclose_button")
+    close_button:SetGravity(ui.RIGHT, ui.TOP)
+    close_button:SetEventScript(ui.LBUTTONUP, "Hangul_keymap_frame_close")
+
+    local gbox = frame:CreateOrGetControl("groupbox", "gbox", 10, 35, 340, 170)
+    AUTO_CAST(gbox)
+
+    -- gbox:EnableScrollBar(1)
+
+    local y = 0
+    y = Hangul_keymap_draw_section_3col(gbox, "■ 初声", CHO, y)
+    y = Hangul_keymap_draw_section_3col(gbox, "■ 中声", JUNG, y)
+    y = Hangul_keymap_draw_section_3col(gbox, "■ 終声", JONG, y)
+    local chat_frame = ui.GetFrame("chat")
+    frame:SetPos(chat_frame:GetX() + 320, chat_frame:GetY() - 210) -- ★ 画面中央
+    frame:ShowWindow(1)
+end
+
+function Hangul_keymap_draw_section_3col(gbox, title, tbl, y)
+    local title_ctrl = gbox:CreateOrGetControl("richtext", "t_" .. y, 0, y)
+    AUTO_CAST(title_ctrl)
+    title_ctrl:SetText("{ol}{s13}" .. title)
+    y = y + 22
+
+    local x_list = {0, 115, 230} -- ★ 3列
+    local col = 1
+    local row_y = y
+
+    for k, v in pairs(tbl) do
+        local txt = gbox:CreateOrGetControl("richtext", "c_" .. row_y .. "_" .. col, x_list[col], row_y)
+        AUTO_CAST(txt)
+        txt:SetText(string.format("{ol}{s18}%s→%s", k, v))
+
+        col = col + 1
+        if col > 3 then
+            col = 1
+            row_y = row_y + 18
+        end
+    end
+
+    return row_y + 24
+end
+
+function Hangul_keymap_frame_close(parent, ctrl)
+    ui.DestroyFrame(parent:GetName())
+end
+
+function native_lang_CHAT_OPEN_INIT()
+    if g.settings.recv_lang ~= "ko_only" then
+        return
+    end
+    Hangul_keymap_frame_open()
+end
+
+function native_lang_CHAT_CLOSE_SCP()
+    if g.settings.recv_lang ~= "ko_only" then
+        return
+    end
+    local frame = ui.GetFrame("hangul_keymap")
+    Hangul_keymap_frame_close(frame)
+end
+
 function native_lang_check_my_speech(frame)
     local recv_file_handle = io.open(g.my_recv_dat_path, "r")
     if recv_file_handle then
@@ -2617,7 +2963,11 @@ function native_lang_check_my_speech(frame)
         recv_file_handle:close()
         os.remove(g.my_recv_dat_path)
         if new_chat_content and new_chat_content ~= "" then
-            ui.Chat(new_chat_content)
+            if g.language == "kr" and g.settings.recv_lang == "jp_only" then
+                native_lang_create_confirm_frame(new_chat_content)
+            else
+                ui.Chat(new_chat_content)
+            end
         end
     end
     return 1
@@ -2652,17 +3002,137 @@ function native_lang_pass_through_chat(chat_content, msg)
     end
 end
 
-function native_lang_UI_CHAT(my_frame, my_msg)
+function native_lang_create_confirm_frame(msg)
+    g.confirm_msg = msg
+    local chat_frame = ui.GetFrame("chat")
+    if not chat_frame or chat_frame:IsVisible() == 0 then
+        return
+    end
+    local mainchat = chat_frame:GetChild("mainchat")
+    if not mainchat then
+        return
+    end
+    local frame = ui.CreateNewFrame("notice_on_pc", "native_lang_confirm", 0, 0, 0, 0)
+    AUTO_CAST(frame)
+    frame:SetSkinName("none")
+    frame:SetTitleBarSkin("None")
+    frame:SetLayerLevel(chat_frame:GetLayerLevel() + 1)
+    frame:EnableHittestFrame(0)
+    frame:EnableMove(0)
+    local mainchat_width = mainchat:GetWidth()
+    local mainchat_x = chat_frame:GetX() + mainchat:GetX()
+    local mainchat_y = chat_frame:GetY() + mainchat:GetY()
+    local height = 50 -- 確認メッセージの高さ
+    frame:Resize(mainchat_width + 10, height)
+    frame:SetPos(mainchat_x + 310, mainchat_y)
+    frame:RemoveAllChild()
+    local trans_msg = frame:CreateOrGetControl('edit', 'trans_msg', 5, 0, mainchat_width - 60, 35)
+    AUTO_CAST(trans_msg)
+    local clean_msg_body = msg
+    local command, body = string.match(msg, "^(/%S+)%s*(.*)")
+    if command then
+        -- /w Name や /f Name の形式にも対応
+        if string.lower(command) == "/w" or string.lower(command) == "/f" then
+            local target, actual_body = string.match(body, "^(%S+)%s*(.*)")
+            if actual_body then
+                clean_msg_body = actual_body -- /w Name の後のメッセージ本文
+            else
+                clean_msg_body = "" -- /w Name のみの場合
+            end
+        else
+            clean_msg_body = body or "" -- /p や /g の後のメッセージ本文
+        end
+    end
+    trans_msg:SetText(clean_msg_body)
+    trans_msg:SetFontName("white_18_ol")
+    trans_msg:SetEventScript(ui.ENTERKEY, "native_lang_confirm_send_via_frame")
+    local cancel = frame:CreateOrGetControl('button', 'cancel', 0, 0, 60, height - 15)
+    AUTO_CAST(cancel)
+    cancel:SetGravity(ui.RIGHT, ui.TOP)
+    cancel:SetSkinName("test_red_button")
+    cancel:SetText("{ol}Cancel")
+    cancel:SetEventScript(ui.LBUTTONUP, "native_lang_hide_confirm_frame")
 
+    frame:ShowWindow(1)
+end
+
+function native_lang_hide_confirm_frame(frame)
+    ui.DestroyFrame(frame:GetName())
+    local frame = ui.GetFrame("hangul_keymap")
+    Hangul_keymap_frame_close(frame)
+end
+
+function native_lang_confirm_send_via_frame(frame, ctrl)
+    native_lang_pass_through_chat(g.confirm_msg)
+    g.confirm_msg = ""
+    native_lang_hide_confirm_frame(frame)
+end
+
+function native_lang_convert_and_confirm(content_to_convert, prefix)
+    local hangul_text = ConvertEngToHangul(content_to_convert)
+    local full_text = prefix .. hangul_text
+    local final_text = string.gsub(full_text, "/kr%s*", "")
+    local chat = ui.GetFrame("chat")
+    chat:ShowWindow(1)
+    native_lang_create_confirm_frame(final_text)
+    return
+end
+
+function native_lang_UI_CHAT(my_frame, my_msg)
     local msg = g.get_event_args(my_msg)
+    native_lang_UI_CHAT_(msg)
+end
+
+function native_lang_UI_CHAT_(msg)
     if not msg then
         return
     end
-    if g.settings.use == 0 or g.settings.recv_lang == "None" then
-        native_lang_pass_through_chat(msg, msg)
+
+    local translatable_types = {
+        ["/p "] = true,
+        ["/g "] = true,
+        ["/y "] = true,
+        ["/f "] = true,
+        ["/gn "] = true,
+        ["/w "] = true
+    }
+    local msg_type = nil
+    local msg_body = msg
+    if g.settings.recv_lang == "ko_only" then
+        local content = msg
+        local prefix = ""
+        local is_command = false
+        if string.sub(msg, 1, 1) == "/" then
+            is_command = true
+            local command, body = string.match(msg, "^(/%S+)%s*(.*)")
+            if string.sub(msg, 1, 3) == "/kr" then
+                content = string.match(msg, "^/kr%s*(.*)") or ""
+                prefix = ""
+            elseif command and translatable_types[string.lower(command) .. " "] then
+                prefix = string.lower(command) .. " "
+                if prefix == "/w " or prefix == "/f " then
+                    local target, actual_body = string.match(body, "^(%S+)%s*(.*)")
+                    if target then
+                        prefix = prefix .. target .. " "
+                        content = actual_body or ""
+                    else
+                        content = body or ""
+                    end
+                else
+                    content = body or ""
+                end
+                prefix = prefix .. "/kr "
+            else
+                native_lang_pass_through_chat(msg, msg)
+                return
+            end
+        end
+        if not is_command then
+            prefix = "/kr "
+        end
+        native_lang_convert_and_confirm(content, prefix)
         return
     end
-
     if string.sub(msg, 1, 1) == "/" and string.len(msg) >= 4 and string.sub(msg, 4, 4) == "/" then
         local new_msg = string.sub(msg, 4)
         native_lang_pass_through_chat(new_msg, msg)
@@ -2742,7 +3212,6 @@ function native_lang_UI_CHAT(my_frame, my_msg)
         print(string.format("Error opening %s for writing: %s", tmp_send_path, tostring(err)))
     end
 
-    return
 end
 
 -- コロニー関連

@@ -6560,4 +6560,33 @@ end]] --[[function characters_item_serch_ON_GAMEEXIT_TIMER_END()
     if type == "Exit" or type == "Logout" or type == "Barrack" then
         characters_item_serch_inventory_save_list()
     end
-end]] 
+end]] --[[if string.sub(string.gsub(msg_body, "^%s*", ""), 1, 1) == "/" then
+        native_lang_pass_through_chat(msg, msg)
+        return
+    end
+    local org_msg_return = msg_body
+    ts(2, msg)
+    local processed_body = native_lang_msg_processing_send(msg_body)
+    processed_body = string.gsub(processed_body, "Party#", "")
+    if processed_body == "" then
+        native_lang_pass_through_chat(msg, msg)
+        return
+    end
+    if msg_type == " " then
+        msg_type = ""
+    end
+    local line_to_send = string.format("%s:::%s:::%s", msg_type, org_msg_return, processed_body)
+    local recv_file_handle = io.open(g.my_recv_dat_path, "r")
+    if recv_file_handle then
+        recv_file_handle:close()
+        os.remove(g.my_recv_dat_path)
+    end
+    local tmp_send_path = g.my_send_dat_path .. ".tmp"
+    local send_file, err = io.open(tmp_send_path, "w")
+    if send_file then
+        send_file:write(line_to_send)
+        send_file:close()
+        os.rename(tmp_send_path, g.my_send_dat_path)
+    else
+        print(string.format("Error opening %s for writing: %s", tmp_send_path, tostring(err)))
+    end]] 

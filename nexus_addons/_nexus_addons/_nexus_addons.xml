@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<uiframe name="_nexus_addons" x="0" y="0" width="10" height="10" create="open">
+  <option visible="true" alwaysVisible="true" closebutton="false" autoopen="true" hideable="false"/>
+  <draw drawtitlebar="false"/>
+	<layer layerlevel="1"/>
+  <skin frameskin="None"/>
+  <input moveable="false" hittestframe="false"/>
+</uiframe>

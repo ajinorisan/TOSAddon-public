@@ -25,9 +25,7 @@ _G["ADDONS"][author] = _G["ADDONS"][author] or {}
 _G["ADDONS"][author][addon_name] = _G["ADDONS"][author][addon_name] or {}
 local g = _G["ADDONS"][author][addon_name]
 local json = require("json")
-
 g.settings_path = string.format('../addons/%s/settings.json', addon_name_lower)
-
 local high500weapontbl = {{
     ["STR"] = 276
 }, {
@@ -181,7 +179,6 @@ local high500armortbl = {{
 }, {
     ["AllRace_Atk"] = 1252
 }}
-
 local low500weapontbl = {{
     ["STR"] = 255
 }, {
@@ -253,7 +250,6 @@ local low500weapontbl = {{
 }, {
     ["revenge"] = 24000
 }}
-
 local low500armortbl = {{
     ["STR"] = 203
 }, {
@@ -335,7 +331,6 @@ local low500armortbl = {{
 }, {
     ["AllRace_Atk"] = 1156
 }}
-
 local high480weapontbl = {{
     ["STR"] = 213
 }, {
@@ -407,7 +402,6 @@ local high480weapontbl = {{
 }, {
     ["revenge"] = 10001
 }}
-
 local high480armortbl = {{
     ["STR"] = 170
 }, {
@@ -489,7 +483,6 @@ local high480armortbl = {{
 }, {
     ["AllRace_Atk"] = 964
 }}
-
 local low480weapontbl = {{
     ["STR"] = 171
 }, {
@@ -561,7 +554,6 @@ local low480weapontbl = {{
 }, {
     ["revenge"] = 8000
 }}
-
 local low480armortbl = {{
     ["STR"] = 135
 }, {
@@ -643,9 +635,7 @@ local low480armortbl = {{
 }, {
     ["AllRace_Atk"] = 770
 }}
-
 function goddess_icor_manager_color(str)
-
     if str == "UTIL_ARMOR" then
         return "{#9966CC}"
     elseif str == "STAT" then
@@ -659,12 +649,10 @@ function goddess_icor_manager_color(str)
     else
         return "{#FFFFFF}"
     end
-
 end
 
 function goddess_icor_manager_language(str)
     local language = option.GetCurrentCountry()
-
     if language == "Japanese" then
         if str == "STR" then
             str = "力"
@@ -681,7 +669,6 @@ function goddess_icor_manager_language(str)
         if str == "MNA" then
             str = "精神"
         end
-
         if str == "BLK" then
             str = "ブロック"
         end
@@ -706,7 +693,6 @@ function goddess_icor_manager_language(str)
         if str == "RSP" then
             str = "SP回復力"
         end
-
         if str == "Leather_Def" then
             str = "レザー対象攻撃力相殺"
         end
@@ -719,7 +705,6 @@ function goddess_icor_manager_language(str)
         if str == "MiddleSize_Def" then
             str = "中型対象攻撃力相殺"
         end
-
         if str == "ADD_LEATHER" then
             str = "レザー防御対象攻撃力"
         end
@@ -756,28 +741,24 @@ function goddess_icor_manager_language(str)
         if str == "ADD_KLAIDA" then
             str = "昆虫型対象攻撃力"
         end
-
         if str == "Add_Damage_Atk" then
             str = "追加ダメージ"
         end
         if str == "ResAdd_Damage" then
             str = "追加ダメージ抵抗"
         end
-
         if str == "AllRace_Atk" then
             str = "全ての種族の対象攻撃力"
         end
         if str == "AllMaterialType_Atk" then
             str = "全ての防具の対象攻撃力"
         end
-
         if str == "perfection" then
             str = "パーフェクト効果"
         end
         if str == "revenge" then
             str = "復讐効果"
         end
-
         if str == "stun_res" then
             str = "極：気絶抵抗"
         end
@@ -799,7 +780,6 @@ function goddess_icor_manager_language(str)
         if str == "portion_expansion" then
             str = "HPエリクサー広域化"
         end
-
         if str == "rada_bless_1" then
             str = ClMsg("rada_bless_1")
         end
@@ -848,18 +828,15 @@ function goddess_icor_manager_language(str)
         if str == "dalia_bless_1" then
             str = ClMsg("dalia_bless_1")
         end
-
         if str == " 500Advanced" then
             str = " LV500 上級"
         end
         if str == " 480Advanced" then
             str = " LV480 上級"
         end
-
         if str == " disabled" then
             str = " 使用不可"
         end
-
         if str == "RH" then
             str = "武器"
         end
@@ -884,28 +861,22 @@ function goddess_icor_manager_language(str)
         if str == "BOOTS" then
             str = "靴"
         end
-        -- "ボタン左クリックでイコル装備します。{nl}Equip the icor with a left click of the button"
         if str == "Equip the icor with a left click of the button." then
             str = "ボタン左クリックでイコル装備します。"
         end
-        -- "チェックを入れると一括表示に切り替えます。{nl}10 preset displays when checked.")
         if str == "Check the box to switch to batch display." then
             str = "チェックを入れると一括表示に切り替えます。"
         end
-        -- "{ol}Check box to switch display number"
         if str == "{ol}Check box to switch display number" then
             str = "{ol}チェックボックスで表示数切替"
         end
-        -- Right click to close.
         if str == "Right click to close." then
             str = "右クリックで閉じます。"
         end
-        -- "Swap the reverse side of the weapon."
         if str == "Swap the reverse side of the weapon." then
             str = "武器の裏表を切り替えます。"
         end
         return str
-
     else
         if str == "STR" then
             str = "STR"
@@ -922,7 +893,6 @@ function goddess_icor_manager_language(str)
         if str == "MNA" then
             str = "SPR"
         end
-
         if str == "BLK" then
             str = "Block"
         end
@@ -947,7 +917,6 @@ function goddess_icor_manager_language(str)
         if str == "RSP" then
             str = ClMsg("RSP")
         end
-
         if str == "Leather_Def" then
             str = "DEF Leather armor"
         end
@@ -960,7 +929,6 @@ function goddess_icor_manager_language(str)
         if str == "MiddleSize_Def" then
             str = "DEF Medium size"
         end
-
         if str == "ADD_LEATHER" then
             str = "ATK Leather armor"
         end
@@ -997,28 +965,24 @@ function goddess_icor_manager_language(str)
         if str == "ADD_KLAIDA" then
             str = "ATK Insect-type"
         end
-
         if str == "Add_Damage_Atk" then
             str = "Additional Damage"
         end
         if str == "ResAdd_Damage" then
             str = "DEF Add Damage"
         end
-
         if str == "AllRace_Atk" then
             str = "ATK all creature type"
         end
         if str == "AllMaterialType_Atk" then
             str = "ATK every type of armor"
         end
-
         if str == "perfection" then
             str = "ATK Perfection"
         end
         if str == "revenge" then
             str = "ATK Revenge"
         end
-
         if str == "stun_res" then
             str = "Ex:Pass out"
         end
@@ -1040,7 +1004,6 @@ function goddess_icor_manager_language(str)
         if str == "portion_expansion" then
             str = "HP Elixir Broaden"
         end
-
         if str == "rada_bless_1" then
             str = ClMsg("rada_bless_1")
         end
@@ -1089,18 +1052,12 @@ function goddess_icor_manager_language(str)
         if str == "dalia_bless_1" then
             str = ClMsg("dalia_bless_1")
         end
-
         if str == " 500Advanced" then
             str = " LV500 Advanced"
         end
         if str == " 480Advanced" then
             str = " LV480 Advanced"
         end
-
-        --[[if str == " disabled" then
-            str = " 使用不可"
-        end]]
-
         if str == "RH" then
             str = ClMsg("RH")
         end
@@ -1125,7 +1082,6 @@ function goddess_icor_manager_language(str)
         if str == "BOOTS" then
             str = ClMsg("BOOTS")
         end
-
         return str
     end
     return str
@@ -1157,8 +1113,6 @@ local managed_slot_list = {{
     slot_name = 'LH_SUB',
     clmsg = 'LH_SUB'
 }}
----
-
 function g.save_json(path, tbl)
     local file = io.open(path, "w")
     if file then
@@ -1173,20 +1127,15 @@ function g.load_json(path)
     if not file then
         return nil, "Error opening file: " .. path
     end
-
     local content = file:read("*all")
     file:close()
-
     if not content or content == "" then
         return nil, "File content is empty or could not be read: " .. path
     end
-
     local decoded_table, decode_err = json.decode(content)
-
     if not decoded_table then
         return nil, decode_err
     end
-
     return decoded_table, nil
 end
 
@@ -1198,16 +1147,13 @@ function g.get_map_type()
 end
 
 function goddess_icor_manager_load_settings()
-
     local settings, err = g.load_json(g.settings_path)
-
     if not settings then
         settings = {
             check = 0,
             delay = 0.6
         }
     end
-
     if not settings[g.cid] then
         settings[g.cid] = {
             drop_items = {{
@@ -1240,45 +1186,34 @@ function goddess_icor_manager_load_settings()
             }}
         }
     end
-
     if not settings[g.cid].icor_ids then
         settings[g.cid].icor_ids = {}
     end
-
     g.settings = settings
     g.save_json(g.settings_path, g.settings)
 end
 
 function g.setup_hook_and_event(my_addon, origin_func_name, my_func_name, bool)
-
     g.FUNCS = g.FUNCS or {}
     if not g.FUNCS[origin_func_name] then
         g.FUNCS[origin_func_name] = _G[origin_func_name]
     end
-
     local origin_func = g.FUNCS[origin_func_name]
-
     local function hooked_function(...)
-
         local original_results
-
         if bool == true then
             original_results = {origin_func(...)}
         end
-
         g.ARGS = g.ARGS or {}
         g.ARGS[origin_func_name] = {...}
         imcAddOn.BroadMsg(origin_func_name)
-
         if original_results then
             return table.unpack(original_results)
         else
             return
         end
     end
-
     _G[origin_func_name] = hooked_function
-
     if not g.REGISTER[origin_func_name .. my_func_name] then -- g.REGISTERはON_INIT内で都度初期化
         g.REGISTER[origin_func_name .. my_func_name] = true
         my_addon:RegisterMsg(origin_func_name, my_func_name)
@@ -1286,53 +1221,39 @@ function g.setup_hook_and_event(my_addon, origin_func_name, my_func_name, bool)
 end
 
 local function ts(...)
-
     local num_args = select('#', ...)
-
     if num_args == 0 then
         return
     end
-
     local string_parts = {}
-
     for i = 1, num_args do
         local arg = select(i, ...)
         table.insert(string_parts, tostring(arg))
     end
-
     print(table.concat(string_parts, "\t"))
 end
 
 function GODDESS_ICOR_MANAGER_ON_INIT(addon, frame)
-
     g.addon = addon
     g.frame = frame
     g.REGISTER = {}
-
     g.lang = option.GetCurrentCountry()
     g.cid = session.GetMySession():GetCID()
-
     g.setup_hook_and_event(addon, "_GODDESS_MGR_RANDOMOPTION_ENGRAVE_ICOR_EXEC",
         "goddess_icor_manager__GODDESS_MGR_RANDOMOPTION_ENGRAVE_ICOR_EXEC", false)
-
     g.setup_hook_and_event(addon, "GODDESS_EQUIP_MANAGER_OPEN", "goddess_icor_manager_GODDESS_EQUIP_MANAGER_OPEN", true)
-
     if g.get_map_type() == "City" then
         addon:RegisterMsg("GAME_START", "goddess_icor_manager_GAME_START")
         addon:RegisterMsg('ESCAPE_PRESSED', 'goddess_icor_manager_list_close')
-
     end
 end
 
 function goddess_icor_manager__GODDESS_MGR_RANDOMOPTION_ENGRAVE_ICOR_EXEC()
-
     local frame = ui.GetFrame('goddess_equip_manager')
     if frame == nil then
         return
     end
-
     session.ResetItemList()
-
     local rand_icor_slot = GET_CHILD_RECURSIVELY(frame, 'rand_icor_slot')
     local tgt_guid = rand_icor_slot:GetUserValue('ITEM_GUID')
     local tgt_item = session.GetInvItemByGuid(tgt_guid)
@@ -1340,53 +1261,38 @@ function goddess_icor_manager__GODDESS_MGR_RANDOMOPTION_ENGRAVE_ICOR_EXEC()
         ui.SysMsg(ClMsg('NoSelectedItem'))
         return
     end
-
     if tgt_item.isLockState == true then
         ui.SysMsg(ClMsg('MaterialItemIsLock'))
         return
     end
-
     local obj = GetIES(tgt_item:GetObject())
     local cls_id = obj.ClassID
     local cls_name = obj.ClassName
-
     session.AddItemID(tgt_guid, 1)
-
     local randomoption_bg = GET_CHILD_RECURSIVELY(frame, 'randomoption_bg')
     local index = randomoption_bg:GetUserValue('PRESET_INDEX')
-
     local spot = rand_icor_slot:GetUserValue('EQUIP_SPOT')
     local arg_list = NewStringList()
     arg_list:Add(index)
-
     if shared_item_goddess_icor.get_goddess_icor_grade(obj) > 0 then
         arg_list:Add(spot)
     end
-
     if not g.settings[g.cid] then
         g.settings[g.cid] = {}
     end
-
     if not g.settings[g.cid].icor_ids then
         g.settings[g.cid].icor_ids = {}
     end
-
     if not g.settings[g.cid].icor_ids[tostring(index)] or type(g.settings[g.cid].icor_ids[tostring(index)]) ~= "table" then
         g.settings[g.cid].icor_ids[tostring(index)] = {}
     end
-
     g.settings[g.cid].icor_ids[tostring(index)][spot] = cls_id
-
     local result_list = session.GetItemIDList()
     item.DialogTransaction('ICOR_PRESET_ENGRAVE_ICOR', result_list, '', arg_list)
-
     g.save_json(g.settings_path, g.settings)
-
     local goddess_equip_manager = ui.GetFrame("goddess_equip_manager")
-
     local rand_icor_mat_bg = GET_CHILD_RECURSIVELY(goddess_equip_manager, "rand_icor_mat_bg")
     GODDESS_MGR_ENGRAVE_ICOR_CLEAR_BTN(rand_icor_mat_bg)
-
     ReserveScript("goddess_icor_manager_list_init()", 0.5)
     ReserveScript("goddess_icor_manager_newframe_close()", 0.6)
     return
@@ -1404,13 +1310,6 @@ function goddess_icor_manager_GAME_START()
 end
 
 function goddess_icor_manager_frame_init()
-    --[[local frame = ui.GetFrame("goddess_equip_manager")
-    local randomoption_bg = GET_CHILD_RECURSIVELY(frame, "randomoption_bg")
-    local listbtn = randomoption_bg:CreateOrGetControl("button", "listbtn", 520, 12, 160, 40)
-    AUTO_CAST(listbtn)
-    listbtn:SetText("{ol}list")
-    listbtn:SetEventScript(ui.LBUTTONUP, "goddess_icor_manager_list_init")]]
-
     local inventory = ui.GetFrame('inventory')
     local inventoryGbox = inventory:GetChild("inventoryGbox")
     local icor_btn = inventory:CreateOrGetControl("button", "icor_btn", 430, 345, 30, 30)
@@ -1422,12 +1321,10 @@ function goddess_icor_manager_frame_init()
 end
 
 function goddess_icor_manager_list_init(frame, ctrl, str, page)
-
     local guildeventwarp = ui.GetFrame("guildeventwarp")
     if guildeventwarp then
         guildeventwarp:ShowWindow(1)
     end
-
     local frame = ui.GetFrame("goddess_icor_manager")
     frame:Resize(1430, 1060) -- 1000
     frame:SetOffset(0, 5) -- 0,20
@@ -1444,11 +1341,9 @@ function goddess_icor_manager_list_init(frame, ctrl, str, page)
         g.num = 1
         goddess_icor_manager_list_gb_init(frame, 1)
     end
-
 end
 
 function goddess_icor_manager_set_save(frame, ctrl, str, ctrl_key)
-
     local acc = GetMyAccountObj()
     local etc_obj = GetMyEtcObject()
     local remain_time = GET_REMAIN_SECOND_ENGRAVE_SLOT_EXTENSION_TIME(acc)
@@ -1458,19 +1353,14 @@ function goddess_icor_manager_set_save(frame, ctrl, str, ctrl_key)
     else
         page_max = GET_MAX_ENGARVE_SLOT_COUNT(acc) + 5
     end
-
     local cur_strs = {}
-
     for i = 1, #managed_slot_list do
         local slot_info = managed_slot_list[i]
         local slot_name = slot_info.slot_name
-
         local inv_item = session.GetEquipItemBySpot(item.GetEquipSpotNum(slot_name))
-
         if inv_item and inv_item:GetObject() then
             local item_obj = GetIES(inv_item:GetObject())
             local item_dic = GET_ITEM_RANDOMOPTION_DIC(item_obj)
-
             if item_dic then
                 local size = item_dic["Size"] or 0
                 if size ~= 0 then
@@ -1479,32 +1369,25 @@ function goddess_icor_manager_set_save(frame, ctrl, str, ctrl_key)
                         local key_opt = "RandomOption_" .. j
                         local key_val = "RandomOptionValue_" .. j
                         local key_grp = "RandomOptionGroup_" .. j
-
                         local opt = item_dic[key_opt]
                         local val = item_dic[key_val]
                         local grp = item_dic[key_grp]
-
                         table.insert(opts, opt ~= nil and tostring(opt) or "")
                         table.insert(grps, grp ~= nil and tostring(grp) or "")
                         table.insert(vals, val ~= nil and tostring(val) or "")
                     end
-
                     if #opts > 0 then
                         local cur_opts = table.concat(opts, "/")
                         local cur_grps = table.concat(grps, "/")
                         local cur_vals = table.concat(vals, "/")
-
                         cur_strs[slot_name] = string.format("%s:%s:%s", cur_opts, cur_grps, cur_vals)
                     end
-
                 end
             end
         end
     end
-
     local eng_count = 0
     local temp_data = g.settings[g.cid].drop_items[ctrl_key]
-
     for base_equip_name, strs in pairs(cur_strs) do
         for i = 1, page_max do
             temp_data.set[base_equip_name] = ""
@@ -1514,7 +1397,6 @@ function goddess_icor_manager_set_save(frame, ctrl, str, ctrl_key)
                 local eng_strs = string.format("%s:%s:%s", tostring(eng_opts or ""), tostring(eng_grps or ""),
                     tostring(eng_vals or ""))
                 if strs == eng_strs then
-
                     temp_data.set[base_equip_name] = i .. ":::" .. base_equip_name
                     eng_count = eng_count + 1
                     if not string.find(base_equip_name, "_SUB") then
@@ -1532,7 +1414,6 @@ function goddess_icor_manager_set_save(frame, ctrl, str, ctrl_key)
                 end
             end
             if temp_data.set[base_equip_name] == "" then
-
                 local change_equip_name = nil
                 if base_equip_name == "RH" then
                     change_equip_name = "RH_SUB"
@@ -1543,7 +1424,6 @@ function goddess_icor_manager_set_save(frame, ctrl, str, ctrl_key)
                 elseif base_equip_name == "LH_SUB" then
                     change_equip_name = "LH"
                 end
-
                 local eng_opts, eng_grps, eng_vals, is_goddess =
                     goddess_icor_manager_GET_ENGRAVED_OPTION_LIST(etc_obj, i, change_equip_name)
                 if eng_opts then
@@ -1558,23 +1438,7 @@ function goddess_icor_manager_set_save(frame, ctrl, str, ctrl_key)
             end
         end
     end
-
-    --[[if temp_data and temp_data.set then -- temp_data と temp_data.set が nil でないことを確認
-        if next(temp_data.set) then -- テーブルが空でないか確認
-            for slot_name_key, engraved_info_value in pairs(temp_data.set) do
-                print(string.format("  [%s] = %s", tostring(slot_name_key), -- 装備部位名 (キー)
-                tostring(engraved_info_value) -- "ページ:::関連スロット名" (値)
-                ))
-            end
-        else
-            print("  temp_data.set is empty.")
-        end
-    else
-        print("  temp_data or temp_data.set is nil.")
-    end]]
-
     if eng_count >= 8 then
-
         goddess_icor_INPUT_STRING_BOX(ctrl_key)
     else
         local text = g.lang == "Japanese" and "{ol}付替え不可のため保存できません" or
@@ -1587,28 +1451,21 @@ function goddess_icor_manager_GET_ENGRAVED_OPTION_LIST(etc, index, spot)
     if etc == nil then
         return nil
     end
-
     local suffix = string.format('_%d_%s', tonumber(index), spot)
-
     local option_prop = TryGetProp(etc, 'RandomOptionPreset' .. suffix, 'None')
     local group_prop = TryGetProp(etc, 'RandomOptionGroupPreset' .. suffix, 'None')
     local value_prop = TryGetProp(etc, 'RandomOptionValuePreset' .. suffix, 'None')
-
     if option_prop == 'None' then
         return nil
     end
-
     local option_list = SCR_STRING_CUT(option_prop, '/')
     local group_list = SCR_STRING_CUT(group_prop, '/')
     local value_list = SCR_STRING_CUT(value_prop, '/')
-
     local is_goddess_option = TryGetProp(etc, 'IsGoddessIcorOption' .. suffix, 0)
-
     return option_prop, group_prop, value_prop, is_goddess_option
 end
 
 function goddess_icor_manager_save_setname(inputstring, ctrl, str, ctrl_key)
-
     inputstring:ShowWindow(0)
     local edit = GET_CHILD(inputstring, 'input')
     local get_text = edit:GetText()
@@ -1620,13 +1477,10 @@ function goddess_icor_manager_save_setname(inputstring, ctrl, str, ctrl_key)
     end
     local text = g.lang == "Japanese" and "{ol}セットを登録しました" or "{ol}Set registered"
     ui.SysMsg(text)
-
     text = g.lang == "Japanese" and "(保存済)" or "(saved)"
-
     g.settings[g.cid].drop_items[ctrl_key].set_name = get_text .. text
     g.save_json(g.settings_path, g.settings)
     goddess_icor_manager_newframe_init(ctrl_key)
-
 end
 
 function goddess_icor_INPUT_STRING_BOX(ctrl_key)
@@ -1634,28 +1488,21 @@ function goddess_icor_INPUT_STRING_BOX(ctrl_key)
     inputstring:Resize(500, 220)
     inputstring:SetLayerLevel(999)
     local edit = GET_CHILD(inputstring, 'input', "ui::CEditControl")
-    -- edit:SetEnableEditTag(1)
     edit:SetNumberMode(0)
     edit:SetMaxLen(999)
     edit:SetText("")
-
     inputstring:ShowWindow(1)
     inputstring:SetEnable(1)
-
     local title = inputstring:GetChild("title")
     AUTO_CAST(title)
-
     local text = g.lang == "Japanese" and "{ol}{#FFFFFF}セット名を入力" or "{ol}{#FFFFFF}Enter set name"
     title:SetText(text)
-
     local confirm = inputstring:GetChild("confirm")
     confirm:SetEventScript(ui.LBUTTONUP, "goddess_icor_manager_save_setname")
     confirm:SetEventScriptArgNumber(ui.LBUTTONUP, ctrl_key)
-
     edit:SetEventScript(ui.ENTERKEY, "goddess_icor_manager_save_setname")
     edit:SetEventScriptArgNumber(ui.ENTERKEY, ctrl_key)
     edit:AcquireFocus()
-
 end
 
 function goddess_icor_manager_set_delete_(ctrl_key)
@@ -1665,27 +1512,20 @@ function goddess_icor_manager_set_delete_(ctrl_key)
         set = {}
     }
     g.save_json(g.settings_path, g.settings)
-
     local text = g.lang == "Japanese" and "{ol}セットを削除しました" or "{ol}Set removed"
     ui.SysMsg(text)
-
     goddess_icor_manager_newframe_init()
 end
 
 function goddess_icor_manager_set_delete(frame, ctrl, str, ctrl_key)
-
     local msg = g.lang == "Japanese" and "{ol}{#FFFFFF}セットを削除しますか？" or
                     "{ol}{#FFFFFF}Do you want to remove the set?"
     ui.MsgBox(msg, string.format("goddess_icor_manager_set_delete_(%d)", ctrl_key), "None")
-
 end
 
 function goddess_icor_manager_droplist_select(frame, ctrl)
-
     local ctrl_key = tonumber(ctrl:GetSelItemKey())
-
     local temp_data = g.settings[g.cid].drop_items[ctrl_key]
-
     if ctrl_key == 0 then
         goddess_icor_manager_newframe_init()
     elseif next(temp_data.set) == nil then
@@ -1693,72 +1533,56 @@ function goddess_icor_manager_droplist_select(frame, ctrl)
     else
         goddess_icor_manager_newframe_init(ctrl_key)
         local etc_obj = GetMyEtcObject()
-
         local status_bg = GET_CHILD(frame, "status_bg")
         status_bg:RemoveAllChild()
-
         g.same = 0
         g.rh = nil
         g.lh = nil
         g.rh_sub = nil
         g.lh_sub = nil
-
         local cur_strs = {}
         for i = 1, #managed_slot_list do
             local new_bg = GET_CHILD(frame, "new_bg" .. i)
             AUTO_CAST(new_bg)
-
             local slot_info = managed_slot_list[i]
             local slot_name = slot_info.slot_name
-
             local inv_item = session.GetEquipItemBySpot(item.GetEquipSpotNum(slot_name))
-
             if inv_item and inv_item:GetObject() then
                 local item_obj = GetIES(inv_item:GetObject())
                 local item_dic = GET_ITEM_RANDOMOPTION_DIC(item_obj)
-
                 if item_dic then
                     local size = item_dic["Size"] or 0
-
                     if size ~= 0 then
                         local opts, grps, vals = {}, {}, {}
                         for j = 1, size do
                             local key_opt = "RandomOption_" .. j
                             local key_val = "RandomOptionValue_" .. j
                             local key_grp = "RandomOptionGroup_" .. j
-
                             local opt = item_dic[key_opt]
                             local val = item_dic[key_val]
                             local grp = item_dic[key_grp]
-
                             table.insert(opts, opt ~= nil and tostring(opt) or "")
                             table.insert(grps, grp ~= nil and tostring(grp) or "")
                             table.insert(vals, val ~= nil and tostring(val) or "")
                         end
-
                         if #opts > 0 then
                             local cur_opts = table.concat(opts, "/")
                             local cur_grps = table.concat(grps, "/")
                             local cur_vals = table.concat(vals, "/")
-
                             cur_strs[slot_name] = string.format("%s:%s:%s", cur_opts, cur_grps, cur_vals)
                         end
                     end
                 end
             end
-
             local tgt_str = temp_data.set[slot_name] or ""
             local load_index, load_equip_name = string.match(tgt_str, "^(.-):::(.+)$")
-
             local eng_opts, eng_grps, eng_vals
             if load_index and load_equip_name then
                 eng_opts, eng_grps, eng_vals, _ = goddess_icor_manager_GET_ENGRAVED_OPTION_LIST(etc_obj,
                     tonumber(load_index), load_equip_name)
             end
-
             local eng_strs = string.format("%s:%s:%s", tostring(eng_opts or ""), tostring(eng_grps or ""),
                 tostring(eng_vals or ""))
-
             if cur_strs[slot_name] == eng_strs then
                 g.same = g.same + 1
             else
@@ -1772,7 +1596,6 @@ function goddess_icor_manager_droplist_select(frame, ctrl)
                     g.lh_sub = true
                 end
             end
-
             if eng_opts ~= nil then
                 local parts1, parts2, parts3 = {}, {}, {}
                 for part in eng_opts:gmatch("([^/]+)") do
@@ -1788,33 +1611,26 @@ function goddess_icor_manager_droplist_select(frame, ctrl)
                         table.insert(parts3, part)
                     end
                 end
-
                 for k_child = new_bg:GetChildCount() - 1, 0, -1 do
                     local child_to_remove = new_bg:GetChildByIndex(k_child)
                     if child_to_remove and string.sub(child_to_remove:GetName(), 1, 4) == "text" then
                         new_bg:RemoveChild(child_to_remove:GetName())
                     end
                 end
-
                 local y = 25
                 for k = 1, #parts1 do
                     local opt_name = parts1[k]
                     local grp_name = parts2[k]
                     local val = parts3[k]
-
                     local text = new_bg:CreateOrGetControl("richtext", "text" .. k, 5, y)
                     AUTO_CAST(text)
-
                     local color = goddess_icor_manager_color(grp_name)
                     text:SetText("{ol}" .. color .. goddess_icor_manager_language(opt_name) .. "{ol}{#FFFFFF} : " .. val)
                     y = y + 20
                 end
             end
-
         end
-
     end
-
 end
 
 function goddess_icor_manager_set_end()
@@ -1824,16 +1640,11 @@ function goddess_icor_manager_set_end()
     ui.SysMsg("{#FFFF00}[GIM]End of Operation")
     ReserveScript(string.format("goddess_icor_manager_list_init('%s','%s','%s',%d)", _, _, _, g.num or 1),
         g.settings.delay or 0.5)
-
-    --[[local end_time = os.clock()
-    local elapsed_time = end_time - g.start_time
-    CHAT_SYSTEM(string.format("other_character_skill_list_ON_INIT: %.4f seconds", elapsed_time))]]
     return
 end
 
 function goddess_icor_manager_set_error_end(frame)
     local newframe = ui.GetFrame("goddess_icor_manager_newframe")
-
     if newframe:IsVisible() == 0 then
         local notice = ui.GetFrame("notice")
         AUTO_CAST(notice)
@@ -1844,21 +1655,15 @@ function goddess_icor_manager_set_error_end(frame)
         goddess_icor_manager_newframe_init()
         return
     end
-
 end
 
 function goddess_icor_manager_set_change(frame, ctrl, str, ctrl_key, step)
-
-    -- g.start_time = os.clock() -- ★処理開始前の時刻を記録★
-
     g.ctrl_key = ctrl_key
-
     for i = 1, #managed_slot_list do
         local slot_info = managed_slot_list[i]
         local slot_name = slot_info.slot_name
         local inv_item = session.GetEquipItemBySpot(item.GetEquipSpotNum(slot_name))
         local guid = inv_item:GetIESID()
-
         if guid == "0" then
             local text = g.lang == "Japanese" and "{ol}装備を8ヶ所に着けてから起動してください" or
                              "{ol}Wear the equipment in 8 places before activating it"
@@ -1866,16 +1671,13 @@ function goddess_icor_manager_set_change(frame, ctrl, str, ctrl_key, step)
             return
         end
     end
-
     if g.same == 8 then
         local text = g.lang == "Japanese" and "{ol}現在装備中と同一のセットです" or
                          "{ol}This is the same set you currently have equipped"
         ui.SysMsg(text)
         return
     end
-
     local acc = GetMyAccountObj()
-
     local remain_time = GET_REMAIN_SECOND_ENGRAVE_SLOT_EXTENSION_TIME(acc)
     local page_max = 0
     if tonumber(remain_time) == 0 then
@@ -1883,94 +1685,70 @@ function goddess_icor_manager_set_change(frame, ctrl, str, ctrl_key, step)
     else
         page_max = GET_MAX_ENGARVE_SLOT_COUNT(acc) + 5
     end
-
     for j = 1, #managed_slot_list do
         local cur_slot_name = managed_slot_list[j].slot_name
         local tgt_str = g.settings[g.cid].drop_items[ctrl_key].set[cur_slot_name]
-
         local load_index, load_equip_name = string.match(tgt_str, "^(.-):::(.+)$")
         if tonumber(load_index) > page_max then
             local text = g.lang == "Japanese" and
                              "{ol}保存しているイコルが使用不可のため、終了します" or
                              "{ol}Process terminated Stored Icor is unavailable"
             ui.SysMsg(text)
-
             return
         end
     end
-
     local notice = g.lang == "Japanese" and
                        "{ol}[GIM]セット適用中{nl}バグ防止のため操作をしないでください" or
                        "{ol}[GIM]set is being applied{nl}Do not operate to prevent bugs"
-
     imcAddOn.BroadMsg("NOTICE_Dm_stage_start", notice)
-
     local newframe = ui.GetFrame("goddess_icor_manager_newframe")
     newframe:ShowWindow(0)
-
     local goddess_icor_manager = ui.GetFrame("goddess_icor_manager")
     goddess_icor_manager:RunUpdateScript("goddess_icor_manager_set_error_end", (g.settings.delay or 0.5) * 6 * 2)
-
     local etc_obj = GetMyEtcObject()
     local temp_data = g.settings[g.cid].drop_items[ctrl_key]
     local cur_strs = {}
     local spot_names = ""
-
     step = step or 1
-
     for i = 1, #managed_slot_list do
-
         local slot_info = managed_slot_list[i]
         local slot_name = slot_info.slot_name
         local inv_item = session.GetEquipItemBySpot(item.GetEquipSpotNum(slot_name))
-
         if inv_item and inv_item:GetObject() then
             local item_obj = GetIES(inv_item:GetObject())
             local item_dic = GET_ITEM_RANDOMOPTION_DIC(item_obj)
-
             if item_dic then
                 local size = item_dic["Size"] or 0
-
                 if size ~= 0 then
                     local opts, grps, vals = {}, {}, {}
                     for j = 1, size do
                         local key_opt = "RandomOption_" .. j
                         local key_val = "RandomOptionValue_" .. j
                         local key_grp = "RandomOptionGroup_" .. j
-
                         local opt = item_dic[key_opt]
                         local val = item_dic[key_val]
                         local grp = item_dic[key_grp]
-
                         table.insert(opts, opt ~= nil and tostring(opt) or "")
                         table.insert(grps, grp ~= nil and tostring(grp) or "")
                         table.insert(vals, val ~= nil and tostring(val) or "")
                     end
-
                     if #opts > 0 then
                         local cur_opts = table.concat(opts, "/")
                         local cur_grps = table.concat(grps, "/")
                         local cur_vals = table.concat(vals, "/")
-
                         cur_strs[slot_name] = string.format("%s:%s:%s", cur_opts, cur_grps, cur_vals)
                     end
                 end
             end
         end
-
     end
-
-    -- ぼう
     if step == 1 then
         for base_equip_name, strs in pairs(cur_strs) do
             if not string.find(base_equip_name, "RH") and not string.find(base_equip_name, "LH") then
-
                 local tgt_str = temp_data.set[base_equip_name]
                 local load_index, load_equip_name = string.match(tgt_str, "^(.-):::(.+)$")
-
                 local eng_opts, eng_grps, eng_vals, is_goddess =
                     goddess_icor_manager_GET_ENGRAVED_OPTION_LIST(etc_obj, tonumber(load_index), load_equip_name)
-
                 local eng_strs = string.format("%s:%s:%s", tostring(eng_opts or ""), tostring(eng_grps or ""),
                     tostring(eng_vals or ""))
                 if cur_strs[base_equip_name] ~= eng_strs then
@@ -1978,9 +1756,7 @@ function goddess_icor_manager_set_change(frame, ctrl, str, ctrl_key, step)
                 end
             end
         end
-
         if spot_names ~= "" then
-
             goddess_icor_manager_set_change_action(ctrl_key, spot_names, step)
         else
             if g.rh or g.lh or g.rh_sub or g.lh_sub then
@@ -1991,40 +1767,30 @@ function goddess_icor_manager_set_change(frame, ctrl, str, ctrl_key, step)
         end
     elseif step == 2 then -- ぶ
         g.swap = nil
-
         for base_equip_name, strs in pairs(cur_strs) do
             if string.find(base_equip_name, "RH") or string.find(base_equip_name, "LH") then
                 local tgt_str = temp_data.set[base_equip_name]
                 local load_index, load_equip_name = string.match(tgt_str, "^(.-):::(.+)$")
-
                 if base_equip_name == "RH" and g.rh then
-
                     if base_equip_name == load_equip_name then
                         spot_names = spot_names .. ":::" .. base_equip_name
                         g.rh = false
                     end
-
                 elseif base_equip_name == "LH" and g.lh then
-
                     if base_equip_name == load_equip_name then
                         spot_names = spot_names .. ":::" .. base_equip_name
                         g.lh = false
                     end
-
                 elseif base_equip_name == "RH_SUB" and g.rh_sub then
-
                     if base_equip_name == load_equip_name then
                         spot_names = spot_names .. ":::" .. base_equip_name
                         g.rh_sub = false
                     end
-
                 elseif base_equip_name == "LH_SUB" and g.lh_sub then
-
                     if base_equip_name == load_equip_name then
                         spot_names = spot_names .. ":::" .. base_equip_name
                         g.lh_sub = false
                     end
-
                 end
             end
         end
@@ -2038,7 +1804,6 @@ function goddess_icor_manager_set_change(frame, ctrl, str, ctrl_key, step)
             end
         end
     elseif step == 3 then -- swap
-
         if g.rh or g.lh or g.rh_sub or g.lh_sub then
             g.swap = true
             goddess_icor_manager_swap_weapon()
@@ -2046,43 +1811,27 @@ function goddess_icor_manager_set_change(frame, ctrl, str, ctrl_key, step)
             goddess_icor_manager_set_end()
         end
     elseif step == 4 then -- 裏武器
-        -- print(tostring(g.rh) .. ":" .. tostring(g.lh) .. ":" .. tostring(g.rh_sub) .. ":" .. tostring(g.lh_sub))
-
         for base_equip_name, strs in pairs(cur_strs) do
             if string.find(base_equip_name, "RH") or string.find(base_equip_name, "LH") then
                 local tgt_str = temp_data.set[base_equip_name]
-
                 local load_index, load_equip_name = string.match(tgt_str, "^(.-):::(.+)$")
-
                 if base_equip_name == "RH" and g.rh then
-
                     spot_names = spot_names .. ":::" .. load_equip_name
                     g.rh = false
-
                 elseif base_equip_name == "LH" and g.lh then
-
                     spot_names = spot_names .. ":::" .. load_equip_name
                     g.lh = false
-
                 elseif base_equip_name == "RH_SUB" and g.rh_sub then
-
                     spot_names = spot_names .. ":::" .. load_equip_name
                     g.rh_sub = false
-
                 elseif base_equip_name == "LH_SUB" and g.lh_sub then
-
                     spot_names = spot_names .. ":::" .. load_equip_name
                     g.lh_sub = false
-
                 end
             end
         end
-
         if spot_names ~= "" then
-
-            -- print(tostring(g.rh) .. ":" .. tostring(g.lh) .. ":" .. tostring(g.rh_sub) .. ":" .. tostring(g.lh_sub))
             goddess_icor_manager_set_change_action(ctrl_key, spot_names, step)
-
         end
     elseif step == 5 then -- 元戻す
         g.swap = false
@@ -2091,25 +1840,18 @@ function goddess_icor_manager_set_change(frame, ctrl, str, ctrl_key, step)
 end
 
 function goddess_icor_manager_set_change_action(ctrl_key, spot_names, step)
-
     local _, count = string.gsub(spot_names, ":::", "")
-
     if count <= 0 then
         step = step + 1
-
         goddess_icor_manager_set_change(_, _, _, ctrl_key, step)
         return
     end
-
     local frame = ui.GetFrame('goddess_equip_manager')
     frame:ShowWindow(1)
-
     local spot_name = string.match(spot_names, "^:::([A-Z0-9_]+)")
-
     if spot_name then
         spot_names = string.gsub(spot_names, "^:::" .. spot_name, "", 1)
     end
-
     local tgt_str
     if step == 4 then
         if spot_name == "RH" then
@@ -2124,35 +1866,26 @@ function goddess_icor_manager_set_change_action(ctrl_key, spot_names, step)
     else
         tgt_str = g.settings[g.cid].drop_items[ctrl_key].set[spot_name]
     end
-
     local load_index, load_equip_name = string.match(tgt_str, "^(.-):::(.+)$")
     load_index = tonumber(load_index)
-
     session.ResetItemList()
-
     local arg_list = NewStringList()
     local tgt_item = session.GetEquipItemBySpot(item.GetEquipSpotNum(spot_name))
-
     if tgt_item then
         if tgt_item.isLockState == true then
             ui.SysMsg(ClMsg('MaterialItemIsLock'))
             return
         end
         local guid = tgt_item:GetIESID()
-
         if guid ~= 'None' and guid ~= '0' then
             session.AddItemID(guid, 1)
             arg_list:Add(spot_name)
         end
     end
-
     if load_index then
-
         arg_list:Add(load_index)
         local result_list = session.GetItemIDList()
-
         item.DialogTransaction('ICOR_PRESET_ENGRAVE_APPLY', result_list, '', arg_list)
-
         if count > 0 then
             ReserveScript(
                 string.format("goddess_icor_manager_set_change_action(%d,'%s',%d)", ctrl_key, spot_names, step),
@@ -2163,82 +1896,48 @@ function goddess_icor_manager_set_change_action(ctrl_key, spot_names, step)
 end
 
 function goddess_icor_manager_GODDESS_EQUIP_MANAGER_OPEN(frame)
-
     local frame = ui.GetFrame("goddess_equip_manager")
-
     frame:Resize(1270, 900)
     frame:SetGravity(ui.LEFT, ui.CENTER_VERT)
     frame:SetMargin(89, 0, 0, 0);
-
-    -- Layer 92
     frame:SetLayerLevel(92)
     local main_tab = GET_CHILD_RECURSIVELY(frame, 'main_tab')
     main_tab:ShowWindow(1)
-    -- bg" rect="0 0 1218 890"
-
     local manager_top = GET_CHILD(frame, "manager_top")
     manager_top:ShowWindow(1)
-
     local close = GET_CHILD(frame, "close")
     close:ShowWindow(1)
     local help = GET_CHILD(frame, "help")
     help:ShowWindow(1)
     local bg = GET_CHILD(frame, "bg")
-    -- margin="0 10 0 0"
     bg:SetMargin(0, 10, 0, 0);
     local bg_inner = GET_CHILD(bg, "bg_inner")
-    -- relic_frame_bg
     bg_inner:SetSkinName("relic_frame_bg")
-
-    -- bg:Resize(1218, 890)
     bg:Resize(1218, 890)
-
     local randomoption_bg = GET_CHILD(bg, "randomoption_bg")
     randomoption_bg:SetGravity(ui.LEFT, ui.TOP)
-    -- 66,112,0,0
     randomoption_bg:SetMargin(112, 66, 0, 0);
-
     local randomoption_tab = GET_CHILD(randomoption_bg, "randomoption_tab")
     randomoption_tab:ShowWindow(1)
-
     local rand_icor_slot = GET_CHILD_RECURSIVELY(randomoption_bg, "rand_icor_slot")
-    -- margin="50 70 0 0"
     rand_icor_slot:SetMargin(50, 70, 0, 0);
-
     local goddess_icor_spot_text = GET_CHILD_RECURSIVELY(randomoption_bg, "goddess_icor_spot_text")
-    -- margin="50 25 0 0"
     goddess_icor_spot_text:SetMargin(50, 25, 0, 0);
-
     local goddess_icor_spot_list = GET_CHILD_RECURSIVELY(randomoption_bg, "goddess_icor_spot_list")
-    -- margin="50 50 0 0"
     goddess_icor_spot_list:SetMargin(50, 50, 0, 0);
-
     local before_preset_option_text = GET_CHILD_RECURSIVELY(randomoption_bg, "before_preset_option_text")
-    -- margin="240 280 0 0"
     before_preset_option_text:SetMargin(240, 280, 0, 0);
-    -- margin="0 310 50 0
     local before_preset_option_bg = GET_CHILD_RECURSIVELY(randomoption_bg, "before_preset_option_bg")
     before_preset_option_bg:SetMargin(0, 310, 50, 0);
-
     local current_icor_option_text = GET_CHILD_RECURSIVELY(randomoption_bg, "current_icor_option_text")
-    -- margin="0 40 120 0"
     current_icor_option_text:SetMargin(0, 40, 120, 0);
-    --  margin="0 70 50 0"
     local current_icor_option_bg = GET_CHILD_RECURSIVELY(randomoption_bg, "current_icor_option_bg")
     current_icor_option_bg:SetMargin(0, 70, 50, 0);
-
     frame:RemoveChild("exec_btn")
     frame:RemoveChild("close_btn")
-
 end
 
 function goddess_icor_manager_GODDESS_EQUIP_MANAGER_OPEN_(frame)
-    -- if TUTORIAL_CLEAR_CHECK(GetMyPCObject()) == false then
-    -- 	ui.SysMsg(ClMsg('CanUseAfterTutorialClear'))
-    -- 	frame:ShowWindow(0)
-    -- 	return
-    -- end
-
     frame:ShowWindow(1)
     ui.CloseFrame('rareoption')
     ui.CloseFrame('item_cabinet')
@@ -2249,99 +1948,66 @@ function goddess_icor_manager_GODDESS_EQUIP_MANAGER_OPEN_(frame)
             ui.CloseFrame(revert_name)
         end
     end
-
     local main_tab = GET_CHILD_RECURSIVELY(frame, 'main_tab')
     main_tab:SelectTab(1)
     CLEAR_GODDESS_EQUIP_MANAGER(frame)
     TOGGLE_GODDESS_EQUIP_MANAGER_TAB(frame, 1)
     ui.OpenFrame('inventory')
-
-    -- width="1270" height="900"
-
-    -- frame:Resize(1270, 900)
-
     local newframe = ui.GetFrame("goddess_icor_manager_newframe")
     AUTO_CAST(newframe)
     newframe:ShowWindow(0)
-
     local inputstring = ui.GetFrame('inputstring')
     AUTO_CAST(inputstring)
     inputstring:SetLayerLevel(122)
     frame:Resize(510, 560)
     frame:SetPos(1430, 0)
-    -- Layer 92
     frame:SetLayerLevel(122)
-    -- bg" rect="0 0 1218 890"
     main_tab:ShowWindow(0)
     local manager_top = GET_CHILD(frame, "manager_top")
     manager_top:ShowWindow(0)
-
     local close = GET_CHILD(frame, "close")
     close:ShowWindow(0)
     local help = GET_CHILD(frame, "help")
     help:ShowWindow(0)
     local bg = GET_CHILD(frame, "bg")
-    -- margin="0 10 0 0"
     bg:SetMargin(-15, 0, 0, 0);
     local bg_inner = GET_CHILD(bg, "bg_inner")
-    -- relic_frame_bg
     bg_inner:SetSkinName("None")
-
-    -- bg:Resize(1218, 890)
     bg:Resize(510, 560)
-
     local randomoption_bg = GET_CHILD(bg, "randomoption_bg")
     randomoption_bg:SetSkinName("None")
-    -- 66,112,0,0
     randomoption_bg:SetMargin(0, 0, 0, 0);
-
     local randomoption_tab = GET_CHILD(randomoption_bg, "randomoption_tab")
     randomoption_tab:ShowWindow(0)
-
     local rand_icor_slot = GET_CHILD_RECURSIVELY(randomoption_bg, "rand_icor_slot")
-    -- margin="50 70 0 0"
     rand_icor_slot:SetMargin(10, 70, 0, 0);
-
     local goddess_icor_spot_text = GET_CHILD_RECURSIVELY(randomoption_bg, "goddess_icor_spot_text")
-    -- margin="50 25 0 0"
     goddess_icor_spot_text:SetMargin(10, 25, 0, 0);
-
     local goddess_icor_spot_list = GET_CHILD_RECURSIVELY(randomoption_bg, "goddess_icor_spot_list")
-    -- margin="50 50 0 0"
     goddess_icor_spot_list:SetMargin(10, 50, 0, 0);
-
     local before_preset_option_text = GET_CHILD_RECURSIVELY(randomoption_bg, "before_preset_option_text")
-    -- margin="240 280 0 0"
     before_preset_option_text:SetMargin(155, 280, 0, 0);
-    -- margin="0 310 50 0
     local before_preset_option_bg = GET_CHILD_RECURSIVELY(randomoption_bg, "before_preset_option_bg")
     before_preset_option_bg:SetMargin(0, 310, 135, 0);
-
     local current_icor_option_text = GET_CHILD_RECURSIVELY(randomoption_bg, "current_icor_option_text")
-    -- margin="0 40 120 0"
     current_icor_option_text:SetMargin(0, 40, 205, 0);
-    --  margin="0 70 50 0"
     local current_icor_option_bg = GET_CHILD_RECURSIVELY(randomoption_bg, "current_icor_option_bg")
     current_icor_option_bg:SetMargin(0, 70, 135, 0);
-
     local exec_btn = frame:CreateOrGetControl("button", "exec_btn", 0, 415, 150, 60)
     local text = g.lang == "Japanese" and "{@st41b}{s18}刻印保存" or "{@st41b}{s18}Icor save"
     exec_btn:SetText(text)
     AUTO_CAST(exec_btn)
     exec_btn:SetSkinName("relic_btn_purple")
     exec_btn:SetEventScript(ui.LBUTTONUP, "GODDESS_MGR_RANDOMOPTION_ENGRAVE_ICOR_EXEC")
-
     local close_btn = frame:CreateOrGetControl("button", "close_btn", 0, 0, 30, 30)
     AUTO_CAST(close_btn)
     close_btn:SetSkinName("None")
     close_btn:SetText("{img testclose_button 30 30}")
     close_btn:SetGravity(ui.LEFT, ui.TOP)
     close_btn:SetEventScript(ui.LBUTTONUP, "goddess_icor_manager_list_close")
-
 end
 
 function goddess_icor_manager_icor_save_open()
-
     local goddess_equip_manager = ui.GetFrame("goddess_equip_manager")
     goddess_icor_manager_GODDESS_EQUIP_MANAGER_OPEN_(goddess_equip_manager)
 end
@@ -2355,13 +2021,11 @@ function goddess_icor_manager_newframe_init(ctrl_key)
     newframe:SetSkinName('test_frame_midle_light')
     newframe:SetLayerLevel(121)
     newframe:RemoveAllChild()
-
     local change_check = newframe:CreateOrGetControl('checkbox', 'change_check', 10, 30, 30, 30)
     AUTO_CAST(change_check)
     change_check:SetEventScript(ui.LBUTTONUP, "goddess_icor_manager_check_save")
     change_check:SetCheck(g.settings.check)
     change_check:SetText(g.lang == "Japanese" and "{ol}チェックで表示切替" or "{ol}Check to switch display")
-
     local closebtn = newframe:CreateOrGetControl("button", "closebtn", 465, 0, 30, 30)
     closebtn:SetText("{img testclose_button 30 30}")
     AUTO_CAST(closebtn)
@@ -2369,7 +2033,6 @@ function goddess_icor_manager_newframe_init(ctrl_key)
     closebtn:SetSkinName("None")
     closebtn:SetEventScript(ui.LBUTTONUP, "goddess_icor_manager_list_close")
     closebtn:SetTextTooltip("{ol}Frame Close")
-
     local swapbtn = newframe:CreateOrGetControl("button", "swapbtn", 0, 0, 35, 35)
     swapbtn:SetText("{img sysmenu_skill 35 35}")
     AUTO_CAST(swapbtn)
@@ -2378,16 +2041,13 @@ function goddess_icor_manager_newframe_init(ctrl_key)
     swapbtn:SetEventScript(ui.LBUTTONUP, "goddess_icor_manager_swap_weapon")
     swapbtn:SetTextTooltip(g.lang == "Japanese" and "{ol}武器の裏表切替" or
                                "{ol}Swap the reverse side of weapons")
-
     local icor_save = newframe:CreateOrGetControl("button", "icor_save", 45, 0, 80, 35)
     local text = g.lang == "Japanese" and "{@st66b}刻印保存" or "{@st66b}Icor save"
     icor_save:SetText(text)
     AUTO_CAST(icor_save)
     icor_save:SetSkinName("test_pvp_btn")
     icor_save:SetEventScript(ui.LBUTTONUP, "goddess_icor_manager_icor_save_open")
-
     function goddess_icor_manager_setting_delay(frame, ctrl)
-
         local delay = tonumber(ctrl:GetText())
         if delay then
             g.settings.delay = delay
@@ -2396,9 +2056,7 @@ function goddess_icor_manager_newframe_init(ctrl_key)
                              "{ol}Delay is set to " .. delay .. " sec."
             ui.SysMsg(text)
         end
-
     end
-
     local delay_edit = newframe:CreateOrGetControl('edit', 'delay_edit', change_check:GetWidth() - 30, 2, 50, 30)
     AUTO_CAST(delay_edit)
     delay_edit:SetFontName("white_16_ol")
@@ -2408,7 +2066,6 @@ function goddess_icor_manager_newframe_init(ctrl_key)
                     "{ol}Delay setting Default is 0.6 sec."
     delay_edit:SetTextTooltip(msg)
     delay_edit:SetEventScript(ui.ENTERKEY, "goddess_icor_manager_setting_delay")
-
     local set_droplist = newframe:CreateOrGetControl('droplist', 'set_droplist', change_check:GetWidth() + 30, 35, 250,
         30)
     AUTO_CAST(set_droplist)
@@ -2422,7 +2079,6 @@ function goddess_icor_manager_newframe_init(ctrl_key)
     for key, data in ipairs(g.settings[g.cid].drop_items) do
         set_droplist:AddItem(key, "{ol}" .. data.set_name)
     end
-
     if ctrl_key then
         local save_btn = newframe:CreateOrGetControl("button", "save_btn", set_droplist:GetX(), 5, 50, 30)
         AUTO_CAST(save_btn)
@@ -2431,13 +2087,11 @@ function goddess_icor_manager_newframe_init(ctrl_key)
         save_btn:SetEventScriptArgNumber(ui.LBUTTONUP, ctrl_key)
         save_btn:SetTextTooltip(g.lang == "Japanese" and "{ol}装備中のイコルセットを保存します" or
                                     "{ol}Save icorset being equipped")
-
         local delete_btn = newframe:CreateOrGetControl("button", "delete_btn", set_droplist:GetX() + 60, 5, 50, 30)
         AUTO_CAST(delete_btn)
         delete_btn:SetText(g.lang == "Japanese" and "{ol}削除" or "{ol}Delete")
         delete_btn:SetEventScript(ui.LBUTTONUP, "goddess_icor_manager_set_delete")
         delete_btn:SetEventScriptArgNumber(ui.LBUTTONUP, ctrl_key)
-
         local keyword_jp = "(保存済)"
         local keyword_en = "(saved)"
         local found_jp = string.find(g.settings[g.cid].drop_items[ctrl_key].set_name, keyword_jp, 1, true)
@@ -2450,7 +2104,6 @@ function goddess_icor_manager_newframe_init(ctrl_key)
             change_btn:SetEventScriptArgNumber(ui.LBUTTONUP, ctrl_key)
         end
     end
-
     local x = 5
     local y = 50
     local yy = 50
@@ -2458,39 +2111,28 @@ function goddess_icor_manager_newframe_init(ctrl_key)
         local new_bg
         if i <= 2 or i >= 7 then
             new_bg = newframe:CreateOrGetControl("groupbox", "new_bg" .. i, x, y + 10, 240, 130)
-            -- new_bg = newframe:CreateOrGetControl("picture", "new_bg" .. i, x, y + 10, 240, 130)
             y = y + 131
-
         elseif i <= 6 or i >= 3 then
             new_bg = newframe:CreateOrGetControl("groupbox", "new_bg" .. i, x + 245, yy + 10, 240, 130)
-            -- new_bg = newframe:CreateOrGetControl("picture", "new_bg" .. i, x + 245, yy + 10, 240, 130)
             yy = yy + 131
-
         end
         AUTO_CAST(new_bg)
         new_bg:SetSkinName("test_frame_midle_light")
-
     end
-
     newframe:ShowWindow(1)
-
     for i = 1, #managed_slot_list do
-
         local slot_info = managed_slot_list[i]
         local new_bg = GET_CHILD(newframe, "new_bg" .. i)
         local slot = new_bg:CreateOrGetControl("richtext", "slot" .. i, 5, 5)
         AUTO_CAST(slot)
         slot:SetText("{ol}" .. ClMsg(slot_info.clmsg))
-
         local inv_item = session.GetEquipItemBySpot(item.GetEquipSpotNum(slot_info.slot_name))
         local item_obj = GetIES(inv_item:GetObject())
         local item_dic = GET_ITEM_RANDOMOPTION_DIC(item_obj)
         local size = item_dic["Size"]
-
         local y = 25
         if size ~= 0 then
             for j = 1, size do
-
                 local key = "RandomOption_" .. j
                 local value_key = "RandomOptionValue_" .. j
                 local group_key = "RandomOptionGroup_" .. j
@@ -2503,15 +2145,12 @@ function goddess_icor_manager_newframe_init(ctrl_key)
                 local color = goddess_icor_manager_color(tostring(group))
                 text:SetText("{ol}" .. color .. goddess_icor_manager_language(option) .. "{#FFFFFF} : " .. value)
                 y = y + 20
-
             end
             local bg = GET_CHILD_RECURSIVELY(newframe, "new_bg" .. i)
             local colortone = goddess_icor_manager_set_frame_color_equip(bg, size, item_dic, slot)
             bg:SetColorTone(colortone)
         end
-
     end
-
     local status_bg = newframe:CreateOrGetControl("groupbox", "status_bg", 5, 590, 485, 470)
     AUTO_CAST(status_bg)
     status_bg:SetSkinName("bg")
@@ -2533,11 +2172,9 @@ function goddess_icor_manager_newframe_init(ctrl_key)
 end
 
 function goddess_icor_manager_list_gb_init(frame, page)
-
     local acc = GetMyAccountObj()
     local etc = GetMyEtcObject()
     local remain_time = GET_REMAIN_SECOND_ENGRAVE_SLOT_EXTENSION_TIME(acc)
-
     local max_page = GET_MAX_ENGARVE_SLOT_COUNT(acc)
     local page_max = 0
     if tonumber(remain_time) == 0 then
@@ -2545,35 +2182,29 @@ function goddess_icor_manager_list_gb_init(frame, page)
     else
         page_max = GET_MAX_ENGARVE_SLOT_COUNT(acc)
     end
-
     if g.settings.check == nil then
         g.settings.check = 0
     end
-
     if g.settings.check == 0 then
         local Y = 10
-
         local left_btn = frame:CreateOrGetControl("button", "left_btn", 690, 1020, 30, 30)
         AUTO_CAST(left_btn)
         left_btn:SetText("{img white_left_arrow 18 18}")
         left_btn:SetSkinName("brown_3patch_btn")
         left_btn:SetEventScript(ui.LBUTTONUP, "goddess_icor_manager_list_init")
         left_btn:SetEventScriptArgNumber(ui.LBUTTONUP, 1)
-
         local right_btn = frame:CreateOrGetControl("button", "right_btn", 740, 1020, 30, 30)
         AUTO_CAST(right_btn)
         right_btn:SetText("{img white_right_arrow 18 18}")
         right_btn:SetSkinName("brown_3patch_btn")
         right_btn:SetEventScript(ui.LBUTTONUP, "goddess_icor_manager_list_init")
         right_btn:SetEventScriptArgNumber(ui.LBUTTONUP, 2)
-
         local s_index, e_index
         if page == 2 then
             s_index, e_index = 6, page_max
         elseif page == 1 then
             s_index, e_index = 1, 5
         end
-
         for i = s_index, e_index do
             local bg = frame:CreateOrGetControl("groupbox", "bg" .. i, Y, 10, 281, 1010) -- 490
             AUTO_CAST(bg)
@@ -2582,7 +2213,6 @@ function goddess_icor_manager_list_gb_init(frame, page)
             AUTO_CAST(pagename_text)
             local pagename = goddess_icor_manager_get_pagename(i)
             Y = Y + 283
-
             if remain_time == 0 and tonumber(max_page) < i then
                 local text = g.lang == "Japanese" and " 使用不可" or " disabled"
                 pagename_text:SetText("{ol}{#FF0000}" .. pagename .. text)
@@ -2591,13 +2221,10 @@ function goddess_icor_manager_list_gb_init(frame, page)
             end
             bg:SetSkinName("bg")
             bg:ShowWindow(1)
-
             local manage_X = 0
             for j = 1, #managed_list do
                 local manage_bg = bg:CreateOrGetControl("groupbox", "manage_bg" .. j, 0, 30 + manage_X, 258, 120)
-
                 local manage_text = manage_bg:CreateOrGetControl("richtext", "manage_text" .. j, 10, 0)
-
                 local temp_name = ""
                 if type(g.settings[g.cid].icor_ids[tostring(i)]) == "table" then
                     local spot_data = g.settings[g.cid].icor_ids[tostring(i)][managed_slot_list[j].slot_name]
@@ -2605,7 +2232,6 @@ function goddess_icor_manager_list_gb_init(frame, page)
                         local temp_cls = GetClassByType("Item", spot_data)
                         if temp_cls then
                             local cls_name = temp_cls.ClassName
-
                             if string.find(cls_name, "EP17", 1, true) then
                                 if string.find(cls_name, "high", 1, true) then
                                     temp_name = g.lang == "Japanese" and " [540]上級" or " [540]Advanced"
@@ -2624,64 +2250,35 @@ function goddess_icor_manager_list_gb_init(frame, page)
                             end
                         end
                     end
-                    --[[if g.settings[g.cid].icor_ids[tostring(i)][managed_slot_list[j].slot_name] then
-                        local temp_id = g.settings[g.cid].icor_ids[tostring(i)][managed_slot_list[j].slot_name]
-                        local temp_cls = GetClassByType("Item", temp_id)
-                        temp_name = temp_cls.ClassName
-                        if string.find(temp_name, "EP16", 1, true) and string.find(temp_name, "high", 1, true) then
-                            temp_name = g.lang == "Japanese" and " [520]上級" or " [520]Advanced"
-                        elseif string.find(temp_name, "EP16", 1, true) then
-                            temp_name = g.lang == "Japanese" and " [520]" or " [520]"
-                        end
-                        if string.find(temp_name, "EP17", 1, true) and string.find(temp_name, "high", 1, true) then
-                            temp_name = g.lang == "Japanese" and " [540]上級" or " [540]Advanced"
-                        elseif string.find(temp_name, "EP17", 1, true) then
-                            temp_name = g.lang == "Japanese" and " [540]" or " [540]"
-                        end
-                    end]]
                 end
                 manage_text:SetText("{ol}" .. ClMsg(managed_slot_list[j].clmsg) .. temp_name)
-
                 manage_bg:SetSkinName("test_frame_midle_light")
-
                 manage_X = manage_X + 122
-
                 local parts1 = {}
                 local parts2 = {}
                 local parts3 = {}
-
                 local option_prop, group_prop, value_prop, is_goddess_option =
                     goddess_icor_manager_GET_ENGRAVED_OPTION_LIST(etc, i, managed_list[j])
-
                 if option_prop ~= nil then
                     for part in option_prop:gmatch("([^/]+)") do
                         table.insert(parts1, part)
                     end
-
                     for part in group_prop:gmatch("([^/]+)") do
                         table.insert(parts2, part)
                     end
-
                     for part in value_prop:gmatch("([^/]+)") do
                         table.insert(parts3, part)
                     end
-
                     goddess_icor_manager_set_text(manage_bg, parts1, parts2, parts3, manage_text)
                 end
             end
         end
-
     end
-
     local function goddess_icor_manager_draw_manage_sections(parent_bg, current_i)
         local manage_y = 0
-
         for j = 1, #managed_list do
-
             local m_bg = parent_bg:CreateOrGetControl("groupbox", "manage_bg" .. j, 0, manage_y + 5, 258, 120)
-
             m_bg:SetSkinName("test_frame_midle_light")
-
             local m_text = m_bg:CreateOrGetControl("richtext", "manage_text" .. j, 10, 0)
             local temp_name = ""
             if type(g.settings[g.cid].icor_ids[tostring(current_i)]) == "table" then
@@ -2690,7 +2287,6 @@ function goddess_icor_manager_list_gb_init(frame, page)
                     local temp_cls = GetClassByType("Item", spot_data)
                     if temp_cls then
                         local cls_name = temp_cls.ClassName
-
                         if string.find(cls_name, "EP17", 1, true) then
                             if string.find(cls_name, "high", 1, true) then
                                 temp_name = g.lang == "Japanese" and " [540]上級" or " [540]Advanced"
@@ -2712,10 +2308,8 @@ function goddess_icor_manager_list_gb_init(frame, page)
             end
             m_text:SetText("{ol}" .. goddess_icor_manager_language(managed_list[j]) .. temp_name)
             local p1, p2, p3 = {}, {}, {}
-
             local opt_prop, grp_prop, val_prop, is_goddess =
                 goddess_icor_manager_GET_ENGRAVED_OPTION_LIST(etc, current_i, managed_list[j])
-
             if opt_prop then
                 for part in opt_prop:gmatch("([^/]+)") do
                     table.insert(p1, part)
@@ -2731,31 +2325,23 @@ function goddess_icor_manager_list_gb_init(frame, page)
             manage_y = manage_y + 122
         end
     end
-
     if g.settings.check == 1 then
         local bg_x = 10
         local y1 = 10
         local y2 = 535
-
         for i = 1, page_max do
-
             local bg_y = 0
-
             if i <= 5 then
                 bg_y = y1
             elseif i >= 6 then
-
                 bg_y = y2
             end
-
             local bg = frame:CreateOrGetControl("groupbox", "bg" .. i, bg_x, bg_y + 20, 281, 495)
             AUTO_CAST(bg)
             bg:SetSkinName("bg")
-
             local p_text = frame:CreateOrGetControl("richtext", "pagename_text" .. i, bg_x + 10, bg_y)
             AUTO_CAST(p_text)
             local p_name = goddess_icor_manager_get_pagename(i)
-
             if remain_time == 0 and tonumber(max_page) < i then
                 local text = g.lang == "Japanese" and " 使用不可" or " disabled"
                 p_text:SetText("{ol}{#FF0000}" .. p_name .. text)
@@ -2763,7 +2349,6 @@ function goddess_icor_manager_list_gb_init(frame, page)
                 p_text:SetText("{ol}{#FFFF00}" .. p_name)
             end
             bg:ShowWindow(1)
-
             goddess_icor_manager_draw_manage_sections(bg, i)
             if i <= 4 then
                 bg_x = bg_x + 283
@@ -2772,28 +2357,21 @@ function goddess_icor_manager_list_gb_init(frame, page)
             else
                 bg_x = bg_x + 283
             end
-
         end
-
         goddess_icor_manager_set_pos(frame, page_max)
     end
     goddess_icor_manager_check()
     frame:Resize(1430, 1065)
-
     frame:ShowWindow(1)
     frame:Invalidate()
 end
 
 function goddess_icor_manager_equip_button(frame, ctrl, argStr, argNum)
-
     local frame = ui.GetFrame('goddess_equip_manager')
     frame:ShowWindow(1)
-
     GODDESS_MGR_RANDOMOPTION_APPLY_OPEN(frame)
     session.ResetItemList()
-
     local arg_list = NewStringList()
-
     local apply_cnt = 0
     for i = 1, #managed_slot_list do
         local slot_info = managed_slot_list[i]
@@ -2824,9 +2402,7 @@ function goddess_icor_manager_equip_button(frame, ctrl, argStr, argNum)
             end
             local slot = GET_CHILD(ctrlset, 'slot')
             AUTO_CAST(slot)
-
             local guid = slot:GetUserValue('ITEM_GUID')
-
             if guid ~= 'None' then
                 session.AddItemID(guid, 1)
                 arg_list:Add(slot_info.slot_name)
@@ -2834,24 +2410,17 @@ function goddess_icor_manager_equip_button(frame, ctrl, argStr, argNum)
             end
         end
     end
-
     if apply_cnt == 0 then
         ui.SysMsg(ClMsg('NoSelectedItem'))
         return
     end
-
     local randomoption_bg = GET_CHILD_RECURSIVELY(frame, 'randomoption_bg')
-
     local index = argNum
-
     arg_list:Add(index)
-
     local result_list = session.GetItemIDList()
     item.DialogTransaction('ICOR_PRESET_ENGRAVE_APPLY', result_list, '', arg_list)
-
     local acc = GetMyAccountObj()
     local page_max = GET_MAX_ENGARVE_SLOT_COUNT(acc) + 5
-
     if g.settings.check == 1 then
         for i = 1, page_max do
             local bg = GET_CHILD_RECURSIVELY(frame, "bg" .. i)
@@ -2865,80 +2434,54 @@ function goddess_icor_manager_equip_button(frame, ctrl, argStr, argNum)
 
         end
     end
-
     ReserveScript(string.format("goddess_icor_manager_list_init('%s','%s','%s',%d)", frame, "", "", g.num),
         g.settings.delay or 0.5)
-
 end
 
 function goddess_icor_manager_set_pos(frame, page_max)
-
     for i = 1, page_max do
-
         local bg = GET_CHILD_RECURSIVELY(frame, "bg" .. i)
         AUTO_CAST(bg)
-
         local pos = tonumber(g.settings[tostring(i)])
-
         bg:SetScrollPos(0)
-        --[[if pos ~= 0 then
-            bg:EnableScrollBar(1)
-            bg:EnableDrawFrame(1)
-            bg:SetScrollPos(pos)
-        end]]
         bg:Invalidate()
     end
-
 end
 function goddess_icor_manager_check()
-
     local frame = ui.GetFrame("goddess_icor_manager")
     local equipframe = ui.GetFrame("goddess_icor_manager_newframe")
     local acc = GetMyAccountObj()
-
     local remain_time = GET_REMAIN_SECOND_ENGRAVE_SLOT_EXTENSION_TIME(acc)
-
     local page_max = 0
     if tonumber(remain_time) ~= 0 then
-
         page_max = GET_MAX_ENGARVE_SLOT_COUNT(acc) + 5
     else
         page_max = GET_MAX_ENGARVE_SLOT_COUNT(acc)
-
     end
-
     if g.settings.check ~= 0 then
         for i = 1, page_max do
             local pagename_text = GET_CHILD_RECURSIVELY(frame, "pagename_text" .. i)
-
             local bg = GET_CHILD_RECURSIVELY(frame, "bg" .. i)
             for j = 1, 8 do
                 local new_bg = GET_CHILD_RECURSIVELY(equipframe, "new_bg" .. j)
-
                 local equip_textcount = new_bg:GetChildCount() - 2
-
                 local equip_text = ""
                 for k = 1, equip_textcount do
                     local text = GET_CHILD_RECURSIVELY(new_bg, "text" .. k):GetText()
                     equip_text = equip_text .. text
                 end
                 equip_text = equip_text:gsub("{[^}]+}", "")
-
                 local icor_text = ""
                 local manage_bg = GET_CHILD_RECURSIVELY(bg, "manage_bg" .. j)
                 if manage_bg ~= nil then
                     local bg_textcount = manage_bg:GetChildCount() - 2
-
                     for k = 1, bg_textcount do
                         local text = GET_CHILD_RECURSIVELY(manage_bg, "option" .. k):GetText()
                         icor_text = icor_text .. text
-
                     end
                     icor_text = icor_text:gsub("{[^}]+}", "")
-
                     if tostring(equip_text) == tostring(icor_text) and equip_text ~= "" then
                         local star = manage_bg:CreateOrGetControl("richtext", "star" .. j, 25, 25)
-                        -- local manage_text = GET_CHILD_RECURSIVELY(manage_bg, "manage_text" .. j)
                         star:SetText("{img monster_card_starmark 25 25}")
                         star:SetOffset(230, 0)
                     elseif tostring(equip_text) ~= tostring(icor_text) and icor_text ~= "" then
@@ -2957,44 +2500,34 @@ function goddess_icor_manager_check()
         end
     else
         local pagename_text1 = GET_CHILD_RECURSIVELY(frame, "pagename_text1")
-
         if pagename_text1 ~= nil then
             local page = math.min(5, page_max)
             for i = 1, page do
                 local pagename_text = GET_CHILD_RECURSIVELY(frame, "pagename_text" .. i)
-
                 local bg = GET_CHILD_RECURSIVELY(frame, "bg" .. i)
                 for j = 1, 8 do
                     local new_bg = GET_CHILD_RECURSIVELY(equipframe, "new_bg" .. j)
-
                     local equip_textcount = new_bg:GetChildCount() - 2
-
                     local equip_text = ""
                     for k = 1, equip_textcount do
                         local text = GET_CHILD_RECURSIVELY(new_bg, "text" .. k):GetText()
                         equip_text = equip_text .. text
                     end
                     equip_text = equip_text:gsub("{[^}]+}", "")
-
                     local icor_text = ""
                     local manage_bg = GET_CHILD_RECURSIVELY(bg, "manage_bg" .. j)
                     if manage_bg ~= nil then
                         local bg_textcount = manage_bg:GetChildCount() - 2
-
                         for k = 1, bg_textcount do
                             local text = GET_CHILD_RECURSIVELY(manage_bg, "option" .. k):GetText()
                             icor_text = icor_text .. text
-
                         end
                         icor_text = icor_text:gsub("{[^}]+}", "")
-
                         if tostring(equip_text) == tostring(icor_text) and equip_text ~= "" then
                             local star = manage_bg:CreateOrGetControl("richtext", "star" .. j, 25, 25)
-                            -- local manage_text = GET_CHILD_RECURSIVELY(manage_bg, "manage_text" .. j)
                             star:SetText("{img monster_card_starmark 25 25}")
                             star:SetOffset(230, 0)
                         elseif tostring(equip_text) ~= tostring(icor_text) and icor_text ~= "" then
-
                             local equip_button = manage_bg:CreateOrGetControl("button", "equip_button", 225, 0, 30, 25)
                             AUTO_CAST(equip_button)
                             equip_button:SetText("{ol}{s14}E")
@@ -3004,44 +2537,34 @@ function goddess_icor_manager_check()
                             equip_button:SetEventScriptArgString(ui.LBUTTONUP, j)
                             equip_button:SetTextTooltip(goddess_icor_manager_language(
                                 "Equip the icor with a left click of the button."))
-
                         end
                     end
                 end
-
             end
         else
             for i = 6, page_max do
                 local pagename_text = GET_CHILD_RECURSIVELY(frame, "pagename_text" .. i)
-
                 local bg = GET_CHILD_RECURSIVELY(frame, "bg" .. i)
                 for j = 1, 8 do
                     local new_bg = GET_CHILD_RECURSIVELY(equipframe, "new_bg" .. j)
-
                     local equip_textcount = new_bg:GetChildCount() - 2
-
                     local equip_text = ""
                     for k = 1, equip_textcount do
                         local text = GET_CHILD_RECURSIVELY(new_bg, "text" .. k):GetText()
                         equip_text = equip_text .. text
                     end
                     equip_text = equip_text:gsub("{[^}]+}", "")
-
                     local icor_text = ""
                     local manage_bg = GET_CHILD_RECURSIVELY(bg, "manage_bg" .. j)
                     if manage_bg ~= nil then
                         local bg_textcount = manage_bg:GetChildCount() - 2
-
                         for k = 1, bg_textcount do
                             local text = GET_CHILD_RECURSIVELY(manage_bg, "option" .. k):GetText()
                             icor_text = icor_text .. text
-
                         end
                         icor_text = icor_text:gsub("{[^}]+}", "")
-
                         if tostring(equip_text) == tostring(icor_text) and equip_text ~= "" then
                             local star = manage_bg:CreateOrGetControl("richtext", "star" .. j, 25, 25)
-                            -- local manage_text = GET_CHILD_RECURSIVELY(manage_bg, "manage_text" .. j)
                             star:SetText("{img monster_card_starmark 25 25}")
                             star:SetOffset(230, 0)
                         elseif tostring(equip_text) ~= tostring(icor_text) and icor_text ~= "" then
@@ -3057,47 +2580,31 @@ function goddess_icor_manager_check()
                         end
                     end
                 end
-
             end
         end
     end
 end
 
 function goddess_icor_manager_set_text(manage_bg, parts1, parts2, parts3, manage_text)
-
     for k = 1, #parts1 do
-
         local option = manage_bg:CreateOrGetControl("richtext", "option" .. k, 10, k * 20)
         local color = goddess_icor_manager_color(tostring(parts2[k]))
         option:SetText("{ol}" .. color .. goddess_icor_manager_language(parts1[k]) .. "{ol}{#FFFFFF} : " ..
                            "{ol}{#FFFFFF}" .. parts3[k])
-
         local colortone = goddess_icor_manager_set_frame_color(manage_bg, parts1, parts2, parts3, manage_text)
-
         manage_bg:SetColorTone(colortone)
-
     end
-
 end
 
 function goddess_icor_manager_set_frame_color(manage_bg, parts1, parts2, parts3, manage_text)
     local frameName = manage_bg:GetName()
-
     if frameName == "manage_bg1" or frameName == "manage_bg2" or frameName == "manage_bg7" or frameName == "manage_bg8" then
         for i = 1, #high500weapontbl do
             local key = high500weapontbl[i]
             local keyName = next(key)
             local value = key[next(key)] -- 次のキー（最初のキー）の値を取得
             for j = 1, #parts1 do
-
                 if tostring(parts1[j]) == tostring(keyName) and tonumber(parts3[j]) >= tonumber(value) then
-                    -- local manage_text = GET_CHILD_RECURSIVELY(manage_bg, "manage_text" .. j)
-
-                    --[[local text = manage_text:GetText()
-                    if string.find(text, goddess_icor_manager_language(" 500Advanced")) == nil then
-                        manage_text:SetText(text .. "{ol}" .. goddess_icor_manager_language(" 500Advanced"))
-
-                    end]]
                     return "FFFFD700"
                 end
             end
@@ -3108,10 +2615,6 @@ function goddess_icor_manager_set_frame_color(manage_bg, parts1, parts2, parts3,
             local value = key[next(key)] -- 次のキー（最初のキー）の値を取得
             for j = 1, #parts1 do
                 if tostring(parts1[j]) == tostring(keyName) and tonumber(parts3[j]) >= tonumber(value) then
-                    --[[ local text = manage_text:GetText()
-                    if string.find(text, " LV500") == nil then
-                        manage_text:SetText(text .. "{ol} LV500")
-                    end]]
                     return "FFDAA520"
                 end
             end
@@ -3121,13 +2624,7 @@ function goddess_icor_manager_set_frame_color(manage_bg, parts1, parts2, parts3,
             local keyName = next(key)
             local value = key[next(key)] -- 次のキー（最初のキー）の値を取得
             for j = 1, #parts1 do
-
                 if tostring(parts1[j]) == tostring(keyName) and tonumber(parts3[j]) >= tonumber(value) then
-                    --[[local text = manage_text:GetText()
-                    if string.find(text, goddess_icor_manager_language(" 480Advanced")) == nil then
-                        manage_text:SetText(text .. "{ol}" .. goddess_icor_manager_language(" 480Advanced"))
-
-                    end]]
                     return "FF808080"
                 end
             end
@@ -3137,12 +2634,7 @@ function goddess_icor_manager_set_frame_color(manage_bg, parts1, parts2, parts3,
             local keyName = next(key)
             local value = key[next(key)] -- 次のキー（最初のキー）の値を取得
             for j = 1, #parts1 do
-
                 if tostring(parts1[j]) == tostring(keyName) and tonumber(parts3[j]) >= tonumber(value) then
-                    --[[local text = manage_text:GetText()
-                    if string.find(text, " LV480") == nil then
-                        manage_text:SetText(text .. "{ol} LV480")
-                    end]]
                     return "FF808080"
                 end
             end
@@ -3153,13 +2645,7 @@ function goddess_icor_manager_set_frame_color(manage_bg, parts1, parts2, parts3,
             local keyName = next(key)
             local value = key[next(key)] -- 次のキー（最初のキー）の値を取得
             for j = 1, #parts1 do
-
                 if tostring(parts1[j]) == tostring(keyName) and tonumber(parts3[j]) >= tonumber(value) then
-                    --[[local text = manage_text:GetText()
-                    if string.find(text, goddess_icor_manager_language(" 500Advanced")) == nil then
-                        manage_text:SetText(text .. "{ol}" .. goddess_icor_manager_language(" 500Advanced"))
-
-                    end]]
                     return "FFFFD700"
                 end
             end
@@ -3170,12 +2656,7 @@ function goddess_icor_manager_set_frame_color(manage_bg, parts1, parts2, parts3,
             local value = key[next(key)] -- 次のキー（最初のキー）の値を取得
             for j = 1, #parts1 do
                 if tostring(parts1[j]) == tostring(keyName) and tonumber(parts3[j]) >= tonumber(value) then
-                    --[[ local text = manage_text:GetText()
-                    if string.find(text, " LV500") == nil then
-                        manage_text:SetText(text .. "{ol} LV500")
-                    end]]
                     return "FFDAA520"
-                    -- return "AAC0C0C0"
                 end
             end
         end
@@ -3184,13 +2665,7 @@ function goddess_icor_manager_set_frame_color(manage_bg, parts1, parts2, parts3,
             local keyName = next(key)
             local value = key[next(key)] -- 次のキー（最初のキー）の値を取得
             for j = 1, #parts1 do
-
                 if tostring(parts1[j]) == tostring(keyName) and tonumber(parts3[j]) >= tonumber(value) then
-                    --[[local text = manage_text:GetText()
-                    if string.find(text, goddess_icor_manager_language(" 480Advanced")) == nil then
-                        manage_text:SetText(text .. "{ol}" .. goddess_icor_manager_language(" 480Advanced"))
-
-                    end]]
                     return "FF808080"
                 end
             end
@@ -3200,12 +2675,7 @@ function goddess_icor_manager_set_frame_color(manage_bg, parts1, parts2, parts3,
             local keyName = next(key)
             local value = key[next(key)] -- 次のキー（最初のキー）の値を取得
             for j = 1, #parts1 do
-
                 if tostring(parts1[j]) == tostring(keyName) and tonumber(parts3[j]) >= tonumber(value) then
-                    --[[local text = manage_text:GetText()
-                    if string.find(text, " LV480") == nil then
-                        manage_text:SetText(text .. "{ol} LV480")
-                    end]]
                     return "FF808080"
                 end
             end
@@ -3221,80 +2691,54 @@ function goddess_icor_manager_check_save(frame, ctrl, argStr, argNum)
     local frame = ui.GetFrame("goddess_icor_manager")
     ReserveScript(string.format("goddess_icor_manager_list_init('%s','%s','%s',%d)", frame, "", "", 1),
         g.settings.delay or 0.5)
-
 end
 
 function goddess_icor_manager_newframe_set_status(status_bg, stframe, status_str, index)
-
     local child_frame = GET_CHILD_RECURSIVELY(stframe, status_str)
-
     local language = option.GetCurrentCountry()
-
     local level = info.GetLevel(session.GetMyHandle())
     local setting_num = level * 30
     local setting_num2 = level * 15
-
     if language == "Japanese" then
         local child_title = GET_CHILD(child_frame, "title", "ui::CRichText"):GetText()
-
         local titletext = status_bg:CreateOrGetControl("richtext", "titletext" .. index, 10, index * 30 - 20)
         titletext:SetText("{ol}" .. child_title)
-
         local child_stat = GET_CHILD(child_frame, "stat", "ui::CRichText"):GetText()
-
         local stattext = status_bg:CreateOrGetControl("richtext", "stattext" .. index, 240, index * 30 - 20)
-
         if index <= 4 or (index >= 9 and index <= 13) then
-
             stattext:SetText("{ol}" .. child_stat .. " {#FFFFFF}(" .. setting_num .. ")")
         elseif index >= 5 and index <= 8 then
             stattext:SetText("{ol}" .. child_stat .. " {#FFFFFF}(" .. setting_num2 .. ")")
-
         elseif index >= 14 then
             stattext:SetText("{ol}" .. child_stat)
-
         end
     else
         local child_title = GET_CHILD(child_frame, "title", "ui::CRichText"):GetText()
-
         local titletext = status_bg:CreateOrGetControl("richtext", "titletext" .. index, 10, index * 45 - 30)
         titletext:SetText("{ol}" .. child_title)
-
         local child_stat = GET_CHILD(child_frame, "stat", "ui::CRichText"):GetText()
-
         local stattext = status_bg:CreateOrGetControl("richtext", "stattext" .. index, 200, index * 45 - 10)
-
         local line = status_bg:CreateOrGetControl("labelline", "line" .. index, 10, index * 45 + 7, 455, 5)
-
         if index <= 4 or (index >= 9 and index <= 13) then
-
             stattext:SetText("{ol}" .. child_stat .. " {#FFFFFF}(" .. setting_num .. ")")
         elseif index >= 5 and index <= 8 then
-
             stattext:SetText("{ol}" .. child_stat .. " {#FFFFFF}(" .. setting_num2 .. ")")
-
         elseif index >= 14 then
             stattext:SetText("{ol}" .. child_stat)
-
         end
     end
 end
 
 function goddess_icor_manager_swap_weapon()
-
     local inventory = ui.GetFrame("inventory")
     inventory:ShowWindow(1)
-
     local newframe = ui.GetFrame("goddess_icor_manager_newframe")
     newframe:ShowWindow(0)
-
     local RH = GET_CHILD_RECURSIVELY(inventory, "RH")
     local LH = GET_CHILD_RECURSIVELY(inventory, "LH")
     local RH_SUB = GET_CHILD_RECURSIVELY(inventory, "RH_SUB")
     local LH_SUB = GET_CHILD_RECURSIVELY(inventory, "LH_SUB")
-
     local function goddess_icor_manager_swap_guid(slot_name, bool)
-
         local icon = slot_name:GetIcon()
         if bool then
             if icon then
@@ -3307,12 +2751,10 @@ function goddess_icor_manager_swap_weapon()
         local icon_guid = icon_info:GetIESID()
         return icon_guid
     end
-
     g.lh_sub_guid = goddess_icor_manager_swap_guid(LH_SUB)
     g.rh_sub_guid = goddess_icor_manager_swap_guid(RH_SUB)
     g.rh_guid = goddess_icor_manager_swap_guid(RH)
     g.lh_guid = goddess_icor_manager_swap_guid(LH)
-
     if goddess_icor_manager_swap_guid(LH_SUB, true) and goddess_icor_manager_swap_guid(RH_SUB, true) then
         local lh_sub_index = 31
         goddess_icor_manager_unequip(inventory, lh_sub_index)
@@ -3328,7 +2770,6 @@ function goddess_icor_manager_unequip(inventory, lh_sub_index)
 end
 
 function goddess_icor_manager_equip()
-
     local function goddess_icor_manager_swap_equip(spot_name, guid)
         local inv_item = session.GetInvItemByGuid(guid)
         if inv_item then
@@ -3343,7 +2784,6 @@ function goddess_icor_manager_equip()
             return
         end
     end
-
     if g.rh_sub_guid then
         goddess_icor_manager_swap_equip("RH", g.rh_sub_guid)
         g.rh_sub_guid = nil
@@ -3359,21 +2799,16 @@ function goddess_icor_manager_equip()
     else
         local inventory = ui.GetFrame("inventory")
         inventory:Invalidate()
-
         if g.swap then
             goddess_icor_manager_set_change(_, _, _, g.ctrl_key, 4)
-
         else
             goddess_icor_manager_set_end()
-
         end
     end
-
 end
 
 function goddess_icor_manager_set_frame_color_equip(bg, size, item_dic, slot)
     local frameName = bg:GetName()
-
     if frameName == "new_bg1" or frameName == "new_bg2" or frameName == "new_bg7" or frameName == "new_bg8" then
         for i = 1, #high500weapontbl do
             local tblkey = high500weapontbl[i]
@@ -3386,16 +2821,10 @@ function goddess_icor_manager_set_frame_color_equip(bg, size, item_dic, slot)
                 local value = item_dic[value_key]
                 if tostring(option) == tostring(keyname) and tonumber(value) >= tonumber(tblvalue) then
                     local text = slot:GetText()
-
-                    --[[if string.find(text, goddess_icor_manager_language(" 500Advanced")) == nil then
-
-                        slot:SetText(text .. "{ol}" .. goddess_icor_manager_language(" 500Advanced"))
-                    end]]
                     return "FFFFD700"
                 end
             end
         end
-
         for i = 1, #low500weapontbl do
             local tblkey = low500weapontbl[i]
             local keyname = next(tblkey)
@@ -3406,17 +2835,10 @@ function goddess_icor_manager_set_frame_color_equip(bg, size, item_dic, slot)
                 local option = item_dic[key]
                 local value = item_dic[value_key]
                 if tostring(option) == tostring(keyname) and tonumber(value) >= tonumber(tblvalue) then
-                    --[[local text = slot:GetText()
-
-                    if string.find(text, " LV500") == nil then
-
-                        slot:SetText(text .. "{ol} LV500")
-                    end]]
                     return "FFDAA520"
                 end
             end
         end
-
         for i = 1, #high480weapontbl do
             local tblkey = high480weapontbl[i]
             local keyname = next(tblkey)
@@ -3427,17 +2849,10 @@ function goddess_icor_manager_set_frame_color_equip(bg, size, item_dic, slot)
                 local option = item_dic[key]
                 local value = item_dic[value_key]
                 if tostring(option) == tostring(keyname) and tonumber(value) >= tonumber(tblvalue) then
-                    --[[local text = slot:GetText()
-
-                    if string.find(text, goddess_icor_manager_language(" 480Advanced")) == nil then
-
-                        slot:SetText(text .. "{ol}" .. goddess_icor_manager_language(" 480Advanced"))
-                    end]]
                     return "FF808080"
                 end
             end
         end
-
         for i = 1, #low480weapontbl do
             local tblkey = low480weapontbl[i]
             local keyname = next(tblkey)
@@ -3448,17 +2863,10 @@ function goddess_icor_manager_set_frame_color_equip(bg, size, item_dic, slot)
                 local option = item_dic[key]
                 local value = item_dic[value_key]
                 if tostring(option) == tostring(keyname) and tonumber(value) >= tonumber(tblvalue) then
-                    --[[local text = slot:GetText()
-
-                    if string.find(text, " LV480") == nil then
-
-                        slot:SetText(text .. "{ol} LV480")
-                    end]]
                     return "FF808080"
                 end
             end
         end
-
     else
         for i = 1, #high500armortbl do
             local tblkey = high500armortbl[i]
@@ -3470,16 +2878,10 @@ function goddess_icor_manager_set_frame_color_equip(bg, size, item_dic, slot)
                 local option = item_dic[key]
                 local value = item_dic[value_key]
                 if tostring(option) == tostring(keyname) and tonumber(value) >= tonumber(tblvalue) then
-                    --[[local text = slot:GetText()
-
-                    if string.find(text, goddess_icor_manager_language(" 500Advanced")) == nil then
-                        slot:SetText(text .. "{ol}" .. goddess_icor_manager_language(" 500Advanced"))
-                    end]]
                     return "FFFFD700"
                 end
             end
         end
-
         for i = 1, #low500armortbl do
             local tblkey = low500armortbl[i]
             local keyname = next(tblkey)
@@ -3490,16 +2892,10 @@ function goddess_icor_manager_set_frame_color_equip(bg, size, item_dic, slot)
                 local option = item_dic[key]
                 local value = item_dic[value_key]
                 if tostring(option) == tostring(keyname) and tonumber(value) >= tonumber(tblvalue) then
-                    --[[local text = slot:GetText()
-
-                    if string.find(text, " LV500") == nil then
-                        slot:SetText(text .. "{ol} LV500")
-                    end]]
                     return "FFDAA520"
                 end
             end
         end
-
         for i = 1, #high480armortbl do
             local tblkey = high480armortbl[i]
             local keyname = next(tblkey)
@@ -3510,16 +2906,10 @@ function goddess_icor_manager_set_frame_color_equip(bg, size, item_dic, slot)
                 local option = item_dic[key]
                 local value = item_dic[value_key]
                 if tostring(option) == tostring(keyname) and tonumber(value) >= tonumber(tblvalue) then
-                    --[[local text = slot:GetText()
-
-                    if string.find(text, goddess_icor_manager_language(" 480Advanced")) == nil then
-                        slot:SetText(text .. "{ol}" .. goddess_icor_manager_language(" 480Advanced"))
-                    end]]
                     return "FF808080"
                 end
             end
         end
-
         for i = 1, #low480armortbl do
             local tblkey = low480armortbl[i]
             local keyname = next(tblkey)
@@ -3530,11 +2920,6 @@ function goddess_icor_manager_set_frame_color_equip(bg, size, item_dic, slot)
                 local option = item_dic[key]
                 local value = item_dic[value_key]
                 if tostring(option) == tostring(keyname) and tonumber(value) >= tonumber(tblvalue) then
-                    --[[local text = slot:GetText()
-
-                    if string.find(text, " LV480") == nil then
-                        slot:SetText(text .. "{ol} LV480")
-                    end]]
                     return "FF808080"
                 end
             end
@@ -3542,7 +2927,6 @@ function goddess_icor_manager_set_frame_color_equip(bg, size, item_dic, slot)
 
     end
     return "FF000000"
-
 end
 
 function goddess_icor_manager_list_close(frame)
@@ -3554,9 +2938,6 @@ function goddess_icor_manager_list_close(frame)
     newframe:ShowWindow(0)
     statusframe:ShowWindow(0)
     icorframe:ShowWindow(0)
-
-    -- local goddess_equip_manager = ui.GetFrame('goddess_equip_manager')
-    -- goddess_equip_manager:Resize(1270, 900)
     local guildeventwarp = ui.GetFrame("guildeventwarp")
     if guildeventwarp then
         guildeventwarp:ShowWindow(1)
@@ -3565,16 +2946,13 @@ function goddess_icor_manager_list_close(frame)
         local acc = GetMyAccountObj()
         local etc = GetMyEtcObject()
         local remain_time = GET_REMAIN_SECOND_ENGRAVE_SLOT_EXTENSION_TIME(acc)
-
         local max_page = GET_MAX_ENGARVE_SLOT_COUNT(acc)
         local page_max = 0
         if tonumber(remain_time) == 0 then
-
             page_max = GET_MAX_ENGARVE_SLOT_COUNT(acc) + 5
         else
             page_max = GET_MAX_ENGARVE_SLOT_COUNT(acc)
         end
-
         for i = 1, page_max do
             local bg = GET_CHILD_RECURSIVELY(frame, "bg" .. i)
             AUTO_CAST(bg)
@@ -3584,8 +2962,6 @@ function goddess_icor_manager_list_close(frame)
             end
             g.settings[tostring(i)] = curpos
             g.save_json(g.settings_path, g.settings)
-            -- bg:SetUserValue("SAVE_POS", curpos)
-
         end
     end
 end
@@ -3602,6 +2978,5 @@ function goddess_icor_manager_get_pagename(index)
     else
         return page_name
     end
-
 end
 

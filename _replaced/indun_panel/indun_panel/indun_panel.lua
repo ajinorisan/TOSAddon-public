@@ -1779,62 +1779,80 @@ function indun_panel_raid_itemuse(frame, ctrl, argStr, induntype)
     ui.SysMsg(msg)
 end
 
-function indun_panel_create_frame_onsweep(frame, key, subKey, subValue, y, x)
-    local invItemList = session.GetInvItemList()
-    local guidList = invItemList:GetGuidList()
-    local cnt = guidList:Count()
-    if raidTable[subValue] then
-        local use = frame:CreateOrGetControl('button', key .. "use", x + 470, y, 80, 30)
-        AUTO_CAST(use)
-        use:SetText("{ol}{#EE7800}USE")
+function Indun_panel_create_frame_onsweep(frame, key, sub_key, sub_value, y, x)
+    -- 1. USEボタンの作成 (raidTableに定義がある場合)
+    if raidTable[sub_value] then
+        local use_btn = frame:CreateOrGetControl('button', key .. "use", x + 470, y, 80, 30)
+        AUTO_CAST(use_btn)
+        use_btn:SetText("{ol}{#EE7800}USE")
+
+        -- 所持数のカウント (効率化)
         local count = 0
-        for _, targetClassID in ipairs(raidTable[subValue]) do
-            for i = 0, cnt - 1 do
-                local itemobj = GetIES(invItemList:GetItemByGuid(guidList:Get(i)):GetObject())
-                local invItem = invItemList:GetItemByGuid(guidList:Get(i))
-                if itemobj.ClassID == targetClassID then
-                    count = count + invItem.count
-                end
+        for _, class_id in ipairs(raidTable[sub_value]) do
+            local inv_item = session.GetInvItemByType(class_id)
+            if inv_item then
+                count = count + inv_item.count
             end
         end
-        local itemClass = GetClassByType('Item', raidTable[subValue][2])
-        local icon = itemClass.Icon
-        local text = g.lang == "Japanese" and
-                         string.format("{ol}{img %s 25 25 } %d個持っています。", icon, count) or
-                         string.format("{ol}{img %s 25 25 } Quantity in Inventory", icon, count)
-        use:SetTextTooltip(text)
-        use:SetEventScript(ui.LBUTTONUP, "indun_panel_raid_itemuse")
-        use:SetEventScriptArgNumber(ui.LBUTTONUP, subValue)
-    end
-    local solo = frame:CreateOrGetControl('button', key .. "solo", x, y, 80, 30)
-    local auto = frame:CreateOrGetControl('button', key .. "auto", x + 85, y, 80, 30)
-    local count = frame:CreateOrGetControl("richtext", key .. "count", x + 170, y + 5, 50, 30)
-    local hard = frame:CreateOrGetControl('button', key .. "hard", x + 215, y, 80, 30)
-    local counthard = frame:CreateOrGetControl("richtext", key .. "counthard", x + 300, y + 5, 50, 30)
-    local sweep = frame:CreateOrGetControl('button', key .. "sweep", x + 350, y, 80, 30)
-    local sweepcount = frame:CreateOrGetControl("richtext", key .. "sweepcount", x + 435, y + 5, 50, 30)
-    solo:SetText("{ol}SOLO")
-    auto:SetText("{ol}{#FFD900}AUTO")
-    hard:SetText("{ol}{#FF0000}HARD")
-    sweep:SetText("{ol}{#00FF00}" .. "ACLEAR")
-    if subKey == "s" then
-        count:SetText(indun_panel_get_entrance_count(subValue, 2))
-        solo:SetEventScript(ui.LBUTTONUP, "indun_panel_enter_solo")
-        solo:SetEventScriptArgNumber(ui.LBUTTONUP, subValue)
-    elseif subKey == "a" then
-        auto:SetEventScript(ui.LBUTTONUP, "indun_panel_enter_auto")
-        auto:SetEventScriptArgNumber(ui.LBUTTONUP, subValue)
-        sweep:SetEventScript(ui.LBUTTONUP, "indun_panel_autosweep")
-        sweep:SetEventScriptArgNumber(ui.LBUTTONUP, subValue)
-    elseif subKey == "h" then
-        if indun_panel_get_entrance_count(subValue, 2) then
-            counthard:SetText(indun_panel_get_entrance_count(subValue, 2))
-            hard:SetEventScript(ui.LBUTTONDOWN, "indun_panel_enter_hard")
-            hard:SetEventScriptArgNumber(ui.LBUTTONDOWN, subValue)
-            hard:SetEventScriptArgString(ui.LBUTTONDOWN, "false")
+
+        -- ツールチップ設定
+        local item_cls = GetClassByType('Item', raidTable[sub_value][2])
+        if item_cls then
+            local fmt = g.lang == "Japanese" and "{ol}{img %s 25 25 } %d個持っています。" or
+                            "{ol}{img %s 25 25 } Quantity in Inventory: %d"
+            use_btn:SetTextTooltip(string.format(fmt, item_cls.Icon, count))
         end
-    elseif subKey == "ac" then
-        sweepcount:SetText("{ol}{#FFFFFF}{s16}(" .. indun_panel_sweep_count(subValue) .. ")")
+
+        use_btn:SetEventScript(ui.LBUTTONUP, "indun_panel_raid_itemuse")
+        use_btn:SetEventScriptArgNumber(ui.LBUTTONUP, sub_value)
+    end
+
+    -- 2. 各種ボタン・テキストの枠作成
+    -- (CreateOrGetControlなので、ループで複数回呼ばれても既存のものを取得するだけ)
+    local btn_solo = frame:CreateOrGetControl('button', key .. "solo", x, y, 80, 30)
+    local btn_auto = frame:CreateOrGetControl('button', key .. "auto", x + 85, y, 80, 30)
+    local btn_hard = frame:CreateOrGetControl('button', key .. "hard", x + 215, y, 80, 30)
+    local btn_sweep = frame:CreateOrGetControl('button', key .. "sweep", x + 350, y, 80, 30)
+
+    local txt_count = frame:CreateOrGetControl("richtext", key .. "count", x + 170, y + 5, 50, 30)
+    local txt_hard_count = frame:CreateOrGetControl("richtext", key .. "counthard", x + 300, y + 5, 50, 30)
+    local txt_sweep_count = frame:CreateOrGetControl("richtext", key .. "sweepcount", x + 435, y + 5, 50, 30)
+
+    -- 固定テキストの設定
+    btn_solo:SetText("{ol}SOLO")
+    btn_auto:SetText("{ol}{#FFD900}AUTO")
+    btn_hard:SetText("{ol}{#FF0000}HARD")
+    btn_sweep:SetText("{ol}{#00FF00}ACLEAR")
+
+    -- 3. sub_key (モード) に応じた設定
+    if sub_key == "s" then
+        -- Solo
+        txt_count:SetText(Indun_panel_get_entrance_count(sub_value, 2))
+        btn_solo:SetEventScript(ui.LBUTTONUP, "indun_panel_enter_solo")
+        btn_solo:SetEventScriptArgNumber(ui.LBUTTONUP, sub_value)
+
+    elseif sub_key == "a" then
+        -- Auto
+        btn_auto:SetEventScript(ui.LBUTTONUP, "indun_panel_enter_auto")
+        btn_auto:SetEventScriptArgNumber(ui.LBUTTONUP, sub_value)
+
+        btn_sweep:SetEventScript(ui.LBUTTONUP, "indun_panel_autosweep")
+        btn_sweep:SetEventScriptArgNumber(ui.LBUTTONUP, sub_value)
+
+    elseif sub_key == "h" then
+        -- Hard
+        local ent_count = Indun_panel_get_entrance_count(sub_value, 2)
+        if ent_count then
+            txt_hard_count:SetText(ent_count)
+            btn_hard:SetEventScript(ui.LBUTTONDOWN, "indun_panel_enter_hard")
+            btn_hard:SetEventScriptArgNumber(ui.LBUTTONDOWN, sub_value)
+            btn_hard:SetEventScriptArgString(ui.LBUTTONDOWN, "false")
+        end
+
+    elseif sub_key == "ac" then
+        -- Auto Clear (Sweep) Count
+        local count_str = Indun_panel_sweep_count(sub_value)
+        txt_sweep_count:SetText(string.format("{ol}{#FFFFFF}{s16}(%s)", count_str))
     end
 end
 
@@ -2271,6 +2289,7 @@ function indun_panel_frame_contents(frame)
 
     local frame = ui.GetFrame("indun_panel")
     local account_obj = GetMyAccountObj()
+
     local gabija = GET_CHILD_RECURSIVELY(frame, "gabija")
     if gabija then
         AUTO_CAST(gabija)
@@ -2572,6 +2591,7 @@ function indun_panel_get_my_housing_point_callback(code, ret_json)
     else
         g.housing_point = "NoData"
     end
+
 end
 
 function indun_panel_frame_drag(frame, ctrl, str, num)
