@@ -1,7 +1,7 @@
 [
   {
     "name": "Nexus Addons",
-    "file": "nexus_addons",
+    "file": "_nexus_addons",
     "extension": "ipf",
     "fileVersion": "v1.0.0",
     "releaseTag": "nexus_addons",
