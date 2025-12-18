@@ -32,6 +32,7 @@ Tree of Savior 用のアドオンを作成・改変しています。
 <details>
 <summary>紹介画像 & 更新履歴 (Native Lang)</summary>
 
+*   v1.0.1 Another Warehouse、Character Change Helperのオリジナルとの競合を修正
 *   v1.0.0 公開
 
 </details>

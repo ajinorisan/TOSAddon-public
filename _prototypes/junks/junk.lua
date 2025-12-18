@@ -9043,4 +9043,26 @@ function Battle_ritual_overlord_off(_nexus_addons)
             end
         end
     end
-end]] 
+end]] --[[local text_needs_trans = native_lang_is_translation_msg(proc_msg)
+    local name_needs_trans = native_lang_is_translation(original_name)
+    local has_item_link = (g.chat_ids[tostring(chat_id)].separate_msg ~= "None")
+    if text_needs_trans or name_needs_trans or has_item_link then
+        local should_translate = true
+
+        if g.lang == "ja" then
+            if WITH_JAPANESE(org_msg) and not WITH_HANGLE(org_msg) then
+                if WITH_JAPANESE(original_name) and not WITH_HANGLE(original_name) then
+                    should_translate = false
+                end
+            end
+        elseif g.lang == "ko" then
+            if WITH_HANGLE(org_msg) and not WITH_JAPANESE(org_msg) then
+                if WITH_HANGLE(original_name) and not WITH_JAPANESE(original_name) then
+                    should_translate = false
+                end
+            end
+        end
+        if should_translate or has_item_link then
+
+        end
+    end]] 
