@@ -6589,4 +6589,2458 @@ end]] --[[if string.sub(string.gsub(msg_body, "^%s*", ""), 1, 1) == "/" then
         os.rename(tmp_send_path, g.my_send_dat_path)
     else
         print(string.format("Error opening %s for writing: %s", tmp_send_path, tostring(err)))
-    end]] 
+    end]] --[==[function test_norisan_REQ_PLAYER_CONTENTS_RECORD_()
+
+    local buff = info.GetBuff(session.GetMyHandle(), 40049)
+    if not buff then
+        return 0
+    end
+
+    local quickslotnexpbar = ui.GetFrame("quickslotnexpbar")
+    for i = 1, 40 do
+        local slot = GET_CHILD_RECURSIVELY(quickslotnexpbar, "slot" .. i)
+        AUTO_CAST(slot)
+        local icon = slot:GetIcon()
+        if icon then
+            AUTO_CAST(icon)
+            local icon_info = icon:GetInfo()
+            if icon_info then
+                local category = icon_info:GetCategory()
+                if category == "Skill" then
+                    local buff_id = icon_info.type
+                    if buff_id == 100085 then
+                        local current_cooldown = ICON_UPDATE_SKILL_COOLDOWN(icon)
+                        if current_cooldown == 0 then
+                            control.Skill(buff_id)
+                        end
+                        return 1
+                    end
+                end
+            end
+        end
+    end
+
+end
+
+function test_norisan_DIALOG_ON_MSG(frame, msg, argstr, num)
+    ts(msg, argstr, num)
+    local dialog_frame = ui.GetFrame("dialog")
+    AUTO_CAST(dialog_frame)
+    ts(dialog_frame:GetUserIValue("DialogNewOpen"))
+end
+
+function test_norisan_TARGETSPACE_ON_MSG(frame, msg, argStr, argNum)
+
+    local type = tonumber(config.GetXMLConfig("ControlMode"))
+    TARGETSPACE_SET(frame, type)
+    local handle = session.GetTargetHandle()
+    local targetinfo = info.GetTargetInfo(handle)
+    if not targetinfo or targetinfo.isDialog == 0 then
+        return
+    end
+    ts(targetinfo.name)
+    local frame = ui.GetFrame("targetSpace_" .. handle)
+    if not frame then
+        ui.CreateTargetSpace(handle)
+        frame = ui.GetFrame("targetSpace_" .. handle)
+    end
+    if frame:IsVisible() == 1 then
+        frame:ShowWindow(1)
+
+        ui.UpdateCharBasePos(handle)
+
+        local spaceObj = GET_CHILD(frame, "space", "ui::CAnimPicture");
+        local LbtnObj = GET_CHILD(frame, 'mouseLbtn', 'ui::CPicture');
+        local RbtnObj = GET_CHILD(frame, 'mouseRbtn', 'ui::CPicture');
+        local joyBbtn = GET_CHILD(frame, 'joyBbtn', 'ui::CPicture');
+
+        if type == 0 then
+            if IsJoyStickMode() == 1 then
+                spaceObj:ShowWindow(0)
+                LbtnObj:ShowWindow(0)
+                RbtnObj:ShowWindow(0)
+                joyBbtn:ShowWindow(1)
+            else
+                local spaceMarkHeightOffset = 0
+                local actor = world.GetActor(handle)
+                if actor then
+                    local cls = GetClassByType("Monster", actor:GetType())
+                    if cls then
+                        spaceMarkHeightOffset = TryGet(cls, "SpaceMarkHeightOffset")
+                    end
+                end
+                spaceObj:SetMargin(0, 0, 0, spaceMarkHeightOffset)
+                spaceObj:PlayAnimation()
+                spaceObj:ShowWindow(1)
+                LbtnObj:ShowWindow(0)
+                RbtnObj:ShowWindow(0)
+                joyBbtn:ShowWindow(0)
+            end
+        end
+        local pc = GetMyPCObject();
+        local dlgInfo = info.GetDialogInfo(handle)
+        local dialog = dlgInfo:GetDialog()
+        local actor = world.GetActor(handle)
+        local classId = actor:GetType()
+        local text = ""
+        local titleName = ""
+        if classId == 160065 then
+
+            frame:RunUpdateScript("test_norisan_TARGETSPACE_SET_", 1.0)
+
+        end
+    end
+end
+
+function test_norisan_TARGETSPACE_SET_(frame)
+    local dialog_frame = ui.GetFrame("dialog")
+    AUTO_CAST(dialog_frame)
+    local dialogselect = ui.GetFrame("dialogselect")
+    AUTO_CAST(dialogselect)
+    local try = dialog_frame:GetUserIValue("TRY")
+    if try == 0 then
+        local dialog_frame = ui.GetFrame("dialog")
+        AUTO_CAST(dialog_frame)
+        dialog_frame:SetUserValue("TRY", 1)
+        DIALOG_TEXTVIEW(dialog_frame, 'DIALOG_CHANGE_SELECT', "MGame_EndPortal_Msg")
+        dialog_frame:ShowWindow(1)
+        dialog_frame:Invalidate()
+        DIALOGSELECT_ITEM_ADD(dialogselect, "DIALOG_ADD_SELECT", "!@#$Auto_JongLyo#@!", 1)
+        DIALOGSELECT_ITEM_ADD(dialogselect, "DIALOG_ADD_SELECT", "!@#$Event_Steam_YC_2#@!", 2)
+        DIALOGSELECT_ITEM_ADD(dialogselect, "DIALOG_ADD_SELECT", "!@#$Event_Steam_YC_3#@!", 3)
+        DIALOGSELECT_ITEM_ADD(dialogselect, "DIALOG_ADD_SELECT", "!@#$Event_Steam_YC_4#@!", 4)
+        return 1
+    else
+        dialog_frame:SetUserValue("TRY", 0)
+        session.SetSelectDlgList()
+        dialogselect:ShowWindow(1)
+        control.DialogSelect(1)
+        control.DialogOk()
+        return 0
+    end
+
+    --[[test_norisan_DIALOGSELECT_ITEM_ADD(dialogselect, "DIALOG_ADD_SELECT", "!@#$Auto_JongLyo#@!", 1)
+    test_norisan_DIALOGSELECT_ITEM_ADD(dialogselect, "DIALOG_ADD_SELECT", "!@#$Event_Steam_YC_2#@!", 2)
+    test_norisan_DIALOGSELECT_ITEM_ADD(dialogselect, "DIALOG_ADD_SELECT", "!@#$Event_Steam_YC_3#@!", 3)
+    test_norisan_DIALOGSELECT_ITEM_ADD(dialogselect, "DIALOG_ADD_SELECT", "!@#$Event_Steam_YC_4#@!", 4)
+    dialogselect:ShowWindow(1)]]
+
+    --[[DIALOG_ON_SKIP(dialog_frame, "DIALOG_SKIP", "None", 0)
+    control.DialogSelect(1)
+    control.DialogOk()]]
+end
+
+function test_norisan_DIALOGSELECT_ITEM_ADD(frame, msg, argStr, argNum)
+    if argNum == 1 then
+        ts(0, DIALOGSELECT_QUEST_REWARD_ADD(frame, argStr))
+        if DIALOGSELECT_QUEST_REWARD_ADD(frame, argStr) == 1 then
+            frame:SetUserValue("FIRSTORDER_MAXHEIGHT", 1);
+            return;
+        else
+            local questRewardBox = frame:GetChild('questreward');
+            if questRewardBox ~= nil then
+                frame:RemoveChild('questreward');
+            end
+        end
+    end
+
+    local questRewardBox = frame:GetChild('questreward');
+    ts(questRewardBox)
+    if questRewardBox ~= nil then
+        argNum = argNum - 1;
+    end
+
+    local controlName = 'item' .. argNum .. 'Btn';
+    local ItemBtn = GET_CHILD_RECURSIVELY(frame, controlName)
+    local ItemBtnCtrl = tolua.cast(ItemBtn, 'ui::CButton')
+    ItemBtnCtrl:SetGravity(ui.CENTER_HORZ, ui.TOP);
+    ts(questRewardBox)
+    if questRewardBox ~= nil then
+        local width = questRewardBox:GetWidth();
+        local height = questRewardBox:GetHeight();
+        local offset = 10 + ((argNum - 1) * 40);
+        local offsetEx = 20 + ((argNum) * 40);
+        local y = tonumber(frame:GetUserValue("QUESTFRAME_HEIGHT"));
+        local frameHeight = offset + y + 50;
+        local maxHeight = ui.GetSceneHeight();
+
+        questRewardBox:SetGravity(ui.CENTER_HORZ, ui.TOP);
+        questRewardBox:SetOffset(0, 50);
+
+        if frame:GetUserIValue("FIRSTORDER_MAXHEIGHT") == 1 then
+            if (y + (maxHeight - frame:GetY())) > (maxHeight) then
+                local frameMaxHeight = maxHeight / 2;
+                frameHeight = offset + frameMaxHeight + 50;
+                frame:SetUserValue("IsScroll", "YES");
+                ItemBtnCtrl:SetOffset(0, questRewardBox:GetY() + questRewardBox:GetHeight() + 10);
+            else
+                frame:SetUserValue("IsScroll", "NO");
+                ItemBtnCtrl:SetOffset(0, height + offset + 10 + ItemBtnCtrl:GetHeight());
+            end
+            frame:SetUserValue("FIRSTORDER_MAXHEIGHT", 0);
+        else
+            if frame:GetUserValue("IsScroll") == "NO" then
+                height = y + ItemBtnCtrl:GetHeight();
+                frameHeight = height + offset + 50;
+                ItemBtnCtrl:SetOffset(0, height + offset + 10);
+            else
+                frameHeight = height + offsetEx + 50;
+                ItemBtnCtrl:SetOffset(0, height + offsetEx);
+            end
+        end
+        frame:Resize(frame:GetWidth(), frameHeight + 10);
+        frame:ShowWindow(1);
+    else
+        ItemBtnCtrl:SetOffset(0, (argNum - 1) * 40 + 40);
+        frame:Resize(frame:GetWidth(), (argNum + 1) * 40 + 10);
+    end
+
+    -- local eventScp = 'control.DialogSelect(' .. argNum .. ')'
+    local eventScp = "control.DialogOk()"
+    if session.IsMultipleSelect() == true then
+        eventScp = 'DIALOGSELECT_MULTIPLE_SELECT_EVENT(' .. argNum .. ')';
+    else
+        if session.IsShowSelDlgMsgBox() == true then
+            eventScp = string.format('DIALOGSELECT_CHECK_MSGBOX(%d)', argNum);
+        end
+    end
+    ts('control.DialogSelect(' .. argNum .. ')')
+    -- ItemBtnCtrl:SetEventScript(ui.LBUTTONUP, eventScp, true)
+    ItemBtnCtrl:SetEventScript(ui.LBUTTONUP, eventScp)
+    ItemBtnCtrl:ShowWindow(1);
+
+    local s = string.find(argStr, "{img")
+    local img = nil
+    if s ~= nil then
+        local e = string.find(argStr, "}")
+        img = string.sub(argStr, s, e)
+    end
+
+    if img ~= nil then
+        argStr = replace(argStr, img, '')
+    end
+
+    argStr = dic.getTranslatedStr(argStr)
+
+    if img ~= nil then
+        argStr = img .. argStr
+    end
+
+    ts('{s18}{b}{#2f1803}' .. argStr .. '{/}{/}{/}')
+    ItemBtnCtrl:SetText('{s18}{b}{#2f1803}' .. argStr .. '{/}{/}{/}');
+
+    if ItemBtnCtrl:GetWidth() > tonumber(frame:GetUserConfig("MAX_WIDTH")) then
+        DIALOGSELECT_FIX_WIDTH(frame, ItemBtnCtrl:GetWidth());
+    end
+    ts('LAST')
+    frame:Update();
+    ts(1, 'LAST')
+end
+
+function test_norisan_REQ_PLAYER_CONTENTS_RECORD(frame, type)
+    local quickslotnexpbar = ui.GetFrame("quickslotnexpbar")
+    if not quickslotnexpbar then
+        return
+    end
+    quickslotnexpbar:RunUpdateScript("test_norisan_REQ_PLAYER_CONTENTS_RECORD_", 0.1)
+end
+
+function test_norisan_party_marker_set(frame, msg, str, num)
+
+    local party_list = session.party.GetPartyMemberList(PARTY_NORMAL)
+    -- local party_list = session.party.GetPartyMemberList(PARTY_GUILD)
+    if not party_list then
+        return 1
+    end
+    if party_list:Count() <= 1 then
+        return 1
+    end
+
+    local current_party = {}
+    for i = 0, party_list:Count() - 1 do
+        local member = party_list:Element(i)
+        if member then
+            local handle = member:GetHandle()
+            if handle ~= 0 then
+                current_party[tostring(handle)] = handle
+            end
+        end
+    end
+
+    local visible_party_members = {}
+    local list, count = SelectObject(GetMyPCObject(), 1000, 'ALL')
+    for i = 1, count do
+        if list[i] then
+            local handle = GetHandle(list[i])
+            if info.IsPC(handle) == 1 then
+                local handle_str = tostring(handle)
+                if current_party[handle_str] then
+                    visible_party_members[handle_str] = handle
+                    local party_marker = ui.GetFrame("party_marker" .. handle_str)
+                    if not party_marker then
+                        party_marker = ui.CreateNewFrame("notice_on_pc", "party_marker" .. handle_str, 0, 0, 50, 50)
+                        party_marker:SetSkinName("None")
+                        party_marker:SetLayerLevel(80)
+                        local pic = party_marker:CreateOrGetControl('picture', 'marker', 0, 0, 50, 50)
+                        AUTO_CAST(pic)
+                        pic:SetImage("friend_party")
+                        pic:SetEnableStretch(1)
+                    end
+                    FRAME_AUTO_POS_TO_OBJ(party_marker, handle, -25, -70, 3, 1, 1)
+                    party_marker:ShowWindow(1)
+                else
+                    local party_marker = ui.GetFrame("party_marker" .. handle_str)
+                    if party_marker then
+                        ui.DestroyFrame(party_marker)
+                    end
+                end
+            end
+        end
+    end
+
+    for handle_str, _ in pairs(current_party) do
+        if not visible_party_members[handle_str] then
+            local party_marker = ui.GetFrame("party_marker" .. handle_str)
+            if party_marker then
+                ui.DestroyFrame(party_marker)
+            end
+        end
+    end
+end
+
+--[[function test_norisan_party_marker_set(frame, msg, str, num)
+
+    local party_member_list = session.party.GetPartyMemberList(PARTY_NORMAL)
+    local party_count = party_member_list:Count()
+    if party_count == 1 then
+        return
+    end
+    local changed = false
+
+    for i = 0, party_count - 1 do
+        local party_member = party_member_list:Element(i)
+        local member_handle = party_member:GetHandle()
+        if not g.party_marker[tostring(member_handle)] then
+            g.party_marker[tostring(member_handle)] = member_handle
+            changed = true
+        end
+    end
+
+    if not changed then
+        return
+    end
+    local current_members = {}
+    local list, count = SelectObject(GetMyPCObject(), 1000, 'ALL')
+    for i = 1, count do
+        local handle = GetHandle(list[i])
+        if handle and info.IsPC(handle) == 1 then
+            if g.party_marker[tostring(handle)] and g.party_marker[tostring(handle)] == handle then
+                current_members[tostring(handle)] = true
+                local party_marker = ui.GetFrame("party_marker" .. handle)
+                if not party_marker then
+                    party_marker = ui.CreateNewFrame("notice_on_pc", "party_marker" .. handle, 0, 0, 0, 0)
+                    party_marker:SetSkinName("None")
+                    party_marker:SetLayerLevel(80)
+                    party_marker:Resize(50, 50)
+                    local marker = party_marker:CreateOrGetControl('picture', 'marker', 0, 0, 50, 50)
+                    AUTO_CAST(marker)
+                    marker:SetImage("friend_party")
+                    marker:SetEnableStretch(1)
+                    FRAME_AUTO_POS_TO_OBJ(party_marker, handle, -party_marker:GetWidth() + 75, ---party_marker:GetWidth() / 2
+                        -party_marker:GetHeight() - 20, 3, 1, 1)
+                    party_marker:ShowWindow(1)
+                end
+            end
+        end
+    end
+    for handle_str, _ in pairs(g.party_marker) do
+        if not current_members[handle_str] then
+            g.party_marker[handle_str] = nil
+            local party_marker = ui.GetFrame("party_marker" .. handle_str)
+            if party_marker then
+                ui.DestroyFrame("party_marker" .. handle_str)
+            end
+            changed = true
+        end
+    end
+
+end]]
+
+--[[function test_norisan_party_marker_set(frame, msg, str, num)
+
+    local party_member_list = session.party.GetPartyMemberList(PARTY_NORMAL)
+    local party_count = party_member_list:Count()
+    if party_count == 1 then
+        return
+    end
+    local changed = false
+
+    for i = 0, party_count - 1 do
+        local party_member = party_member_list:Element(i)
+        local member_handle = party_member:GetHandle()
+
+        if not g.party_marker[tostring(member_handle)] then
+            g.party_marker[tostring(member_handle)] = member_handle
+            changed = true
+        end
+    end
+
+    if not changed then
+        return
+    end
+    local current_members = {}
+    local list, count = SelectObject(GetMyPCObject(), 1000, 'ALL')
+    for i = 1, count do
+        local handle = GetHandle(list[i])
+        if handle and info.IsPC(handle) == 1 then
+            if g.party_marker[tostring(handle)] and g.party_marker[tostring(handle)] == handle then
+                current_members[tostring(handle)] = true
+                local party_marker = ui.GetFrame("party_marker" .. handle)
+                if not party_marker then
+                    party_marker = ui.CreateNewFrame("notice_on_pc", "party_marker" .. handle, 0, 0, 0, 0)
+                    party_marker:SetSkinName("None")
+                    party_marker:SetLayerLevel(80)
+                    party_marker:Resize(50, 50)
+                    local marker = party_marker:CreateOrGetControl('picture', 'marker', 0, 0, 50, 50)
+                    AUTO_CAST(marker)
+                    marker:SetImage("friend_party")
+                    marker:SetEnableStretch(1)
+                    FRAME_AUTO_POS_TO_OBJ(party_marker, handle, -party_marker:GetWidth() + 75, ---party_marker:GetWidth() / 2
+                        -party_marker:GetHeight() - 20, 3, 1, 1)
+                    party_marker:ShowWindow(1)
+                end
+            end
+        end
+    end
+    for handle_str, _ in pairs(g.party_marker) do
+        if not current_members[handle_str] then
+            g.party_marker[handle_str] = nil
+            local party_marker = ui.GetFrame("party_marker" .. handle_str)
+            if party_marker then
+                ui.DestroyFrame("party_marker" .. handle_str)
+            end
+            changed = true
+        end
+    end
+
+end]]
+
+--[[function g.split(input_str, separator)
+    local parts = {}
+    local start_pos = 1
+    while true do
+        local sep_start, sep_end = string.find(input_str, separator, start_pos, true)
+        if not sep_start then
+            table.insert(parts, string.sub(input_str, start_pos))
+            break
+        end
+        table.insert(parts, string.sub(input_str, start_pos, sep_start - 1))
+        start_pos = sep_end + 1
+    end
+    return parts
+end
+
+function g.load_dat(path)
+    local file = io.open(path, "r")
+    if not file then
+        return nil
+    end
+    local content = file:read("*all")
+    file:close()
+    if content == "" or content == nil then
+        return {}
+    end
+    local records = {}
+    for line in content:gmatch("([^\n]+)") do
+        if line ~= "" then
+            local parts = g.split(line, ":::")
+            if #parts == 7 then
+                table.insert(records, parts)
+            end
+        end
+    end
+    return records
+end
+
+function test_norisan_INDUNINFO_UI_CLOSE()
+    local induninfo = ui.GetFrame("induninfo")
+    local rankListBox = GET_CHILD_RECURSIVELY(induninfo, "rankListBox")
+    AUTO_CAST(rankListBox)
+    if rankListBox:HaveUpdateScript("test_norisan_get_weekly_boss_data") == false then
+        return
+    end
+    rankListBox:StopUpdateScript("test_norisan_get_weekly_boss_data")
+    rankListBox:StopUpdateScript("test_norisan_get_weekly_boss_damage")
+    local induninfo_class_selector = ui.GetFrame("induninfo_class_selector")
+    induninfo_class_selector:SetEnable(1)
+    local msg = g.lang == "Japanese" and
+                    "データ取得処理を終了します{nl}データは保存出来ていません" or
+                    "Data acquisition process terminated{nl}The data could not be saved"
+    imcAddOn.BroadMsg("NOTICE_Dm_!", msg, 3.0)
+end
+
+function test_norisan_WEEKLYBOSS_PATTERNINFO_UI_UPDATE(frame, msg, str, num)
+    local induninfo = ui.GetFrame("induninfo")
+    local rank_gb = GET_CHILD_RECURSIVELY(induninfo, "rank_gb")
+    local data_btn = rank_gb:CreateOrGetControl('button', 'data_btn', -4, 300, 52, 52)
+    AUTO_CAST(data_btn)
+    data_btn:SetSkinName("None")
+    data_btn:SetText("{img indun_season_tap 52 52}")
+    local tooltip = g.lang == "Japanese" and "{ol}データ取得" or "{ol}Data Acquisition"
+    data_btn:SetTextTooltip(tooltip)
+    local data_btn_text = data_btn:CreateOrGetControl('richtext', 'data_btn_text', 10, 15, 0, 20)
+    AUTO_CAST(data_btn_text)
+    data_btn_text:SetText("{ol}data")
+    data_btn_text:SetTextTooltip(tooltip)
+    data_btn_text:SetEventScript(ui.LBUTTONUP, "test_norisan_get_weekly_boss_data_context")
+    data_btn:SetEventScript(ui.LBUTTONUP, "test_norisan_get_weekly_boss_data_context")
+    local rank_btn = rank_gb:CreateOrGetControl('button', 'rank_btn', -4, 354, 52, 52)
+    AUTO_CAST(rank_btn)
+    rank_btn:SetSkinName("None")
+    rank_btn:SetText("{img indun_season_tap 52 52}") -- tab2
+    local tooltip = g.lang == "Japanese" and "{ol}ランキング表示" or "{ol}Show Leaderboard"
+    rank_btn:SetTextTooltip(tooltip)
+    local rank_btn_text = rank_btn:CreateOrGetControl('richtext', 'rank_btn_text', 10, 15, 0, 20)
+    AUTO_CAST(rank_btn_text)
+    rank_btn_text:SetText("{ol}rank")
+    rank_btn_text:SetTextTooltip(tooltip)
+    rank_btn_text:SetEventScript(ui.LBUTTONUP, "test_norisan_create_ranking_data")
+    rank_btn:SetEventScript(ui.LBUTTONUP, "test_norisan_create_ranking_data")
+end
+
+local base_jobids = {1001, 2001, 3001, 4001, 5001}
+local processed_job_ids = {}
+local result_tbl = {}
+local existing_data_check = {}
+local start_time = 0
+
+function test_norisan_create_ranking_data()
+    local induninfo = ui.GetFrame("induninfo")
+    local file_path = string.format("../addons/%s/log.dat", addon_name_lower)
+    local log_data = g.load_dat(file_path)
+    if not log_data then
+        local msg = g.lang == "Japanese" and
+                        "ランキングデータが未取得です{nl}ランキングデータを取得してください" or
+                        "Ranking data has not been acquired{nl}Please acquire the ranking data"
+        ui.SysMsg(msg)
+        return
+    end
+    local week_num = session.weeklyboss.GetNowWeekNum()
+    local season_tab = GET_CHILD_RECURSIVELY(induninfo, "season_tab")
+    local season_index = season_tab:GetSelectItemIndex()
+    local season = week_num - season_index
+    local is_save = true
+    local checked_jobs = {}
+    local all_derived_jobs = {}
+    local function get_base_jobid_local(job_cls_id)
+        if not job_cls_id then
+            return nil
+        end
+        return job_cls_id - (job_cls_id % 1000) + 1
+    end
+    for _, base_id in ipairs(base_jobids) do
+        local job_list = GET_JOB_LIST(base_id)
+        for _, job_cls in ipairs(job_list) do
+            local job_id = TryGetProp(job_cls, "ClassID", 0)
+            if job_id ~= 0 and job_id % 100 ~= 1 then
+                all_derived_jobs[job_id] = false -- チェックリストをfalseで初期化
+            end
+        end
+    end
+    for _, record in ipairs(log_data) do
+        local week_num_ = tonumber(record[1])
+        if week_num_ == season then
+            local job_id = tonumber(record[2])
+            local is_confirmed_str = record[7]
+            if is_confirmed_str == "false" then
+                is_save = false
+                break
+            end
+            if all_derived_jobs[job_id] ~= nil then
+                all_derived_jobs[job_id] = true
+            end
+        end
+    end
+    if is_save then
+        for job_id, checked in pairs(all_derived_jobs) do
+            if not checked then
+                is_save = false
+                break
+            end
+        end
+    end
+    local player_data = {}
+    for _, record in ipairs(log_data) do
+        local week_num_ = tonumber(record[1])
+        if week_num_ == season then
+            local job_id = tonumber(record[2])
+            local name = record[4]
+            local damage = tonumber(record[5])
+            if not player_data[name] then
+                player_data[name] = {
+                    all_jobs = {},
+                    max_damage = 0
+                }
+            end
+            if #player_data[name].all_jobs < 4 then
+                local found = false
+                for _, existing_id in ipairs(player_data[name].all_jobs) do
+                    if existing_id == job_id then
+                        found = true;
+                        break
+                    end
+                end
+                if not found then
+                    table.insert(player_data[name].all_jobs, job_id)
+                end
+            end
+            if damage > player_data[name].max_damage then
+                player_data[name].max_damage = damage
+            end
+        end
+    end
+    local ranking_list = {}
+    for name, data in pairs(player_data) do
+        table.insert(ranking_list, {
+            name = name,
+            damage = data.max_damage,
+            all_jobs = data.all_jobs
+        })
+    end
+    table.sort(ranking_list, function(a, b)
+        return a.damage > b.damage
+    end)
+    local display_data_list = {}
+    for i, data in ipairs(ranking_list) do
+        if i > 100 then
+            break
+        end
+        local base_job_id = nil
+        local derived_jobs = {}
+        local base_id_counts = {}
+        for _, job_id in ipairs(data.all_jobs) do
+            if job_id % 100 == 1 then
+                base_job_id = job_id
+            else
+                table.insert(derived_jobs, job_id)
+                local b_id = get_base_jobid_local(job_id)
+                if b_id then
+                    base_id_counts[b_id] = (base_id_counts[b_id] or 0) + 1
+                end
+            end
+        end
+        if not base_job_id and #derived_jobs > 0 then
+            local max_count = 0
+            for b_id, count in pairs(base_id_counts) do
+                if count > max_count then
+                    max_count = count
+                    base_job_id = b_id
+                end
+            end
+        end
+        local build_parts = {}
+        if base_job_id then
+            table.insert(build_parts, base_job_id)
+        end
+        for _, job_id in ipairs(derived_jobs) do
+            table.insert(build_parts, job_id)
+        end
+        table.insert(display_data_list, {
+            season = season,
+            rank = i,
+            name = data.name,
+            damage = data.damage,
+            build = build_parts
+        })
+        local build_str = table.concat(build_parts, ", ")
+    end
+    test_norisan_create_ranking_data_frame(display_data_list, is_save)
+end
+
+function test_norisan_ranking_close(frame)
+    local frame_name = frame:GetName()
+    ui.DestroyFrame(frame_name)
+end
+
+function test_norisan_create_ranking_data_frame(ranking_data, is_save)
+    if not ranking_data or #ranking_data == 0 then
+        local msg = g.lang == "Japanese" and
+                        "ランキングデータが未取得です{nl}ランキングデータを取得してください" or
+                        "Ranking data has not been acquired{nl}Please acquire the ranking data"
+        ui.SysMsg(msg)
+        -- print("ランキングデータがありません。")
+        return
+    end
+    local induninfo = ui.GetFrame("induninfo")
+    local rank_frame = ui.CreateNewFrame("notice_on_pc", addon_name_lower .. "rank_frame", 0, 0, 0, 0)
+    AUTO_CAST(rank_frame)
+    rank_frame:SetSkinName("test_frame_low")
+    rank_frame:SetLayerLevel(102)
+    rank_frame:EnableHittestFrame(1)
+    rank_frame:ShowTitleBar(0)
+    rank_frame:RemoveAllChild()
+    local season = ranking_data[1].season
+    local status_text = ""
+    if is_save == false then
+        status_text = " (Unconfirmed)"
+    else
+        status_text = " (Confirmed)"
+    end
+    local title = rank_frame:CreateOrGetControl("richtext", "title", 30, 10)
+    AUTO_CAST(title)
+    title:SetText("{@st66b18}Weekly Ranking [" .. season .. "] week" .. status_text)
+    local gbox = rank_frame:CreateOrGetControl("groupbox", "gbox", 10, 30, 0, 0)
+    AUTO_CAST(gbox)
+    gbox:SetSkinName("bg")
+    local close = rank_frame:CreateOrGetControl("button", "close", 0, 0, 30, 30)
+    AUTO_CAST(close)
+    close:SetGravity(ui.RIGHT, ui.TOP)
+    close:SetSkinName("None")
+    close:SetText("{img testclose_button 30 30}")
+    close:SetEventScript(ui.LBUTTONUP, "test_norisan_ranking_close")
+    local y = 10
+    local max_rank_width = 0
+    local max_name_width = 0
+    local max_damage_width = 0
+    local temp_rank_text = gbox:CreateOrGetControl("richtext", "temp_rank", 0, 0)
+    temp_rank_text:SetText("100.")
+    max_rank_width = temp_rank_text:GetWidth()
+    temp_rank_text:ShowWindow(0)
+    for i, data in ipairs(ranking_data) do
+        local temp_name_text = gbox:CreateOrGetControl("richtext", "temp_name_" .. i, 0, 0)
+        temp_name_text:SetText("{ol}" .. data.name)
+        if temp_name_text:GetWidth() > max_name_width then
+            max_name_width = temp_name_text:GetWidth()
+        end
+        temp_name_text:ShowWindow(0)
+        local temp_damage_text = gbox:CreateOrGetControl("richtext", "temp_damage_" .. i, 0, 0)
+        temp_damage_text:SetText(string.format("Damage: %d", data.damage))
+        if temp_damage_text:GetWidth() > max_damage_width then
+            max_damage_width = temp_damage_text:GetWidth()
+        end
+        temp_damage_text:ShowWindow(0)
+    end
+    local rank_col_x = 10
+    local name_col_x = rank_col_x + max_rank_width
+    local icon_col_x = name_col_x + max_name_width
+    local damage_col_x = icon_col_x + (4 * 25) - 10
+    for i, data in ipairs(ranking_data) do
+        local rank_text = gbox:CreateOrGetControl("richtext", "rank_" .. i, rank_col_x, y)
+        AUTO_CAST(rank_text)
+        rank_text:SetText("{ol}" .. string.format("%d.", data.rank))
+        local name_text = gbox:CreateOrGetControl("richtext", "name_" .. i, name_col_x, y)
+        AUTO_CAST(name_text)
+        name_text:SetText("{ol}" .. data.name)
+        local icon_x = icon_col_x
+        for j, job_id in ipairs(data.build) do
+            if j > 4 then
+                break
+            end
+            local job_cls = GetClassByType('Job', job_id)
+            if job_cls then
+                local job_icon = gbox:CreateOrGetControl('picture', 'job_icon_' .. i .. '_' .. j, icon_x, y - 5, 25, 25)
+                AUTO_CAST(job_icon)
+                job_icon:SetImage(job_cls.Icon)
+                job_icon:SetEnableStretch(1)
+                job_icon:EnableHitTest(1)
+                job_icon:SetTooltipType('adventure_book_job_info')
+                job_icon:SetTooltipArg(job_id, 0, 0)
+                icon_x = icon_x + 25
+            end
+        end
+        local damage_text = gbox:CreateOrGetControl("richtext", "damage_" .. i, damage_col_x, y)
+        AUTO_CAST(damage_text)
+        damage_text:SetText("{ol}" .. GET_COMMAED_STRING(data.damage))
+        local text_width = damage_text:GetWidth()
+        local centered_x = damage_col_x + (max_damage_width - text_width) / 2
+        damage_text:SetPos(centered_x, y)
+        y = y + 30
+    end
+    local max_x = damage_col_x + max_damage_width
+    rank_frame:SetPos(induninfo:GetX() + 20, induninfo:GetY() + 20)
+    rank_frame:Resize(max_x + 20, 550)
+    gbox:Resize(rank_frame:GetWidth() - 20, rank_frame:GetHeight() - 40)
+    gbox:EnableScrollBar(1)
+    gbox:SetScrollPos(0);
+    rank_frame:ShowWindow(1)
+end
+
+function test_norisan_get_weekly_boss_data_context(frame, ctrl, str, num)
+    local context = ui.CreateContextMenu("weekly_boss_data", "{ol}WEEKLY BOSS DATA", 0, 0, 0, 0)
+    ui.AddContextMenuItem(context, "four weeks", "None")
+    for i = 1, #base_jobids do
+        local scp = string.format("test_norisan_get_weekly_boss_data_reserve(%d, 1)", base_jobids[i])
+        local job_cls = GetClassByType('Job', base_jobids[i])
+        ui.AddContextMenuItem(context, job_cls.Name .. " (Data takes about 120 sec)", scp)
+    end
+    local scp_all_four = string.format("test_norisan_get_weekly_boss_data_reserve(1, 1)")
+    ui.AddContextMenuItem(context, "data for all classes (Data takes about 600 sec)", scp_all_four)
+    ui.AddContextMenuItem(context, "This week", "None")
+    for i = 1, #base_jobids do
+        local scp = string.format("test_norisan_get_weekly_boss_data_reserve(%d, 0)", base_jobids[i])
+        local job_cls = GetClassByType('Job', base_jobids[i])
+        ui.AddContextMenuItem(context, job_cls.Name .. " (Data takes about 30 sec)", scp)
+    end
+    local scp_all_this = string.format("test_norisan_get_weekly_boss_data_reserve(0, 0)")
+    ui.AddContextMenuItem(context, "data for all classes (Data takes about 150 sec)", scp_all_this)
+    ui.OpenContextMenu(context)
+end
+
+function test_norisan_save_log()
+    local file_path = string.format("../addons/%s/log.dat", addon_name_lower)
+    local existing_records = g.load_dat(file_path) or {}
+    local new_records_check = {}
+    for _, new_record in ipairs(result_tbl) do
+        local week_str = tostring(new_record[1])
+        local job_id_str = tostring(new_record[2])
+        if not new_records_check[week_str] then
+            new_records_check[week_str] = {}
+        end
+        new_records_check[week_str][job_id_str] = true
+    end
+    local final_records_to_save = {}
+    if #existing_records > 0 then
+        for _, old_record in ipairs(existing_records) do
+            local old_week_str, old_job_id_str = old_record[1], old_record[2]
+            if not (new_records_check[old_week_str] and new_records_check[old_week_str][old_job_id_str]) then
+                table.insert(final_records_to_save, old_record)
+            end
+        end
+    end
+    for _, new_record in ipairs(result_tbl) do
+        table.insert(final_records_to_save, new_record)
+    end
+    local lines_to_write = {}
+    for _, record in ipairs(final_records_to_save) do
+        table.insert(lines_to_write, table.concat(record, ":::"))
+    end
+    local content_to_write = table.concat(lines_to_write, "\n")
+    local file = io.open(file_path, "w")
+    if file then
+        file:write(content_to_write)
+        file:close()
+        -- print("log.datに結果を保存しました。")
+    else
+        -- print("エラー: log.datを開けませんでした。")
+    end
+end
+
+function test_norisan_get_weekly_boss_data_reserve(base_job_id, is_four_weeks)
+    result_tbl = {}
+    processed_job_ids = {}
+    local induninfo = ui.GetFrame("induninfo")
+    local rankListBox = GET_CHILD_RECURSIVELY(induninfo, "rankListBox")
+    AUTO_CAST(rankListBox)
+    rankListBox:SetUserValue("MODE_BASE_ID", base_job_id)
+    rankListBox:SetUserValue("MODE_IS_4W", is_four_weeks)
+    rankListBox:SetUserValue("B_IDX", 1)
+    rankListBox:SetUserValue("C_IDX", 1)
+    rankListBox:SetUserValue("W_IDX", 0)
+    rankListBox:SetUserValue("SHOULD_SAVE", 0)
+    start_time = os.clock()
+    local file_path = string.format("../addons/%s/log.dat", addon_name_lower)
+    local loaded_data = g.load_dat(file_path)
+    if loaded_data then
+        for _, record in ipairs(loaded_data) do
+            local week_str = record[1]
+            local job_id_str = record[2]
+            local is_confirmed_str = record[7]
+            if is_confirmed_str == "true" then
+                processed_job_ids[week_str .. job_id_str] = true
+            end
+        end
+    end
+    local induninfo_class_selector = ui.GetFrame("induninfo_class_selector")
+    induninfo_class_selector:SetEnable(0)
+    local msg = g.lang == "Japanese" and
+                    "データ取得を開始します{nl}フレームを閉じずに暫くお待ちください" or
+                    "Starting data acquisition{nl}Please wait a moment without closing the frame"
+    imcAddOn.BroadMsg("NOTICE_Dm_!", msg, 3.0)
+    test_norisan_get_weekly_boss_data(rankListBox)
+    rankListBox:RunUpdateScript("test_norisan_get_weekly_boss_data", 1.2)
+end
+
+function test_norisan_get_weekly_boss_data(rankListBox)
+    local mode_base_id = rankListBox:GetUserIValue("MODE_BASE_ID")
+    local mode_is_4w = rankListBox:GetUserIValue("MODE_IS_4W")
+    local b_idx = rankListBox:GetUserIValue("B_IDX")
+    local c_idx = rankListBox:GetUserIValue("C_IDX")
+    local w_idx = rankListBox:GetUserIValue("W_IDX")
+    if w_idx == 0 and b_idx == 1 and c_idx == 1 then
+        local induninfo = ui.GetFrame("induninfo")
+        local season_tab = GET_CHILD_RECURSIVELY(induninfo, "season_tab")
+        season_tab:SelectTab(0)
+        rankListBox:SetUserValue("CURRENT_WEEK_NUM", WEEKLY_BOSS_RANK_WEEKNUM_NUMBER())
+    end
+    local current_week_num = rankListBox:GetUserIValue("CURRENT_WEEK_NUM")
+    local target_base_jobids
+    local is_all_classes_mode = false
+    if mode_base_id == 0 or mode_base_id == 1 then
+        target_base_jobids = base_jobids
+        is_all_classes_mode = true
+    else
+        target_base_jobids = {mode_base_id}
+    end
+    local num_weeks = (mode_base_id == 1 or mode_is_4w == 1) and 4 or 1
+    if w_idx >= num_weeks then
+        local induninfo_class_selector = ui.GetFrame("induninfo_class_selector")
+        if induninfo_class_selector:IsVisible() == 1 then
+            local classList = GET_CHILD_RECURSIVELY(induninfo_class_selector, "classList")
+            if classList then
+                AUTO_CAST(classList);
+                classList:SetScrollPos(0);
+            end
+            INDUNINFO_CLASS_SELECTOR_UI_CLOSE(induninfo_class_selector)
+        end
+        induninfo_class_selector:SetEnable(1)
+        local end_time = os.clock()
+        local elapsed_time = end_time - start_time
+        print(string.format("処理が完了しました。所要時間: %.2f 秒", elapsed_time)) -- !
+        return 0
+    end
+    local current_base_jobid = target_base_jobids[b_idx]
+    local job_list = GET_JOB_LIST(current_base_jobid)
+    local job_cls = job_list[c_idx]
+    local next_b_idx, next_c_idx, next_w_idx = b_idx, c_idx + 1, w_idx
+    local should_save_flag = 0
+    if next_c_idx > #job_list then
+        next_c_idx = 1
+        next_b_idx = b_idx + 1
+        if is_all_classes_mode then
+            should_save_flag = 1
+        end
+    end
+    if next_b_idx > #target_base_jobids then
+        next_b_idx = 1
+        next_c_idx = 1
+        next_w_idx = w_idx + 1
+        if not is_all_classes_mode then
+            should_save_flag = 1
+        end
+    end
+    if job_cls then
+        local job_cls_id = TryGetProp(job_cls, "ClassID", 0)
+        local week_offset = (num_weeks == 4) and (3 - w_idx) or 0
+        local week_num = current_week_num - week_offset
+        local key_to_check = tostring(week_num) .. tostring(job_cls_id)
+        if job_cls_id ~= 0 and not processed_job_ids[key_to_check] then
+            local induninfo = ui.GetFrame("induninfo")
+            local induninfo_class_selector = ui.GetFrame("induninfo_class_selector")
+            ui.OpenFrame("induninfo_class_selector")
+            local season_tab = GET_CHILD_RECURSIVELY(induninfo, "season_tab")
+            season_tab:SelectTab(week_offset)
+            local classtype_tab = GET_CHILD_RECURSIVELY(induninfo, "classtype_tab")
+            for k = 1, #base_jobids do
+                if base_jobids[k] == current_base_jobid then
+                    classtype_tab:SelectTab(k - 1)
+                    break
+                end
+            end
+            INDUNINFO_CLASS_SELECTOR_FILL_CLASS(current_base_jobid)
+            weekly_boss.RequestWeeklyBossRankingInfoList(week_num, job_cls_id)
+            local classList = GET_CHILD_RECURSIVELY(induninfo_class_selector, "classList")
+            AUTO_CAST(classList)
+            local pos = 0
+            if c_idx > 18 then
+                pos = 180
+            elseif c_idx > 12 then
+                pos = 120
+            elseif c_idx > 6 then
+                pos = 60
+            end
+            classList:SetScrollPos(pos)
+            for i = 1, #job_list do
+                local list_job = GET_CHILD_RECURSIVELY(induninfo_class_selector, "list_job_" .. i)
+                if list_job then
+                    local icon = GET_CHILD(list_job, "icon_pic")
+                    if icon then
+                        AUTO_CAST(icon)
+                        if i == c_idx then
+                            icon:SetColorTone("FFFFFFFF")
+                        else
+                            icon:SetColorTone("FF444444")
+                        end
+                    end
+                end
+            end
+            rankListBox:SetUserValue("JOB_ID", job_cls_id)
+            rankListBox:SetUserValue("WEEK_NUM", week_num)
+            rankListBox:SetUserValue("SHOULD_SAVE", should_save_flag)
+            rankListBox:RunUpdateScript("test_norisan_get_weekly_boss_damage", 0.2)
+            processed_job_ids[key_to_check] = true
+
+            rankListBox:SetUserValue("B_IDX", next_b_idx)
+            rankListBox:SetUserValue("C_IDX", next_c_idx)
+            rankListBox:SetUserValue("W_IDX", next_w_idx)
+            rankListBox:StopUpdateScript("test_norisan_get_weekly_boss_data")
+            rankListBox:RunUpdateScript("test_norisan_get_weekly_boss_data", 1.2)
+            return 0
+        end
+    end
+    rankListBox:SetUserValue("B_IDX", next_b_idx)
+    rankListBox:SetUserValue("C_IDX", next_c_idx)
+    rankListBox:SetUserValue("W_IDX", next_w_idx)
+    rankListBox:StopUpdateScript("test_norisan_get_weekly_boss_data")
+    rankListBox:RunUpdateScript("test_norisan_get_weekly_boss_data", 0)
+    return 0
+end
+
+function test_norisan_get_weekly_boss_damage(rankListBox)
+
+    local induninfo = ui.GetFrame("induninfo")
+    local rankListBox = GET_CHILD_RECURSIVELY(induninfo, "rankListBox")
+    AUTO_CAST(rankListBox)
+    local job_id = rankListBox:GetUserValue("JOB_ID")
+    local week_num = tonumber(rankListBox:GetUserValue("WEEK_NUM"))
+    if not job_id or not week_num then
+        return 0
+    end
+    local current_week_num = tonumber(rankListBox:GetUserIValue("CURRENT_WEEK_NUM"))
+    local is_confirmed = (week_num < current_week_num) and "true" or "false"
+    for i = 1, 20 do
+        local ctrlset = GET_CHILD(rankListBox, "CTRLSET_" .. i)
+        if ctrlset then
+            AUTO_CAST(ctrlset)
+            local name_ctrl = GET_CHILD(ctrlset, "attr_name_text", "ui::CRichText")
+            local name = name_ctrl:GetTextByKey("value")
+            local damage = session.weeklyboss.GetRankInfoDamage(i - 1)
+            damage = string.gsub(damage, ",", "")
+            damage = tonumber(damage)
+            local job_cls = GetClassByType('Job', tonumber(job_id))
+            local job_name = dic.getTranslatedStr(job_cls.Name)
+            local msg = g.lang == "Japanese" and job_name .. " データを取得しました" or job_name ..
+                            " Data obtained"
+            imcAddOn.BroadMsg("NOTICE_Dm_quest_complete", msg, 1.2)
+            local result_data = {week_num, job_id, i, name, damage, job_name, is_confirmed}
+            table.insert(result_tbl, result_data)
+        else
+            if i == 1 then
+                local job_cls = GetClassByType('Job', tonumber(job_id))
+                local job_name = dic.getTranslatedStr(job_cls.Name)
+                local result_data = {week_num, job_id, i, "None", "0", job_name, is_confirmed}
+                table.insert(result_tbl, result_data)
+            end
+            break
+        end
+    end
+    if rankListBox:GetUserIValue("SHOULD_SAVE") == 1 then
+        test_norisan_save_log()
+        rankListBox:SetUserValue("SHOULD_SAVE", 0)
+    end
+    return 0
+end
+
+function test_norisan_rebuild_log_file(induninfo)
+    local file_path = string.format("../addons/%s/log.dat", addon_name_lower)
+    local log_data = g.load_dat(file_path)
+    if not log_data then
+        return 0
+    end
+    local classtype_tab = GET_CHILD_RECURSIVELY(induninfo, "classtype_tab")
+    AUTO_CAST(classtype_tab)
+    local cls_index = classtype_tab:GetSelectItemIndex()
+    local base_job = base_jobids[cls_index + 1]
+    local week_num = session.weeklyboss.GetNowWeekNum()
+    local season_tab = GET_CHILD_RECURSIVELY(induninfo, "season_tab")
+    AUTO_CAST(season_tab)
+    local season_index = season_tab:GetSelectItemIndex()
+    local season = week_num - season_index
+    local rebuilt_table = {}
+    for _, record in ipairs(log_data) do
+        local week_num_ = tonumber(record[1])
+        local job_id = tonumber(record[2])
+        local name = record[4]
+        if week_num_ == season and (job_id > base_job and job_id < base_job + 1000) then
+            if not rebuilt_table[name] then
+                rebuilt_table[name] = {}
+            end
+            table.insert(rebuilt_table[name], job_id)
+        end
+    end
+    local rankListBox = GET_CHILD_RECURSIVELY(induninfo, "rankListBox")
+    AUTO_CAST(rankListBox)
+    for i = 1, 20 do
+        local ctrlset = GET_CHILD(rankListBox, "CTRLSET_" .. i)
+        if ctrlset then
+            AUTO_CAST(ctrlset)
+            local attr_name_text = GET_CHILD(ctrlset, "attr_name_text")
+            if attr_name_text then
+                AUTO_CAST(attr_name_text)
+                local raw_name = attr_name_text:GetText()
+                local job_ids = rebuilt_table[raw_name]
+                for j = 1, 3 do
+                    local icon = GET_CHILD(ctrlset, 'job_icon' .. j)
+                    if icon then
+                        icon:ShowWindow(0)
+                    end
+                end
+                local nodata = GET_CHILD(ctrlset, 'nodata_' .. i)
+                if nodata then
+                    nodata:ShowWindow(0)
+                end
+                if job_ids then
+                    local rect = attr_name_text:GetMargin()
+                    attr_name_text:SetMargin(rect.left, rect.top + 2, rect.right, rect.bottom)
+                    for j = 1, 3 do
+                        local job_id = job_ids[j]
+                        if job_id then
+                            local job_cls = GetClassByType('Job', job_id)
+                            if job_cls then
+                                local job_icon = ctrlset:CreateOrGetControl('picture', 'job_icon' .. j,
+                                    (attr_name_text:GetWidth() + ((j - 1) * 30)), 5, 30, 30)
+                                AUTO_CAST(job_icon)
+                                job_icon:SetImage(job_cls.Icon)
+                                job_icon:SetEnableStretch(1)
+                                job_icon:EnableHitTest(1)
+                                ctrlset:EnableHitTest(1)
+                                job_icon:SetTooltipType('adventure_book_job_info')
+                                job_icon:SetTooltipArg(job_id, 0, 0)
+                                job_icon:ShowWindow(1)
+                            end
+                        end
+                    end
+                else
+                    local nodata = ctrlset:CreateOrGetControl('richtext', 'nodata_' .. i, attr_name_text:GetWidth(), 10,
+                        30, 30)
+                    AUTO_CAST(nodata)
+                    nodata:SetText("{#000000}No data")
+                    nodata:ShowWindow(1)
+                end
+            end
+        end
+    end
+    return 0
+end
+
+function test_norisan_WEEKLY_BOSS_RANK_UPDATE()
+    local induninfo = ui.GetFrame("induninfo")
+    local rankListBox = GET_CHILD_RECURSIVELY(induninfo, "rankListBox")
+    AUTO_CAST(rankListBox)
+    if rankListBox:HaveUpdateScript("test_norisan_get_weekly_boss_data") == false then
+        test_norisan_rebuild_log_file(induninfo)
+    end
+end]]
+
+--[[local induninfo = ui.GetFrame("induninfo")
+local WeeklyBossbox = GET_CHILD_RECURSIVELY(induninfo, "classtype_tab") -- classtype_tab
+ts(WeeklyBossbox:GetSelectItemIndex())
+local childNames = {}
+local childCount = WeeklyBossbox:GetChildCount()
+for i = 0, childCount - 1 do
+    local child = WeeklyBossbox:GetChildByIndex(i)
+    table.insert(childNames, child:GetName())
+end
+
+for i, name in ipairs(childNames) do
+    print(name)
+end]]
+
+--[[local raid_record = ui.GetFrame("test_norisan")
+g.temp = {}
+test_norisan_REQ_PLAYER_CONTENTS_RECORD(raid_record, "", "Goddess_Raid_Redania_Solo;00:13.253;00:19.28", "")]]
+function test_norisan_GODDESS_AETHER_SOCKET_OPEN_MAT_REG(my_frame, my_msg)
+    local parent, slot, inv_item, item_obj, target_obj = g.get_event_args(my_msg)
+    if item_goddess_socket.is_aether_socket_material(item_obj, target_obj) == true then
+        local lock_pic = GET_CHILD(parent, 'lock_pic')
+        lock_pic:ShowWindow(0)
+        local aether_open_btn = GET_CHILD(parent, 'aether_open_btn')
+        aether_open_btn:SetEnable(1)
+        SET_SLOT_ITEM(slot, inv_item)
+        slot:SetUserValue('ITEM_GUID', inv_item:GetIESID())
+    end
+end
+-- ui.SysMsg(ClMsg('CantMovablePharmacyMaterial'))
+-- ui.SysMsg(ClMsg('CantMovablePharmacyMaterial'))
+
+
+--[[function test_norisan_hp_use(frame, msg, str, num)
+    local stat = info.GetStat(session.GetMyHandle())
+    local ratio = stat.HP / stat.maxHP
+
+    if ratio > 0.6 then
+        return
+    end
+
+    local function test_norisan_INV_ICON_USE(invItem)
+        if nil == invItem then
+            return
+        end
+
+        if true == invItem.isLockState then
+            ui.SysMsg(ClMsg("MaterialItemIsLock"))
+            return
+        end
+
+        if true == RUN_CLIENT_SCP(invItem) then
+            return
+        end
+
+        local stat = info.GetStat(session.GetMyHandle())
+        if stat.HP <= 0 then
+            return
+        end
+
+        local itemtype = invItem.type
+        local curTime = item.GetCoolDown(itemtype)
+        if curTime ~= 0 then
+            return
+        end
+
+        item.UseByGUID(invItem:GetIESID())
+    end
+
+    local pot_table = {641906, 640405}
+    session.ResetItemList()
+    local invItemList = session.GetInvItemList()
+
+    for _, classid in ipairs(pot_table) do
+        local use_item = session.GetInvItemByType(classid)
+        if use_item then
+            test_norisan_INV_ICON_USE(use_item)
+        end
+    end
+end
+
+function test_norisan_sp_use(frame, msg, str, num)
+    local stat = info.GetStat(session.GetMyHandle())
+    local ratio = stat.SP / stat.maxSP
+
+    if ratio > 0.3 then
+        return
+    end
+
+    local function test_norisan_INV_ICON_USE(invItem)
+        if nil == invItem then
+            return
+        end
+
+        if true == invItem.isLockState then
+            ui.SysMsg(ClMsg("MaterialItemIsLock"))
+            return
+        end
+
+        if true == RUN_CLIENT_SCP(invItem) then
+            return
+        end
+
+        local stat = info.GetStat(session.GetMyHandle())
+        if stat.HP <= 0 then
+            return
+        end
+
+        local itemtype = invItem.type
+        local curTime = item.GetCoolDown(itemtype)
+        if curTime ~= 0 then
+            return
+        end
+
+        item.UseByGUID(invItem:GetIESID())
+    end
+
+    local pot_table = {640448, 640436, 640406}
+    session.ResetItemList()
+    local invItemList = session.GetInvItemList()
+
+    for _, classid in ipairs(pot_table) do
+        local use_item = session.GetInvItemByType(classid)
+        if use_item then
+            test_norisan_INV_ICON_USE(use_item)
+        end
+    end
+end]]
+
+--[[function test_norisan_PROCESS_MOVE_MAIN_POPUPCHAT_FRAME(frame)
+    if mouse.IsLBtnPressed() == 0 then
+        MOVE_FRAME_MAIN_POPUP_CHAT_END(frame)
+        return 0;
+    end
+    -- print(frame:GetName())
+    local ratio = option.GetClientHeight() / option.GetClientWidth();
+    local limitOffset = 10;
+    -- local limitMaxWidth = ui.GetSceneWidth() / ui.GetRatioWidth() - limitOffset;
+    local limitMaxWidth = ui.GetSceneWidth() - limitOffset;
+    local limitMaxHeight = limitMaxWidth * ratio - limitOffset * 12;
+
+    local mx, my = GET_MOUSE_POS();
+    mx = mx / ui.GetRatioWidth();
+    my = my / ui.GetRatioHeight();
+
+    local bx = frame:GetUserIValue("MOUSE_X");
+    local by = frame:GetUserIValue("MOUSE_Y");
+    local dx = (mx - bx);
+    local dy = (my - by);
+
+    local width = frame:GetUserIValue("BEFORE_W");
+    local height = frame:GetUserIValue("BEFORE_H");
+    width = width + dx;
+    height = height + dy;
+
+    if width < limitOffset then
+        width = limitOffset;
+    end
+
+    if height < limitOffset then
+        height = limitOffset;
+    end
+
+    local wndW = frame:GetWidth();
+    local wndH = frame:GetHeight()
+
+    if (width + wndW) > limitMaxWidth then
+        width = limitMaxWidth - wndW;
+    end
+
+    if (height + wndH) > limitMaxHeight then
+        height = (limitMaxHeight - wndH);
+    end
+
+    frame:SetOffset(width, height);
+
+    return 1;
+end
+
+function test_norisan__PROCESS_MOVE_MAIN_POPUPCHAT_FRAME(my_frame, my_msg)
+
+    local frame = g.get_event_args(my_msg)
+    frame:RunUpdateScript("test_norisan_PROCESS_MOVE_MAIN_POPUPCHAT_FRAME", 0.1);
+
+end
+local ___cursize = -80;
+function test_norisan_REQUEST_UPDATE_MINIMAP(my_frame, my_msg)
+
+    local frame, isFirstOpen = g.get_event_args(my_msg)
+    local curmapname = session.GetMapName();
+    local mapprop = geMapTable.GetMapProp(curmapname);
+    local mapname = mapprop:GetClassName();
+
+    if isFirstOpen ~= nil and isFirstOpen == true then
+        ___cursize = GET_MINIMAPSIZE();
+    end
+
+    RequestUpdateMinimap(mapname, -100);
+    SET_MINIMAPSIZE(-100);
+    print(tostring(___cursize))
+end]]
+
+--[[function test_norisan_get_cooldown(frame)
+
+    local frame = ui.GetFrame('quickslotnexpbar');
+
+    for i = 0, MAX_QUICKSLOT_CNT - 1 do
+        local quickSlotInfo = quickslot.GetInfoByIndex(i);
+
+        local slot = GET_CHILD_RECURSIVELY(frame, "slot" .. i + 1, "ui::CSlot");
+        local pain_cool = 0
+        local icon = slot:GetIcon()
+        if quickSlotInfo.type == 10005 then
+
+            pain_cool = ICON_UPDATE_SKILL_COOLDOWN(icon)
+            print(tostring(pain_cool))
+            if pain_cool == 0 then
+                ICON_USE(icon)
+            end
+        end
+
+    end
+
+    local summonedPet = GET_SUMMONED_PET();
+
+    if summonedPet ~= nil then
+
+        local pet_guid = summonedPet:GetStrGuid()
+        local petInfo = session.pet.GetPetByGUID(pet_guid);
+        local obj = GetIES(petInfo:GetObject())
+
+        if obj.IsActivated ~= 1 then
+            return
+        end
+    else
+        return 1
+    end
+
+    local void_cool = 0
+    local dance_enable = 0
+
+    for i = 0, MAX_QUICKSLOT_CNT - 1 do
+        local quickSlotInfo = quickslot.GetInfoByIndex(i);
+
+        local slot = GET_CHILD_RECURSIVELY(frame, "slot" .. i + 1, "ui::CSlot");
+
+        local icon = slot:GetIcon()
+        if quickSlotInfo.type == 12329 then
+            void_cool = ICON_UPDATE_SKILL_COOLDOWN(icon)
+        elseif quickSlotInfo.type == 12332 then
+            dance_enable = ICON_UPDATE_SKILL_ENABLE(icon)
+        end
+
+    end
+
+    if void_cool == 0 then
+        ON_RIDING_VEHICLE(0)
+    elseif dance_enable ~= 0 then
+        ON_RIDING_VEHICLE(0)
+    else
+        ON_RIDING_VEHICLE(1)
+    end
+    return 1
+end]]
+--[[function test_norisan_REROLL_ITEM_OPTION_LIST(reroll_frame)
+
+    local reroll_item_option = ui.GetFrame("reroll_item_option")
+    local reroll_frame = ui.GetFrame('reroll_item')
+    if reroll_frame == nil or reroll_frame:IsVisible() ~= 1 then
+        ui.CloseFrame('reroll_item_option')
+        return 1
+    end
+
+    local slot = GET_CHILD_RECURSIVELY(reroll_frame, 'slot')
+    local inv_item = GET_SLOT_ITEM(slot)
+    if inv_item == nil then
+        ui.CloseFrame('reroll_item_option')
+        return 1
+    end
+
+    if reroll_item_option:IsVisible() == 1 then
+        return 1
+    end
+
+    local item_obj = GetIES(inv_item:GetObject())
+    local cur_index = reroll_frame:GetUserValue('CURRENT_INDEX')
+
+    if cur_index == 'None' then
+        cur_index = 1
+    end
+
+    if cur_index == nil or cur_index == 'None' then
+        return 1
+    end
+
+    local reroll_index = TryGetProp(item_obj, 'RerollIndex', 0)
+
+    if reroll_index <= 0 then
+        reroll_index = tonumber(cur_index)
+    end
+
+    local candidate_option_list = nil
+
+    local group_name = TryGetProp(item_obj, 'GroupName', 'None')
+    if group_name == 'BELT' then
+        candidate_option_list = shared_item_belt.get_option_list_by_index(item_obj, reroll_index)
+    elseif group_name == 'SHOULDER' then
+        candidate_option_list = shared_item_shoulder.get_option_list_by_index(item_obj, reroll_index)
+    elseif group_name == 'Icor' then
+        candidate_option_list = shared_item_goddess_icor.get_random_option_list(item_obj, false)
+    end
+
+    if candidate_option_list == nil or #candidate_option_list == 0 then
+        return
+    end
+
+    local max_random_option_count = 0
+
+    if group_name == 'BELT' then
+        max_random_option_count = shared_item_belt.get_max_random_option_count(item_obj)
+    elseif group_name == 'SHOULDER' then
+        max_random_option_count = shared_item_shoulder.get_max_random_option_count(item_obj)
+    elseif group_name == 'Icor' then
+        max_random_option_count = shared_item_goddess_icor.get_max_option_count()
+    end
+
+    if max_random_option_count == nil then
+        return
+    end
+
+    local optionGbox = GET_CHILD_RECURSIVELY(reroll_item_option, 'optionGbox')
+    optionGbox:RemoveAllChild()
+    local op_count = 0
+
+    local function _MAKE_PROPERTY_MIN_MAX_DESC(desc, min, max)
+        return string.format(" %s " .. ScpArgMsg("PropUp") .. "%d" .. ' ~ ' .. ScpArgMsg("PropUp") .. "%d", desc,
+            math.abs(min), math.abs(max))
+    end
+
+    for i = 1, #candidate_option_list do
+        local prop_name = candidate_option_list[i]
+
+        if group_name == 'BELT' then
+            if shared_item_belt.is_valid_reroll_option(item_obj, reroll_index, prop_name, max_random_option_count) ==
+                true then
+                op_count = op_count + 1
+                local group_name = shared_item_belt.get_option_group_name(prop_name)
+                local clmsg = GET_CLMSG_BY_OPTION_GROUP(group_name)
+                local min, max = shared_item_belt.get_option_value_range_equip(item_obj, prop_name)
+                local op_name = string.format('%s %s', ClMsg(clmsg), ScpArgMsg(prop_name))
+                local info_str = _MAKE_PROPERTY_MIN_MAX_DESC(op_name, min, max)
+                local option_ctrlset = optionGbox:CreateOrGetControlSet('eachproperty_in_reroll_item',
+                    'PROPERTY_CSET_' .. op_count, 0, 0)
+                option_ctrlset = AUTO_CAST(option_ctrlset)
+                local pos_y = option_ctrlset:GetUserConfig('POS_Y')
+                option_ctrlset:Move(0, (op_count - 1) * pos_y)
+                -- local bg = GET_CHILD_RECURSIVELY(option_ctrlset, 'bg')
+                -- bg:ShowWindow(0)
+                local property_name = GET_CHILD_RECURSIVELY(option_ctrlset, 'property_name', 'ui::CRichText')
+                property_name:SetEventScript(ui.LBUTTONUP, 'None')
+                property_name:SetText(info_str)
+                local help_pic = GET_CHILD_RECURSIVELY(option_ctrlset, 'help_pic')
+                help_pic:ShowWindow(0)
+            end
+        elseif group_name == 'SHOULDER' then
+            if shared_item_shoulder.is_valid_reroll_option(item_obj, reroll_index, prop_name, max_random_option_count) ==
+                true then
+                op_count = op_count + 1
+                local group_name = shared_item_shoulder.get_option_group_name(prop_name)
+                local clmsg = GET_CLMSG_BY_OPTION_GROUP(group_name)
+                local min, max = shared_item_shoulder.get_option_value_range_equip(item_obj, prop_name)
+                local op_name = string.format('%s %s', ClMsg(clmsg), ScpArgMsg(prop_name))
+                local info_str = _MAKE_PROPERTY_MIN_MAX_DESC(op_name, min, max)
+                local option_ctrlset = optionGbox:CreateOrGetControlSet('eachproperty_in_reroll_item',
+                    'PROPERTY_CSET_' .. op_count, 0, 0)
+                option_ctrlset = AUTO_CAST(option_ctrlset)
+                local pos_y = option_ctrlset:GetUserConfig('POS_Y')
+                option_ctrlset:Move(0, (op_count - 1) * pos_y)
+                -- local bg = GET_CHILD_RECURSIVELY(option_ctrlset, 'bg')
+                -- bg:ShowWindow(0)
+                local property_name = GET_CHILD_RECURSIVELY(option_ctrlset, 'property_name', 'ui::CRichText')
+                property_name:SetEventScript(ui.LBUTTONUP, 'None')
+                property_name:SetText(info_str)
+                local help_pic = GET_CHILD_RECURSIVELY(option_ctrlset, 'help_pic')
+                help_pic:ShowWindow(0)
+            end
+        elseif group_name == 'Icor' then
+            if shared_item_goddess_icor.is_valid_reroll_option(item_obj, reroll_index, prop_name) == true then
+
+                op_count = op_count + 1
+                local group_name = shared_item_goddess_icor.get_option_group_name(prop_name)
+
+                local clmsg = GET_CLMSG_BY_OPTION_GROUP(group_name)
+
+                local min, max = shared_item_goddess_icor.get_option_value_range_icor(item_obj, prop_name)
+
+                local op_name = string.format('%s %s', ClMsg(clmsg), ScpArgMsg(prop_name))
+
+                local info_str = _MAKE_PROPERTY_MIN_MAX_DESC(op_name, min, max)
+
+                local option_ctrlset = optionGbox:CreateOrGetControlSet('eachproperty_in_reroll_item',
+                    'PROPERTY_CSET_' .. op_count, 0, 0)
+                option_ctrlset = AUTO_CAST(option_ctrlset)
+                local pos_y = option_ctrlset:GetUserConfig('POS_Y')
+                option_ctrlset:Move(0, (op_count - 1) * pos_y)
+                local property_name = GET_CHILD_RECURSIVELY(option_ctrlset, 'property_name', 'ui::CRichText')
+                property_name:SetEventScript(ui.LBUTTONUP, 'None')
+                property_name:SetText(info_str)
+                local help_pic = GET_CHILD_RECURSIVELY(option_ctrlset, 'help_pic')
+                help_pic:ShowWindow(0)
+            end
+        end
+    end
+    reroll_item_option:Resize(500, 970)
+    reroll_item_option:SetSkinName("None")
+    local bg = GET_CHILD(reroll_item_option, "bg")
+    bg:Resize(470, reroll_item_option:GetHeight())
+    local optionGbox = GET_CHILD(reroll_item_option, "optionGbox")
+    optionGbox:Resize(430, bg:GetHeight() - 100)
+
+    reroll_item_option:ShowWindow(1)
+    return 1
+end
+
+function test_norisan_reroll_item_option_open()
+    local reroll_item = ui.GetFrame("reroll_item")
+    if reroll_item and reroll_item:IsVisible() == 1 then
+        reroll_item:RunUpdateScript("test_norisan_REROLL_ITEM_OPTION_LIST", 0.2)
+        --[[local slot = GET_CHILD(reroll_item, "slot")
+        local icon = slot:GetIcon()
+        if icon then
+            -- print("test_norisan_reroll_item_option")
+            local reroll_item_option = ui.GetFrame("reroll_item_option")
+            -- test_norisan_REROLL_ITEM_OPTION_LIST(reroll_item_option)
+
+        end]
+    else
+        return
+    end
+end
+
+function test_norisan__REROLL_ITEM_SELECT_EXEC()
+    local reroll_item = ui.GetFrame("reroll_item")
+    reroll_item:ShowWindow(1)
+end]]
+
+--[[function test_norisan_get_weekly_boss_data(rankListBox)
+
+    local mode_base_id = rankListBox:GetUserIValue("MODE_BASE_ID")
+    local mode_is_4w = rankListBox:GetUserIValue("MODE_IS_4W")
+
+    local b_idx = rankListBox:GetUserIValue("B_IDX")
+    local c_idx = rankListBox:GetUserIValue("C_IDX")
+    local w_idx = rankListBox:GetUserIValue("W_IDX")
+
+    if w_idx == 0 and b_idx == 1 and c_idx == 1 then
+        -- ループの初回実行時に、現在の本当の週番号を保存する
+        local induninfo = ui.GetFrame("induninfo")
+        local season_tab = GET_CHILD_RECURSIVELY(induninfo, "season_tab")
+        season_tab:SelectTab(0) -- 必ず「今週」タブを選択してから週番号を取得
+        rankListBox:SetUserValue("CURRENT_WEEK_NUM", WEEKLY_BOSS_RANK_WEEKNUM_NUMBER())
+    end
+    local current_week_num = rankListBox:GetUserIValue("CURRENT_WEEK_NUM")
+
+    local target_base
+    local is_all_classes_mode = false
+    if mode_base_id == 0 or mode_base_id == 1 then
+        target_base = base_jobids
+        is_all_classes_mode = true
+    else
+        target_base = {mode_base_id}
+    end
+
+    local num_weeks = (mode_base_id == 1 or mode_is_4w == 1) and 4 or 1
+
+    local induninfo = ui.GetFrame("induninfo")
+    local induninfo_class_selector = ui.GetFrame("induninfo_class_selector")
+
+    while true do
+        if w_idx >= num_weeks then
+            test_norisan_save_log()
+            if induninfo_class_selector:IsVisible() == 1 then
+                local classList = GET_CHILD_RECURSIVELY(induninfo_class_selector, "classList")
+                if classList then
+                    AUTO_CAST(classList);
+                    classList:SetScrollPos(0);
+                end
+                induninfo_class_selector:SetEnable(1)
+                INDUNINFO_CLASS_SELECTOR_UI_CLOSE(induninfo_class_selector)
+            end
+            local end_time = os.clock()
+            local elapsed_time = end_time - start_time
+            print(string.format("処理が完了しました。所要時間: %.2f 秒", elapsed_time))
+            return 0 -- 停止
+        end
+
+        local current_base_jobid = target_base[b_idx]
+        local job_list = GET_JOB_LIST(current_base_jobid)
+        local job_cls = job_list[c_idx]
+
+        -- 4. 処理の実行
+        if job_cls then
+
+            local job_cls_id = TryGetProp(job_cls, "ClassID", 0)
+            -- 変更: week_offsetの計算方法を修正
+            local week_offset
+            if num_weeks == 4 then
+                -- 4週間モードの場合: 3, 2, 1, 0 と変化させる
+                week_offset = 3 - w_idx
+            else
+                -- 1週間モードの場合: 常に 0
+                week_offset = 0
+            end
+            local week_num = current_week_num - week_offset
+
+            if job_cls_id ~= 0 and not processed_job_ids[week_num .. job_cls_id] then
+
+                ui.OpenFrame("induninfo_class_selector")
+                induninfo_class_selector:SetEnable(0)
+
+                local season_tab = GET_CHILD_RECURSIVELY(induninfo, "season_tab")
+                season_tab:SelectTab(week_offset) -- UIのタブ選択はw_idxで正しい
+
+                local classtype_tab = GET_CHILD_RECURSIVELY(induninfo, "classtype_tab")
+                for k = 1, #base_jobids do
+                    if base_jobids[k] == current_base_jobid then
+                        classtype_tab:SelectTab(k - 1)
+                        break
+                    end
+                end
+
+                INDUNINFO_CLASS_SELECTOR_FILL_CLASS(current_base_jobid)
+                weekly_boss.RequestWeeklyBossRankingInfoList(week_num, job_cls_id)
+
+                local classList = GET_CHILD_RECURSIVELY(induninfo_class_selector, "classList")
+                AUTO_CAST(classList)
+                local pos = 0
+                if c_idx > 18 then
+                    pos = 150
+                elseif c_idx > 12 then
+                    pos = 100
+                elseif c_idx > 6 then
+                    pos = 50
+                end
+                classList:SetScrollPos(pos)
+
+                local list_job
+                for i = 1, #job_list do
+                    list_job = GET_CHILD_RECURSIVELY(induninfo_class_selector, "list_job_" .. i)
+                    if list_job then
+                        local icon = GET_CHILD(list_job, "icon_pic")
+                        if icon then
+                            AUTO_CAST(icon)
+                            if i == c_idx then
+                                icon:SetColorTone("FFFFFFFF")
+                            else
+                                icon:SetColorTone("FF444444")
+                            end
+                        end
+                    end
+                end
+
+                local next_b_idx = b_idx
+                local next_c_idx = c_idx + 1
+                local next_w_idx = w_idx
+
+                if next_c_idx > #job_list then
+                    next_c_idx = 1
+                    next_b_idx = b_idx + 1
+                    if is_all_classes_mode then
+                        test_norisan_save_log()
+                    end
+                end
+                if next_b_idx > #target_base then
+                    next_b_idx = 1
+                    next_c_idx = 1
+                    next_w_idx = w_idx + 1
+                    if not is_all_classes_mode then
+                        test_norisan_save_log()
+                    end
+                end
+
+                rankListBox:SetUserValue("B_IDX", next_b_idx)
+                rankListBox:SetUserValue("C_IDX", next_c_idx)
+                rankListBox:SetUserValue("W_IDX", next_w_idx)
+
+                rankListBox:SetUserValue("JOB_ID", job_cls_id)
+                rankListBox:SetUserValue("WEEK_NUM", week_num)
+                rankListBox:RunUpdateScript("test_norisan_get_weekly_boss_damage", 0.2)
+                processed_job_ids[week_num .. job_cls_id] = true
+
+                return 1
+            else
+                -- スキップする場合: 次のインデックスを計算
+                c_idx = c_idx + 1
+                if c_idx > #job_list then
+                    c_idx = 1
+                    b_idx = b_idx + 1
+                    if is_all_classes_mode then
+                        test_norisan_save_log()
+                    end
+                end
+                if b_idx > #target_base then
+                    b_idx = 1
+                    c_idx = 1
+                    w_idx = w_idx + 1
+                    if not is_all_classes_mode then
+                        test_norisan_save_log()
+                    end
+                end
+            end
+        end
+    end
+    return 1 -- 継続
+end]==] --[[
+function Battle_ritual_load_settings()
+    g.Battle_ritual_path = string.format("../addons/%s/%s/battle_ritual.json", addon_name_lower, g.active_id)
+    local settings = g.load_json(g.Battle_ritual_path)
+    if not settings then
+        settings = {
+            skills = {},
+            etc = {
+                x = 0,
+                y = 0,
+                move = 0,
+                use = 0
+            }
+        }
+    end
+    g.Battle_ritual_settings = settings
+    Battle_ritual_save_settings()
+end
+
+function battle_ritual_on_init()
+    if not g.Battle_ritual_settings then
+        Battle_ritual_load_settings()
+    end
+    if g.settings.battle_ritual.use == 0 then
+        ui.DestroyFrame(addon_name_lower .. "Battle_ritual")
+        return
+    end
+    Battle_ritual_frame_init()
+    if g.get_map_type() == "Instance" then
+        g.addon:RegisterMsg('REQ_PLAYER_CONTENTS_RECORD', 'Battle_ritual_REQ_PLAYER_CONTENTS_RECORD')
+        Battle_ritual_auto_buff_skill_start()
+    end
+end
+
+function Battle_ritual_auto_buff_skill_start()
+    if g.Battle_ritual_settings.etc.use == 0 then
+        return
+    end
+    local _nexus_addons = ui.GetFrame("_nexus_addons")
+    local list = session.party.GetPartyMemberList(PARTY_NORMAL)
+    if list:Count() > 1 then
+        _nexus_addons:StopUpdateScript("Battle_ritual_auto_buff_skill")
+        return
+    end
+    local skills_table = g.Battle_ritual_settings.skills
+    if not skills_table then
+        return
+    end
+    local sorted_list = {}
+    for s_id, data in pairs(skills_table) do
+        table.insert(sorted_list, {
+            skill_id = tonumber(s_id),
+            buff_id = data.buff_id,
+            priority = data.priority
+        })
+    end
+    table.sort(sorted_list, function(a, b)
+        if a.priority ~= b.priority then
+            return a.priority < b.priority
+        else
+            return tonumber(a.skill_id) < tonumber(b.skill_id)
+        end
+    end)
+    local skill_map = {}
+    for i = 0, 40 - 1 do
+        local quick_slot_info = quickslot.GetInfoByIndex(i)
+        if quick_slot_info and quick_slot_info.category == 'Skill' then
+            skill_map[quick_slot_info.type] = i
+        end
+    end
+    g.Battle_ritual_use_queue = {}
+    local my_handle = session.GetMyHandle()
+    local quickslotnexpbar = ui.GetFrame("quickslotnexpbar")
+    for _, data in ipairs(sorted_list) do
+        local skill_id = data.skill_id
+        local slot_index = skill_map[skill_id]
+        if slot_index then
+            local slot = GET_CHILD_RECURSIVELY(quickslotnexpbar, "slot" .. (slot_index + 1), "ui::CSlot")
+            if slot then
+                local icon = slot:GetIcon()
+                if icon then
+                    local cur_time = ICON_UPDATE_SKILL_COOLDOWN(icon)
+                    if cur_time == 0 then
+                        local buff_id = data.buff_id
+                        local need_buff = true
+                        if buff_id > 0 then
+                            if info.GetBuff(my_handle, buff_id) then
+                                need_buff = false
+                            end
+                        end
+                        if need_buff then
+                            table.insert(g.Battle_ritual_use_queue, {
+                                buff_id = buff_id,
+                                skill_id = skill_id,
+                                icon = icon
+                            })
+                        end
+                    end
+                end
+            end
+        end
+    end
+    if #g.Battle_ritual_use_queue > 0 then
+        _nexus_addons:RunUpdateScript("Battle_ritual_auto_buff_skill", 0.1)
+    end
+end
+
+function Battle_ritual_auto_buff_skill(_nexus_addons)
+    if not g.Battle_ritual_use_queue or #g.Battle_ritual_use_queue == 0 then
+        return 0
+    end
+    local next_skill_info = g.Battle_ritual_use_queue[1]
+    if not next_skill_info or not next_skill_info.icon then
+        table.remove(g.Battle_ritual_use_queue, 1)
+        return 1
+    end
+    local my_handle = session.GetMyHandle()
+    local buff_info = nil
+    if next_skill_info.buff_id and next_skill_info.buff_id > 0 then
+        buff_info = info.GetBuff(my_handle, next_skill_info.buff_id)
+    end
+    local current_cooldown = ICON_UPDATE_SKILL_COOLDOWN(next_skill_info.icon)
+    if current_cooldown == 0 and (next_skill_info.buff_id == 0 or not buff_info) then
+        ICON_USE(next_skill_info.icon)
+        local changed_image = QUICKSLOT_CHANGE_ICON_LIST[tostring(next_skill_info.skill_id)]
+        if changed_image then
+            table.remove(g.Battle_ritual_use_queue, 1)
+        end
+        return 1
+    end
+    if #g.Battle_ritual_use_queue > 0 then
+        table.remove(g.Battle_ritual_use_queue, 1)
+        return 1
+    else
+        return 0
+    end
+end
+
+function Battle_ritual_frame_init()
+    local Battle_ritual = ui.CreateNewFrame("notice_on_pc", addon_name_lower .. "Battle_ritual", 0, 0, 0, 0)
+    AUTO_CAST(Battle_ritual)
+    Battle_ritual:SetSkinName("None")
+    Battle_ritual:SetTitleBarSkin("None")
+    Battle_ritual:Resize(40, 30)
+    Battle_ritual:SetGravity(ui.RIGHT, ui.TOP)
+    Battle_ritual:EnableMove(g.Battle_ritual_settings.etc.move == 1 and 0 or 1)
+    Battle_ritual:EnableHittestFrame(1)
+    local rect = Battle_ritual:GetMargin()
+    Battle_ritual:SetMargin(rect.left - rect.left, rect.top - rect.top + 2,
+        rect.right == 0 and rect.right + 305 or rect.right, rect.bottom)
+    if g.Battle_ritual_settings.etc.x ~= 0 and g.Battle_ritual_settings.etc.y ~= 0 then
+        Battle_ritual:SetPos(g.Battle_ritual_settings.etc.x, g.Battle_ritual_settings.etc.y)
+    end
+    Battle_ritual:SetEventScript(ui.LBUTTONUP, "Battle_ritual_frame_location_save")
+    local pic = Battle_ritual:CreateOrGetControl("picture", "pic", 0, 0, 30, 30)
+    AUTO_CAST(pic)
+    pic:SetImage("emoticon_0015")
+    pic:SetColorTone("FFFFFFFF")
+    pic:SetEnableStretch(1)
+    pic:EnableHitTest(1)
+    pic:SetGravity(ui.LEFT, ui.TOP)
+    pic:SetTextTooltip(g.lang == "Japanese" and "{ol}Battle Ritual{nl}右クリック ON/OFF" or
+                           "{ol}Battle Ritual{nl}Right click ON/OFF")
+    if g.Battle_ritual_settings.etc.use == 0 then
+        pic:SetColorTone("FF555555")
+    else
+        pic:SetColorTone("FFFFFFFF")
+    end
+    pic:SetEventScript(ui.RBUTTONUP, "Battle_ritual_onoff_switch")
+    Battle_ritual:ShowWindow(1)
+end
+
+function Battle_ritual_onoff_switch(Battle_ritual)
+    g.Battle_ritual_settings.etc.use = 1 - g.Battle_ritual_settings.etc.use
+    Battle_ritual_save_settings()
+    Battle_ritual_frame_init()
+end
+
+function Battle_ritual_frame_location_save(Battle_ritual)
+    g.Battle_ritual_settings.etc.x = Battle_ritual:GetX()
+    g.Battle_ritual_settings.etc.y = Battle_ritual:GetY()
+    Battle_ritual_save_settings()
+end
+
+function Battle_ritual_settings_frame()
+    local list_frame = ui.GetFrame(addon_name_lower .. "list_frame")
+    local setting = ui.CreateNewFrame("notice_on_pc", addon_name_lower .. "Battle_ritual_setting", 0, 0, 0, 0)
+    setting:SetPos(list_frame:GetX() + list_frame:GetWidth(), list_frame:GetY())
+    setting:SetSkinName("test_frame_low")
+    setting:EnableHittestFrame(1)
+    setting:EnableHitTest(1)
+    setting:SetLayerLevel(999)
+    setting:RemoveAllChild()
+    local title_text = setting:CreateOrGetControl('richtext', 'title_text', 20, 15, 50, 30)
+    AUTO_CAST(title_text)
+    title_text:SetText("{ol}Battle ritual Config")
+    local close = setting:CreateOrGetControl("button", "close", 0, 0, 20, 20)
+    AUTO_CAST(close)
+    close:SetImage("testclose_button")
+    close:SetGravity(ui.RIGHT, ui.TOP)
+    close:SetEventScript(ui.LBUTTONUP, "Battle_ritual_frame_close")
+    local gbox = setting:CreateOrGetControl("groupbox", "gbox", 10, 40, setting:GetWidth() - 20,
+        setting:GetHeight() - 50)
+    AUTO_CAST(gbox)
+    gbox:SetSkinName("test_frame_midle_light")
+    gbox:EnableScrollBar(1)
+    Battle_ritual_settings_frame_child(setting, gbox)
+end
+
+function Battle_ritual_settings_frame_child(setting, gbox) -- gbox:EnableScrollBar(0)
+    local move_check = gbox:CreateOrGetControl('checkbox', "move_check", 10, 10, 30, 30)
+    AUTO_CAST(move_check)
+    move_check:SetCheck(g.Battle_ritual_settings.etc.move)
+    move_check:SetText(g.lang == "Japanese" and "{ol}チェックするとフレーム固定" or
+                           "{ol}If checked, the frame is fixed")
+    move_check:SetEventScript(ui.LBUTTONUP, "Battle_ritual_frame_move")
+    local default_btn = gbox:CreateOrGetControl("button", "default_btn", move_check:GetWidth() + 30, 10, 120, 30)
+    AUTO_CAST(default_btn)
+    default_btn:SetText(g.lang == "Japanese" and "{ol}フレーム初期位置" or "{ol}Init frame pos")
+    default_btn:SetEventScript(ui.LBUTTONUP, "Battle_ritual_frame_default")
+    local skill_lbl = gbox:CreateOrGetControl('richtext', 'header_skill', 10, 45, 100, 20)
+    AUTO_CAST(skill_lbl)
+    skill_lbl:SetText(g.lang == "Japanese" and "{ol}スキル" or "{ol}Skill")
+    local buff_lbl = gbox:CreateOrGetControl('richtext', 'header_buff', 230, 45, 100, 20)
+    AUTO_CAST(buff_lbl)
+    buff_lbl:SetText(g.lang == "Japanese" and "{ol}バフ" or "{ol}Buff")
+    local priority_lbl = gbox:CreateOrGetControl('richtext', 'header_priority', 450, 45, 100, 20)
+    AUTO_CAST(priority_lbl)
+    priority_lbl:SetText(g.lang == "Japanese" and "{ol}優先度" or "{ol}Priority")
+    local y_pos = 70
+    local row_height = 40
+    local sorted_skills = {}
+    if g.Battle_ritual_settings.skills then
+        for s_id, data in pairs(g.Battle_ritual_settings.skills) do
+            table.insert(sorted_skills, {
+                skill_id = tonumber(s_id),
+                buff_id = data.buff_id or 0,
+                priority = data.priority or 0
+            })
+        end
+    end
+    table.sort(sorted_skills, function(a, b)
+        if a.priority ~= b.priority then
+            return a.priority < b.priority
+        else
+            return a.skill_id < b.skill_id
+        end
+    end)
+    for i, entry in ipairs(sorted_skills) do
+        Battle_ritual_create_row(gbox, i, entry.skill_id, entry.buff_id, entry.priority, y_pos)
+        y_pos = y_pos + row_height
+    end
+    Battle_ritual_create_row(gbox, #sorted_skills + 1, 0, 0, 0, y_pos)
+end
+
+function Battle_ritual_frame_default(parent)
+    ui.DestroyFrame(addon_name_lower .. "Battle_ritual")
+    g.Battle_ritual_settings.etc.x = 0
+    g.Battle_ritual_settings.etc.y = 0
+    Battle_ritual_save_settings()
+    ReserveScript("Battle_ritual_frame_init()", 0.1)
+end
+
+function Battle_ritual_frame_move(Battle_ritual, gbox)
+    g.Battle_ritual_settings.etc.move = 1 - g.Battle_ritual_settings.etc.move
+    Battle_ritual_save_settings()
+    Battle_ritual_frame_init()
+end
+
+function Battle_ritual_create_row(gbox, index, skill_id, buff_id, priority, y)
+    local skill_add = gbox:CreateOrGetControl("button", "skill_add_" .. index, 10, y, 50, 30)
+    AUTO_CAST(skill_add)
+    skill_add:SetSkinName("test_cardtext_btn")
+    skill_add:SetText("{ol}Add")
+    skill_add:SetTextTooltip(g.lang == "Japanese" and "{ol}スキルリスト表示" or "{ol}Display the skill list")
+    skill_add:SetEventScript(ui.LBUTTONUP, "Battle_ritual_skill_list_open")
+    skill_add:SetEventScriptArgNumber(ui.LBUTTONUP, index)
+    local skill_pic = gbox:CreateOrGetControl('picture', "skill_pic_" .. index, 65, y, 30, 30)
+    AUTO_CAST(skill_pic)
+    local skill_img = ""
+    if skill_id > 0 then
+        local cls = GetClassByType("Skill", skill_id)
+        if cls then
+            skill_img = "icon_" .. cls.Icon
+        end
+    end
+    skill_pic:SetImage(skill_img)
+    skill_pic:SetEnableStretch(1)
+    skill_pic:EnableHitTest(1)
+    if skill_id > 0 then
+        SET_SKILL_TOOLTIP_BY_TYPE(skill_pic, skill_id)
+    end
+    local skill_edit = gbox:CreateOrGetControl('edit', 'skill_edit_' .. index, 100, y, 80, 30)
+    AUTO_CAST(skill_edit)
+    skill_edit:SetNumberMode(1)
+    skill_edit:SetFontName("white_16_ol")
+    skill_edit:SetText(skill_id == 0 and "" or skill_id)
+    skill_edit:SetTextAlign("center", "center")
+    skill_edit:SetTextTooltip(g.lang == "Japanese" and "{ol}スキルID入力{nl}錬成スキルは141001～" or
+                                  "{ol}Enter the Skill ID.{nl}Alchemic skills start from 141001")
+    if skill_edit:GetText() ~= "" then
+        skill_edit:SetUserValue("ORIG_SKILL_ID", skill_id)
+    end
+    skill_edit:SetTypingScp("Battle_ritual_add_skill")
+    local skill_remove = gbox:CreateOrGetControl("button", "skill_remove_" .. index, 185, y, 30, 30)
+    AUTO_CAST(skill_remove)
+    skill_remove:SetSkinName("test_cardtext_btn")
+    skill_remove:SetText("{ol}×")
+    skill_remove:SetTextTooltip(g.lang == "Japanese" and "{ol}登録解除" or "{ol}unregister")
+    skill_remove:SetEventScript(ui.LBUTTONUP, "Battle_ritual_remove")
+    skill_remove:SetEventScriptArgString(ui.LBUTTONUP, tostring(skill_id))
+    if skill_id > 0 then
+        local buff_add = gbox:CreateOrGetControl("button", "buff_add_" .. index, 230, y, 50, 30)
+        AUTO_CAST(buff_add)
+        buff_add:SetSkinName("test_cardtext_btn")
+        buff_add:SetText("{ol}Add")
+        buff_add:SetTextTooltip(g.lang == "Japanese" and "{ol}バフリスト表示" or "{ol}Display the buff list")
+        buff_add:SetEventScript(ui.LBUTTONUP, "Battle_ritual_buff_list_open")
+        buff_add:SetEventScriptArgNumber(ui.LBUTTONUP, skill_id)
+        gbox:SetUserValue("INDEX", index)
+        local buff_pic = gbox:CreateOrGetControl('picture', "buff_pic_" .. index, 285, y, 30, 30)
+        AUTO_CAST(buff_pic)
+        local buff_img = ""
+        if buff_id > 0 then
+            local cls = GetClassByType("Buff", buff_id)
+            if cls then
+                buff_img = "icon_" .. cls.Icon
+            end
+        end
+        buff_pic:SetImage(buff_img)
+        buff_pic:SetEnableStretch(1)
+        buff_pic:EnableHitTest(1)
+        local buff_edit = gbox:CreateOrGetControl('edit', 'buff_edit_' .. index, 320, y, 80, 30)
+        AUTO_CAST(buff_edit)
+        buff_edit:SetNumberMode(1)
+        buff_edit:SetFontName("white_16_ol")
+        buff_edit:SetText(buff_id == 0 and "" or buff_id)
+        buff_edit:SetTextAlign("center", "center")
+        buff_edit:SetTextTooltip(g.lang == "Japanese" and
+                                     "{ol}バフID入力{nl}対応バフが無い場合は 空白{nl}(例)テンペストショットは 空白{nl}ダブルアタックは 322など{nl}※入力無しは毎回掛け直し" or
+                                     "{ol}Enter the Buff ID{nl}Leave blank if there is no corresponding buff{nl}(e.g.)Tempest Shot is blank{nl}Double Attack is 322, etc.{nl}※If no input is provided,will be recast every time")
+        buff_edit:SetUserValue("SKILL_ID", skill_id)
+
+        buff_edit:SetTypingScp("Battle_ritual_add_buff")
+        local buff_remove = gbox:CreateOrGetControl("button", "buff_remove" .. index, 405, y, 30, 30)
+        AUTO_CAST(buff_remove)
+        buff_remove:SetSkinName("test_cardtext_btn")
+        buff_remove:SetText("{ol}×")
+        buff_remove:SetTextTooltip(g.lang == "Japanese" and "{ol}登録解除" or "{ol}unregister")
+        buff_remove:SetEventScript(ui.LBUTTONUP, "Battle_ritual_remove")
+        buff_remove:SetEventScriptArgString(ui.LBUTTONUP, tostring(skill_id))
+        local priority_edit = gbox:CreateOrGetControl('edit', 'priority_edit_' .. index, 450, y, 50, 30)
+        AUTO_CAST(priority_edit)
+        priority_edit:SetNumberMode(1)
+        priority_edit:SetFontName("white_16_ol")
+        priority_edit:SetText(priority)
+        priority_edit:SetTextAlign("center", "center")
+        priority_edit:SetTextTooltip(g.lang == "Japanese" and "{ol}優先度入力" or "{ol}Enter Priority")
+        priority_edit:SetUserValue("SKILL_ID", skill_id)
+        priority_edit:SetTypingScp("Battle_ritual_priority")
+    end
+    local setting = gbox:GetParent()
+    setting:Resize(550, y + 100)
+    gbox:Resize(setting:GetWidth() - 20, setting:GetHeight() - 50)
+    setting:ShowWindow(1)
+end
+
+function Battle_ritual_priority_change(ctrl)
+    local new_priority = tonumber(ctrl:GetText())
+    local skill_id_str = ctrl:GetUserValue("SKILL_ID")
+    local skills = g.Battle_ritual_settings.skills
+    if skills and skills[skill_id_str] then
+        for s_id, data in pairs(skills) do
+            if s_id ~= skill_id_str and data.priority >= new_priority then
+                data.priority = data.priority + 1
+            end
+        end
+        skills[skill_id_str].priority = new_priority
+    end
+    Battle_ritual_save_settings()
+    Battle_ritual_settings_frame()
+    return 0
+end
+
+function Battle_ritual_priority(parent, ctrl)
+    local priority = tonumber(ctrl:GetText())
+    if priority > 0 then
+        ctrl:RunUpdateScript("Battle_ritual_priority_change", 0.5)
+    end
+end
+
+function Battle_ritual_remove(parent, ctrl, skill_id_str)
+    local ctrl_name = ctrl:GetName()
+    if string.find(ctrl_name, "skill") then
+        g.Battle_ritual_settings.skills[skill_id_str] = nil
+    else
+        g.Battle_ritual_settings.skills[skill_id_str].buff_id = 0
+    end
+    Battle_ritual_save_settings()
+    Battle_ritual_settings_frame()
+end
+
+function Battle_ritual_skill_list_open(frame, add, ctrl_text, index)
+    local skill_list = ui.GetFrame(addon_name_lower .. "Battle_ritual_skill_list")
+    if not skill_list then
+        skill_list = ui.CreateNewFrame("notice_on_pc", addon_name_lower .. "Battle_ritual_skill_list", 0, 0, 10, 10)
+        AUTO_CAST(skill_list)
+        skill_list:SetSkinName("test_frame_low")
+        skill_list:Resize(500, 1005)
+        skill_list:SetPos(720, 30)
+        skill_list:SetLayerLevel(999)
+        local title_text = skill_list:CreateOrGetControl('richtext', 'title_text', 15, 15, 10, 30)
+        AUTO_CAST(title_text)
+        title_text:SetText("{#000000}{s20}Skill List")
+        local search_edit =
+            skill_list:CreateOrGetControl("edit", "search_edit", title_text:GetWidth() + 30, 10, 305, 38)
+        AUTO_CAST(search_edit)
+        search_edit:SetFontName("white_18_ol")
+        search_edit:SetTextAlign("left", "center")
+        search_edit:SetSkinName("inventory_serch")
+        search_edit:SetEventScript(ui.ENTERKEY, "Battle_ritual_skill_list_search")
+        search_edit:SetEventScriptArgNumber(ui.ENTERKEY, index)
+        local search_btn = search_edit:CreateOrGetControl("button", "search_btn", 0, 0, 40, 38)
+        AUTO_CAST(search_btn)
+        search_btn:SetImage("inven_s")
+        search_btn:SetGravity(ui.RIGHT, ui.TOP)
+        search_btn:SetEventScript(ui.LBUTTONUP, "Battle_ritual_skill_list_search")
+        local close_button = skill_list:CreateOrGetControl('button', 'close_button', 0, 0, 20, 20)
+        AUTO_CAST(close_button)
+        close_button:SetImage("testclose_button")
+        close_button:SetGravity(ui.RIGHT, ui.TOP)
+        close_button:SetEventScript(ui.LBUTTONUP, "Battle_ritual_frame_close")
+    end
+    local skill_gb = skill_list:CreateOrGetControl("groupbox", "skill_gb", 10, 50, 480, skill_list:GetHeight() - 60)
+    AUTO_CAST(skill_gb)
+    skill_gb:SetSkinName("bg")
+    skill_gb:RemoveAllChild()
+    local cls_list, count = GetClassList("Skill")
+    local y = 0
+    for i = 0, count - 1 do
+        local skill_cls = GetClassByIndexFromList(cls_list, i)
+        if skill_cls then
+            local skill_id = skill_cls.ClassID
+            local skill_cls_name = skill_cls.ClassName
+            local skill_engname = skill_cls.EngName
+            local skill_caption = skill_cls.Caption
+            local skill_name = dictionary.ReplaceDicIDInCompStr(skill_cls.Name)
+            if ctrl_text == "" or (ctrl_text ~= "" and string.find(skill_name, ctrl_text)) then
+                local skill_slot = skill_gb:CreateOrGetControl('slot', 'skill_slot' .. i, 10, y + 5, 30, 30)
+                AUTO_CAST(skill_slot)
+                local image_name = "icon_" .. skill_cls.Icon
+                if skill_id > 10000 then
+                    if not string.find(skill_cls_name, "^Mon_") and not string.find(skill_engname, "plzInputEngName") and
+                        not string.find(skill_name, "_") and not string.find(skill_name, "TEST") then
+                        if ctrl_text == "" or (ctrl_text ~= "" and string.find(skill_name, ctrl_text)) then
+                            SET_SLOT_IMG(skill_slot, image_name)
+                            local icon = CreateIcon(skill_slot)
+                            AUTO_CAST(icon)
+                            SET_SKILL_TOOLTIP_BY_TYPE(icon, skill_id)
+                            local skill_set = skill_gb:CreateOrGetControl('button', 'skill_set' .. skill_id, 45, y + 5,
+                                40, 30)
+                            AUTO_CAST(skill_set)
+                            skill_set:SetText("{ol}Add")
+                            skill_set:SetSkinName("test_cardtext_btn")
+                            skill_set:SetTextTooltip(g.lang == "Japanese" and "{ol}スキル追加" or "{ol}Add Skill")
+                            skill_set:SetEventScript(ui.LBUTTONUP, "Battle_ritual_add_skill")
+                            skill_set:SetEventScriptArgString(ui.LBUTTONUP, skill_id)
+                            skill_set:SetEventScriptArgNumber(ui.LBUTTONUP, index)
+                            local skill_text = skill_gb:CreateOrGetControl('richtext', 'skill_text' .. skill_id, 90,
+                                y + 10, 200, 30)
+                            AUTO_CAST(skill_text)
+                            skill_text:SetText("{ol}" .. skill_id .. " : " .. skill_name)
+                            skill_text:AdjustFontSizeByWidth(380)
+                            y = y + 35
+                        end
+                    end
+                end
+            end
+        end
+
+    end
+    skill_list:ShowWindow(1)
+end
+
+function Battle_ritual_skill_list_search(frame, ctrl, str, index)
+    local search_edit = GET_CHILD_RECURSIVELY(frame, "search_edit")
+    local ctrl_text = search_edit:GetText()
+    if ctrl_text ~= "" then
+        Battle_ritual_skill_list_open(frame, ctrl, ctrl_text, index)
+    else
+        Battle_ritual_skill_list_open(frame, ctrl, "", index)
+    end
+end
+
+function Battle_ritual_add_skill(parent, ctrl, skill_id_str, index)
+    local ctrl_name = ctrl:GetName()
+    if string.find(ctrl_name, "skill_edit_") then
+        ctrl:RunUpdateScript("Battle_ritual_setting_change_skill_edit", 0.5)
+    else
+        local setting = ui.GetFrame(addon_name_lower .. "Battle_ritual_setting")
+        local skill_edit = GET_CHILD_RECURSIVELY(setting, "skill_edit_" .. index)
+        skill_edit:SetText(skill_id_str)
+        ctrl:SetUserValue("SKILL_ID", skill_id_str)
+        Battle_ritual_setting_change_skill_edit(ctrl)
+    end
+end
+
+function Battle_ritual_setting_change_skill_edit(ctrl)
+    local user_val = ctrl:GetUserValue("SKILL_ID")
+    local new_id_str = (user_val == "None" or user_val == "") and ctrl:GetText() or user_val
+    local orig_id_str = ctrl:GetUserValue("ORIG_SKILL_ID")
+    local skills = g.Battle_ritual_settings.skills
+    local new_skill_cls = GetClassByType("Skill", tonumber(new_id_str))
+    if not new_skill_cls then
+        if skills[orig_id_str] then
+            skills[orig_id_str] = nil
+            Battle_ritual_save_settings()
+        end
+        Battle_ritual_settings_frame()
+        return 0
+    end
+    if not skills[new_id_str] then
+        local new_data = {
+            priority = 0,
+            buff_id = 0
+        }
+        local old_data = skills[orig_id_str]
+        if old_data then
+            new_data.priority = old_data.priority
+            skills[orig_id_str] = nil
+        else
+            local max_priority = 0
+            for _, data in pairs(skills) do
+                if data.priority and data.priority > max_priority then
+                    max_priority = data.priority
+                end
+            end
+            new_data.priority = max_priority + 1
+        end
+        skills[new_id_str] = new_data
+        Battle_ritual_save_settings()
+        Battle_ritual_settings_frame()
+    end
+    return 0
+end
+
+function Battle_ritual_buff_list_open(frame, ctrl, ctrl_text, skill_id)
+    local buff_list = ui.GetFrame(addon_name_lower .. "Battle_ritual_buff_list")
+    if not buff_list then
+        buff_list = ui.CreateNewFrame("notice_on_pc", addon_name_lower .. "Battle_ritual_buff_list", 0, 0, 10, 10)
+        AUTO_CAST(buff_list)
+        buff_list:SetSkinName("test_frame_low")
+        buff_list:Resize(500, 1005)
+        buff_list:SetPos(720, 30)
+        buff_list:SetLayerLevel(999)
+        local title_text = buff_list:CreateOrGetControl('richtext', 'title_text', 15, 15, 10, 30)
+        AUTO_CAST(title_text)
+        title_text:SetText("{#000000}{s20}Buff List")
+        local search_edit = buff_list:CreateOrGetControl("edit", "search_edit", title_text:GetWidth() + 30, 10, 305, 38)
+        AUTO_CAST(search_edit)
+        search_edit:SetFontName("white_18_ol")
+        search_edit:SetTextAlign("left", "center")
+        search_edit:SetSkinName("inventory_serch")
+        search_edit:SetEventScript(ui.ENTERKEY, "Battle_ritual_buff_list_search")
+        search_edit:SetEventScriptArgNumber(ui.ENTERKEY, skill_id)
+        local search_btn = search_edit:CreateOrGetControl("button", "search_btn", 0, 0, 40, 38)
+        AUTO_CAST(search_btn)
+        search_btn:SetImage("inven_s")
+        search_btn:SetGravity(ui.RIGHT, ui.TOP)
+        search_btn:SetEventScript(ui.LBUTTONUP, "Battle_ritual_buff_list_search")
+        search_btn:SetEventScriptArgNumber(ui.LBUTTONUP, skill_id)
+        local close_button = buff_list:CreateOrGetControl('button', 'close_button', 0, 0, 20, 20)
+        AUTO_CAST(close_button)
+        close_button:SetImage("testclose_button")
+        close_button:SetGravity(ui.RIGHT, ui.TOP)
+        close_button:SetEventScript(ui.LBUTTONUP, "Battle_ritual_frame_close")
+    end
+    local buff_list_gb = buff_list:CreateOrGetControl("groupbox", "buff_list_gb", 10, 50, 480,
+        buff_list:GetHeight() - 60)
+    AUTO_CAST(buff_list_gb)
+    buff_list_gb:SetSkinName("bg")
+    buff_list_gb:RemoveAllChild()
+    local cls_list, count = GetClassList("Buff")
+    local y = 0
+    for i = 0, count - 1 do
+        local buff_cls = GetClassByIndexFromList(cls_list, i)
+        if buff_cls then
+            local buff_id = buff_cls.ClassID
+            local buff_name = dictionary.ReplaceDicIDInCompStr(buff_cls.Name)
+            if ctrl_text == "" or (ctrl_text ~= "" and string.find(buff_name, ctrl_text)) then
+                local buff_slot = buff_list_gb:CreateOrGetControl('slot', 'buffslot' .. i, 10, y + 5, 30, 30)
+                AUTO_CAST(buff_slot)
+                local image_name = GET_BUFF_ICON_NAME(buff_cls)
+                if image_name == "icon_None" then
+                    image_name = "icon_item_nothing"
+                end
+                if buff_name ~= "None" then
+                    SET_SLOT_IMG(buff_slot, image_name)
+                    local icon = CreateIcon(buff_slot)
+                    AUTO_CAST(icon)
+                    icon:SetTooltipType('buff')
+                    icon:SetTooltipArg(buff_name, buff_id, 0)
+                    local buff_set = buff_list_gb:CreateOrGetControl('button', 'buff_set' .. buff_id, 45, y + 5, 40, 30)
+                    AUTO_CAST(buff_set)
+                    buff_set:SetText("{ol}Add")
+                    buff_set:SetSkinName("test_cardtext_btn")
+                    buff_set:SetTextTooltip(g.lang == "Japanese" and "{ol}バフ追加" or "{ol}Add Buff")
+                    buff_set:SetEventScript(ui.LBUTTONUP, "Battle_ritual_add_buff")
+                    buff_set:SetEventScriptArgString(ui.LBUTTONUP, buff_id)
+                    buff_set:SetEventScriptArgNumber(ui.LBUTTONUP, skill_id)
+                    local buff_text = buff_list_gb:CreateOrGetControl('richtext', 'buff_text' .. buff_id, 90, y + 10,
+                        200, 30)
+                    AUTO_CAST(buff_text)
+                    buff_text:SetText("{ol}" .. buff_id .. " : " .. buff_name)
+                    buff_text:AdjustFontSizeByWidth(380)
+                    y = y + 35
+                end
+            end
+        end
+    end
+    buff_list:ShowWindow(1)
+end
+
+function Battle_ritual_buff_list_search(frame, ctrl, str, skill_id)
+    local search_edit = GET_CHILD_RECURSIVELY(frame, "search_edit")
+    local ctrl_text = search_edit:GetText()
+    if ctrl_text ~= "" then
+        Battle_ritual_buff_list_open(frame, ctrl, ctrl_text, skill_id)
+    else
+        Battle_ritual_buff_list_open(frame, ctrl, "", skill_id)
+    end
+end
+
+function Battle_ritual_add_buff(parent, ctrl, buff_id_str, skill_id)
+    local ctrl_name = ctrl:GetName()
+    if string.find(ctrl_name, "buff_edit") then
+        ctrl:SetUserValue("BUFF_ID", tonumber(ctrl:GetText()))
+        ctrl:RunUpdateScript("Battle_ritual_setting_change_buff_edit", 0.5)
+    else
+        local buff_cls = GetClassByType("Buff", tonumber(buff_id_str))
+        local s_id_str = tostring(skill_id)
+        if g.Battle_ritual_settings.skills[s_id_str] then
+            if buff_cls then
+                g.Battle_ritual_settings.skills[s_id_str].buff_id = tonumber(buff_id_str)
+            else
+                g.Battle_ritual_settings.skills[s_id_str].buff_id = 0
+            end
+            Battle_ritual_save_settings()
+            Battle_ritual_settings_frame()
+        end
+    end
+end
+
+function Battle_ritual_setting_change_buff_edit(ctrl)
+    local buff_id = ctrl:GetUserIValue("BUFF_ID")
+    local skill_id_str = ctrl:GetUserValue("SKILL_ID")
+    if g.Battle_ritual_settings.skills[skill_id_str] then
+        local buff_cls = GetClassByType("Buff", buff_id)
+        if not buff_cls then
+            g.Battle_ritual_settings.skills[skill_id_str].buff_id = 0
+        else
+            g.Battle_ritual_settings.skills[skill_id_str].buff_id = buff_id
+        end
+    end
+    Battle_ritual_save_settings()
+    Battle_ritual_settings_frame()
+end
+
+function Battle_ritual_frame_close(frame)
+    ui.DestroyFrame(frame:GetName())
+    if frame:GetName() == addon_name_lower .. "Battle_ritual_setting" then
+        ui.DestroyFrame(addon_name_lower .. "Battle_ritual_skill_list")
+        ui.DestroyFrame(addon_name_lower .. "Battle_ritual_buff_list")
+    end
+end
+
+function Battle_ritual_REQ_PLAYER_CONTENTS_RECORD(frame, type)
+    local _nexus_addons = ui.GetFrame("_nexus_addons")
+    _nexus_addons:RunUpdateScript("Battle_ritual_overlord_off", 0.1)
+end
+
+function Battle_ritual_overlord_off(_nexus_addons)
+    local buff = info.GetBuff(session.GetMyHandle(), 40049)
+    if not buff then
+        return 0
+    end
+    local quickslotnexpbar = ui.GetFrame("quickslotnexpbar")
+    for i = 1, 40 do
+        local slot = GET_CHILD_RECURSIVELY(quickslotnexpbar, "slot" .. i)
+        AUTO_CAST(slot)
+        local icon = slot:GetIcon()
+        if icon then
+            AUTO_CAST(icon)
+            local icon_info = icon:GetInfo()
+            if icon_info then
+                local category = icon_info:GetCategory()
+                if category == "Skill" then
+                    local buff_id = icon_info.type
+                    if buff_id == 100085 then
+                        local current_cooldown = ICON_UPDATE_SKILL_COOLDOWN(icon)
+                        if current_cooldown == 0 then
+                            control.Skill(buff_id)
+                        end
+                        return 1
+                    end
+                end
+            end
+        end
+    end
+end]] 
