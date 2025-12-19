@@ -9065,4 +9065,96 @@ end]] --[[local text_needs_trans = native_lang_is_translation_msg(proc_msg)
         if should_translate or has_item_link then
 
         end
-    end]] 
+    end]] --[[function Always_status_load_settings()
+    g.always_status_path = string.format("../addons/%s/%s/always_status.json", addon_name_lower, g.active_id)
+    g.always_status_old_path = string.format("../addons/%s/settings.json", "always_status")
+    local settings = g.load_json(g.always_status_path)
+    if not settings then
+        settings = g.load_json(g.always_status_old_path)
+    end
+    local ver = 1.1
+    if not settings or not settings.ver or settings.ver < ver then
+        settings = {
+            ver = ver,
+            base = {
+                frame_X = 0,
+                frame_Y = 0,
+                enable = 1,
+                color = {}
+            },
+            chars = {}
+        }
+        for _, status_info in ipairs(always_status_master_list) do
+            settings.base.color[status_info.key] = always_status_group_colors[status_info.group] or "{#FFFFFF}"
+        end
+        for i = 1, 10 do
+            local set_num = tostring(i)
+            settings[set_num] = {
+                memo = "free memo " .. i
+            }
+            for _, status_info in ipairs(always_status_master_list) do
+                settings[set_num][status_info.key] = status_info.on or 0
+            end
+        end
+    elseif not settings.base then
+        local new_settings = {
+            base = {
+                frame_X = 0,
+                frame_Y = 0,
+                enable = settings.enable or 0,
+                color = settings.color or {}
+            },
+            chars = {}
+        }
+        for k, v in pairs(settings) do
+            local num = tonumber(k)
+            if num then
+                if num >= 1 and num <= 10 then
+                    local set_key = tostring(k)
+                    new_settings[set_key] = v
+                    for _, status_info in ipairs(always_status_master_list) do
+                        if new_settings[set_key][status_info.key] == nil then
+                            new_settings[set_key][status_info.key] = status_info.on or 0
+                        end
+                    end
+                elseif num > 100 then
+                    new_settings.chars[tostring(k)] = {
+                        on = v.use or 1,
+                        use_set = v.key or 1
+                    }
+                end
+            end
+        end
+        settings = new_settings
+    end
+    if not settings.base.color then
+        settings.base.color = {}
+    end
+    for _, status_info in ipairs(always_status_master_list) do
+        if not settings.base.color[status_info.key] then
+            settings.base.color[status_info.key] = always_status_group_colors[status_info.group] or "{#FFFFFF}"
+        end
+    end
+    for i = 1, 10 do
+        local set_num = tostring(i)
+        if not settings[set_num] then
+            settings[set_num] = {
+                memo = "free memo " .. i
+            }
+        end
+        for _, status_info in ipairs(always_status_master_list) do
+            if settings[set_num][status_info.key] == nil then
+                settings[set_num][status_info.key] = status_info.on or 0
+            end
+        end
+    end
+    g.always_status_settings = settings
+    local cid_str = tostring(g.cid)
+    if not g.always_status_settings.chars[cid_str] then
+        g.always_status_settings.chars[cid_str] = {
+            use_set = 1,
+            on = 1
+        }
+    end
+    Always_status_save_settings()
+end]] 
