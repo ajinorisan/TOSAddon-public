@@ -213,3 +213,11 @@ end
 function GET_GUILD_PROMOTE_NOTICE_MAX_COUNT()
 	return 3;
 end
+
+function GET_GUILD_AGIT_EXTENSION_MAX_LEVEL()
+	local cls = GetClass("Housing_Place", "guild_agit_extension")
+	if cls ~= nil then
+		return TryGetProp(cls, "MaxLevel", 0)
+	end
+	return 0
+end

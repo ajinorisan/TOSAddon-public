@@ -77,3 +77,8 @@ ClassID,Upgrade,MakeCostSilver,MaxUpgrade,Basic,Category,ClassName,GetItemFunc,R
 76,0,10000,1,0,"Artefact","ep17couplelook_shield","GET_CABINET_ITEM_NAME","TX_REGISTER_CABINET_ITEM","TX_BRIQUET_GODDESS_ITEM","ep17couplelook_shield_cabinet","","설레는 마음 실드"
 77,0,10000,1,0,"Artefact","ep17couplelook_thspear","GET_CABINET_ITEM_NAME","TX_REGISTER_CABINET_ITEM","TX_BRIQUET_GODDESS_ITEM","ep17couplelook_thspear_cabinet","","설레는 마음 파이크"
 78,0,10000,1,0,"Artefact","ep17couplelook_crossbow","GET_CABINET_ITEM_NAME","TX_REGISTER_CABINET_ITEM","TX_BRIQUET_GODDESS_ITEM","ep17couplelook_crossbow_cabinet","","설레는 마음 크로스보우"
+79,0,10000,1,0,"Artefact","winter2512_thsword","GET_CABINET_ITEM_NAME","TX_REGISTER_CABINET_ITEM","TX_BRIQUET_GODDESS_ITEM","winter2512_thsword_cabinet","","혹한의 서리불꽃 투 핸드 소드"
+80,0,10000,1,0,"Artefact","winter2512_thstaff","GET_CABINET_ITEM_NAME","TX_REGISTER_CABINET_ITEM","TX_BRIQUET_GODDESS_ITEM","winter2512_thstaff_cabinet","","혹한의 서리불꽃 스태프"
+81,0,10000,1,0,"Artefact","winter2512_bow","GET_CABINET_ITEM_NAME","TX_REGISTER_CABINET_ITEM","TX_BRIQUET_GODDESS_ITEM","winter2512_bow_cabinet","","혹한의 서리불꽃 보우"
+82,0,10000,1,0,"Artefact","winter2512_thhammer","GET_CABINET_ITEM_NAME","TX_REGISTER_CABINET_ITEM","TX_BRIQUET_GODDESS_ITEM","winter2512_thhammer_cabinet","","혹한의 서리불꽃 투 핸드 메이스"
+83,0,10000,1,0,"Artefact","winter2512_pistol","GET_CABINET_ITEM_NAME","TX_REGISTER_CABINET_ITEM","TX_BRIQUET_GODDESS_ITEM","winter2512_pistol_cabinet","","혹한의 서리불꽃 피스톨"

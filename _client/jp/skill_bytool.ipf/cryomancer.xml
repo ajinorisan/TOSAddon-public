@@ -1134,7 +1134,7 @@
                     <Str Str="None"/>
                     <Str Str="None"/>
                 </Scp>
-                <Scp Scp="C_EFFECT_ATTACH" Client="YES" UseSleep="NO"Time="0">
+                <Scp Scp="C_EFFECT_ATTACH" Client="YES" UseSleep="NO" Time="0">
                     <Str_Arg Str="F_levitation053_ice_loop" Arg="1.5"/>
                     <Num Num="1"/>
                     <Pos Angle="0" Dist="0"/>

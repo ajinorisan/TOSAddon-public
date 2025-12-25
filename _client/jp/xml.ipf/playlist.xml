@@ -30,7 +30,7 @@
 	<BGM PlayListName="f_whitetrees_2" Volume="90" FileName1="tos_Kevin_Milagro_Tierra.mp3" FileName2="tos_Kevin_Synphonia.mp3"/>
 	<BGM PlayListName="f_nicopolis" Volume="100" FileName1="tos_Kevin_Mayor_Higher.mp3" FileName2="tos_SFA_Groove_of_the_Sea.mp3" FileName3="tos_SFA_Seven_Cloudy_Drive.mp3" FileName4="tos_7Clouds_DayDream.mp3"/>
 	<BGM PlayListName="c_barber_dress" Volume="90" FileName1="tos_SFA_Comida_Timar.mp3"/>
-	<BGM PlayListName="c_Klaipe" Volume="80" FileName1="tos_SFA_Triste.mp3" FileName2="tos_SFA_Whisper_of_Moment.mp3" FileName3="tos_SFA_April_Town.mp3" FileName4="tos_SFA_Open_Up_Po10_inst.mp3"/>
+	<BGM PlayListName="c_Klaipe" Volume="80" FileName1="tos_SFA_Don't_Cry_for_Christmas.mp3" FileName2="tos_SFA_No_Matter_Christmas.mp3" FileName3="tos_SFA_Snow_in_Wonderland.mp3" FileName4="tos_Kevin_Carol_of_the_Bells.mp3"/>
 	<BGM PlayListName="c_summer_klaipe" Volume="80" FileName1="tos_SFA_Summer_breeze.mp3" FileName2="tos_Initium_Verano_lluvia.mp3"/>
 	<BGM PlayListName="event_halloween" Volume="90" FileName1="tos_SoundTeMP_Ymix_Red_and_the_Black.mp3"/>
 	<BGM PlayListName="event_halloween_2" Volume="90" FileName1="tos_Kevin_Halloween_City.mp3"/>
@@ -144,6 +144,7 @@
 	<BGM PlayListName="master_Blitz_Hunter" Volume="130" FileName1="tos_Initium_The_Way_to_Heaven.mp3"/>
 	<BGM PlayListName="master_Aether_Blader" Volume="130" FileName1="tos_Cinenote_Sword_of_Wilderness.mp3"/>
 	<BGM PlayListName="master_Hermit" Volume="130" FileName1="tos_SFA_Hermit_Klasica.mp3"/>
+	<BGM PlayListName="master_Grimmark" Volume="130" FileName1="tos_SoundTeMP_Wind_Slasher.mp3"/>
 	<BGM PlayListName="NPC_CHRISTMASTREE01" Volume="120" FileName1="Orgel_No_Matter_Christmas.mp3"/>
 	<BGM PlayListName="NPC_CHRISTMASTREE02" Volume="120" FileName1="Orgel_Dont_Cry.mp3"/>
 	<BGM PlayListName="raid_velcoffer" Volume="120" FileName1="tos_Drogo_Uno_Impetu.mp3" FileName2="tos_Drogo_Velvet_Penetration.mp3" FileName3="tos_Gaudium_Wrong_Theory.mp3"/>

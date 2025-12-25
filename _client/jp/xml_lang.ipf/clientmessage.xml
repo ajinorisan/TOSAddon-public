@@ -719,6 +719,8 @@
 		<Class ClassID="2525" ClassName="{num}Contribution" Data="기여도 : {num}"/>
 		<Class ClassID="2526" ClassName="AppearPCMonster{name}" Data="{name}에 추종자 몬스터들이 등장하였습니다."/>
 		<Class ClassID="2527" ClassName="{name}DisappearPCMonster" Data="추종자가 처치되었습니다 : [{name}]"/>		
+		<Class ClassID="2528" ClassName="{name}AppearFieldBoss{map}" Data="[{map}]에 필드 보스[{name}]가 등장하였습니다."/>
+		<Class ClassID="2529" ClassName="{name}DisappearFieldBoss{map}" Data="[{map}]에 필드 보스[{name}]가 처치되었습니다."/>
 	</Category>
 	<Category Name="CannotGetSkillMessage">
 		<Class ClassID="2600" ClassName="CannotGetSkillMessage_Doppelsoeldner_Zucken" Data="[스킬] 존하우 1레벨 이상 필요"/>
@@ -1589,6 +1591,8 @@
 		<Class ClassID="4668" ClassName="EP16_RAID_PISTOL" Data="검은 계시의 피스톨"/>
 		<Class ClassID="4669" ClassName="EP16_RAID_DAGGER" Data="검은 계시의 대거"/>
 		<Class ClassID="4670" ClassName="EP16_RAID_MACE" Data="검은 계시의 메이스"/>
+		<Class ClassID="4671" ClassName="GET_MISC_TOS_COIN{count}" Data="포인트를 획득했습니다: [{#33FF33}TOS 주화{/}]×{#33FF33}{count}{/}"/>
+		<Class ClassID="4672" ClassName="NotHaveBuff_10th_BOSS" Data="[10주년] 황금 개복치로부터 보상을 획득할 수 있는 상태입니다."/>
 	</Category>
 	<Category Name="ItemTooltip">
 		<Class ClassID="5001" ClassName="CoolDown : {Sec} Sec" Data="재사용 대기시간 : {Sec}초"/>
@@ -1899,6 +1903,8 @@
 		<Class ClassID="5310" ClassName="austeja_speedup" Data="- 이동속도{#8000FF}{level}{/}증가"/>
 		<Class ClassID="5311" ClassName="tooltip_Hermit" Data=" - 허밋 모든 스킬 레벨 {img green_up_arrow 16 16}1{nl} {nl}{@st66d}{s15} - 별자리 잔류장 최종 대미지 {img green_up_arrow 16 16}50%{nl}{@st66d}{s15} - 월식 최종 대미지 {img green_up_arrow 16 16}50%"/>
 		<Class ClassID="5312" ClassName="tooltip_Hermit_Lv4" Data="{nl} {nl}{@st66d}{s15}- 천체의 심판 최종 대미지{img green_up_arrow 16 16}100%"/>
+		<Class ClassID="5313" ClassName="tooltip_Grimmark" Data=" - 그림마크 모든 스킬 레벨 {img green_up_arrow 16 16}1{nl} {nl}{@st66d}{s15} - 혈창 관통 최종 대미지 {img green_up_arrow 16 16}50%{nl}{@st66d}{s15} - 갈증의 연쇄 최종 대미지 {img green_up_arrow 16 16}50%{nl}{@st66d}{s15} - 혈기 분출 최종 대미지 {img green_up_arrow 16 16}50%"/>
+		<Class ClassID="5314" ClassName="tooltip_Grimmark_Lv4" Data="{nl} {nl}{@st66d}{s15}- 종언의 쐐기 최종 대미지{img green_up_arrow 16 16}100%"/>
 		<Class ClassID="5315" ClassName="ARCHEOLOGY_RARE_CHANCE" Data="발굴 시 희귀 유물 발견 확률 증가"/>
 		<Class ClassID="5316" ClassName="ARCHEOLOGY_QUALITY_BONUS" Data="몬스터 처치 시 유물 상태 등급 향상 확률"/>
 		<Class ClassID="5317" ClassName="ARCHEOLOGY_SPECIAL_REWARD" Data="고대인의 유물 추가 드랍률"/>
@@ -2677,6 +2683,7 @@
 		<Class ClassID="20008" ClassName="FreeFoodForAll" Data="{@st66b}모두에게 음식 제공{/}"/>
 	</Category>
 	<Category Name="UIText">
+		<Class ClassID="21000" ClassName="Confirm_English" Data="CONFIRM"/>
 		<Class ClassID="21001" ClassName="Confirm" Data="확인"/>
 		<Class ClassID="21002" ClassName="Yes" Data="예"/>
 		<Class ClassID="21003" ClassName="No" Data="아니오"/>
@@ -3163,6 +3170,7 @@
 <Class ClassID="21495" ClassName="TP_LimitSell" Data="한정 판매"/>
 		<Class ClassID="21496" ClassName="destory_now2" Data="DESTROY"/>
 		<Class ClassID="21497" ClassName="Succession2" Data="SUCCESSION"/>
+		<Class ClassID="21498" ClassName="TP_Exchange" Data="분해"/>
 	</Category>
 	<Category Name="ChatText">
 		<Class ClassID="22001" ClassName="Guard" Data="방어"/>
@@ -11207,6 +11215,9 @@
 		<Class ClassID="92443" ClassName="GUILD_FOREST_SILENCE_BROADCAST_DEAD_RECORED" Data="길드원들이 아라크네 자매를 제압했습니다{nl}봉쇄전 기록 : {MIN} 분 {SEC} 초"/>
 		<Class ClassID="92444" ClassName="GUILD_FOREST_SILENCE_BROADCAST_BORN" Data="길드원들이 아라크네 자매와 대적합니다."/>
 		<Class ClassID="92445" ClassName="GUILD_FOREST_SILENCE_BROADCAST_DEAD" Data="길드원들이 아라크네 자매를 제압했습니다."/>
+		<Class ClassID="92446" ClassName="icepiece25" Data="빙하 주화"/>
+		<Class ClassID="92447" ClassName="pointextract" Data="포인트 변환"/>
+		<Class ClassID="92448" ClassName="costumeextract" Data="코스튬 분해"/>
 	</Category>
 	<Category Name="BattleText">
 		<Class ClassID="100001" ClassName="ADD_DAMAGE_{Auto_1}!" Data="추가 대미지 {Auto_1}!"/>
@@ -11673,7 +11684,7 @@
 		<Class ClassID="102180" ClassName="DisagreeMemberSkill{SKILL_NAME}ByTarget" Data="상대방이 {SKILL_NAME} 요청을 거절하였습니다."/>
 		<Class ClassID="102181" ClassName="UseGuildEmblemChangeItem" Data="길드 엠블렘 변경권을 소유하고 있습니다. 사용하시겠습니까?"/>
 		<Class ClassID="102182" ClassName="GuildEmblemChangeItemIsLock" Data="길드 엠블럼 변경권 사용에 실패했습니다. 아이템 상태를 확인해 주세요."/>
-		<Class ClassID="102183" ClassName="GuildEventStateStartedErrorMsg{EVENT_NAME}" Data="길드 퀘스트가 시작된 상태입니다.{nl}모든 구성원들이 인스턴스에서 퇴장한 후 길드 타워에서 취소할 수 있습니다."/>
+		<Class ClassID="102183" ClassName="GuildEventStateStartedErrorMsg{EVENT_NAME}" Data="길드 퀘스트가 시작된 상태입니다.{nl}모든 구성원들이 인스턴스에서 퇴장한 후 취소할 수 있습니다."/>
 		<Class ClassID="102184" ClassName="OnlyGuildEventAuthority" Data="길드 퀘스트 권한을 가진 길드원만 가능합니다."/>
 		<Class ClassID="102185" ClassName="ItemOnlyForGuildExpUpPlz" Data="길드 경험치를 올리기 위해선 길드 성장용 아이템을 올려주세요."/>
 		<Class ClassID="102188" ClassName="GuildEventNotStarted" Data="인원 모집이 완료되고 길드 퀘스트가 시작된 후에 입장 가능합니다."/>
@@ -11836,6 +11847,29 @@
 		<Class ClassID="102524" ClassName="BlackMarketNoticeDBCoinError" Data="입찰 진행중 코인의 변동이 발생하여 작업에 실패하였습니다. 잠시 후 다시 시도해 주세요."/>
 		<Class ClassID="102525" ClassName="papaya_event_msg1" Data="어이쿠, 꼬마 아이가 네게 장난을 치는 모양이야!"/>
 		<Class ClassID="102526" ClassName="papaya_jackpot" Data="잭팟! 이번 매치는 3배의 코인을 드립니다!"/>
+		<Class ClassID="102527" ClassName="GuildAbility" Data="길드 특성"/>
+		<Class ClassID="102528" ClassName="GuildAgitExtension" Data="아지트 확장"/>
+		<Class ClassID="102529" ClassName="GuildBlockade" Data="봉쇄전"/>
+		<Class ClassID="102530" ClassName="GuildCraftTimeReduceBuff" Data="제작 시간 감소 버프"/>
+		<Class ClassID="102531" ClassName="GuildAgitMove" Data="길드 아지트로 이동"/>
+		<Class ClassID="102532" ClassName="GuildTowerControl" Data="길드 타워 조작"/>
+		<Class ClassID="102533" ClassName="ExtensionNeedGuildLevel" Data="확장에 필요한 길드 레벨"/>
+		<Class ClassID="102534" ClassName="ExtensionNeedSilver" Data="확장에 필요한 길드 자금"/>
+		<Class ClassID="102535" ClassName="ExtensionNeedMileage" Data="확장에 필요한 길드 마일리지"/>
+		<Class ClassID="102536" ClassName="GuildCraftTimeReduceBuffLimit" Data="마을, 길드 아지트에서만 사용이 가능합니다."/>
+		<Class ClassID="102537" ClassName="GuildContent" Data="길드 콘텐츠"/>
+		<Class ClassID="102538" ClassName="GuildMission_Romuva_Start" Data="나모트 결계 수호 미션 시작"/>
+		<Class ClassID="102539" ClassName="GuildMission_Romuva_Boss_Msg" Data="보스가 등장하였습니다."/>
+		<Class ClassID="102540" ClassName="GuildMission_Romuva_DefenseDevice_CoolDownMsg" Data="아직 해당 장치를 사용할 수 없습니다."/>
+		<Class ClassID="102541" ClassName="GuildMission_Romuva_Destroyer_Msg" Data="파괴자가 등장하였습니다."/>
+		<Class ClassID="102542" ClassName="GuildMission_Cathedral_Start" Data="대성당 탈환 미션 시작"/>
+		<Class ClassID="102543" ClassName="GuildMission_Cathedral_GoddessBlessing_Power" Data="힘의 가호"/>
+		<Class ClassID="102544" ClassName="GuildMission_Cathedral_GoddessBlessing_Patience" Data="인내의 가호"/>
+		<Class ClassID="102545" ClassName="GuildMission_Cathedral_GoddessBlessing_Insight" Data="통찰의 가호"/>
+		<Class ClassID="102546" ClassName="GuildMission_Cathedral_GoddessBlessing_Destruction" Data="파괴의 가호"/>
+		<Class ClassID="102547" ClassName="GuildMission_Cathedral_GoddessBlessing_Swiftness" Data="신속의 가호"/>
+		<Class ClassID="102548" ClassName="GuildMission_Cathedral_ReadyStage" Data="5초뒤에 다음 스테이지가 진행됩니다."/>
+		<Class ClassID="102549" ClassName="GuildQuest_GuildLv_Notice" Data="길드 레벨이 부족합니다"/>
 	</Category>
 	<Category Name="EqupClasses">
 		<Class ClassID="103001" ClassName="THSword" Data="양손검"/>
@@ -12669,6 +12703,9 @@
 		<Class ClassID="119020" ClassName="AddDenied" Data="사본 젬은 등록 할 수 없습니다.{nl}사본 및 원본 젬을 동시 보유 시, 사본 젬 제거 후 다시 등록해주세요."/>
 		<Class ClassID="119021" ClassName="PerPieceInCollection" Data="등록된 구성품 1개당"/>
 		<Class ClassID="119022" ClassName="CostumeCollectionInfoText" Data="※ 등록된 코스튬 컬렉션은 마우스 우클릭 시 인벤토리에 해당 코스튬이 생성됩니다."/>
+		<Class ClassID="119023" ClassName="EventCollectionMsg" Data="{ITEM}"/>
+		<Class ClassID="119024" ClassName="EventCollectionMagicText" Data="보상"/>
+		<Class ClassID="119025" ClassName="EventCollectionRewardMsgText" Data="보상은 마법협회 NPC를 통해 수령할 수 있습니다.{nl} - 헤느리카(클라페다), 플로아나(오르샤)"/>
 		</Category>
 	<Category Name="Wiki">
 		<Class ClassID="120001" ClassName="From{Auto_1}_Get_{Auto_2}_Count" Data="{Auto_1}로부터 {Auto_2}개 획득"/>
@@ -17153,6 +17190,12 @@
 		<Class ClassID="302907" ClassName="event_2506_summer_papaya" Data="[이벤트] TOS 백금화 상점"/>
 		<Class ClassID="302908" ClassName="event_2509_autumn" Data="[이벤트] TOS 백금화 상점"/>
 		<Class ClassID="302909" ClassName="event_2510_autumn_maple" Data="[이벤트] TOS 백금화 상점"/>
+		<Class ClassID="302911" ClassName="event_2512_ice_piece" Data="빙하 주화 상점"/>
+		<Class ClassID="302912" ClassName="EVENT_2512_SANTA" Data="산타 선물 보따리 (용병단 증표 필요)"/>
+		<Class ClassID="302913" ClassName="EVENT_2511_SANTA2" Data="산타 선물 보따리 (10주년 티켓 필요)"/>
+		<Class ClassID="302914" ClassName="EVENT_2512_SANTA_CAUTION2" Data="※ 뽑기 진행 시 [이벤트] 10주년 선물 티켓 1개를 소모합니다.{nl}※ 10주년 티켓은 이벤트 기간이 종료되면 더 이상 사용할 수 없습니다.{nl}"/>
+		<Class ClassID="302915" ClassName="EVENT_2512_SANTA_MSG{FREE}{TICKET}{WEEK}{MAX}" Data="{#3366FF}[산타 선물 보따리 뽑기현황]{/}{nl}무료 뽑기 진행횟수({FREE}/50){nl}10주년 선물 티켓 사용횟수({TICKET}){nl}{nl} {#3366FF}[TOS 백금화 획득현황]{/}{nl}주간 획득량({WEEK}/600){nl}총 획득량({MAX}/3600){nl}※ {@st66d_y}{s18}주간{/}{/} 획득량은 {@st66d_y}{s18}매주 월요일{/}{/} 오전 6시 초기화 됩니다."/>
+		<Class ClassID="302916" ClassName="event_2512_shop" Data="TOS 백금화 상점"/>
 	</Category>
 	<Category Name="Account">
 		<Class ClassID="303001" ClassName="MaxAccountWarehouseCount" Data="팀 창고"/>
@@ -18144,6 +18187,7 @@
 		<Class ClassID="570019" ClassName="Gesture_FLOWERSCENT" Data="{nl} {nl}모든 캐릭터가 제스처를 흭득합니다.{nl} {nl}{@st66d_y}제스처를 습득하시겠습니까?"/>
 		<Class ClassID="570020" ClassName="Gesture_QUEENCARD" Data="{nl} {nl}모든 캐릭터가 제스처를 흭득합니다.{nl} {nl}{@st66d_y}제스처를 습득하시겠습니까?"/>
 		<Class ClassID="570021" ClassName="Gesture_KawaikuteGomen" Data="{nl} {nl}모든 캐릭터가 제스처를 흭득합니다.{nl} {nl}{@st66d_y}제스처를 습득하시겠습니까?"/>
+		<Class ClassID="570022" ClassName="Gesture_Msg" Data="{nl} {nl}모든 캐릭터가 제스처를 흭득합니다.{nl} {nl}{@st66d_y}제스처를 습득하시겠습니까?"/>
 	</Category>
 	<Category Name="ChatBalloon">
 		<Class ClassID="580000" ClassName="ChatBalloon_YESSCP_message1" Data="{nl} {nl}모든 캐릭터가 말풍선 스킨을 획득하며, 캐릭터 설정에서 말풍선 스킨을 변경할 수 있습니다.{nl}"/>
@@ -18166,8 +18210,8 @@
 		<Class ClassID="590000" ClassName="Weekly_Total_Point_Get_Fail_Msg" Data="이번주 통합 포인트를 더이상 획득할 수 없습니다."/>
 		<Class ClassID="590001" ClassName="Weekly_Total_Point_Get_Success_Msg{Point}{NowPoint}{MaxPoint}{TotalPoint}" Data="포인트를 획득했습니다: [{#33FF33}콘텐츠 통합 포인트{/}]x{#33FF33}{Point}{/}{nl}주간 획득 가능 통합 포인트: {#33FF33}{NowPoint}/{MaxPoint}{/}"/>
 		<Class ClassID="590002" ClassName="CONTENTS_TOTAL_SHOP" Data="콘텐츠 통합 상점"/>		
-		<Class ClassID="590003" ClassName="CONTENTS_TOTAL_SHOP_Tooltip" Data="다양한 콘텐츠를 완료하여 통합 포인트를 획득할 수 있습니다.{nl}- 레벨 던전 : 10{nl}- 레전드 레이드 : 나비목 접선지(85), 하얀 마녀의 숲(85), 마신의 성소(1인)(30), 마신의 성소(자동 매칭)(85), 마신의 성소(파티)(250){nl}- 가디스 레이드 : 1인(30), 자동 매칭(85), 파티(300), 순례자(300){nl}- 성물 레이드 : Normal(1인)(20), Normal(자동 매칭)(30), Hard(1인)(30), Hard(자동 매칭)(50){nl}- 여신의 전언 : 1인(20), Normal(30), Hard(50), 순례자(50){nl}- 챌린지 모드(5단계 이상), 분열 특이점 : 30{nl}- 베르니케의 파편 던전 : 완료 단계당 1{nl}- 통곡의 묘지 : 200(단계에 관계없이){nl}- 팀 배틀리그 : 100{nl}* 통합 포인트는 주간 최대 50,000 포인트까지 팀 단위로 누적됩니다.{nl}* 주간 누적량은 매주 월요일 오전 6시에 초기화됩니다."/>
-		<Class ClassID="590004" ClassName="Weekly_Total_Point_Get_Success_Msg_command" Data="{#33FF33}현재 누적된 통합 포인트 : {TotalPoint}{nl}(주간 획득 가능한 통합 포인트 : {NowPoint}/{MaxPoint}){/}"/>
+		<Class ClassID="590003" ClassName="CONTENTS_TOTAL_SHOP_Tooltip" Data="다양한 콘텐츠를 완료하여 통합 포인트를 획득할 수 있습니다.{nl}- 레벨 던전 : 10{nl}- 레전드 레이드 : 나비목 접선지(85), 하얀 마녀의 숲(85), 마신의 성소(1인)(30), 마신의 성소(자동 매칭)(85), 마신의 성소(파티)(250){nl}- 가디스 레이드 : 1인(30), 자동 매칭(85), 파티(300){nl}- 성물 레이드 : Normal(1인)(20), Normal(자동 매칭)(30), Hard(1인)(30), Hard(자동 매칭)(50){nl}- 여신의 전언 : 1인(20), Normal(30), Hard(50){nl}- 챌린지 모드(5단계 이상), 분열 특이점 : 30{nl}- 베르니케의 파편 던전 : 완료 단계당 1{nl}- 통곡의 묘지 : 200(단계에 관계없이){nl}- 팀 배틀리그 : 100{nl}* 통합 포인트는 주간 최대 50,000 포인트까지 팀 단위로 누적됩니다.{nl}* 주간 누적량은 매주 월요일 오전 6시에 초기화됩니다."/>
+	<Class ClassID="590004" ClassName="Weekly_Total_Point_Get_Success_Msg_command" Data="{#33FF33}현재 누적된 통합 포인트 : {TotalPoint}{nl}(주간 획득 가능한 통합 포인트 : {NowPoint}/{MaxPoint}){/}"/>
 		<Class ClassID="590005" ClassName="CONTENTS_TOTAL_POINT_extract" Data="통합 포인트 교환"/>
 		<Class ClassID="590006" ClassName="SEASONOFF_CONTENTS_TOTAL_SHOP" Data="시즌오프 콘텐츠 통합 상점"/>
 		<Class ClassID="590007" ClassName="CONTENTS_TOTAL_POINT_extract_tooltip" Data="아이템을 교환하여 콘텐츠 통합 포인트를 획득할 수 있습니다{nl} - 그을린 텔하르샤의 의장품 1개 = 300포인트{nl} - 정제된 글레이시어 심장 1개 = 300포인트{nl} - 정제된 모스 탈크 파우더 1개 = 300포인트{nl} - 브리키나이트 1개 = 300포인트{nl} - 마정석 1개 = 200포인트{nl} - 신비한 서 낱장 1개 = 200포인트{nl} - 프락토늄 1개 = 200포인트{nl} - 축복받은 조각 1개 = 20포인트 {nl} - 여신의 축복석 1개 = 200포인트{nl} - 스키아클립스 깃털 1개 = 20포인트{nl} - 대지의 파편 1개 = 1포인트{nl} - 대지의 탑 몬스터 정수 1개 = 4포인트{nl} - 벨코퍼 영혼 조각 1개 = 20포인트{nl} - 모스 파우더 1개 = 35포인트{nl} - 권능의 숨결 1개 = 5포인트{nl} - 권능의 숨결 정화제 1개 = 100포인트{nl} - 정화된 권능의 숨결 1개 = 150포인트{nl} - 연성제 1개 = 10포인트{nl} - 불길한 영혼 파편 1개 = 1점{nl} - 불길한 영혼 조각 1개 = 2점{nl} - 불길한 영혼 결정 1개 = 3점{nl} - 불길한 영혼 수정 1개 = 4점{nl} - 각종 돋보기(감정, 미세, 신비, 장인) 1개 = 20점{nl} - 영웅의 포션 선택(지원) 상자 1개 = 20점"/>
@@ -18175,6 +18219,7 @@
 		<Class ClassID="590009" ClassName="CLASS_COSTUME_TOTAL_SHOP" Data="클래스 코스튬 상점"/>
 		<Class ClassID="590010" ClassName="Buy_ClassCostumeTotalShop" Data="코스튬은 현재 전직된 클래스가 아니면 착용 되지 않습니다. 또한 스페셜 코스튬은 착용은 가능하나, 해당하는 클래스의 전용 코스튬과 같이 착용해야 보입니다.{nl} {nl}{#33FF33}{ol}{s20}구매하시겠습니까?{/}{/}{/}"/>
 		<Class ClassID="590011" ClassName="CONTENTS_TOTAL_SHOP_PAPAYA" Data="콘텐츠 통합 상점"/>
+		<Class ClassID="590012" ClassName="event_2512_ice_piece_extract" Data="10주년 행운 상자 코스튬 분해"/>
 	</Category>
 	<Category Name="RiftDungeon">
 		<Class ClassID="591000" ClassName="Rift_Dungeon_Select_Level" Data="{Level} 단계 차원 붕괴 입장"/>
@@ -19398,6 +19443,12 @@
 		<Class ClassID="1050113" ClassName="GROWTH_REINFORCE_TIER3_TRINKET" Data="왕국 수호자의 트링킷" />
 		<Class ClassID="1050114" ClassName="jurate_seal_selection_box_papaya_msg1" Data="+5 유라테 인장 - 응징"/>
 		<Class ClassID="1050115" ClassName="jurate_seal_selection_box_papaya_msg2" Data="+5 유라테 인장 - 보호"/>
+		<Class ClassID="1050116" ClassName="trade_select_item_set_m_wintercoat" Data="극지 모피 파카 (남)"/>
+		<Class ClassID="1050117" ClassName="trade_select_item_set_f_wintercoat" Data="극지 모피 파카 (여)"/>
+		<Class ClassID="1050118" ClassName="trade_select_item_set_m_winterhair" Data="극지 모피 쿠반카 (남)"/>
+		<Class ClassID="1050119" ClassName="trade_select_item_set_f_winterhair" Data="극지 모피 쿠반카 (여)"/>
+		<Class ClassID="1050120" ClassName="trade_select_item_set_m_santapopo" Data="산타 포포리온 헬멧 (남)"/>
+		<Class ClassID="1050121" ClassName="trade_select_item_set_f_santapopo" Data="산타 포포리온 헬멧 (여)"/>
 	</Category>
 	<Category Name="UnlockQuest">
 		<Class ClassID="1060001" ClassName="UnlockQuest_SysMsg_1" Data="{#FFFF00}{s20}{QuestInfoName}{/}{/}{nl}퀘스트 목표를 갱신합니다"/>
@@ -19625,6 +19676,9 @@
 		<Class ClassID="1106125" ClassName="Hermit[W]" Data="허밋[W]"/>
 		<Class ClassID="1106126" ClassName="Hermit[C]" Data="허밋[C]"/>
 		<Class ClassID="1106127" ClassName="Hermit[A]" Data="허밋[A]"/>
+	<Class ClassID="1106128" ClassName="Grimmark" Data="그림마크"/>
+		<Class ClassID="1106129" ClassName="Grimmark[T]" Data="그림마크[T]"/>
+		<Class ClassID="1106130" ClassName="Grimmark[S]" Data="그림마크[S]"/>
 	</Category>
 	<Category Name="LifeContent">
 		<Class ClassID="1107001" ClassName="archeology" Data="고고학"/>

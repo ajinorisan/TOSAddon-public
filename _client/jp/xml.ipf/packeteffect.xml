@@ -2,6 +2,9 @@
 <!-- edited with XMLSPY v2004 rel. 2 U (http://www.xmlspy.com) by imc (imc) -->
 <packeteffects>
     <Category ID="110">
+        <Effect Name="eff_pc_paladin_holysmash_slash_01"/>
+        <Effect Name="Dummy_effect_lip_drop"/>
+        <Effect Name="I_breath018_fire_loop"/>
         <Effect Name="eff_groundimpact_landcrush_purple_01"/>
         <Effect Name="GroundImpact_PoisonGas_Purple_01"/>
         <Effect Name="GroundImpact_LavaCrack_Purple_03"/>
@@ -112,6 +115,41 @@
         <Effect Name="DemonLair_Area_8"/>
         <Effect Name="DemonLair_Area_4"/>
         <Effect Name="eff_pc_wizard_shield"/>
+        <Effect Name="return"/>
+        <Effect Name="MISSION_ROMUVA"/>
+        <Effect Name="eff_pc_elementalist_steamexplosion"/>
+        <Effect Name="Projectile_LightFlare_Purple_01#Bip001 R Finger1"/>
+        <Effect Name="Born_LightTornado_Blue_01"/>
+        <Effect Name="Projectile_LightFlare_Purple_01#Bip001 R Finger1"/>
+        <Effect Name="Born_LightTornado_Blue_01"/>
+        <Effect Name="Projectile_LightFlare_Purple_01#Dummy_skl2_002"/>
+        <Effect Name="Projectile_LightFlare_Purple_01#Dummy_skl2_002"/>
+        <Effect Name="Portal_SufferingSoulOpen_Cyan_01"/>
+        <Effect Name="GuildMissionManager"/>
+        <Effect Name="FirstWave"/>
+        <Effect Name="BodyAura_DivineAvatar_White_01"/>
+        <Effect Name="BodyAura_DivineAvatar_Yellow_01"/>
+        <Effect Name="BodyAura_DivineAvatar_Blue_01"/>
+        <Effect Name="wave_1"/>
+        <Effect Name="GFB_BORUTA_RENEWAL"/>
+        <Effect Name="wave_2"/>
+        <Effect Name="wave_3"/>
+        <Effect Name="MISSION_CATHEDRAL"/>
+        <Effect Name="Shoot_AbstractSmoke_Cyan_01##1"/>
+        <Effect Name="Shoot_AbstractSmoke_Cyan_01##1"/>
+        <Effect Name="AerialExplosion_DarkAura_Cyan_01##1"/>
+        <Effect Name="GroundImpact_ElectricCrush_Orange_03"/>
+        <Effect Name="eff_fellow_shinobi_lightningjutsu_hit_01#Bip001 L Finger0Nub"/>
+        <Effect Name="eff_fellow_shinobi_lightningjutsu_launch_01"/>
+        <Effect Name="eff_fellow_shinobi_lightningjutsu_cast_01"/>
+        <Effect Name="Projectile_LightFlare_Purple_01#Bip001 L Finger0Nub"/>
+        <Effect Name="Projectile_LightFlare_Purple_01#Bip001 L Finger0Nub"/>
+        <Effect Name="Projectile_MagicKey_Green_01"/>
+        <Effect Name="GM_Cathedral_AttackDevice_Pad"/>
+        <Effect Name="GILTINE_GUILD_RAID_RENEWAL"/>
+        <Effect Name="BORUTA_GUILD_RAID_RENEWAL"/>
+        <Effect Name="BodyAura_Dark_Orange_01"/>
+        <Effect Name="goddess_blessing"/>
     </Category>
     <Category ID="199">
         <Effect Name="skl_eff_illusionist_nightmare_3_shot"/>
@@ -642,7 +680,14 @@
         <Effect Name="mon_veliora_skl11_cast"/>
         <Effect Name="mon_veliora_skl011_shot"/>
         <Effect Name="mon_veliora_skl11_shot"/>
-    </Category>
+        <Effect Name="F_skillrange_36_red"/>
+        <Effect Name="I_breath032_white"/>
+        <Effect Name="I_breath032_white##1"/>
+        <Effect Name="Born_GroundHole_LightBrown_01"/>
+        <Effect Name="Projectile_DarkMatterSlashHorizontal_White_01"/>
+        <Effect Name="eff_pc_elementalist_fire_ball"/>
+        <Effect Name="eff_pc_elementalist_fire_ball_crush2"/>
+        </Category>
     <Category ID="181">
         <Effect Name="Baubas_Guild_Raid"/>
         <Effect Name="master_Jaguar"/>
@@ -1722,6 +1767,30 @@
         <Effect Name="skl_eff_hermit_constellationresiduefield_wizard_ground"/>
         <Effect Name="skl_eff_hermit_eclipse_wizard_ground"/>
         <Effect Name="skl_eff_hermit_judgementofthecosmos_wizard_core"/>
+        <Effect Name="d_catacomb"/>
+        <Effect Name="master_Grimmark"/>
+        <Effect Name="eff_footsmoke_leaf_jump_01"/>
+        <Effect Name="GroundImpact_StickyExplosion_Red_01"/>
+        <Effect Name="Grimmark_HamstringPin"/>
+        <Effect Name="Grimmark_HamstringPin"/>
+        <Effect Name="Projectile_BloodSlash_Red_02"/>
+        <Effect Name="Shoot_VampireStake_White_03"/>
+        <Effect Name="eff_bowshot_normal_white_01"/>
+        <Effect Name="Grimmark_StakeOfTerminus"/>
+        <Effect Name="AerialExplosion_Blood_Red_01"/>
+        <Effect Name="Shoot_GroundSlash_Red_02"/>
+        <Effect Name="AerialExplosion_Blood_Red_02"/>
+        <Effect Name="BodyAura_Blood_Red_03"/>
+        <Effect Name="Shoot_BloodLoop_Red_01"/>
+        <Effect Name="eff_buff_counterattack_bleeding_01"/>
+        <Effect Name="Hermit_Eclipse_Hermit12"/>
+        <Effect Name="BodyAura_BloodDevil_Red_01"/>
+        <Effect Name="GFB_BORUTA_RENEWAL"/>
+        <Effect Name="GILTINE_GUILD_RAID_RENEWAL"/>
+        <Effect Name="BORUTA_GUILD_RAID_RENEWAL"/>
+        <Effect Name="Grimmark_BloodEruption"/>
+        <Effect Name="skl_eff_grimmark_blooderuption"/>
+        <Effect Name="skl_eff_kupole_sugargabija_shot_01"/>
     </Category>
     <Category ID="70">
         <Effect Name="EVENT_2001_NEWYEAR_INIT_PAD"/>

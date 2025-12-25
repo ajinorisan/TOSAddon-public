@@ -866,6 +866,7 @@ function QUICKSLOTNEXPBAR_ON_MSG(frame, msg, argStr, argNum)
 		QUICKSLOT_CHANGE_ICON_LIST = {}
 		QUICKSLOT_CHANGE_SKILL_LIST = {}
 		ON_PET_SELECT(frame);
+		RESTORE_QUICKSLOT()
 	end
 
 	if msg == 'QUICKSLOT_LIST_GET' or msg == 'GAME_START' or msg == 'EQUIP_ITEM_LIST_GET' or msg == 'PC_PROPERTY_UPDATE_TO_QUICKSLOT' or msg == 'RESET_ABILITY_ACTIVE' then
@@ -1909,4 +1910,62 @@ end
 
 function GET_QUICKSLOT_CHANGE_SKILL_LIST()
 	return QUICKSLOT_CHANGE_SKILL_LIST
+end
+
+function RESTORE_QUICKSLOT()
+	RESTORE_SPEARMASTER_QUICKSLOT_STANCE()
+	RESTORE_LAMA_QUICKSLOT_STANCE()
+end
+
+function RESTORE_SPEARMASTER_QUICKSLOT_STANCE()
+	local pc = GetMyPCObject()
+	if pc == nil then return end
+
+	local stance = GetExProp(pc, "SPEARMASTER_STANCE");
+	if stance == nil or stance == 0 then return end
+
+	local list = get_spearmaster_atk_skill_list();
+	for i = 1, #list do
+		local skill_name = list[i];
+		local skill = session.GetSkillByName(skill_name);
+		if skill ~= nil then
+			local skill_type = skill.ClassID;
+			local icon = get_skill_conversion_info_by_property(skill, stance, "icon");
+			if icon ~= nil and icon ~= "None" then
+				local icon_name = "icon_"..icon;
+				local default_icon = 'icon_' .. TryGetProp(skill, 'Icon', 'None');
+				if icon_name ~= default_icon and skill_type ~= nil and skill_type > 0 then
+					QUICKSLOT_CHANGE_ICON_LIST[tostring(skill_type)] = icon_name;
+				end
+			end
+		end
+	end
+end
+
+function RESTORE_LAMA_QUICKSLOT_STANCE()
+	local pc = GetMyPCObject();
+	if pc == nil then return end
+
+	local kickBuff = info.GetBuffByName(session.GetMyHandle(), "Lamakick_Buff")
+	local fistBuff = info.GetBuffByName(session.GetMyHandle(), "Lamafist_Buff")
+	if kickBuff == nil or fistBuff == nil then
+		return
+	end
+
+	local list = get_lama_conversion_skill_list()
+	for i = 1, #list do
+		local skill_name = list[i];
+		local skill = session.GetSkillByName(skill_name);
+		if skill ~= nil then
+			local skill_type = skill.ClassID;
+			local icon = get_skill_conversion_lama_skill_info(nil, skill, "icon");
+			if icon ~= nil and icon ~= "None" then
+				local icon_name = "icon_"..icon;
+				local default_icon = 'icon_' .. TryGetProp(skill, 'Icon', 'None');
+				if icon_name ~= default_icon and skill_type ~= nil and skill_type > 0 then
+					QUICKSLOT_CHANGE_ICON_LIST[tostring(skill_type)] = icon_name;
+				end
+			end
+		end
+	end
 end

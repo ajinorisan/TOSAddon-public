@@ -4770,3 +4770,11 @@ end
 function SCR_ABIL_HERMIT_INACTIVE(self, ability)
     RemoveBuff(self, "FlowOfSpace_Dummy_Buff")
 end
+
+function SCR_ABIL_GRIMMARK_ACTIVE(self, ability)
+    AddBuff(self, self, "Grimmark_Dummy_Buff", 99, 0, 0, 1)
+end
+
+function SCR_ABIL_GRIMMARK_INACTIVE(self, ability)
+    RemoveBuff(self, "Grimmark_Dummy_Buff")
+end

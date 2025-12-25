@@ -5239,7 +5239,7 @@ function BEFORE_APPLIED_GESTURE_YESSCP_OPEN(invItem)
 	
 	local strLang = TryGetProp(itemobj , 'StringArg')
 	if strLang ~='None' then
-    	local textmsg = string.format("[ %s ]{nl}%s", itemobj.Name, ScpArgMsg("Gesture_"..strLang));
+    	local textmsg = string.format("[ %s ]{nl}%s", itemobj.Name, ScpArgMsg("Gesture_Msg"));
     	ui.MsgBox_NonNested(textmsg, itemobj.Name, 'REQUEST_SUMMON_BOSS_TX', "None");
     end
 	return;
@@ -5804,6 +5804,40 @@ function RUN_CLIENT_USE_MULTIPLE_USE_STRING_GIVE_ITEM_NUMBER_SPLIT(count)
     local resultlist = session.GetItemIDList()
     item.DialogTransaction("MULTIPLE_USE_STRING_GIVE_ITEM_NUMBER_SPLIT", resultlist)
 end
+
+function CLIENT_USE_GIVE_ITEM_NUMBER_SPLIT(item_obj)
+	multiple_string_give_item_numbersplit = '0'
+	
+	if GetCraftState() == 1 then
+		return
+	end
+
+	if true == BEING_TRADING_STATE() then
+		return
+	end
+	
+	local invItem = session.GetInvItemByGuid(item_obj:GetIESID())	
+	if nil == invItem then
+		return
+	end
+	
+	if true == invItem.isLockState then
+		ui.SysMsg(ClMsg("MaterialItemIsLock"))
+		return
+	end
+
+	local itemObj = GetIES(invItem:GetObject())
+	local count = 1
+	multiple_string_give_item_numbersplit = tostring(item_obj:GetIESID())
+
+	session.ResetItemList()
+	session.AddItemID(multiple_string_give_item_numbersplit, count)
+
+    local resultlist = session.GetItemIDList()
+    item.DialogTransaction("MULTIPLE_USE_STRING_GIVE_ITEM_NUMBER_SPLIT", resultlist)
+end
+
+
 -----------------------------------
 
 -----큐폴 여신의 은총 한단계 진화

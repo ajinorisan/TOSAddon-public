@@ -971,6 +971,18 @@
 		<image name="icon_cler_FrostShatter" file="\icon\skill\cleric\icon_cler_FrostShatter.png" imgrect="0 0 128 128" CMM_Caption="프로스트 섀터"/>
 		<image name="icon_cler_Frimveil" file="\icon\skill\cleric\icon_cler_Frimveil.png" imgrect="0 0 128 128" CMM_Caption="프림베일"/>
 		<image name="icon_cler_ArcaneCollapse" file="\icon\skill\cleric\icon_cler_ArcaneCollapse.png" imgrect="0 0 128 128" CMM_Caption="아케인 콜랩스"/>
+		<image name="icon_scout_HunterMark" file="\icon\skill\scout\icon_scout_HunterMark.png" imgrect="0 0 128 128" CMM_Caption="사냥표식"/>
+		<image name="icon_scout_PiercingLeap" file="\icon\skill\scout\icon_scout_PiercingLeap.png" imgrect="0 0 128 128" CMM_Caption="꿰뚫는 도약"/>
+		<image name="icon_scout_HamstringPin" file="\icon\skill\scout\icon_scout_HamstringPin.png" imgrect="0 0 128 128" CMM_Caption="햄스트링 핀"/>
+		<image name="icon_scout_BloodspearPierce" file="\icon\skill\scout\icon_scout_BloodspearPierce.png" imgrect="0 0 128 128" CMM_Caption="혈창 관통"/>
+		<image name="icon_scout_ChainOfThirst" file="\icon\skill\scout\icon_scout_ChainOfThirst.png" imgrect="0 0 128 128" CMM_Caption="갈증의 연쇄"/>
+		<image name="icon_scout_StakeOfTerminus" file="\icon\skill\scout\icon_scout_StakeOfTerminus.png" imgrect="0 0 128 128" CMM_Caption="종언의 쐐기"/>
+		<image name="icon_scout_grimreaper" file="\icon\skill\scout\icon_scout_grimreaper.png" imgrect="0 0 128 128" CMM_Caption="그림 리퍼"/>
+		<image name="icon_scout_Bloodlust" file="\icon\skill\scout\icon_scout_Bloodlust.png" imgrect="0 0 128 128" CMM_Caption="혈향"/>
+		<image name="icon_scout_CriticalWound_Grimmark" file="\icon\skill\scout\icon_scout_CriticalWound_Grimmark.png" imgrect="0 0 128 128" CMM_Caption="그림마크: 출혈"/>
+		<image name="icon_scout_Executioner" file="\icon\skill\scout\icon_scout_Executioner.png" imgrect="0 0 128 128" CMM_Caption="처형인의 낙인"/>
+		<image name="icon_scout_ExploitWeakness" file="\icon\skill\scout\icon_scout_ExploitWeakness.png" imgrect="0 0 128 128" CMM_Caption="약점 간파"/>
+		<image name="icon_scout_BloodEruption" file="\icon\skill\scout\icon_scout_BloodEruption.png" imgrect="0 0 128 128" CMM_Caption="혈기 분출"/>
 	</imagelist>
 	<imagelist category="scout_skillicon">
 		<image name="icon_scout_aggress" file="\icon\skill\scout\icon_scout_aggress.png" imgrect="0 0 128 128" CMM_Caption="인법뇌둔술"/>
@@ -3828,6 +3840,24 @@
 		<image name="ability_Wizard_AetherBlader106" file="\icon\icon_ability_cleric10.tga" imgrect="896 384 128 128" CMM_Caption="[아츠] 프림베일: 프로즌 스탠스"/>
 		<image name="ability_Wizard_AetherBlader107" file="\icon\icon_ability_cleric10.tga" imgrect="768 384 128 128" CMM_Caption="프림베일: 콜드 에코"/>
 		<image name="ability_Wizard_AetherBlader108" file="\icon\icon_ability_cleric10.tga" imgrect="640 384 128 128" CMM_Caption="[아츠] 프로스트 섀터: 섀터라인"/>
+		<image name="ability_scout_Grimmark100" file="\icon\icon_ability_scout05.tga" imgrect="896 896 128 128" CMM_Caption="사냥의 맹세"/>
+		<image name="ability_scout_Grimmark6" file="\icon\icon_ability_scout06.tga" imgrect="0 0 128 128" CMM_Caption="꿰뚫는 도약: 끈질긴 추적"/>
+		<image name="ability_scout_Grimmark8" file="\icon\icon_ability_scout06.tga" imgrect="128 0 128 128" CMM_Caption="갈증의 연쇄: 확산"/>
+		<image name="ability_scout_Grimmark7" file="\icon\icon_ability_scout06.tga" imgrect="256 0 128 128" CMM_Caption="[아츠] 혈창 관통: 추격자의 본능"/>
+		<image name="ability_scout_Grimmark1" file="\icon\icon_ability_scout06.tga" imgrect="384 0 128 128" CMM_Caption="꿰뚫는 도약: 강화"/>
+		<image name="ability_scout_Grimmark2" file="\icon\icon_ability_scout06.tga" imgrect="640 0 128 128" CMM_Caption="햄스트링 핀: 강화"/>
+		<image name="ability_scout_Grimmark3" file="\icon\icon_ability_scout06.tga" imgrect="896 0 128 128" CMM_Caption="혈창 관통: 강화"/>
+		<image name="ability_scout_Grimmark4" file="\icon\icon_ability_scout06.tga" imgrect="128 128 128 128" CMM_Caption="갈증의 연쇄: 강화"/>
+		<image name="ability_scout_Grimmark5" file="\icon\icon_ability_scout06.tga" imgrect="384 128 128 128" CMM_Caption="종언의 쐐기: 강화"/>
+		<image name="ability_scout_Grimmark101" file="\icon\icon_ability_scout06.tga" imgrect="512 0 128 128" CMM_Caption="[아츠] 꿰뚫는 도약: 상급 강화"/>
+		<image name="ability_scout_Grimmark102" file="\icon\icon_ability_scout06.tga" imgrect="768 0 128 128" CMM_Caption="[아츠] 햄스트링 핀: 상급 강화"/>
+		<image name="ability_scout_Grimmark103" file="\icon\icon_ability_scout06.tga" imgrect="0 128 128 128" CMM_Caption="[아츠] 혈창 관통: 상급 강화"/>
+		<image name="ability_scout_Grimmark104" file="\icon\icon_ability_scout06.tga" imgrect="256 128 128 128" CMM_Caption="[아츠] 갈증의 연쇄: 상급 강화"/>
+		<image name="ability_scout_Grimmark105" file="\icon\icon_ability_scout06.tga" imgrect="512 128 128 128" CMM_Caption="[아츠] 종언의 쐐기: 상급 강화"/>
+		<image name="ability_scout_Grimmark9" file="\icon\icon_ability_scout06.tga" imgrect="640 128 128 128" CMM_Caption="혈기 분출: 강화"/>
+		<image name="ability_scout_Grimmark106" file="\icon\icon_ability_scout06.tga" imgrect="768 128 128 128" CMM_Caption="[아츠] 혈기 분출: 상급 강화"/>
+		<image name="ability_scout_Grimmark10" file="\icon\icon_ability_scout06.tga" imgrect="896 128 128 128" CMM_Caption="[아츠] 갈증의 연쇄: 해갈"/>
+		<image name="ability_scout_Grimmark11" file="\icon\icon_ability_scout06.tga" imgrect="0 256 128 128" CMM_Caption="사냥표식: 몰이 사냥"/>
 	</imagelist>
 	<imagelist category="abilityicon_common">
 		<image name="ability_common_DaggerMastery" file="\icon\icon_ability_common.tga" imgrect="0 0 128 128" CMM_Caption="단검 마스터리"/>
@@ -4262,6 +4292,7 @@
 		<image name="icon_kupole_Vakarine" file="\icon\skill\cupole\icon_kupole_Vakarine.png" imgrect="0 0 128 128" CMM_Caption="바카리네"/>
 		<image name="icon_kupole_Zawra" file="\icon\skill\cupole\icon_kupole_Zawra.png" imgrect="0 0 128 128" CMM_Caption="자우라"/>
 		<image name="icon_kupole_Zesty" file="\icon\skill\cupole\icon_kupole_Zesty.png" imgrect="0 0 128 128" CMM_Caption="제스티"/>
+		<image name="icon_kupole_SugarGabia" file="\icon\skill\cupole\icon_kupole_SugarGabia.png" imgrect="0 0 128 128" CMM_Caption="과일사탕 가비야"/>
 		<image name="icon_kupole_Laima_skill" file="\icon\skill\cupole\Passive\icon_kupole_Laima_skill.png" imgrect="0 0 128 128" CMM_Caption="라이마"/>
 		<image name="icon_Buff_kupole_AccuracyBuff_SR" file="\icon\skill\cupole\Passive\icon_kupole_AccuracyBuff_SR.png" imgrect="0 0 128 128" CMM_Caption="정확도 버프"/>
 		<image name="icon_Buff_kupole_Austeja" file="\icon\skill\cupole\Passive\icon_kupole_Austeja.png" imgrect="0 0 128 128" CMM_Caption="아우스테아"/>
@@ -4297,5 +4328,6 @@
 		<image name="icon_Buff_kupole_Zawra" file="\icon\skill\cupole\Passive\icon_kupole_Zawra.png" imgrect="0 0 128 128" CMM_Caption="자우라"/>
 		<image name="icon_Buff_kupole_Zesty" file="\icon\skill\cupole\Passive\icon_kupole_Zesty.png" imgrect="0 0 128 128" CMM_Caption="제스티"/>
 		<image name="icon_Buff_kupole_Saule" file="\icon\skill\cupole\Passive\icon_kupole_Saule.png" imgrect="0 0 128 128" CMM_Caption="사울레"/>
+		<image name="icon_Buff_kupole_SugarGabia" file="\icon\skill\cupole\Passive\icon_kupole_SugarGabia_Buff.png" imgrect="0 0 128 128" CMM_Caption="과일사탕 가비야"/>
 	</imagelist>
 </skinset>

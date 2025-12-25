@@ -14,6 +14,9 @@ function PICKUP_ON_CUPOLE_ACTIVATE(frame, msg, argStr, argNum)
     SET_PICKUP_BTN(frame)
     if frame:GetName() == "cupole_item" then
         SET_CUPOLE_GACHA_COLOR(frame)
+        SET_CUPOLE_LIST(frame);
+    else
+        CREATE_PICKUP_CUPOLE_LIST(frame)
     end
 end
 
@@ -52,6 +55,10 @@ function CREATE_PICKUP_CUPOLE_LIST(frame)
     -- end
 
     local PickupListBG = GET_CHILD_RECURSIVELY(frame, "PickupListBG")
+    if PickupListBG == nil then
+        return ;
+    end
+
     local offset = {OFFSET_X, OFFSET_Y}
     for k,v in pairs(Pickuplist) do
         local clsname = TryGetProp(v, "ClassName", "None")
@@ -258,7 +265,9 @@ function EARN_PICKUP_CUPOLE(frame, ctrl, argStr, argNum)
         local cls = GET_CUPOLE_RATIO_INFO_BY_INDEX(index)
         local ratioindex = TryGetProp(cls, "ClassID", 0)
         local type = 2 -- 0:단차 1:10연차 2:픽업
-        type = type .. ' ' .. ratioindex;
+        local clsid = GET_PICKUP_CLASSID_BY_GROUP("cupole_normal_gacha_banner")
+
+        type = type .. ' ' .. ratioindex..' '..clsid;
         pc.ReqExecuteTx_Item("CUPOLE_RECRUIT", 0, type)
     end
 end

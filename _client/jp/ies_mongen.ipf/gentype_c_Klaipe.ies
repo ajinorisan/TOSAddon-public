@@ -92,3 +92,5 @@ ClassID,GenType,Lv,Range,GenRange,RespawnTime,MaxPop,Minimap,Hide,UseAIOufOfPC,A
 5501,10133,1,40,1,60000,1,1,0,0,0,0,0,"npc_vanquisher","[뱅퀴셔 마스터]{nl}다니엘류스","","","","","","","NPC_VANQUISHER","","","NO","YES","NO","Neutral","","","",""
 6001,10201,1,40,1,60000,1,1,0,0,0,0,0,"npc_sledger","[슬레저 마스터]{nl}애나 쿠셀라","","","","","","","NPC_SLEDGER","","","NO","YES","NO","Neutral","","","",""
 5292,10125,1,60,1,60000,1,2,0,0,0,0,0,"gacha_machine","여신의 축복","","","","","","","BLESSED_CUBE","","","NO","YES","NO","Neutral","","","",""
+5276,5276,1,40,1,1,1,2,0,0,0,0,0,"npc_Teliavelis2","[이벤트]{nl}산타 테리아베리스","","","","","","","EVENT_2411_NPC_SANTA2","","","NO","YES","NO","Netual","","","",""
+5277,5277,1,40,1,1,1,0,0,0,0,0,0,"christmas_sack","","","","","","","","","","","NO","YES","NO","Netual","","","",""

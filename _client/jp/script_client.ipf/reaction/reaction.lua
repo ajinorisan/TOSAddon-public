@@ -616,14 +616,7 @@ function C_COLORBLEND_ACTOR(self, obj, actorType, isUse, color_R, color_G, color
     end
 end
 
-function C_FORCE_EFT(actor, obj, 
-    eft, scale, shoot_sound, finEft, finEftScale, 
-    finish_sound, destroy, fSpeed, easing, gravity, 
-    angle, hitIndex, collrange, createLength, radiusSpd, 
-    isLastForce, useHitEffect, linkTexName, dist, offSetAngle, 
-    height, delayStart, fixVerDir)
-    
-
+function C_FORCE_EFT(actor, obj, eft, scale, shoot_sound, finEft, finEftScale, finish_sound, destroy, fSpeed, easing, gravity, angle, hitIndex, collrange, createLength, radiusSpd, isLastForce, useHitEffect, linkTexName, dist, offSetAngle, height, delayStart, fixVerDir)
     local rhItem = session.GetEquipItemBySpot(item.GetEquipSpotNum("RH"));
     if rhItem ~= nil then
         local equipItemObj = GetIES(rhItem:GetObject());

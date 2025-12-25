@@ -503,7 +503,10 @@ shared_item_goddess_icor.get_option_list_by_group = function(level, spot, option
 end
 
 -- 아이커에 옵션을 부여할 때, 상급/하급 구분해서 옵션다시 재 설정
-shared_item_goddess_icor.get_option_value_range_icor = function(item, option_name)               
+shared_item_goddess_icor.get_option_value_range_icor = function(item, option_name, is_client)
+    if is_client == nil then
+        is_client = false
+    end
     if shared_item_goddess_icor.get_goddess_icor_grade(item) == 0 then
         return 0, 0
     end
@@ -525,7 +528,20 @@ shared_item_goddess_icor.get_option_value_range_icor = function(item, option_nam
 
         local icor_name = TryGetProp(item, 'GoddessIcorName', 'None')
         if icor_name ~= 'None' then
-            item = GetClass('Item', icor_name)
+            if is_client == true then                
+                local icor_name_cls = GetClass('Item', icor_name)
+                local str3 = TryGetProp(icor_name_cls, 'StringArg3', 'None')
+                if str3 ~= 'None' then        
+                    local token = StringSplit(str3, '/')
+                    if token[1] ~= 'Inheritance' then
+                        item = GetClass('Item', icor_name)    
+                    end
+                else
+                    item = GetClass('Item', icor_name)    
+                end
+            else
+                item = GetClass('Item', icor_name)
+            end
         end
     end
 

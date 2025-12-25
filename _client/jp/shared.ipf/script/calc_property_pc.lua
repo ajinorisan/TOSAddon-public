@@ -1934,7 +1934,7 @@ function SCR_Get_DR(self)
     
     local jobRate = SCR_GET_JOB_RATIO_STAT(self, "DR");
     local byLevel = lv * 1.0 * jobRate;
-        
+
     local byItem = 0;
     local byItemList = { "DR", "ADD_DR" };
     for i = 1, #byItemList do
@@ -1946,8 +1946,9 @@ function SCR_Get_DR(self)
         byItem = byItem + byItemTemp;
     end
     
-    local value = byLevel + byItem;
-    
+    local drConst = TryGetProp(self, "DR_CONST", 0);
+    local value = byLevel + byItem + drConst;
+
     local byItemRareOption = TryGetProp(self, 'EnchantDodgeRate');
     if byItemRareOption == nil then
         byItemRareOption = 0;
@@ -1956,16 +1957,16 @@ function SCR_Get_DR(self)
     byItemRareOption = math.floor(value * (byItemRareOption / 1000));
     
     local byBuff = TryGetProp(self, "DR_BM", 0);
-    
     local byRateBuff = TryGetProp(self, "DR_RATE_BM", 0);
+
     byRateBuff = math.floor(value * byRateBuff);
-    
+
     value = value + byItemRareOption + byBuff + byRateBuff;
-    
+
     if value < 0 then
     	value = 0;
     end
-    
+
     return math.floor(value);
 end
 

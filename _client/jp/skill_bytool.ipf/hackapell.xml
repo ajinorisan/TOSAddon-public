@@ -459,7 +459,7 @@
                 <Scp Scp="SKL_TGT_MOVE" Client="NO" UseSleep="YES" Time="0">
                     <Num Num="0"/>
                     <Num Num="200"/>
-                    <Num Num="0"UseFunc="1" FuncTxt="local angle = GetDirection(self)
+                    <Num Num="0" UseFunc="1" FuncTxt="local angle = GetDirection(self)
 					return angle"/>
                     <Num Num="0.15000001"/>
                     <Num Num="0.070000008"/>

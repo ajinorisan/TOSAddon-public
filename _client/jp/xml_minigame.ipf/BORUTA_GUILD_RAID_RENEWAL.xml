@@ -1,0 +1,539 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<GameList>
+    <Game Name="BORUTA_GUILD_RAID_RENEWAL" journal="0" minLv="0" maxLv="0" mapName="d_limestonecave_70_1_guild" playerCountCheckDestroy="1" startWaitSec="0">
+        <StageList>
+            <Stage Name="Initialize">
+                <StartScpList>
+                    <ToolScp Scp="MGAME_SET_RAID_ICON" Client="NO" UseSleep="NO">
+                        <Str Str="곧 미션이 시작됩니다"/>
+                        <Str Str="stage_ready"/>
+                        <Num Num="10"/>
+                    </ToolScp>
+                </StartScpList>
+                <ObjList>
+                    <Obj Type="Monster" MonType="154005" Pos="325.00#207.22#1216.00" genCount="1" genTime="20000" objectKey="0" UseAiOutOfPc="1" propList="&apos;Name&apos; &apos;UnvisibleName&apos; ">
+                        <SelfAI ActiveMessageMapInBattle="1">
+                            <StartList>
+                                <ToolScp Scp="EnableAIOutOfPC" Client="NO" UseSleep="NO"/>
+                            </StartList>
+                        </SelfAI>
+                    </Obj>
+                </ObjList>
+                <StageEvents>
+                    <Event execCount="1" eventName="Init_Setting">
+                        <execList>
+                            <ToolScp Scp="GAME_ST_EVT_EXEC_VALUE" Client="NO" UseSleep="NO">
+                                <Str Str="TIME_OUT_KILL"/>
+                                <Num Num="0"/>
+                            </ToolScp>
+                        </execList>
+                    </Event>
+                    <Event execCount="1" eventName="Bossgen">
+                        <condList>
+                            <ToolScp Scp="GAME_ST_EVT_COND_TIMECHECK" Client="NO" UseSleep="NO">
+                                <Num Num="5"/>
+                            </ToolScp>
+                            <ToolScp Scp="GAME_ST_EVT_COND_VALUE" Client="NO" UseSleep="NO">
+                                <Str Str="SET_GUILD_ID"/>
+                                <Str Str="OVER"/>
+                                <Num Num="1"/>
+                            </ToolScp>
+                            <ToolScp Scp="GAME_ST_EVT_COND_VALUE" Client="NO" UseSleep="NO">
+                                <Str Str="OPEN_PORTAL_1"/>
+                                <Str Str="OVER"/>
+                                <Num Num="1"/>
+                            </ToolScp>
+                        </condList>
+                        <execList>
+                            <ToolScp Scp="GAME_ST_EVT_EXEC_STAGE_START" Client="NO" UseSleep="NO">
+                                <Str Str="Gen_Boss"/>
+                            </ToolScp>
+                            <ToolScp Scp="MGAME_MSG_ICON" Client="YES" UseSleep="NO">
+                                <Str Str="동굴 심부로 향하는 포탈이 생성되었습니다"/>
+                                <Str Str="BossAppear"/>
+                                <Num Num="10"/>
+                            </ToolScp>
+                            <ToolScp Scp="MGAME_EVT_EXEC_CREMON" Client="NO" UseSleep="NO">
+                                <MGameObjIndex List="Npc/0/Npc/1"/>
+                                <Num Num="1"/>
+                                <Num Num="0"/>
+                            </ToolScp>
+                            <ToolScp Scp="GAME_EVT_OFF_BYNAME" Client="NO" UseSleep="NO">
+                                <Str Str="TimeLimit"/>
+                            </ToolScp>
+                        </execList>
+                    </Event>
+                    <Event execCount="1" eventName="SetGuid">
+                        <condList>
+                            <ToolScp Scp="GAME_ST_EVT_COND_TIMECHECK" Client="NO" UseSleep="NO">
+                                <Num Num="5"/>
+                            </ToolScp>
+                            <ToolScp Scp="GAME_ST_EVT_COND_VALUE" Client="NO" UseSleep="NO">
+                                <Str Str="SET_GUILD_ID"/>
+                                <Str Str="EQ"/>
+                                <Num Num="0"/>
+                            </ToolScp>
+                            <ToolScp Scp="GAME_ST_EVT_COND_VALUE" Client="NO" UseSleep="NO">
+                                <Str Str="OPEN_PORTAL_1"/>
+                                <Str Str="EQ"/>
+                                <Num Num="1"/>
+                            </ToolScp>
+                        </condList>
+                        <execList>
+                            <ToolScp Scp="MGAME_EVT_SCP_TO_MON" Client="NO" UseSleep="NO">
+                                <MGameObj List="Initialize/0"/>
+                                <Str Str="SCR_GUILD_RAID_BORUTA_RENEWAL_INIT"/>
+                            </ToolScp>
+                        </execList>
+                    </Event>
+                    <Event execCount="1" eventName="TimeLimit_Closed" execWithStart="0" isEnabled="0">
+                        <condList>
+                            <ToolScp Scp="GAME_ST_EVT_COND_TIMECHECK" Client="NO" UseSleep="NO">
+                                <Num Num="300"/>
+                            </ToolScp>
+                            <ToolScp Scp="GAME_ST_EVT_COND_VALUE" Client="NO" UseSleep="NO">
+                                <Str Str="SET_GUILD_ID"/>
+                                <Str Str="=="/>
+                                <Num Num="1"/>
+                            </ToolScp>
+                            <ToolScp Scp="GAME_ST_EVT_COND_VALUE" Client="NO" UseSleep="NO">
+                                <Str Str="SET_DAY_RECORD_1"/>
+                                <Str Str="=="/>
+                                <Num Num="0"/>
+                            </ToolScp>
+                        </condList>
+                        <execList>
+                            <ToolScp Scp="GAME_ST_EVT_EXEC_VALUE" Client="NO" UseSleep="NO">
+                                <Str Str="OPEN_PORTAL_1"/>
+                                <Num Num="1"/>
+                            </ToolScp>
+                            <ToolScp Scp="GAME_ST_EVT_EXEC_VALUE" Client="NO" UseSleep="NO">
+                                <Str Str="SET_DAY_RECORD_1"/>
+                                <Num Num="1"/>
+                            </ToolScp>
+                        </execList>
+                    </Event>
+                    <Event eventName="GuildEventCheck">
+                        <execList>
+                            <ToolScp Scp="MGAME_EVT_SCP_CMD" Client="NO" UseSleep="NO">
+                                <Str Str="GUILD_EVENT_FAIL_CHECK"/>
+                            </ToolScp>
+                        </execList>
+                    </Event>
+                    <Event execCount="1" eventName="GuildEventFailCheck">
+                        <condList>
+                            <ToolScp Scp="GAME_ST_EVT_COND_VALUE" Client="NO" UseSleep="NO">
+                                <Str Str="is_fail_guild_event"/>
+                                <Str Str="=="/>
+                                <Num Num="1"/>
+                            </ToolScp>
+                            <ToolScp Scp="GAME_ST_EVT_COND_VALUE" Client="NO" UseSleep="NO">
+                                <Str Str="CLEAR"/>
+                                <Str Str="=="/>
+                                <Num Num="0"/>
+                            </ToolScp>
+                        </condList>
+                        <execList>
+                            <ToolScp Scp="MGAME_EVT_SCP_TO_MON" Client="NO" UseSleep="NO">
+                                <MGameObj List="Gen_Boss/0"/>
+                                <Str Str="GM_BK_FAIL_STOP_RUN"/>
+                            </ToolScp>
+                            <ToolScp Scp="MGAME_STAGE_CHECK_LOG_STAGEPROGRESS" Client="NO" UseSleep="NO">
+                                <Str Str="BORUTA_GUILD_RAID_RENEWAL"/>
+                                <Str Str="GuildEventFail_OtherGuildMember"/>
+                            </ToolScp>
+                            <ToolScp Scp="MGAME_GUILD_MINIGAME_EXIT" Client="NO" UseSleep="NO"/>
+                            <ToolScp Scp="MGAME_END" Client="NO" UseSleep="NO">
+                                <Num Num="1"/>
+                            </ToolScp>
+                            <ToolScp Scp="MGAME_RETURN" Client="NO" UseSleep="NO"/>
+                        </execList>
+                    </Event>
+                </StageEvents>
+            </Stage>
+            <Stage Name="Npc">
+                <ObjList>
+                    <Obj Type="Monster" MonType="154069" Pos="-711.47#311.73#-1146.40" genTime="1000" autoGen="0" objectKey="0" autoDestroy="0" propList="&apos;Name&apos; &apos;동굴 심부&apos; &apos;SimpleAI&apos; &apos;TO_VELNIASP511_PORTAL&apos; &apos;Dialog&apos; &apos;GM_BK_TO_IN_NORTH&apos; "/>
+                    <Obj Type="Monster" MonType="154069" Pos="587.20#216.98#-811.40" genTime="1000" autoGen="0" objectKey="1" autoDestroy="0" propList="&apos;Name&apos; &apos;동굴 심부&apos; &apos;SimpleAI&apos; &apos;TO_VELNIASP511_PORTAL&apos; &apos;Dialog&apos; &apos;GM_BK_TO_IN_SOUTH&apos; ">
+                        <SelfAI ActiveMessageMapInBattle="1"/>
+                    </Obj>
+                    <Obj Type="Monster" MonType="154069" Pos="-261.09#207.22#1258.40" genCount="1" maxStackCount="1" genTime="1000" objectKey="2" autoDestroy="0" propList="&apos;Name&apos; &apos;동굴 출구&apos; &apos;SimpleAI&apos; &apos;TO_VELNIASP511_PORTAL&apos; &apos;Dialog&apos; &apos;GM_BK_TO_OUT_NORTH&apos; "/>
+                    <Obj Type="Monster" MonType="154069" Pos="1064.71#207.22#921.05" genCount="1" maxStackCount="1" genTime="1000" objectKey="3" autoDestroy="0" propList="&apos;Name&apos; &apos;동굴 출구&apos; &apos;SimpleAI&apos; &apos;TO_VELNIASP511_PORTAL&apos; &apos;Dialog&apos; &apos;GM_BK_TO_OUT_SOUTH&apos; "/>
+                    <Obj Type="Monster" MonType="151041" Pos="58.45#159.76#-1773.31" angle="-79" genCount="1" genTime="20000" objectKey="4" autoDestroy="0" propList="&apos;DialogRotate&apos; &apos;1&apos; &apos;Dialog&apos; &apos;BORUTA_GUILD_RAID_RENEWAL_NPC_AUSTEJA_1&apos; &apos;MaxDialog&apos; &apos;1&apos; ">
+                        <SelfAI ActiveMessageMapInBattle="1">
+                            <StartList>
+                                <ToolScp Scp="DisableBornAni" Client="NO" UseSleep="NO"/>
+                                <ToolScp Scp="S_AI_EFFECT" Client="NO" UseSleep="NO">
+                                    <Num Num="0"/>
+                                    <Str_Arg Str="F_buff_basic025_white_line" Arg="2"/>
+                                    <Str Str="BOT"/>
+                                </ToolScp>
+                                <ToolScp Scp="S_AI_PLAYANI" Client="NO" UseSleep="NO">
+                                    <Str Str="born"/>
+                                </ToolScp>
+                            </StartList>
+                        </SelfAI>
+                    </Obj>
+                </ObjList>
+            </Stage>
+            <Stage Name="Gen_Boss" AutoStart="0">
+                <ObjList>
+                    <Obj Type="Monster" MonType="120000" Pos="346.92#207.22#1308.20" angle="-79" maxStackCount="1" genTime="20000" autoGen="0" objectKey="0" autoDestroy="0" tendency="1"/>
+                    <Obj Type="Monster" MonType="154005" Pos="857.54#207.22#865.40" genCount="1" genTime="20000" objectKey="1" propList="&apos;Name&apos; &apos;TotalManagementObj&apos; "/>
+                </ObjList>
+                <StageEvents>
+                    <Event execMS="10000" execCount="1" eventName="Boruta_gen_regen_Normal">
+                        <condList>
+                            <ToolScp Scp="MGAME_EVT_COND_MONCNT" Client="NO" UseSleep="NO">
+                                <MGameObj List="Gen_Boss/0"/>
+                                <Num Num="0"/>
+                            </ToolScp>
+                            <ToolScp Scp="GAME_ST_EVT_COND_VALUE" Client="NO" UseSleep="NO">
+                                <Str Str="SET_GUILD_ID"/>
+                                <Str Str="OVER"/>
+                                <Num Num="1"/>
+                            </ToolScp>
+                            <ToolScp Scp="GAME_ST_EVT_COND_VALUE" Client="NO" UseSleep="NO">
+                                <Str Str="SET_DAY_RECORD_1"/>
+                                <Str Str="=="/>
+                                <Num Num="1"/>
+                            </ToolScp>
+                        </condList>
+                        <execList>
+                            <ToolScp Scp="MGAME_EVT_EXEC_CREMON" Client="NO" UseSleep="NO">
+                                <MGameObjIndex List="Gen_Boss/0"/>
+                                <Num Num="1"/>
+                                <Num Num="0"/>
+                            </ToolScp>
+                            <ToolScp Scp="GAME_ST_EVT_EXEC_STAGE_START" Client="NO" UseSleep="NO">
+                                <Str Str="Fail"/>
+                            </ToolScp>
+                            <ToolScp Scp="MGAME_MSG_ICON" Client="YES" UseSleep="NO">
+                                <Str Str="드래곤 보루타가 등장했습니다"/>
+                                <Str Str="BossAppear"/>
+                                <Num Num="10"/>
+                            </ToolScp>
+                            <ToolScp Scp="GAME_EVT_OFF_BYNAME" Client="NO" UseSleep="NO">
+                                <Str Str="Boruta_gen_regen_TimeAttack"/>
+                            </ToolScp>
+                        </execList>
+                    </Event>
+                    <Event execCount="1" eventName="BossDead">
+                        <condList>
+                            <ToolScp Scp="SCR_MGAME_VALUE_CHECK_2" Client="NO" UseSleep="NO">
+                                <Str Str="CLEAR"/>
+                                <Str Str="=="/>
+                                <Num Num="1"/>
+                            </ToolScp>
+                        </condList>
+                        <execList>
+                            <ToolScp Scp="GAME_ST_EVT_EXEC_STAGE_START" Client="NO" UseSleep="NO">
+                                <Str Str="Success"/>
+                            </ToolScp>
+                            <ToolScp Scp="MGAME_EVT_SCP_TO_MON" Client="NO" UseSleep="NO">
+                                <MGameObj List="Initialize/0"/>
+                                <Str Str="SCR_GUILD_RAID_BORUTA_RENEWAL_SET_USED_DAY_RECORD_AFTER"/>
+                            </ToolScp>
+                        </execList>
+                    </Event>
+                    <Event eventName="Record_Time" execWithStart="0" isEnabled="0">
+                        <condList>
+                            <ToolScp Scp="GAME_ST_EVT_COND_VALUE" Client="NO" UseSleep="NO">
+                                <Str Str="SET_DAY_RECORD_1"/>
+                                <Str Str="=="/>
+                                <Num Num="0"/>
+                            </ToolScp>
+                        </condList>
+                        <execList>
+                            <ToolScp Scp="MGAME_EVT_SCP_TO_MON" Client="NO" UseSleep="NO">
+                                <MGameObj List="Initialize/0"/>
+                                <Str Str="SCR_GUILD_RAID_BORUTA_RENEWAL_SET_USED_DAY_RECORD_AFTER"/>
+                            </ToolScp>
+                            <ToolScp Scp="GAME_EVT_OFF" Client="NO" UseSleep="NO"/>
+                        </execList>
+                    </Event>
+                </StageEvents>
+            </Stage>
+            <Stage Name="Obb60">
+                <ObjList>
+                    <Obj Type="Monster" MonType="154116" Pos="-239.53#207.22#991.26" angle="-15" genCount="1" genTime="1" objectKey="0"/>
+                    <Obj Type="Monster" MonType="154116" Pos="415.02#207.22#1365.87" angle="-12" genCount="1" genTime="1" objectKey="1"/>
+                    <Obj Type="Monster" MonType="154116" Pos="248.06#207.22#1087.44" angle="170" genCount="1" genTime="1" objectKey="2"/>
+                    <Obj Type="Monster" MonType="154116" Pos="-145.72#207.22#1484.27" angle="-8" genCount="1" genTime="1" objectKey="3"/>
+                    <Obj Type="Monster" MonType="154116" Pos="-377.59#207.22#1286.16" angle="-20" genCount="1" genTime="1" objectKey="4"/>
+                    <Obj Type="Monster" MonType="154116" Pos="-359.99#207.22#1246.32" genCount="1" genTime="1" objectKey="5"/>
+                    <Obj Type="Monster" MonType="154116" Pos="-342.86#207.22#889.34" angle="76" genCount="1" genTime="1" objectKey="6"/>
+                    <Obj Type="Monster" MonType="154116" Pos="-366.73#207.22#873.41" angle="-11" genCount="1" genTime="1" objectKey="7"/>
+                    <Obj Type="Monster" MonType="154116" Pos="-372.80#207.22#896.05" angle="79" genCount="1" genTime="1" objectKey="8"/>
+                    <Obj Type="Monster" MonType="154116" Pos="3.06#207.22#887.03" angle="81" genCount="1" genTime="1" objectKey="9"/>
+                    <Obj Type="Monster" MonType="154116" Pos="-350.51#207.22#1694.63" angle="-20" genCount="1" genTime="1" objectKey="10"/>
+                    <Obj Type="Monster" MonType="154116" Pos="-373.28#207.22#1647.03" angle="-32" genCount="1" genTime="1" objectKey="11"/>
+                </ObjList>
+            </Stage>
+            <Stage Name="Obb40">
+                <ObjList>
+                    <Obj Type="Monster" MonType="154117" Pos="-51.16#207.22#1401.26" angle="-11" genCount="1" genTime="1" objectKey="0"/>
+                    <Obj Type="Monster" MonType="154117" Pos="-120.23#207.22#1383.14" angle="165" genCount="1" genTime="1" objectKey="1"/>
+                    <Obj Type="Monster" MonType="154117" Pos="957.43#207.22#1401.20" angle="-101" genCount="1" genTime="1" objectKey="2"/>
+                    <Obj Type="Monster" MonType="154117" Pos="519.72#207.22#1235.90" angle="-6" genCount="1" genTime="1" objectKey="3"/>
+                    <Obj Type="Monster" MonType="154117" Pos="149.86#207.22#1256.18" angle="-13" genCount="1" genTime="1" objectKey="4"/>
+                    <Obj Type="Monster" MonType="154117" Pos="127.84#207.22#1514.06" angle="-15" genCount="1" genTime="1" objectKey="5"/>
+                    <Obj Type="Monster" MonType="154117" Pos="478.57#207.22#1634.87" genCount="1" genTime="1" objectKey="6"/>
+                    <Obj Type="Monster" MonType="154117" Pos="503.25#207.22#1601.39" genCount="1" genTime="1" objectKey="7"/>
+                    <Obj Type="Monster" MonType="154117" Pos="958.82#207.22#1411.33" angle="75" genCount="1" genTime="1" objectKey="8"/>
+                </ObjList>
+            </Stage>
+            <Stage Name="Obb25">
+                <ObjList>
+                    <Obj Type="Monster" MonType="154118" Pos="-90.57#207.22#951.52" angle="-12" genCount="1" genTime="1" objectKey="0"/>
+                    <Obj Type="Monster" MonType="154118" Pos="909.61#207.22#1073.04" genCount="1" genTime="1" objectKey="1"/>
+                    <Obj Type="Monster" MonType="154118" Pos="917.92#207.22#1103.15" genCount="1" genTime="1" objectKey="2"/>
+                    <Obj Type="Monster" MonType="154118" Pos="907.75#207.22#1095.68" genCount="1" genTime="1" objectKey="3"/>
+                    <Obj Type="Monster" MonType="154118" Pos="456.87#207.22#1210.13" angle="-14" genCount="1" genTime="1" objectKey="4"/>
+                </ObjList>
+            </Stage>
+            <Stage Name="Success" AutoStart="0">
+                <StartScpList>
+                    <ToolScp Scp="MGAME_SET_RAID_ICON" Client="NO" UseSleep="NO">
+                        <Str Str="드래곤 보루타를 제압했습니다{nl}보상이 지급됩니다"/>
+                        <Str Str="raid_clear"/>
+                        <Num Num="10"/>
+                    </ToolScp>
+                    <ToolScp Scp="MGAME_SET_QUEST_NAME" Client="NO" UseSleep="NO">
+                        <Str Str="베다 고원으로 이동"/>
+                    </ToolScp>
+                    <ToolScp Scp="MGAME_SET_TIMEOUT" Client="NO" UseSleep="NO">
+                        <Num Num="60"/>
+                    </ToolScp>
+                </StartScpList>
+                <ObjList/>
+                <StageEvents>
+                    <Event execCount="1" eventName="Success">
+                        <condList>
+                            <ToolScp Scp="GAME_ST_EVT_COND_TIMECHECK" Client="NO" UseSleep="NO">
+                                <Num Num="10"/>
+                            </ToolScp>
+                        </condList>
+                        <execList>
+                            <ToolScp Scp="MGAME_GUILD_REWARD" Client="NO" UseSleep="NO"/>
+                            <ToolScp Scp="GAME_ST_EVT_EXEC_STAGE_CLEAR" Client="NO" UseSleep="NO">
+                                <Str Str="Fail"/>
+                            </ToolScp>
+                        </execList>
+                    </Event>
+                    <Event execCount="1" eventName="End">
+                        <condList>
+                            <ToolScp Scp="GAME_ST_EVT_COND_TIMECHECK" Client="NO" UseSleep="NO">
+                                <Num Num="60"/>
+                            </ToolScp>
+                        </condList>
+                        <execList>
+                            <ToolScp Scp="MGAME_END" Client="NO" UseSleep="NO">
+                                <Num Num="1"/>
+                            </ToolScp>
+                            <ToolScp Scp="MGAME_RETURN" Client="NO" UseSleep="NO"/>
+                        </execList>
+                    </Event>
+                </StageEvents>
+            </Stage>
+            <Stage Name="Fail" AutoStart="0">
+                <StartScpList>
+                    <ToolScp Scp="MGAME_SET_QUEST_NAME" Client="NO" UseSleep="NO">
+                        <Str Str="제한 시간"/>
+                    </ToolScp>
+                    <ToolScp Scp="MGAME_SET_TIMEOUT" Client="NO" UseSleep="NO">
+                        <Num Num="1200"/>
+                    </ToolScp>
+                </StartScpList>
+                <ObjList/>
+                <StageEvents>
+                    <Event execCount="1" eventName="TimeOut">
+                        <condList>
+                            <ToolScp Scp="GAME_ST_EVT_COND_TIMECHECK" Client="NO" UseSleep="NO">
+                                <Num Num="1205"/>
+                            </ToolScp>
+                        </condList>
+                        <execList>
+                            <ToolScp Scp="GAME_ST_EVT_EXEC_VALUE" Client="NO" UseSleep="NO">
+                                <Str Str="TIME_OUT_KILL"/>
+                                <Num Num="1"/>
+                            </ToolScp>
+                            <ToolScp Scp="MGAME_EVT_SCP_TO_MON" Client="NO" UseSleep="NO">
+                                <MGameObj List="Gen_Boss/0"/>
+                                <Str Str="GM_BK_FAIL_STOP_RUN"/>
+                            </ToolScp>
+                            <ToolScp Scp="GAME_ST_EVT_FAIL" Client="NO" UseSleep="NO">
+                                <Str Str="제한 시간을 초과하였습니다"/>
+                                <Str Str=""/>
+                            </ToolScp>
+                            <ToolScp Scp="GAME_ST_EVT_EXEC_STAGE_CLEAR" Client="NO" UseSleep="NO">
+                                <Str Str="Success"/>
+                            </ToolScp>
+                            <ToolScp Scp="GAME_ST_EVT_EXEC_STAGE_CLEAR" Client="NO" UseSleep="NO">
+                                <Str Str="Gen_Boss"/>
+                            </ToolScp>
+                            <ToolScp Scp="MGAME_EVT_SCP_TO_MON" Client="NO" UseSleep="NO">
+                                <MGameObj List="Initialize/0"/>
+                                <Str Str="SCR_GUILD_RAID_BORUTA_RENEWAL_NPC_PROP_RESET"/>
+                            </ToolScp>
+                            <ToolScp Scp="GAME_ST_EVT_EXEC_STAGE_START" Client="NO" UseSleep="NO">
+                                <Str Str="FailEnd"/>
+                            </ToolScp>
+                            <ToolScp Scp="MGAME_GUILD_MINIGAME_EXIT" Client="NO" UseSleep="NO"/>
+                            <ToolScp Scp="MGAME_RETURN" Client="NO" UseSleep="NO"/>
+                        </execList>
+                    </Event>
+                    <Event execCount="1" eventName="Left_10M">
+                        <condList>
+                            <ToolScp Scp="GAME_ST_EVT_COND_TIMECHECK" Client="NO" UseSleep="NO">
+                                <Num Num="600"/>
+                            </ToolScp>
+                        </condList>
+                        <execList>
+                            <ToolScp Scp="MGAME_MSG_ICON" Client="YES" UseSleep="NO">
+                                <Str Str="제한 시간 10분 남았습니다"/>
+                                <Str Str="!"/>
+                                <Num Num="15"/>
+                            </ToolScp>
+                            <ToolScp Scp="MGAME_TIMEOUT_UPDATE_FORCE" Client="NO" UseSleep="NO">
+                                <Str Str="Fail"/>
+                            </ToolScp>
+                        </execList>
+                    </Event>
+                    <Event execCount="1" eventName="Left_5M">
+                        <condList>
+                            <ToolScp Scp="GAME_ST_EVT_COND_TIMECHECK" Client="NO" UseSleep="NO">
+                                <Num Num="900"/>
+                            </ToolScp>
+                        </condList>
+                        <execList>
+                            <ToolScp Scp="MGAME_MSG_ICON" Client="YES" UseSleep="NO">
+                                <Str Str="제한 시간 5분 남았습니다"/>
+                                <Str Str="5Min"/>
+                                <Num Num="15"/>
+                            </ToolScp>
+                            <ToolScp Scp="MGAME_TIMEOUT_UPDATE_FORCE" Client="NO" UseSleep="NO">
+                                <Str Str="Fail"/>
+                            </ToolScp>
+                        </execList>
+                    </Event>
+                    <Event execCount="1" eventName="NoPC">
+                        <condList>
+                            <ToolScp Scp="MGAME_EVT_COND_PCCNT" Client="NO" UseSleep="NO">
+                                <Num Num="0"/>
+                            </ToolScp>
+                        </condList>
+                        <execList>
+                            <ToolScp Scp="MGAME_GUILD_MINIGAME_EXIT" Client="NO" UseSleep="NO"/>
+                            <ToolScp Scp="MGAME_EVT_SCP_TO_MON" Client="NO" UseSleep="NO">
+                                <MGameObj List="Initialize/0"/>
+                                <Str Str="SCR_GUILD_RAID_BORUTA_RENEWAL_NPC_PROP_RESET"/>
+                            </ToolScp>
+                            <ToolScp Scp="GAME_ST_EVT_FAIL" Client="NO" UseSleep="NO">
+                                <Str Str="모든 플레이어가 전투 불능 상태가 되었습니다."/>
+                                <Str Str=""/>
+                            </ToolScp>
+                            <ToolScp Scp="GAME_ST_EVT_EXEC_STAGE_CLEAR" Client="NO" UseSleep="NO">
+                                <Str Str="Success"/>
+                            </ToolScp>
+                            <ToolScp Scp="GAME_ST_EVT_EXEC_STAGE_CLEAR" Client="NO" UseSleep="NO">
+                                <Str Str="Gen_Boss"/>
+                            </ToolScp>
+                            <ToolScp Scp="GAME_ST_EVT_EXEC_STAGE_START" Client="NO" UseSleep="NO">
+                                <Str Str="FailEnd"/>
+                            </ToolScp>
+                        </execList>
+                    </Event>
+                    <Event eventName="Left_1M">
+                        <condList>
+                            <ToolScp Scp="GAME_ST_EVT_COND_TIMECHECK" Client="NO" UseSleep="NO">
+                                <Num Num="1140"/>
+                            </ToolScp>
+                        </condList>
+                        <execList>
+                            <ToolScp Scp="MGAME_MSG_ICON" Client="YES" UseSleep="NO">
+                                <Str Str="제한 시간 1분 남았습니다"/>
+                                <Str Str="1Min"/>
+                                <Num Num="10"/>
+                            </ToolScp>
+                            <ToolScp Scp="MGAME_TIMEOUT_UPDATE_FORCE" Client="NO" UseSleep="NO">
+                                <Str Str="Fail"/>
+                            </ToolScp>
+                        </execList>
+                    </Event>
+                    <Event eventName="Left_30S">
+                        <condList>
+                            <ToolScp Scp="GAME_ST_EVT_COND_TIMECHECK" Client="NO" UseSleep="NO">
+                                <Num Num="1170"/>
+                            </ToolScp>
+                        </condList>
+                        <execList>
+                            <ToolScp Scp="MGAME_MSG_ICON" Client="YES" UseSleep="NO">
+                                <Str Str="제한 시간 30초 남았습니다"/>
+                                <Str Str="!"/>
+                                <Num Num="10"/>
+                            </ToolScp>
+                            <ToolScp Scp="MGAME_TIMEOUT_UPDATE_FORCE" Client="NO" UseSleep="NO">
+                                <Str Str="Fail"/>
+                            </ToolScp>
+                        </execList>
+                    </Event>
+                    <Event execCount="1" eventName="FailStop">
+                        <condList>
+                            <ToolScp Scp="GAME_ST_EVT_COND_TIMECHECK" Client="NO" UseSleep="NO">
+                                <Num Num="1200"/>
+                            </ToolScp>
+                        </condList>
+                        <execList>
+                            <ToolScp Scp="MGAME_EVT_SCP_TO_MON" Client="NO" UseSleep="NO">
+                                <MGameObj List="Gen_Boss/0"/>
+                                <Str Str="SCR_GUILD_RAID_BORUTA_RENEWAL_FAIL_STOP_RUN"/>
+                            </ToolScp>
+                        </execList>
+                    </Event>
+                </StageEvents>
+            </Stage>
+            <Stage Name="FailEnd" AutoStart="0">
+                <StartScpList>
+                    <ToolScp Scp="MGAME_SET_QUEST_NAME" Client="NO" UseSleep="NO">
+                        <Str Str="베다 고원으로 이동"/>
+                    </ToolScp>
+                    <ToolScp Scp="MGAME_SET_TIMEOUT" Client="NO" UseSleep="NO">
+                        <Num Num="30"/>
+                    </ToolScp>
+                </StartScpList>
+                <ObjList/>
+                <StageEvents>
+                    <Event execCount="1" eventName="Out">
+                        <condList>
+                            <ToolScp Scp="GAME_ST_EVT_COND_TIMECHECK" Client="NO" UseSleep="NO">
+                                <Num Num="1"/>
+                            </ToolScp>
+                        </condList>
+                        <execList>
+                            <ToolScp Scp="MGAME_END" Client="NO" UseSleep="NO">
+                                <Num Num="1"/>
+                            </ToolScp>
+                        </execList>
+                    </Event>
+                    <Event execCount="1" eventName="EndLog">
+                        <execList>
+                            <ToolScp Scp="MGAME_EVT_SCP_TO_MON" Client="NO" UseSleep="NO">
+                                <MGameObj List="Initialize/0"/>
+                                <Str Str="SCR_GUILD_RAID_BORUTA_RENEWAL_END"/>
+                            </ToolScp>
+                        </execList>
+                    </Event>
+                    <Event execCount="1" eventName="FailStop">
+                        <execList>
+                            <ToolScp Scp="MGAME_EVT_SCP_TO_MON" Client="NO" UseSleep="NO">
+                                <MGameObj List="Gen_Boss/0"/>
+                                <Str Str="SCR_GUILD_RAID_BORUTA_RENEWAL_FAIL_STOP_RUN"/>
+                            </ToolScp>
+                        </execList>
+                    </Event>
+                </StageEvents>
+            </Stage>
+        </StageList>
+    </Game>
+</GameList>

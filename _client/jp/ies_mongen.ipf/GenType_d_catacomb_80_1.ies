@@ -16,3 +16,4 @@ ClassID,GenType,Lv,Range,GenRange,RespawnTime,MaxPop,Minimap,Hide,UseAIOufOfPC,A
 16,16,0,0,1,0,5,0,0,0,1,0,0,"ERD_Rudas_loxodon","","","","","","","CATACOMB_80_1_MON_AI","","","","NO","YES","NO","Monster","","","","Attack"
 17,17,0,0,1,0,5,0,0,0,1,0,0,"ERD_GoblinWarrior_blue","","","","","","","CATACOMB_80_1_MON_AI","","","","NO","YES","NO","Monster","","","","Attack"
 18,18,1,40,100,20000,15,0,0,0,1,0,0,"rootcrystal_05","","","","","MON_TORCH","","","","","","NO","YES","NO","RootCrystal","","","",""
+19,19,1,40,1,60000,1,1,0,0,0,0,0,"npc_grimmark","[그림마크 마스터]{nl}코르빈","","","","","","","NPC_GRIMMARK","","","NO","YES","NO","Neutral","","","",""

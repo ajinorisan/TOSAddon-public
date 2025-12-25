@@ -37,3 +37,4 @@ ClassID,Upgrade_value,Owned_Value,UpgradeItemValue,ClassName,Group_ID,Name,Stat_
 36,77,432,2,"lada_upgrade","Lada_01","라다","DR_CONST","MATK_BM","cupole_rankup_UR"
 37,77,4320,2,"naktis_upgrade","Naktis_01","나크티스","BLK_BM","DEF_BM","cupole_rankup_UR"
 38,77,4320,2,"zesty_upgrade","Zesty_01","제스티","BLK_BREAK_BM","MDEF_BM","cupole_rankup_UR"
+39,77,162,2,"sugargabia_upgrade","SugarGabia_01","과일사탕 가비야","HR_BM","CRTHR_BM","cupole_rankup_UR"

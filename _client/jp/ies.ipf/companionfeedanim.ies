@@ -55,3 +55,4 @@ ClassID,Sleep,FeedCreateTimeMS,FeedDist,ClassName,ComName,Type,PCAnim,ComAnim,Fe
 55,1500,0,0,"55","pet_ep13strawberry","Normal","FEED2","FEED","","artefact_redfish_set","artefact_redfish_pc.xsm",""
 56,1500,0,0,"56","pet_mermaidpopo","Normal","FEED2","FEED","","artefact_ham_set","artefact_ham_set.xsm",""
 57,1500,0,0,"57","pet_mermaidpopo2","Normal","FEED2","FEED","","artefact_ham_set","artefact_ham_set.xsm",""
+58,1500,0,0,"58","pet_harpseal","Normal","FEED2","FEED","","artefact_ham_set","artefact_ham_set.xsm",""

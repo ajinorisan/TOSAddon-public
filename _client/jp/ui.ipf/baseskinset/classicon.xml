@@ -114,5 +114,6 @@
 		<image name="c_archer_BlitzHunter" file="\icon\class_archer2.tga" imgrect="100 0 100 100" CMM_Caption="블리츠 헌터"/>
 		<image name="c_cleric_AetherBlader" file="\icon\class_cleric.tga" imgrect="300 400 100 100" CMM_Caption="에테르 블레이더"/>
 		<image name="c_wizard_Hermit" file="\icon\class_wizard.tga" imgrect="300 400 100 100" CMM_Caption="허밋"/>
+		<image name="c_scout_Grimmark" file="\icon\class_scout.tga" imgrect="0 200 100 100" CMM_Caption="그림마크"/>
 	</imagelist>
 </skinset>

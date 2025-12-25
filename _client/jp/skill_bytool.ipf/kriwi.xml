@@ -119,7 +119,7 @@
                     <Str Str="DivineStigma_Damage_Debuff"/>
                     <Num FuncTxt="return obj.Level;" Num="0" UseFunc="1"/>
                     <Num Num="0"/>
-                    <Num Num="15000"UseFunc="1" FuncTxt="local value = 5000 + obj.Level * 1000;
+                    <Num Num="15000" UseFunc="1" FuncTxt="local value = 5000 + obj.Level * 1000;
 					return value;"/>
                     <Num Num="1"/>
                     <Num Num="100"/>

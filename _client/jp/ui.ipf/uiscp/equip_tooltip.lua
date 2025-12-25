@@ -1214,7 +1214,7 @@ function DRAW_EQUIP_RANDOM_ICHOR(invitem, property_gbox, inner_yPos)
 			
 			local equipGroup = TryGetProp(invitem, 'EquipGroup', 'None')
 			if TryGetProp(invitem, 'UseLv', 0) >= 470 and IS_GODDESS_ICOR_SPOT(equipGroup) == true then
-				min, max = shared_item_goddess_icor.get_option_value_range_icor (invitem, propItem[propName])
+				min, max = shared_item_goddess_icor.get_option_value_range_icor (invitem, propItem[propName], true)
 			else
 				min, max = GET_RANDOM_OPTION_VALUE_VER2(invitem, propItem[propName])	
 			end			
@@ -1239,7 +1239,7 @@ function DRAW_EQUIP_RANDOM_ICHOR(invitem, property_gbox, inner_yPos)
 					strInfo = ABILITY_DESC_NO_PLUS(opName, propItem[propValue], 0);
 				end
 				
-				if max > 0 and max > current_value and (keyboard.IsKeyPressed('LALT') == 1 or keyboard.IsKeyDown('LALT') == 1) then
+				if max > 0 and max > current_value and (keyboard.IsKeyPressed('LALT') == 1 or keyboard.IsKeyDown('LALT') == 1) then			
 					strInfo = strInfo .. ' {@st66b}{#e28500}{ol}(' .. GET_COMMAED_STRING(max) .. ')'				
 				end
 			else
@@ -1507,8 +1507,7 @@ function DRAW_popoboost_INFO(invitem, desc)
 		return desc
 	end
 
-	local PopoItemProp = GET_POPOBOOST_ITEMPROP();
-	if PopoItemProp > 0 and popo_count == PopoItemProp then
+	if popo_count then
 		local text = '{@st41b}{#00ee00}'	
 		text = text .. ScpArgMsg('desc_popoboost_item', 'count', popo_count)
 	
@@ -3737,7 +3736,7 @@ function ITEM_TOOLTIP_EARRING(tooltipframe, invitem, strarg, usesubframe)
 end
 
 -- 가디스 아이커
-function DRAW_EQUIP_GODDESS_ICOR(invitem, property_gbox, inner_yPos)
+function DRAW_EQUIP_GODDESS_ICOR(invitem, property_gbox, inner_yPos)	
 	local init_yPos = inner_yPos;
 	
 	local reroll_index = TryGetProp(invitem, 'RerollIndex', 0)
@@ -3772,7 +3771,7 @@ function DRAW_EQUIP_GODDESS_ICOR(invitem, property_gbox, inner_yPos)
 				cls_msg = '{@st47}{s15}{#00EEEE}' .. cls_msg .. '{/}{/}{/}'
 			end
 			local opName = string.format("%s %s", ClMsg(clientMessage), cls_msg);	
-			local _, max = shared_item_goddess_icor.get_option_value_range_icor(invitem, propItem[propName])	
+			local _, max = shared_item_goddess_icor.get_option_value_range_icor(invitem, propItem[propName], true)	
 			
 			local strInfo = nil
 			if max ~= nil and max > 0 then

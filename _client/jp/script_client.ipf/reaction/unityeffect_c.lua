@@ -123,3 +123,31 @@ function C_PAD_GROUND_EFFECT(actor, obj, pad_guid, eft_name, eft_scale, fix_heig
 	
 	effect.PlayPadForceUnityEffect(actor, eft_name, eft_scale, 0, 0, 0, fix_height, pad_guid);
 end
+
+function C_FORCE_UNITY_EFT(actor, obj, eft_name, eft_scale, shoot_sound, fin_eft_name, fin_eft_scale, finish_sound, angle_x, angle_y, angle_z, destroy, speed, easing, gravity, angle, hit_index, collrange, create_length, raidus_speed, is_last_force, use_hit_eft, link_tex_name, dist, offset_angle, height, delay_start, fix_ver_dir)
+    local custom_target = 0
+    if use_hit_eft == nil then use_hit_eft = 1 end
+    if raidus_speed == nil then raidus_speed = 0.0 end
+    if create_length == nil then create_length = 0.0 end
+    if link_tex_name == nil then link_tex_name ="None" end
+    if delay_start == nil then delay_start = 0 end
+    if fix_ver_dir == nil then fix_ver_dir = 0 end
+
+    local add_x, add_y, add_z = 0, 0, 0
+    if dist ~= nil and offset_angle ~= nil and height ~= nil then
+        if dist > 0 then
+            offset_angle = DegToRad(offset_angle)
+            add_x = math.cos(offset_angle) * dist
+            add_y = height
+            add_z = math.sin(offset_angle) * dist
+        end
+    end
+
+    local ret = actor:GetForce():PlayForce_Tool_UnityEffect(eft_name, eft_scale, shoot_sound, fin_eft_name, fin_eft_scale, finish_sound, angle_x, angle_y, angle_z, destroy, speed, easing, gravity, angle, hit_index, collrange, create_length, raidus_speed, use_hit_eft, custom_target, link_tex_name, delay_start, add_x, add_y, add_z, fix_ver_dir)
+    
+    if is_last_force == 1 or is_last_force == nil then
+        actor:EnableSkillCancel(1)
+    end
+
+    return ret
+end

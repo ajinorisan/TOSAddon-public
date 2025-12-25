@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSPY v2004 rel. 3 U (http://www.xmlspy.com) by imc (imc) -->
+<uitile name="guild_mission_info_gauge" x="0" y="0" width="700" height="170" create="open">
+	<skin frameskin="none" draw="false"/>
+	<frame title="" layout_gravity="center center" margin="-30 250 0 0" piptype="top"/>
+	<input moveable="true" hittestframe="true"/>
+	<option visible="false" hideable="false" closebutton="false" alwaysVisible="true"/>
+	<controls>
+		<picture name="stage_bg_pic" rect="0 0 251 112" margin="50 0 0 0" layout_gravity="left center" hittest="false" image="challenge_gauge_black" stretch="false"/>
+		<richtext name="stage_text" rect="0 0 120 30" margin="90 -45 0 0" format="{@st205_stage}%s {/}" param1="stage" param1_def="1" textalign="center center" layout_gravity="left center"/>
+		<picture name="stage_text_pic" rect="0 0 291 97" margin="80 50 0 0" layout_gravity="left center" hittest="false" image="hero_txt_stage" stretch="false"/>
+		<picture name="gauge_left" rect="0 0 7 33" margin="158 7 0 0" layout_gravity="left center" hittest="false" image="challenge_gauge_left" stretch="true"/>
+		<picture name="gauge_right" rect="0 0 7 33" margin="658 7 0 0" layout_gravity="left center" hittest="false" image="challenge_gauge_right" stretch="true"/>
+		<gauge name="gauge" rect="0 0 495 33" margin="165 7 0 0" layout_gravity="left center" drawlastpoint="false" ratewidth="true" skin="hero_guage" textalign1="center center" textalign2="left center" textfont1="mygauge" textfont2="mygauge" textoffset1="0 4" textoffset2="4 4" hittest="false"/>
+		<picture name="max_pic" rect="0 0 70 40" margin="55 10 0 0" layout_gravity="center center" hittest="false" image="skill_max_img" stretch="true"/>
+		<picture name="boss_icon_pic" rect="0 0 45 45" margin="210 -33 0 0" layout_gravity="center center" hittest="false" image="hero_bosscountdown" stretch="true"/>
+		<richtext name="boss_title_text" rect="0 0 100 50" margin="210 -65 0 0" layout_gravity="center center" format="%s%s" hittest="false" param1="font" param1_def="{@st55_hero_count}{s15}" param2="text" param2_def="DESTROYER" textalign="center center" resizebytext="false" fixwidth="true"/>
+		<richtext name="boss_time_text" rect="0 0 70 80" margin="300 -33 0 0" layout_gravity="center center" format="{@st55_hero_count}{s18}%s" hittest="false" param1="time" param1_def="0" textalign="center center" resizebytext="false" fixwidth="true"/>
+	</controls>
+</uitile>

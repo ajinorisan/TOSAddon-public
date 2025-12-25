@@ -1874,8 +1874,17 @@ function CRAFT_ITEM_ALL(itemSet, btn)
 
 		if check_reinforce == false and check_transcend == false then
 			if isAlreadyAdd == 0 and tempinvItem.isLockState == false then
-				invItemadd = tempinvItem
-				break
+				local item_obj = GetIES(tempinvItem:GetObject())
+				local notrade = false;
+				if (TryGetProp(item_obj, 'StringArg', 0) == "snigo_costume" 
+				or TryGetProp(item_obj, 'StringArg2', 0) == "snigo_costume")
+				and TryGetProp(item_obj, 'TeamBelonging', 0) == 1 then
+					notrade = true;
+				end
+				if not notrade then
+					invItemadd = tempinvItem
+					break
+				end 
 			end
 		else
 			if check_reinforce == true and check_transcend == true then

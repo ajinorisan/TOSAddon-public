@@ -113,8 +113,10 @@ function SET_BLACK_MARKET_ICON(frame, itemCls, active_id)
 end
 
 function SET_BALCK_MARKET_TOOLTIP(icon, itemCls)
-    SET_ITEM_TOOLTIP_BY_NAME(icon, itemCls.ClassName)
-    icon:SetTooltipOverlap(1)
+    if itemCls ~= nil then
+        SET_ITEM_TOOLTIP_BY_NAME(icon, itemCls.ClassName)
+        icon:SetTooltipOverlap(1)
+    end
 end
 
 function SET_BALCK_MARKET_ITEM_NAME(frame, itemCls, active_id)    

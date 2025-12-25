@@ -169,7 +169,6 @@ function get_skill_conversion_info(self, skill, propname)
 end
 ------
 
-
 function is_skill_conversion(skill)
     if skill ~= nil then
         local class_name = TryGetProp(skill, "ClassName", "None");
@@ -181,4 +180,22 @@ function is_skill_conversion(skill)
     return false;
 end
 
+function get_spearmaster_atk_skill_list()
+    local list = {
+        'SpearMaster_WildTigerSpear',
+        'SpearMaster_RushSpear',
+        'SpearMaster_FlyingSerpentFall',
+        'SpearMaster_UniqueSpearDance',
+    }
+    return list
+end
+
+function get_lama_conversion_skill_list()
+    local list = {
+        "Lama_StrongfistHanginglegs",
+        "Lama_PointkickEarthshock",
+        "Lama_FlyingkickSuddenkick",
+    }
+    return list
+end
 

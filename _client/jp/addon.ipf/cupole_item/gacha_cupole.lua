@@ -75,6 +75,7 @@ function SET_GACHA_RESULT(frame, Result, dx, dy, offset, index)
         return dx, dy;
     end
 
+
     local Gacha_BackBox = GET_CHILD(Ctrl, "Gacha_BackBox")
     local Gacha_GroupBox = GET_CHILD(Ctrl, "Gacha_GroupBox")
     local Gacha_FrontFrameBox = GET_CHILD(Gacha_GroupBox, "Gacha_FrontFrameBox")
@@ -113,6 +114,7 @@ function SET_GACHA_RESULT(frame, Result, dx, dy, offset, index)
     return dx, dy;
 end
 
+
 -- 프레임 등급 설정
 function SET_FRAME_GRADE(frame, grade, imgname)
     local name = "";
@@ -150,17 +152,20 @@ function OPEN_CUPOLE_PICKUP_TAB()
     local gachaBG = managerTab:GetChild("gachaBG")
     local pickUpBG = managerTab:GetChild("pickUpBG")
     local GachaName= GET_CHILD_RECURSIVELY(pickUpBG, "GachaName")
+    local pickupSelectBG = GET_CHILD_RECURSIVELY(frame, "pickupSelectBG")
 
-    local pickuplist = GET_CURRENT_PICKUP_KUPOLE()
-    local imc_random = IMCRandom(1, #pickuplist)
-    local name = TryGetProp(pickuplist[imc_random],"ClassName", "None");
-    CUPOLE_SPINE_ANIMAITON_SET(pickUpBG, name);
     
     gachaBG:ShowWindow(0);
     pickUpBG:ShowWindow(1);
 
     SET_CUPOLE_PICKUP_LIST(pickUpBG, 0);
     SET_CURRENT_CUPOLE_PICKUP_ITEM_VALUE_COLOR(frame)
+
+    local pickuplist = GET_CURRENT_PICKUP_KUPOLE()
+    local imc_random = IMCRandom(1, #pickuplist)
+    local name = TryGetProp(pickuplist[imc_random],"ClassName", "None");
+    CUPOLE_SPINE_ANIMAITON_SET(pickUpBG, name);
+
 
     local cls = GET_KUPOLE_CLS_BY_CLASSNAME(name)
     local Dec_Name = TryGetProp(cls, "Dec_Name", "None")
@@ -174,7 +179,7 @@ function SET_CUPOLE_PICKUP_LIST(frame, initY)
     local pickupSelectBG = GET_CHILD_RECURSIVELY(frame, "pickupSelectBG")
     local pickuplist, cnt =  GetClassList("cupole_pickuplist");
     local y = initY;
-    
+     
     for i = 0, cnt - 1 do
         local pickupcls = GetClassByIndexFromList(pickuplist, i)
         local nation = TryGetProp(pickupcls, "Nation", "None");
@@ -190,13 +195,16 @@ function SET_CUPOLE_PICKUP_LIST(frame, initY)
                 local RemainTime = date_time.get_lua_datetime_from_str(EndTime) - date_time.get_lua_datetime_from_str(nowstr)
 
                 if StartAfterTime < 0 and RemainTime > 0 then
-                    local PickupClsName = TryGetProp(pickupcls, "ClassName", "None")
-                    local ctrl = pickupSelectBG:CreateOrGetControlSet("cupole_pickup_list", PickupClsName, 0, y * OFFSET + GACHA_DEFAULT_Y);
+                    local PickupGroup = TryGetProp(pickupcls, "Group", "None")
+                    local ctrl = pickupSelectBG:CreateOrGetControlSet("cupole_pickup_list", PickupGroup, 0, y * OFFSET + GACHA_DEFAULT_Y);
                     local Banner = GET_CHILD_RECURSIVELY(ctrl, "Banner");
                     local Disable_Shadow = GET_CHILD_RECURSIVELY(ctrl, "disable_shadow");
                     local Gacha_GroupBox = GET_CHILD_RECURSIVELY(ctrl, "Gacha_GroupBox")
                     local TimeText = GET_CHILD_RECURSIVELY(ctrl, "Time");
                     ctrl:SetGravity(ui.CENTER_HORZ, ui.TOP);
+                    Banner:SetEventScript(ui.LBUTTONUP, "GACHA_PICKUP_LIST_CHANGE_CLICK");
+                    Banner:SetEventScriptArgNumber(ui.LBUTTONUP, y);
+                    ctrl:EnableHitTest(1);
 
                     local BannerImageName = TryGetProp(pickupcls,"BannerImage", "None");
                     Banner:SetImage(BannerImageName);
@@ -226,6 +234,30 @@ local function IsValidRange(index, min, max)
             return false;
     end
     return true;
+end
+
+function GACHA_PICKUP_LIST_CHANGE_CLICK(frame, ctrl, argStr, argNum)
+    local cupole_item = frame:GetTopParentFrame();
+    local pickupSelectBG = GET_CHILD_RECURSIVELY(cupole_item,"pickupSelectBG")
+    local ChildCnt = pickupSelectBG:GetChildCount();
+    local index = pickupSelectBG:GetUserIValue("CURRENT_GACHA_INDEX");
+    local selidx = argNum;
+
+    if pickupSelectBG:HaveUpdateScript("UPDATE_DEALY_FUNCTION") == true then
+        return;
+    else
+        pickupSelectBG:RunUpdateScript("UPDATE_DEALY_FUNCTION",0.2)
+    end
+
+    if IsValidRange(index, 0, ChildCnt) == false then
+        return;
+    end
+
+    if IsValidRange(selidx, 0, ChildCnt) == true then
+        pickupSelectBG:SetUserValue("CURRENT_GACHA_INDEX", selidx);
+    end
+
+    TOGGLE_DISABLE_SHADOW(pickupSelectBG, selidx)
 end
 
 function GACHA_PICKUP_LIST_CHANGE(frame, ctrl, argStr, wheel)
@@ -274,6 +306,7 @@ function TOGGLE_DISABLE_SHADOW(frame, TargetIndex)
             else
                 Disable_Shadow:ShowWindow(0);
                 GACHA_SELECT_STATE(Ctrl, 1)
+                frame:SetUserValue("CURRENT_GACHA_NAME", Ctrl:GetName());
             end
             Ctrl:SetPos(0, OFFSET * (i + 1) - (OFFSET * TargetIndex) + GACHA_DEFAULT_Y);
         end
@@ -327,9 +360,15 @@ function CUPOLE_GACHA_START(argNum)
         ui.SysMsg(ClMsg('NotEnoughCupoleTicket'));
         return;
     end
+    local frame = ui.GetFrame("cupole_item");
+    local pickupSelectBG = GET_CHILD_RECURSIVELY(frame, "pickupSelectBG")
+    local Group = pickupSelectBG:GetUserValue("CURRENT_GACHA_NAME");
+
+    local clsid = GET_PICKUP_CLASSID_BY_GROUP(Group)
+    
     local guid = item:GetIESID()
     local type = argNum -- 0:단차 1:10연차 2:픽업
-    type = type .. ' 10'
+    type = type .. ' 10'..' '..clsid;
     pc.ReqExecuteTx_Item("CUPOLE_RECRUIT", guid, type)
     REMOVE_ALL_CUPOLE_UIMODEL();
 
@@ -463,3 +502,22 @@ function EXEC_CUPOLE_GACHA_AUTO_OPEND(frame)
     end
     return 0;
 end
+
+-- group을 입력받아 해당 국가및, 그룹에 맞는 cupole_pickuplist의 ClassID를 반환
+function GET_PICKUP_CLASSID_BY_GROUP(group)
+    local pickuplist, cnt = GetClassList("cupole_pickuplist")
+    local nation = config.GetServiceNation()  -- 클라이언트에서는 config. 사용
+    
+    for i = 0, cnt - 1 do
+        local cls = GetClassByIndexFromList(pickuplist, i)
+        local clsNation = TryGetProp(cls, "Nation", "None")
+        local clsGroup = TryGetProp(cls, "Group", "None")
+        
+        if clsNation == nation and clsGroup == group then
+            return TryGetProp(cls, "ClassID", 0)
+        end
+    end
+    
+    return 0  -- 찾지 못한 경우 (또는 기본 배너 ClassID)
+end
+

@@ -182,6 +182,8 @@ ClassID,IconSpineScale,IconSpineDurationTime,ClassName,CheckServer,IconTokken,Ic
 181,0,0,"emoticonItem_2506_181","YES","사학자오델","Normal","",""
 182,0,0,"emoticonItem_2510_182","YES","거미동생","Normal","",""
 183,0,0,"emoticonItem_2510_183","YES","거미언니","Normal","",""
+184,0,0,"emoticonItem_184","YES","산타포포","Normal","",""
+185,0,0,"emoticonItem_185","YES","산타선물","Normal","",""
 5001,0.170000,5,"motion_medeina_emotion01","YES","메데이나당황모션","Motion","medeinacon01",""
 5002,0.200000,5,"motion_medeina_emotion02","YES","메데이나기쁨모션","Motion","medeinacon02",""
 5003,0.180000,5,"motion_kupole_emotion01","YES","큐폴데헷모션","Motion","kupolecon01",""

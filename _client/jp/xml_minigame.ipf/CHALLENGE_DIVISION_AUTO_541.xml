@@ -176,6 +176,11 @@
                                 <MGameObj List="Start/0"/>
                                 <Str Str="SCR_AUTO_DIVISION_CHALLENGE_END"/>
                             </ToolScp>
+                            <ToolScp Scp="MGAME_SUCCESS_STAGE_SCP" Client="NO" UseSleep="NO">
+                                <Num Num="33.94"/>
+                                <Num Num="91.80"/>
+                                <Num Num="125.82"/>
+                            </ToolScp>                  
                         </execList>
                     </Event>
                     <Event execCount="1" eventName="Return_Zone">

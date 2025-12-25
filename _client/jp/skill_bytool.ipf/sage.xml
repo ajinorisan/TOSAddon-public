@@ -162,9 +162,9 @@
                     <Str Str="voice_wiz_m_missilehole_shot"/>
                     <Str Str="voice_wiz_f_missilehole_shot"/>
                 </Scp>
-                <Scp Scp="SKL_BUFF" Client="NO" UseSleep="NO"Time="400" >
+                <Scp Scp="SKL_BUFF" Client="NO" UseSleep="NO" Time="400" >
                     <Str Str="MissileHole_Buff"/>
-                    <Num Num="1" UseFunc="1"FuncTxt="return obj.Level"/>
+                    <Num Num="1" UseFunc="1" FuncTxt="return obj.Level"/>
                     <Num Num="0"/>
                     <Num FuncTxt="return SCR_GET_MissileHole_Bufftime(obj) * 1000" Num="0" UseFunc="1"/>
                     <Num Num="1"/>

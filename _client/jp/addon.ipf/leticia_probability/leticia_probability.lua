@@ -30,7 +30,7 @@ function GET_LIST_BY_FRAME_TYPE(frame)
     local TypeNum = frame:GetUserIValue("Type")
     local RoundStr = frame:GetUserIValue("Round")
     local Round = tonumber(RoundStr);
-
+    
     local table = {}
     if TypeNum == 1 then
         table = LETICIA_CUBE_ITEM_LIST_BUTTON();

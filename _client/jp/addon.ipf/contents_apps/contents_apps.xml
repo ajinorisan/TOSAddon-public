@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSPY v2004 rel. 3 U (http://www.xmlspy.com) by imc (imc) -->
+<uiframe name="contents_apps" x="0" y="10" width="44" height="290">
+	<frame fasthide="true" layout_gravity="right bottom" margin="0 0 60 50" scale_align="center bottom"/>
+	<draw drawframe="false" drawtitlebar="false"/>
+	<skin frameskin="systemmenu_vertical"/>
+	<input moveable="false" hittestframe="true"/>
+	<layer layerlevel="99"/>
+	<option closebutton="false"/>
+	<sound opensound="sys_popup_open_1" closesound="character_item_window_close"/>
+	<animation frameOpenAnim="chat_balloon_start" frameCloseAnim="chat_balloon_end"/>
+	<controls>
+		<button name="CONTENTS_INDUN" layout_gravity="center bottom" texttooltip="{@st59}콘텐츠 현황판(F10){/}" clicksound="button_click_big" oversound="button_over" image="sysmenu_instantDungeon" rect="0 0 44 44" margin="0 0 0 50" MouseOnAnim="btn_mouseover" MouseOffAnim="btn_mouseoff" LBtnUpScp="UI_TOGGLE_INDUN"/>
+		<button name="CONTENTS_GUILD" layout_gravity="center bottom" texttooltip="{@st59}길드 콘텐츠{/}" clicksound="button_click_big" oversound="button_over" image="sysmenu_instantDungeon" rect="0 0 44 44" margin="0 0 0 5" MouseOnAnim="btn_mouseover" MouseOffAnim="btn_mouseoff" LBtnUpScp="ui.ToggleFrame(&apos;guild_activity_ui&apos;)"/>
+	</controls>
+</uiframe>

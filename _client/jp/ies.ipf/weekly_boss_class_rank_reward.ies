@@ -111,4 +111,6 @@ ClassID,reward_id,class_id,Desc,rank_1
 110,1,5022,"에테르 블레이더[T]","Item_Achieve_plate_AetherBlader/1;"
 111,1,2029,"허밋[W]","Item_Achieve_plate_Hermit/1;"
 112,1,4027,"허밋[C]","Item_Achieve_plate_Hermit/1;"
+113,1,5023,"그림마크[T]","Item_Achieve_plate_Grimmark/1;"
+114,1,1029,"그림마크[S]","Item_Achieve_plate_Grimmark/1;"
 115,1,3111,"허밋[A]","Item_Achieve_plate_Hermit/1;"

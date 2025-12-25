@@ -1720,5 +1720,6 @@
 		<image name="UR_cupole_lada_m" file="\icon\monster\cupole\UR_cupole_lada_m.png" imgrect="0 0 128 128 "/>
 		<image name="UR_cupole_naktis_m" file="\icon\monster\cupole\UR_cupole_naktis_m.png" imgrect="0 0 128 128 "/>
 		<image name="UR_cupole_zesty_m" file="\icon\monster\cupole\UR_cupole_zesty_m.png" imgrect="0 0 128 128 "/>
+		<image name="UR_cupole_sugargabia_m" file="\icon\monster\cupole\UR_cupole_sugargabia_m.png" imgrect="0 0 128 128 "/>
 	</imagelist>
 </skinset>

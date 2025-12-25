@@ -545,6 +545,49 @@ date_time.get_diff_sec = function(str_end, str_start)
     return end_time - start_time
 end
 
+-- 다음날(리셋 시간) 06시를 가져온다.
+date_time.get_next_6am_str = function(now_timestamp)
+    -- 1. 현재 시간을 루아 타임스탬프(숫자)로 가져옵니다.
+    -- local now_timestamp = date_time.get_lua_now_datetime()
+    -- if now_timestamp == nil then
+    --     return nil -- 현재 시간을 가져올 수 없는 경우
+    -- end
+
+    -- 2. 현재 시간의 날짜 구성요소(년, 월, 일)를 가져옵니다.
+    local now_components = os.date('*t', now_timestamp)
+
+    -- 3. '오늘 오전 6시'의 타임스탬프를 계산합니다.
+    local today_6am_timestamp = date_time.get_lua_datetime(
+        now_components.year,
+        now_components.month,
+        now_components.day,
+        6, -- hour
+        0, -- min
+        0  -- sec
+    )
+    
+    if today_6am_timestamp == nil then
+        return nil -- 날짜 계산 오류
+    end
+
+    local target_timestamp
+    
+    -- 4. 현재 시간과 '오늘 오전 6시'를 비교합니다.
+    if now_timestamp < today_6am_timestamp then
+        -- 4-a. 현재가 '오늘 오전 6시' 이전 (예: 29일 04:30)
+        -- 목표는 '오늘 오전 6시' (예: 29일 06:00)
+        target_timestamp = today_6am_timestamp
+    else
+        -- 4-b. 현재가 '오늘 오전 6시'와 같거나 이후 (예: 28일 14:44)
+        -- 목표는 '내일 오전 6시'
+        -- '오늘 오전 6시' 타임스탬프에 24시간(86400초)을 더합니다.
+        target_timestamp = today_6am_timestamp + 86400 -- (24 * 60 * 60)
+    end
+
+    -- 5. 목표 타임스탬프를 'yyyy-mm-dd hh:mm:ss' 문자열로 변환하여 반환합니다.
+    return date_time.lua_datetime_to_str(target_timestamp)
+end
+
 -- 레티샤 시작 시간과 종료 시간을 가져온다 yyyy-mm-dd hh:mm:ss 
 function get_leticia_start_and_end_time_num()    
 	local startTime = TryGetProp(GetClassByType('reward_tp', 1), "StartTime", "None")
@@ -3737,11 +3780,47 @@ function JOB_HERMIT_A_PRE_CHECK(pc, jobCount)
     if IsServerSection() == 0 then
         aObj = GetMyAccountObj();
     else
-        aObj = GetAccountObj(pc);
+    aObj = GetAccountObj(pc);
     end
     
     if aObj ~= nil then
         local value = TryGetProp(aObj, 'UnlockQuest_Char3_28', 0)
+        if value == 1 then
+            return 'YES'
+        end
+    end
+
+    return 'NO'
+end
+
+function JOB_GRIMMARK_T_PRE_CHECK(pc, jobCount)
+    local aObj = nil
+    if IsServerSection() == 0 then
+        aObj = GetMyAccountObj();
+    else
+        aObj = GetAccountObj(pc);
+    end
+    
+    if aObj ~= nil then
+        local value = TryGetProp(aObj, 'UnlockQuest_Char5_23', 0)
+        if value == 1 then
+            return 'YES'
+        end
+    end
+
+    return 'NO'
+end
+
+function JOB_GRIMMARK_S_PRE_CHECK(pc, jobCount)
+    local aObj = nil
+    if IsServerSection() == 0 then
+        aObj = GetMyAccountObj();
+    else
+        aObj = GetAccountObj(pc);
+    end
+    
+    if aObj ~= nil then
+        local value = TryGetProp(aObj, 'UnlockQuest_Char1_29', 0)
         if value == 1 then
             return 'YES'
         end
@@ -4568,7 +4647,7 @@ function make_collection_item_list()
 		local cls = GetClassByIndexFromList(list, i);
 		if cls ~= nil then
 			if TryGetProp(cls, "Journal", "FALSE") == "TRUE" then
-				for j = 1, 9 do
+				for j = 1, 10 do
 					local prop_name = "ItemName_"..tostring(j);
 					local name = TryGetProp(cls, prop_name, "None");
 					local collection_name = TryGetProp(cls, 'Name', 'None')

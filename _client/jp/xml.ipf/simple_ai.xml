@@ -28622,7 +28622,14 @@ return GET_RATE_MHP(self, damage) * 100"/>
 				<Str Str="PET_LOOP_AI"/>
 			</ToolScp>
 		</List>
-	</AI>
+    </AI>
+    <AI Name="companion_pet_harpseal" ActiveMessageMapInBattle="1">
+        <List>
+            <ToolScp Scp="SAI_FUNC2_DIRECT_SLEEP" Client="NO" UseSleep="YES">
+                <Str Str="PET_LOOP_AI"/>
+            </ToolScp>
+        </List>
+    </AI>
     <AI Name="EVENT_NPC_MOONRISE_NPC_AI" UpdateMS="60000" ActiveMessageMapInBattle="1">
         <List>
             <ToolScp Scp="SAI_FUNC_DIRECT" Client="NO" UseSleep="NO">

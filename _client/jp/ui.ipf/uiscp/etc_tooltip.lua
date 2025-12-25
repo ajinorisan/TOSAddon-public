@@ -947,6 +947,9 @@ function use_lv520_random_option_scroll_box(item)
 			local pair = StringSplit(token[i], '/')
 			local name = pair[1]	
 			local cls = GetClass('Item', name)
+			if cls == nil then
+				print(name)				
+			end
 			local txt = string.format(' - %s', dic.getTranslatedStr(cls.Name))
 			desc = desc .. txt .. '{nl}'
 		end
@@ -956,29 +959,47 @@ function use_lv520_random_option_scroll_box(item)
 end
 
 function use_jurate_cube_tooltip(item)
-	local desc = ''
+    local desc = ''
 
-	local str_list = TryGetProp(item, 'StringArg', 'None')	
-	if str_list ~= 'None' then
-		local token = StringSplit(str_list, ';')
-		local total = 0
-		for i = 1, #token do
-			local pair = StringSplit(token[i], '/')
-			total = total + tonumber(pair[3])
-		end
+    local str_list = TryGetProp(item, 'StringArg', 'None')	
+    if str_list ~= 'None' then
+        local token = StringSplit(str_list, ';')
+        local total = 0
+        local items = {}
 
-		for i = 1, #token do
-			local pair = StringSplit(token[i], '/')
-			local name = pair[1]
-			local count = pair[2]
-			local cls = GetClass('Item', name)
-			name = dic.getTranslatedStr(cls.Name)
-			local prop = (tonumber(pair[3]) / total) * 100
-			
-			local txt = string.format(' {#0000FF}(%.4f%%){/}', prop)
-			desc = desc .. ScpArgMsg('get_item{name}{count}', 'name', name, 'count', count) .. txt .. '{nl}'
-		end
-	end
+        -- 1. 파싱 & total 계산
+        for i = 1, #token do
+            local pair = StringSplit(token[i], '/')
+            local name = pair[1]
+            local count = tonumber(pair[2])
+            local weight = tonumber(pair[3])
 
-	return desc
+            total = total + weight
+
+            table.insert(items, {
+                name = name,
+                count = count,
+                weight = weight
+            })
+        end
+
+        -- 2. 가중치 기준 내림차순 정렬
+        table.sort(items, function(a, b)
+            return a.weight > b.weight
+        end)
+
+        -- 3. 정렬된 순서대로 툴팁 생성
+        for i = 1, #items do
+            local info = items[i]
+            local cls = GetClass('Item', info.name)
+            local translatedName = dic.getTranslatedStr(cls.Name)
+
+            local prop = (info.weight / total) * 100
+            local txt = string.format(' {#0000FF}(%.4f%%){/}', prop)
+
+            desc = desc .. ScpArgMsg('get_item{name}{count}', 'name', translatedName, 'count', info.count) .. txt .. '{nl}'
+        end
+    end
+
+    return desc
 end

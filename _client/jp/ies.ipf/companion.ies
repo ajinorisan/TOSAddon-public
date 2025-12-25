@@ -64,3 +64,4 @@ ClassID,RideMSPD,MaxVehicle,OffsetY,RidingOffsetY,AddSpeed,JobID,LifeMin,Balloon
 63,4,1,0,4,50,0,0,0,"pet_ep13dessert_pink","","11","NO","YES","NO","NO","","YES","YES","pet_ep13dessert_pink_buff"
 64,4,1,0,4,50,0,0,0,"pet_mermaidpopo","","11","NO","YES","NO","NO","","YES","YES","pet_mermaidpopo_buff"
 65,4,1,0,4,50,0,0,0,"pet_mermaidpopo2","","11","NO","YES","NO","NO","","YES","YES","pet_mermaidpopo2_buff"
+66,6,1,0,4,50,0,0,0,"pet_harpseal","","0","NO","YES","YES","NO","","YES","NO","pet_harpseal_buff"

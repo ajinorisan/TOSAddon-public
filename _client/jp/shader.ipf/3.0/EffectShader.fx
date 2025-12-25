@@ -250,11 +250,10 @@ float4 CalcWVP(in float4 PosW, in float4x4 viewProjMatrix)
 
 float4 ShiftColor(float4 c)
 {
-	float r = c.r;
-	c.r = c.g;
-	c.g = c.b;
-	c.b = r;
-	return c;
+	float gray = dot(c.rgb, float3(0.299, 0.587, 0.114));
+    float3 silver = float3(gray, gray, gray) * 1.3f;
+    float3 finalColor = lerp(silver, c.rgb, 0.15f);
+    return float4(finalColor, c.a);
 }
 
 #ifdef ENABLE_DIFFUSETEX_ANIMATION

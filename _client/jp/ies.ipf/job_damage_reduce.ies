@@ -22,6 +22,7 @@ ClassID,ReduceRate,ClassName,Name,EngName,CtrlType
 1026,10,"Char1_26","뱅퀴셔","Vanquisher","Warrior"
 1027,10,"Char1_27","슬레저[S]","Sledger","Warrior"
 1028,10,"Char1_28","본맨서[S]","Bonemancer","Warrior"
+1029,10,"Char1_29","그림마크[S]","Grimmark","Warrior"
 2016,5,"Char2_16","페더풋","Featherfoot","Wizard"
 2022,5,"Char2_22","보코르","Bokor","Wizard"
 2027,10,"Char2_27","본맨서[W]","Bonemancer","Wizard"
@@ -46,3 +47,4 @@ ClassID,ReduceRate,ClassName,Name,EngName,CtrlType
 5016,5,"Char5_16","클로운","Clown","Scout"
 5018,10,"Char5_18","재규어","Jaguar","Scout"
 5019,10,"Char5_19","데스페라도","Desperado","Scout"
+5023,10,"Char5_23","그림마크","Grimmark[T]","Scout"

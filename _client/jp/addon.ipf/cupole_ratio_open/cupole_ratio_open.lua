@@ -1,9 +1,16 @@
 function TOGGLE_CUPOLE_RATIO(frame, ctrl, argStr, argNum)
+    local mainframe = ctrl:GetTopParentFrame()
+    local pickupSelectBG = GET_CHILD_RECURSIVELY(mainframe, "pickupSelectBG")
+    local gacha_group = pickupSelectBG:GetUserValue("CURRENT_GACHA_NAME")
+    local ratio_frame = ui.GetFrame("cupole_ratio_open")
+    ratio_frame:SetUserValue("GROUP", gacha_group);
+
     ui.ToggleFrame("cupole_ratio_open")
 end
 
 function OPEN_CUPOLE_RATIO_TABLE(frame)
-    local table = GET_CUPOLE_PROBABILITY()
+    local group = frame:GetUserValue("GROUP")
+    local table = GET_CUPOLE_PROBABILITY(group)
     CREATE_CUPOLE_RATIO_LIST(frame, table)
 end
 
@@ -15,6 +22,11 @@ function CREATE_CUPOLE_RATIO_LIST(frame, table)
     local RBG = GET_CHILD_RECURSIVELY(ctrlBG, "RBG")
 
     local offset = {495, 55};
+
+    URBG:RemoveAllChild();
+    SRBG:RemoveAllChild();
+    RBG:RemoveAllChild();
+
 
     URBG:SetUserValue("x", 0);
     SRBG:SetUserValue("x", 0);
@@ -30,7 +42,7 @@ function CREATE_CUPOLE_RATIO_LIST(frame, table)
         local grade = v[3]
         local bg = nil;
         local cls =  GetClassByNameFromList(cupolelist, clsname);
-
+        
         if grade == "UR" then
             bg = URBG;
         elseif grade == "SR" then
@@ -93,7 +105,12 @@ function CREATE_CUPOLE_RATIO_LIST(frame, table)
 end
 
 function GET_CURRENT_PICKUP_KUPOLE()
-    local table = GET_CUPOLE_PROBABILITY()
+    local ratio_frame = ui.GetFrame("cupole_ratio_open")
+    local cupole_item = ui.GetFrame("cupole_item");
+    local pickupSelectBG = GET_CHILD_RECURSIVELY(cupole_item, "pickupSelectBG")
+    local group = pickupSelectBG:GetUserValue("CURRENT_GACHA_NAME")
+    ratio_frame:SetUserValue("GROUP", group)
+    local table = GET_CUPOLE_PROBABILITY(group)
     local cupolelist, cnt = GetClassList("cupole_list");
 
     local pickuplist = {};

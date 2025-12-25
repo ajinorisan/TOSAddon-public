@@ -2,6 +2,20 @@
 
 season_server_no_sell_item_list = {}
 
+local function is_contain_keyword(cls, _keyword)
+    local keyword = TryGetProp(cls, 'Keyword', 'None');
+    if keyword ~= 'None' then
+        local keywordList = StringSplit(keyword, ';');
+        for j = 1, #keywordList do
+            if keywordList[j] == _keyword then
+                return true;
+            end
+        end
+    end
+    
+    return false;
+end
+
 -- 20.08 여름 시즌서버
 function IS_SEASON_SERVER(pc)
     local acc = nil
@@ -149,6 +163,20 @@ function costume_boss_map_check(map_name)
     local cls = GetClass('Map', map_name)
     if TryGetProp(cls, 'MapType', 'None') == "Field" and TryGetProp(cls, 'RewardEXPBM', 0)  > 0.1 then
         if TryGetProp(cls, 'QuestLevel', 0) >= 150 then            
+            return true
+        end
+    end
+    
+    return false
+end
+
+function event_boss_10th_map_check(map_name)
+    local cls = GetClass('Map', map_name)
+    if TryGetProp(cls, 'MapType', 'None') == "Field" 
+        and TryGetProp(cls, 'RewardEXPBM', 0)  > 0.1 
+        and is_contain_keyword(cls, 'NoRequest') == false
+    then
+        if TryGetProp(cls, 'QuestLevel', 0) <= 200 then            
             return true
         end
     end

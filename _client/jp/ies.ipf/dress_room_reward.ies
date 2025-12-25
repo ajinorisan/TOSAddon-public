@@ -29,3 +29,5 @@ ClassID,CategoryType,ClassName,Name,PropList,RewardPerPiece
 28,2,"ep17tospace_theme","트리 오브 스페이스","MSP_BM/200;","YES"
 29,2,"ep17postman_theme","곰돌이 우체부","MSP_BM/200;","YES"
 30,2,"ep17couplelook_theme","커플룩","MSP_BM/200;","YES"
+31,2,"ep1710winter_theme","극지 모피","ALLSTAT_BM/10;","YES"
+32,2,"ep17bunnygambler_theme","바니 갬블러","MSP_BM/200;","YES"

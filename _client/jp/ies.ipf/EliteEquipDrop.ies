@@ -103,3 +103,4 @@ ClassID,minLv,maxLv,dropRatio,ClassName,Name,ServerMsg,EventCompositon,Dropable,
 103,420,450,2,"BOW04_127_1","바이보라 비전 - 서지 브링어","NO","NO","YES","BlitzHunter"
 104,420,450,2,"TSF04_130_1","바이보라 비전 - 에테리온","NO","NO","YES","AetherBlader"
 105,420,450,2,"TSF04_131_1","바이보라 비전 - 우주적 신비","NO","NO","YES","Hermit"
+106,420,450,2,"TSF04_132_1","바이보라 비전 - 표식의 반향","NO","NO","YES","Grimmark"

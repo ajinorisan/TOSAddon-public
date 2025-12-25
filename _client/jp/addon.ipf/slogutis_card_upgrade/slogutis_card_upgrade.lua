@@ -44,10 +44,18 @@ function SLOGUTIS_CARD_UPGRADE_UPDATE()
         local slot_material = GET_CHILD_RECURSIVELY(frame, "material_item_slot");
         local need_itme_count = 0;
         local need_item = session.GetInvItemByName("misc_circle_of_chaos");
+
+        -- 거래 가능 아이템
         if need_item ~= nil then
             need_itme_count = need_item.count;
         end
     
+        -- 거래불가 아이템 개수 추가
+        local need_item_notrade = session.GetInvItemByName("misc_circle_of_chaos_NoTrade");
+        if need_item_notrade ~= nil then
+            need_itme_count = need_itme_count + need_item_notrade.count;
+        end
+
         if need_itme_count < 20 then
             slot_material:SetText(string.format("{@st66d}{#e50002}{s20}%s/%s{/}", need_itme_count, 20));
         else

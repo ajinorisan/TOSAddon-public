@@ -1,8 +1,85 @@
+-- Constants
+local GACHA_UI_CONFIG = {
+    SLOT_OFFSET = { 95, 95 },
+    MAX_COLUMNS = 4,
+    DEFAULT_POSITION = { 270, 200 },
+    FLOW_SPEED = 35,
+	EFFECT_DELAY = 0.1,
+    EFFECT = {
+        DURATION = 0.5,
+        SCALE = {
+            SMALL = nil,  -- 실제 값으로 설정 필요
+            MEDIUM = nil  -- 실제 값으로 설정 필요
+        }
+    }
+}
+
+local is_ui_event_over = false;
+local is_server_event_over = false;
 function EVENT_SANTA_GAMBLE_ON_INIT(addon, frame)
     addon:RegisterMsg("OPEN_DLG_EVENT_SANTA_GAMBLE", "ON_OPEN_SANTA_GAMBLE");
     addon:RegisterMsg("EVENT_GAMBLE_RESULT", "ON_EVENT_GAMBLE_RESULT");
 	addon:RegisterMsg('NOTICE_Dm_Clear_Time', 'SET_EVENT_GAMBLE_TIME');
 	addon:RegisterMsg('RESET_CURRENT_GACHA_STEP', '_RESET_CURRENT_GACHA_STEP');
+end
+
+-- Gacha Type Management
+GachaTypeManager = {
+    INDUN = 0,
+    VILLAGE = 1,
+    
+    COST_POLICY = {
+        PAPAYA = {
+            [1] = 0,    
+            [2] = 0,    
+            [3] = 30000,
+            [4] = 50000,
+            [5] = 70000 
+        }
+    }
+}
+
+-- 메서드 추가
+function GachaTypeManager.getTypeConfig(type)
+    local serverNation = config.GetServiceNation();
+    
+    if type == GachaTypeManager.INDUN then
+        return {
+            costIcon = "icon_item_pvpmine_2",
+            getCost = function(step) 
+                if serverNation == "PAPAYA" then
+                    return GachaTypeManager.COST_POLICY.PAPAYA[step] or 0
+                else
+                    return (step == 5) and 50000 or ((step - 1) * 10000)
+                end
+            end,
+            validateLocation = function(pc)
+                local cmd = GetMGameCmd(pc)
+                return IS_EVENT_2411_SANTA_NPC_CREATED(cmd)
+            end
+        }
+    else
+        return {
+            costIcon = "icon_item_tenthanni",
+            getCost = function() return 1 end,
+            validateLocation = function(pc)
+                return IS_IN_CITY_SERVER(pc)
+            end
+        }
+    end
+end
+
+function GachaTypeManager.calculateCost(step, type)
+    local serverNation = GetServerNation()
+    if type == GachaTypeManager.INDUN then
+        if serverNation == "PAPAYA" then
+            return GachaTypeManager.COST_POLICY.PAPAYA[step] or 0
+        else
+            return (step == 1) and 0 or ((step - 1) * 20000)
+        end
+    else
+        return 1
+    end
 end
 
 function SET_EVENT_GAMBLE_TIME(frame, msg, argstr, argnum)
@@ -31,6 +108,7 @@ function CLOSE_EVENT_SANTA_GAMBLE()
 end
 
 function CLOSE_SANTA_GAMBLE()
+	control.EnableControl(1);
 	local frame = ui.GetFrame('event_santa_gamble')
 	frame:StopUpdateScript("_UPDATE_SANTA_GAMBLE_REMAIN_TIME");
 end
@@ -56,19 +134,20 @@ end
 
 function OPEN_SANTA_GAMBLE(type)
 	local frame = ui.GetFrame('event_santa_gamble')
+	control.EnableControl(0);
+
 	if frame:IsVisible() == 1 then
 		ui.CloseFrame('event_santa_gamble')
 	end
-
+	
 	if type == 'indun' then
 		frame:SetUserValue("GambleType", 0)
 		SET_GACHA_PROBABILITY_TYPE(frame, 2)
 		SET_REMAIN_TIME(frame, 0, 1)
 		SET_CAUTIONTEXT(frame, 0)
-
 	else
 		frame:SetUserValue("GambleType", 1)
-		SET_GACHA_PROBABILITY_TYPE(frame, 3)
+		SET_GACHA_PROBABILITY_TYPE(frame, 4)
 		SET_REMAIN_TIME(frame, 0, 0)
 		SET_CAUTIONTEXT(frame, 1)
 	end
@@ -76,15 +155,11 @@ function OPEN_SANTA_GAMBLE(type)
     ui.OpenFrame('event_santa_gamble');
 
 	local text_gb = GET_CHILD(frame, "text_gb")
-	-- DIALOG_TEXTVIEW(text_gb, msg, "W_SANTA_2411_DL_INTRO")
-	-- frame:SetUserValue("DialogType", 1);
 	ILLSUT_SET(frame, "W_SANTA_2411_DL_INTRO")
 	CREATE_ITEM_SLOT(frame)
 	DIALOG_SET(frame, "W_SANTA_2411_DL_INTRO")
 	local text_main_gb = GET_CHILD_RECURSIVELY(frame, "text_main_gb");
-	-- text_main_gb:ShowWindow(0);
     pc.ReqExecuteTx_Item("EVENT_GAHCA_START", 0, 512)
-
 end
 
 function ILLSUT_SET(frame, argStr)
@@ -123,17 +198,21 @@ function CREATE_ITEM_SLOT(frame)
 	local GachaStepCurList, ratiolist, step;
 	local CurStep = frame:GetUserIValue("CurStep")
 
+    local typeConfig = GachaTypeManager.getTypeConfig(gambletype)
+	local cost = typeConfig.getCost(CurStep);
+	local itemIcon = typeConfig.costIcon;
+	
 	if gambletype == 0 then
-		GachaStepCurList, ratiolist, step = GET_STEP_GACHA_CLS_LIST(pc, CurStep)
-		SET_GACHA_TEXT(frame, "icon_item_pvpmine_2", (step - 1) * 20000);
+		GachaStepCurList, ratiolist, step = GET_STEP_GACHA_CLS_LIST(pc, CurStep)		
+		SET_GACHA_TEXT(frame, itemIcon,cost);
 	else
-		local mat_cls = GetClassByNameFromList(item_list, "Event_2411_santaticket")
+		local mat_cls = GetClassByNameFromList(item_list, "Event_2512_santaticket")
 		curr_my_cnt, itemlist = GET_INV_ITEM_COUNT_BY_PROPERTY({
-			{ Name = 'ClassName', Value = "Event_2411_santaticket" }
+			{ Name = 'ClassName', Value = "Event_2512_santaticket" }
 		}, false)
 	
 		GachaStepCurList = GET_STEP_GACHA_CLS(pc, 1)
-		SET_GACHA_TEXT(frame, "icon_item_9th_ticket", curr_my_cnt);
+		SET_GACHA_TEXT(frame, itemIcon, curr_my_cnt);
 	end
 	
 	local maingb = frame:GetChild("main_gb")
@@ -378,9 +457,13 @@ function SCR_GAHCA_START_BTN(frame, parent, str, num)
 	local tokencnt = TryGetProp(acc, "MISC_PVP_MINE2", 0)
 	local GambleType = TopParentFrame:GetUserIValue("GambleType")
 
-	local mat_cls = GetClassByNameFromList(item_list, "Event_2411_santaticket")
+    local typeConfig = GachaTypeManager.getTypeConfig(GambleType)
+	local cost = typeConfig.getCost(CurStep);
+
+
+	local mat_cls = GetClassByNameFromList(item_list, "Event_2512_santaticket")
     curr_my_cnt, itemlist = GET_INV_ITEM_COUNT_BY_PROPERTY({
-        { Name = 'ClassName', Value = "Event_2411_santaticket" }
+        { Name = 'ClassName', Value = "Event_2512_santaticket" }
     }, false)
 
 	local mat_guid = 0;
@@ -399,7 +482,7 @@ function SCR_GAHCA_START_BTN(frame, parent, str, num)
 			ui.SysMsg(ClMsg("Excnaged_No_Enough"));
 			return;
 		end
-		if tonumber(tokencnt) < tonumber(20000 * (step - 1)) then
+		if tonumber(tokencnt) < cost then
 			ui.SysMsg(ScpArgMsg("{item}NotEnoughMaterial","item", ClMsg("MISC_PVP_MINE2")));
 
 			return;
@@ -426,20 +509,23 @@ function PLAY_GACHA_RANDOM_SLOT_EFFECT(frame, msg, class_name, itemCount)
 	local mainframe = ui.GetFrame("event_santa_gamble");
 	local CurStep = mainframe:GetUserIValue("CurStep")
 
-	local gambeltype = GET_EVENT_GAMBLE_TYPE(mainframe)
+	local gambletype = GET_EVENT_GAMBLE_TYPE(mainframe)
 	local GachaStepList, ratiolist, step = GET_STEP_GACHA_CLS_LIST_BY_INDEX(pc, CurStep)
+    local typeConfig = GachaTypeManager.getTypeConfig(gambletype)
+	local cost = typeConfig.getCost(CurStep);
+	local itemIcon = typeConfig.costIcon;
 
-	if gambeltype == 0 then
+	if gambletype == 0 then
 		-- GachaStepList = GET_STEP_GACHA_CLS_LIST(pc, acc)
-		SET_GACHA_TEXT(mainframe, "icon_item_pvpmine_2", (step - 1) * 20000);
+		SET_GACHA_TEXT(mainframe, itemIcon, cost);
 	else
-		local mat_cls = GetClassByNameFromList(item_list, "Event_2411_santaticket")
+		local mat_cls = GetClassByNameFromList(item_list, "Event_2512_santaticket")
 		curr_my_cnt, itemlist = GET_INV_ITEM_COUNT_BY_PROPERTY({
-			{ Name = 'ClassName', Value = "Event_2411_santaticket" }
+			{ Name = 'ClassName', Value = "Event_2512_santaticket" }
 		}, false)
 
 		GachaStepList = GET_STEP_GACHA_CLS(pc, 1)
-		SET_GACHA_TEXT(mainframe, "icon_item_9th_ticket", curr_my_cnt);
+		SET_GACHA_TEXT(mainframe, itemIcon, curr_my_cnt);
 	end
 
 	local item_gb = GET_CHILD_RECURSIVELY(mainframe, "item_gb")
@@ -456,7 +542,8 @@ function PLAY_GACHA_RANDOM_SLOT_EFFECT(frame, msg, class_name, itemCount)
 
 		ctrl:ReserveScript("_EVENT_SANTA_RESULT_EFFECT", RESULT_EFFECT_DURATION + secFactor * i, i, "");
 	end
-	mainframe:ReserveScript("_EVENT_SANTA_GACHA_DELAY_FLUSH", secFactor * child_cnt + RESULT_EFFECT_DURATION, 0, "");
+
+	mainframe:ReserveScript("REFRESH_GACHA_BTN", secFactor * child_cnt + RESULT_EFFECT_DURATION, 0, "");
 end
 
 function _PLAY_SATAN_RESULT_EFFECT(ctrl, argnum, argstr)
@@ -479,6 +566,12 @@ function _EVENT_SANTA_RESULT_EFFECT(ctrl, argnum, argstr)
 end
 
 function _EVENT_SANTA_GACHA_DELAY_FLUSH(frame, argnum, argstr)
+	if is_ui_event_over == false or is_server_event_over == false then
+		return;
+	end
+	is_ui_event_over = false;
+	is_server_event_over = false;
+
     ui.FlushGachaDelayPacket();
 	local ItemName = frame:GetUserValue("ItemName")
 	local CurStep = frame:GetUserIValue("CurStep")
@@ -508,18 +601,23 @@ function ON_EVENT_GAMBLE_RESULT(frame, msg, argstr, argnum)
         return;
     end
 
-	local gambeltype = GET_EVENT_GAMBLE_TYPE(frame)
+	local gambletype = GET_EVENT_GAMBLE_TYPE(frame)
+    local typeConfig = GachaTypeManager.getTypeConfig(gambletype)
+	local cost = typeConfig.getCost(argnum);
+	local itemIcon = typeConfig.costIcon;
 
-	if gambeltype == 0 then
-		SET_GACHA_TEXT(frame, "icon_item_pvpmine_2", (argnum - 1) * 20000);
+	if gambletype == 0 then
+		SET_GACHA_TEXT(frame, itemIcon, cost);
 	else
-		local mat_cls = GetClassByNameFromList(item_list, "Event_2411_santaticket")
+		local mat_cls = GetClassByNameFromList(item_list, "Event_2512_santaticket")
 		curr_my_cnt, itemlist = GET_INV_ITEM_COUNT_BY_PROPERTY({
-			{ Name = 'ClassName', Value = "Event_2411_santaticket" }
+			{ Name = 'ClassName', Value = "Event_2512_santaticket" }
 		}, false)
 
-		SET_GACHA_TEXT(frame, "icon_item_9th_ticket", curr_my_cnt);
+		SET_GACHA_TEXT(frame, itemIcon, curr_my_cnt);
 	end
+	is_server_event_over = true;
+	_EVENT_SANTA_GACHA_DELAY_FLUSH(frame)
 end
 
 function SET_SOLDOUT_FRAME(frame, visible)
@@ -543,8 +641,12 @@ function SET_GACHA_TEXT(frame, imgname, count)
 	if imgname == "icon_item_pvpmine_2" then
 		if count >= 100000 then
 			gacha_start:SetTextByKey("cnt", ClMsg("Auto_JongLyo"))
-		else
+		elseif count > 0 then
 			gacha_start:SetTextByKey("cnt", "X"..count)
+		elseif count == 0 then
+			gacha_start:SetTextByKey("cnt", ClMsg("IsFree"))
+		else
+			gacha_start:SetTextByKey("cnt", ClMsg("Auto_JongLyo"))
 		end
 	else
 		gacha_start:SetTextByKey("cnt", ClMsg("Auto_BoyuLyang").." : "..count)
@@ -598,7 +700,7 @@ function SET_CAUTIONTEXT(frame, type)
 		if type == 0 then
 			cautionText:SetTextByKey("value", ClMsg("EVENT_2411_SANTA_CAUTION1"))
 		else
-			cautionText:SetTextByKey("value", ClMsg("EVENT_2411_SANTA_CAUTION2"))
+			cautionText:SetTextByKey("value", ClMsg("EVENT_2512_SANTA_CAUTION2"))
 		end
 	end
 end
@@ -614,17 +716,29 @@ function _RESET_CURRENT_GACHA_STEP(frame, msg, argstr, argnum)
         return;
     end
 	local gambletype = GET_EVENT_GAMBLE_TYPE(frame)
+    local typeConfig = GachaTypeManager.getTypeConfig(gambletype)
+	local cost = typeConfig.getCost(argnum);
+	local itemIcon = typeConfig.costIcon;
 
 	if gambletype == 0 then
-		SET_GACHA_TEXT(frame, "icon_item_pvpmine_2", (argnum - 1) * 20000);
+		SET_GACHA_TEXT(frame, itemIcon, cost);
 	else
-		local mat_cls = GetClassByNameFromList(item_list, "Event_2411_santaticket")
+		local mat_cls = GetClassByNameFromList(item_list, "Event_2512_santaticket")
 		curr_my_cnt, itemlist = GET_INV_ITEM_COUNT_BY_PROPERTY({
-			{ Name = 'ClassName', Value = "Event_2411_santaticket" }
+			{ Name = 'ClassName', Value = "Event_2512_santaticket" }
 		}, false)
 	
 		GachaStepCurList = GET_STEP_GACHA_CLS(pc, 1)
-		SET_GACHA_TEXT(frame, "icon_item_9th_ticket", curr_my_cnt);
+		SET_GACHA_TEXT(frame, itemIcon, curr_my_cnt);
 	end
 	REFRESH_GAMBLE_LIST(frame, argnum);
+
+	is_server_event_over = true;
+	_EVENT_SANTA_GACHA_DELAY_FLUSH(frame)
+end
+
+function REFRESH_GACHA_BTN(frame)
+	-- TOGGLE_GACHA_BTN(frame, 1)
+	is_ui_event_over = true;
+	_EVENT_SANTA_GACHA_DELAY_FLUSH(frame)
 end

@@ -502,9 +502,9 @@ function POPOBOOST_PRESS_EVENT_PARTICIPATE(frame)
     end
     local opt = { CompareTextDesc = ClMsg('RellayWantParticipatePoPoBoost') }
     if GET_POPOBOOST_SERVER() ~= 1 then
-        WARNINGMSGBOX_EX_FRAME_OPEN(frame, 'None', 'popoboostparticipate;CantRollbackEventParticipate/POPOBOOST_SUCCESS_EVENT_PARTICIPATE', 0, opt);
+        WARNINGMSGBOX_EX_FRAME_OPEN(frame, 'None', 'popoboostparticipate;CantRollbackEventParticipate#Confirm_English/POPOBOOST_SUCCESS_EVENT_PARTICIPATE', 0, opt);
     else
-        WARNINGMSGBOX_EX_FRAME_OPEN(frame, 'None', 'TOSHeroMapPattern_None;CantRollbackEventParticipate/POPOBOOST_SUCCESS_EVENT_PARTICIPATE', 0, opt);
+        WARNINGMSGBOX_EX_FRAME_OPEN(frame, 'None', 'TOSHeroMapPattern_None;CantRollbackEventParticipate#Confirm_English/POPOBOOST_SUCCESS_EVENT_PARTICIPATE', 0, opt);
     end
 end
 

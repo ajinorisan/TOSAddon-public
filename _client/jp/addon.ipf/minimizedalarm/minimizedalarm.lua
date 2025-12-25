@@ -1,15 +1,10 @@
-function MINIMIZEDALARM_ON_INIT(addon, frame)
+﻿function MINIMIZEDALARM_ON_INIT(addon, frame)
 	addon:RegisterMsg('PVP_PLAYING_UPDATE', 'ON_PVP_PLAYING_UPDATE'); 
 	addon:RegisterMsg('PVP_MINE_STATE_UPDATE', 'ON_PVP_MINE_STATE_UPDATE'); 
 	addon:RegisterMsg('GAME_START', 'ON_PVP_PLAYING_UPDATE'); 
 end
 
 function ON_PVP_PLAYING_UPDATE(frame, msg, argStr,argNum)
-	--[[ if config.GetServiceNation() == 'PAPAYA' then
-		frame:ShowWindow(0)
-		return
-	end ]]
-
 	if TUTORIAL_CLEAR_CHECK(GetMyPCObject()) == false then
 		frame:ShowWindow(0)
 		return
@@ -28,10 +23,6 @@ function ON_PVP_PLAYING_UPDATE(frame, msg, argStr,argNum)
 end
 
 function GET_PVP_TYPE()
-	-- local diff = PVP_MINE_GET_DIFF_TIME()
-	-- if diff > -900 and diff <= 1800 then
-	-- 	return "PVP_MINE"
-	-- end
 	if true == IsHaveCommandLine("-NOPVP") then
 		return nil
 	end

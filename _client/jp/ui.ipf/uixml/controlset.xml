@@ -2288,9 +2288,9 @@
 			<button name="button" margin="0 30 20 24" rect="10 10 90 30" layout_gravity="right bottom" caption="{@st41}선물"/>
 		</controls>
 	</controlset>
-	<controlset name="groupbox_sub" hittest="true" hittestset="false" draw="false" skin="pipwin" width="1120" height="934">
+	<controlset name="groupbox_sub" hittest="true" hittestset="false" draw="false" skin="pipwin" width="1120" height="1500">
 		<controls>
-			<groupbox name="changeJobGbox" margin="10 20 0 0" rect="0 0 1120 896" hittestbox="false" skin="" layout_gravity="left top" scrollbar="false"/>
+			<groupbox name="changeJobGbox" margin="10 20 0 0" rect="0 0 1120 1500" hittestbox="false" skin="" layout_gravity="left top" scrollbar="false"/>
 		</controls>
 	</controlset>
 	<controlset name="pose_icon" hittest="true" hittestset="true" draw="false" skin="pipwin" width="90" height="100">
@@ -7205,8 +7205,8 @@
 	</controlset>
 	<controlset name="cupole_pickup_list" hittest="true"  width="700" height="160" hittestset="true">
 		<controls>
-			<groupbox name="Gacha_GroupBox" rect="0 0 700 160" 	margin="0 0 0 0" layout_gravity="left top"	  draw="true" skin="relic_frame_inner" stretch="false" scrollbar="false"/>	
-			<picture name="Banner" parent="Gacha_GroupBox" rect="0 0 700 160" margin="0 0 0 0" layout_gravity="center center" draw="true" hittestbox="true" resizebyparent="false" scrollbar="false" image="cupole_1" stretch="true"/>
+			<groupbox name="Gacha_GroupBox" rect="0 0 700 160" 	margin="0 0 0 0" layout_gravity="left top" draw="true" skin="relic_frame_inner" stretch="false" scrollbar="false" hittest="true"/>	
+			<picture name="Banner" parent="Gacha_GroupBox" rect="0 0 700 160" margin="0 0 0 0" layout_gravity="center center" draw="true" hittest="true" resizebyparent="false" scrollbar="false" image="cupole_1" stretch="true" LBtnUpScp="test_hit_check"/>
 			<richtext name="Time" parent="Gacha_GroupBox" rect="0 0 100 35" margin="10 0 0 10" layout_gravity="left bottom" format="{@st43}{s16}%s" param1="Time" param1_def="Time" drawbackground="false" fixwidth="false" 	fontname="white_18_ol" resizebytext="false" textalign="left center" />
 			<groupbox name="disable_shadow" rect="0 0 700 160" 	margin="0 0 0 0" layout_gravity="left top" draw="true" stretch="true" hittest="false" resizebyparent="false" scrollbar="false" skin="achievement_exchange_event_bg_shadow"/>
 		</controls>
@@ -7410,6 +7410,104 @@
 			<groupbox name="gbox_area" rect="0 0 280 21" margin="0 0 0 0" draw="false" hittest="true"/>
 			<picture name="pic_area_name" rect="0 0 177 21" margin="0 0 0 0" parent="gbox_area" image="ancient_boss_name"/>
 			<richtext name="text_area_name" rect="0 0 150 21" margin="5 2 0 0" parent="gbox_area" layout_gravity="left center" hittest="false" textalign="left center" format="{@st42b}{s12}{ol}%s{/}구역" param1="area_number" param1_def="0"/>
+		</controls>
+	</controlset>
+	<!-- guild activity -->
+	<controlset name="guild_activity_menu" hittest="true" width="250" height="70" hittestset="true" draw="true" skin="" stateskin="false">
+		<controls>
+			<groupbox name="gb" rect="0 0 250 70" margin="0 0 0 0" layout_gravity="center center" draw="true" skin="market_listbase" hittest="true" LBtnUpScp="None"/>
+			<slot name="slot" parent="gb" margin="10 0 0 0" rect="0 0 55 55" layout_gravity="left center" stretch="true" enabledrop="false" enabledrag="false" hittest="false"/>
+			<richtext name="name" parent="gb" rect="0 0 130 30" margin="70 0 0 0" layout_gravity="left center" format="{s18}%s" param1="name" param1_def="이름" drawbackground="false" fixwidth="true" fontname="black_16_b" textalign="left center" hittest="false"/>
+			<button name="select" parent="gb" rect="0 0 25 25" margin="200 0 0 0" layout_gravity="left center" image="skill_mini_plus_btn" stretch="true" LBtnUpScp="GUILD_ACTIVITY_MENU_SELECT_LBTN" clicksound="button_click_big" oversound="button_over"/>
+		</controls>
+	</controlset>
+	<controlset name="guild_growth_contribution_rank_info" toggle="false" hittest="true" width="800" height="40" skin="base_btn" stateskin="false" draw="true">
+		<controls>
+			<richtext name="rank" margin="35 0 0 0" rect="0 0 50 40" format="{@sti1c}%s{/}" param1="value" param1_def="112" textalign="center center" resizebytext="true" spacey="0" maxwidth="0" fontname="white_16_ol" fixwidth="true" updateparent="false" drawbackground="false" slideshow="false" layout_gravity="left center"/>
+			<richtext name="name" margin="140 0 0 0" rect="0 0 200 40" format="{#000000}%s" param1="value" param1_def="팀명" textalign="center center" resizebytext="false" spacey="0" maxwidth="0" fontname="white_16" fixwidth="true" updateparent="false" drawbackground="false" slideshow="false" layout_gravity="left center"/>
+			<richtext name="value" margin="450 0 0 0" rect="0 0 250 40" format="{#000000}%s" param1="value" param1_def="361" textalign="center center" resizebytext="false" spacey="0" maxwidth="0" fontname="white_16" fixwidth="true" updateparent="false" drawbackground="false" slideshow="false" layout_gravity="left center"/>
+		</controls>
+	</controlset>
+	<controlset name="guild_ability_info" hittest="true" width="250" height="400" hittestset="true" draw="true" skin="" stateskin="false">
+		<controls>
+			<groupbox name="gb" rect="0 0 250 400" margin="0 0 0 0" layout_gravity="center center" draw="true" skin="test_weight_skin" hittest="true" LBtnUpScp="None"/>
+			<slot name="slot" parent="gb" margin="0 50 0 0" rect="0 0 120 120" layout_gravity="center top" stretch="true" enabledrop="false" enabledrag="false" hittest="false"/>
+			<richtext name="name" parent="gb" rect="0 0 150 30" margin="0 180 0 0" layout_gravity="center top" format="%s" param1="name" param1_def="이름" drawbackground="false" fixwidth="true" fontname="black_18_b" textalign="center center" hittest="false"/>
+			<richtext name="desc" parent="gb" rect="0 0 150 50" margin="0 230 0 0" layout_gravity="center top" format="%s" param1="desc" param1_def="설명" drawbackground="false" fixwidth="true" fontname="black_16_b" textalign="center top" hittest="false"/>
+			<richtext name="level" parent="gb" rect="0 0 50 50" margin="0 260 0 0" layout_gravity="center top" format="Lv.%s" param1="level" param1_def="1" drawbackground="false" fixwidth="true" fontname="orange_18_b_ol" textalign="center top" hittest="false"/>
+			<button name="btn" parent="gb" rect="0 0 140 40" margin="0 330 0 0" layout_gravity="center top" skin="relic_btn_purple" stretch="true" LBtnUpScp="EXEC_ABILITY_UP_BTN_GUILD_ACTIVITY_DETAIL_GUILD_ABILITY" clicksound="button_click_big" oversound="button_over" format="{@st41b}{s18}%s" param1="value" param1_def="특성 레벨 증가"/>
+		</controls>
+	</controlset>
+	<controlset name="guild_agit_extension_material_info" hittest="true" width="800" height="60" hittestset="true" draw="true" skin="" stateskin="false">
+		<controls>
+			<groupbox name="gb" rect="0 0 800 60" margin="0 0 0 0" layout_gravity="center center" draw="true" skin="market_listbase" hittest="true" LBtnUpScp="None"/>
+			<slot name="slot" parent="gb" margin="10 0 0 0" rect="0 0 50 50" layout_gravity="left center" stretch="true" enabledrop="false" enabledrag="false" hittest="false"/>
+			<richtext name="name" parent="gb" rect="0 0 330 60" margin="100 0 0 0" layout_gravity="left center" format="{s18}%s" param1="name" param1_def="확장에 필요한 재료" drawbackground="false" fixwidth="true" fontname="black_16_b" textalign="left center" hittest="false"/>
+			<richtext name="value" parent="gb" rect="0 0 200 60" margin="0 0 10 0" layout_gravity="right center" format="{s18}%s" param1="value" param1_def="10,000,000" drawbackground="false" fixwidth="true" fontname="black_16_b" textalign="right center" hittest="false"/>
+		</controls>
+	</controlset>
+	<controlset name="guild_agit_extension_step_info" hittest="true" width="780" height="100" hittestset="true" draw="true" skin="" stateskin="false">
+		<controls>
+			<groupbox name="gb" rect="0 0 780 100" margin="0 0 0 0" layout_gravity="center center" draw="true" skin="market_listbase" hittest="true" LBtnUpScp="None"/>
+			<picture name="pic" parent="gb" margin="10 0 0 0" rect="0 0 60 60" layout_gravity="left center" stretch="true" enabledrop="false" enabledrag="false" hittest="false"/>
+			<richtext name="desc" parent="gb" rect="0 0 600 100" margin="100 0 0 0" layout_gravity="left center" format="{s18}%s" param1="desc" param1_def="설명" drawbackground="false" fixwidth="true" fontname="black_16_b" textalign="left center" hittest="false"/>
+		</controls>
+	</controlset>
+	<controlset name="guild_quest_info" hittest="true" width="800" height="110" hittestset="true" draw="true" skin="" stateskin="false">
+		<controls>
+			<groupbox name="gb" rect="0 0 800 110" margin="0 0 0 0" layout_gravity="center center" draw="true" skin="market_listbase" hittest="true" LBtnUpScp="OPEN_GUILD_ACTIVITY_DETAIL_GUILD_QUEST_SUB_GBOX"/>
+			<slot name="slot" parent="gb" margin="15 0 0 0" rect="0 0 80 80" layout_gravity="left center" stretch="true" enabledrop="false" enabledrag="false" hittest="false"/>
+			<richtext name="name" parent="gb" rect="0 0 300 40" margin="150 30 0 0" layout_gravity="left top" format="{s18}%s" param1="name" param1_def="길드 퀘스트 이름" drawbackground="false" fixwidth="true" fontname="black_16_b" textalign="left center" hittest="false"/>
+			<picture name="user_count_pic" parent="gb" margin="150 60 0 0" rect="0 0 30 30" hittest="false" image="house_change_man" stretch="true" changecursor="false" layout_gravity="left top"/>
+			<richtext name="user_count_text" parent="gb" margin="180 65 0 0" rect="0 0 50 30" format="{@st41c}%s명{/}" param1="value" param1_def="10" textalign="left top" resizebytext="true" spacey="0" maxwidth="0" fontname="white_16_ol" fixwidth="false" updateparent="false" drawbackground="false" slideshow="false" layout_gravity="left top"/>
+			<picture name="time_limit_pic" parent="gb" margin="250 60 0 0" rect="0 0 30 30" hittest="false" image="test_cooltime" stretch="true" changecursor="false" layout_gravity="left top"/>
+			<richtext name="time_limit_text" parent="gb" margin="280 65 0 0" rect="0 0 50 30" format="{@st41c}%s분{/}" param1="value" param1_def="10" textalign="left top" resizebytext="true" spacey="0" maxwidth="0" fontname="white_16_ol" fixwidth="false" updateparent="false" drawbackground="false" slideshow="false" layout_gravity="left top"/>
+			<picture name="ticket_pic" parent="gb" margin="350 60 0 0" rect="0 0 30 30" hittest="false" image="tiket_icon" stretch="true" changecursor="false" layout_gravity="left top"/>
+			<richtext name="ticket_text" parent="gb" margin="380 65 0 0" rect="0 0 50 30" format="{@st41c}%s장{/}" param1="value" param1_def="1" textalign="left top" resizebytext="true" spacey="0" maxwidth="0" fontname="white_16_ol" fixwidth="false" updateparent="false" drawbackground="false" slideshow="false" layout_gravity="left top"/>
+			<groupbox name="notice_msg_gb" rect="0 0 200 45" margin="460 0 0 0" layout_gravity="left center" draw="true" skin="line_bg_skin" hittest="true" LBtnUpScp="None"/>
+			<richtext name="notice_text" parent="notice_msg_gb" margin="0 0 0 0" layout_gravity="center center" rect="0 0 80 30" format="%s" param1="value" param1_def="경고" textalign="center center" resizebytext="true" spacey="0" maxwidth="0" fontname="red_18_b" fixwidth="false" updateparent="false" drawbackground="false" slideshow="false"/>
+			<button name="wrap_btn" parent="gb" margin="0 0 10 0" rect="0 0 80 80" layout_gravity="right center" caption="{@st66b}이동하기{/}" skin="relic_btn_purple" LBtnUpScp="MOVE_BTN_GUILD_ACTIVITY_DETAIL_GUILD_QUEST"/>
+		</controls>
+	</controlset>
+	<controlset name="guild_blockade_info" toggle="false" hittest="true" hittestset="false" width="200" height="50" skin="market_listbase">
+		<controls>
+			<picture name="gb" rect="0 0 65 40" margin="0 0 0 0" layout_gravity="left center" stretch="true" image="adventure_attribute"/>
+			<richtext name="name" parent="gb" rect="0 0 50 40" margin="0 0 0 0" layout_gravity="center center" resizebytext="false" textalign="center center" format="%s" param1="value" param1_def="특성" fontname="white_14_ol"/>
+			<richtext name="value" rect="0 0 150 40" margin="50 0 0 0" layout_gravity="left center" resizebytext="false" textalign="center center" format="%s" param1="value" param1_def="값" fontname="black_14_b"/>
+		</controls>
+	</controlset>
+	<controlset name="guild_blockade_rank_reward_info" toggle="false" hittest="true" hittestset="false" width="300" height="80" skin="">
+		<controls>
+			<button name="btn" rect="0 0 300 80" margin="0 0 0 0" layout_gravity="center center" MouseOnAnim="btn_mouseover" MouseOffAnim="btn_mouseoff" stretch="true" skin="test_skin_01_btn" oversound="button_over" LBtnUpScp="" hittest="true"/>
+			<richtext name="text" rect="0 0 50 20" margin="0 0 0 0" layout_gravity="left center" textalign="center center" resizebytext="false" autofontsizebywidth="50"/>
+			<groupbox name="gb" rect="0 0 250 80" margin="0 0 0 0" layout_gravity="right center" stretch="true" draw="false" hittest="false"/>
+			<picture name="pic" rect="0 0 56 56" margin="0 0 10 0" layout_gravity="right center" stretch="true" hittest="false"/>
+		</controls>
+	</controlset>
+	<controlset name="guild_blockade_rank_reward_list_info" toggle="false" hittest="true" hittestset="false" width="250" height="80" skin="">
+		<controls>
+			<picture name="pic" rect="0 0 40 40" margin="10 0 0 0" layout_gravity="left center" MouseOnAnim="btn_mouseover" MouseOffAnim="btn_mouseoff" stretch="true" skin="test_skin_01_btn" oversound="button_over" LBtnUpScp="" hittest="true"/>
+			<richtext name="name_text" rect="0 0 180 20" margin="60 0 0 0" layout_gravity="left center" resizebytext="true" format="%s" param1="value" param1_def="아이템 이름" fontname="black_16_b" textalign="left center" fixwidth="true" updateparent="true"/>
+			<richtext name="count_text" rect="0 0 180 30" margin="60 30 0 0" layout_gravity="left center" format="%s개" param1="value" param1_def="0" fontname="orange_16_b_ol" textalign="right center"/>
+		</controls>
+	</controlset>
+	<controlset name="guild_blockade_rank_info" toggle="false" hittest="false" hittestset="false" width="360" height="79" skin="">
+		<controls>
+			<groupbox name="gbox" rect="0 0 360 79" margin="0 0 0 0" layout_gravity="left center" stretch="true" skin="base_btn"/>
+			<picture name="rank_pic" rect="0 0 75 62" margin="10 0 0 0" layout_gravity="left center" stretch="true" image="raid_week_rank_01" hittest="false"/>
+			<picture name="emblem_pic" rect="0 0 40 40" margin="95 0 0 0" layout_gravity="left center" stretch="true" image="guildmark_slot" hittest="false"/>
+			<richtext name="rank_text" rect="0 0 75 62" margin="12 1 0 0" layout_gravity="left center" resizebytext="false" textalign="center center" format="{@st43}{s18}{ol}{ds}%s위" param1="value" param1_def="0" fontname="white_14_ol"/>
+			<richtext name="name_text" rect="0 0 130 20" margin="144 0 0 0" layout_gravity="left center" resizebytext="false" textalign="left center" format="%s" param1="value" param1_def="이름" fontname="black_16_b"/>
+			<richtext name="value_text" rect="0 0 200 20" margin="0 0 20 0" layout_gravity="right center" resizebytext="true" fixwidth="true" fixheight="false" textalign="right center" format="%s" param1="time" param1_def="시간" fontname="black_16_b"/>
+		</controls>
+	</controlset>
+	<controlset name="guild_agit_move_facilities_info" hittest="false" width="600" height="50" skin="None" draw="false">
+		<userconfig WARP_IMG="guild_info_1" WAREHOUSE_IMG="guild_info_2" GROWTH_IMG="guild_info_3" EVENT_IMG="guild_info_4" AGIT_IMG="guild_info_5"/>
+		<controls>
+			<groupbox name="gbox" rect="0 0 600 50" margin="0 0 0 0" layout_gravity="left top" skin="test_skin_01"/>
+			<picture name="pic" rect="0 0 40 40" margin="0 0 0 0" layout_gravity="left center" image="testclose_button" stretch="true"/>
+			<richtext name="name" rect="0 0 300 30" margin="55 0 0 0" layout_gravity="left center" fontname="black_16" format="Lv.%s %s" param1="level" param1_def="1" param2="name" param2_def="시설 이름"/>
+			<richtext name="desc" rect="0 0 300 30" margin="355 0 0 0" layout_gravity="left center" fontname="black_16" format="%s" param1="desc" param1_def="시설 효과"/>
 		</controls>
 	</controlset>
 </controlsetlist>

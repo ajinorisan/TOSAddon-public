@@ -1,0 +1,3 @@
+ClassID,Col,Row,OffsetX,OffsetY,SpaceOffset,ClassName,CollectionName,BgImg,Align
+1,5,2,-15,55,-25,"10th_anniversary_xmas","COLLECT_451","10th_Merry_XMas_Collection_Bg","Center"
+2,5,2,-15,30,0,"10th_anniversary_winter","COLLECT_452","","Left"

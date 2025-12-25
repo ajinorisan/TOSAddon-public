@@ -77,3 +77,8 @@ ClassID,TotalNumberDays,ClassName,Name,AttendancePass,StartTime,EndTime,PeriodTy
 176,30,"PAPAYA_Vertigo_Comback_Reward_139130","신규/복귀 접속 보상(3)","NO","","",""
 178,14,"EP17_1_Update_Special_Event","EP.17-1 업데이트 기념 출석부","NO","","2025-03-17 23:59:00","OnlyEnd"
 179,14,"EventUserSupport2","신규/복귀 유저 특별 출석부","NO","","2025-05-26 23:59:00","OnlyEnd"
+180,24,"Anniversary_10th_coin","[10주년] 출석부(주화)","NO","2025-12-16 00:01:00","2026-01-27 23:59:00",""
+181,24,"Anniversary_10th_coin_new_return","[10주년] 신규/복귀 출석부(주화)","NO","2025-12-16 00:01:00","2026-01-27 23:59:00",""
+182,14,"Anniversary_10th_item","[10주년] 출석부(재화)","NO","2025-12-16 00:01:00","2026-01-27 23:59:00",""
+183,14,"Anniversary_10th_item_new_return","[10주년] 신규/복귀 출석부(재화)","NO","2025-12-16 00:01:00","2026-01-27 23:59:00",""
+184,14,"Anniversary_10th_costume","[10주년] 출석부(코스튬)","NO","2025-12-16 00:01:00","2026-01-27 23:59:00",""

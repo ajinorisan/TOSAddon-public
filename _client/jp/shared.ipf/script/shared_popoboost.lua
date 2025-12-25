@@ -78,13 +78,13 @@ local item_data = {
         [6] = {
             EP16_fierce_shoulder_event_box_NoTrade = 1,
             EP16_penetration_belt_event_box_NoTrade = 1,
-            selectbox_specialclass_allinone2 = 1,
-            Event_Roulette_Coin_PoPo_2510 = 5
+            selectbox_specialclass_allinone3 = 1,
+            Event_Roulette_Coin_PoPo_2512 = 5
         }
     },
     premium = {
         [0] = {
-            emoticonItem_2510_popo = 1,
+            emoticonItem_2512_popo = 1,
             class_unlock_achievement_select = 1,
             EVENT_2403_Friend_Invite_Coin = 8,
             misc_Ether_Gem_Socket_520_NoTrade = 4,
@@ -122,8 +122,8 @@ local item_data = {
             misc_pvp_mine2_NotLimit_10000 = 4,
         },
         [6] = {
-            plate_achieve_Spider_Sisters = 1,
-            Event_Roulette_Coin_PoPo_2510 = 5,
+            plate_shade_of_the_decennial_tree = 1,
+            Event_Roulette_Coin_PoPo_2512 = 5,
             piece_GabijaEarring_select_job_NoTrade_Belonging = 1,
             AustejaCertificateCoin_50000p = 5,
         }
@@ -419,6 +419,22 @@ function GET_TICKET_ITEM_LIST(AccProp)
             selectbox_Gem_High_480 = 2,
             lv480_aether_lvup_scroll_lv100 = 2,
             EVENT_2403_Friend_Invite_Coin = 8
+        },
+        ["EVENT_POPOBOOST_SUMMER"] = {
+            emoticonItem_2506_popo = 1,
+            class_unlock_achievement_select = 1,
+            misc_Ether_Gem_Socket_520_NoTrade = 4,
+            selectbox_Gem_High_480 = 4,
+            lv520_aether_lvup_scroll_lv100 = 4,
+            EVENT_2403_Friend_Invite_Coin = 8
+        },
+        ["EVENT_POPOBOOST_AUTUMN"] = {
+            emoticonItem_2510_popo = 1,
+            class_unlock_achievement_select = 1,
+            misc_Ether_Gem_Socket_520_NoTrade = 4,
+            Piece_Gem_High_520 = 4,
+            lv520_aether_lvup_scroll_lv100 = 4,
+            EVENT_2403_Friend_Invite_Coin = 8
         }
     }
     
@@ -537,6 +553,19 @@ function POPOBOOST_POPOBUFF_REMINE_TIME(pc)
     return false;
 end
 
+local function replace(text, to_be_replaced, replace_with)
+	local retText = text
+	local strFindStart, strFindEnd = string.find(text, to_be_replaced)	
+    if strFindStart ~= nil then
+		local nStringCnt = string.len(text)		
+		retText = string.sub(text, 1, strFindStart-1) .. replace_with ..  string.sub(text, strFindEnd+1, nStringCnt)		
+    else
+        retText = text
+	end
+	
+    return retText
+end
+
 function GET_POPOBOOST_END_TIME()
     local end_time ="0000-00-00 00:00:00";
 
@@ -557,7 +586,8 @@ function GET_POPOBOOST_END_TIME()
             local accprop = TryGetProp(popobannercls,"AccountProp","None");
             local PopoboostAccountProp = GET_POPOBOOST_SEASONPROP();
             if accprop == PopoboostAccountProp then
-                end_time = TryGetProp(popobannercls,"EndDateTime", "0000-00-00 00:00:00");
+                end_time = TryGetProp(popobannercls, "EndDateTime", "0000-00-00 00:00:00");
+                end_time = replace(end_time, 'd', '');
             end
         end
     end

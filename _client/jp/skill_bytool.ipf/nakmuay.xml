@@ -386,7 +386,7 @@
 					<Num Num="1"/>
 				</Scp>
                 <Scp Scp="SKL_BUFF" Client="NO" UseSleep="NO" Time="0">
-                    <Str Str="RamMuay_Buff"UseFunc="1" FuncTxt="local buffname = &quot;RamMuay_Buff&quot;
+                    <Str Str="RamMuay_Buff" UseFunc="1" FuncTxt="local buffname = &quot;RamMuay_Buff&quot;
 					if IsBuffApplied(self, &quot;RamMuay_Buff&quot;) == &quot;YES&quot; then
 					buffname = &quot;None&quot;
 					end

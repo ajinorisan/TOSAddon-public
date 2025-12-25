@@ -826,6 +826,7 @@ function EARTH_TOWER_SHOP_OPEN(frame)
     group:ShowWindow(1)
     imcSound.PlaySoundEvent('button_click_3');
 
+
     session.ResetItemList();
 end
 
@@ -848,13 +849,16 @@ function EARTH_TOWER_INIT(frame, shopType)
     local prevShopBtn = GET_CHILD_RECURSIVELY(frame,"prevShopBtn")
     local event_gb = GET_CHILD_RECURSIVELY(frame, "event_gb")
     local remain_time = GET_CHILD_RECURSIVELY(frame, "remain_time")
-    
+    local catuion = GET_CHILD_RECURSIVELY(frame, "catuion");
+
+    catuion:ShowWindow(0);
     propertyRemain:ShowWindow(0)
     pointbuyBtn:ShowWindow(0)
     prevShopBtn:ShowWindow(0)
     
     remain_time:ShowWindow(0)
 
+    pointbuyBtn:SetTextByKey("name", ScpArgMsg("pointextract"))
     if shopType ~= "EVENT_2011_5TH_Normal_Shop" and string.find(shopType, "EVENT_2011_5TH_Special_Shop") == nil then
         event_gb:RemoveAllChild();
         event_gb:ShowWindow(0);
@@ -1028,10 +1032,9 @@ function EARTH_TOWER_INIT(frame, shopType)
     elseif string.find(shopType, 'BOUNTY_NPC_TRADE_SHOP_') ~= nil then
         title:SetText('{@st43}'..ScpArgMsg('BountyNpcShop'));
         close:SetTextTooltip(ScpArgMsg('CloseUI{NAME}', 'NAME', ScpArgMsg("BountyNpcShop")));
-    elseif string.find(shopType, 'Archeology_') ~= nil then
+    elseif string.find(shopType, 'archeology') ~= nil then
         title:SetText('{@st43}'..ScpArgMsg(shopType));
         close:SetTextTooltip(ScpArgMsg('ui_close'));
-
         pointbuyBtn:ShowWindow(1)
     elseif shopType == "EVENT_2312_8TH_ANNIVERSARY" then
         if resetDatetime ~= nil then
@@ -1043,6 +1046,12 @@ function EARTH_TOWER_INIT(frame, shopType)
             EARTH_TOWER_SET_PROPERTY_COUNT(propertyRemain, g_account_prop_shop_table[shopType]['coinName'], "Event")
         end
         close:SetTextTooltip(ScpArgMsg('CloseUI{NAME}', 'NAME', ScpArgMsg("EventShop")));
+    elseif shopType == "event_2512_ice_piece" then
+        title:SetText('{@st43}'..ScpArgMsg(shopType));
+        close:SetTextTooltip(ScpArgMsg('ui_close'));
+        pointbuyBtn:SetTextByKey("name", ScpArgMsg("costumeextract"))
+        pointbuyBtn:ShowWindow(1)
+        catuion:ShowWindow(1);    
     else
         title:SetText('{@st43}'..ScpArgMsg(shopType));
         if g_account_prop_shop_table[shopType]~=nil then
@@ -1444,7 +1453,7 @@ function EXCHANGE_CREATE_TREE_NODE_CTRL(ctrlset, cls, shopType)
     end;
     
     if recipecls.AccountNeedProperty ~= 'None' then
-		local sCount = TryGetProp(aObj, recipecls.AccountNeedProperty); 
+		local sCount = TryGetProp(aObj, recipecls.AccountNeedProperty, 0); 
 		local cntText
         if recipecls.ShopType == "PVPMine" 
         or string.find(recipecls.ShopType, "Certificate") ~= nil        
@@ -2378,7 +2387,7 @@ pre_season_coin_shop['AustejaCertificate'] = 'REQ_AustejaCertificate_COIN_SHOP_O
 function EARTHTOWERSHOP_POINT_BUY_OPEN()
     local frame = ui.GetFrame('earthtowershop')
     local shopType = frame:GetUserValue("SHOP_TYPE")
-    
+
     if shopType == "SilverGachaShop" then
         REQ_ITEM_POINT_EXTRACTOR_OPEN("Mileage_SilverGacha")
         ui.GetFrame('item_point_extractor'):SetMargin(575, 5, 0, 0)
@@ -2387,6 +2396,9 @@ function EARTHTOWERSHOP_POINT_BUY_OPEN()
         control.CustomCommand(pre_season_coin_shop[shopType],0);    
     elseif shopType == "Archeology_Lv470" or shopType =="Archeology_Lv530" then
         REQ_ITEM_POINT_EXTRACTOR_OPEN("ARCHEOLOGY_COIN")
+        ui.GetFrame('item_point_extractor'):SetMargin(575, 5, 0, 0)
+    elseif shopType == "event_2512_ice_piece" then
+        REQ_ITEM_POINT_EXTRACTOR_OPEN("event_2512_ice_piece")
         ui.GetFrame('item_point_extractor'):SetMargin(575, 5, 0, 0)
     end
 end

@@ -8,11 +8,11 @@ function HAIR_GACHA_FREE_OPEN(frame)
 	local frame = ui.GetFrame("hair_gacha_free_start")
 	
 	local button = GET_CHILD_RECURSIVELY(frame, "button")
-	if button ~= nil then
-		if config.GetServiceNation() ~= "KOR" and config.GetServiceNation() ~= "GLOBAL_KOR" then
-			button:SetMargin(0, 0, 0, 70);
-		end
-	end
+	-- if button ~= nil then
+	-- 	if config.GetServiceNation() ~= "KOR" and config.GetServiceNation() ~= "GLOBAL_KOR" then
+	-- 		button:SetMargin(0, 0, 0, 70);
+	-- 	end
+	-- end
 end
 
 function HAIR_GACHA_FREE_OK_BTN()
@@ -36,7 +36,33 @@ function HAIR_GACHA_FREE_OK_BTN()
 	if skip_animation:IsChecked() == 1 then
 		isSkipAnimation = "YES";
     end
+
+	ui.Chat(string.format("/hairgacha %s %s", type, isSkipAnimation));
+	ui.CloseFrame("hair_gacha_free_start")
+end
+
+function HAIR_GACHA_FREE_OK_BTNXTEN()
+	local darkframe = ui.GetFrame("fulldark")
+	local popupframe = ui.GetFrame("hair_gacha_popup")
+
+	if darkframe == nil or popupframe == nil then
+		return
+	end
+
+	if darkframe:IsVisible() == true or popupframe:IsVisible() == true then
+		ui.SysMsg(ScpArgMsg('TryLater'));
+		return
+	end
+
+	local frame = ui.GetFrame("hair_gacha_free_start");
+    local skip_animation = GET_CHILD_RECURSIVELY(frame, "skip_animation");
     
+	local type = "GACHA_HAIRACC_ReRun_2025_010_10YEAR";
+	local isSkipAnimation = "NO";
+	if skip_animation:IsChecked() == 1 then
+		isSkipAnimation = "YES";
+    end
+
 	ui.Chat(string.format("/hairgacha %s %s", type, isSkipAnimation));
 	ui.CloseFrame("hair_gacha_free_start")
 end
@@ -74,6 +100,7 @@ function GACHA_FREE_START(gachaDetail)
 	frame:ShowWindow(0)
 	frame:SetUserValue("ClassName", gachaDetail.ClassName);
 	local item = GetClass("Item", gachaDetail.ClassName);
+	SETUP_BUTTONS(frame, item)
 
 	--어떤 BG를 쓸 것인가
 	--텍스트는 어떤걸?
@@ -117,4 +144,26 @@ end
 function SCR_GACHA_FREE_SKIP_ANIMATION(frame)
 	local skip_animation = GET_CHILD_RECURSIVELY(frame, "skip_animation");
 	skip_animation:SetUserValue("IsSkipAnimation", skip_animation:IsChecked());
+end
+
+
+function SETUP_BUTTONS(frame, item)
+	local type = frame:GetUserValue("ClassName");
+	local button = GET_CHILD_RECURSIVELY(frame, "button")
+	local buttonxten = GET_CHILD_RECURSIVELY(frame, "buttonxten")
+	--크리스마스 코스튬이면 10개버튼 활성화
+	if type == "GACHA_HAIRACC_ReRun_2025_001_10YEAR" then
+		buttonxten:ShowWindow(1);
+		button:SetMargin(0, 0, 0, 100);
+		button:Resize(button:GetWidth(), 45);
+		local val = ScpArgMsg("GachaMsg", "Name", item.Name);
+		buttonxten:SetTextByKey("value", "{@st42b}"..val.." x 10")
+	else
+		buttonxten:ShowWindow(0);
+		button:SetMargin(0, 0, 0, 70);
+		button:Resize(button:GetWidth(), 60);
+	end
+
+	frame:Invalidate();
+	button:Invalidate();
 end

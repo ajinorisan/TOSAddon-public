@@ -14,14 +14,18 @@ local cupole_recruit_item_name = 'Premium_cupole_recruit_ticket'
 local cupole_pickup_prop_name = 'cupole_pick_up'
 local cupole_pickup_count = 300
 local cupole_rankup_item_prefix = 'cupole_rankup_'
+-- 1. 데이터를 저장할 새로운 테이블 변수 선언 (기존 변수 대체 또는 추가)
+local cupole_candidates_by_grade = nil
 
+-- 2. make_cupole_grade_table 함수 수정
 function make_cupole_grade_table()
-    if cupole_grade_table_list ~= nil then
+    if cupole_candidates_by_grade ~= nil then
         return
     end
 
     cupole_grade_table_list = {}
     cupole_grade_table_list_ratio = {}
+    cupole_candidates_by_grade = {} -- 등급별 후보 리스트 초기화
 
     local cls = GetClass('cupole_ratio', 'grade_ratio')
     table.insert(cupole_grade_table_list, 'UR')
@@ -29,26 +33,15 @@ function make_cupole_grade_table()
     table.insert(cupole_grade_table_list, 'R')
     
     local value = TryGetProp(cls, 'UR', 0)
-    if value == 0 then
-        print('cupole ratio error')
-    end
     table.insert(cupole_grade_table_list_ratio, value)
     value = TryGetProp(cls, 'SR', 0)
-    if value == 0 then
-        print('cupole ratio error')        
-    end
     table.insert(cupole_grade_table_list_ratio, value)
     value = TryGetProp(cls, 'R', 0)
-    if value == 0 then
-        print('cupole ratio error')        
-    end
     table.insert(cupole_grade_table_list_ratio, value)
 
-    cupole_name_list_by_grade = {}
-    cupole_name_ratio_list_by_grade = {}
+    -- 등급별 테이블 초기화
     for i = 1, #cupole_grade_table_list do
-        cupole_name_list_by_grade[cupole_grade_table_list[i]] = {}
-        cupole_name_ratio_list_by_grade[cupole_grade_table_list[i]] = {}        
+        cupole_candidates_by_grade[cupole_grade_table_list[i]] = {}
     end
     
     local list, cnt = GetClassList('cupole_ratio')
@@ -56,8 +49,15 @@ function make_cupole_grade_table()
         local cls = GetClassByIndexFromList(list, i)
         local grade = TryGetProp(cls, 'Grade', 'None')        
         if grade ~= 'None' then
-            table.insert(cupole_name_list_by_grade[grade], TryGetProp(cls, 'ClassName', 'None'))
-            table.insert(cupole_name_ratio_list_by_grade[grade], TryGetProp(cls, 'Ratio', 0))                        
+            -- 이름, 비율, 그룹 정보를 모두 저장
+            local info = {
+                Name = TryGetProp(cls, 'ClassName', 'None'),
+                Ratio = TryGetProp(cls, 'Ratio', 0),
+                Group = TryGetProp(cls, 'Group', 'ALL')
+            }
+            if cupole_candidates_by_grade[grade] ~= nil then
+                table.insert(cupole_candidates_by_grade[grade], info)
+            end
         end
     end
 end
@@ -122,12 +122,39 @@ function GET_CUPOLE_GRADE(count)
     return grade
 end
 -- count = 회차 정보
-function GET_CUPOLE_CLASSNAME(count)
-    local grade = GET_CUPOLE_GRADE(count)        
-    local index = GIBBS_SAMPLING(cupole_name_ratio_list_by_grade[grade])
-    local name = cupole_name_list_by_grade[grade][index]
+function GET_CUPOLE_CLASSNAME(count, group)
+    local grade = GET_CUPOLE_GRADE(count)
+    
+    -- 해당 등급의 전체 후보 리스트 가져오기
+    local candidates = cupole_candidates_by_grade[grade]
+    if candidates == nil then
+        return nil, grade
+    end
+
+    local filtered_names = {}
+    local filtered_ratios = {}
+
+    -- 그룹에 맞는 아이템만 필터링
+    for i = 1, #candidates do
+        local info = candidates[i]
+        -- 요청한 그룹과 일치하거나, 공통(ALL) 그룹인 경우 포함
+        if group == nil or info.Group == 'ALL' or info.Group == group then
+            table.insert(filtered_names, info.Name)
+            table.insert(filtered_ratios, info.Ratio)
+        end
+    end
+
+    if #filtered_names == 0 then
+        return nil, grade -- 해당 그룹에 아이템이 없는 경우
+    end
+
+    -- 필터링된 리스트에서 확률 기반 선택
+    local index = GIBBS_SAMPLING(filtered_ratios)
+    local name = filtered_names[index]
+    
     return name, grade
 end
+
 function GET_CUPOLE_RANKUP_ITEM_PREFIX()
     return cupole_rankup_item_prefix
 end
@@ -605,7 +632,7 @@ function SCR_GET_SPEND_ITEM_BY_CUPOLE(pc, index)
 	return GetClassByType('Item', item1), GetClassByType('Item', item2);
 end
 
-function GET_CUPOLE_PROBABILITY()
+function GET_CUPOLE_PROBABILITY(group)
     local total = 0
     local probabilities = {}
     local xmlname = 'cupole_ratio'
@@ -618,7 +645,7 @@ function GET_CUPOLE_PROBABILITY()
     local grade_totals = {}
     local item_counts = {}
     local ratiocls = GetClassByIndexFromList(clslist, cnt - 1)
-
+    
     -- 초기값 설정
     grade_totals["UR"] = TryGetProp(ratiocls, "UR", -1)
     grade_totals["SR"] = TryGetProp(ratiocls, "SR", -1)
@@ -642,7 +669,9 @@ function GET_CUPOLE_PROBABILITY()
         local cls = GetClassByIndexFromList(clslist, i)
         local Grade = TryGetProp(cls, "Grade", "None")
         local Ratio = TryGetProp(cls, "Ratio", 0)
-        if Grade ~= "None" then
+        local Kupole_Group = TryGetProp(cls, "Group", "ALL");
+
+        if Grade ~= "None" and (group == Kupole_Group or Kupole_Group == "ALL") then
             item_counts[Grade] = item_counts[Grade] + Ratio
         end
     end
@@ -653,7 +682,8 @@ function GET_CUPOLE_PROBABILITY()
         local Grade = TryGetProp(cls, "Grade", "None")
         local name = TryGetProp(cls, "ClassName", "None")
         local Ratio = TryGetProp(cls, "Ratio", 0)
-        if Grade ~= "None" then
+        local Kupole_Group = TryGetProp(cls, "Group", "ALL");
+        if Grade ~= "None" and (group == Kupole_Group or Kupole_Group == "ALL") then
             local totalGradeProbability = grade_totals[Grade]
             local totalGradeCount = item_counts[Grade]
             local probability = totalGradeProbability * (Ratio / totalGradeCount)
@@ -754,3 +784,4 @@ function GE_CURRENTE_PICKUP_CUPOLE_ULTRA_RANK_LIST()
 
     return URList;
 end
+

@@ -44,3 +44,4 @@ ClassID,GenType,Lv,Range,GenRange,RespawnTime,MaxPop,Minimap,Hide,UseAIOufOfPC,A
 55,55,0,40,30,60000,65,0,0,0,0,0,0,"bower_interfere","","","","","","","","","","","NO","YES","NO","Monster","SmartGen","","",""
 56,56,0,40,30,60000,50,0,0,0,0,0,0,"bower_obstructer","","","","","","","","","","","NO","YES","NO","Monster","SmartGen","","",""
 57,57,1,1,100,20000,30,0,0,0,1,0,0,"rootcrystal_01","","","","","MON_TORCH","","","","","","NO","YES","NO","RootCrystal","","","",""
+58,58,1,25,1,10,1,0,0,0,0,0,0,"Warp_arrow","나모트 결계 수호","","","","","","","","ROMUVA_TO_GUILDMISSION","","NO","YES","NO","Neutral","","","",""

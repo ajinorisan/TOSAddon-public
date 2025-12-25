@@ -1,5 +1,6 @@
 <?xml version='1.0' encoding='utf-8'?>
-<ToolSkill><Skill Name="Mon_Gargoyle_Skill_4">
+<ToolSkill>
+    <Skill Name="Mon_Gargoyle_Skill_4">
 		<MainSkl JumpFlee="NO" MSPDToUsePos="0" ScrLock="None">
 			<MoveList>
 				<Frame Accel="1" Angle="-0.93078393" Dist="1.7557963" Gravity="600" Height="0" JumpPower="300" MoveType="0" Time="1600" />

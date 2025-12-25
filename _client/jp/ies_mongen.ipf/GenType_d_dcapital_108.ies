@@ -50,3 +50,4 @@ ClassID,GenType,Lv,Range,GenRange,RespawnTime,MaxPop,Minimap,Hide,UseAIOufOfPC,A
 77,77,1,40,1,60000,1,0,0,0,0,0,0,"d_dcapital_108_secret_1","UnvisibleName","","","","","MON_DUMMY","","EP12_2_D_DCAPITAL_SECRET_1","","","NO","YES","NO","Neutral","Anim/down","","",""
 78,78,1,150,-1,60000,1,1,0,0,1,100,0,"statue_zemina","여신 제미나의 상","","","","STOUP_CAMP","","","D_DCAPITAL_108_ZEMINA","D_DCAPITAL_108_ZEMINA","D_DCAPITAL_108_ZEMINA","NO","YES","NO","Neutral","","","",""
 79,79,1,40,1,1,1,1,0,0,0,0,0,"id_gate_npc","UnvisibleName","","","","","","","GILTINE_GO_GUILDMISSION","GILTINE_GO_GUILDMISSION","","NO","YES","NO","Neutral","","","",""
+80,80,1,40,1,1,1,1,0,0,0,0,0,"id_gate_npc","UnvisibleName","","","","","","","GILTINE_GO_GUILDRAID","GILTINE_GO_GUILDRAID","","NO","YES","NO","Neutral","","","",""

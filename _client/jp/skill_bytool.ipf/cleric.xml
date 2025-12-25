@@ -51,7 +51,7 @@
                         </Scp>
                         <Scp Scp="SKL_BUFF" Client="NO" UseSleep="NO" Time="100" >
                             <Str Str="PatronSaint_Abil_Buff"/>
-                            <Num Num="1" UseFunc="1"FuncTxt="return obj.Level;"/>
+                            <Num Num="1" UseFunc="1" FuncTxt="return obj.Level;"/>
                             <Num Num="0"/>
                             <Num Num="1800000"/>
                             <Num Num="1"/>
@@ -61,7 +61,7 @@
                         <Scp Scp="C_SOUND" Client="YES" UseSleep="NO" Time="100" >
                             <Str Str="skl_eff_patronsaint_buff_shot"/>
                         </Scp>
-                        <Scp Scp="SKL_ADD_EVIL_BUFF" Client="NO" UseSleep="NO"Time="0">
+                        <Scp Scp="SKL_ADD_EVIL_BUFF" Client="NO" UseSleep="NO" Time="0">
                             <Str Str="None"/>
                             <Num Num="0"/>
                             <Num Num="0"/>

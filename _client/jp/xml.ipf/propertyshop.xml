@@ -113,6 +113,7 @@
 	<Shop Name="GUILD_MILEAGE_SHOP" PointScript="GET_GUILD_MILEAGE_POINT">
 		<Item Script="None" Name="GuildQuestEnterCount_1add" Count="1" Price="500" DailyBuyLimit="0"/>
 		<Item Script="None" Name="Guild_RESET_GUILD_ABILITY" Count="1" Price="2000" DailyBuyLimit="0"/>
+		<Item Script="None" Name="Guild_Raid_Power_Up_Potion" Count="1" Price="50" DailyBuyLimit="1"/>
 	</Shop>
 	<Shop Name="CONTENTS_TOTAL_SHOP" PointScript="GET_CONTENTS_TOTAL_POINT">
 		<Item Script="None" Name="piece_EP17_GoddessIcor_Weapon_NoTrade" Count="1" Price="3000" DailyBuyLimit="0"/>
@@ -143,6 +144,8 @@
 		<Item Script="None" Name="COLLECT_450" Count="1" Price="3000" DailyBuyLimit="0" AccountNeedProperty="ContentsTotalShop_EP17_19"/>
 		<Item Script="None" Name="DRESS_ROOM_COLLECT_28" Count="1" Price="3000" DailyBuyLimit="0" AccountNeedProperty="ContentsTotalShop_2508_1"/>
 		<Item Script="None" Name="DRESS_ROOM_COLLECT_29" Count="1" Price="3000" DailyBuyLimit="0" AccountNeedProperty="ContentsTotalShop_EP17_20"/>
+		<Item Script="None" Name="DRESS_ROOM_COLLECT_30" Count="1" Price="3000" DailyBuyLimit="0" AccountNeedProperty="ContentsTotalShop_EP17_21"/>
+		<Item Script="None" Name="DRESS_ROOM_COLLECT_31" Count="1" Price="3000" DailyBuyLimit="0" AccountNeedProperty="ContentsTotalShop_EP17_22"/>
 	</Shop>
 	<Shop Name="CONTENTS_TOTAL_SHOP_PAPAYA" PointScript="GET_CONTENTS_TOTAL_POINT">
 		<Item Script="None" Name="Gesture_CLOCK" Count="1" Price="5000" DailyBuyLimit="0" AccountNeedProperty="ContentsTotalShop_2109_1"/>

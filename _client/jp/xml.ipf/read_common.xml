@@ -455,4 +455,5 @@
 	<ReadXml Name="demonlair_user_select_info"/>
 	<ReadXml Name="head_partial_anim_mapping"/>
 	<ReadXml Name="facial_expression_list"/>
+	<ReadXml Name="event_collection"/>
 </Category>

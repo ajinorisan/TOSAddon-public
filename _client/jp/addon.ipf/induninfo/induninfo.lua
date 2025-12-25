@@ -2377,7 +2377,7 @@ function INDUNINFO_TAB_CHANGE(parent, ctrl)
         WEEKLYBOSSINFO_UI_OPEN(frame);
     elseif index == 4 then
 		FIELD_BOSS_UI_OPEN(frame);
-	elseif index == 5 then
+    elseif index == 5 then
         BORUTA_RANKING_UI_OPEN(frame);
     elseif index == 6 then
         PVP_INDUNINFO_UI_OPEN(frame);
@@ -2613,8 +2613,8 @@ function ON_JOIN_TEAM_BATTLE(parent,ctrl)
 		return
 	end
     local adventure_book = ui.GetFrame('adventure_book')
-    local adventure_book_btn = GET_CHILD_RECURSIVELY(adventure_book,"teamBattleMatchingBtn")
-	ADVENTURE_BOOK_JOIN_WORLDPVP(adventure_book_btn:GetParent(),adventure_book_btn)
+    local adventure_book_btn = GET_CHILD_RECURSIVELY(adventure_book, "teamBattleMatchingBtn")
+	ADVENTURE_BOOK_JOIN_WORLDPVP(adventure_book_btn:GetParent(), adventure_book_btn)
 end
 
 function INDUNINFO_TEAM_BATTLE_STATE_CHANGE(frame,ctrl,argStr,argNum)

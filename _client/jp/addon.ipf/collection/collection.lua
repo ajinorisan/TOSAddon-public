@@ -192,6 +192,7 @@ end
 function ON_ADD_COLLECTION(frame, msg)
 	UPDATE_COLLECTION_LIST(frame);
 	UPDATE_COSTUME_COLLECTION_LIST(frame);
+	UPDATE_EVENT_COLLECTION_LIST(frame)
 	local colls = session.GetMySession():GetCollection();
 	if colls:Count() == 1 then
 		SYSMENU_FORCE_ALARM("collection", "Collection");
@@ -233,6 +234,8 @@ function ON_COLLECTION_ITEM_CHANGE(frame, msg, str, type, removeType)
 		SCR_NEW_COLLECTION_DETAIL_VIEW_REMOVE(frame);
 		if idx == 2 then
 			UPDATE_COSTUME_COLLECTION_LIST(frame, str, removeType);
+		elseif idx == 3 then
+			UPDATE_EVENT_COLLECTION_LIST(frame, str, removeType)
 		else
 			UPDATE_COLLECTION_LIST(frame);
 		end
@@ -270,8 +273,20 @@ function COLLECTION_TYPE_CHANGE(frame, ctrl)
 	
 	local topFrame = frame:GetTopParentFrame();
 	if topFrame ~= nil then
-		UPDATE_COLLECTION_LIST(topFrame);
-		UPDATE_COSTUME_COLLECTION_LIST(topFrame);
+		-- 현재 선택된 카테고리 탭 인덱스 확인
+		local category_idx = topFrame:GetUserIValue("CATEGORY_IDX");
+        if category_idx == nil then 
+            category_idx = 0;
+        end
+
+		if category_idx == 2 then
+			UPDATE_COSTUME_COLLECTION_LIST(topFrame);
+		elseif category_idx == 3 then
+			UPDATE_EVENT_COLLECTION_LIST(topFrame);
+		else
+			UPDATE_COLLECTION_LIST(topFrame);
+		end
+		topFrame:Invalidate()
 	end
 end
 
@@ -385,6 +400,8 @@ function COLLECTION_OPEN(frame)
 		frame:SetUserValue("CATEGORY_IDX", idx);
 		if idx == 2 then
 			UPDATE_COSTUME_COLLECTION_LIST(frame);
+		elseif idx == 3 then
+			UPDATE_EVENT_COLLECTION_LIST(frame)
 		else
 	UPDATE_COLLECTION_LIST(frame);
 end
@@ -812,10 +829,11 @@ function OPEN_DECK_DETAIL(parent, ctrl)
 	end
 
 	local is_dress_room = parent:GetUserIValue("is_dress_room");
+	local is_event_collection = parent:GetUserIValue("is_event_collection")
+	local cur_deatil_collection_type = frame:GetUserIValue("DETAIL_VIEW_TYPE")
 	if is_dress_room == 1 then
 		if cls == nil then cls = GetClassByType("dress_room_reward", type); end
 		if cls ~= nil then
-			local cur_deatil_collection_type = frame:GetUserIValue("DETAIL_VIEW_TYPE");
 			if cur_deatil_collection_type == cls.ClassID then
 				frame:SetUserValue("DETAIL_VIEW_TYPE", nil);
 			else
@@ -836,10 +854,31 @@ function OPEN_DECK_DETAIL(parent, ctrl)
 			frame:SetUserValue("DETAIL_VIEW_TYPE", nil);
 		end
 		UPDATE_COSTUME_COLLECTION_LIST(frame, nil, nil, cls);
+	elseif is_event_collection == 1 then
+		if cls ~= nil then
+			if cur_deatil_collection_type == cls.ClassID then
+				frame:SetUserValue("DETAIL_VIEW_TYPE", nil)
+			else
+				frame:SetUserValue("DETAIL_VIEW_TYPE", cls.ClassID)
+				local pc = session.GetMySession()
+				local collectionList = pc:GetCollection()
+				local collection = collectionList:Get(cls.ClassID)
+				if collection ~= nil then 
+					local etc_obj = GetMyEtcObject()
+					local is_read = TryGetProp(etc_obj, "CollectionRead_"..cls.ClassID)
+					if is_read == nil or is_read == 0 then
+						local scp_string = string.format("/readcollection %d", type)
+						ui.Chat(scp_string);
+					end
+				end
+			end
+		else
+			frame:SetUserValue("DETAIL_VIEW_TYPE", nil)
+		end
+		UPDATE_EVENT_COLLECTION_LIST(frame, nil, nil, cls)
 	else
 	if cls ~= nil then
-		local curDetailCollectionType = frame:GetUserIValue("DETAIL_VIEW_TYPE");
-		if curDetailCollectionType ~= cls.ClassID then
+			if cur_deatil_collection_type ~= cls.ClassID then
 			-- DetailView를 설정
 			frame:SetUserValue("DETAIL_VIEW_TYPE", cls.ClassID);
 			
@@ -910,7 +949,6 @@ function GET_COLLECTION_MAGIC_DESC(type)
 	end
 
 	for i = 0 , propCnt - 1 do
-		
 		local prop = nil;
 		if false == isAccountColl then
 			prop = info:GetProp(i);
@@ -932,7 +970,26 @@ function GET_COLLECTION_MAGIC_DESC(type)
 		end
 	end
 	end
+
 	local cls = GetClassByType('Collection', type)
+	if cls ~= nil then
+		local category_type = tonumber(TryGetProp(cls, "CategoryType"))
+		if category_type == 3 then
+			local acc_give_item_list = TryGetProp(cls, 'AccGiveItemList', 'None')
+			if acc_give_item_list ~= "None" then
+				local item_list = SCR_STRING_CUT(acc_give_item_list)
+				if #item_list >= 4 then
+					for i = 2, #item_list / 2 do
+						local item_class_name = item_list[i * 2 - 1]
+						local item_count = item_list[i * 2]
+						local item = GetClassString("Item", item_class_name, "Name")
+						if item ~= nil then
+							ret = ret.."{nl}"..ScpArgMsg("EventCollectionMsg", "ITEM", item)
+						end
+					end
+				end
+			end
+		else
 	local itemList = TryGetProp(cls, 'AccGiveItemList', 'None')
 	if itemList ~= 'None' then
 	    local itemList = SCR_STRING_CUT(itemList)
@@ -948,12 +1005,13 @@ function GET_COLLECTION_MAGIC_DESC(type)
     	    end
     	end
 	end
+		end
+	end
 	return ret;
 end
 
 -- draw detail 
 function DETAIL_UPDATE(frame, coll, detailView ,type, posY ,playEffect, isUnknown)
-
 	-- 디테일뷰가 있을지 모르니까 지운다.
 	DESTROY_CHILD_BYNAME(detailView, 'SLOT_');
 	
@@ -981,7 +1039,6 @@ function DETAIL_UPDATE(frame, coll, detailView ,type, posY ,playEffect, isUnknow
 		local space  = frame:GetUserConfig("DETAIL_ITEM_SPACE");   -- 아이템과 아이템사이의 X축 간격
 		local slotWidth =  math.floor( (boxWidth / picInBox) - (space*2)); -- 슬롯한개의 넓이
 		local slotHeight = slotWidth; -- 슬롯한개의 높이
-		
 		local num = 1;
 		local brk = 0;
 		local drawitemset = {}
@@ -1000,7 +1057,6 @@ function DETAIL_UPDATE(frame, coll, detailView ,type, posY ,playEffect, isUnknow
 				local col = (j - 1)  % picInBox;
 				local x = marginX + col * (slotWidth + space);
 				local y = marginY + (row - 1) * (slotHeight + space);
-
 				local slotSet = detailView:CreateOrGetControlSet('collection_slot', "SLOT_" .. num, x,y );
 
 				SET_COLLECTION_PIC(j, frame, slotSet, itemCls, coll,type, drawitemset, reinforce, IsReinfoCol);
@@ -1104,6 +1160,12 @@ function COLLECTION_ADD(index, collectionType, itemType, itemIesID)
 		local item_class_name = TryGetProp(item_obj, "ClassName", "None");
 		local reward_cls = GetClassByStrProp("dress_room", "ItemClassName", item_class_name);
 		if config.GetServiceNation() == 'PAPAYA' then reward_cls = GetClassByStrProp("dress_room_papaya", "ItemClassName", item_class_name); end
+
+		if not reward_cls then
+			reward_cls = GetClassByStrProp("dress_room", "ItemClassName1", item_class_name);
+			if config.GetServiceNation() == 'PAPAYA' then reward_cls = GetClassByStrProp("dress_room_papaya", "ItemClassName1", item_class_name); end
+		end
+
 		if reward_cls ~= nil then
 			local reward_cls_id = TryGetProp(reward_cls, "ClassID", 0);
 			local frame = ui.GetFrame("collection");
@@ -1149,7 +1211,16 @@ function COLLECTION_TAKE(parent, ctrl)
 		-- 가장 가치가 없는 아이템을 가져옴.
 		local invItemlist = GET_ONLY_PURE_INVITEMLIST(tonumber(itemType));
 		if #invItemlist < 1 or invItemlist == nil then
+			--만약 papaya의 추가된 아이템이라면
+			local IsDupItem, DupItemType = IS_DUPLICATED_ITEM(itemType);
+			--추가된 아이템을 체크해서 넣는다
+			--이러면 문제점 -> 둘 다 있을때 기존의 아이템 부터 들어간다.
+			if not IsDupItem then
 			return;
+		end
+			--아니라면 적용
+			invItemlist = GET_ONLY_PURE_INVITEMLIST(tonumber(DupItemType));
+			itemType = DupItemType;
 		end
 		iesID = invItemlist[1]:GetIESID();	
 	else
@@ -1191,10 +1262,12 @@ function SEARCH_COLLECTION_NAME(parent, ctrl)
 	 return 
 	end
 	local tab_index = frame:GetUserIValue("CATEGORY_IDX");
-	if tab_index ~= 2 then
-	UPDATE_COLLECTION_LIST(frame);
-	else
+	if tab_index == 2 then
 		UPDATE_COSTUME_COLLECTION_LIST(frame);
+	elseif tab_index == 3 then
+		UPDATE_EVENT_COLLECTION_LIST(frame)
+	else
+		UPDATE_COLLECTION_LIST(frame);
 	end
 end
 
@@ -1223,10 +1296,12 @@ function UPDATE_COLLECTION_OPTION(parent, ctrl)
 	collectionViewOptions.showIncompleteCollections = NUMBER_TO_BOOLEAN(chkIncomplete:IsChecked());
 
 	local tab_index = frame:GetUserIValue("CATEGORY_IDX");
-	if tab_index ~= 2 then
-	UPDATE_COLLECTION_LIST(frame);
-	else
+	if tab_index == 2 then
 		UPDATE_COSTUME_COLLECTION_LIST(frame);
+	elseif tab_index == 3 then
+		UPDATE_EVENT_COLLECTION_LIST(frame)
+	else
+		UPDATE_COLLECTION_LIST(frame);
 	end
 end
 
@@ -1237,10 +1312,12 @@ function SEARCH_COLLECTION_ENTER(parent, ctrl)
 	 	return;
 	end
 	local tab_index = frame:GetUserIValue("CATEGORY_IDX");
-	if tab_index ~= 2 then
-	UPDATE_COLLECTION_LIST(frame);
-	else
+	if tab_index == 2 then
 		UPDATE_COSTUME_COLLECTION_LIST(frame);
+	elseif tab_index == 3 then
+		UPDATE_EVENT_COLLECTION_LIST(frame)
+	else
+		UPDATE_COLLECTION_LIST(frame);
 	end
 end
 
@@ -1284,7 +1361,6 @@ end
 function SORT_COLLECTION_BY_NAME(a,b)
 	local aName = a.info.name;
 	local bName = b.info.name;
-
 	return aName < bName;
 end
 
@@ -1621,9 +1697,15 @@ function SET_NEW_COLLECTION_SET(frame, ctrl_set, type, collection, pos_y)
 				local collection_info_detail_pic = GET_CHILD_RECURSIVELY(gbox_collection_info, "collection_info_detail_pic");
 				local collection_info_detail_text = GET_CHILD_RECURSIVELY(gbox_collection_info, "collection_info_detail_text");
 				local collection_info_detail_list_text = GET_CHILD_RECURSIVELY(gbox_collection_info, "collection_info_detail_list_text");
+				local event_collection_info_detail_list_text = GET_CHILD_RECURSIVELY(gbox_collection_info, "event_collection_info_detail_list_text")
 				collection_info_detail_pic:ShowWindow(1);
 				collection_info_detail_text:ShowWindow(1);
 				collection_info_detail_list_text:ShowWindow(1);
+				event_collection_info_detail_list_text:ShowWindow(0)
+				local collection_info_detail_bg_pic = GET_CHILD_RECURSIVELY(gbox_collection_info, "collection_info_detail_bg_pic");
+				if collection_info_detail_bg_pic ~= nil then
+					collection_info_detail_bg_pic:ShowWindow(0);
+				end
 				SET_NEW_COLLECTION_DETAIL_VIEW(frame, collection, gbox_collection_info, type, desc);
 			end
 		end
@@ -1654,12 +1736,16 @@ function SET_NEW_COLLECTION_DETAIL_VIEW(frame, collection, gbox_info, type, desc
 		local draw_count = math.ceil(max / draw_count_limit);
 		local cls = GetClassByType("Collection", type);
 		if cls ~= nil then
-			local margin_x = frame:GetUserConfig("DETAIL_MARGIN_X");
+			local margin_offset_x = tonumber(frame:GetUserConfig("DETAIL_MARGIN_OFFSET_X"))
+			if margin_offset_x == nil then
+				margin_offset_x = 0
+			end
+			local margin_x = frame:GetUserConfig("DETAIL_MARGIN_X") + margin_offset_x;
 			local margin_y = frame:GetUserConfig("DETAIL_MARGIN_Y");
 			local space = frame:GetUserConfig("DETAIL_ITEM_SPACE");
 			local gbox_width = gbox_info:GetWidth();
 			local box_width = gbox_width - (margin_x * 2);
-			local slot_width = math.floor((box_width / draw_count_limit) - (space * 2)) + 15;
+			local slot_width = math.floor((box_width / draw_count_limit) - (space * 2)) + 10;
 			local slot_height = slot_width;
 			local idx = 1;
 			local is_break = 0;
@@ -1702,10 +1788,16 @@ function SCR_NEW_COLLECTION_DETAIL_VIEW_REMOVE(frame)
 		local info_detail_text = GET_CHILD_RECURSIVELY(frame, "collection_info_detail_text");
 		local info_detail_list_text = GET_CHILD_RECURSIVELY(frame, "collection_info_detail_list_text");
 		local info_costume_detail_list_text = GET_CHILD_RECURSIVELY(frame, "costume_collection_info_detail_list_text");
+		local event_collection_info_detail_list_text = GET_CHILD_RECURSIVELY(frame, "event_collection_info_detail_list_text")
 		info_detail_pic:ShowWindow(0);
 		info_detail_text:ShowWindow(0);
 		info_detail_list_text:ShowWindow(0);
 		info_costume_detail_list_text:ShowWindow(0);
+		event_collection_info_detail_list_text:ShowWindow(0)
+		local info_detail_bg_pic = GET_CHILD_RECURSIVELY(frame, "collection_info_detail_bg_pic");
+		if info_detail_bg_pic ~= nil then
+			info_detail_bg_pic:ShowWindow(0);
+		end
 		DESTROY_CHILD_BYNAME(gbox, "SLOT_");
 	end
 end
@@ -1721,6 +1813,8 @@ function SCR_NEW_COLLECTION_TAB_CHANGE(frame, ctrl, arg_str, arg_num)
 			SCR_NEW_COLLECTION_DETAIL_VIEW_REMOVE(top_frame);
 			if idx == 2 then
 				UPDATE_COSTUME_COLLECTION_LIST(top_frame);
+			elseif idx == 3 then
+				UPDATE_EVENT_COLLECTION_LIST(top_frame)
 			else
 				UPDATE_COLLECTION_LIST(top_frame);
 			end
@@ -1753,7 +1847,7 @@ function GET_NEW_COSTUME_COLLECTION_INFO(cls, acc_obj, item_table, collection_co
 			collection_status = collectionStatus.isNew;
 		end
 	end
-	-- add able chekc
+	-- add able check
 	local add_num = 0;
 	if collection_status == collectionStatus.isNormal then
 		local item_list = item_table[thema];
@@ -1981,7 +2075,6 @@ function SET_NEW_COSTUME_COLLECTION_SET(frame, ctrl_set, item_table, type, pos_y
 		end
 		-- registration number
 		if visible_add_num == true then
-			if cur > 0 then
 				local add_num = 0;
 				local item_list = item_table[thema];
 				for i = 1, #item_list do
@@ -2009,7 +2102,6 @@ function SET_NEW_COSTUME_COLLECTION_SET(frame, ctrl_set, item_table, type, pos_y
 					icon_num:ShowWindow(1);
 				end
 			end
-		end
 		-- name
 		if name_text ~= nil then
 			local name = TryGetProp(cls, "Name", "None");
@@ -2079,18 +2171,24 @@ function SET_NEW_COSTUME_COLLECTION_SET(frame, ctrl_set, item_table, type, pos_y
 				local collection_info_detail_text = GET_CHILD_RECURSIVELY(gbox_collection_info, "collection_info_detail_text");
 				local collection_info_detail_list_text = GET_CHILD_RECURSIVELY(gbox_collection_info, "collection_info_detail_list_text");
 				local costume_collection_info_detail_list_text = GET_CHILD_RECURSIVELY(gbox_collection_info, "costume_collection_info_detail_list_text");
+				local event_collection_info_detail_list_text = GET_CHILD_RECURSIVELY(gbox_collection_info, "event_collection_info_detail_list_text")
 				collection_info_detail_pic:ShowWindow(1);
 				collection_info_detail_text:ShowWindow(1);
 				collection_info_detail_list_text:ShowWindow(1);
 				costume_collection_info_detail_list_text:ShowWindow(1);
-				SET_NEW_COSTUME_COLLECTION_DETAIL_VIEW(frame, gbox_collection_info, acc_obj, item_table, thema, type, desc);
+				event_collection_info_detail_list_text:ShowWindow(0)
+				local collection_info_detail_bg_pic = GET_CHILD_RECURSIVELY(gbox_collection_info, "collection_info_detail_bg_pic");
+				if collection_info_detail_bg_pic ~= nil then
+					collection_info_detail_bg_pic:ShowWindow(0);
+				end
+				SET_NEW_COSTUME_COLLECTION_DETAIL_VIEW(frame, gbox_collection_info, acc_obj, item_table, thema, type, desc, visible_add_num);
 			end
 		end
 		return new_pos_y;
 	end
 end
 
-function SET_NEW_COSTUME_COLLECTION_DETAIL_VIEW(frame, gbox_info, acc_obj, item_table, thema, type, desc)
+function SET_NEW_COSTUME_COLLECTION_DETAIL_VIEW(frame, gbox_info, acc_obj, item_table, thema, type, desc, visible_add_num)
 	if frame == nil or acc_obj == nil or item_table == nil then return; end
 	-- detail info title
 	local collection_info_detail_text = GET_CHILD_RECURSIVELY(gbox_info, "collection_info_detail_text");
@@ -2119,12 +2217,16 @@ function SET_NEW_COSTUME_COLLECTION_DETAIL_VIEW(frame, gbox_info, acc_obj, item_
 		local cls = GetClassByType("dress_room_reward", type);
 		if cls ~= nil then
 			local item_list = item_table[thema];
+			local margin_offset_x = tonumber(frame:GetUserConfig("DETAIL_MARGIN_OFFSET_X"))
 			local margin_x = frame:GetUserConfig("DETAIL_MARGIN_X");
+			if margin_offset_x ~= nil then
+				margin_x = margin_x + margin_offset_x
+			end
 			local margin_y = frame:GetUserConfig("DETAIL_MARGIN_Y");
 			local space = frame:GetUserConfig("DETAIL_ITEM_SPACE");
 			local gbox_width = gbox_info:GetWidth();
 			local box_width = gbox_width - (margin_x * 2);
-			local slot_width = math.floor((box_width / draw_count_limit) - (space * 2)) + 15;
+			local slot_width = math.floor((box_width / draw_count_limit) - (space * 2)) + 10;
 			local slot_height = slot_width;
 			local idx = 0;
 			local is_break = 0;
@@ -2150,11 +2252,18 @@ function SET_NEW_COSTUME_COLLECTION_DETAIL_VIEW(frame, gbox_info, acc_obj, item_
 							local y = margin_y + (row - 1) * (slot_height + space);
 							local ctrl_set = gbox_info:CreateOrGetControlSet("collection_slot", "SLOT_"..idx, x, y);
 							if ctrl_set ~= nil then
+								-- ctrl_set setting
 								local reward_class_name = TryGetProp(reward_cls, "ClassName", "None");
 								ctrl_set:SetUserValue("DRESS_PROP", reward_class_name);
+								-- btn setting
 								local btn = GET_CHILD_RECURSIVELY(ctrl_set, "btn", "ui::CSlot");
 								btn:ShowWindow(0);
 								btn:SetTooltipOverlap(0);
+								local item_class_id = TryGetProp(item_cls, "ClassID", 0);
+								if session.GetInvItemCountByType(item_class_id) > 0 then
+									btn:ShowWindow(1);
+								end
+								-- slot setting
 								local slot = GET_CHILD_RECURSIVELY(ctrl_set, "slot", "ui::CSlot");
 								if slot ~= nil then
 									slot:SetUserValue("COLLECTION_TYPE", type);
@@ -2174,6 +2283,7 @@ function SET_NEW_COSTUME_COLLECTION_DETAIL_VIEW(frame, gbox_info, acc_obj, item_
 											end
 										else
 											icon:SetColorTone("FFFFFFFF");
+											btn:ShowWindow(0);
 										end
 										local item_class_id = TryGetProp(item_cls, "ClassID", 0);
 										SET_ITEM_TOOLTIP_ALL_TYPE(icon, nil, item_name, "collection", item_class_id, item_class_id);
@@ -2205,4 +2315,392 @@ function SCR_NEW_COSTUME_COLLECTION_REGISTER()
 	if inv_item ~= nil then
 		pc.ReqExecuteTx_Item("REGISTER_DRESS_ROOM_ITEM", inv_item:GetIESID(), tostring(dress_cls_id));
 	end
+end
+
+function UPDATE_EVENT_COLLECTION_LIST(frame, add_type, remove_type, target_cls)
+	if frame == nil then 
+		return 
+	end
+	
+	if frame:IsVisible() == 0 then 
+		return 
+	end
+	
+	local gbox_collection = GET_CHILD_RECURSIVELY(frame, "collection_bg", "ui::CGroupBox")
+	if gbox_collection == nil then 
+		return 
+	end
+	
+	local gbox_status = GET_CHILD_RECURSIVELY(frame, "status_bg", "ui::CGroupBox")
+	if gbox_status == nil then 
+		return 
+	end
+
+	local check_complete = GET_CHILD(gbox_status, "complete_check", "ui::CCheckBox")
+	local check_unknown = GET_CHILD(gbox_status, "unknown_check", "ui::CCheckBox")
+	local check_incomplete = GET_CHILD(gbox_status, "incomplete_check", "ui::CCheckBox")
+	if check_complete == nil or check_unknown == nil or check_incomplete == nil then 
+		return 
+	end
+	check_complete:SetCheck(BOOLEAN_TO_NUMBER(collectionViewOptions.showCompleteCollections))
+	check_unknown:SetCheck(BOOLEAN_TO_NUMBER(collectionViewOptions.showUnknownCollections))
+	check_incomplete:SetCheck(BOOLEAN_TO_NUMBER(collectionViewOptions.showIncompleteCollections))
+
+	DESTROY_CHILD_BYNAME(gbox_collection, 'DECK_')
+
+	collectionViewCount.showCompleteCollections = 0
+	collectionViewCount.showUnknownCollections = 0
+	collectionViewCount.showIncompleteCollections = 0
+
+	local pc = session.GetMySession()
+	if pc == nil then
+		return
+	end
+
+	local etc_obj = GetMyEtcObject()
+	if etc_obj == nil then
+		return
+	end
+
+	local collection_list = pc:GetCollection()
+	if collection_list == nil then
+		return
+	end
+
+	local collection_idx = 1
+	local collection_info_list = {}
+	local complete_effect_list = {}
+	local search_text = GET_COLLECTION_SEARCH_TEXT(frame)
+
+	local list, cnt = GetClassList("event_collection")
+	if list ~= nil and cnt > 0 then
+		for i = 0, cnt - 1 do
+			local cls = GetClassByIndexFromList(list, i)
+			if cls ~= nil then
+				-- event collection info
+				local collection_name = TryGetProp(cls, "CollectionName", "None")
+				local align = TryGetProp(cls, "Align", "None")
+				local col = TryGetProp(cls, "Col", 0)
+				local row = TryGetProp(cls, "Row", 0)
+				local bg_img = TryGetProp(cls, "BgImg", "None")
+				local offsetx = TryGetProp(cls, "OffsetX", 0)
+				local offsety = TryGetProp(cls, "OffsetY", 0)
+				local space_offset = TryGetProp(cls, "SpaceOffset", 0)
+				
+				-- collection info
+				local collection_cls = GetClass("Collection", collection_name)
+				if collection_cls ~= nil then
+					local collection = collection_list:GetByName(collection_name)
+					local collection_info = GET_COLLECTION_INFO(collection_cls, collection, etc_obj, complete_effect_list)
+					if CHECK_COLLECTION_INFO_FILTER(collection_info, search_text, collection_cls, collection) == true then
+						if TryGetProp(collection_cls, "Journal", "FALSE") == "TRUE" then
+							collection_info_list[collection_idx] = { 
+								cls = collection_cls, 
+								coll = collection, 
+								info = collection_info,
+								align = align,
+								col = col,
+								row = row,
+								offset_x = offsetx,
+								offset_y = offsety,
+								offset_space = space_offset, 
+								bgimg = bg_img
+							}
+							collection_idx = collection_idx + 1
+						end
+					end
+				end
+			end
+		end
+		SET_COLLECTION_MAIGC_LIST(frame, complete_effect_list, collectionViewCount.showCompleteCollections)
+
+		check_complete:SetTextByKey("value", collectionViewCount.showCompleteCollections)
+		check_unknown:SetTextByKey("value", collectionViewCount.showUnknownCollections)
+		check_incomplete:SetTextByKey("value", collectionViewCount.showIncompleteCollections)
+
+		if collectionViewOptions.sortType == collectionSortTypes.name then
+			table.sort(collection_info_list, SORT_COLLECTION_BY_NAME)
+		elseif collectionViewOptions.sortType == collectionSortTypes.status then
+			table.sort(collection_info_list, SORT_COLLECTION_BY_STATUS)
+		end
+
+		local pos_y = 0
+		for i, v in pairs(collection_info_list) do
+			local ctrlset = gbox_collection:CreateOrGetControlSet("new_collection_deck", "DECK_"..i, 10, pos_y)
+			if ctrlset ~= nil then
+				ctrlset:SetUserValue("is_event_collection", 1)
+				ctrlset:SetUserValue("type", v.cls.ClassID)
+				ctrlset:ShowWindow(1)
+				pos_y = SET_NEW_EVENT_COLLECTION_SET(frame, ctrlset, etc_obj, v.cls, v.coll, v.align, v.col, v.row, v.bgimg, v.offset_x, v.offset_y, v.offset_space, pos_y)
+				pos_y = pos_y - tonumber(frame:GetUserConfig("DECK_SPACE"))
+			end
+		end
+
+		if add_type ~= "UNEQUIP" and REMOVE_ITEM_SKILL ~= 7 then
+			imcSound.PlaySoundEvent("quest_ui_alarm_2")
+		end
+	end
+end
+
+function SET_NEW_EVENT_COLLECTION_SET(frame, ctrlset, etc_obj, collection_cls, collection, align, col, row, bg_img, offset_x, offset_y, offset_space, pos_y)
+	if frame == nil or ctrlset == nil or etc_obj == nil or collection_cls == nil then 
+		return 0
+	end
+
+	local type = TryGetProp(collection_cls, "ClassID", 0)
+	ctrlset:SetUserValue("COLLECTION_TYPE", type)
+	
+	local unknown = collection == nil
+	if unknown == false then
+		ctrlset:SetSkinName(frame:GetUserConfig("ENABLE_SKIN"))
+	else
+		ctrlset:SetSkinName(frame:GetUserConfig("DISABLE_SKIN"))
+	end
+
+	local cur, max = GET_COLLECTION_COUNT(type, collection)
+	local count_text = GET_CHILD_RECURSIVELY(ctrlset, "collection_count", "ui::CRichText")
+	if count_text ~= nil then
+		count_text:SetTextByKey("cur", cur)
+		count_text:SetTextByKey("max", max)
+		if unknown == true then
+			count_text:ShowWindow(0)
+		end
+	end
+
+	local icon_num = GET_CHILD_RECURSIVELY(ctrlset, "icon_num", "ui::CPicture");
+	local icon_new = GET_CHILD_RECURSIVELY(ctrlset, "icon_new", "ui::CPicture");
+	local icon_comp = GET_CHILD_RECURSIVELY(ctrlset, "icon_comp", "ui::CPicture");
+	local text_collection_num = GET_CHILD_RECURSIVELY(ctrlset, "collection_num", "ui::CRichText")
+	text_collection_num:ShowWindow(0)
+	icon_num:ShowWindow(0)
+	icon_new:ShowWindow(0)
+	icon_comp:ShowWindow(0)
+
+	local gbox_complete = GET_CHILD_RECURSIVELY(ctrlset, "gb_complete", "ui::CGroupBox");
+	gbox_complete:ShowWindow(0)
+
+	local collection_name = ""
+	local name_text = GET_CHILD_RECURSIVELY(ctrlset, "collection_name", "ui::CRichText")
+	if name_text ~= nil then
+		local collection_name_font = nil
+		local visible_add_num_font = nil
+		local visible_add_num = false
+		if unknown == false then
+			collection_name_font = frame:GetUserConfig("ENABLE_DECK_TITLE_FONT")
+			local is_read = TryGetProp(etc_obj, "CollectionRead_"..type)
+			if cur >= max then
+				-- complete
+				icon_comp:ShowWindow(1)
+				gbox_complete:ShowWindow(1)
+				collection_name_font = frame:GetUserConfig("COMPLETE_DECK_TITLE_FONT")
+			elseif is_read == nil or is_read == 0 then
+				icon_new:ShowWindow(1)
+			else
+				visible_add_num = true
+				visible_add_num_font = frame:GetUserConfig("ENABLE_DECK_NUM_FONT")
+			end
+		else
+			icon_num:SetColorTone(frame:GetUserConfig("NOT_HAVE_COLOR"))
+			collection_name_font = frame:GetUserConfig("DISABLE_DECK_TITLE_FONT")
+			visible_add_num_font = frame:GetUserConfig("DISABLE_DECK_NUM_FONT")
+			visible_add_num = true
+		end
+
+		if visible_add_num == true then
+			local registration_num_count = GET_COLLECT_ABLE_ITEM_COUNT(collection, type)
+			if registration_num_count > 0 then
+				if visible_add_num_font ~= nil then
+					text_collection_num:SetTextByKey("value", visible_add_num_font..registration_num_count.."{/}")
+				else
+					text_collection_num:SetTextByKey("value", visible_add_num_font)
+				end
+				text_collection_num:ShowWindow(1)
+				icon_num:ShowWindow(1)
+			end
+		end
+
+		local replace_name = TryGetProp(collection_cls, "Name", "None")
+		if replace_name ~= "None" then 
+			replace_name = string.gsub(replace_name, ClMsg("CollectionReplace"), "")
+		end
+
+		collection_name = replace_name;
+		if collection_name_font ~= nil then
+			name_text:SetTextByKey("name", collection_name_font..replace_name.."{/}");
+		else
+			name_text:SetTextByKey("name", replace_name);
+		end
+	end
+
+	-- deatil
+	local gbox_detail = GET_CHILD_RECURSIVELY(ctrlset, "gb_detail", "ui::CGroupBox")
+	local icon_detail = GET_CHILD_RECURSIVELY(gbox_detail, "icon_detail", "ui::CPicture")
+	local text_detail = GET_CHILD_RECURSIVELY(icon_detail, "text_detail", "ui::CRichText")
+	local text_detail_list = GET_CHILD_RECURSIVELY(gbox_detail, "text_detail_list", "ui::CRichText")
+	---- deatil - font
+	local desc_font = nil
+	local detail_font = nil
+	if unknown == false then
+		desc_font = frame:GetUserConfig("DISABLE_MAGIC_LIST_FONT")
+		detail_font = frame:GetUserConfig("DISABLE_MAGIC_FONT")
+		icon_detail:SetColorTone(frame:GetUserConfig("NOT_HAVE_COLOR"))
+	else
+		desc_font = frame:GetUserConfig("ENABLE_MAGIC_LIST_FONT")
+		detail_font = frame:GetUserConfig("ENABLE_MAGIC_FONT")
+	end
+	---- deatil - text
+	if detail_font ~= nil then
+		text_detail:SetTextByKey("value", detail_font..ClMsg("EventCollectionMagicText").."{/}")
+	else
+		text_detail:SetTextByKey("value", ClMsg("EventCollectionMagicText"))
+	end
+	---- detail - input
+	local desc = GET_COLLECTION_MAGIC_DESC(type)
+	if desc_font ~= nil then
+		text_detail_list:SetTextByKey("value", desc_font..desc.."{/}")
+	else
+		text_detail_list:SetTextByKey("value", desc)
+	end
+	---- detail - resize
+	local text_detail_list_height = text_detail_list:GetHeight()
+	gbox_detail:Resize(gbox_detail:GetWidth(), text_detail_list_height)
+	
+	-- ctrlset - resize
+	local old_pos_y = pos_y
+	local cur_pos_y = ctrlset:GetOriginalY() + name_text:GetY() + name_text:GetHeight()
+	cur_pos_y = cur_pos_y + gbox_detail:GetHeight()
+
+	local new_pos_y = pos_y + ctrlset:GetHeight() + 10
+	local ctrlset_height = math.max(new_pos_y - old_pos_y, gbox_detail:GetY() + text_detail_list:GetHeight() + 15)
+	new_pos_y = pos_y + ctrlset_height
+	ctrlset:Resize(ctrlset:GetWidth(), ctrlset_height)
+
+	-- gbox collection - resize
+	local gbox_collection = GET_CHILD_RECURSIVELY(ctrlset, "gb_collection", "ui::CGroupBox")
+	if gbox_collection ~= nil then
+		gbox_collection:Resize(gbox_collection:GetWidth(), ctrlset:GetOriginalHeight())
+		gbox_complete:Resize(ctrlset:GetWidth(), ctrlset_height)
+	end
+	cur_pos_y = cur_pos_y + tonumber(frame:GetUserConfig("SLOT_BOTTOM_MARGIN"))
+
+	-- select
+	if frame:GetUserIValue("DETAIL_VIEW_TYPE") == type then
+		local gbox_collection_info = GET_CHILD_RECURSIVELY(frame, "collection_info_bg")
+		if gbox_collection_info ~= nil then
+			local collection_info_detail_bg_pic = GET_CHILD_RECURSIVELY(gbox_collection_info, "collection_info_detail_bg_pic")
+			if bg_img ~= "None" then
+				collection_info_detail_bg_pic:ShowWindow(1)
+				collection_info_detail_bg_pic:SetImage(bg_img)
+			else
+				collection_info_detail_bg_pic:ShowWindow(0)
+			end
+
+			local collection_info_detail_pic = GET_CHILD_RECURSIVELY(gbox_collection_info, "collection_info_detail_pic")
+			local collection_info_detail_text = GET_CHILD_RECURSIVELY(gbox_collection_info, "collection_info_detail_text")
+			local collection_info_detail_list_text = GET_CHILD_RECURSIVELY(gbox_collection_info, "collection_info_detail_list_text")
+			local event_collection_info_detail_list_text = GET_CHILD_RECURSIVELY(gbox_collection_info, "event_collection_info_detail_list_text")
+			collection_info_detail_pic:ShowWindow(1)
+			collection_info_detail_text:ShowWindow(1)
+			collection_info_detail_list_text:ShowWindow(1)
+			event_collection_info_detail_list_text:ShowWindow(1)
+			SET_NEW_EVENT_COLLECTION_DETAIL_VIEW(frame, collection_cls, collection, gbox_collection_info, type, desc, align, col, row, offset_x, offset_y, offset_space)
+		end
+	end
+	return new_pos_y
+end
+
+function SET_NEW_EVENT_COLLECTION_DETAIL_VIEW(frame, collection_cls, collection, gbox_info, type, desc, align, col, row, offset_x, offset_y, offset_space)
+	-- title
+	local detail_text = GET_CHILD_RECURSIVELY(gbox_info, "collection_info_detail_text")
+	if detail_text ~= nil then
+		detail_text:SetTextByKey("value", ClMsg("EventCollectionMagicText"))
+	end
+
+	-- desc
+	local detail_list_text = GET_CHILD_RECURSIVELY(gbox_info, "collection_info_detail_list_text")
+	if detail_list_text ~= nil then
+		detail_list_text:SetTextByKey("value", desc)
+	end
+
+	local event_detail_list_text = GET_CHILD_RECURSIVELY(gbox_info, "event_collection_info_detail_list_text")
+	if event_detail_list_text ~= nil then
+		local rewar_msg_text = ClMsg("EventCollectionRewardMsgText")
+		event_detail_list_text:SetTextByKey("value", rewar_msg_text)
+	end
+	
+	DESTROY_CHILD_BYNAME(gbox_info, "SLOT_")
+
+	-- view
+	local view_type = frame:GetUserIValue("DETAIL_VIEW_TYPE")
+	local enable = (view_type == type and frame:GetName() ~= "adventure_book")
+	if enable == true then
+		local cur, max = GET_COLLECTION_COUNT(type, collection)
+		if collection_cls ~= nil then
+			local margin_x = frame:GetUserConfig("DETAIL_MARGIN_X")
+			local margin_y = frame:GetUserConfig("DETAIL_MARGIN_Y")
+			local space = frame:GetUserConfig("DETAIL_ITEM_SPACE")
+			local gbox_width = gbox_info:GetWidth()
+			local box_width = gbox_width - (margin_x * 2)
+			local slot_width = math.floor((box_width / col) - (space * 2)) + offset_x
+			slot_width = slot_width + offset_space
+			local slot_height = slot_width
+
+			if align == "Center" then
+				local total_slots_width = (slot_width * col) + (space * (col - 1))
+				margin_x = (gbox_width - total_slots_width) / 2
+				margin_x = margin_x + 10
+			elseif align == "Right" then
+				local total_slots_width = (slot_width * col) + (space * (col -1))
+				margin_x = gbox_width - total_slots_width - frame:GetUserConfig("DETAIL_MARGIN_X")
+			end
+
+			local item_set = {}
+			local idx = 1
+			local is_break = 0
+			local is_reinforce_collection = TryGetProp(collection_cls, "IsReinfoCol", 0)
+			for i = 1, row do
+				for j = 1, col do
+					local item_name = TryGetProp(collection_cls, "ItemName_"..idx, "None")
+					local reinforce = TryGetProp(collection_cls, "Reinforce_"..idx, 0)
+					if item_name == "None" then
+						is_break = 1
+						break
+					end
+					-- item info
+					local item_cls = GetClass("Item", item_name)
+					if item_cls ~= nil then
+						local _row = i
+						local _col = (j - 1) % col
+						local x = margin_x + _col * (slot_width + space)
+						local y = margin_y + (_row - 1) * (slot_height + space) + offset_y
+						local ctrlset = gbox_info:CreateOrGetControlSet("collection_slot", "SLOT_"..idx, x, y)
+						if ctrlset ~= nil then
+							SET_COLLECTION_PIC(j, frame, ctrlset, item_cls, collection, type, item_set, reinforce, is_reinforce_collection)
+							idx = idx + 1
+						end
+					end
+				end
+				if is_break == 1 then
+					break
+				end
+			end
+		end
+	end
+end
+
+--parameter - itemtype : string value 
+function IS_DUPLICATED_ITEM(itemtype)
+	local dupitemlist = {
+		{"11101035","11101065"},
+		{"11101036","11101066"},
+		{"11101037","11101067"},
+		{"11101038","11101068"}
+	}
+	
+	for _, table in pairs(dupitemlist) do
+		if table[1] == itemtype or table[2] == itemtype then
+			return true, table[2];
+		end
+	end
+	return false;
 end

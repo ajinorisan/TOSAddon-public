@@ -62,3 +62,4 @@ ClassID,DefaultLearn,NextPoseCount,PoseLevel,RewardCheckCount,ClassName,Name,Fil
 62,0,0,0,0,"LIBERTY","자유의 여신상 포즈","pc_pose_lean01","","Item","","true","","","","","","CONTENTS_TOTAL_SHOP_POSE_22"
 63,0,0,0,0,"RODIN","로뎅 포즈","pc_pose_lean01","","Item","","true","","","","","","CONTENTS_TOTAL_SHOP_POSE_23"
 64,0,0,0,1,"KawaikuteGomen","귀여워서 미안","pc_pose_lean01","icon_gesture_KawaikuteGomen","Reward","","true","","","","","","CONTENTS_TOTAL_SHOP_POSE_24"
+65,0,0,0,1,"sodapop","스파클링 팝","pc_pose_lean01","icon_gesture_SparklingPop","Reward","","true","","","","","","CONTENTS_TOTAL_SHOP_POSE_25"

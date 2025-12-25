@@ -457,9 +457,9 @@ return buff"/>
                 <Num Num="1"/>
             </ToolScp>
             <ToolScp Scp="SKL_PLAY_SOUND" Client="NO" UseSleep="NO">
-                <Str Str="voice_war_f_startup_cast"UseFunc="1" FuncTxt="local value = 'None' if IsPVPField(self) == 1 then value = 'voice_war_f_startup_cast' end return value"/>
+                <Str Str="voice_war_f_startup_cast" UseFunc="1" FuncTxt="local value = 'None' if IsPVPField(self) == 1 then value = 'voice_war_f_startup_cast' end return value"/>
                 <Num Num="0"/>
-                <Str Str="voice_war_m_startup_cast"UseFunc="1" FuncTxt="local value = 'None' if IsPVPField(self) == 1 then value = 'voice_war_m_startup_cast' end return value"/>
+                <Str Str="voice_war_m_startup_cast" UseFunc="1" FuncTxt="local value = 'None' if IsPVPField(self) == 1 then value = 'voice_war_m_startup_cast' end return value"/>
             </ToolScp>
             <ToolScp Scp="SKL_C_RESUME_ANI" Client="YES" UseSleep="NO"/>
             <ToolScp Scp="MONSKL_C_PLAY_ANIM" Client="YES" UseSleep="NO">
@@ -608,7 +608,7 @@ return buff"/>
                         <Scp Scp="SKL_SET_TARGET_CIRCLE" Client="NO" UseSleep="NO" Time="250">
                             <Pos Angle="0" Dist="0" PosType="5" Height="1"/>
                             <Num Num="100"/>
-                            <Num Num="4"UseFunc="1" FuncTxt="local value = 4
+                            <Num Num="4" UseFunc="1" FuncTxt="local value = 4
 							if IsPVPField(self) == 1 and value > 2 then
 							value = math.floor((math.max(0, value-2)^0.5))+math.min(2, value)
 							end

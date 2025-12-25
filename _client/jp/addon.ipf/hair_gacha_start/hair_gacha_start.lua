@@ -152,3 +152,4 @@ function SCR_GACHA_SKIP_ANIMATION(frame)
 	local skip_animation = GET_CHILD_RECURSIVELY(frame, "skip_animation");
 	skip_animation:SetUserValue("IsSkipAnimation", skip_animation:IsChecked());
 end
+

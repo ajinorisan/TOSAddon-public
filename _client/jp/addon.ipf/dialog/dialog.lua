@@ -62,8 +62,8 @@ function DIALOG_SHOW_DIALOG_TEXT(frame, text, titleName, voiceName)
 
 	local spaceObj = GET_CHILD(dialogFrame, "space", "ui::CAnimPicture");
 	spaceObj:PlayAnimation();
-
-	local ViewText = string.format('{s20}{b}{#1f100b}' .. text);
+	
+	local ViewText = string.format('{s20}{b}{#1f100b}%s', text);
 	textObj:ClearText();
 	textObj:SetText(ViewText);
 	textObj:SetVoiceName(voiceName);

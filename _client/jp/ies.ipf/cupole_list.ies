@@ -37,3 +37,4 @@ ClassID,Scale,ClassName,Dec_Name,Group_ID,Use,AccountProperty,BookMark,Icon,Grad
 36,1,"Kupole_Lada_UR","라다","Lada_01","true","Cupole_036","BMK_36","UR_cupole_lada_m","UR","YES","Default","0;50;0","","",""
 37,1,"Kupole_Naktis_UR","나크티스","Naktis_01","true","Cupole_037","BMK_37","UR_cupole_naktis_m","UR","YES","Default","0;50;0","Portion","naktis1","naktis2"
 38,1,"Kupole_Zesty_UR","제스티","Zesty_01","true","Cupole_038","BMK_38","UR_cupole_zesty_m","UR","YES","Default","0;60;0","Portion","zesty1","zesty2"
+39,1,"Kupole_SugarGabia_UR","과일사탕 가비야","SugarGabia_01","true","Cupole_039","BMK_39","UR_cupole_sugargabia_m","UR","YES","Default","0;60;0","Portion","sugargabia1","sugargabia2"

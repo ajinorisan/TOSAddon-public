@@ -1010,6 +1010,7 @@ function CUPOLE_TAB_VIEW(frame, curtabIndex)
     local manageBG = frame:GetChild("manageBG")
     local gachaBG = frame:GetChild("gachaBG")
     local pickUpBG = frame:GetChild("pickUpBG")
+    local pickupSelectBG = GET_CHILD_RECURSIVELY(frame, "pickupSelectBG")
 
     local Sel_Btn = GET_CHILD_RECURSIVELY(frame,"SelectBtn")
     local Dis_Btn = GET_CHILD_RECURSIVELY(frame,"DisableBtn")
@@ -1018,6 +1019,9 @@ function CUPOLE_TAB_VIEW(frame, curtabIndex)
     local equip_cupole_list = GET_EQUIP_CUPOLE_LIST()
     local State, ChoosCupoleIndex, SlotIndex = GET_CHOOSE_INIT_CUPOLE(equip_cupole_list);
     REMOVE_ALL_CUPOLE_UIMODEL();
+
+    pickupSelectBG:SetUserValue("CURRENT_GACHA_NAME", "None");
+
 
     if curtabIndex == 0 then
         manageBG:ShowWindow(1)
@@ -1451,9 +1455,10 @@ function CHECK_ILLUSTRATION_MODE(frame, ctrl, argStr, argNum)
 end
 
 function CUPOLE_SPINE_ANIMAITON_SET(frame, name)
-    local spinepic = GET_CHILD(frame,"spinepic")
+    local spinepic = GET_CHILD(frame, "spinepic")
     local spineInfo = geSpine.GetSpineInfo(name);
     if spineInfo ~= nil then
+        spinepic:SetScaleFactor(spineInfo:GetScaleFactor());
         spinepic:CreateSpineActor(spineInfo:GetRoot(), spineInfo:GetAtlas(), spineInfo:GetJson(), "", spineInfo:GetAnimation(), spineInfo:GetIsPremultiplied());
         spinepic:SetIsStopAnim(false)
     end	

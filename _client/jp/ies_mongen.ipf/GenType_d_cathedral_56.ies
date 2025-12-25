@@ -36,3 +36,4 @@ ClassID,GenType,Lv,Range,GenRange,RespawnTime,MaxPop,Minimap,Hide,UseAIOufOfPC,P
 48,48,1,0,1,1,1,0,0,0,0,0,0,"treasure_box1","보물 상자 LV1","","","","","","","TREASUREBOX_LV","","","","YES","NO","Neutral","LV1","ITEM:COLLECT_186:1","",""
 49,49,1,40,1,60000,1,0,0,1,0,0,0,"magicsquare_1_mini","미완성 마법진","","","","MON_DUMMY","","","CHATHEDRAL56_SQ05_OBJ1","","","NO","YES","NO","Neutral","","","",""
 50,50,1,40,1,60000,1,0,0,1,0,0,0,"magicsquare_1_mini","완성 된 마법진","","","","MON_DUMMY","","","","CHATHEDRAL56_SQ05_OBJ2","","NO","YES","NO","Neutral","AttachEffect/F_spread_in027_green_loop2/0.5/BOT","","",""
+51,51,1,30,1,1,1,0,0,0,0,1,0,"Warp_arrow","대성당 탈환 미션","","","","MON_DUMMY","","","","CATHEDRAL_TO_GUILDMISSION","","NO","YES","NO","Neutral","","","",""

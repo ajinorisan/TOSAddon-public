@@ -15,8 +15,8 @@
 		<image name="inGame_JPN_E1" file="\event_banner\inGame_JPN_E1.png" imgrect="0 0 480 180"/>
 		<image name="inGame_JPN_E2" file="\event_banner\inGame_JPN_E2.png" imgrect="0 0 480 180"/>
 		<image name="inGame_JPN_E3" file="\event_banner\inGame_JPN_E3.png" imgrect="0 0 480 180"/>
-		<image name="inGame_JPN_E4" file="\event_banner\inGame_JPN_E4.jpg" imgrect="0 0 480 180"/>
-		<image name="inGame_JPN_E5" file="\event_banner\inGame_JPN_E5.jpg" imgrect="0 0 480 180"/>
+		<image name="inGame_JPN_E4" file="\event_banner\inGame_JPN_E4.png" imgrect="0 0 480 180"/>
+		<image name="inGame_JPN_E5" file="\event_banner\inGame_JPN_E5.png" imgrect="0 0 480 180"/>
 		<image name="inGame_JPN_E6" file="\event_banner\inGame_JPN_E6.jpg" imgrect="0 0 480 180"/>
 		<image name="inGame_JPN_E7" file="\event_banner\inGame_JPN_E7.jpg" imgrect="0 0 480 180"/>
 		<image name="inGame_JPN_E8" file="\event_banner\inGame_JPN_E8.jpg" imgrect="0 0 480 180"/>
@@ -24,8 +24,8 @@
 		<image name="inGame_GLOBAL_E1" file="\event_banner\inGame_GLOBAL_E1.png" imgrect="0 0 480 180"/>
 		<image name="inGame_GLOBAL_E2" file="\event_banner\inGame_GLOBAL_E2.png" imgrect="0 0 480 180"/>
 		<image name="inGame_GLOBAL_E3" file="\event_banner\inGame_GLOBAL_E3.png" imgrect="0 0 480 180"/>
-		<image name="inGame_GLOBAL_E4" file="\event_banner\inGame_GLOBAL_E4.jpg" imgrect="0 0 480 180"/>
-		<image name="inGame_GLOBAL_E5" file="\event_banner\inGame_GLOBAL_E5.jpg" imgrect="0 0 480 180"/>
+		<image name="inGame_GLOBAL_E4" file="\event_banner\inGame_GLOBAL_E4.png" imgrect="0 0 480 180"/>
+		<image name="inGame_GLOBAL_E5" file="\event_banner\inGame_GLOBAL_E5.png" imgrect="0 0 480 180"/>
 		<image name="inGame_GLOBAL_E6" file="\event_banner\inGame_GLOBAL_E6.jpg" imgrect="0 0 480 180"/>
 		<image name="inGame_GLOBAL_E7" file="\event_banner\inGame_GLOBAL_E7.jpg" imgrect="0 0 480 180"/>
 		<image name="inGame_GLOBAL_E8" file="\event_banner\inGame_GLOBAL_E8.jpg" imgrect="0 0 480 180"/>
@@ -563,6 +563,11 @@
 		<image name="popoboost_banner_2510_JP" file="\popoboost_banner\popo_JP8.png" imgrect="0 0 1200 200"/>
 		<image name="popoboost_banner_2510_TAI" file="\popoboost_banner\popo_TWN8.png" imgrect="0 0 1200 150"/>
 		<image name="popoboost_banner_2510_PAPAYA" file="\popoboost_banner\popo_PAPAYA8.jpg" imgrect="0 0 1200 200"/>
+		<image name="popoboost_banner_2512_KOR" file="\popoboost_banner\popo_KR9.png" imgrect="0 0 1200 200"/>
+		<image name="popoboost_banner_2512_GLOBAL" file="\popoboost_banner\popo_GLO9.png" imgrect="0 0 1200 200"/>
+		<image name="popoboost_banner_2512_JP" file="\popoboost_banner\popo_JP9.png" imgrect="0 0 1200 200"/>
+		<image name="popoboost_banner_2512_TAI" file="\popoboost_banner\popo_TWN9.png" imgrect="0 0 1200 150"/>
+		<image name="popoboost_banner_2512_PAPAYA" file="\popoboost_banner\popo_PAPAYA9.jpg" imgrect="0 0 1200 200"/>
 	</imagelist>
 	<imagelist category="cupolepickup_banner">
 		<image name="cupole_normal_gacha_banner" file="\cupole_banner\kupole_normal_gacha_banner.png" imgrect="0 0 602 146"/>
@@ -580,6 +585,15 @@
 		<image name="kupole_santa_zemyna_banner_jp" file="\cupole_banner\kupole_santa_zemyna_banner_jp.png" imgrect="0 0 600 140"/>
 		<image name="kupole_lada_banner_taiwan" file="\cupole_banner\kupole_lada_banner_taiwan.png" imgrect="0 0 600 140"/>
 		<image name="kupole_zesty_banner_taiwan" file="\cupole_banner\kupole_zesty_banner_taiwan.png" imgrect="0 0 600 140"/>
-
+		<image name="kupole_sugar_gabia_banner" file="\cupole_banner\kupole_sugar_gabia_banner.png" imgrect="0 0 600 140"/>
+		<image name="kupole_sugar_gabia_banner_global" file="\cupole_banner\kupole_sugar_gabia_banner_global.png" imgrect="0 0 600 140"/>
+		<image name="kupole_sugar_gabia_banner_jp" file="\cupole_banner\kupole_sugar_gabia_banner_jp.png" imgrect="0 0 600 140"/>
+		<image name="kupole_sugar_gabia_banner_papaya" file="\cupole_banner\kupole_sugar_gabia_banner_papaya.png" imgrect="0 0 600 140"/>
+		<image name="kupole_sugar_gabia_banner_taiwan" file="\cupole_banner\kupole_sugar_gabia_banner_taiwan.png" imgrect="0 0 600 140"/>
+		<image name="kupole_2025_revive_banner" file="\cupole_banner\kupole_2025_revive_banner.png" imgrect="0 0 600 140"/>
+		<image name="kupole_2025_revive_banner_global" file="\cupole_banner\kupole_2025_revive_banner_global.png" imgrect="0 0 600 140"/>
+		<image name="kupole_2025_revive_banner_jp" file="\cupole_banner\kupole_2025_revive_banner_jp.png" imgrect="0 0 600 140"/>
+		<image name="kupole_2025_revive_banner_papaya" file="\cupole_banner\kupole_2025_revive_banner_papaya.png" imgrect="0 0 600 140"/>
+		<image name="kupole_2025_revive_banner_taiwan" file="\cupole_banner\kupole_2025_revive_banner_taiwan.png" imgrect="0 0 600 140"/>
 	</imagelist>
 </skinset>
