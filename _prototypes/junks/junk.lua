@@ -9157,4 +9157,81 @@ end]] --[[local text_needs_trans = native_lang_is_translation_msg(proc_msg)
         }
     end
     Always_status_save_settings()
+end]] --[[function Sub_map_update_monster(sub_map) -- 雑魚は画面に映ってる分しか取れない。仕様っぽい。チャレンジでは取れる
+    local gbox = GET_CHILD(sub_map, "gbox")
+    local icon_size = sub_map:GetUserIValue("ICON_SIZE")
+    g.sub_map_handles = g.sub_map_handles or {}
+    local selected_objects, selected_objects_count = SelectObject(GetMyPCObject(), 5000, 'ENEMY')
+    for i = 1, selected_objects_count do
+        local handle = GetHandle(selected_objects[i])
+        if handle and info.IsMonster(handle) == 1 then
+            local actor = world.GetActor(handle)
+            if actor then
+                local cls_name = info.GetMonsterClassName(handle)
+                local mon_cls = GetClass("Monster", cls_name)
+                if mon_cls and TryGetProp(mon_cls, "MonRank", "None") ~= "Boss" and
+                    not g.sub_map_handles[tostring(handle)] then
+                    g.sub_map_handles[tostring(handle)] = true
+                    local mon_pic = GET_CHILD_RECURSIVELY(gbox, "_MONPOS_" .. handle)
+                    if not mon_pic then
+                        mon_pic = gbox:CreateOrGetControl("picture", "_MONPOS_" .. handle, 0, 0, icon_size / 2,
+                            icon_size / 2)
+                        AUTO_CAST(mon_pic)
+                        mon_pic:SetUserValue("HANDLE", handle)
+                        local img_name = "colonymonster"
+                        mon_pic:SetImage(img_name)
+                        mon_pic:SetEnableStretch(1)
+                        local map_prop = session.GetCurrentMapProp()
+                        local map_pic = GET_CHILD_RECURSIVELY(sub_map, "map_pic")
+                        AUTO_CAST(map_pic)
+                        if map_pic then
+                            local world_pos = actor:GetPos()
+                            local pos =
+                                map_prop:WorldPosToMinimapPos(world_pos, map_pic:GetWidth(), map_pic:GetHeight())
+                            local init_x = pos.x - mon_pic:GetWidth() / 2
+                            local init_y = pos.y - mon_pic:GetHeight() / 2
+                            mon_pic:SetOffset(init_x, init_y)
+                        end
+                        mon_pic:ShowWindow(1)
+                        if not mon_pic:HaveUpdateScript("Sub_map_monpic_auto_update") then
+                            mon_pic:RunUpdateScript("sub_map_monpic_auto_update", 0.5)
+                        end
+                    end
+                end
+            end
+        end
+    end
+end]] --[[
+function g.setup_hook_and_event_before_after(my_addon, origin_func_name, my_func_name, bool, before_after)
+    g.FUNCS = g.FUNCS or {}
+    if not g.FUNCS[origin_func_name] then
+        g.FUNCS[origin_func_name] = _G[origin_func_name]
+    end
+    local origin_func = g.FUNCS[origin_func_name]
+    if bool == nil then
+        bool = true
+    end
+    local function hooked_function(...)
+        if bool == true then
+            if before_after == "before" then
+                _G[my_func_name](...)
+            end
+            local results = {origin_func(...)}
+            if before_after == "after" then
+                _G[my_func_name](...)
+            end
+            return table.unpack(results)
+        else
+            imcAddOn.BroadMsg(origin_func_name, ...)
+            return
+        end
+    end
+    _G[origin_func_name] = hooked_function
+    if not bool then
+        g.REGISTER = g.REGISTER or {}
+        if not g.REGISTER[origin_func_name .. my_func_name] then
+            g.REGISTER[origin_func_name .. my_func_name] = true
+            my_addon:RegisterMsg(origin_func_name, my_func_name)
+        end
+    end
 end]] 
