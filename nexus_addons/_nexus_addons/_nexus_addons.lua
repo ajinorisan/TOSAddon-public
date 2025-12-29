@@ -13,10 +13,13 @@
 -- 1.0.1 ANOTHER_WAREHOUSEアドオンと喧嘩してたの修正、other_character_skill_listのロードのタイミング修正、旧CC_HELPERとの競合修正
 -- 1.0.2 AlwaysStatus修正。セーブファイルのバージョン管理。quickslot_operate修正、持ってない場合アイコン赤表示に変更
 -- 1.0.3 MKC、PITフレームちらつき修正、AW自動設定修正、SSSドロップ挙動修正。
+-- 1.0.3.1 エラー時にlogを吐く様に設定。
+-- 1.0.3.2 インベントリのボタンが消える怪現象を明示的に修正。なんでや？
+-- 1.0.4 NCのゴミ箱バグ修正、SQ SSSのクエスト表示バグ修正、IP ILV OCSL ESCキーで消える様に。IP掃討ボタンバグ修正。
 local addon_name = "_NEXUS_ADDONS"
 local addon_name_lower = string.lower(addon_name)
 local author = "norisan"
-local ver = "1.0.3"
+local ver = "1.0.4"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -827,9 +830,9 @@ g._nexus_addons_trans = {
     },
     ["battle_ritual"] = {
         ja = "{ol}レイド前の儀式を自動化します{nl}ソロの時しか動きません{nl}ミニマップの左上のアイコンで切替",
-        etc = "{ol}{ol}Automates the pre-raid ritual{nl}Only works when playing solo{nl}Switch using the icon in the upper left corner of the mini-map",
-        kr = "{ol}{ol}레이드 전의 의식을 자동화합니다{nl}솔로 플레이 시에만 작동합니다{nl}미니맵의 왼쪽 상단 아이콘으로 전환"
-    } --
+        etc = "{ol}Automates the pre-raid ritual{nl}Only works when playing solo{nl}Switch using the icon in the upper left corner of the mini-map",
+        kr = "{ol}레이드 전의 의식을 자동화합니다{nl}솔로 플레이 시에만 작동합니다{nl}미니맵의 왼쪽 상단 아이콘으로 전환"
+    }
 }
 function _nexus_addons_save_settings()
     g.save_json(g.settings_path, g.settings)
@@ -883,16 +886,6 @@ function _NEXUS_ADDONS_ON_INIT(addon, frame)
         g.folders_created = true
     end
     _nexus_addons_load_settings()
-    -- ここは開発時のみ使用
-    --[[local function load_split_file(filename)
-        local path = string.format("../data/addon_d/%s/%s", addon_name_lower, filename)
-        local p, err = pcall(dofile, path)
-        if not p then
-            ts(string.format("[%s] Load Error: %s", addon_name, err))
-        end
-    end
-    load_split_file("_nexus_addons_conclude.lua")]]
-    -- ここまで
     g.login_name = session.GetMySession():GetPCApc():GetName()
     g.map_name = session.GetMapName()
     g.map_id = session.GetMapID()
@@ -920,10 +913,11 @@ function _nexus_addons_init_addons(is_toggle, toggled_addon_name, _nexus_addons)
             local success, err = pcall(func)
             local func_end = imcTime.GetAppTimeMS()
             local duration = func_end - func_start
-            -- ts(string.format("init ADDON: %s (%d ms)", name, duration))
             if not success then
                 g.error_count = g.error_count + 1
-                ts(string.format("Error during on_init of '%s': %s", name, tostring(err)))
+                local err_msg = string.format("Error during on_init of '%s': %s", name, tostring(err))
+                ts(err_msg)
+                g.log_to_file(err_msg)
             end
         end
     end
@@ -1012,7 +1006,9 @@ function _nexus_addons_async_safe_call(_nexus_addons)
             local duration = func_end - func_start
             if not success then
                 g.error_count = g.error_count + 1
-                ts(string.format("Error during on_init of '%s': %s", func_name, tostring(err)))
+                local err_msg = string.format("Error during on_init of '%s': %s", func_name, tostring(err))
+                ts(err_msg)
+                g.log_to_file(err_msg)
             end
         end
         _nexus_addons:SetUserValue("FUNC_INDEX", func_index + 1)
@@ -1132,7 +1128,7 @@ function _nexus_addons_list_close(frame)
                             "easy_buff", "always_status_settings", "lets_go_home_setting", "characters_item_serch",
                             "sub_map_setting_frame", "separate_buff_custom_buff_list", "save_quest_setting",
                             "sub_slotset_setting", "Battle_ritual_setting", "Battle_ritual_skill_list",
-                            "Battle_ritual_buff_list"}
+                            "Battle_ritual_buff_list", "get_event_msg_setting"}
     for _, suffix in ipairs(frame_to_close) do
         local frame_name = addon_name_lower .. suffix
         local frame_to_close = ui.GetFrame(frame_name)
@@ -1250,6 +1246,5077 @@ function _nexus_addons_update_frames(_nexus_addons)
         end
     end
 end
+-- muteki ここから
+g.muteki_trans_tbl = {
+    etc = {
+        buff_time = '{#000000}Hide until Buff duration (sec){/}',
+        position_mode = '{#000000}Toggle Mode{/}',
+        mode_desc = "{ol}ON: Follow Mode{nl}OFF: Fixed Mode",
+        frame_lock = '{#000000}Frame Lock{/}',
+        layer_lv = '{#000000}Layer Level{/}',
+        layer_notice = 'MUTEKI Changed frame layer to %d',
+        icon_mode = '{#000000}Display in icon mode{/}',
+        color_tone = '{#FFFFFF}{ol}Current Color{/}',
+        hide_sec = 'MUTEKI Hide gauge with remaining time more than %d seconds',
+        not_notify = "{#000000}Hidden for this character{/}",
+        pt_chat = "{#000000}Notify buffs via PT chat{/}",
+        function_notice = "{#FFFFFF}{ol}Register by leftclick on the buff slot{nl}in the upper left corner of the screen{/}",
+        icon_rotate = "{#000000}Rotate icon{/}",
+        with_effect = "{#000000}With effect{/}",
+        nico_chat = "{#000000}Nico Chat Display{/}",
+        delete_notice = "{#FFFFFF}{ol}Right-click the icon to unregister{/}",
+        color_notice = "{#FFFFFF}{ol}The first two characters are for shade/density (AA = Light - FF = Dark)" ..
+            "{nl}The following six characters are the hexadecimal color code.{/}",
+        count_display = "{#000000}Display Buff Stacks{/}",
+        end_sound = "{#000000}Buff End Sound{/}",
+        add_check = 'Add %s to MUTEKI?',
+        add_buff = 'MUTEKI Added %s in settings',
+        delete_buff = 'MUTEKI Removed %s in settings',
+        add_new = '{#FFFFFF}{ol}Add Buff',
+        add_buffid = "{#FFFFFF}{ol}Add by Buff ID{/}",
+        lock_notice = "{#FFFFFF}{ol}Follow Mode is always locked",
+        debuff_time = "{#000000}Manual DeBuff Duration",
+        debuff_notice = "{#FFFFFF}{ol}Adjustment is required{nl}based on each character's skill level",
+        debuff_manage_set = "{#FFFFFF}{ol}Set duration to %s seconds",
+        auto_time = "{#FFFFFF}{ol}Turning ON automatically retrieves the debuff duration{nl}Note: This may not work correctly with some debuffs{nl}In that case, please turn it OFF and enter the value manually",
+        buff_time_cid = "{#000000}Manual Buff Duration",
+        buff_notice_cid = "{#FFFFFF}{ol}Manually input the duration for some buffs, such as magic circles{nl}whose time cannot be automatically retrieved{nl}Note: Values may vary depending on skill level and other factors",
+        skill_text = "{#000000}Skill ID",
+        skill_notice = "{#FFFFFF}{ol}If the duration is entered{nl}linking a buff to a skill enables time measurement",
+        skill_set = "{#FFFFFF}{ol}Linked to %s skill",
+        add_new_skill = '{#FFFFFF}{ol}Add Skill'
+    },
+    Japanese = {
+        buff_time = '{#000000}指定されたバフの残り時間まで非表示(秒){/}',
+        position_mode = '{#000000}モード切替{/}',
+        mode_desc = "{ol}ON: 追従モード{nl}OFF: 固定モード",
+        frame_lock = '{#000000}フレームロック{/}',
+        layer_lv = '{#000000}レイヤーレベル{/}',
+        layer_notice = 'MUTEKI フレームレイヤーを %d に変更しました',
+        icon_mode = '{#000000}アイコンモードで表示{/}',
+        color_tone = '{#FFFFFF}{ol}現在の色{/}',
+        hide_sec = 'MUTEKI %d 秒以上のバフは非表示になります',
+        not_notify = "{#000000}このキャラクターでは非表示{/}",
+        pt_chat = "{#000000}バフをPTチャットでお知らせ{/}",
+        function_notice = "{#FFFFFF}{ol}画面左上バフスロットを{nl}左クリックでも登録出来ます{/}",
+        icon_rotate = "{#000000}アイコン回転{/}",
+        with_effect = "{#000000}エフェクト付与{/}",
+        nico_chat = "{#000000}ニコチャット表示{/}",
+        delete_notice = "{#FFFFFF}{ol}アイコン右クリックで登録解除します{/}",
+        color_notice = "{#FFFFFF}{ol}先頭2文字は濃淡 (AA=薄い～FF=濃い)" ..
+            "{nl}続く6文字は16進数のカラーコード{/}",
+        count_display = "{#000000}バフ重複を表示{/}",
+        end_sound = "{#000000}バフ終了時に音でお知らせ{/}",
+        add_check = 'MUTEKIに%sを追加しますか？',
+        add_buff = 'MUTEKIに%sを追加しました.',
+        delete_buff = "MUTEKIから %s を削除しました.",
+        add_new = '{#FFFFFF}{ol}バフ追加',
+        add_buffid = "{#FFFFFF}{ol}バフIDで直接追加{/}",
+        lock_notice = "{#FFFFFF}{ol}追従モードでは常にロックされます",
+        debuff_time = "{#000000}デバフ継続時間を入力",
+        debuff_notice = "{#FFFFFF}{ol}キャラクター毎のスキルレベルなどで調整必要です",
+        debuff_manage_set = "{#FFFFFF}{ol}継続時間を %s 秒で設定しました",
+        auto_time = "{#FFFFFF}{ol}ONにするとデバフ継続時間を自動取得します{nl}一部のデバフでは機能しない場合があります{nl}その際はOFFにして手動で入力してください",
+        buff_time_cid = "{#000000}バフ継続時間を手動入力",
+        buff_notice_cid = "{#FFFFFF}{ol}魔法陣など一部の時間取得出来ないバフの継続時間を手動入力します{nl}値はスキルレベルなどで異なる場合があります",
+        skill_text = "{#000000}スキルID",
+        skill_notice = "{#FFFFFF}{ol}継続時間を入力した場合{nl}バフとスキルを紐づけることで時間計測が可能になります",
+        skill_set = "{#FFFFFF}{ol}%s スキルと紐づけました",
+        add_new_skill = '{#FFFFFF}{ol}スキル追加'
+    },
+    kr = {
+        buff_time = "{#000000}지정된 버프 잔여 시간까지 숨기기 (초){/}",
+        position_mode = "{#000000}모드 전환{/}",
+        mode_desc = "{ol}ON: 추종 모드{nl}OFF: 고정 모드",
+        frame_lock = "{#000000}프레임 잠금{/}",
+        layer_lv = "{#000000}레이어 레벨{/}",
+        layer_notice = 'MUTEKI 프레임 레이어를 %d 로 변경했습니다',
+        icon_mode = "{#000000}아이콘 모드로 표시{/}",
+        color_tone = "{#FFFFFF}{ol}현재 색상{/}",
+        hide_sec = "MUTEKI - %d초 이상 남은 버프는 표시하지 않습니다.",
+        not_notify = "{#000000}이 캐릭터에서는 숨김{/}",
+        pt_chat = "{#000000}PT 채팅으로 버프를 알려드립니다{/}",
+        function_notice = "{#FFFFFF}{ol}화면 왼쪽 상단의 버프 슬롯을{nl}왼쪽 클릭으로도 등록할 수 있습니다{/}",
+        icon_rotate = "{#000000}아이콘 회전{/}",
+        with_effect = "{#000000}효과 적용{/}",
+        nico_chat = "{#000000}니코 채팅 표시{/}",
+        delete_notice = "{#FFFFFF}{ol}아이콘을 마우스 오른쪽 버튼으로 클릭하여 등록 해제{/}",
+        color_notice = "{#FFFFFF}{ol}앞의 두 문자는 농도를 나타냅니다 (AA = 옅음 - FF = 진함)" ..
+            "{nl}이어지는 6개의 문자는 16진수 컬러 코드입니다{/}",
+        count_display = "{#000000}버프 중첩 표시{/}",
+        end_sound = "{#000000}버프 종료 시 소리로 알림{/}",
+        add_check = 'MUTEKI - 에 %s를 추가하시겠습니까?',
+        add_buff = "MUTEKI - %s 버프를 추가했습니다",
+        delete_buff = "MUTEKI - %s 버프를 삭제했습니다",
+        add_new = '{#FFFFFF}{ol}버프 추가',
+        add_buffid = "{#FFFFFF}{ol}버프ID로 직접 추가{/}",
+        lock_notice = "{#FFFFFF}{ol}추종 모드에서는 항상 잠금됩니다",
+        debuff_time = "{#000000}디버프 지속 시간 입력",
+        debuff_notice = "{#FFFFFF}{ol}캐릭터별 스킬 레벨에 따라 조정이 필요합니다",
+        debuff_manage_set = "{#FFFFFF}{ol}지속 시간을 %s 초로 설정했습니다",
+        auto_time = "{#FFFFFF}{ol}ON으로 설정 시 디버프 지속 시간을 자동으로 가져옵니다{nl}주의: 일부 디버프에서는 제대로 작동하지 않을 수 있습니다{nl}그럴 경우, 해당 기능을 OFF로 끄고 수동으로 입력해 주십시오",
+        buff_time_cid = "{#000000}버프 지속 시간 수동 입력",
+        buff_notice_cid = "{#FFFFFF}{ol}마법진 등 일부 시간 획득이 불가능한 버프의 지속 시간을 수동으로 입력합니다{nl}참고: 값은 스킬 레벨 등에 따라 달라질 수 있습니다",
+        skill_text = "{#000000}스킬 ID",
+        skill_notice = "{#FFFFFF}{ol}지속 시간을 입력한 경우{nl}버프와 스킬을 연동하면 시간 측정이 가능해집니다",
+        skill_set = "{#FFFFFF}{ol}%s 스킬과 연동했습니다",
+        add_new_skill = '{#FFFFFF}{ol}스킬 추가'
+    }
+}
+local function muteki_trans(text)
+    local trans_text = g.muteki_trans_tbl["etc"][text]
+    if g.lang == "Japanese" or g.lang == "kr" then
+        trans_text = g.muteki_trans_tbl[g.lang][text]
+    end
+    return trans_text
+end
+
+function Muteki_save_settings()
+    g.save_json(g.muteki_path, g.muteki_settings)
+end
+
+function Muteki_load_settings()
+    g.muteki_path = string.format("../addons/%s/%s/muteki.json", addon_name_lower, g.active_id)
+    g.muteki_old_path = string.format("../addons/%s/settings_2510.json", "muteki2ex")
+    local settings = g.load_json(g.muteki_path)
+    if not settings then
+        local old_settings = g.load_json(g.muteki_old_path)
+        if old_settings then
+            local valid_cids = {}
+            local sys_opt_path = string.format("../release/addon_setting/system_option/%s/settings.json", g.active_id)
+            local sys_opt_file = io.open(sys_opt_path, "r")
+            if sys_opt_file then
+                local content = sys_opt_file:read("*a")
+                sys_opt_file:close()
+                if content and content ~= "" then
+                    local status, data = pcall(json.decode, content)
+                    if status and data and data.pc_id then
+                        for k, _ in pairs(data.pc_id) do
+                            valid_cids[tostring(k)] = true
+                        end
+                    end
+                end
+            end
+            settings = {
+                etc = {},
+                buff_list = {}
+            }
+            settings.etc.rotate = old_settings.rotate or 0
+            settings.etc.hide_time = old_settings.hide_time or 300
+            settings.etc.mode = old_settings.mode or "fixed"
+            settings.etc.layer_lv = old_settings.layer_lv or 80
+            if old_settings.pos then
+                settings.etc.x = old_settings.pos.x
+                settings.etc.y = old_settings.pos.y
+                settings.etc.lock = old_settings.pos.lock and 0 or 1
+            else
+                settings.etc.x = 480
+                settings.etc.y = 640
+                settings.etc.lock = 1
+            end
+            if old_settings.buff_list then
+                local function filter_manage_table(source)
+                    local target = {}
+                    if source then
+                        for cid, list in pairs(source) do
+                            if valid_cids[tostring(cid)] and type(list) == "table" and next(list) then
+                                local new_list = {}
+                                for k, v in pairs(list) do
+                                    if type(v) == "boolean" then
+                                        new_list[k] = v and 1 or 0
+                                    else
+                                        new_list[k] = v
+                                    end
+                                end
+                                target[cid] = new_list
+                            end
+                        end
+                    end
+                    return target
+                end
+                for buff_id, data in pairs(old_settings.buff_list) do
+                    local new_data = {}
+                    new_data.color = data.color
+                    new_data.nico_chat = data.nico_chat
+                    new_data.effect_check = data.effect_check
+                    new_data.end_sound = data.end_sound
+                    new_data.pt_chat = data.pt_chat and 1 or 0
+                    new_data.circle_icon = data.circle_icon and 1 or 0
+                    new_data.count_display = data.count_display and 1 or 0
+                    local new_not_notify = {}
+                    if data.not_notify then
+                        for cid, val in pairs(data.not_notify) do
+                            if valid_cids[tostring(cid)] then
+                                new_not_notify[cid] = (val == true or val == 1) and 1 or 0
+                            end
+                        end
+                    end
+                    new_data.not_notify = new_not_notify
+                    new_data.debuffs = filter_manage_table(data.debuff_manage)
+                    new_data.buffs = filter_manage_table(data.buff_manage)
+                    settings.buff_list[buff_id] = new_data
+                end
+            end
+        else
+            settings = {
+                etc = {
+                    mode = "fixed",
+                    layer_lv = 80,
+                    hide_time = 300,
+                    rotate = 0,
+                    lock = 1,
+                    y = 640,
+                    x = 480
+                },
+                buff_list = {}
+            }
+        end
+    end
+    g.muteki_settings = settings
+    Muteki_save_settings()
+end
+
+function muteki_on_init()
+    if not g.muteki_settings then
+        Muteki_load_settings()
+    end
+    g.addon:RegisterMsg("BUFF_ADD", "Muteki_BUFF_ON_MSG")
+    g.addon:RegisterMsg("BUFF_UPDATE", "Muteki_BUFF_ON_MSG")
+    g.addon:RegisterMsg("BUFF_REMOVE", "Muteki_BUFF_ON_MSG")
+    g.setup_hook_and_event(g.addon, "ICON_USE", "Muteki_ICON_USE", true)
+    if g.settings.muteki.use == 0 then
+        ui.DestroyFrame(addon_name_lower .. "muteki")
+        return
+    end
+    g.muteki_default_color = "FFCCCC22"
+    g.muteki_buffs = {
+        circle = {},
+        gauge = {}
+    }
+    g.muteki_time_buffs = {}
+    g.muteki_buff_count = {}
+    g.muteki_highlander = false
+    if g.map_name == "c_highlander" then
+        g.muteki_highlander = true
+    end
+    Muteki_buff_frame_init()
+    Muteki_skill_list()
+    if g.muteki_overload and g.muteki_overload.cid == g.cid then
+        if g.muteki_overload.is_cool == 1 then
+            local now = imcTime.GetAppTime()
+            local elapsed = now - g.muteki_overload.start_time
+            local remain = 50 - elapsed
+            if remain > 0 then
+                local buff_id = g.muteki_overload.buff_id
+                local buff_id_str = tostring(buff_id)
+                local buff_data = g.muteki_settings.buff_list[buff_id_str]
+                if buff_data then
+                    g.muteki_buffs[buff_id_str] = {
+                        show = true,
+                        effect = false,
+                        start_time = now,
+                        set_time = remain,
+                        notify = 1
+                    }
+                    g.muteki_buff_count[buff_id_str] = 1
+                    local list_type = (buff_data.circle_icon == 1) and "circle" or "gauge"
+                    Muteki_insert_if_not_exists(g.muteki_buffs[list_type], buff_id)
+                    local muteki = ui.GetFrame(addon_name_lower .. "muteki")
+                    local buff_cls = GetClassByType('Buff', buff_id)
+                    Muteki_buff_frame(muteki, "BUFF_ADD", buff_id, buff_cls, buff_data, (buff_data.circle_icon == 1))
+                    Muteki_child_set_pos(muteki)
+                end
+            else
+                g.muteki_overload = nil
+            end
+        end
+    end
+    local _nexus_addons = ui.GetFrame("_nexus_addons")
+    _nexus_addons:RunUpdateScript("Muteki_buffslot_script", 2.0)
+end
+
+function Muteki_BUFF_ON_MSG(frame, msg, is_dummy, buff_id)
+    if g.settings.muteki.use == 0 then
+        return
+    end
+    local buff_id_str = tostring(buff_id)
+    local buff_data = g.muteki_settings.buff_list[buff_id_str]
+    local muteki = ui.GetFrame(addon_name_lower .. "muteki")
+    muteki:SetAlpha(10)
+    local notify_val = 0
+    if buff_data and buff_data.not_notify then
+        notify_val = buff_data.not_notify[g.cid] or 0
+    end
+    if (buff_data and notify_val == 0) or is_dummy == "dummy" then
+        local now = imcTime.GetAppTime()
+        if g.muteki_buffs[buff_id_str] and g.muteki_buffs[buff_id_str].start_time then
+            if now - g.muteki_buffs[buff_id_str].start_time < 0.5 then
+                return
+            end
+        end
+        local is_circle = false
+        if buff_data.circle_icon == 1 then
+            is_circle = true
+        end
+        local buff_cls = GetClassByType('Buff', buff_id)
+        local buff_name = buff_cls.Name
+        local overload_tbl = {4483, 4757}
+        if buff_id == overload_tbl[1] or buff_id == overload_tbl[2] then
+            local my_handle = session.GetMyHandle()
+            local info_buff = info.GetBuff(my_handle, buff_id)
+            if info_buff then
+                g.muteki_overload = {
+                    start_time = now, -- imcTime
+                    buff_id = buff_id,
+                    is_cool = 0,
+                    cid = g.cid
+                }
+                g.muteki_buffs[buff_id_str] = nil
+            else
+                if g.muteki_overload and g.muteki_overload.is_cool == 0 and msg == "BUFF_REMOVE" then
+                    g.muteki_time_buffs[buff_id_str] = {
+                        show = false,
+                        effect = false,
+                        start_time = now,
+                        set_time = 20,
+                        notify = 1
+                    }
+                    g.muteki_overload.is_cool = 1
+                    Muteki_BUFF_ON_MSG(frame, 'BUFF_ADD', is_dummy, buff_id)
+                    return
+                else
+                    if not (g.muteki_overload and g.muteki_overload.is_cool == 1) then
+                        g.muteki_overload = nil
+                    end
+                end
+            end
+        end
+        if msg == 'BUFF_ADD' then
+            g.muteki_remove_notice = g.muteki_remove_notice or {}
+            g.muteki_remove_notice[buff_id_str] = 0
+            g.muteki_buff_count = g.muteki_buff_count or {}
+            g.muteki_buff_count[buff_id_str] = (g.muteki_buff_count[buff_id_str] or 0) + 1
+            if g.muteki_time_buffs and g.muteki_time_buffs[buff_id_str] then
+                g.muteki_buffs[buff_id_str] = g.muteki_time_buffs[buff_id_str]
+                g.muteki_time_buffs[buff_id_str] = nil
+            elseif not g.muteki_buffs[buff_id_str] then
+                g.muteki_buffs[buff_id_str] = {
+                    show = false,
+                    effect = false,
+                    start_time = now,
+                    set_time = nil,
+                    notify = 0
+                }
+            end
+            g.muteki_buffs.circle = g.muteki_buffs.circle or {}
+            g.muteki_buffs.gauge = g.muteki_buffs.gauge or {}
+            if is_circle then
+                Muteki_insert_if_not_exists(g.muteki_buffs.circle, buff_id)
+            else
+                Muteki_insert_if_not_exists(g.muteki_buffs.gauge, buff_id)
+            end
+            if g.muteki_buffs[buff_id_str] and g.muteki_buffs[buff_id_str].notify == 0 then
+                if buff_data.pt_chat == 1 then
+                    if not string.find(buff_cls.Name, "NoData") then
+                        ui.Chat(string.format("/p %s start", buff_cls.Name))
+                    end
+                end
+                if buff_data.nico_chat == 1 then
+                    NICO_CHAT(string.format("{@st55_a}%s start", buff_name))
+                end
+                if buff_data.effect_check == 1 then
+                    local my_handle = session.GetMyHandle()
+                    local actor = world.GetActor(my_handle)
+                    effect.PlayActorEffect(actor, "F_sys_TPBOX_great_300", "None", 1.0, 6.0)
+                end
+                g.muteki_buffs[buff_id_str].notify = 1
+            end
+            if g.muteki_buff_count[buff_id_str] > 0 then
+                Muteki_child_set_pos(muteki)
+            end
+            Muteki_buff_frame(muteki, msg, buff_id, buff_cls, buff_data, is_circle)
+        elseif msg == 'BUFF_REMOVE' then
+            if g.muteki_buffs[buff_id_str] and g.muteki_buffs[buff_id_str].set_time then
+                local now = imcTime.GetAppTime()
+                if g.muteki_buffs[buff_id_str].set_time - (now - g.muteki_buffs[buff_id_str].start_time) > 0 then
+                    return
+                end
+            end
+            if is_dummy ~= "dummy" then
+                Muteki_handle_buff_end(muteki, buff_id)
+            end
+            Muteki_child_set_pos(muteki)
+        elseif msg == 'BUFF_UPDATE' then
+            if not g.muteki_buffs[buff_id_str] then
+                g.muteki_buffs[buff_id_str] = {
+                    show = false,
+                    effect = false,
+                    start_time = imcTime.GetAppTime(),
+                    set_time = nil,
+                    notify = 0
+                }
+            end
+            Muteki_buff_frame(muteki, msg, buff_id, buff_cls, buff_data, is_circle)
+        end
+    end
+end
+
+function Muteki_handle_buff_end(notice_frame, buff_id)
+    local buff_id_str = tostring(buff_id)
+    local buff_data = g.muteki_settings.buff_list[buff_id_str]
+    local buff_cls = GetClassByType('Buff', buff_id)
+    local notice = false
+    if g.muteki_remove_notice and g.muteki_remove_notice[buff_id_str] == 0 then
+        notice = true
+        g.muteki_remove_notice[buff_id_str] = 1
+    end
+    if notice then
+        if buff_data.pt_chat == 1 then
+            if not string.find(buff_cls.Name, "NoData") then
+                ui.Chat(string.format("/p %s end", buff_cls.Name))
+            end
+        end
+        if buff_data.nico_chat == 1 then
+            NICO_CHAT(string.format("{@st55_a}%s end", buff_cls.Name))
+        end
+        if buff_data.end_sound == 1 then
+            imcSound.PlaySoundEvent("sys_transcend_cast")
+        end
+    end
+    if g.muteki_buffs[buff_id_str] then
+        g.muteki_buffs[buff_id_str] = nil
+    end
+    if g.muteki_buff_count[buff_id_str] then
+        g.muteki_buff_count[buff_id_str] = nil
+    end
+    local ui_types = {"circle", "gauge"}
+    for _, ui_type in ipairs(ui_types) do
+        local child_name = ui_type .. "_" .. buff_id
+        local child = GET_CHILD(notice_frame, child_name)
+        if child then
+            local target_list = g.muteki_buffs[ui_type]
+            if target_list then
+                for i = #target_list, 1, -1 do
+                    if target_list[i] == buff_id then
+                        table.remove(target_list, i)
+                        break
+                    end
+                end
+            end
+            DESTROY_CHILD_BYNAME(notice_frame, child_name)
+        end
+    end
+end
+
+function Muteki_ICON_USE(my_frame, my_msg)
+    if g.settings.muteki.use == 0 then
+        return
+    end
+    local icon, reAction = g.get_event_args(my_msg)
+    if icon then
+        AUTO_CAST(icon)
+        local cur_time = ICON_UPDATE_SKILL_COOLDOWN(icon)
+        if cur_time > 0 then
+            return
+        end
+        local icon_info = icon:GetInfo()
+        if icon_info:GetCategory() == 'Skill' then
+            local skill_id = icon_info.type
+            local skill_id_str = tostring(skill_id)
+            if g.muteki_buffs[g.muteki_skills[skill_id_str].buff_id] then
+                return
+            end
+            local skill_list = g.muteki_skills[skill_id_str]
+            if skill_list then
+                g.muteki_time_buffs[skill_list.buff_id] = {
+                    show = false,
+                    effect = false,
+                    start_time = imcTime.GetAppTime(),
+                    set_time = skill_list.time,
+                    notify = 0
+                }
+                Muteki_BUFF_ON_MSG("", 'BUFF_ADD', "", tonumber(skill_list.buff_id))
+            end
+        end
+    end
+end
+
+function Muteki_SET_BUFF_SLOT(my_frame, my_msg)
+    local slot, capt, class, buff_type = g.get_event_args(my_msg)
+    AUTO_CAST(slot)
+    slot:SetEventScript(ui.LBUTTONDOWN, 'Muteki_add_buff_msg')
+    slot:SetEventScriptArgString(ui.LBUTTONDOWN, class.Name)
+    slot:SetEventScriptArgNumber(ui.LBUTTONDOWN, buff_type)
+end
+
+function Muteki_buffslot_script(_nexus_addons)
+    if s_buff_ui and s_buff_ui.slotlist then
+        for i = 0, s_buff_ui["buff_group_cnt"] do
+            local slotlist = s_buff_ui["slotlist"][i]
+            local slotcount = s_buff_ui["slotcount"][i]
+            local captionlist = s_buff_ui["captionlist"][i]
+            if slotcount ~= nil and slotcount >= 0 then
+                for i = 0, slotcount - 1 do
+                    local slot = slotlist[i]
+                    AUTO_CAST(slot)
+                    local icon = slot:GetIcon()
+                    local icon_info = icon:GetInfo()
+                    local buff_id = icon_info.type
+                    if buff_id ~= 0 then
+                        local buff_cls = GetClassByType("Buff", buff_id)
+                        slot:SetEventScript(ui.LBUTTONDOWN, 'Muteki_add_buff_msg')
+                        slot:SetEventScriptArgString(ui.LBUTTONDOWN, buff_cls.Name)
+                        slot:SetEventScriptArgNumber(ui.LBUTTONDOWN, buff_id)
+                    end
+                end
+            end
+        end
+        g.setup_hook_and_event(g.addon, 'SET_BUFF_SLOT', "Muteki_SET_BUFF_SLOT", true)
+    end
+    return 0
+end
+
+function Muteki_buff_frame_init()
+    local muteki = ui.CreateNewFrame("chat_memberlist", addon_name_lower .. "muteki", 0, 0, 0, 0)
+    AUTO_CAST(muteki)
+    muteki:SetSkinName("None")
+    if g.muteki_settings.etc.mode == "fixed" then
+        muteki:SetOffset(g.muteki_settings.etc.x, g.muteki_settings.etc.y)
+        muteki:StopUpdateScript("_FRAME_AUTOPOS")
+    else
+        local handle = session.GetMyHandle()
+        FRAME_AUTO_POS_TO_OBJ(muteki, handle, muteki:GetWidth() - 175, 50, 3, 1)
+        g.muteki_settings.etc.lock = 0
+        Muteki_save_settings()
+        local settings = ui.GetFrame(addon_name_lower .. "muteki_settings")
+        if settings then
+            AUTO_CAST(settings)
+            local move_toggle = GET_CHILD_RECURSIVELY(settings, "move_toggle")
+            AUTO_CAST(move_toggle)
+            local icon_name = "test_com_ability_on"
+            move_toggle:SetImage(icon_name)
+        end
+    end
+    muteki:SetLayerLevel(g.muteki_settings.etc.layer_lv)
+    muteki:EnableHittestFrame(g.muteki_settings.etc.lock)
+    muteki:EnableMove(g.muteki_settings.etc.lock)
+    if g.muteki_settings.etc.lock == 1 then
+        local title = muteki:CreateOrGetControl("richtext", "title", 0, 0, 40, 10)
+        AUTO_CAST(title)
+        title:SetGravity(ui.LEFT, ui.TOP)
+        title:SetText("{ol}{s10}Muteki")
+        muteki:SetSkinName("chat_window")
+        muteki:Resize(100, 20)
+        muteki:SetAlpha(10)
+    else
+        muteki:RemoveChild("title")
+        muteki:Resize(250, 210)
+    end
+    muteki:ShowWindow(1)
+    muteki:SetEventScript(ui.LBUTTONUP, "Muteki_notic_frame_end_drag")
+end
+
+function Muteki_notic_frame_end_drag(muteki)
+    g.muteki_settings.etc.x = muteki:GetX()
+    g.muteki_settings.etc.y = muteki:GetY()
+    Muteki_save_settings()
+end
+
+function Muteki_buff_frame(notice_frame, msg, buff_id, buff_cls, buff_data, is_circle)
+    local buff_id_str = tostring(buff_id)
+    local my_handle = session.GetMyHandle()
+    local info_buff = info.GetBuff(my_handle, buff_id) or
+                          (g.muteki_buffs[buff_id_str] and g.muteki_buffs[buff_id_str].set_time)
+    if not info_buff then
+        return
+    end
+    local image_name = GET_BUFF_ICON_NAME(buff_cls)
+    if image_name == "icon_None" then
+        image_name = "icon_item_nothing"
+    end
+    if msg == "BUFF_ADD" then
+        local is_cool = false
+        if g.muteki_overload and g.muteki_overload.is_cool == 1 and g.muteki_overload.buff_id == buff_id then
+            is_cool = true
+        end
+        local child
+        local start_time_sec = 0
+        if is_circle then
+            child = notice_frame:CreateOrGetControl("picture", "circle_" .. buff_id, 50, 5, 50, 50)
+            AUTO_CAST(child)
+            child:SetImage(image_name)
+            if g.muteki_settings.etc.rotate == 1 then
+                child:SetAngleLoop(3)
+            end
+            if is_cool then
+                child:SetColorTone("FF696969")
+            end
+            child:SetEnableStretch(1)
+            child:EnableHitTest(0)
+        else -- gauge
+            child = notice_frame:CreateOrGetControl("picture", "gauge_" .. buff_id, 0, 60, 250, 20)
+            AUTO_CAST(child)
+            child:SetEnableStretch(1)
+            child:EnableHitTest(0)
+            local gauge_back = child:CreateOrGetControl("picture", "gauge_back", 0, 10, 250, 10)
+            AUTO_CAST(gauge_back)
+            gauge_back:SetImage("fullblack")
+            gauge_back:SetEnableStretch(1)
+            gauge_back:EnableHitTest(0)
+            local gauge_front = child:CreateOrGetControl("picture", "gauge_front", 0, 10, 250, 10)
+            AUTO_CAST(gauge_front)
+            gauge_front:SetImage("fullwhite")
+            gauge_front:SetEnableStretch(1)
+            gauge_front:EnableHitTest(0)
+            if is_cool then
+                gauge_front:SetColorTone("FFFFFFFF")
+            else
+                gauge_front:SetColorTone(buff_data.color)
+            end
+            local buff_name_ctrl = child:CreateOrGetControl("richtext", "buff_name", 0, 0, 10, 20)
+            buff_name_ctrl:SetText(string.format("{ol}{s12}{img %s 15 15}%s", image_name, buff_cls.Name))
+            buff_name_ctrl:AdjustFontSizeByWidth(170)
+        end
+        child:SetUserValue("BUFF_ID", buff_id)
+        child:SetEnableStretch(1)
+        child:EnableHitTest(0)
+        if type(info_buff) == "number" then
+            start_time_sec = info_buff
+        elseif g.muteki_buffs[buff_id_str] and g.muteki_buffs[buff_id_str].set_time then
+            local now = imcTime.GetAppTime()
+            start_time_sec = g.muteki_buffs[buff_id_str].set_time - (g.muteki_buffs[buff_id_str].start_time - now)
+        else
+            start_time_sec = info_buff.time / 1000
+        end
+        child:SetUserValue("START_TIME", start_time_sec)
+        local buff_time_ctrl = child:CreateOrGetControl("richtext", "buff_time", 0, 0, 50, 30)
+        AUTO_CAST(buff_time_ctrl)
+        if buff_data.count_display == 1 and type(info_buff) ~= "number" then
+            local buff_over_ctrl = child:CreateOrGetControl("richtext", "buff_over", 0, 0, 0, 0)
+            AUTO_CAST(buff_over_ctrl)
+            if is_circle then
+                buff_over_ctrl:Resize(20, 20)
+                buff_over_ctrl:SetGravity(ui.RIGHT, ui.BOTTOM)
+                if start_time_sec > 0 then
+                    buff_over_ctrl:SetText(string.format("{ol}{s22}%d", info_buff.over))
+                    buff_time_ctrl:SetGravity(ui.LEFT, ui.TOP)
+                else
+                    buff_over_ctrl:SetText(string.format("{ol}{s35}%d", info_buff.over))
+                    local rect = buff_over_ctrl:GetMargin();
+                    buff_over_ctrl:SetMargin(rect.left, rect.top, rect.right + 12, rect.bottom + 5)
+                end
+            else -- gauge
+                buff_over_ctrl:Resize(30, 20)
+                buff_over_ctrl:SetOffset(220, 0)
+                buff_over_ctrl:SetGravity(ui.RIGHT, ui.CENTER_VERT)
+                buff_over_ctrl:SetText(string.format("{ol}{s20}%d", info_buff.over))
+            end
+            buff_over_ctrl:SetColorTone("FFFFFF00")
+        elseif not is_circle then
+            buff_time_ctrl:SetOffset(180, 0)
+            buff_time_ctrl:Resize(30, 20)
+            buff_time_ctrl:SetGravity(ui.RIGHT, ui.TOP)
+            local r = buff_time_ctrl:GetMargin()
+            buff_time_ctrl:SetMargin(r.left, r.top, r.right + 40, r.bottom)
+        elseif is_circle then
+            buff_time_ctrl:SetGravity(ui.RIGHT, ui.TOP)
+            local r = buff_time_ctrl:GetMargin()
+            buff_time_ctrl:SetMargin(r.left, r.top + 10, r.right, r.bottom)
+        end
+        Muteki_notice_update(child)
+        if not child:HaveUpdateScript("Muteki_notice_update") then
+            child:RunUpdateScript("Muteki_notice_update", 0.1)
+        end
+    elseif msg == "BUFF_UPDATE" then
+        local ui_type = is_circle and "circle" or "gauge"
+        local child = GET_CHILD(notice_frame, ui_type .. "_" .. buff_id)
+        if child then
+            local buff_over_ctrl = GET_CHILD(child, "buff_over")
+            if buff_over_ctrl and type(info_buff) ~= "number" then
+                local stat
+                if is_circle then
+                    stat = (info_buff.time <= 0) and string.format("{ol}{s35}%d", info_buff.over) or
+                               string.format("{ol}{s22}%d", info_buff.over)
+                else -- gauge
+                    stat = string.format("{ol}{s20}%d", info_buff.over)
+                end
+                buff_over_ctrl:SetText(stat)
+                buff_over_ctrl:SetColorTone("FFFFFF00")
+                if buff_cls.OverBuff <= info_buff.over then
+                    if not g.muteki_buffs[buff_id_str].effect then
+                        local my_handle = session.GetMyHandle()
+                        local actor = world.GetActor(my_handle)
+                        effect.PlayActorEffect(actor, 'F_pattern025_loop', 'None', 1.0, 1.5)
+                        imcSound.PlaySoundEvent("sys_cube_open_jackpot")
+                        g.muteki_buffs[buff_id_str].effect = true
+                    end
+                    buff_over_ctrl:SetColorTone("FFFF0000")
+                end
+            end
+            child:StopUpdateScript("Muteki_notice_update")
+            Muteki_notice_update(child)
+            if not child:HaveUpdateScript("Muteki_notice_update") then
+                child:RunUpdateScript("Muteki_notice_update", 0.1)
+            end
+        end
+    end
+end
+
+function Muteki_notice_update(child)
+    local child_name = child:GetName()
+    local muteki = child:GetParent()
+    local buff_id = child:GetUserIValue("BUFF_ID")
+    local buff_id_str = tostring(buff_id)
+    local my_handle = session.GetMyHandle()
+    local cur_time = Muteki_get_remaining_time(buff_id)
+    local ui_type = string.find(child:GetName(), "circle_") and "circle" or "gauge"
+    if cur_time <= 0 then
+        Muteki_BUFF_ON_MSG(nil, "BUFF_REMOVE", "", buff_id)
+        return 0
+    end
+    if (cur_time <= g.muteki_settings.etc.hide_time) or (cur_time == math.huge) then
+        child:ShowWindow(1)
+        g.muteki_buffs[buff_id_str].show = true
+    else
+        child:ShowWindow(0)
+        g.muteki_buffs[buff_id_str].show = false
+    end
+    Muteki_child_set_pos(muteki)
+    if g.muteki_buffs[buff_id_str].show == false then
+        return 1
+    end
+    if ui_type == "circle" then
+        if cur_time == math.huge then
+            local buff_over_ctrl = GET_CHILD(child, "buff_over")
+            buff_over_ctrl:ShowWindow(1)
+        elseif cur_time > 0 then
+            local stat = string.format("{ol}{s22}%.1f", cur_time)
+            if cur_time >= 60 then
+                local min = math.floor(cur_time / 60)
+                stat = string.format("{ol}{s22}%d{s10}%s", min, "min")
+            elseif cur_time <= 10 and cur_time > 5 then
+                stat = string.format("{ol}{s22}{#FF4500}%.1f", cur_time)
+            elseif cur_time <= 5 then
+                stat = string.format("{ol}{s22}{#FF0000}%.1f", cur_time)
+            end
+            local buff_time_ctrl = GET_CHILD(child, "buff_time")
+            if buff_time_ctrl then
+                buff_time_ctrl:SetText(stat)
+            end
+        end
+    elseif ui_type == "gauge" then
+        local buff_time_ctrl = GET_CHILD(child, "buff_time")
+        if cur_time > 0 and cur_time ~= math.huge then
+            buff_time_ctrl:ShowWindow(1)
+            buff_time_ctrl:SetText(string.format("{ol}{s18}%.1f", cur_time))
+            buff_time_ctrl:SetColorTone(g.muteki_settings.buff_list[buff_id_str].color)
+        else
+            buff_time_ctrl:ShowWindow(0)
+        end
+        local start_time = tonumber(child:GetUserValue("START_TIME"))
+        local ratio = 0
+        if cur_time == math.huge then
+            ratio = 1.0
+        elseif start_time > 0 then
+            ratio = cur_time / start_time
+        end
+        local gauge_front = GET_CHILD(child, "gauge_front")
+        AUTO_CAST(gauge_front)
+        if gauge_front then
+            gauge_front:Resize(250 * ratio, 10)
+        end
+        local gauge_front = GET_CHILD(child, "gauge_front")
+        AUTO_CAST(gauge_front)
+    end
+    return 1
+end
+
+function Muteki_child_set_pos(muteki)
+    local circle_count = Muteki_reorder_ui_elements(muteki, "circle")
+    local gauge_count = Muteki_reorder_ui_elements(muteki, "gauge")
+    local x = circle_count * 50 + 50
+    if x < 250 then
+        x = 250
+    end
+    local y = gauge_count * 25 + 60
+    if y < 60 then
+        y = 60
+    end
+    muteki:Resize(x, y)
+end
+
+function Muteki_reorder_ui_elements(muteki, ui_type)
+    local sorted_list = {}
+    local source_list = g.muteki_buffs[ui_type]
+    if source_list and type(source_list) == "table" then
+        for _, buff_id in ipairs(source_list) do
+            local cur_time = Muteki_get_remaining_time(buff_id)
+            if cur_time > 0 then
+                table.insert(sorted_list, {
+                    buff_id = buff_id,
+                    time = cur_time
+                })
+            end
+        end
+    end
+    table.sort(sorted_list, function(a, b)
+        return a.time < b.time
+    end)
+    local visible_count = 0
+    for _, entry in ipairs(sorted_list) do
+        local child = GET_CHILD(muteki, ui_type .. "_" .. entry.buff_id)
+        if child and child:IsVisible() == 1 then
+            if ui_type == "circle" then
+                child:SetOffset((visible_count + 1) * 50, 5)
+            else -- gauge
+                child:SetOffset(0, visible_count * 25 + 60)
+            end
+            visible_count = visible_count + 1
+            if not child:HaveUpdateScript("Muteki_notice_update") then
+                child:RunUpdateScript("Muteki_notice_update", 0.1)
+            end
+        end
+    end
+    return visible_count
+end
+
+function Muteki_get_remaining_time(buff_id)
+    local buff_id_str = tostring(buff_id)
+    local my_handle = session.GetMyHandle()
+    if g.muteki_buffs[buff_id_str] and g.muteki_buffs[buff_id_str].set_time then
+        local elapsed_time = imcTime.GetAppTime() - g.muteki_buffs[buff_id_str].start_time
+        return g.muteki_buffs[buff_id_str].set_time - elapsed_time
+    end
+    local info_buff = info.GetBuff(my_handle, buff_id)
+    if info_buff then
+        if info_buff.time > 0 then
+            return info_buff.time / 1000
+        elseif info_buff.time == 0 and info_buff.over > 0 then
+            return math.huge
+        end
+    end
+    return 0
+end
+
+function Muteki_insert_if_not_exists(list, value)
+    for _, existing_value in ipairs(list) do
+        if existing_value == value then
+            return
+        end
+    end
+    table.insert(list, value)
+end
+
+function Muteki_refresh_active_buffs()
+    local my_handle = session.GetMyHandle()
+    if g.muteki_settings.buff_list then
+        for b_id_str, buff_data in pairs(g.muteki_settings.buff_list) do
+            local b_id = tonumber(b_id_str)
+            local info_buff = info.GetBuff(my_handle, b_id)
+            if info_buff then
+                local not_notify_val = buff_data.not_notify and buff_data.not_notify[g.cid]
+                if not_notify_val == 1 then
+                    Muteki_BUFF_ON_MSG("", "BUFF_REMOVE", "dummy", b_id)
+                else
+                    Muteki_BUFF_ON_MSG("", "BUFF_REMOVE", "", b_id)
+                    Muteki_BUFF_ON_MSG("", "BUFF_ADD", "", b_id)
+                    Muteki_BUFF_ON_MSG("", "BUFF_UPDATE", "", b_id)
+                end
+            end
+        end
+    end
+end
+
+function Muteki_skill_list()
+    g.muteki_skills = {}
+    local buff_list = g.muteki_settings.buff_list
+    for buff_id, buff_data in pairs(buff_list) do
+        Muteki_process_management_data(buff_data.debuffs, "debuff_time", buff_id)
+        Muteki_process_management_data(buff_data.buffs, "buff_time", buff_id)
+    end
+end
+
+function Muteki_process_management_data(tbl, time_key, buff_id)
+    if not tbl then
+        return
+    end
+    for cid, info in pairs(tbl) do
+        if type(info) == "table" and info.skill_id and info[time_key] then
+            if cid == g.cid and info[time_key] > 0 then
+                local skill_id = info.skill_id
+                g.muteki_skills[tostring(skill_id)] = {
+                    time = info[time_key],
+                    buff_id = buff_id
+                }
+            end
+        end
+    end
+end
+
+function Muteki_setting_frame_init()
+    local settings = ui.CreateNewFrame("notice_on_pc", addon_name_lower .. "muteki_settings", 0, 50, 0, 0)
+    AUTO_CAST(settings)
+    settings:SetSkinName("test_frame_low")
+    settings:Resize(600, 1005)
+    settings:SetGravity(ui.LEFT, ui.TOP)
+    settings:SetOffset(0, 30)
+    settings:SetLayerLevel(999)
+    local title_gb = settings:CreateOrGetControl("groupbox", "title_gb", 0, 0, 600, 110)
+    AUTO_CAST(title_gb)
+    title_gb:SetSkinName("test_frame_top")
+    local title_text = title_gb:CreateOrGetControl("richtext", "title_text", 0, 0, ui.CENTER_HORZ, ui.TOP, 0, 15, 0, 0)
+    AUTO_CAST(title_text);
+    title_text:SetText('{ol}{s28}MUTEKI Settings')
+    local x = 0
+    local buff_time = title_gb:CreateOrGetControl('richtext', 'buff_time', 15, 60, 100, 30)
+    AUTO_CAST(buff_time)
+    buff_time:SetText(muteki_trans('buff_time'))
+    x = buff_time:GetWidth() + 15
+    local buff_time_edit = title_gb:CreateOrGetControl('edit', 'buff_time_edit', x, 60, 60, 20)
+    AUTO_CAST(buff_time_edit)
+    buff_time_edit:SetNumberMode(1)
+    buff_time_edit:SetFontName("white_16_ol")
+    buff_time_edit:SetText(g.muteki_settings.etc.hide_time)
+    buff_time_edit:SetTextAlign("center", "top")
+    buff_time_edit:SetTypingScp("Muteki_change_settings")
+    buff_time_edit:SetEventScript(ui.ENTERKEY, 'Muteki_change_settings')
+    x = x + buff_time_edit:GetWidth() + 20
+    local layer = title_gb:CreateOrGetControl('richtext', 'layer', x, 60, 10, 30)
+    AUTO_CAST(layer)
+    layer:SetText(muteki_trans('layer_lv'))
+    x = x + layer:GetWidth()
+    local layer_edit = title_gb:CreateOrGetControl('edit', 'layer_edit', x, 60, 50, 20)
+    AUTO_CAST(layer_edit)
+    layer_edit:SetNumberMode(1)
+    layer_edit:SetFontName("white_16_ol")
+    layer_edit:SetText(g.muteki_settings.etc.layer_lv or 80)
+    layer_edit:SetTextAlign("center", "top")
+    layer_edit:SetTypingScp("Muteki_change_settings")
+    layer_edit:SetEventScript(ui.ENTERKEY, 'Muteki_change_settings')
+    x = 0
+    local mode = title_gb:CreateOrGetControl('richtext', 'mode', 15, 85, 10, 30)
+    AUTO_CAST(mode)
+    mode:SetText(muteki_trans('position_mode'))
+    x = mode:GetWidth() + 15
+    local mode_toggle = title_gb:CreateOrGetControl('picture', "mode_toggle", x, 80, 60, 25);
+    AUTO_CAST(mode_toggle)
+    local icon_name = "test_com_ability_on"
+    if g.muteki_settings.etc.mode == "fixed" then
+        icon_name = "test_com_ability_off"
+    end
+    mode_toggle:SetImage(icon_name)
+    mode_toggle:SetEnableStretch(1)
+    mode_toggle:EnableHitTest(1)
+    mode_toggle:SetTextTooltip(muteki_trans("mode_desc"))
+    mode_toggle:SetEventScript(ui.LBUTTONUP, "Muteki_change_settings")
+    x = x + mode_toggle:GetWidth() + 10
+    local move = title_gb:CreateOrGetControl('richtext', 'move', x, 85, 10, 30)
+    AUTO_CAST(move)
+    move:SetText(muteki_trans('frame_lock'))
+    x = x + move:GetWidth()
+    local move_toggle = title_gb:CreateOrGetControl('picture', "move_toggle", x, 80, 60, 25);
+    AUTO_CAST(move_toggle)
+    local icon_name = "test_com_ability_on"
+    if g.muteki_settings.etc.lock == 1 then
+        icon_name = "test_com_ability_off"
+    end
+    move_toggle:SetImage(icon_name)
+    move_toggle:SetEnableStretch(1)
+    move_toggle:EnableHitTest(1)
+    move_toggle:SetTextTooltip(muteki_trans("lock_notice"))
+    move_toggle:SetEventScript(ui.LBUTTONUP, "Muteki_change_settings")
+    x = x + move_toggle:GetWidth() + 10
+    local rotate = title_gb:CreateOrGetControl('richtext', 'rotate', x, 85, 10, 30)
+    AUTO_CAST(rotate)
+    rotate:SetText(muteki_trans("icon_rotate"))
+    x = x + rotate:GetWidth()
+    local rotate_toggle = title_gb:CreateOrGetControl('picture', "rotate_toggle", x, 80, 60, 25);
+    AUTO_CAST(rotate_toggle)
+    local icon_name = "test_com_ability_on"
+    if g.muteki_settings.etc.rotate ~= 1 then
+        icon_name = "test_com_ability_off"
+    end
+    rotate_toggle:SetImage(icon_name)
+    rotate_toggle:SetEnableStretch(1)
+    rotate_toggle:EnableHitTest(1)
+    rotate_toggle:SetEventScript(ui.LBUTTONUP, "Muteki_change_settings")
+    local add = title_gb:CreateOrGetControl("button", "add", 530, 80, 50, 30)
+    AUTO_CAST(add)
+    add:SetSkinName("test_cardtext_btn")
+    add:SetText("{ol}" .. "Add")
+    add:SetTextTooltip(muteki_trans("add_new"))
+    add:SetEventScript(ui.LBUTTONUP, "Muteki_buff_list_open")
+    local close = title_gb:CreateOrGetControl("button", "close", 0, 0, 25, 25)
+    AUTO_CAST(close)
+    close:SetImage("testclose_button")
+    close:SetGravity(ui.RIGHT, ui.TOP)
+    close:SetEventScript(ui.LBUTTONUP, "Muteki_setting_frame_close")
+    local gb = settings:CreateOrGetControl("groupbox", "gb", 10, 110, 580, settings:GetHeight() - 120)
+    AUTO_CAST(gb)
+    gb:SetSkinName("bg")
+    gb:RemoveAllChild()
+    Muteki_setting_gbox_init(settings, gb)
+    settings:ShowWindow(1)
+end
+
+function Muteki_setting_gbox_init(settings, gb)
+    local sorted_buff_list = {}
+    if g.muteki_settings.buff_list and type(g.muteki_settings.buff_list) == "table" then
+        for buff_id_str, buff_data in pairs(g.muteki_settings.buff_list) do
+            table.insert(sorted_buff_list, {
+                buff_id = tonumber(buff_id_str),
+                data = buff_data
+            })
+        end
+    end
+    table.sort(sorted_buff_list, function(a, b)
+        return a.buff_id < b.buff_id
+    end)
+    local index = 1
+    for i, entry in ipairs(sorted_buff_list) do
+        index = index + 1
+        local buff_id = entry.buff_id
+        local buff_data = entry.data
+        local buff_cls = GetClassByType('Buff', buff_id)
+        local list = gb:CreateOrGetControl('groupbox', 'list' .. buff_id, 5, 5 + 175 * (i - 1), 555, 175)
+        list:SetSkinName("market_listbase")
+        local buff_pic = list:CreateOrGetControl('picture', 'buff_pic', 95, 10, 30, 30)
+        AUTO_CAST(buff_pic)
+        buff_pic:SetEnableStretch(1)
+        if buff_cls and buff_cls.Icon then
+            local icon_name = 'icon_' .. buff_cls.Icon
+            if buff_cls.Icon == "None" then
+                icon_name = "icon_item_nothing"
+            end
+            buff_pic:SetImage(icon_name)
+            buff_pic:SetTextTooltip(muteki_trans('delete_notice'))
+            buff_pic:SetEventScript(ui.RBUTTONUP, 'Muteki_delete_buff')
+            buff_pic:SetEventScriptArgString(ui.RBUTTONUP, buff_cls.Name)
+            buff_pic:SetEventScriptArgNumber(ui.RBUTTONUP, buff_id)
+            local buff_name = list:CreateOrGetControl('richtext', 'buff_name', 130, 15, 60, 30)
+            AUTO_CAST(buff_name)
+            buff_name:SetText('{#000000}' .. buff_cls.Name)
+            buff_name:SetTooltipType('buff')
+            buff_name:SetTooltipArg(buff_name, buff_id, 0)
+            local buff_edit = list:CreateOrGetControl('edit', 'buff_edit', 10, 10, 80, 30)
+            AUTO_CAST(buff_edit)
+            buff_edit:SetNumberMode(1)
+            buff_edit:SetFontName("white_16_ol")
+            buff_edit:SetText(buff_cls.ClassID)
+            buff_edit:SetTextAlign("center", "center")
+            buff_edit:SetTextTooltip(muteki_trans('function_notice'))
+            buff_edit:SetTypingScp("Muteki_add_buff")
+            buff_edit:SetEventScript(ui.ENTERKEY, 'Muteki_add_buff')
+            buff_edit:SetEventScriptArgString(ui.ENTERKEY, buff_id)
+        end
+        local circle = list:CreateOrGetControl('checkbox', 'circle', 10, 45, 200, 25)
+        AUTO_CAST(circle)
+        local circle_icon = buff_data.circle_icon
+        circle:SetCheck(circle_icon)
+        circle:SetText(muteki_trans('icon_mode'))
+        circle:SetEventScript(ui.LBUTTONUP, 'Muteki_setting_change')
+        circle:SetEventScriptArgString(ui.LBUTTONUP, buff_id)
+        local not_notify = list:CreateOrGetControl('checkbox', 'not_notify', 10, 70, 200, 25)
+        AUTO_CAST(not_notify)
+        not_notify:SetCheck(buff_data.not_notify[g.cid])
+        not_notify:SetText(muteki_trans('not_notify'))
+        not_notify:SetEventScript(ui.LBUTTONUP, 'Muteki_setting_change')
+        not_notify:SetEventScriptArgString(ui.LBUTTONUP, buff_id)
+        local pt_chat = list:CreateOrGetControl('checkbox', 'pt_chat', 10, 95, 200, 25)
+        AUTO_CAST(pt_chat)
+        pt_chat:SetCheck(buff_data.pt_chat)
+        pt_chat:SetText(muteki_trans('pt_chat'))
+        pt_chat:SetEventScript(ui.LBUTTONUP, 'Muteki_setting_change')
+        pt_chat:SetEventScriptArgString(ui.LBUTTONUP, buff_id)
+        local nico_chat = list:CreateOrGetControl('checkbox', 'nico_chat', 10, 120, 200, 25)
+        AUTO_CAST(nico_chat)
+        nico_chat:SetCheck(buff_data.nico_chat)
+        nico_chat:SetText(muteki_trans('nico_chat'))
+        nico_chat:SetEventScript(ui.LBUTTONUP, 'Muteki_setting_change')
+        nico_chat:SetEventScriptArgString(ui.LBUTTONUP, buff_id)
+        local effect = list:CreateOrGetControl('checkbox', 'effect', 270, 70, 200, 25)
+        AUTO_CAST(effect)
+        effect:SetCheck(buff_data.effect_check)
+        effect:SetText(muteki_trans('with_effect'))
+        effect:SetEventScript(ui.LBUTTONUP, 'Muteki_setting_change')
+        effect:SetEventScriptArgString(ui.LBUTTONUP, buff_id)
+        local color_pic = list:CreateOrGetControl('picture', 'color_pic', 510, 10, 30, 25)
+        AUTO_CAST(color_pic)
+        color_pic:SetEnableStretch(1)
+        color_pic:SetImage("chat_color")
+        color_pic:SetColorTone(buff_data.color or g.muteki_default_color)
+        color_pic:SetTextTooltip(muteki_trans('color_tone'))
+        local color_tbl = {'FFFFFF00', -- [1] 黄色
+        'FFFFD700', -- [2] ゴールド
+        'FFFF4500', -- [3] オレンジ
+        'FF00FF00', -- [4] ライムグリーン
+        'FF008000', -- [5] 緑
+        'FF00BFFF', -- [6] スカイブルー
+        'FF0000FF', -- [7] 青
+        'FF800080', -- [8] 紫
+        "FFFF1493", -- [9] ピンク
+        "FFFF0000" -- [10] 赤
+        }
+        local color_box = list:CreateOrGetControl('groupbox', "color_box", 315, 45, 220, 25);
+        AUTO_CAST(color_box)
+        for i = 1, #color_tbl do
+            local color_value = color_tbl[i]
+            local color = color_box:CreateOrGetControl("picture", "color_" .. i, 20 * i, 0, 20, 25);
+            AUTO_CAST(color)
+            color:SetImage("chat_color")
+            color:SetColorTone(color_value)
+            color:SetEventScript(ui.LBUTTONUP, 'Muteki_setting_change')
+            color:SetEventScriptArgString(ui.LBUTTONUP, color_value)
+            color:SetEventScriptArgNumber(ui.LBUTTONUP, buff_id)
+        end
+        local color_edit = list:CreateOrGetControl('edit', 'color_edit', 405, 10, 100, 30)
+        AUTO_CAST(color_edit)
+        color_edit:SetFontName("white_16_ol")
+        color_edit:SetText("{ol}" .. buff_data.color or g.muteki_default_color)
+        color_edit:SetTextAlign("center", "center")
+        color_edit:SetTextTooltip(muteki_trans('color_notice'))
+        color_edit:SetNumberMode(0)
+        color_edit:SetEventScript(ui.ENTERKEY, 'Muteki_setting_change')
+        color_edit:SetEventScriptArgString(ui.ENTERKEY, buff_data.color or g.muteki_default_color)
+        color_edit:SetEventScriptArgNumber(ui.ENTERKEY, buff_id)
+        if buff_cls.OverBuff > 1 then
+            local count_display = list:CreateOrGetControl('checkbox', 'count_display', 270, 95, 200, 25)
+            AUTO_CAST(count_display)
+            count_display:SetCheck(buff_data.count_display)
+            count_display:SetText(muteki_trans('count_display'))
+            count_display:SetEventScript(ui.LBUTTONUP, 'Muteki_setting_change')
+            count_display:SetEventScriptArgString(ui.LBUTTONUP, buff_id)
+        end
+        local x = 0
+        local xx = 0
+        local time_edit = list:CreateOrGetControl('edit', 'time_edit', 10, 145, 80, 25)
+        AUTO_CAST(time_edit)
+        time_edit:SetFontName("white_16_ol")
+        time_edit:SetTextAlign("center", "center")
+        time_edit:SetNumberMode(1)
+        local debuff_time = ""
+        local buff_time = ""
+        local current_buff_list = g.muteki_settings.buff_list[tostring(buff_id)]
+        if buff_cls.Group1 == "Debuff" or buff_cls.Group1 == "Deuff" then
+            if current_buff_list and current_buff_list.debuffs and current_buff_list.debuffs[g.cid] then
+                local d_manage = current_buff_list.debuffs[g.cid]
+                if d_manage.debuff_time and d_manage.debuff_time > 0 then
+                    debuff_time = d_manage.debuff_time
+                end
+            end
+            time_edit:SetText("{ol}" .. (debuff_time or ""))
+            time_edit:SetTextTooltip(muteki_trans('debuff_notice'))
+            time_edit:SetUserValue("SWITCH", "debuff")
+            time_edit:SetUserValue("BUFF_ID", buff_id)
+            time_edit:SetTypingScp("Muteki_setting_change")
+            time_edit:SetEventScript(ui.ENTERKEY, 'Muteki_setting_change')
+            time_edit:SetEventScriptArgString(ui.ENTERKEY, buff_id)
+            x = x + time_edit:GetWidth() + 15
+            local time = list:CreateOrGetControl('richtext', 'time', x, 147, 100, 25)
+            AUTO_CAST(time)
+            time:SetText(muteki_trans('debuff_time'))
+            x = x + time:GetWidth() + 10
+        else
+            if current_buff_list and current_buff_list.buffs and current_buff_list.buffs[g.cid] then
+                local b_manage = current_buff_list.buffs[g.cid]
+                if b_manage.buff_time and b_manage.buff_time > 0 then
+                    buff_time = b_manage.buff_time
+                end
+            end
+            time_edit:SetText("{ol}" .. (buff_time or ""))
+            time_edit:SetTextTooltip(muteki_trans('buff_notice_cid'))
+            time_edit:SetUserValue("SWITCH", "buff")
+            time_edit:SetUserValue("BUFF_ID", buff_id)
+            time_edit:SetTypingScp("Muteki_setting_change")
+            time_edit:SetEventScript(ui.ENTERKEY, 'Muteki_setting_change')
+            time_edit:SetEventScriptArgString(ui.ENTERKEY, buff_id)
+            xx = xx + time_edit:GetWidth() + 15
+            local time = list:CreateOrGetControl('richtext', 'time', xx, 147, 100, 25)
+            AUTO_CAST(time)
+            time:SetText(muteki_trans('buff_time_cid'))
+            xx = xx + time:GetWidth() + 10
+        end
+        x = x >= xx and x or xx
+        if buff_time ~= "" or debuff_time ~= "" then
+            local skill_edit = list:CreateOrGetControl('edit', 'skill_edit', x, 145, 80, 25)
+            AUTO_CAST(skill_edit)
+            skill_edit:SetFontName("white_16_ol")
+            local skill_id = ""
+            if current_buff_list then
+                if current_buff_list.buffs and current_buff_list.buffs[g.cid] then
+                    local bm = current_buff_list.buffs[g.cid]
+                    if bm.skill_id and bm.skill_id > 0 then
+                        skill_id = bm.skill_id
+                    end
+                end
+                if current_buff_list.debuffs and current_buff_list.debuffs[g.cid] then
+                    local dm = current_buff_list.debuffs[g.cid]
+                    if dm.skill_id and dm.skill_id > 0 then
+                        skill_id = dm.skill_id
+                    end
+                end
+            end
+            skill_edit:SetTextTooltip(muteki_trans('skill_notice'))
+            skill_edit:SetTextAlign("center", "center")
+            skill_edit:SetNumberMode(1)
+            skill_edit:SetText("{ol}" .. skill_id)
+            skill_edit:SetUserValue("SWITCH", time_edit:GetUserValue("SWITCH"))
+            skill_edit:SetUserValue("BUFF_ID", buff_id)
+            skill_edit:SetEventScript(ui.ENTERKEY, 'Muteki_setting_change')
+            skill_edit:SetEventScriptArgString(ui.ENTERKEY, buff_id)
+            skill_edit:SetTypingScp("Muteki_setting_change")
+            x = x + skill_edit:GetWidth() + 5
+            local skill_text = list:CreateOrGetControl('richtext', 'skill_text', x, 147, 100, 25)
+            AUTO_CAST(skill_text)
+            skill_text:SetText(muteki_trans('skill_text'))
+            x = x + skill_text:GetWidth() + 5
+            local add = list:CreateOrGetControl("button", "add", x, 140, 40, 30)
+            AUTO_CAST(add)
+            add:SetSkinName("test_cardtext_btn")
+            add:SetText("{ol}{s13}" .. "Add")
+            add:SetTextTooltip(muteki_trans("add_new_skill"))
+            add:SetEventScript(ui.LBUTTONUP, "Muteki_skill_list_open")
+            add:SetEventScriptArgNumber(ui.LBUTTONUP, tonumber(buff_id))
+        end
+        local end_sound = list:CreateOrGetControl('checkbox', 'end_sound', 270, 120, 200, 25)
+        AUTO_CAST(end_sound)
+        end_sound:SetCheck(buff_data.end_sound)
+        end_sound:SetText(muteki_trans('end_sound'))
+        end_sound:SetEventScript(ui.LBUTTONUP, 'Muteki_setting_change')
+        end_sound:SetEventScriptArgString(ui.LBUTTONUP, buff_id)
+    end
+    local list = gb:CreateOrGetControl('groupbox', 'list' .. index, 5, 5 + 175 * (index - 1), 555, 175)
+    list:SetSkinName("market_listbase")
+    local buff_edit = list:CreateOrGetControl('edit', 'buff_edit', 10, 10, 80, 30)
+    AUTO_CAST(buff_edit)
+    buff_edit:SetNumberMode(1)
+    buff_edit:SetFontName("white_16_ol")
+    buff_edit:SetTextAlign("center", "center")
+    buff_edit:SetTextTooltip(muteki_trans('function_notice'))
+    buff_edit:SetEventScript(ui.ENTERKEY, 'Muteki_add_buff')
+    buff_edit:SetTextTooltip(muteki_trans('function_notice'))
+    buff_edit:SetTypingScp("Muteki_add_buff")
+    for i, entry in ipairs(sorted_buff_list) do
+        local buff_id = entry.buff_id
+        if g.muteki_cur_pos and tostring(buff_id) == g.muteki_cur_pos then
+            gb:SetScrollPos(155 * (i - 3))
+            local list = GET_CHILD(gb, "list" .. buff_id)
+            list:SetSkinName("test_skin_01") -- monster_card_list
+            g.muteki_cur_pos = nil
+        end
+    end
+end
+
+function Muteki_change_settings_edit(ctrl)
+    local config_map = {
+        buff_time_edit = {
+            key = "hide_time",
+            default = 300,
+            msg_key = "hide_sec"
+        },
+        layer_edit = {
+            key = "layer_lv",
+            default = 80,
+            msg_key = "layer_notice"
+        }
+    }
+    local config = config_map[ctrl:GetName()]
+    if not config then
+        return
+    end
+    local val = tonumber(ctrl:GetText())
+    if val then
+        g.muteki_settings.etc[config.key] = val
+        ui.SysMsg(string.format(muteki_trans(config.msg_key), val))
+        Muteki_save_settings()
+        Muteki_setting_frame_init()
+        Muteki_buff_frame_init()
+        Muteki_refresh_active_buffs()
+    else
+        g.muteki_settings.etc[config.key] = config.default
+    end
+    return 0
+end
+
+function Muteki_change_settings(frame, ctrl, str, num)
+    local ctrl_name = ctrl:GetName()
+    if ctrl_name == "buff_time_edit" or ctrl_name == "layer_edit" then
+        ctrl:RunUpdateScript("Muteki_change_settings_edit", 1.0)
+        return
+    elseif ctrl_name == "mode_toggle" then
+        if g.muteki_settings.etc.mode == "fixed" then
+            g.muteki_settings.etc.mode = "trace"
+        else
+            g.muteki_settings.etc.mode = "fixed"
+        end
+    elseif ctrl_name == "move_toggle" then
+        if g.muteki_settings.etc.lock == 1 then
+            g.muteki_settings.etc.lock = 0
+        else
+            g.muteki_settings.etc.lock = 1
+        end
+    elseif ctrl_name == "rotate_toggle" then
+        if g.muteki_settings.etc.rotate == 1 then
+            g.muteki_settings.etc.rotate = 0
+        else
+            g.muteki_settings.etc.rotate = 1
+        end
+    end
+    Muteki_save_settings()
+    Muteki_setting_frame_init()
+    Muteki_buff_frame_init()
+    Muteki_refresh_active_buffs()
+end
+
+function Muteki_setting_change_edit(ctrl)
+    local switch = ctrl:GetUserValue("SWITCH")
+    local buff_id_str = ctrl:GetUserValue("BUFF_ID")
+    local ctrl_name = ctrl:GetName()
+    local input_val = tonumber(ctrl:GetText())
+    local type_key = (switch == "debuff") and "debuffs" or "buffs"
+    local setting_entry = g.muteki_settings.buff_list[buff_id_str]
+    if not setting_entry[type_key][g.cid] then
+        setting_entry[type_key][g.cid] = {}
+    end
+    local target_data = setting_entry[type_key][g.cid]
+    if ctrl_name == "skill_edit" then
+        if input_val then
+            local skill_cls = GetClassByType("Skill", input_val)
+            if skill_cls then
+                target_data.skill_id = input_val
+                ui.SysMsg(string.format(muteki_trans("skill_set"), skill_cls and skill_cls.Name or input_val))
+            else
+                ctrl:SetText("")
+                target_data.skill_id = 0
+            end
+        else
+            ctrl:SetText("")
+            target_data.skill_id = 0
+        end
+    else
+        local time_key = (switch == "debuff") and "debuff_time" or "buff_time"
+        target_data[time_key] = input_val or 0
+        if not input_val then
+            ctrl:SetText("")
+        end
+        ui.SysMsg(string.format(muteki_trans("debuff_manage_set"), target_data[time_key]))
+    end
+    Muteki_skill_list()
+    Muteki_setting_frame_init()
+    Muteki_save_settings()
+    Muteki_refresh_active_buffs()
+    return 0
+end
+
+function Muteki_setting_change(frame, ctrl, arg_str, arg_num)
+    local ctrl_name = ctrl:GetName()
+    local buff_id = arg_num
+    local buff_id_str = tostring(buff_id)
+    local not_notify = {}
+    if ctrl_name == "circle" then
+        g.muteki_settings.buff_list[arg_str].circle_icon = ctrl:IsChecked()
+    elseif ctrl_name == "not_notify" then
+        g.muteki_settings.buff_list[arg_str].not_notify[g.cid] = ctrl:IsChecked()
+    elseif ctrl_name == "pt_chat" then
+        g.muteki_settings.buff_list[arg_str].pt_chat = ctrl:IsChecked()
+    elseif ctrl_name == "nico_chat" then
+        g.muteki_settings.buff_list[arg_str].nico_chat = ctrl:IsChecked()
+    elseif ctrl_name == "effect" then
+        g.muteki_settings.buff_list[arg_str].effect_check = ctrl:IsChecked()
+    elseif ctrl_name == "count_display" then
+        g.muteki_settings.buff_list[arg_str].count_display = ctrl:IsChecked()
+    elseif ctrl_name == "end_sound" then
+        g.muteki_settings.buff_list[arg_str].end_sound = ctrl:IsChecked()
+    elseif ctrl_name == "color_edit" then
+        local color_text = ctrl:GetText()
+        if string.len(color_text) ~= 8 then
+            ctrl:SetText(g.muteki_settings.buff_list[buff_id_str].color)
+            ui.SysMsg(muteki_trans("color_notice"))
+            return
+        end
+        g.muteki_settings.buff_list[buff_id_str].color = color_text
+    elseif string.find(ctrl_name, "color_") then
+        g.muteki_settings.buff_list[buff_id_str].color = arg_str
+    elseif ctrl_name == "time_edit" or ctrl_name == "skill_edit" then
+        ctrl:RunUpdateScript("Muteki_setting_change_edit", 1.0)
+        return
+    end
+    Muteki_setting_frame_init()
+    Muteki_save_settings()
+    Muteki_refresh_active_buffs()
+end
+
+function Muteki_add_buff_msg(frame, ctrl, cls_name, buff_id)
+    local yes_scp = string.format("Muteki_add_buff('','%s','%s','')", ctrl:GetName(), buff_id)
+    local msg = string.format(muteki_trans('add_check'), cls_name)
+    ui.MsgBox(msg, yes_scp, "None")
+end
+
+function Muteki_add_buff_edit(ctrl)
+    local ctrl_name = ctrl:GetName()
+    local buff_id_str = ctrl:GetText()
+    local buff_id = tonumber(buff_id_str)
+    if buff_id and (ctrl_name == "buff_edit" or ctrl_name == "id_edit") then
+        local buff_cls = GetClassByType("Buff", buff_id)
+        if buff_cls then
+            g.muteki_settings.buff_list[tostring(buff_id)] = {
+                circle_icon = 0,
+                effect_check = 0,
+                not_notify = {},
+                count_display = 0,
+                pt_chat = 0,
+                nico_chat = 0,
+                end_sound = "None",
+                color = "FFCCCC22",
+                buffs = {},
+                debuffs = {}
+            }
+            ui.SysMsg(string.format(muteki_trans("add_buff"), buff_cls.Name))
+            Muteki_save_settings()
+            g.muteki_cur_pos = ctrl:GetY()
+            Muteki_setting_frame_init()
+        end
+    end
+    if ctrl_name == "id_edit" then
+        ctrl:SetText("")
+    end
+    Muteki_refresh_active_buffs()
+    return 0
+end
+
+function Muteki_add_buff(frame, ctrl, buff_id_str, num)
+    local ctrl_name = ""
+    if type(ctrl) == "string" then
+        ctrl_name = ctrl
+    else
+        ctrl_name = ctrl:GetName()
+    end
+    local buff_id_process = nil
+    if string.find(ctrl_name, "buff_set") then
+        buff_id_process = buff_id_str
+    elseif ctrl_name == "buff_edit" then
+        ctrl:RunUpdateScript("Muteki_add_buff_edit", 1.0)
+        return
+    elseif ctrl_name == "id_edit" then
+        ctrl:RunUpdateScript("Muteki_add_buff_edit", 1.0)
+        return
+    elseif string.find(ctrl_name, "slot") then
+        buff_id_process = buff_id_str
+    end
+    if buff_id_process and buff_id_process ~= "" then
+        local buff_id_num = tonumber(buff_id_process)
+        local buff_cls = GetClassByType("Buff", buff_id_num)
+        if buff_cls then
+            g.muteki_settings.buff_list[buff_id_process] = {
+                ["circle_icon"] = 0,
+                ["effect_check"] = 0,
+                ["not_notify"] = {},
+                ["count_display"] = 0,
+                ["pt_chat"] = 0,
+                ["nico_chat"] = 0,
+                ["end_sound"] = "None",
+                ["color"] = "FFCCCC22",
+                ["buffs"] = {},
+                ["debuffs"] = {}
+            }
+            ui.SysMsg(string.format(muteki_trans("add_buff"), buff_cls.Name))
+        else
+            return
+        end
+    end
+    Muteki_save_settings()
+    if not string.find(ctrl_name, "slot") then
+        g.muteki_cur_pos = buff_id_process
+        Muteki_setting_frame_init()
+    end
+    Muteki_refresh_active_buffs()
+end
+
+function Muteki_delete_buff(frame, ctrl, buff_name, buff_id)
+    local ctrl_name = ctrl:GetName()
+    if ctrl_name == "buff_pic" then
+        g.muteki_settings.buff_list[tostring(buff_id)] = nil
+        ui.SysMsg(string.format(muteki_trans("delete_buff"), buff_name))
+    end
+    Muteki_save_settings()
+    Muteki_setting_frame_init()
+    Muteki_BUFF_ON_MSG("", "BUFF_REMOVE", "dummy", buff_id)
+end
+
+function Muteki_buff_list_open(frame, ctrl, ctrl_text, num)
+    local buff_list_frame_name = addon_name_lower .. "muteki_buff_list"
+    local buff_list = ui.GetFrame(addon_name_lower .. "muteki_buff_list")
+    if not buff_list then
+        buff_list = ui.CreateNewFrame("notice_on_pc", addon_name_lower .. "muteki_buff_list", 0, 0, 10, 10)
+        AUTO_CAST(buff_list)
+        buff_list:SetSkinName("test_frame_low")
+        buff_list:Resize(500, 1005)
+        buff_list:SetPos(610, 30)
+        buff_list:SetLayerLevel(999)
+        local id_edit = buff_list:CreateOrGetControl('edit', 'id_edit', 20, 15, 80, 30)
+        AUTO_CAST(id_edit)
+        id_edit:SetNumberMode(1)
+        id_edit:SetFontName("white_16_ol")
+        id_edit:SetTextAlign("center", "center")
+        id_edit:SetText("")
+        id_edit:SetEventScript(ui.ENTERKEY, 'Muteki_add_buff')
+        id_edit:SetTextTooltip(muteki_trans("add_buffid"))
+        local search_edit = buff_list:CreateOrGetControl("edit", "search_edit", id_edit:GetWidth() + 40, 10, 305, 38)
+        AUTO_CAST(search_edit)
+        search_edit:SetFontName("white_18_ol")
+        search_edit:SetTextAlign("left", "center")
+        search_edit:SetSkinName("inventory_serch")
+        search_edit:SetEventScript(ui.ENTERKEY, "Muteki_buff_list_search")
+        local search_btn = search_edit:CreateOrGetControl("button", "search_btn", 0, 0, 40, 38)
+        AUTO_CAST(search_btn)
+        search_btn:SetImage("inven_s")
+        search_btn:SetGravity(ui.RIGHT, ui.TOP)
+        search_btn:SetEventScript(ui.LBUTTONUP, "Muteki_buff_list_search")
+        local close_button = buff_list:CreateOrGetControl('button', 'close_button', 0, 0, 20, 20)
+        AUTO_CAST(close_button)
+        close_button:SetImage("testclose_button")
+        close_button:SetGravity(ui.RIGHT, ui.TOP)
+        close_button:SetEventScript(ui.LBUTTONUP, "Muteki_buff_list_close")
+    end
+    local buff_list_gb = buff_list:CreateOrGetControl("groupbox", "buff_list_gb", 10, 50, 480,
+        buff_list:GetHeight() - 60)
+    AUTO_CAST(buff_list_gb)
+    buff_list_gb:SetSkinName("bg")
+    buff_list_gb:RemoveAllChild()
+    local cls_list, count = GetClassList("Buff")
+    local y = 0
+    for i = 0, count - 1 do
+        local buff_cls = GetClassByIndexFromList(cls_list, i)
+        if buff_cls then
+            local buff_id = buff_cls.ClassID
+            local buff_name = dictionary.ReplaceDicIDInCompStr(buff_cls.Name)
+            if ctrl_text == "" or (ctrl_text ~= "" and string.find(buff_name, ctrl_text)) then
+                local buff_slot = buff_list_gb:CreateOrGetControl('slot', 'buffslot' .. i, 10, y + 5, 30, 30)
+                AUTO_CAST(buff_slot)
+                local image_name = GET_BUFF_ICON_NAME(buff_cls)
+                if image_name == "icon_None" then
+                    image_name = "icon_item_nothing"
+                end
+                if buff_name ~= "None" then
+                    SET_SLOT_IMG(buff_slot, image_name)
+                    local icon = CreateIcon(buff_slot)
+                    AUTO_CAST(icon)
+                    icon:SetTooltipType('buff')
+                    icon:SetTooltipArg(buff_name, buff_id, 0)
+                    local buff_set = buff_list_gb:CreateOrGetControl('button', 'buff_set' .. buff_id, 45, y + 5, 40, 30)
+                    AUTO_CAST(buff_set)
+                    buff_set:SetText("{ol}Add")
+                    buff_set:SetSkinName("test_cardtext_btn")
+                    buff_set:SetTextTooltip(muteki_trans("add_new"))
+                    buff_set:SetEventScript(ui.LBUTTONUP, "Muteki_add_buff")
+                    buff_set:SetEventScriptArgString(ui.LBUTTONUP, buff_id)
+                    local buff_text = buff_list_gb:CreateOrGetControl('richtext', 'buff_text' .. buff_id, 90, y + 10,
+                        200, 30)
+                    AUTO_CAST(buff_text)
+                    buff_text:SetText("{ol}" .. buff_id .. " : " .. buff_name)
+                    buff_text:AdjustFontSizeByWidth(380)
+                    y = y + 35
+                end
+            end
+        end
+    end
+    buff_list:ShowWindow(1)
+end
+
+function Muteki_buff_list_search(frame, ctrl, str, num)
+    local search_edit = GET_CHILD_RECURSIVELY(frame, "search_edit")
+    local ctrl_text = search_edit:GetText()
+    if ctrl_text ~= "" then
+        Muteki_buff_list_open(frame, ctrl, ctrl_text)
+    else
+        Muteki_buff_list_open(frame, ctrl, "")
+    end
+end
+
+function Muteki_buff_list_close(frame, ctrl, str, num)
+    ui.DestroyFrame(frame:GetName())
+end
+
+function Muteki_skill_list_open(frame, add, ctrl_text, buff_id)
+    local skill_list = ui.GetFrame(addon_name_lower .. "muteki_skill_list")
+    if not skill_list then
+        skill_list = ui.CreateNewFrame("notice_on_pc", addon_name_lower .. "muteki_skill_list", 0, 0, 10, 10)
+        AUTO_CAST(skill_list)
+        skill_list:SetSkinName("test_frame_low")
+        skill_list:Resize(500, 1005)
+        skill_list:SetPos(610, 30)
+        skill_list:SetLayerLevel(999)
+        local title_text = skill_list:CreateOrGetControl('richtext', 'itle_text', 15, 15, 10, 30)
+        AUTO_CAST(title_text)
+        title_text:SetText("{#000000}{s20}Skill List")
+        local search_edit =
+            skill_list:CreateOrGetControl("edit", "search_edit", title_text:GetWidth() + 30, 10, 305, 38)
+        AUTO_CAST(search_edit)
+        search_edit:SetFontName("white_18_ol")
+        search_edit:SetTextAlign("left", "center")
+        search_edit:SetSkinName("inventory_serch")
+        search_edit:SetEventScript(ui.ENTERKEY, "Muteki_skill_list_search")
+        search_edit:SetEventScriptArgNumber(ui.ENTERKEY, buff_id)
+        local search_btn = search_edit:CreateOrGetControl("button", "search_btn", 0, 0, 40, 38)
+        AUTO_CAST(search_btn)
+        search_btn:SetImage("inven_s")
+        search_btn:SetGravity(ui.RIGHT, ui.TOP)
+        search_btn:SetEventScript(ui.LBUTTONUP, "Muteki_skill_list_search")
+        local close_button = skill_list:CreateOrGetControl('button', 'close_button', 0, 0, 20, 20)
+        AUTO_CAST(close_button)
+        close_button:SetImage("testclose_button")
+        close_button:SetGravity(ui.RIGHT, ui.TOP)
+        close_button:SetEventScript(ui.LBUTTONUP, "Muteki_skill_list_close")
+    end
+    local skill_list_gb = skill_list:CreateOrGetControl("groupbox", "skill_list_gb", 10, 50, 480,
+        skill_list:GetHeight() - 60)
+    AUTO_CAST(skill_list_gb)
+    skill_list_gb:SetSkinName("bg")
+    skill_list_gb:RemoveAllChild()
+    local cls_list, count = GetClassList("Skill")
+    local y = 0
+    for i = 0, count - 1 do
+        local skill_cls = GetClassByIndexFromList(cls_list, i)
+        if skill_cls then
+            local skill_id = skill_cls.ClassID
+            local skill_cls_name = skill_cls.ClassName
+            local skill_engname = skill_cls.EngName
+            local skill_caption = skill_cls.Caption
+            local skill_name = dictionary.ReplaceDicIDInCompStr(skill_cls.Name)
+            if ctrl_text == "" or (ctrl_text ~= "" and string.find(skill_name, ctrl_text)) then
+                local skill_slot = skill_list_gb:CreateOrGetControl('slot', 'skill_slot' .. i, 10, y + 5, 30, 30)
+                AUTO_CAST(skill_slot)
+                local image_name = "icon_" .. skill_cls.Icon
+                if skill_id > 10000 then
+                    if not string.find(skill_cls_name, "^Mon_") and not string.find(skill_engname, "plzInputEngName") and
+                        not string.find(skill_name, "_") and not string.find(skill_name, "TEST") then
+                        if ctrl_text == "" or (ctrl_text ~= "" and string.find(skill_name, ctrl_text)) then
+                            SET_SLOT_IMG(skill_slot, image_name)
+                            local icon = CreateIcon(skill_slot)
+                            AUTO_CAST(icon)
+                            SET_SKILL_TOOLTIP_BY_TYPE(icon, skill_id)
+                            local skill_set = skill_list_gb:CreateOrGetControl('button', 'skill_set' .. skill_id, 45,
+                                y + 5, 40, 30)
+                            AUTO_CAST(skill_set)
+                            skill_set:SetText("{ol}Add")
+                            skill_set:SetSkinName("test_cardtext_btn")
+                            skill_set:SetTextTooltip(muteki_trans("add_new_skill"))
+                            skill_set:SetEventScript(ui.LBUTTONUP, "Muteki_add_skill")
+                            skill_set:SetEventScriptArgNumber(ui.LBUTTONUP, skill_id)
+                            skill_set:SetEventScriptArgString(ui.LBUTTONUP, tostring(buff_id))
+                            local skill_text = skill_list_gb:CreateOrGetControl('richtext', 'skill_text' .. skill_id,
+                                90, y + 10, 200, 30)
+                            AUTO_CAST(skill_text)
+                            skill_text:SetText("{ol}" .. skill_id .. " : " .. skill_name)
+                            skill_text:AdjustFontSizeByWidth(380)
+                            y = y + 35
+                        end
+                    end
+                end
+            end
+        end
+
+    end
+    skill_list:ShowWindow(1)
+end
+
+function Muteki_skill_list_search(frame, ctrl, str, buff_id)
+    local search_edit = GET_CHILD_RECURSIVELY(frame, "search_edit")
+    local ctrl_text = search_edit:GetText()
+    if ctrl_text ~= "" then
+        Muteki_skill_list_open(frame, ctrl, ctrl_text, buff_id)
+    else
+        Muteki_skill_list_open(frame, ctrl, "", buff_id)
+    end
+end
+
+function Muteki_skill_list_close(frame, ctrl, str, num)
+    ui.DestroyFrame(frame:GetName())
+end
+
+function Muteki_add_skill(frame, ctrl, buff_id_str, skill_id)
+    local ctrl_name = ctrl:GetName()
+    local settings = ui.GetFrame(addon_name_lower .. "muteki_settings")
+    local list = GET_CHILD_RECURSIVELY(settings, 'list' .. buff_id_str)
+    local skill_edit = GET_CHILD(list, "skill_edit")
+    skill_edit:SetText(skill_id)
+    local switch = skill_edit:GetUserValue("SWITCH")
+    Muteki_setting_change_edit(skill_edit)
+end
+
+function Muteki_setting_frame_close(parent, ctrl)
+    local settings = parent:GetTopParentFrame()
+    ui.DestroyFrame(settings:GetName())
+    local buff_list_frame_name = addon_name_lower .. "muteki_buff_list"
+    local buff_list_frame = ui.GetFrame(buff_list_frame_name)
+    if buff_list_frame then
+        Muteki_buff_list_close(buff_list_frame, "", "", "")
+    end
+    local skill_list_frame_name = addon_name_lower .. "muteki_skill_list"
+    local skill_list_frame = ui.GetFrame(skill_list_frame_name)
+    if skill_list_frame then
+        Muteki_skill_list_close(skill_list_frame, "", "", "")
+    end
+end
+-- muteki ここまで
+
+-- no_check ここから
+function no_check_on_init()
+    No_check_inventory_frame_init()
+    g.setup_hook_and_event(g.addon, "BEFORE_APPLIED_YESSCP_OPEN_BASIC_MSG",
+        "No_check_BEFORE_APPLIED_YESSCP_OPEN_BASIC_MSG", false)
+    g.setup_hook_and_event(g.addon, "CARD_SLOT_EQUIP", "No_check_CARD_SLOT_EQUIP", false)
+    g.setup_hook_and_event(g.addon, "EQUIP_CARDSLOT_INFO_OPEN", "No_check_EQUIP_CARDSLOT_INFO_OPEN", false)
+    g.setup_hook_and_event(g.addon, "EQUIP_GODDESSCARDSLOT_INFO_OPEN", "No_check_EQUIP_GODDESSCARDSLOT_INFO_OPEN", false)
+    g.setup_hook_and_event(g.addon, "GODDESS_MGR_SOCKET_REQ_GEM_REMOVE", "No_check_GODDESS_MGR_SOCKET_REQ_GEM_REMOVE",
+        false)
+    g.setup_hook_and_event(g.addon, "UNLOCK_TRANSMUTATIONSPREADER_BELONGING_SCROLL_EXEC_ASK_AGAIN",
+        "No_check_UNLOCK_TRANSMUTATIONSPREADER_BELONGING_SCROLL_EXEC_ASK_AGAIN", false)
+    g.setup_hook_and_event(g.addon, "UNLOCK_ACC_BELONGING_SCROLL_EXEC_ASK_AGAIN",
+        "No_check_UNLOCK_ACC_BELONGING_SCROLL_EXEC_ASK_AGAIN", false)
+    g.setup_hook_and_event(g.addon, "SELECT_ZONE_MOVE_CHANNEL", "No_check_SELECT_ZONE_MOVE_CHANNEL", false)
+    g.setup_hook_and_event(g.addon, "BEFORE_APPLIED_NON_EQUIP_ITEM_OPEN", "No_check_BEFORE_APPLIED_NON_EQUIP_ITEM_OPEN",
+        false)
+    g.setup_hook_and_event(g.addon, "INVENTORY_CLOSE", "No_check_frame_close", true)
+    g.setup_hook_and_event(g.addon, "MORU_LBTN_CLICK", "No_check_MORU_LBTN_CLICK", true)
+    if g.get_map_type() == "City" then
+        local _nexus_addons = ui.GetFrame("_nexus_addons")
+        _nexus_addons:RunUpdateScript("No_check_timer_update", 0.3)
+    end
+end
+
+function No_check_inventory_frame_init()
+    local inventory = ui.GetFrame("inventory")
+    local searchSkin = GET_CHILD_RECURSIVELY(inventory, "searchSkin")
+    if g.settings.no_check.use == 1 then -- !
+        local searchGbox = GET_CHILD_RECURSIVELY(inventory, "searchGbox")
+        local btn = searchGbox:CreateOrGetControl("button", "btn", 160, -3, 35, 38)
+        AUTO_CAST(btn)
+        searchSkin:Resize(284, 30)
+        searchSkin:SetMargin(38, 0, 0, 5)
+        btn:SetSkinName("test_pvp_btn")
+        local tool_tip = g.lang == "Japanese" and
+                             "{ol}[No Check]{nl}左クリック: アイテム連続フレーム表示{nl}右クリック: ゴミ箱フレーム表示" or
+                             "{ol}[No Check]{nl}Left Click: Item continuous frame display{nl}Right Click: Trash frame display"
+        btn:SetTextTooltip(tool_tip)
+        btn:SetText("{img equipment_info_btn_mark2 32 32}")
+        btn:SetEventScript(ui.LBUTTONUP, "No_check_continuous_use_frame")
+        btn:SetEventScript(ui.RBUTTONUP, "No_check_delete_item_frame")
+    else
+        searchSkin:Resize(317, 30)
+        searchSkin:SetMargin(5, 0, 0, 5)
+        DESTROY_CHILD_BYNAME(inventory, "btn")
+    end
+end
+-- アイテム連続使用
+function No_check_continuous_use_frame(frame, ctrl, str, num)
+    local inventory = ui.GetFrame("inventory")
+    local no_check_use = ui.CreateNewFrame("notice_on_pc", addon_name_lower .. "no_check_use", 0, 0, 0, 0)
+    AUTO_CAST(no_check_use)
+    no_check_use:SetGravity(ui.RIGHT, ui.TOP)
+    no_check_use:SetSkinName("test_win_lastpopup")
+    local rect = no_check_use:GetMargin()
+    no_check_use:SetMargin(rect.left - rect.left, rect.top - rect.top + 300,
+        rect.right == 0 and rect.right + 310 + 200 or rect.right, rect.bottom)
+    no_check_use:Resize(300, 300)
+    no_check_use:RemoveAllChild()
+    no_check_use:ShowWindow(1)
+    local item_slot = no_check_use:CreateOrGetControl('slot', 'item_slot', 115, 100, 70, 70)
+    AUTO_CAST(item_slot)
+    item_slot:SetSkinName("slot")
+    INVENTORY_SET_CUSTOM_RBTNDOWN("No_check_inv_rbtn")
+    item_slot:SetEventScript(ui.RBUTTONUP, "No_check_use_icon_clear")
+    local notice = no_check_use:CreateOrGetControl('richtext', 'notice', 30, 180, 0, 0)
+    AUTO_CAST(notice)
+    notice:SetText(g.lang == "Japanese" and "{ol}{s20}アイテムを連続使用します" or
+                       "{ol}{s18}Use the item continuously")
+    local continuous_use = no_check_use:CreateOrGetControl('button', 'continuous_use', 40, 220, 100, 50)
+    AUTO_CAST(continuous_use)
+    continuous_use:SetSkinName("test_red_button")
+    continuous_use:SetText(g.lang == "Japanese" and "{ol}{s16}連続使用" or "{ol}{s16}Continu")
+    continuous_use:SetEventScript(ui.LBUTTONUP, "No_check_continuous_use")
+    local cancel = no_check_use:CreateOrGetControl('button', 'cancel', 155, 220, 100, 50)
+    AUTO_CAST(cancel)
+    cancel:SetSkinName("test_gray_button")
+    cancel:SetText(g.lang == "Japanese" and "{ol}{s16}キャンセル" or "{ol}{s16}Cancel")
+    cancel:SetEventScript(ui.LBUTTONUP, "No_check_frame_close")
+end
+
+function No_check_use_icon_clear(no_check_use, item_slot)
+    CLEAR_SLOT_ITEM_INFO(item_slot)
+end
+
+function No_check_continuous_use(no_check_use, ctrl, str, num)
+    local item_slot = GET_CHILD(no_check_use, "item_slot")
+    AUTO_CAST(item_slot)
+    local clsid = item_slot:GetUserIValue("CLASS_ID")
+    if clsid == 0 then
+        return
+    end
+    local inv_item = session.GetInvItemByType(clsid)
+    if inv_item then
+        no_check_use:RunUpdateScript("No_check_icontinuous_use_result", 0.5)
+    end
+end
+
+function No_check_icontinuous_use_result(no_check_use)
+    local item_slot = GET_CHILD(no_check_use, "item_slot")
+    AUTO_CAST(item_slot)
+    local clsid = item_slot:GetUserIValue("CLASS_ID")
+    local inv_item = session.GetInvItemByType(clsid)
+    if inv_item then
+        INV_ICON_USE(inv_item)
+        local item_cls = GetClassByType("Item", clsid)
+        SET_SLOT_ITEM_CLS(item_slot, item_cls)
+        SET_SLOT_ITEM_TEXT(item_slot, inv_item, item_cls)
+        return 1
+    else
+        No_check_use_icon_clear(no_check_use, item_slot)
+    end
+end
+-- ゴミ箱フレーム
+function No_check_delete_item_frame()
+    local no_check_delete = ui.CreateNewFrame("notice_on_pc", addon_name_lower .. "no_check_delete", 0, 0, 10, 10)
+    AUTO_CAST(no_check_delete)
+    no_check_delete:SetSkinName("test_frame_low")
+    no_check_delete:SetGravity(ui.RIGHT, ui.TOP)
+    local rect = no_check_delete:GetMargin()
+    no_check_delete:SetMargin(rect.left - rect.left, rect.top - rect.top + 100,
+        rect.right == 0 and rect.right + 310 + 200 or rect.right, rect.bottom)
+    no_check_delete:SetLayerLevel(100)
+    no_check_delete:Resize(300, 698)
+    no_check_delete:RemoveAllChild()
+    local title = no_check_delete:CreateOrGetControl('richtext', 'title', 10, 15, 0, 0)
+    AUTO_CAST(title)
+    title:SetText(g.lang == "Japanese" and "{ol}{s18}ゴミ箱スロット" or "{ol}{s18}Discard item Slots")
+    local close = no_check_delete:CreateOrGetControl("button", "close", 0, 0, 25, 25)
+    AUTO_CAST(close)
+    close:SetImage("testclose_button")
+    close:SetGravity(ui.RIGHT, ui.TOP)
+    close:SetEventScript(ui.LBUTTONUP, "No_check_frame_close")
+    close:SetEventScriptArgString(ui.LBUTTONUP, "true")
+    local delete_gb = no_check_delete:CreateOrGetControl("groupbox", "delete_gb", 10, 40, 380, 380)
+    AUTO_CAST(delete_gb)
+    delete_gb:SetSkinName("test_frame_midle_light")
+    delete_gb:Resize(280, 600)
+    no_check_delete:ShowWindow(1)
+    local delete_slotset = delete_gb:CreateOrGetControl('slotset', 'delete_slotset', 0, 0, 0, 0)
+    AUTO_CAST(delete_slotset)
+    delete_slotset:SetSlotSize(40, 40)
+    delete_slotset:EnablePop(0)
+    delete_slotset:EnableDrag(1)
+    delete_slotset:EnableDrop(1)
+    delete_slotset:SetColRow(7, 15)
+    delete_slotset:SetSpc(0, 0)
+    delete_slotset:SetSkinName('slot')
+    delete_slotset:CreateSlots()
+    local slot_count = delete_slotset:GetSlotCount()
+    local go_func = no_check_delete:CreateOrGetControl("button", "go_func", 0, 0, 100, 43)
+    AUTO_CAST(go_func)
+    go_func:SetText(g.lang == "Japanese" and "{ol}{s16}スタート" or "{ol}{s16}START")
+    go_func:SetMargin(190, 645, 100, 0)
+    go_func:SetSkinName("test_red_button")
+    go_func:SetEventScript(ui.LBUTTONUP, "No_check_delete_item_msgbox")
+    local stop_func = no_check_delete:CreateOrGetControl("button", "stop_func", 0, 0, 100, 43)
+    AUTO_CAST(stop_func)
+    stop_func:SetText(g.lang == "Japanese" and "{ol}{s16}ストップ" or "{ol}{s16}STOP")
+    stop_func:SetMargin(10, 645, 100, 0)
+    stop_func:SetSkinName("test_gray_button")
+    stop_func:SetEventScript(ui.LBUTTONUP, "No_check_frame_close")
+    INVENTORY_SET_CUSTOM_RBTNDOWN("No_check_inv_rbtn")
+    g.no_check_iesids = {}
+end
+
+function No_check_delete_item_clear(parent, slot, iesid, num)
+    CLEAR_SLOT_ITEM_INFO(slot)
+    slot:SetSkinName('slot')
+    slot:SetUserValue("DELETE_IDSID", "None")
+    slot:SetUserValue("DELETE_NAME", "None")
+    slot:SetUserValue("DELETE_COUNT", 0)
+    g.no_check_iesids[iesid] = nil
+    local inventory = ui.GetFrame("inventory")
+    local inv_slot = INV_GET_SLOT_BY_ITEMGUID(iesid)
+    if inv_slot then
+        AUTO_CAST(inv_slot)
+        inv_slot:Select(0)
+        inv_slot:RunUpdateScript("No_check_inv_invalidate", 0.1)
+        inv_slot:Invalidate()
+    end
+end
+
+function No_check_delete_check(iesid, cls_id)
+    if GetCraftState() == 1 then
+        return false
+    end
+    if true == BEING_TRADING_STATE() then
+        return false
+    end
+    local inventory = ui.GetFrame("inventory")
+    local inv_item = session.GetInvItemByGuid(iesid)
+    if not inv_item then
+        return false
+    end
+    if true == inv_item.isLockState or true == IS_TEMP_LOCK(inventory, inv_item) then
+        ui.SysMsg(ClMsg("MaterialItemIsLock"))
+        return false
+    end
+    local item_cls = GetClassByType("Item", cls_id)
+    if not item_cls then
+        return false
+    end
+    local item_prop = geItemTable.IsDestroyable(cls_id)
+    if item_cls.Destroyable == 'NO' or item_prop == false then
+        local item_obj = GetIES(inv_item:GetObject())
+        if item_obj.ItemLifeTimeOver == 0 then
+            ui.AlarmMsg("ItemIsNotDestroy")
+            return false
+        end
+    end
+    return true
+end
+
+function No_check_delete_item_msgbox()
+    local yes_scp = string.format("No_check_delete_item_reserve()")
+    local msg = g.lang == "Japanese" and
+                    "{ol}{#FF0000}本当にゴミ捨てを開始しますか？{nl}(リカバリーサービス対象外かも)" or
+                    "{ol}{#FF0000}Are you sure you want to start trashing?{nl}(might not be covered by the{nl} recovery service)"
+    ui.MsgBox(msg, yes_scp, "None")
+end
+
+function No_check_delete_item_reserve()
+    local no_check_delete = ui.GetFrame(addon_name_lower .. "no_check_delete")
+    No_check_delete_item(no_check_delete)
+    no_check_delete:RunUpdateScript("No_check_delete_item", 0.5)
+end
+
+function No_check_delete_item(no_check_delete)
+    if no_check_delete and no_check_delete:IsVisible() == 0 then
+        return 0
+    end
+    local delete_slotset = GET_CHILD_RECURSIVELY(no_check_delete, "delete_slotset")
+    AUTO_CAST(delete_slotset)
+    local slot_count = delete_slotset:GetSlotCount()
+    for i = 1, slot_count do
+        local slot = GET_CHILD(delete_slotset, "slot" .. i)
+        AUTO_CAST(slot)
+        local icon = slot:GetIcon()
+        if icon then
+            local iesid = slot:GetUserValue("DELETE_IDSID")
+            local name = slot:GetUserValue("DELETE_NAME")
+            local count = slot:GetUserIValue("DELETE_COUNT")
+            local trans_name = dic.getTranslatedStr(name)
+            No_check_delete_item_execute(slot, iesid, trans_name, count)
+            return 1
+        end
+    end
+    No_check_frame_close(no_check_delete, delete_slotset)
+    return 0
+end
+
+function No_check_delete_item_execute(slot, iesid, trans_name, count)
+    IMC_LOG("INFO_NORMAL", "EXEC_DELETE_ITEMDROP")
+    local pc = GetMyPCObject()
+    local msg = g.lang == "Japanese" and "{ol}{#FFFF00}[" .. trans_name .. "]{/}{ol}{#FFFFFF}を" .. "{ol}{#FFFF00}[" ..
+                    count .. "個]{/}" .. "{ol}{#FFFFFF}捨てました" or "{ol}{#FFFFFF}Discarded {/}" ..
+                    "{ol}{#FFFF00}[" .. count .. "]{ol}{#FFFFFF} piece " .. "{ol}{#FFFF00}[" .. trans_name .. "]{/}"
+    imcAddOn.BroadMsg("NOTICE_Dm_!", msg, 0.4)
+    item.DropDelete(iesid, count)
+    No_check_delete_item_clear(nil, slot, iesid, nil)
+end
+-- 連続使用とゴミ捨ての共通。インベントリマウス制御
+function No_check_inv_rbtn(item_obj, slot)
+    local icon = slot:GetIcon()
+    local icon_info = icon:GetInfo()
+    local no_check_use = ui.GetFrame(addon_name_lower .. "no_check_use")
+    if no_check_use and no_check_use:IsVisible() == 1 then
+        local clsid = icon_info.type
+        local inv_item = session.GetInvItemByType(clsid)
+        local item_slot = GET_CHILD(no_check_use, "item_slot")
+        local item_cls = GetClassByType("Item", clsid)
+        item_slot:SetUserValue("CLASS_ID", clsid)
+        SET_SLOT_ITEM_CLS(item_slot, item_cls)
+        SET_SLOT_ITEM_TEXT(item_slot, inv_item, item_cls)
+        return
+    end
+    local no_check_delete = ui.GetFrame(addon_name_lower .. "no_check_delete")
+    if no_check_delete and no_check_delete:IsVisible() == 1 then
+        AUTO_CAST(no_check_delete)
+        local iesid = icon_info:GetIESID()
+        local inv_item = session.GetInvItemByGuid(iesid)
+        local item_obj = GetIES(inv_item:GetObject())
+        if g.no_check_iesids[iesid] then
+            local msg = g.lang == "Japanese" and "{ol}既に登録されています" or "{ol}Already registered"
+            ui.SysMsg(msg)
+            return
+        end
+        if not No_check_delete_check(iesid, item_obj.ClassID) then
+            return
+        end
+        local delete_slotset = GET_CHILD_RECURSIVELY(no_check_delete, "delete_slotset")
+        AUTO_CAST(delete_slotset)
+        local slot_count = delete_slotset:GetSlotCount()
+        for i = 1, slot_count do
+            local slot = GET_CHILD(delete_slotset, "slot" .. i)
+            AUTO_CAST(slot)
+            local icon = slot:GetIcon()
+            if not icon then
+                icon = CreateIcon(slot)
+                slot:SetUserValue("DELETE_IDSID", iesid)
+                slot:SetUserValue("DELETE_NAME", item_obj.Name)
+                slot:SetUserValue("DELETE_COUNT", inv_item.count)
+                g.no_check_iesids[iesid] = true
+                SET_SLOT_ITEM_CLS(slot, item_obj)
+                SET_SLOT_ITEM_TEXT(slot, inv_item, item_obj)
+                SET_SLOT_STYLESET(slot, item_obj)
+                SET_SLOT_IESID(slot, iesid)
+                SET_SLOT_ICOR_CATEGORY(slot, item_obj)
+                icon:SetTooltipArg("None", 0, iesid)
+                SET_ITEM_TOOLTIP_TYPE(icon, item_obj.ClassID, item_obj, "None")
+                SET_SLOT_ICOR_CATEGORY(slot, item_obj)
+                slot:SetEventScript(ui.RBUTTONUP, "No_check_delete_item_clear")
+                slot:SetEventScriptArgString(ui.RBUTTONUP, iesid)
+                local inventory = ui.GetFrame("inventory")
+                local inv_slot = INV_GET_SLOT_BY_ITEMGUID(iesid)
+                if inv_slot then
+                    AUTO_CAST(inv_slot)
+                    inv_slot:SetSelectedImage('socket_slot_check')
+                    inv_slot:Select(1)
+                    inv_slot:RunUpdateScript("No_check_inv_invalidate", 0.1)
+                    inv_slot:Invalidate()
+                end
+                return
+            end
+        end
+    end
+end
+
+function No_check_frame_close(frame, ctrl)
+    if frame:GetName() ~= "_nexus_addons" then
+        ui.DestroyFrame(frame:GetName())
+    end
+    INVENTORY_SET_CUSTOM_RBTNDOWN('None')
+    INVENTORY_CLEAR_SELECT(nil)
+    if ctrl:GetName() == "delete_slotset" then
+        ui.SysMsg("{ol}[No Check]End of Operation")
+    end
+end
+
+function No_check_inv_invalidate(inv_slot)
+    inv_slot:Invalidate()
+end
+-- 欠片アイテム他使用時のメッセージボックス非表示
+function No_check_BEFORE_APPLIED_YESSCP_OPEN_BASIC_MSG(my_frame, my_msg)
+    local inv_item = g.get_event_args(my_msg)
+    if g.settings.no_check.use == 1 then
+        if not inv_item then
+            return
+        end
+        local item_obj = GetIES(inv_item:GetObject())
+        if not item_obj then
+            return
+        end
+        local inventory = ui.GetFrame("inventory")
+        inventory:SetUserValue("REQ_USE_ITEM_GUID", inv_item:GetIESID())
+        REQUEST_SUMMON_BOSS_TX()
+    else
+        g.FUNCS["BEFORE_APPLIED_YESSCP_OPEN_BASIC_MSG"](inv_item)
+    end
+end
+-- レジェンドカード装着時のメッセージボックス非表示
+function No_check_CARD_SLOT_EQUIP(my_frame, my_msg)
+    local slot, item, group_name_str = g.get_event_args(my_msg)
+    if g.settings.no_check.use == 1 then
+        local item_obj = GetIES(item:GetObject())
+        if item_obj.GroupName == "Card" then
+            local slot_index = CARD_SLOT_GET_SLOT_INDEX(group_name_str, slot:GetSlotIndex())
+            local card_info = equipcard.GetCardInfo(slot_index + 1)
+            if card_info then
+                ui.SysMsg(ClMsg("AlreadyEquippedThatCardSlot"))
+                return
+            end
+            if item.isLockState == true then
+                ui.SysMsg(ClMsg("MaterialItemIsLock"))
+                return
+            end
+            local item_guid = item:GetIESID()
+            local inventory = ui.GetFrame("inventory")
+            inventory:SetUserValue("EQUIP_CARD_GUID", item_guid)
+            inventory:SetUserValue("EQUIP_CARD_SLOTINDEX", slot_index)
+            local pc_etc = GetMyEtcObject()
+            if pc_etc.IS_LEGEND_CARD_OPEN ~= 1 and group_name_str == 'LEG' then
+                ui.SysMsg(ClMsg("LegendCard_Slot_NotOpen"))
+                return
+            end
+            REQUEST_EQUIP_CARD_TX()
+        end
+    else
+        g.FUNCS["CARD_SLOT_EQUIP"](slot, item, group_name_str)
+    end
+end
+-- レジェンドカード脱着時
+function No_check_EQUIP_CARDSLOT_INFO_OPEN(my_frame, my_msg)
+    local slot_index = g.get_event_args(my_msg)
+    if g.settings.no_check.use == 1 then
+        slot_index = slot_index .. " 1"
+        pc.ReqExecuteTx_NumArgs("SCR_TX_UNEQUIP_CARD_SLOT", slot_index)
+    else
+        g.FUNCS["EQUIP_CARDSLOT_INFO_OPEN"](slot_index)
+    end
+end
+-- ゴッデスカード脱着時
+function No_check_EQUIP_GODDESSCARDSLOT_INFO_OPEN(my_frame, my_msg)
+    local slot_index = g.get_event_args(my_msg)
+    if g.settings.no_check.use == 1 then
+        slot_index = slot_index .. " 1"
+        pc.ReqExecuteTx_NumArgs("SCR_TX_UNEQUIP_CARD_SLOT", slot_index)
+    else
+        g.FUNCS["EQUIP_GODDESSCARDSLOT_INFO_OPEN"](slot_index)
+    end
+end
+-- エーテルジェム着脱時のメッセージ非表示
+function No_check_GODDESS_MGR_SOCKET_REQ_GEM_REMOVE(my_frame, my_msg)
+    local parent, btn = g.get_event_args(my_msg)
+    if g.settings.no_check.use == 1 then
+        local frame = parent:GetTopParentFrame()
+        local slot = GET_CHILD_RECURSIVELY(frame, 'socket_slot')
+        local guid = slot:GetUserValue('ITEM_GUID')
+        if guid ~= 'None' then
+            local index = parent:GetUserValue('SLOT_INDEX')
+            local inv_item = session.GetInvItemByGuid(guid)
+            if not inv_item then
+                return
+            end
+            local item_obj = GetIES(inv_item:GetObject())
+            local item_name = dic.getTranslatedStr(TryGetProp(item_obj, 'Name', 'None'))
+            local gem_id = inv_item:GetEquipGemID(index)
+            local gem_cls = GetClassByType('Item', gem_id)
+            local gem_numarg1 = TryGetProp(gem_cls, 'NumberArg1', 0)
+            local price = gem_numarg1 * 100
+            local clmsg = 'None'
+            local msg_cls_name = ''
+            if TryGetProp(gem_cls, 'GemType', 'None') == 'Gem_High_Color' then
+                _GODDESS_MGR_SOCKET_REQ_GEM_REMOVE(index)
+            else
+                local pc = GetMyPCObject()
+                local is_gem_remove_care = IS_GEM_EXTRACT_FREE_CHECK(pc)
+                local free_gem = nil
+                for optionIdx = 1, 4 do
+                    free_gem = GET_GEM_PROPERTY_TEXT(item_obj, optionIdx, index)
+                    if free_gem then
+                        _GODDESS_MGR_SOCKET_REQ_GEM_REMOVE(index)
+                        return
+                    end
+                end
+                if is_gem_remove_care then
+                    msg_cls_name = "ReallyRemoveGem_Care"
+                else
+                    msg_cls_name = "ReallyRemoveGem"
+                end
+                local clmsg = "'" .. item_name .. ScpArgMsg("Auto_'_SeonTaeg") .. ScpArgMsg(msg_cls_name)
+                local yes_scp = string.format('_GODDESS_MGR_SOCKET_REQ_GEM_REMOVE(%s)', index)
+                local msgbox = ui.MsgBox(clmsg, yes_scp, '')
+                SET_MODAL_MSGBOX(msgbox)
+            end
+        end
+    else
+        g.FUNCS["GODDESS_MGR_SOCKET_REQ_GEM_REMOVE"](parent, btn)
+    end
+end
+-- ゴッデス装備帰属解除時の簡易化
+function No_check_UNLOCK_TRANSMUTATIONSPREADER_BELONGING_SCROLL_EXEC_ASK_AGAIN(my_frame, my_msg)
+    local frame, btn = g.get_event_args(my_msg)
+    if g.settings.no_check.use == 1 then
+        local scroll_type = frame:GetUserValue("ScrollType")
+        local clickable = frame:GetUserValue("EnableTranscendButton")
+        if tonumber(clickable) ~= 1 then
+            return
+        end
+        local slot = GET_CHILD(frame, "slot")
+        local inv_item = GET_SLOT_ITEM(slot)
+        if not inv_item then
+            ui.MsgBox(ScpArgMsg("DropItemPlz"))
+            imcSound.PlaySoundEvent(frame:GetUserConfig("TRANS_BTN_OVER_SOUND"))
+            return
+        end
+        local item_obj = GetIES(inv_item:GetObject())
+        local scroll_guid = frame:GetUserValue("ScrollGuid")
+        local scroll_inv_item = session.GetInvItemByGuid(scroll_guid)
+        if not scroll_inv_item then
+            return
+        end
+        UNLOCK_TRANSMUTATIONSPREADER_BELONGING_SCROLL_EXEC()
+    else
+        g.FUNCS["UNLOCK_TRANSMUTATIONSPREADER_BELONGING_SCROLL_EXEC_ASK_AGAIN"](frame, btn)
+    end
+end
+-- ゴッデスアクセ帰属解除時の簡易化
+function No_check_UNLOCK_ACC_BELONGING_SCROLL_EXEC_ASK_AGAIN(my_frame, my_msg)
+    local frame, btn = g.get_event_args(my_msg)
+    if g.settings.no_check.use == 1 then
+        local scroll_type = frame:GetUserValue("ScrollType")
+        local clickable = frame:GetUserValue("EnableTranscendButton")
+        if tonumber(clickable) ~= 1 then
+            return
+        end
+        local slot = GET_CHILD(frame, "slot")
+        local inv_item = GET_SLOT_ITEM(slot)
+        if not inv_item then
+            ui.MsgBox(ScpArgMsg("DropItemPlz"))
+            imcSound.PlaySoundEvent(frame:GetUserConfig("TRANS_BTN_OVER_SOUND"))
+            return
+        end
+        local item_obj = GetIES(invItem:GetObject())
+        local scroll_guid = frame:GetUserValue("ScrollGuid")
+        local scroll_inv_item = session.GetInvItemByGuid(scroll_guid)
+        if not scroll_inv_item then
+            return
+        end
+        UNLOCK_ACC_BELONGING_SCROLL_EXEC()
+    else
+        g.FUNCS["UNLOCK_ACC_BELONGING_SCROLL_EXEC_ASK_AGAIN"](frame, btn)
+    end
+end
+-- チャンネル移動時の確認を削除
+function No_check_SELECT_ZONE_MOVE_CHANNEL(my_frame, my_msg)
+    local index, channel_id = g.get_event_args(my_msg)
+    if g.settings.no_check.use == 1 then
+        local zone_insts = session.serverState.GetMap()
+        if not zone_insts or zone_insts.pcCount == -1 then
+            ui.SysMsg(ClMsg("ChannelIsClosed"))
+            return
+        end
+        local pc = GetMyPCObject()
+        if IS_BOUNTY_BATTLE_BUFF_APPLIED(pc) == 1 then
+            ui.SysMsg(ClMsg("DoingBountyBattle"))
+            return
+        end
+        if IS_JUMP_MAP_BUFF_APPLIED(pc) == 1 then
+            return
+        end
+        RUN_GAMEEXIT_TIMER("Channel", channel_id)
+    else
+        g.FUNCS["SELECT_ZONE_MOVE_CHANNEL"](index, channel_id)
+    end
+end
+-- カードブック使用時の確認削除
+function No_check_BEFORE_APPLIED_NON_EQUIP_ITEM_OPEN(my_frame, my_msg)
+    local inv_item = g.get_event_args(my_msg)
+    if g.settings.no_check.use == 1 then
+        if not inv_item then
+            return
+        end
+        local inventory = ui.GetFrame("inventory")
+        local item_obj = GetIES(inv_item:GetObject())
+        if not item_obj then
+            return
+        end
+        inventory:SetUserValue("REQ_USE_ITEM_GUID", inv_item:GetIESID())
+        if item_obj.Script == 'SCR_SUMMON_MONSTER_FROM_CARDBOOK' then
+            REQUEST_SUMMON_BOSS_TX()
+        elseif item_obj.Script == 'SCR_QUEST_CLEAR_LEGEND_CARD_LIFT' then
+            local textmsg = string.format("[ %s ]{nl}%s", item_obj.Name, ScpArgMsg("Use_Item_LegendCard_Slot_Open2"))
+            ui.MsgBox_NonNested(textmsg, item_obj.Name, "REQUEST_SUMMON_BOSS_TX", "None")
+            return
+        end
+    else
+        g.FUNCS["BEFORE_APPLIED_NON_EQUIP_ITEM_OPEN"](inv_item)
+    end
+end
+
+function No_check_timer_update(_nexus_addons, no_check_timer)
+    if g.settings.no_check.use == 0 then
+        return 0
+    end
+    No_check_WARNINGMSGBOX_FRAME_OPEN()
+    No_check_WARNINGMSGBOX_EX_FRAME_OPEN()
+    return 1
+end
+-- warning_boxs制御
+function No_check_WARNINGMSGBOX_FRAME_OPEN()
+    local warningmsgbox = ui.GetFrame("warningmsgbox")
+    if warningmsgbox:IsVisible() == 0 then
+        return
+    end
+    local warningtext = GET_CHILD_RECURSIVELY(warningmsgbox, "warningtext")
+    local msg = ClMsg("destory_now")
+    msg = dictionary.ReplaceDicIDInCompStr(msg)
+    if string.find(warningtext:GetText(), msg) then
+        local input = GET_CHILD_RECURSIVELY(warningmsgbox, "input")
+        input:SetText(msg)
+    end
+end
+
+function No_check_WARNINGMSGBOX_EX_FRAME_OPEN()
+    local warningmsgbox_ex = ui.GetFrame('warningmsgbox_ex')
+    if warningmsgbox_ex:IsVisible() == 0 then
+        return
+    end
+    local compareText = GET_CHILD_RECURSIVELY(warningmsgbox_ex, "comparetext")
+    local start, finish = string.find(compareText:GetText(), "nl%}%[")
+    if start and finish then
+        local next_sub_string = compareText:GetText():sub(finish + 1)
+        local next_start, next_finish = string.find(next_sub_string, "%]")
+        if next_start and next_finish then
+            local desiredText = next_sub_string:sub(1, next_start - 1)
+            local input = GET_CHILD_RECURSIVELY(warningmsgbox_ex, "input")
+            input:SetText(desiredText)
+        end
+    end
+end
+-- 連続金床強化
+function No_check_MORU_LBTN_CLICK(my_frame, my_msg)
+    if g.settings.no_check.use == 0 then
+        return
+    end
+    No_check_REINFORCE_131014_MSGBOX()
+end
+
+function No_check_REINFORCE_131014_MSGBOX()
+    local reinforce_131014 = ui.GetFrame("reinforce_131014")
+    local from_item, from_moru = GET_REINFORCE_TARGET_AND_MORU(reinforce_131014)
+    local from_item_obj = GetIES(from_item:GetObject())
+    local moru_obj = GetIES(from_moru:GetObject())
+    local exec = GET_CHILD_RECURSIVELY(reinforce_131014, "exec")
+    local skipOver5 = GET_CHILD_RECURSIVELY(reinforce_131014, "skipOver5")
+    skipOver5:SetCheck(1)
+    exec:ShowWindow(0)
+    No_check_REINFORCE_131014_EXEC(reinforce_131014, from_item, from_moru)
+end
+
+function No_check_REINFORCE_131014_EXEC(reinforce_131014)
+    if reinforce_131014:IsVisible() == 0 then
+        reinforce_131014:StopUpdateScript("No_check_REINFORCE_131014_EXEC")
+        return 0
+    end
+    local from_item, from_moru = GET_REINFORCE_TARGET_AND_MORU(reinforce_131014)
+    if from_item and from_moru ~= nil and reinforce_131014:IsVisible() == 1 then
+        session.ResetItemList()
+        session.AddItemID(from_item:GetIESID())
+        session.AddItemID(from_moru:GetIESID())
+        local resultlist = session.GetItemIDList()
+        item.DialogTransaction("ITEM_REINFORCE_131014", resultlist)
+        reinforce_131014:RunUpdateScript("No_check_REINFORCE_131014_EXEC", 0.3)
+    end
+    REINFORCE_131014_UPDATE_MORU_COUNT(reinforce_131014)
+    return 1
+end
+-- no_check ここまで
+
+-- monster_kill_count ここから 
+function Monster_kill_count_save_settings()
+    g.save_json(g.mkc_path, g.mkc_settings)
+end
+
+function Monster_kill_count_load_settings()
+    g.mkc_path = string.format("../addons/%s/%s/monster_kill_count.json", addon_name_lower, g.active_id)
+    g.mkc_old_path = string.format("../addons/%s/%s/settings.json", "klcount", g.active_id)
+    local settings = g.load_json(g.mkc_path)
+    if settings then
+        g.mkc_settings = settings
+        return
+    end
+    local allowed_map_ids_by_level = {}
+    local map_list, cnt = GetClassList("Map")
+    for i = 0, cnt - 1 do
+        local map_cls = GetClassByIndexFromList(map_list, i)
+        if map_cls then
+            local map_level = map_cls.QuestLevel
+            local my_level = info.GetLevel(session.GetMyHandle())
+            if math.abs(my_level - map_level) <= 50 or map_cls.ClassID == 11244 then
+                allowed_map_ids_by_level[tostring(map_cls.ClassID)] = true
+            end
+        end
+    end
+    local old_settings = g.load_json(g.mkc_old_path)
+    local final_map_ids = {}
+    if old_settings then
+        settings = {
+            frame_x = old_settings.frame_x or 1340,
+            frame_y = old_settings.frame_y or 20,
+            map_ids = {}
+        }
+        local old_dir = string.format("../addons/%s/%s/", "klcount", g.active_id)
+        local new_folder_path = string.format("../addons/%s/%s/%s", addon_name_lower, g.active_id, "monster_kill_count")
+        os.execute('mkdir "' .. new_folder_path .. '"')
+        for map_id, _ in pairs(allowed_map_ids_by_level) do
+            local old_file_path = old_dir .. map_id .. ".json"
+            local new_file_path = new_folder_path .. "/" .. map_id .. ".json"
+            local old_file = io.open(old_file_path, "r")
+            if old_file then
+                local content = old_file:read("*a")
+                old_file:close()
+                if content and content ~= "" and pcall(json.decode, content) then
+                    local new_file = io.open(new_file_path, "w")
+                    if new_file then
+                        new_file:write(content)
+                        new_file:close()
+                        table.insert(final_map_ids, tonumber(map_id))
+                    end
+                end
+            end
+        end
+    else
+        settings = {
+            frame_x = 1340,
+            frame_y = 20,
+            map_ids = {}
+        }
+    end
+    local folder_path = string.format("../addons/%s/%s/%s", addon_name_lower, g.active_id, "monster_kill_count")
+    local win_folder_path = string.gsub(folder_path, "/", "\\")
+    local list_file_path = folder_path .. "/filelist_temp.txt"
+    os.execute('dir "' .. win_folder_path .. '\\*.json" /b > "' .. list_file_path .. '"')
+    local list_file = io.open(list_file_path, "r")
+    if list_file then
+        for line in list_file:lines() do
+            local map_id = string.match(line, "(%d+)%.json")
+            local file_path = folder_path .. "/" .. map_id .. ".json"
+            local file = io.open(file_path, "r")
+            if file then
+                local content = file:read("*a")
+                file:close()
+                if content and content ~= "" and pcall(json.decode, content) then
+                    local is_new = true
+                    for _, existing_id in pairs(final_map_ids) do
+                        if tostring(existing_id) == map_id then
+                            is_new = false
+                            break
+                        end
+                    end
+                    if is_new then
+                        if is_new and allowed_map_ids_by_level[map_id] then
+                            table.insert(final_map_ids, map_id)
+                            ts("Found orphan file, adding to list: " .. map_id)
+                        end
+                    end
+                else
+                    ts("Broken JSON removed: " .. tostring(map_id))
+                    os.remove(file_path)
+                end
+            end
+        end
+        list_file:close()
+    end
+    os.remove(list_file_path)
+    settings.map_ids = final_map_ids
+    g.mkc_settings = settings
+    Monster_kill_count_save_settings()
+end
+
+function monster_kill_count_on_init()
+    if not g.mkc_settings then
+        Monster_kill_count_load_settings()
+    end
+    g.setup_hook_and_event(g.addon, "APPLY_SCREEN", "Monster_kill_count_APPLY_SCREEN", true)
+    if g.get_map_type() == "Field" or g.get_map_type() == "Dungeon" then
+        local map_cls = GetClass("Map", g.map_name)
+        local map_level = map_cls.QuestLevel
+        local my_level = info.GetLevel(session.GetMyHandle())
+        if my_level - map_level <= 50 or g.map_id == 11244 then
+            local colony_list, cnt = GetClassList("guild_colony")
+            for i = 0, cnt - 1 do
+                local check_word = "GuildColony_"
+                if string.find(g.map_name, check_word) then
+                    return
+                end
+            end
+            local list = session.party.GetPartyMemberList(PARTY_NORMAL)
+            local count = list:Count()
+            for i = 0, count - 1 do
+                local party_member_info = list:Element(i)
+                local name = party_member_info:GetName()
+                local channel = party_member_info:GetChannel() + 1
+                if channel > 10 then
+                    return
+                end
+            end
+            g.addon:RegisterMsg("EXP_UPDATE", "Monster_kill_count_EXP_UPDATE")
+            g.addon:RegisterMsg("ITEM_PICK", "Monster_kill_count_ITEM_PICK")
+            g.addon:RegisterMsg("UI_CHALLENGE_MODE_TOTAL_KILL_COUNT",
+                "Monster_kill_count_ON_CHALLENGE_MODE_TOTAL_KILL_COUNT")
+            g.mkc_autosave_counter = 0
+            if not g.mkc_map_id then
+                g.mkc_map_id = g.map_id
+                g.mkc_count = 0
+                g.mkc_start_time = imcTime.GetAppTimeMS() - 3000
+                g.mkc_last_tick_ms = g.mkc_start_time
+            elseif g.mkc_map_id ~= g.map_id then
+                local map_file_path = Monster_kill_count_get_map_filepath(g.mkc_map_id)
+                local map_data = g.load_json(map_file_path)
+                if map_data then
+                    g.save_json(map_file_path, map_data)
+                end
+                g.mkc_count = 0
+                g.mkc_start_time = imcTime.GetAppTimeMS() - 3000
+                g.mkc_last_tick_ms = g.mkc_start_time
+                g.mkc_map_id = g.map_id
+            end
+            local map_file_path = Monster_kill_count_get_map_filepath(g.map_id)
+            local map_data = g.load_json(map_file_path)
+            if not map_data then
+                map_data = {
+                    map_name = g.map_name,
+                    stay_time = 3000,
+                    kill_count = 0,
+                    get_items = {}
+                }
+            end
+            g.mkc_map_data = map_data
+            g.save_json(map_file_path, map_data)
+            Monster_kill_count_frame_init()
+        end
+    else
+        if g.mkc_map_id then
+            local map_file_path = Monster_kill_count_get_map_filepath(g.mkc_map_id)
+            local map_data = g.load_json(map_file_path)
+            if map_data then
+                g.save_json(map_file_path, map_data)
+            end
+            g.mkc_map_id = nil
+            g.mkc_count = nil
+            g.mkc_start_time = nil
+            ui.DestroyFrame(addon_name_lower .. "monster_kill_count")
+            local _nexus_addons = ui.GetFrame("_nexus_addons")
+            _nexus_addons:RemoveChild("monster_kill_count_timer")
+        end
+    end
+end
+
+function Monster_kill_count_ON_CHALLENGE_MODE_TOTAL_KILL_COUNT(frame, msg)
+    ui.DestroyFrame(addon_name_lower .. "monster_kill_count")
+end
+
+function Monster_kill_count_get_map_filepath(map_id)
+    return string.format("../addons/%s/%s/%s/%s.json", addon_name_lower, g.active_id, "monster_kill_count", map_id)
+end
+
+function Monster_kill_count_APPLY_SCREEN(my_frame, my_msg)
+    Monster_kill_count_frame_init()
+end
+
+function Monster_kill_count_EXP_UPDATE(frame, msg)
+    local monster_kill_count = ui.GetFrame(addon_name_lower .. "monster_kill_count")
+    local count_text = GET_CHILD(monster_kill_count, "count_text")
+    AUTO_CAST(count_text)
+    g.mkc_count = g.mkc_count + 1
+    count_text:SetText(string.format("{ol}{s16}Count : %d{/}", g.mkc_count))
+    g.mkc_map_data.kill_count = g.mkc_map_data.kill_count + 1
+end
+
+function Monster_kill_count_ITEM_PICK(frame, msg, class_id, item_count)
+    local cls_id = tonumber(class_id)
+    if cls_id then
+        cls_id = math.floor(cls_id)
+        local cls_id_str = tostring(cls_id)
+        g.mkc_map_data.get_items = g.mkc_map_data.get_items or {}
+        if not g.mkc_map_data.get_items[cls_id_str] then
+            g.mkc_map_data.get_items[cls_id_str] = item_count
+        else
+            g.mkc_map_data.get_items[cls_id_str] = g.mkc_map_data.get_items[cls_id_str] + item_count
+        end
+    end
+end
+
+function Monster_kill_count_frame_init()
+    local monster_kill_count =
+        ui.CreateNewFrame("chat_memberlist", addon_name_lower .. "monster_kill_count", 0, 0, 0, 0)
+    AUTO_CAST(monster_kill_count)
+    monster_kill_count:SetSkinName("shadow_box")
+    monster_kill_count:SetTitleBarSkin("None")
+    monster_kill_count:EnableHitTest(1)
+    monster_kill_count:EnableMove(1)
+    monster_kill_count:SetAlpha(80)
+    monster_kill_count:SetLayerLevel(31)
+    monster_kill_count:SetEventScript(ui.LBUTTONUP, "Monster_kill_count_pos")
+    local map_frame = ui.GetFrame("map")
+    local width = map_frame:GetWidth()
+    local x = g.mkc_settings.frame_x
+    if g.mkc_settings.frame_x > 1920 and width <= 1920 then
+        local offset = g.mkc_settings.frame_x - 1920
+        x = 1920 - offset
+    end
+    monster_kill_count:SetPos(x, g.mkc_settings.frame_y)
+    local count_text = monster_kill_count:CreateOrGetControl("richtext", "count_text", 10, 10, 170, 30)
+    AUTO_CAST(count_text)
+    count_text:SetText(string.format("{ol}{s16}Count : %d{/}", g.mkc_count or 0))
+    local map_name = GetClassByType("Map", g.map_id).Name
+    local map_text = monster_kill_count:CreateOrGetControl("richtext", "map_text", 10, 35, 170, 30)
+    AUTO_CAST(map_text)
+    map_text:SetText(string.format("{ol}{s16}%s{/}", map_name))
+    local w = 170
+    if map_text:GetWidth() + 15 > 170 then
+        w = map_text:GetWidth() + 15
+    end
+    local timer_text = monster_kill_count:CreateOrGetControl("richtext", "timer_text", 90, 60, 200, 30)
+    AUTO_CAST(timer_text)
+    timer_text:SetGravity(ui.RIGHT, ui.BOTTOM)
+    local rect = timer_text:GetMargin()
+    timer_text:SetMargin(rect.left, rect.top, rect.right + 15, rect.bottom + 15)
+    monster_kill_count:Resize(w, 95)
+    local _nexus_addons = ui.GetFrame("_nexus_addons")
+    local monster_kill_count_timer = _nexus_addons:CreateOrGetControl("timer", "monster_kill_count_timer", 0, 0)
+    AUTO_CAST(monster_kill_count_timer)
+    monster_kill_count_timer:SetUpdateScript("Monster_kill_count_time_update")
+    monster_kill_count_timer:Start(1.0)
+end
+
+function Monster_kill_count_time_update(_nexus_addons)
+    local monster_kill_count = ui.GetFrame(addon_name_lower .. "monster_kill_count")
+    if g.settings.monster_kill_count.use == 1 then
+        monster_kill_count:ShowWindow(1)
+    else
+        ui.DestroyFrame(addon_name_lower .. "monster_kill_count")
+    end
+    local now_ms = imcTime.GetAppTimeMS()
+    g.mkc_diff_ms = now_ms - g.mkc_start_time
+    local total_sec = math.floor(g.mkc_diff_ms / 1000)
+    local h = math.floor(total_sec / 3600)
+    local m = math.floor((total_sec % 3600) / 60)
+    local s = (total_sec % 60)
+    local timer_text = GET_CHILD(monster_kill_count, "timer_text")
+    AUTO_CAST(timer_text)
+    timer_text:SetText(string.format("{ol}{s16}%02d:%02d:%02d{/}", h, m, s))
+    g.mkc_autosave_counter = g.mkc_autosave_counter + 1
+    local delta_ms = now_ms - g.mkc_last_tick_ms
+    if delta_ms < 0 then
+        delta_ms = 0
+    end
+    g.mkc_last_tick_ms = now_ms
+    g.mkc_map_data.stay_time = g.mkc_map_data.stay_time + delta_ms
+    if g.mkc_autosave_counter >= 60 then
+        local map_file_path = string.format("../addons/%s/%s/%s/%s.json", addon_name_lower, g.active_id,
+            "monster_kill_count", g.map_id)
+        g.save_json(map_file_path, g.mkc_map_data)
+        g.mkc_autosave_counter = 0
+    end
+end
+
+function Monster_kill_count_pos(monster_kill_count)
+    g.mkc_settings.frame_x = monster_kill_count:GetX()
+    g.mkc_settings.frame_y = monster_kill_count:GetY()
+    Monster_kill_count_save_settings()
+end
+
+function Monster_kill_count_information_context()
+    local context = ui.CreateContextMenu("monster_kill_count_context", "{ol}Map Info", 0, 0, 200, 0)
+    local sorted_map_ids = {}
+    for _, map_id in ipairs(g.mkc_settings.map_ids) do
+        table.insert(sorted_map_ids, tonumber(map_id))
+    end
+    table.sort(sorted_map_ids, function(a, b)
+        return a < b
+    end)
+    for i = 1, #sorted_map_ids do
+        local map_id = sorted_map_ids[i]
+        local map_id_str = tostring(map_id)
+        local map_file_path = Monster_kill_count_get_map_filepath(map_id_str)
+        local map_data = g.load_json(map_file_path)
+        if not map_data or not next(map_data.get_items) then
+            local map_cls = GetClassByType("Map", map_id)
+            map_data = {
+                map_name = map_cls and map_cls.ClassName,
+                stay_time = 0,
+                kill_count = 0,
+                get_items = {}
+            }
+            g.save_json(map_file_path, map_data)
+        else
+            local display_text = map_id .. " " .. GetClassByType("Map", map_id).Name
+            ui.AddContextMenuItem(context, display_text, string.format("Monster_kill_count_map_information(%d)", map_id))
+        end
+    end
+    ui.OpenContextMenu(context)
+end
+
+function Monster_kill_count_map_information_close(map_info)
+    if map_info then
+        ui.DestroyFrame(map_info:GetName())
+    end
+end
+
+function Monster_kill_count_map_information(map_id)
+    local map_file_path = Monster_kill_count_get_map_filepath(map_id)
+    local map_data = g.load_json(map_file_path)
+    local frame_name = addon_name_lower .. "mkc_map_info"
+    local map_info = ui.CreateNewFrame("notice_on_pc", frame_name, 0, 0, 0, 0)
+    AUTO_CAST(map_info)
+    map_info:SetPos(1000, 30)
+    map_info:SetSkinName("test_frame_low")
+    local close_btn = map_info:CreateOrGetControl("button", "close_button", 0, 0, 30, 30)
+    AUTO_CAST(close_btn)
+    close_btn:SetImage("testclose_button")
+    close_btn:SetGravity(ui.RIGHT, ui.TOP)
+    close_btn:SetEventScript(ui.LBUTTONUP, "Monster_kill_count_map_information_close")
+    local map_name_label = map_info:CreateOrGetControl("richtext", "map_name_text", 20, 10, 50, 20)
+    AUTO_CAST(map_name_label)
+    map_name_label:SetText("{ol}" .. GetClassByType("Map", map_id).Name)
+    local info_box = map_info:CreateOrGetControl("groupbox", "info_gbox", 10, 40, 0, 0)
+    AUTO_CAST(info_box)
+    info_box:RemoveAllChild()
+    info_box:SetSkinName("bg")
+    local total_sec = (map_data.stay_time or 0) / 1000
+    local h = math.floor(total_sec / 3600)
+    local m = math.floor((total_sec % 3600) / 60)
+    local s = math.floor(total_sec % 60)
+    local kill_count_val = map_data.kill_count or 0
+    local stay_label = info_box:CreateOrGetControl("richtext", "stay_time", 10, 10, 50, 20)
+    AUTO_CAST(stay_label)
+    stay_label:SetText(string.format("{ol}%s : %02d:%02d:%02d", g.lang == "Japanese" and "滞在時間" or "Stay Time",
+        h, m, s))
+    local kill_label = info_box:CreateOrGetControl("richtext", "kill_count", 10, 35, 50, 20)
+    AUTO_CAST(kill_label)
+    kill_label:SetText(
+        string.format("{ol}%s : %d", g.lang == "Japanese" and "討伐数" or "Kill Count", kill_count_val))
+    local kill_per_hour_label = info_box:CreateOrGetControl("richtext", "kill_count_hour", kill_label:GetWidth() + 20,
+        35, 50, 20)
+    AUTO_CAST(kill_per_hour_label)
+    if total_sec > 0 then
+        local kills_ph_val = math.floor(kill_count_val / total_sec * 3600)
+        kill_per_hour_label:SetText(string.format("{ol}(%s %d %s)", total_sec >= 3600 and "実績" or "予測",
+            kills_ph_val, "体/時"))
+    else
+        kill_per_hour_label:SetText("{ol}(N/A)")
+    end
+    local item_keys = {}
+    local total_item_num = 0
+    if map_data.get_items then
+        for item_id_str, count_val in pairs(map_data.get_items) do
+            table.insert(item_keys, tonumber(item_id_str))
+            total_item_num = total_item_num + count_val
+        end
+    end
+    table.sort(item_keys)
+    local total_items_label = info_box:CreateOrGetControl("richtext", "total_items_text", 10, 60, 50, 20)
+    AUTO_CAST(total_items_label)
+    total_items_label:SetText(string.format("{ol}%s : %d",
+        g.lang == "Japanese" and "総獲得アイテム数" or "Total Items", total_item_num))
+    local current_y = 0
+    local max_x = 0
+    for _, item_id_num in ipairs(item_keys) do
+        local item_id_str_key = tostring(item_id_num)
+        local item_cls = GetClassByType("Item", item_id_num)
+        if item_cls and map_data.get_items[item_id_str_key] then
+            local item_get_count = map_data.get_items[item_id_str_key]
+            local item_disp_str1 = string.format("{ol}{img %s 24 24}  %s : %d %s", item_cls.Icon, item_cls.Name,
+                item_get_count, g.lang == "Japanese" and "個" or "pcs")
+            local item_label1 = info_box:CreateOrGetControl("richtext", "display_text" .. item_id_str_key, 10,
+                95 + current_y, 50, 20)
+            AUTO_CAST(item_label1)
+            item_label1:SetText(item_disp_str1)
+            max_x = math.max(max_x, item_label1:GetWidth() + 10)
+            local kc_percent = kill_count_val > 0 and item_get_count / kill_count_val * 100 or 0
+            local ti_percent = total_item_num > 0 and item_get_count / total_item_num * 100 or 0
+            local sec_per_item = item_get_count > 0 and total_sec / item_get_count or 0
+            local item_disp_str2 = string.format("        %.1f%% (%s)   %.1f%% (%s)   %.1f %s", kc_percent, "対討伐",
+                ti_percent, "対総数", sec_per_item, "秒/個")
+            local item_label2 = info_box:CreateOrGetControl("richtext", "display_text2" .. item_id_str_key, 10,
+                120 + current_y, 50, 20)
+            AUTO_CAST(item_label2)
+            item_label2:SetText("{ol}" .. item_disp_str2)
+            max_x = math.max(max_x, item_label2:GetWidth() + 10)
+            current_y = current_y + 55
+        end
+    end
+    local reset_btn = map_info:CreateOrGetControl("button", "reset_button", map_name_label:GetWidth() + 30, 5, 80, 30)
+    AUTO_CAST(reset_btn)
+    reset_btn:SetSkinName("test_red_button")
+    reset_btn:SetText("{ol}Map Reset")
+    reset_btn:SetEventScript(ui.LBUTTONUP, "Monster_kill_count_map_reset_reserve")
+    reset_btn:SetEventScriptArgNumber(ui.LBUTTONUP, map_id)
+    map_info:Resize(math.max(max_x + 40, 250), math.min(160 + current_y, 1000))
+    info_box:Resize(map_info:GetWidth() - 20, map_info:GetHeight() - 55)
+    map_info:SetLayerLevel(999)
+    map_info:ShowWindow(1)
+end
+
+function Monster_kill_count_map_reset_reserve(frame, ctrl, str, map_id)
+    ui.MsgBox("Map Reset?", string.format("Monster_kill_count_map_reset(%d)", map_id), "None")
+end
+
+function Monster_kill_count_map_reset(map_id)
+    local map_file_path = Monster_kill_count_get_map_filepath(map_id)
+    os.remove(map_file_path)
+    local map_info = ui.GetFrame(addon_name_lower .. "mkc_map_info")
+    Monster_kill_count_map_information_close(map_info)
+end
+-- monster_kill_count ここまで
+
+-- Instant CC ここから
+g.instant_cc = {
+    retry = nil,
+    do_cc = nil,
+    layer = 1
+}
+function Instant_cc_save_settings()
+    g.save_json(g.instant_cc_path, g.instant_cc_settings)
+end
+
+function Instant_cc_load_settings()
+    g.instant_cc_path = string.format("../addons/%s/%s/instant_cc.json", addon_name_lower, g.active_id)
+    local changed = false
+    local settings = g.load_json(g.instant_cc_path)
+    if not settings then
+        settings = {
+            characters = {},
+            per_barracks = false
+        }
+        changed = true
+    end
+    g.instant_cc_settings = settings
+    if changed then
+        Instant_cc_save_settings()
+    end
+end
+
+function instant_cc_on_init()
+    if not g.instant_cc_settings then
+        Instant_cc_load_settings()
+    end
+    g.instant_cc.do_cc = nil
+    g.instant_cc.retry = nil
+    _G["norisan"] = _G["norisan"] or {}
+    _G["norisan"]["HOOKS"] = _G["norisan"]["HOOKS"] or {}
+    if not _G["norisan"]["HOOKS"]["BARRACK_START_FRAME_OPEN"] then
+        _G["norisan"]["HOOKS"]["BARRACK_START_FRAME_OPEN"] = addon_name
+        Instant_cc_hook_BARRACK_START_FRAME_OPEN()
+    end
+    if _G["BARRACK_CHARLIST_ON_INIT"] and _G["current_layer"] then
+        g.instant_cc.layer = _G["current_layer"]
+    end
+    if _G["APPS_TRY_LEAVE"] then
+        g.FUNCS = g.FUNCS or {}
+        if not g.FUNCS["APPS_TRY_LEAVE"] then
+            g.FUNCS["APPS_TRY_LEAVE"] = _G["APPS_TRY_LEAVE"]
+        end
+        _G["APPS_TRY_LEAVE"] = Instant_cc_APPS_TRY_LEAVE
+    end
+    _G["INSTANTCC_ON_INIT"] = instant_cc_on_init
+    if g.settings.instant_cc.use == 0 then
+        _G["INSTANTCC_DO_CC"] = nil
+        _G["INSTANTCC_APPS_TRY_MOVE_BARRACK"] = nil
+        return
+    else
+        _G["INSTANTCC_DO_CC"] = Instant_cc_do_cc
+        _G["INSTANTCC_APPS_TRY_MOVE_BARRACK"] = Instant_cc_APPS_TRY_MOVE_BARRACK_
+    end
+    g.addon:RegisterMsg("EXPIREDITEM_ALERT_OPEN", "Instant_cc_EXPIREDITEM_ALERT_ON_MSG")
+    local acc_info = session.barrack.GetMyAccount()
+    local barrack_count = acc_info:GetBarrackPCCount() -- ゲーム起動直後はtonumber(0)
+    Instant_cc_save_char_data(acc_info, barrack_count)
+end
+
+function Instant_cc_settings_frame_init()
+    local list_frame = ui.GetFrame(addon_name_lower .. "list_frame")
+    local settings = ui.CreateNewFrame("chat_memberlist", addon_name_lower .. "instant_cc_settings")
+    AUTO_CAST(settings)
+    settings:SetPos(list_frame:GetX() + list_frame:GetWidth(), list_frame:GetY())
+    settings:EnableHitTest(1)
+    settings:SetLayerLevel(999)
+    settings:SetSkinName("test_frame_low")
+    local width = 0
+    local title = settings:CreateOrGetControl("richtext", "title", 20, 10, 10, 30)
+    AUTO_CAST(title)
+    title:SetText("{#000000}{s20}instant CC Settings")
+    width = width + 20 + title:GetWidth() + 40
+    local close = settings:CreateOrGetControl("button", "close", 0, 0, 20, 20)
+    AUTO_CAST(close)
+    close:SetImage("testclose_button")
+    close:SetGravity(ui.RIGHT, ui.TOP)
+    close:SetEventScript(ui.LBUTTONUP, "Instant_cc_settings_frame_close")
+    local gb = settings:CreateOrGetControl("groupbox", "gb", 10, 40, 100, 100)
+    AUTO_CAST(gb)
+    gb:SetSkinName("bg")
+    gb:RemoveAllChild()
+    local per_barracks = gb:CreateOrGetControl("checkbox", "per_barracks", 10, 5, 100, 30)
+    AUTO_CAST(per_barracks)
+    per_barracks:SetText(g.lang == "Japanese" and "{ol}チェックするとバラックごとに表示" or
+                             "{ol}Check to display per barracks")
+    per_barracks:SetCheck(g.instant_cc_settings.per_barracks and 1 or 0)
+    per_barracks:SetEventScript(ui.LBUTTONUP, "Instant_cc_setting")
+    width = per_barracks:GetWidth() + 40
+    settings:Resize(width, 90)
+    gb:Resize(settings:GetWidth() - 20, 40)
+    settings:ShowWindow(1)
+end
+
+function Instant_cc_settings_frame_close(frame)
+    local frame_name = addon_name_lower .. "instant_cc_settings"
+    ui.DestroyFrame(frame_name)
+end
+
+function Instant_cc_setting(frame, ctrl)
+    local is_check = ctrl:IsChecked()
+    if is_check == 1 then
+        g.instant_cc_settings.per_barracks = true
+    else
+        g.instant_cc_settings.per_barracks = false
+    end
+    Instant_cc_save_settings()
+end
+
+function Instant_cc_save_char_data(acc_info, barrack_count)
+    local characters = g.instant_cc_settings.characters
+    local pc_count = acc_info:GetPCCount() -- 毎回同じレイヤーのキャラは順番を取得
+    for i = 0, pc_count - 1 do
+        local pc_info = acc_info:GetPCByIndex(i)
+        if pc_info then
+            local pc_cid = pc_info:GetCID()
+            local pc_apc = pc_info:GetApc()
+            if pc_apc then
+                local pc_name = pc_apc:GetName()
+                characters[pc_name] = {
+                    name = pc_name,
+                    layer = g.instant_cc.layer,
+                    order = i,
+                    jobid = (acc_info:GetByStrCID(pc_cid) and acc_info:GetByStrCID(pc_cid):GetRepID()) or
+                        pc_apc:GetJob(),
+                    gender = pc_apc:GetGender(),
+                    level = pc_apc:GetLv(),
+                    cid = pc_cid
+                }
+            end
+        end
+    end
+    if barrack_count > 0 then -- ゲーム起動直後はカウント0なので、2回目以降動かす
+        local barrack_chars = {}
+        for i = 0, barrack_count - 1 do
+            local pc_info = acc_info:GetBarrackPCByIndex(i)
+            if pc_info then
+                barrack_chars[pc_info:GetName()] = true
+            end
+        end
+        local chars_to_delete = {}
+        for char_name, _ in pairs(characters) do
+            if not barrack_chars[char_name] then
+                table.insert(chars_to_delete, char_name)
+            end
+        end
+        if #chars_to_delete > 0 then
+            for _, char_name in ipairs(chars_to_delete) do
+                characters[char_name] = nil
+            end
+        end
+    end
+    Instant_cc_save_settings()
+    Instant_cc_sort_char_data()
+end
+
+function Instant_cc_sort_char_data()
+    g.instant_cc_sorted_list = {}
+    for _, char_data in pairs(g.instant_cc_settings.characters) do
+        table.insert(g.instant_cc_sorted_list, char_data)
+    end
+    local function dabble_sort(a, b)
+        if a.layer == b.layer then
+            return a.order < b.order
+        else
+            return a.layer < b.layer
+        end
+    end
+    table.sort(g.instant_cc_sorted_list, dabble_sort)
+end
+
+function Instant_cc_hook_BARRACK_START_FRAME_OPEN()
+    g.FUNCS = g.FUNCS or {}
+    local origin_func_name = "BARRACK_START_FRAME_OPEN"
+    if _G[origin_func_name] then
+        if not g.FUNCS[origin_func_name] then
+            g.FUNCS[origin_func_name] = _G[origin_func_name]
+        end
+        _G[origin_func_name] = Instant_cc_BARRACK_START_FRAME_OPEN
+    end
+end
+
+function Instant_cc_BARRACK_START_FRAME_OPEN(...)
+    local frame = select(1, ...)
+    if not frame then
+        return
+    end
+    local original_func = g.FUNCS["BARRACK_START_FRAME_OPEN"]
+    local result
+    if original_func then
+        result = original_func(...)
+    end
+    local barrack_gamestart = ui.GetFrame("barrack_gamestart")
+    local hidelogin = GET_CHILD_RECURSIVELY(barrack_gamestart, "hidelogin")
+    hidelogin:SetCheck(1)
+    if g.instant_cc.do_cc and not g.instant_cc.retry then
+        g.instant_cc.retry = 0
+        barrack_gamestart:RunUpdateScript("Instant_cc_start", 0.2)
+    end
+    return result
+end
+
+function Instant_cc_APPS_TRY_LEAVE(type)
+    local use_instant_cc = (g.settings and g.settings.instant_cc and g.settings.instant_cc.use == 1)
+    if not use_instant_cc or (type ~= "Barrack") or g.get_map_type() ~= "City" then
+        if g.FUNCS["APPS_TRY_LEAVE"] then
+            g.FUNCS["APPS_TRY_LEAVE"](type)
+        end
+        return
+    end
+    Instant_cc_APPS_TRY_MOVE_BARRACK_(nil, nil, nil, 0)
+end
+
+function Instant_cc_EXPIREDITEM_ALERT_ON_MSG(frame, msg, arg_str, arg_num)
+    if msg == "EXPIREDITEM_ALERT_OPEN" then
+        Instant_cc_EXPIREDITEM_ALERT_OPEN(frame, arg_str)
+        return
+    end
+end
+
+function Instant_cc_EXPIREDITEM_ALERT_OPEN(frame, arg_str)
+    local expireditem_alert = ui.GetFrame("expireditem_alert")
+    local near_future_sec = tonumber(expireditem_alert:GetUserConfig("NearFutureSec"))
+    local itemlist = GET_CHILD(expireditem_alert, "itemlist", "ui::CGroupBox")
+    itemlist:RemoveAllChild()
+    local start_index = 0
+    local ypos = 0
+    if g.instant_cc_sweep_tbl then
+        for key, data in ipairs(g.instant_cc_sweep_tbl) do
+            if type(data) == "table" then
+                local ctrlset = itemlist:CreateOrGetControlSet("expireditem_ctrlset",
+                    "expireditem_ctrlset" .. start_index + 1, 0, ypos)
+                AUTO_CAST(ctrlset)
+                local name = GET_CHILD_RECURSIVELY(ctrlset, "name", "ui::CRichText")
+                local expiration_time = GET_CHILD_RECURSIVELY(ctrlset, "expirationTime", "ui::CRichText")
+                local remaining_time = GET_CHILD_RECURSIVELY(ctrlset, "remainingTime", "ui::CRichText")
+                local item_pic = GET_CHILD_RECURSIVELY(ctrlset, "item_pic", "ui::CPicture")
+                local buff_cls = GetClassByType("Buff", data.buff_id)
+                if buff_cls then
+                    name:SetTextByKey("itemname", buff_cls.Name)
+                    local icon_name = "icon_" .. buff_cls.Icon
+                    item_pic:SetImage(icon_name)
+                end
+                local expiration_systime = geTime.GetServerSystemTime()
+                expiration_systime = imcTime.AddSec(expiration_systime, data.buff_time / 1000)
+                expiration_time:SetTextByKey("year", expiration_systime.wYear)
+                expiration_time:SetTextByKey("month", GET_TWO_DIGIT_STR(expiration_systime.wMonth))
+                expiration_time:SetTextByKey("day", GET_TWO_DIGIT_STR(expiration_systime.wDay))
+                local buff_time = data.buff_time / 1000
+                local days = math.floor(buff_time / 86400)
+                local hours = math.floor((buff_time % 86400) / 3600)
+                local mins = math.floor(((buff_time % 86400) % 3600) / 60)
+                local sec = ((buff_time % 86400) % 3600) % 60
+                local dif_sec_msg = ""
+                if days > 0 then
+                    dif_sec_msg = ScpArgMsg("{Day}Day{Hour}Hour{Min}Min", "Day", days, "Hour", hours, "Min", mins)
+                elseif hours > 0 then
+                    dif_sec_msg = ScpArgMsg("{Hour}Hour{Min}Min{Sec}Sec", "Hour", hours, "Min", mins, "Sec", sec)
+                elseif mins > 0 then
+                    dif_sec_msg = ScpArgMsg("{Min}Min{Sec}Sec", "Min", mins, "Sec", sec)
+                else
+                    dif_sec_msg = ScpArgMsg("{Sec}Sec", "Sec", sec)
+                end
+                remaining_time:SetText(dif_sec_msg)
+                local time_parent = remaining_time:GetParent()
+                local amend_h = remaining_time:GetY() + remaining_time:GetHeight()
+                if amend_h < time_parent:GetHeight() then
+                    amend_h = ctrlset:GetHeight()
+                else
+                    local addedHeight = amend_h - time_parent:GetHeight()
+                    ctrlset:Resize(ctrlset:GetWidth(), ctrlset:GetHeight() + addedHeight)
+                end
+                ypos = ypos + ctrlset:GetHeight()
+                start_index = start_index + 1
+            end
+        end
+    end
+    if IS_NEED_TO_ALERT_TOKEN_EXPIRATION(near_future_sec, itemlist) then
+        ypos = ASK_EXPIREDITEM_ALERT_TOKEN(expireditem_alert, itemlist, start_index, ypos)
+        start_index = start_index + 1
+    end
+    local list = GET_SCHEDULED_TO_EXPIRED_ITEM_LIST(near_future_sec)
+    if list and #list >= 1 then
+        ypos = ASK_EXPIREDITEM_ALERT_LIFETIME(expireditem_alert, itemlist, near_future_sec, start_index, ypos)
+        start_index = start_index + #list
+    end
+    expireditem_alert:Resize(expireditem_alert:GetWidth(), expireditem_alert:GetOriginalHeight() + itemlist:GetHeight())
+    if arg_str then
+        expireditem_alert:SetUserValue("TimerType", arg_str)
+    end
+    expireditem_alert:ShowWindow(1)
+end
+
+function Instant_cc_APPS_TRY_MOVE_BARRACK_(frame, msg, str, barrack_layer)
+    if barrack_layer == 0 then
+        barrack_layer = g.instant_cc.layer
+    end
+    local context = ui.CreateContextMenu("instant_cc_select_character", "{ol}Barrack Charactor List", 0, 0, 0, 0)
+    ui.AddContextMenuItem(context, "Return To Barrack", "Instant_cc_do_cc()")
+    if not g.instant_cc_settings.per_barracks then
+        for i = 1, #g.instant_cc_sorted_list do
+            local info = g.instant_cc_sorted_list[i]
+            local pc_name = info.name
+            local job_cls = GetClassByType("Job", info.jobid)
+            local job_name = GET_JOB_NAME(job_cls, info.gender)
+            job_name = string.gsub(dic.getTranslatedStr(job_name), "{s18}", "")
+            local str = "Lv" .. info.level .. " " .. pc_name .. " (" .. job_name .. ")          "
+            ui.AddContextMenuItem(context, str, string.format("Instant_cc_do_cc('%s',%d)", info.cid, info.layer))
+        end
+    else
+        ui.AddContextMenuItem(context, "Barrack 1",
+            string.format("Instant_cc_APPS_TRY_MOVE_BARRACK_(nil, nil, nil, %d)", 1))
+        ui.AddContextMenuItem(context, "Barrack 2",
+            string.format("Instant_cc_APPS_TRY_MOVE_BARRACK_(nil, nil, nil, %d)", 2))
+        ui.AddContextMenuItem(context, "Barrack 3",
+            string.format("Instant_cc_APPS_TRY_MOVE_BARRACK_(nil, nil, nil, %d)", 3))
+        for i = 1, #g.instant_cc_sorted_list do
+            local info = g.instant_cc_sorted_list[i]
+            local layer = info.layer
+            if barrack_layer == layer then
+                local pc_name = info.name
+                local job_cls = GetClassByType("Job", info.jobid)
+                local job_name = GET_JOB_NAME(job_cls, info.gender)
+                job_name = string.gsub(dic.getTranslatedStr(job_name), "{s18}", "")
+                local str = "Lv" .. info.level .. " " .. pc_name .. " (" .. job_name .. ")          "
+                ui.AddContextMenuItem(context, str, string.format("Instant_cc_do_cc('%s',%d)", info.cid, info.layer))
+            end
+        end
+    end
+    ui.OpenContextMenu(context)
+end
+
+function Instant_cc_do_cc(cid, layer)
+    if cid then
+        g.instant_cc.do_cc = {
+            cid = cid,
+            layer = layer
+        }
+    end
+    if ui.CheckHoldedUI() == true then
+        ui.SysMsg(ClMsg("CantDoThatCuzDoingSomething"))
+        return
+    end
+    local expireditem_alert = ui.GetFrame("expireditem_alert")
+    local near_future_sec = tonumber(expireditem_alert:GetUserConfig("NearFutureSec"))
+    local need_item = false
+    local need_token = false
+    if near_future_sec then
+        local list = GET_SCHEDULED_TO_EXPIRED_ITEM_LIST(near_future_sec)
+        need_item = (list ~= nil and #list > 0)
+        need_token = IS_NEED_TO_ALERT_TOKEN_EXPIRATION(near_future_sec)
+    end
+    local sweep_buffs = {80045, 80043, 80039, 80035, 80037, 80032, 80031, 80030, 80015, 80017, 80016}
+    g.instant_cc_sweep_tbl = {}
+    local my_handle = session.GetMyHandle()
+    for _, buff_id in ipairs(sweep_buffs) do
+        local buff_info = info.GetBuff(my_handle, buff_id)
+        if buff_info then
+            table.insert(g.instant_cc_sweep_tbl, {
+                buff_over = buff_info.over,
+                buff_time = buff_info.time,
+                buff_id = buff_id
+            })
+        end
+    end
+    if need_item or need_token or #g.instant_cc_sweep_tbl > 0 then
+        imcAddOn.BroadMsg("EXPIREDITEM_ALERT_OPEN", "Barrack", 0)
+        return
+    else
+        g.FUNCS["APPS_TRY_LEAVE"]("Barrack")
+    end
+end
+
+function Instant_cc_start()
+    barrack.SelectBarrackLayer(g.instant_cc.do_cc.layer)
+    barrack.SelectCharacterByCID(g.instant_cc.do_cc.cid)
+    local barrack_gamestart = ui.GetFrame("barrack_gamestart")
+    barrack_gamestart:StopUpdateScript("Instant_cc_to_game")
+    barrack_gamestart:RunUpdateScript("Instant_cc_to_game", 0.2)
+end
+
+function Instant_cc_retry()
+    g.instant_cc.retry = g.instant_cc.retry + 1
+    if g.instant_cc.retry > #g.instant_cc_sorted_list then
+        app.BarrackToLogin()
+        ui.SysMsg(g.lang == "Japanese" and
+                      "キャラクターの自動取得に失敗しました{nl}手動で選択してください" or
+                      "Failed to automatically retrieve the character{nl}Please select manually")
+        return
+    end
+    Instant_cc_start()
+end
+
+function Instant_cc_to_game(barrack_gamestart)
+    local barrack_pc_info = barrack.GetBarrackPCInfoByCID(g.instant_cc.do_cc.cid)
+    if not barrack_pc_info then
+        Instant_cc_retry()
+        return
+    end
+    local barrack_start_char = barrack.GetGameStartAccount()
+    if not barrack_start_char or barrack_start_char:GetCID() ~= g.instant_cc.do_cc.cid then
+        Instant_cc_retry()
+        return
+    end
+    BARRACK_TO_GAME()
+    return 0
+end
+-- Instant CC ここまで
+
+-- ndun_list_viewer ここから
+g.ilv_RAID_KEYS = {"V", "L", "R", "N", "G", "M", "S", "U", "RO", "F", "P", "D"}
+g.ilv_RAID_INFO = {
+    V = {
+        name = "Veliora",
+        hard = 727,
+        solo = 726,
+        auto = 725,
+        icon = "icon_item_misc_boss_Veliora",
+        sweep_buff = 80045
+    },
+    L = {
+        name = "Limara",
+        hard = 724,
+        solo = 723,
+        auto = 722,
+        icon = "icon_item_misc_boss_Laimara",
+        sweep_buff = 80043
+    },
+    R = {
+        name = "Redania",
+        hard = 718,
+        solo = 717,
+        auto = 716,
+        icon = "icon_item_misc_boss_Redania",
+        sweep_buff = 80039
+    },
+    N = {
+        name = "Neringa",
+        hard = 709,
+        solo = 708,
+        auto = 707,
+        icon = "icon_item_misc_boss_DarkNeringa",
+        sweep_buff = 80035
+    },
+    G = {
+        name = "Golem",
+        hard = 712,
+        solo = 711,
+        auto = 710,
+        icon = "icon_item_misc_boss_CrystalGolem",
+        sweep_buff = 80037
+    },
+    M = {
+        name = "Merregina",
+        hard = 697,
+        solo = 696,
+        auto = 695,
+        icon = "icon_item_misc_merregina_blackpearl",
+        sweep_buff = 80032
+    },
+    S = {
+        name = "Slogutis",
+        hard = 690,
+        solo = 689,
+        auto = 688,
+        icon = "icon_item_misc_boss_Slogutis",
+        sweep_buff = 80031
+    },
+    U = {
+        name = "Upinis",
+        hard = 687,
+        solo = 686,
+        auto = 685,
+        icon = "icon_item_misc_boss_Upinis",
+        sweep_buff = 80030
+    },
+    RO = {
+        name = "Roze",
+        hard = 681,
+        solo = 680,
+        auto = 679,
+        icon = "icon_item_misc_boss_Roze",
+        sweep_buff = 80015
+    },
+    F = {
+        name = "Falouros",
+        hard = 678,
+        solo = 677,
+        auto = 676,
+        icon = "icon_item_misc_high_falouros",
+        sweep_buff = 80017
+    },
+    P = {
+        name = "Spreader",
+        hard = 675,
+        solo = 674,
+        auto = 673,
+        icon = "icon_item_misc_high_transmutationSpreader",
+        sweep_buff = 80016
+    },
+    D = {
+        name = "Delmore",
+        hard = 665,
+        solo = 667,
+        auto = 666,
+        icon = "icon_item_misc_RevivalPaulius",
+        sweep_buff = nil
+    }
+}
+function Indun_list_viewer_save_settings()
+    g.save_json(g.ilv_path, g.ilv_settings)
+end
+
+function Indun_list_viewer_load_settings()
+    g.ilv_path = string.format("../addons/%s/%s/indun_list_viewer.json", addon_name_lower, g.active_id)
+    g.ilv_old_path = string.format("../addons/%s/%s/settings_2510.json", "indun_list_viewer", g.active_id)
+    local settings = g.load_json(g.ilv_path)
+    if not settings then
+        settings = {}
+        local old_settings = g.load_json(g.ilv_old_path)
+        if old_settings then
+            local final_settings = {
+                options = old_settings.default_options or {},
+                display = old_settings.display_options or {},
+                chars = {}
+            }
+            for key, data in pairs(old_settings) do
+                if type(data) == "table" then
+                    if key ~= "default_options" and key ~= "display_options" then
+                        final_settings.chars[key] = data
+                    end
+                end
+            end
+            settings = final_settings
+        else
+            settings = {
+                options = {
+                    reset_time = 0,
+                    display_mode = "full",
+                    hidden = 0
+                },
+                display = {
+                    Memo = 1
+                },
+                chars = {}
+            }
+        end
+    end
+    if not settings.display then
+        settings.display = {}
+    end
+    if not settings.display.Memo then
+        settings.display.Memo = 1
+    end
+    for _, info in pairs(g.ilv_RAID_INFO) do
+        if info.name then
+            local h_key = info.name .. "_H"
+            local s_key = info.name .. "_S"
+            if not settings.display[h_key] then
+                settings.display[h_key] = 1
+            end
+            if not settings.display[s_key] then
+                settings.display[s_key] = 1
+            end
+        end
+    end
+    g.ilv_settings = settings
+    Indun_list_viewer_save_settings()
+end
+
+function Indun_list_viewer_char_load_settings()
+    local acc_info = session.barrack.GetMyAccount()
+    local layer_pc_count = acc_info:GetPCCount()
+    local barrack_all = acc_info:GetBarrackPCCount()
+    for order = 0, layer_pc_count - 1 do
+        local pc_info = acc_info:GetPCByIndex(order)
+        if pc_info then
+            local pc_apc = pc_info:GetApc()
+            local pc_name = pc_apc:GetName()
+            local pc_cid = pc_info:GetCID()
+            local existing_data = g.ilv_settings.chars[pc_name] or {}
+            g.ilv_settings.chars[pc_name] = {
+                layer = g.ilv_layer or existing_data.layer or 9,
+                order = order,
+                hide = existing_data.hide or false,
+                memo = existing_data.memo or "",
+                president_jobid = existing_data.president_jobid or "",
+                jobid = existing_data.jobid or "",
+                raid_count = existing_data.raid_count or {},
+                auto_clear_count = existing_data.auto_clear_count or {},
+                cid = pc_cid,
+                pc_name = pc_name
+            }
+        end
+    end
+    if barrack_all > 0 then
+        local barrack_chars = {}
+        for i = 0, barrack_all - 1 do
+            local pc_info = acc_info:GetBarrackPCByIndex(i)
+            if pc_info then
+                barrack_chars[pc_info:GetName()] = true
+            end
+        end
+        local chars_to_delete = {}
+        for char_name, _ in pairs(g.ilv_settings.chars) do
+            if not barrack_chars[char_name] then
+                table.insert(chars_to_delete, char_name)
+            end
+        end
+        if #chars_to_delete > 0 then
+            for _, char_name in ipairs(chars_to_delete) do
+                g.ilv_settings.chars[char_name] = nil
+            end
+        end
+    end
+    Indun_list_viewer_save_settings()
+end
+
+function indun_list_viewer_on_init()
+    if _G["BARRACK_CHARLIST_ON_INIT"] and _G["current_layer"] then
+        g.ilv_layer = _G["current_layer"]
+    end
+    if g.settings.indun_list_viewer.use == 0 then
+        Indun_list_viewer_disable()
+    else
+        if type(_G["Indun_list_viewer_title_frame_open"]) == "function" then
+            if type(_G["indun_list_viewer_title_frame_open"]) ~= "function" then
+                _G["indun_list_viewer_title_frame_open"] = _G["Indun_list_viewer_title_frame_open"]
+            end
+        end
+    end
+    g.addon:RegisterMsg("EXPIREDITEM_ALERT_OPEN", "Indun_list_viewer_EXPIREDITEM_ALERT_ON_MSG")
+    g.addon:RegisterMsg("ESCAPE_PRESSED", "Indun_list_viewer_ESCAPE_PRESSED")
+    g.setup_hook_and_event(g.addon, "STATUS_SELET_REPRESENTATION_CLASS",
+        "Indun_list_viewer_STATUS_SELET_REPRESENTATION_CLASS", true)
+    g.setup_hook_and_event(g.addon, "APPS_TRY_LEAVE", "Indun_list_viewer_save_current_char_counts", true)
+end
+
+function Indun_list_viewer_EXPIREDITEM_ALERT_ON_MSG(frame, msg, str, num)
+    local expireditem_alert = ui.GetFrame("expireditem_alert")
+    if expireditem_alert then
+        expireditem_alert:SetLayerLevel(100)
+    end
+end
+
+function Indun_list_viewer_disable()
+    if _G["indun_list_viewer_title_frame_open"] == _G["Indun_list_viewer_title_frame_open"] then
+        _G["indun_list_viewer_title_frame_open"] = nil
+    end
+end
+
+function Indun_list_viewer_raid_reset_reserve()
+    local server_time_str = date_time.get_lua_now_datetime_str()
+    if server_time_str then
+        local y, m, d, H, M, S = server_time_str:match("(%d+)-(%d+)-(%d+) (%d+):(%d+):(%d+)")
+        if y then
+            local server_now_timestamp = os.time({
+                year = tonumber(y),
+                month = tonumber(m),
+                day = tonumber(d),
+                hour = tonumber(H),
+                min = tonumber(M),
+                sec = tonumber(S)
+            })
+            if server_now_timestamp > g.ilv_settings.options.reset_time then
+                Indun_list_viewer_raid_reset()
+            end
+        end
+    end
+end
+
+function Indun_list_viewer_raid_reset()
+    local acc_info = session.barrack.GetMyAccount()
+    local barrack_pc_count = acc_info:GetBarrackPCCount() -- ゲーム起動直後はtonumber(0)そのため初期化は2回目以降
+    if barrack_pc_count > 0 then
+        for i = 0, barrack_pc_count - 1 do
+            local barrack_pc_info = acc_info:GetBarrackPCByIndex(i)
+            if barrack_pc_info then
+                local barrack_pc_name = barrack_pc_info:GetName()
+                local char_data = g.ilv_settings.chars[barrack_pc_name]
+                if char_data then
+                    char_data.raid_count = {}
+                    for _, key in ipairs(g.ilv_RAID_KEYS) do
+                        char_data.raid_count[key .. "_H"] = "?"
+                        char_data.raid_count[key .. "_A"] = "?"
+                    end
+                end
+            end
+        end
+        g.ilv_settings.options.reset_time = Indun_list_viewer_get_reset_time()
+        Indun_list_viewer_save_settings()
+        if g.settings.indun_list_viewer.use ~= 0 then
+            if g.lang == "Japanese" then
+                ui.SysMsg("[ILV]レイドの回数を初期化しました")
+            else
+                ui.SysMsg("[ILV]Raid counts were initialized")
+            end
+        end
+    end
+end
+
+function Indun_list_viewer_get_reset_time()
+    local server_time_str = date_time.get_lua_now_datetime_str()
+    if not server_time_str then
+        return 0
+    end
+    local year, month, day, hour, min, sec = server_time_str:match("(%d+)-(%d+)-(%d+) (%d+):(%d+):(%d+)")
+    if not year then
+        return 0
+    end
+    local now_table = {
+        year = tonumber(year),
+        month = tonumber(month),
+        day = tonumber(day),
+        hour = tonumber(hour),
+        min = tonumber(min),
+        sec = tonumber(sec)
+    }
+    local now_timestamp = os.time(now_table)
+    local current_day_of_week = tonumber(os.date("%w", now_timestamp)) + 1
+    local days_to_next_monday
+    if current_day_of_week == 2 and now_table.hour < 6 then
+        days_to_next_monday = 0
+    else
+        days_to_next_monday = (9 - current_day_of_week) % 7
+        if days_to_next_monday == 0 then
+            days_to_next_monday = 7
+        end
+    end
+    local next_monday_timestamp_base = now_timestamp + days_to_next_monday * 86400
+    local next_monday_date = os.date("*t", next_monday_timestamp_base)
+    local next_monday_6am_timestamp = os.time({
+        year = next_monday_date.year,
+        month = next_monday_date.month,
+        day = next_monday_date.day,
+        hour = 6,
+        min = 0,
+        sec = 0
+    })
+    return next_monday_6am_timestamp
+end
+
+function Indun_list_viewer_sort_characters()
+    g.ilv_sorted_settings = {}
+    for key, data in pairs(g.ilv_settings.chars) do
+        if type(data) == "table" then
+            table.insert(g.ilv_sorted_settings, data)
+        end
+    end
+    local function sort_layer_order(a, b)
+        if a.layer ~= b.layer then
+            return a.layer < b.layer
+        else
+            return a.order < b.order
+        end
+    end
+    table.sort(g.ilv_sorted_settings, sort_layer_order)
+end
+
+function Indun_list_viewer_STATUS_SELET_REPRESENTATION_CLASS(my_frame, my_msg)
+    if not g.ilv_settings then
+        return
+    end
+    local _, select_key = g.get_event_args(my_msg)
+    local pc_job_info = session.GetMainSession():GetPCJobInfo()
+    local job_count = pc_job_info:GetJobCount()
+    local job_id_parts = {}
+    for i = 0, job_count - 1 do
+        local job_info = pc_job_info:GetJobInfoByIndex(i)
+        table.insert(job_id_parts, job_info.jobID)
+    end
+    g.ilv_settings.chars[g.login_name].jobid = "/" .. table.concat(job_id_parts, "/")
+    g.ilv_settings.chars[g.login_name].president_jobid = tostring(select_key)
+    Indun_list_viewer_save_settings()
+    Indun_list_viewer_title_frame_open()
+end
+
+local function get_safe_entrance_count(indun_type)
+    local indun_cls = GetClassByType("Indun", indun_type)
+    if indun_cls and indun_cls.PlayPerResetType then
+        return GET_CURRENT_ENTERANCE_COUNT(indun_cls.PlayPerResetType)
+    end
+    return nil
+end
+
+function Indun_list_viewer_save_current_char_counts()
+    if g.get_map_type() == "City" then
+        if not g.ilv_settings then
+            Indun_list_viewer_load_settings()
+        end
+        Indun_list_viewer_char_load_settings()
+        Indun_list_viewer_sort_characters()
+        Indun_list_viewer_raid_reset_reserve()
+    else
+        return
+    end
+    local raid_data = {}
+    for key, raid in pairs(g.ilv_RAID_INFO) do
+        local count = get_safe_entrance_count(raid.hard)
+        raid_data[key .. "_H"] = count or "?"
+        count = get_safe_entrance_count(raid.auto)
+        raid_data[key .. "_A"] = count or "?"
+    end
+    g.ilv_settings.chars[g.login_name].raid_count = raid_data
+    local auto_clear_data = g.ilv_settings.chars[g.login_name].auto_clear_count
+    local my_handle = session.GetMyHandle()
+    for _, key in ipairs(g.ilv_RAID_KEYS) do
+        local raid = g.ilv_RAID_INFO[key]
+        auto_clear_data[key .. "_S"] = 0
+        if raid.sweep_buff then
+            local buff_info = info.GetBuff(my_handle, raid.sweep_buff)
+            if buff_info then
+                auto_clear_data[key .. "_S"] = buff_info.over
+            end
+        end
+    end
+    g.ilv_settings.chars[g.login_name].auto_clear_count = auto_clear_data
+    Indun_list_viewer_save_settings()
+    return
+end
+
+function Indun_list_viewer_INDUNINFO_SET_BUTTONS(indun_type, ctrl)
+    local indun_cls = GetClassByType("Indun", indun_type)
+    local dungeon_type = TryGetProp(indun_cls, "DungeonType", "None")
+    local btn_info_cls = GetClassByStrProp("IndunInfoButton", "DungeonType", dungeon_type)
+    if dungeon_type == "Raid" then
+        btn_info_cls = INDUNINFO_SET_BUTTONS_FIND_CLASS(indun_cls)
+    end
+    local red_button_scp = TryGetProp(btn_info_cls, "RedButtonScp")
+    ctrl:SetUserValue("MOVE_INDUN_CLASSID", indun_cls.ClassID)
+    ctrl:SetEventScript(ui.LBUTTONUP, red_button_scp)
+end
+
+function Indun_list_viewer_enter_hard(parent, ctrl, str, indun_type)
+    if str == "false" then
+        Indun_list_viewer_INDUNINFO_SET_BUTTONS(indun_type, ctrl)
+        ReserveScript(string.format("Indun_list_viewer_enter_hard(nil, nil, 'true', %d)", indun_type), 0.5)
+    else
+        SHOW_INDUNENTER_DIALOG(indun_type)
+        local indun_list_viewer = parent:GetTopParentFrame()
+        ui.DestroyFrame(indun_list_viewer:GetName())
+    end
+end
+
+function Indun_list_viewer_enter_solo_or_auto(parent, ctrl, move_type_str, indun_type)
+    local move_type = tonumber(move_type_str)
+    ReqRaidAutoUIOpen(indun_type)
+    if move_type == 2 then
+        local indunenter = ui.GetFrame("indunenter")
+        local indun_cls = GetClassByType("Indun", indunenter:GetUserValue("INDUN_TYPE"))
+        local min_rank = TryGetProp(indun_cls, "PCRank")
+        if min_rank and min_rank > session.GetPcTotalJobGrade() then
+            ui.SysMsg(ScpArgMsg("IndunEnterNeedPCRank", "NEED_RANK", min_rank))
+            return
+        end
+    end
+    ReserveScript(string.format("ReqMoveToIndun(%d, 0)", move_type), 0.3)
+    local indun_list_viewer = parent:GetTopParentFrame()
+    ui.DestroyFrame(indun_list_viewer:GetName())
+end
+
+function Indun_list_viewer_config(parent)
+    local indun_list_viewer = parent:GetTopParentFrame()
+    indun_list_viewer:RemoveAllChild()
+    local title_gb = indun_list_viewer:CreateOrGetControl("groupbox", "title_gb", 0, 0, 10, 10)
+    AUTO_CAST(title_gb)
+    local config_gb = indun_list_viewer:CreateOrGetControl("groupbox", "config_gb", 10, 35, 10, 10)
+    AUTO_CAST(config_gb)
+    config_gb:SetSkinName("bg")
+    local text = config_gb:CreateOrGetControl("richtext", "text", 10, 10)
+    AUTO_CAST(text)
+    text:SetText(g.lang == "Japanese" and "チェックすると表示" or "{ol}Check to show")
+    local x = text:GetX() + text:GetWidth() + 5
+    local text_x = 0
+    for _, raid_key in ipairs(g.ilv_RAID_KEYS) do
+        local raid_info = g.ilv_RAID_INFO[raid_key]
+        if text_x == 0 then
+            text_x = x
+        end
+        local pic = title_gb:CreateOrGetControl("picture", "title_pic_" .. raid_key .. "_H", x + 5, 5, 30, 30)
+        AUTO_CAST(pic)
+        pic:SetImage(raid_info.icon)
+        pic:SetEnableStretch(1)
+        pic:EnableHitTest(1)
+        local check = config_gb:CreateOrGetControl("checkbox", "check_" .. raid_key .. "_H", x, 5, 30, 30)
+        AUTO_CAST(check)
+        check:SetCheck(g.ilv_settings.display[raid_info.name .. "_H"])
+        check:SetEventScript(ui.LBUTTONDOWN, "Indun_list_viewer_display_check")
+        check:SetEventScriptArgString(ui.LBUTTONDOWN, raid_info.name .. "_H")
+        x = x + 30
+    end
+    local hard_text = title_gb:CreateOrGetControl("richtext", "hard_text", text_x - 40, 10)
+    AUTO_CAST(hard_text)
+    hard_text:SetText("{ol}Hard")
+    x = x + 100
+    text_x = 0
+    for _, raid_key in ipairs(g.ilv_RAID_KEYS) do
+        local raid_info = g.ilv_RAID_INFO[raid_key]
+        if text_x == 0 then
+            text_x = x
+        end
+        local pic = title_gb:CreateOrGetControl("picture", "title_pic_" .. raid_key .. "_S", x + 5, 5, 30, 30)
+        AUTO_CAST(pic)
+        pic:SetImage(raid_info.icon)
+        pic:SetEnableStretch(1)
+        pic:EnableHitTest(1)
+        local check = config_gb:CreateOrGetControl("checkbox", "check_" .. raid_key .. "_S", x, 5, 30, 30)
+        AUTO_CAST(check)
+        check:SetCheck(g.ilv_settings.display[raid_info.name .. "_S"])
+        check:SetEventScript(ui.LBUTTONDOWN, "Indun_list_viewer_display_check")
+        check:SetEventScriptArgString(ui.LBUTTONDOWN, raid_info.name .. "_S")
+        x = x + 30
+    end
+    local auto_text = title_gb:CreateOrGetControl("richtext", "auto_text", text_x - 80, 10)
+    AUTO_CAST(auto_text)
+    auto_text:SetText("{ol}Solo/Auto")
+    x = x + 30
+    local memo_text = title_gb:CreateOrGetControl("richtext", "memo_text", x, 10)
+    AUTO_CAST(memo_text)
+    memo_text:SetText("{ol}Memo")
+    local memo_check = config_gb:CreateOrGetControl("checkbox", "check_memo", x, 5, 30, 30)
+    AUTO_CAST(memo_check)
+    memo_check:SetCheck(g.ilv_settings.display["Memo"])
+    memo_check:SetEventScript(ui.LBUTTONDOWN, "Indun_list_viewer_display_check")
+    memo_check:SetEventScriptArgString(ui.LBUTTONDOWN, "Memo")
+    local close_button = title_gb:CreateOrGetControl("button", "close_button", 0, 0, 20, 20)
+    AUTO_CAST(close_button)
+    close_button:SetImage("testclose_button")
+    close_button:SetGravity(ui.LEFT, ui.TOP)
+    close_button:SetEventScript(ui.LBUTTONUP, "Indun_list_viewer_close")
+    close_button:SetEventScriptArgNumber(ui.LBUTTONUP, 1)
+    title_gb:Resize(x + 50, 55)
+    indun_list_viewer:Resize(title_gb:GetWidth() + 20, 85)
+    config_gb:Resize(indun_list_viewer:GetWidth() - 20, indun_list_viewer:GetHeight() - 45)
+end
+
+function Indun_list_viewer_display_check(parent, ctrl, key, num)
+    g.ilv_settings.display[key] = ctrl:IsChecked() == 1 and 1 or 0
+    Indun_list_viewer_save_settings()
+end
+
+function Indun_list_viewer_title_frame_open()
+    Indun_list_viewer_save_current_char_counts()
+    if g.settings.indun_list_viewer.use == 0 then
+        return
+    end
+    local indun_list_viewer = ui.CreateNewFrame("notice_on_pc", addon_name_lower .. "indun_list_viewer", 0, 0, 10, 10)
+    AUTO_CAST(indun_list_viewer)
+    indun_list_viewer:RemoveAllChild()
+    indun_list_viewer:SetLayerLevel(99)
+    indun_list_viewer:SetSkinName("test_frame_low")
+    local title_gb = indun_list_viewer:CreateOrGetControl("groupbox", "title_gb", 0, 0, 10, 10)
+    AUTO_CAST(title_gb)
+    local texts = (g.lang == "Japanese") and {
+        hard_raid = "ハード",
+        auto_raid = "左クリック:ソロ入場{nl}右クリック:自動入場{nl} {nl}入場回数/掃討回数",
+        mode_text = "チェックを入れるとスクロールモードに切替",
+        display_text = "チェックしたキャラはレイド回数非表示",
+        memo = "メモ",
+        display = "表示",
+        hidden = "チェックを入れると非表示キャラを表示しません"
+    } or {
+        hard_raid = "Hard Count",
+        auto_raid = "Left-click: Solo Entry{nl}Right-click: Automatic Entry{nl} {nl}Entry Count/Auto clear count",
+        mode_text = "Switch to scroll mode when checked",
+        display_text = "Checked characters hide raid count",
+        memo = "Memo",
+        display = "Disp",
+        hidden = "If checked, do not show hidden characters"
+    }
+    local x = 185
+    for _, raid_key in ipairs(g.ilv_RAID_KEYS) do
+        local raid_info = g.ilv_RAID_INFO[raid_key]
+        if g.ilv_settings.display[raid_info.name .. "_H"] == 1 then
+            local pic = title_gb:CreateOrGetControl("picture", "title_pic_" .. raid_key .. "_H", x, 5, 30, 30)
+            AUTO_CAST(pic)
+            pic:SetImage(raid_info.icon)
+            pic:SetEnableStretch(1)
+            pic:EnableHitTest(1)
+            pic:SetEventScript(ui.LBUTTONDOWN, "Indun_list_viewer_enter_hard")
+            pic:SetEventScriptArgNumber(ui.LBUTTONDOWN, raid_info.hard)
+            pic:SetEventScriptArgString(ui.LBUTTONDOWN, "false")
+            pic:SetTextTooltip("{ol}" .. texts.hard_raid)
+            x = x + 30
+        end
+    end
+    x = x + 30
+    for _, raid_key in ipairs(g.ilv_RAID_KEYS) do
+        local raid_info = g.ilv_RAID_INFO[raid_key]
+        if g.ilv_settings.display[raid_info.name .. "_S"] == 1 then
+            local pic = title_gb:CreateOrGetControl("picture", "title_pic_" .. raid_key .. "_S", x, 5, 30, 30)
+            AUTO_CAST(pic)
+            pic:SetImage(raid_info.icon)
+            pic:SetEnableStretch(1)
+            pic:EnableHitTest(1)
+            pic:SetEventScript(ui.LBUTTONUP, "Indun_list_viewer_enter_solo_or_auto")
+            pic:SetEventScriptArgString(ui.LBUTTONUP, "1")
+            pic:SetEventScriptArgNumber(ui.LBUTTONUP, raid_info.solo)
+            pic:SetEventScript(ui.RBUTTONUP, "Indun_list_viewer_enter_solo_or_auto")
+            pic:SetEventScriptArgString(ui.RBUTTONUP, "2")
+            pic:SetEventScriptArgNumber(ui.RBUTTONUP, raid_info.auto)
+            pic:SetTextTooltip("{ol}" .. texts.auto_raid)
+            x = x + 65
+        end
+    end
+    local close_button = title_gb:CreateOrGetControl("button", "close_button", 0, 0, 20, 20)
+    AUTO_CAST(close_button)
+    close_button:SetImage("testclose_button")
+    close_button:SetGravity(ui.LEFT, ui.TOP)
+    close_button:SetEventScript(ui.LBUTTONUP, "Indun_list_viewer_close")
+    local cc_button = title_gb:CreateOrGetControl("button", "cc_button", 40, 5, 30, 30)
+    AUTO_CAST(cc_button)
+    cc_button:SetSkinName("None")
+    cc_button:SetText("{img barrack_button_normal 30 30}")
+    cc_button:SetEventScript(ui.LBUTTONUP, "APPS_TRY_MOVE_BARRACK")
+    local config_btn = title_gb:CreateOrGetControl("button", "config_btn", 75, 5, 30, 30)
+    AUTO_CAST(config_btn)
+    config_btn:SetSkinName("None")
+    config_btn:SetText("{img config_button_normal 30 30}")
+    config_btn:SetEventScript(ui.LBUTTONUP, "Indun_list_viewer_config")
+    local mode_check = title_gb:CreateOrGetControl("checkbox", "mode_check", 115, 5, 30, 30)
+    AUTO_CAST(mode_check)
+    mode_check:SetCheck(g.ilv_settings.options.display_mode == "slide" and 1 or 0)
+    mode_check:SetEventScript(ui.LBUTTONUP, "Indun_list_viewer_modechange")
+    mode_check:SetTextTooltip("{ol}" .. texts.mode_text)
+    local hidden_check = title_gb:CreateOrGetControl("checkbox", "hidden_check", 150, 5, 30, 30)
+    AUTO_CAST(hidden_check)
+    hidden_check:SetCheck(g.ilv_settings.options.hidden)
+    hidden_check:SetEventScript(ui.LBUTTONUP, "Indun_list_viewer_modechange")
+    hidden_check:SetTextTooltip("{ol}" .. texts.hidden)
+    if g.ilv_settings.display["Memo"] == 1 then
+        local memo_text = title_gb:CreateOrGetControl("richtext", "memo_text", x, 10)
+        AUTO_CAST(memo_text)
+        memo_text:SetText("{ol}" .. texts.memo)
+        x = x + 160
+    end
+    local display_text = title_gb:CreateOrGetControl("richtext", "display_text", x, 10)
+    AUTO_CAST(display_text)
+    display_text:SetText("{ol}" .. texts.display)
+    display_text:SetTextTooltip("{ol}" .. texts.display_text)
+    indun_list_viewer:ShowWindow(1)
+    Indun_list_viewer_frame_open(indun_list_viewer)
+end
+
+function Indun_list_viewer_ESCAPE_PRESSED()
+    local indun_list_viewer = ui.GetFrame(addon_name_lower .. "indun_list_viewer")
+    Indun_list_viewer_close(indun_list_viewer)
+end
+
+function Indun_list_viewer_close(parent, ctrl, str, num)
+    local indun_list_viewer = parent:GetTopParentFrame()
+    ui.DestroyFrame(indun_list_viewer:GetName())
+    if num == 1 then
+        ReserveScript("Indun_list_viewer_title_frame_open()", 0.1)
+    end
+end
+
+function Indun_list_viewer_modechange(parent, ctrl)
+    local ctrl_name = ctrl:GetName()
+    local is_checked = ctrl:IsChecked()
+    if ctrl_name == "hidden_check" then
+        g.ilv_settings.options.hidden = is_checked
+    else -- mode_check
+        g.ilv_settings.options.display_mode = is_checked == 1 and "slide" or "full"
+    end
+    Indun_list_viewer_save_settings()
+    Indun_list_viewer_title_frame_open()
+end
+
+function Indun_list_viewer_frame_open(indun_list_viewer)
+    local title_gb = GET_CHILD(indun_list_viewer, "title_gb")
+    AUTO_CAST(title_gb)
+    local gb = indun_list_viewer:CreateOrGetControl("groupbox", "gb", 10, 35, 10, 10)
+    AUTO_CAST(gb)
+    gb:SetSkinName("bg")
+    local sorted_char_list = {}
+    for _, data in ipairs(g.ilv_sorted_settings) do
+        if type(data) == "table" then
+            if g.ilv_settings.options.hidden == 0 or not data.hide then
+                table.insert(sorted_char_list, data)
+            end
+        end
+    end
+    local y = 10
+    local max_x = 0
+    for _, data in ipairs(sorted_char_list) do
+        local x = 35
+        local pc_name = data.pc_name
+        local name = gb:CreateOrGetControl("richtext", pc_name, x, y)
+        AUTO_CAST(name)
+        name:SetText(("{ol}{s14}" .. (g.login_name == pc_name and "{#FF4500}" or "") .. pc_name))
+        Indun_list_viewer_job_slot(indun_list_viewer, data, y)
+        x = x + 60
+        if not data.hide then
+            local current_x = 180
+            for _, raid_key in ipairs(g.ilv_RAID_KEYS) do
+                local raid_info = g.ilv_RAID_INFO[raid_key]
+                if g.ilv_settings.display[raid_info.name .. "_H"] == 1 then
+                    local count = data.raid_count[raid_key .. "_H"] or "?"
+                    local text_ctrl = gb:CreateOrGetControl("richtext", raid_key .. "_H_" .. pc_name, current_x, y)
+                    AUTO_CAST(text_ctrl)
+                    text_ctrl:SetText("{ol}{s14}( " .. count .. " )")
+                    local limit = (raid_key == "P" or raid_key == "F") and 2 or 1
+                    text_ctrl:SetColorTone(count == limit and "FF990000" or "FFFFFFFF")
+                    current_x = current_x + 30
+                end
+            end
+            current_x = current_x + 30
+            for _, raid_key in ipairs(g.ilv_RAID_KEYS) do
+                local raid_info = g.ilv_RAID_INFO[raid_key]
+                if g.ilv_settings.display[raid_info.name .. "_S"] == 1 then
+                    local limit = (raid_key == "P" or raid_key == "F") and 4 or 2
+                    local count_a = data.raid_count[raid_key .. "_A"] or "?"
+                    local text_a = gb:CreateOrGetControl("richtext", raid_key .. "_A_" .. pc_name, current_x, y)
+                    AUTO_CAST(text_a)
+                    text_a:SetText("{ol}{s14}( " .. count_a .. " )")
+                    if count_a ~= "?" then
+                        if count_a > 0 then
+                            text_a:SetColorTone(count_a == limit and "FF990000" or "FFFFFFFF")
+                        end
+                    end
+                    if raid_key ~= "D" then
+                        current_x = current_x + 25
+                        local count_s = data.auto_clear_count[raid_key .. "_S"] or 0
+                        local text_s = gb:CreateOrGetControl("richtext", raid_key .. "_S_" .. pc_name, current_x, y)
+                        AUTO_CAST(text_s)
+                        text_s:SetText("{ol}{s14}/( " .. count_s .. " )")
+                        if count_s > 0 then
+                            text_s:SetColorTone(count_s == limit and "FFFFA500" or "FFFFFFFF")
+                        end
+                    end
+                    current_x = current_x + 40
+                end
+            end
+            if g.ilv_settings.display["Memo"] == 1 then
+                local memo = gb:CreateOrGetControl("edit", "memo" .. pc_name, current_x, y - 2, 180, 20)
+                AUTO_CAST(memo)
+                memo:SetFontName("white_14_ol")
+                memo:SetTextAlign("left", "center")
+                memo:SetSkinName("inventory_serch")
+                memo:SetEventScript(ui.ENTERKEY, "Indun_list_viewer_memo_save")
+                memo:SetEventScriptArgString(ui.ENTERKEY, pc_name)
+                memo:SetText(data.memo or "")
+                current_x = current_x + 180
+            end
+            x = current_x
+        end
+        if x > max_x then
+            max_x = x
+        end
+        y = y + 25
+    end
+    local display_x = max_x + 20
+    y = 10
+    for _, data in ipairs(sorted_char_list) do
+        local pc_name = data.pc_name
+        local line = gb:CreateOrGetControl("labelline", "line" .. pc_name, 25, y + 20, max_x - 20, 1)
+        AUTO_CAST(line)
+        line:SetSkinName("labelline_def_3")
+        local display_check = gb:CreateOrGetControl("checkbox", "display" .. pc_name, display_x, y - 5, 25, 25)
+        AUTO_CAST(display_check)
+        display_check:SetEventScript(ui.LBUTTONUP, "Indun_list_viewer_display_save")
+        display_check:SetEventScriptArgString(ui.LBUTTONUP, pc_name)
+        display_check:SetCheck(data.hide and 1 or 0)
+        y = y + 25
+    end
+    local frame_width = display_x + 60
+    local frame_height = y + 50
+    if g.ilv_settings.options.display_mode == "slide" and frame_height > 545 then
+        frame_height = 545
+        gb:EnableScrollBar(1)
+    end
+    indun_list_viewer:Resize(frame_width, frame_height)
+    gb:Resize(indun_list_viewer:GetWidth() - 20, indun_list_viewer:GetHeight() - 45)
+    title_gb:Resize(indun_list_viewer:GetWidth() - 20, 55)
+    local display_text = GET_CHILD_RECURSIVELY(indun_list_viewer, "display_text")
+    if display_text then
+        AUTO_CAST(display_text)
+        display_text:SetPos(display_x, 10)
+    end
+    local map_frame = ui.GetFrame("map")
+    indun_list_viewer:SetPos((map_frame:GetWidth() - indun_list_viewer:GetWidth()) / 2, 35)
+end
+
+function Indun_list_viewer_job_slot(indun_list_viewer, data, y)
+    local pc_name = data.pc_name
+    local job_id_str = data.jobid or ""
+    local president_id_str = data.president_jobid or ""
+    local _, _, last_job_id = GetJobListFromAdventureBookCharData(pc_name)
+    local prepresentative_job_id = (president_id_str ~= "") and president_id_str or last_job_id
+    local job_class = GetClassByType("Job", tonumber(prepresentative_job_id))
+    local job_icon_name = TryGetProp(job_class, "Icon")
+    local gb = GET_CHILD_RECURSIVELY(indun_list_viewer, "gb")
+    local job_slot = gb:CreateOrGetControl("slot", "jobslot" .. pc_name, 5, y - 4, 25, 25)
+    AUTO_CAST(job_slot)
+    job_slot:SetSkinName("None")
+    job_slot:EnableHitTest(1)
+    job_slot:EnablePop(0)
+    local job_icon = CreateIcon(job_slot)
+    job_icon:SetImage(job_icon_name)
+    local tooltip_parts = {}
+    if job_id_str ~= "" then
+        local highlight_color = "{#FF0000}"
+        for id_str in job_id_str:gmatch("/([^/]+)") do
+            local job_id_num = tonumber(id_str)
+            if job_id_num then
+                local cls = GetClassByType("Job", job_id_num)
+                if cls and cls.Name then
+                    local name = (string.gsub(dic.getTranslatedStr(cls.Name), "{s18}", ""))
+                    if id_str == president_id_str then
+                        table.insert(tooltip_parts, highlight_color .. name .. "{/}")
+                    else
+                        table.insert(tooltip_parts, name)
+                    end
+                end
+            end
+        end
+    else
+        if job_class and job_class.Name then
+            local name = TryGetProp(job_class, "Name")
+            table.insert(tooltip_parts, (string.gsub(dic.getTranslatedStr(name), "{s18}", "")))
+        end
+    end
+    local tooltip_text = "{ol}" .. table.concat(tooltip_parts, "{nl}")
+    if g.login_name == pc_name then
+        local r_click_text = (g.lang == "Japanese") and "右クリック: 表示アイコン選択" or
+                                 "Right-click: Select Display Icon"
+        tooltip_text = tooltip_text .. "{nl} {nl}" .. r_click_text
+        job_slot:SetEventScript(ui.RBUTTONDOWN, "STATUS_OPEN_CLASS_DROPLIST")
+        local name_text = GET_CHILD_RECURSIVELY(gb, pc_name)
+        name_text:SetEventScript(ui.RBUTTONDOWN, "STATUS_OPEN_CLASS_DROPLIST")
+    end
+    if type(_G["INSTANTCC_ON_INIT"]) == "function" then -- InstantCCアドオン連携
+        local cc_text = (g.lang == "Japanese") and "左クリック: キャラクターチェンジ" or
+                            "Left-click: Character Change"
+        tooltip_text = tooltip_text .. "{nl} {nl}{#FF4500}" .. cc_text
+        job_slot:SetEventScript(ui.LBUTTONDOWN, "Indun_list_viewer_INSTANTCC_DO_CC")
+        job_slot:SetEventScriptArgString(ui.LBUTTONDOWN, data.cid)
+        job_slot:SetEventScriptArgNumber(ui.LBUTTONDOWN, data.layer)
+        local name_text = GET_CHILD_RECURSIVELY(gb, pc_name)
+        name_text:SetEventScript(ui.LBUTTONDOWN, "Indun_list_viewer_INSTANTCC_DO_CC")
+        name_text:SetEventScriptArgString(ui.LBUTTONDOWN, data.cid)
+        name_text:SetEventScriptArgNumber(ui.LBUTTONDOWN, data.layer)
+        name_text:SetTextTooltip(tooltip_text)
+    end
+    job_icon:SetTextTooltip(tooltip_text)
+end
+
+function Indun_list_viewer_INSTANTCC_DO_CC(parent, ctrl, cid, layer)
+    INSTANTCC_DO_CC(cid, layer)
+end
+
+function Indun_list_viewer_memo_save(frame, ctrl, pc_name, num)
+    if g.ilv_settings.chars[pc_name] then
+        g.ilv_settings.chars[pc_name].memo = ctrl:GetText()
+        Indun_list_viewer_save_settings()
+    end
+    ui.SysMsg(g.lang == "Japanese" and "メモを登録しました。" or "MEMO registered.")
+end
+
+function Indun_list_viewer_display_save(frame, ctrl, pc_name, num)
+    local is_checked = ctrl:IsChecked()
+    if g.ilv_settings.chars[pc_name] then
+        g.ilv_settings.chars[pc_name].hide = (is_checked == 1)
+        Indun_list_viewer_save_settings()
+    end
+    Indun_list_viewer_title_frame_open()
+end
+-- ndun_list_viewer ここまで
+
+-- sub_map ここから
+function Sub_map_save_settings()
+    g.save_json(g.sub_map_path, g.sub_map_settings)
+end
+
+function Sub_map_load_settings()
+    g.sub_map_path = string.format("../addons/%s/%s/sub_map.json", addon_name_lower, g.active_id)
+    local settings = g.load_json(g.sub_map_path)
+    local ver = 1.1
+    if not settings or not settings.ver then
+        settings = {
+            visible = 1,
+            x = 0,
+            y = 0,
+            skin_name = "None",
+            move = 1,
+            size = 200,
+            minimap = 0,
+            challenge_minimap = 0,
+            challenge_only = 0,
+            loc_name = 0,
+            mob_display = 0,
+            ver = ver
+        }
+    end
+    g.sub_map_settings = settings
+    Sub_map_save_settings()
+end
+
+function sub_map_on_init()
+    if not g.sub_map_settings then
+        Sub_map_load_settings()
+    end
+    if g.settings.sub_map.use == 0 then
+        ui.DestroyFrame(addon_name_lower .. "sub_map")
+        return
+    end
+    g.sub_map_handles = {}
+    g.addon:RegisterMsg("MAP_CHARACTER_UPDATE", "Sub_map_MAP_CHARACTER_UPDATE")
+    g.addon:RegisterMsg("MON_MINIMAP", "Sub_map_MAP_MON_MINIMAP")
+    g.addon:RegisterMsg("MON_MINIMAP_END", "Sub_map_ON_MON_MINIMAP_END")
+    g.addon:RegisterMsg("PARTY_INST_UPDATE", "Sub_map_MAP_UPDATE_PARTY_INST")
+    g.addon:RegisterMsg("PARTY_UPDATE", "Sub_map_update_party_or_guild")
+    g.addon:RegisterMsg("GUILD_INFO_UPDATE", "Sub_map_update_party_or_guild")
+    g.addon:RegisterMsg("UI_CHALLENGE_MODE_TOTAL_KILL_COUNT", "Sub_map_ON_CHALLENGE_MODE_TOTAL_KILL_COUNT")
+    g.sub_map_challenge_first = true
+    g.sub_map_challenge = 0
+    if g.get_map_type() == "City" then
+        Sub_map_frame_init()
+        return
+    end
+    local colony_list, cnt = GetClassList("guild_colony")
+    for i = 0, cnt - 1 do
+        local check_word = "GuildColony_"
+        if string.find(g.map_name, check_word) then
+            g.sub_map_challenge = 1
+            break
+        end
+    end
+    if g.get_map_type() ~= "Instance" then
+        local list = session.party.GetPartyMemberList(PARTY_NORMAL)
+        local count = list:Count()
+        for i = 0, count - 1 do
+            local party_member_info = list:Element(i)
+            local name = party_member_info:GetName()
+            local channel = party_member_info:GetChannel() + 1
+            if channel > 10 then
+                g.sub_map_challenge = 1
+                break
+            end
+        end
+        Sub_map_frame_init()
+    end
+end
+
+function Sub_map_ON_CHALLENGE_MODE_TOTAL_KILL_COUNT(frame, msg)
+    if g.sub_map_challenge_first == true and g.sub_map_challenge == 0 then
+        g.sub_map_challenge = 1
+        Sub_map_frame_init()
+        g.sub_map_challenge_first = false
+    end
+end
+
+function Sub_map_settings()
+    local list_frame = ui.GetFrame(addon_name_lower .. "list_frame")
+    local config = ui.CreateNewFrame("notice_on_pc", addon_name_lower .. "sub_map_setting_frame", 0, 0, 0, 0)
+    AUTO_CAST(config)
+    config:RemoveAllChild()
+    config:SetLayerLevel(999)
+    config:SetSkinName("test_frame_low")
+    local title_text = config:CreateOrGetControl("richtext", "title_text", 10, 10)
+    AUTO_CAST(title_text)
+    title_text:SetText("{ol}Sub Map")
+    local config_gb = config:CreateOrGetControl("groupbox", "config_gb", 10, 40, 0, 0)
+    AUTO_CAST(config_gb)
+    config_gb:SetSkinName("bg")
+    config:SetPos(list_frame:GetX() + list_frame:GetWidth(), list_frame:GetY())
+    local close = config:CreateOrGetControl("button", "close", 0, 0, 20, 20)
+    AUTO_CAST(close)
+    close:SetImage("testclose_button")
+    close:SetGravity(ui.RIGHT, ui.TOP)
+    close:SetEventScript(ui.LBUTTONUP, "Sub_map_setting_close")
+    local y = 10
+    local info_text = config_gb:CreateOrGetControl("richtext", "info_text", 10, y + 5, 0, 30)
+    AUTO_CAST(info_text)
+    info_text:SetText(g.lang == "Japanese" and "{ol}サイズ設定" or "{ol}Size setting")
+    local size_edit = config_gb:CreateOrGetControl("edit", "size_edit", info_text:GetWidth() + 20, y, 100, 30)
+    AUTO_CAST(size_edit)
+    size_edit:SetFontName("white_16_ol")
+    size_edit:SetTextAlign("center", "center")
+    size_edit:SetNumberMode(1)
+    size_edit:SetText("{ol}" .. g.sub_map_settings.size)
+    size_edit:SetTextTooltip(g.lang == "Japanese" and "{ol}150~350の間で設定" or "{ol}Setting range: 150 to 350")
+    size_edit:SetEventScript(ui.ENTERKEY, "Sub_map_setting_change")
+    y = y + 40
+    local move_check = config_gb:CreateOrGetControl("checkbox", "move_check", 10, y, 30, 30)
+    AUTO_CAST(move_check)
+    move_check:SetCheck(g.sub_map_settings.move == 1 and 0 or 1)
+    move_check:SetText(g.lang == "Japanese" and "{ol}チェックするとフレーム固定" or
+                           "{ol}If checked, the frame is fixed")
+    move_check:SetEventScript(ui.LBUTTONUP, "Sub_map_setting_change")
+    y = y + 40
+    local challenge_minimap = config_gb:CreateOrGetControl("checkbox", "challenge_minimap", 10, y, 30, 30)
+    AUTO_CAST(challenge_minimap)
+    challenge_minimap:SetCheck(g.sub_map_settings.challenge_minimap or 0)
+    challenge_minimap:SetText(g.lang == "Japanese" and
+                                  "{ol}チェックするとチャレンジでミニマップモード" or
+                                  "{ol}If checked, mini-map mode is enabled during the Challenge")
+    challenge_minimap:SetEventScript(ui.LBUTTONUP, "Sub_map_setting_change")
+    y = y + 40
+    local challenge_only = config_gb:CreateOrGetControl("checkbox", "challenge_only", 10, y, 30, 30)
+    AUTO_CAST(challenge_only)
+    challenge_only:SetCheck(g.sub_map_settings.challenge_only or 0)
+    challenge_only:SetText(g.lang == "Japanese" and "{ol}チェックするとチャレンジでのみ表示" or
+                               "{ol}If checked, display only during Challenges")
+    challenge_only:SetEventScript(ui.LBUTTONUP, "Sub_map_setting_change")
+    y = y + 40
+    local loc_name = config_gb:CreateOrGetControl("checkbox", "loc_name", 10, y, 30, 30)
+    AUTO_CAST(loc_name)
+    loc_name:SetCheck(g.sub_map_settings.loc_name or 0)
+    loc_name:SetText(g.lang == "Japanese" and "{ol}チェックすると地域名表示" or
+                         "{ol}If checked, display the region name")
+    loc_name:SetEventScript(ui.LBUTTONUP, "Sub_map_setting_change")
+    y = y + 40
+    local mob_display = config_gb:CreateOrGetControl("checkbox", "mob_display", 10, y, 30, 30)
+    AUTO_CAST(mob_display)
+    mob_display:SetCheck(g.sub_map_settings.mob_display or 0)
+    mob_display:SetText(g.lang == "Japanese" and "{ol}チェックするとチャレンジで雑魚を表示" or
+                            "{ol}If checked, display mobs only during Challenges")
+    mob_display:SetEventScript(ui.LBUTTONUP, "Sub_map_setting_change")
+    y = y + 40
+    local default_btn = config_gb:CreateOrGetControl("button", "default_btn", 20, y, 120, 30)
+    AUTO_CAST(default_btn)
+    default_btn:SetText(g.lang == "Japanese" and "{ol}フレーム初期位置" or "{ol}Init frame pos")
+    default_btn:SetEventScript(ui.LBUTTONUP, "Sub_map_setting_change")
+    y = y + 40
+    local skin_change = config_gb:CreateOrGetControl("button", "skin_change", 20, y, 120, 30)
+    AUTO_CAST(skin_change)
+    skin_change:SetText(g.lang == "Japanese" and "{ol}フレームスキン変更" or "{ol}Change frame skin")
+    skin_change:SetEventScript(ui.LBUTTONUP, "Sub_map_skin_change_context")
+    y = y + 30
+    config:Resize(challenge_minimap:GetWidth() + 40, y + 60)
+    config_gb:Resize(config:GetWidth() - 20, y + 10)
+    config:ShowWindow(1)
+end
+
+function Sub_map_setting_close(config)
+    ui.DestroyFrame(config:GetName())
+end
+
+function Sub_map_setting_change(parent, ctrl)
+    local ctrl_name = ctrl:GetName()
+    if ctrl_name == "size_edit" then
+        local size = tonumber(ctrl:GetText())
+        if size and size >= 150 and size <= 350 then
+            g.sub_map_settings.size = size
+        else
+            ui.SysMsg(g.lang == "Japanese" and "{ol}範囲外です" or "{ol}Out of range")
+            Sub_map_settings()
+            return
+        end
+    elseif ctrl_name == "move_check" then
+        local is_check = ctrl:IsChecked()
+        g.sub_map_settings.move = is_check == 1 and 0 or 1
+    elseif ctrl_name == "default_btn" then
+        g.sub_map_settings.x = 0
+        g.sub_map_settings.y = 0
+    else
+        g.sub_map_settings[ctrl_name] = ctrl:IsChecked()
+        if ctrl_name == "challenge_only" then
+            g.sub_map_settings.visible = ctrl:IsChecked() == 1 and 0 or 1
+        end
+    end
+    Sub_map_save_settings()
+    Sub_map_frame_init()
+end
+
+function Sub_map_skin_change_context(frame, ctrl)
+    local context = ui.CreateContextMenu("sub_map_context", "{ol}Sub Map Change Skin", 0, 0, 0, 0)
+    ui.AddContextMenuItem(context, "-----", "None")
+    ui.AddContextMenuItem(context, g.lang == "Japanese" and "{ol}無し" or "{ol}None",
+        string.format("Sub_map_skin_change('%s')", "None"))
+    ui.AddContextMenuItem(context, g.lang == "Japanese" and "{ol}薄め" or "{ol}Faint",
+        string.format("Sub_map_skin_change('%s')", "bg2"))
+    ui.AddContextMenuItem(context, g.lang == "Japanese" and "{ol}濃いめ" or "{ol}Darker",
+        string.format("Sub_map_skin_change('%s')", "bg"))
+    ui.OpenContextMenu(context)
+end
+
+function Sub_map_skin_change(skin_name)
+    g.sub_map_settings.skin_name = skin_name
+    Sub_map_save_settings()
+    Sub_map_frame_init()
+end
+
+function Sub_map_frame_init()
+    local sub_map = ui.CreateNewFrame("notice_on_pc", addon_name_lower .. "sub_map", 0, 0, 0, 0)
+    AUTO_CAST(sub_map)
+    sub_map:ShowWindow(0)
+    local challenge = g.sub_map_challenge
+    sub_map:SetUserValue("CHALLENGE", challenge)
+    sub_map:RemoveAllChild()
+    sub_map:EnableMove(g.sub_map_settings.move)
+    sub_map:EnableHittestFrame(1)
+    sub_map:SetTitleBarSkin("None")
+    sub_map:SetGravity(ui.RIGHT, ui.TOP)
+    sub_map:SetMargin(0, 0, 0, 0)
+    local use_minimap = (challenge == 1 and g.sub_map_settings.challenge_minimap == 1) or
+                            (challenge == 0 and g.sub_map_settings.minimap ~= 0)
+    if use_minimap then
+        sub_map:SetSkinName("bg")
+        local rect = sub_map:GetMargin()
+        sub_map:SetMargin(rect.left - rect.left, rect.top - rect.top + 70,
+            rect.right == 0 and rect.right + 35 or rect.right, rect.bottom)
+        sub_map:Resize(310, 350)
+    else
+        sub_map:SetSkinName(g.sub_map_settings.skin_name)
+        sub_map:SetLayerLevel(12)
+        local rect = sub_map:GetMargin()
+        sub_map:SetMargin(rect.left - rect.left, rect.top - rect.top + 50,
+            rect.right == 0 and rect.right + 550 or rect.right, rect.bottom)
+        if g.sub_map_settings.x ~= 0 and g.sub_map_settings.y ~= 0 then
+            sub_map:SetPos(g.sub_map_settings.x, g.sub_map_settings.y)
+        end
+    end
+    sub_map:SetEventScript(ui.LBUTTONUP, "Sub_map_frame_end_drag")
+    local title = sub_map:CreateOrGetControl("richtext", "title", 25, 2)
+    AUTO_CAST(title)
+    local map_real_name = GetClassByType("Map", g.map_id).Name
+    title:SetText("{ol}{S12}" .. map_real_name)
+    if challenge == 0 and g.sub_map_settings.challenge_only == 1 then
+        g.sub_map_settings.visible = 0
+    else
+        g.sub_map_settings.visible = 1
+    end
+    local display = sub_map:CreateOrGetControl("picture", "display", 5, 3, 15, 15)
+    AUTO_CAST(display)
+    display:SetEnableStretch(1)
+    display:EnableHitTest(1)
+    display:SetEventScript(ui.LBUTTONUP, "Sub_map_frame_toggle")
+    display:SetTextTooltip("{ol}Display / hide")
+    display:ShowWindow(1)
+    local size = g.sub_map_settings.size
+    if not use_minimap then
+        if g.sub_map_settings.visible == 1 then
+            display:SetImage("btn_minus")
+            sub_map:Resize(size + 10, size + 40)
+            sub_map:SetSkinName(g.sub_map_settings.skin_name)
+
+        else
+            display:SetImage("btn_plus")
+            sub_map:Resize(size + 10, 40)
+            sub_map:SetSkinName("None")
+            sub_map:ShowWindow(1)
+            return
+        end
+    else
+        size = 310
+    end
+    local gbox = sub_map:CreateOrGetControl("picture", "gbox", size + 10, size + 10, ui.LEFT, ui.BOTTOM, 0, 30, 0, 0)
+    AUTO_CAST(gbox)
+    if not use_minimap then
+        gbox:SetEventScript(ui.MOUSEON, "Sub_map_frame_layer_change")
+        gbox:SetEventScriptArgString(ui.MOUSEON, "mouse_on")
+        gbox:SetEventScript(ui.MOUSEOFF, "Sub_map_frame_layer_change")
+        gbox:SetEventScriptArgString(ui.MOUSEOFF, "mouse_off")
+    end
+    gbox:SetEventScript(ui.LBUTTONDOWN, "Sub_map_frame_map_link")
+    gbox:SetEventScript(ui.RBUTTONDOWN, "Sub_map_mini_map")
+    gbox:SetTextTooltip(g.lang == "Japanese" and
+                            "{ol}LCTRL+右クリック: ミニマップモード 切替{nl}LCTRL+左クリック: マップリンク" or
+                            "{ol}LCTRL+Right click: Minimap Mode Toggle{nl}LCTRL+Left click: Map Link")
+    local map_pic = gbox:CreateOrGetControl("picture", "map_pic", size, size, ui.LEFT, ui.TOP, 0, 0, 0, 0)
+    AUTO_CAST(map_pic)
+    map_pic:SetEnableStretch(1)
+    map_pic:EnableHitTest(0)
+    if g.sub_map_settings.loc_name == 1 then
+        local name_group = map_pic:CreateOrGetControl("picture", "name_group", ui.CENTER_HORZ, ui.CENTER_VERT,
+            map_pic:GetWidth(), map_pic:GetHeight())
+        MAKE_MAP_AREA_INFO(name_group, GetClassByType("Map", g.map_id).ClassName, "{s12}", map_pic:GetWidth(),
+            map_pic:GetHeight(), -100, -30)
+        AUTO_CAST(name_group)
+        name_group:SetSkinName("None")
+    end
+    local icon_size = use_minimap and g.sub_map_settings.size * 0.08 or size * 0.08
+    sub_map:SetUserValue("ICON_SIZE", icon_size)
+    local my = gbox:CreateOrGetControl("picture", "my", icon_size * 2, icon_size * 2, ui.LEFT, ui.TOP, 0, 0, 0, 0)
+    AUTO_CAST(my)
+    my:ShowWindow(0)
+    my:SetImage("minimap_leader")
+    my:SetEnableStretch(1)
+    map_pic:SetImage(g.map_name)
+    Sub_map_char_update(sub_map, my, map_pic)
+    if challenge == 0 then
+        Sub_map_set_warp_point(sub_map, gbox, map_pic, g.map_name, icon_size, map_real_name)
+        Sub_map_mapicon_update(sub_map, map_pic)
+    end
+    local _nexus_addons = ui.GetFrame("_nexus_addons")
+    local sub_map_timer = _nexus_addons:CreateOrGetControl("timer", "sub_map_timer", 0, 0)
+    AUTO_CAST(sub_map_timer)
+    sub_map_timer:SetUpdateScript("Sub_map_timer_update")
+    sub_map_timer:Start(0.5)
+end
+
+function Sub_map_frame_end_drag(sub_map)
+    g.sub_map_settings.x = sub_map:GetX()
+    g.sub_map_settings.y = sub_map:GetY()
+    Sub_map_save_settings()
+end
+
+function Sub_map_frame_toggle(frame, ctrl)
+    if g.sub_map_settings.visible == 1 then
+        g.sub_map_settings.visible = 0
+    else
+        g.sub_map_settings.visible = 1
+    end
+    Sub_map_save_settings()
+    Sub_map_frame_init()
+end
+
+function Sub_map_frame_map_link(sub_map, gbox)
+    if keyboard.IsKeyPressed("LCTRL") ~= 1 then
+        return
+    end
+    local x, y = GET_LOCAL_MOUSE_POS(gbox)
+    local map_prop = geMapTable.GetMapProp(g.map_name)
+    local world_pos = map_prop:MinimapPosToWorldPos(x, y, gbox:GetWidth(), gbox:GetHeight())
+    LINK_MAP_POS(g.map_name, world_pos.x, world_pos.y)
+end
+
+function Sub_map_mini_map(sub_map, gbox)
+    if keyboard.IsKeyPressed("LCTRL") ~= 1 then
+        return
+    end
+    if g.sub_map_settings.minimap == 0 then
+        g.sub_map_settings.minimap = 1
+    else
+        g.sub_map_settings.minimap = 0
+    end
+    Sub_map_save_settings()
+    ui.DestroyFrame(addon_name_lower .. "sub_map")
+    ReserveScript("Sub_map_frame_init()", 0.1)
+end
+
+function Sub_map_frame_layer_change(sub_map, gbox, str)
+    if str == "mouse_on" then
+        sub_map:SetLayerLevel(999)
+    elseif str == "mouse_off" then
+        sub_map:SetLayerLevel(12)
+    end
+end
+
+function Sub_map_char_update(sub_map, my, map_pic)
+    local my_handle = session.GetMyHandle()
+    local pos = info.GetPositionInMap(my_handle, map_pic:GetWidth(), map_pic:GetHeight())
+    my:SetOffset(pos.x - my:GetWidth() / 2, pos.y - my:GetHeight() / 2)
+    local map_prop = session.GetCurrentMapProp()
+    local angle = info.GetAngle(my_handle) - map_prop.RotateAngle
+    my:SetAngle(angle)
+    my:ShowWindow(1)
+    map_pic:Invalidate()
+end
+
+function Sub_map_set_warp_point(sub_map, gbox, map_pic, map_name, icon_size, map_real_name)
+    local map_prop = geMapTable.GetMapProp(map_name)
+    local mongens = map_prop.mongens
+    local count = mongens:Count()
+    for i = 0, count - 1 do
+        local mon_prop = mongens:Element(i)
+        local icon_name = mon_prop:GetMinimapIcon()
+        if icon_name == "minimap_portal" or icon_name == "minimap_erosion" then
+            local gen_list = mon_prop.GenList
+            local gen_count = gen_list:Count()
+            for j = 0, gen_count - 1 do
+                local dialog = mon_prop:GetDialog()
+                local warp_cls = GetClass("Warp", mon_prop:GetDialog())
+                if not warp_cls then
+                    for match in dialog:gmatch("[a-zA-Z]+_(.*)") do
+                        warp_cls = GetClass("Warp", match)
+                    end
+                end
+                if warp_cls then
+                    local pos = gen_list:Element(j)
+                    local map_pos = map_prop:WorldPosToMinimapPos(pos.x, pos.z, map_pic:GetWidth(), map_pic:GetHeight())
+                    local icon = gbox:CreateOrGetControl("picture", "icon_" .. i, icon_size, icon_size, ui.LEFT, ui.TOP,
+                        0, 0, 0, 0)
+                    AUTO_CAST(icon)
+                    icon:SetTextTooltip("{ol}{s10}" .. map_real_name)
+                    icon:SetImage(mon_prop:GetMinimapIcon())
+                    icon:SetOffset(map_pos.x - icon:GetWidth() / 2, map_pos.y - icon:GetHeight() / 2)
+                    icon:SetEnableStretch(1)
+                end
+            end
+        end
+    end
+    gbox:Invalidate()
+end
+
+function Sub_map_timer_update(_nexus_addons, sub_map_timer)
+    local sub_map = ui.GetFrame(addon_name_lower .. "sub_map")
+    AUTO_CAST(sub_map)
+    local challenge = sub_map:GetUserIValue("CHALLENGE")
+    local use_minimap = (challenge == 1 and g.sub_map_settings.challenge_minimap == 1) or
+                            (challenge == 0 and g.sub_map_settings.minimap == 1)
+    if use_minimap then
+        Sub_map_time_update_(sub_map, sub_map_timer)
+        if ui.GetFrame("buffseller_target"):IsVisible() == 1 then
+            sub_map:SetLayerLevel(79)
+        elseif sub_map:GetLayerLevel() ~= 94 then
+            sub_map:SetLayerLevel(94)
+        end
+    end
+    if MAP_USE_FOG(g.map_name) ~= 0 then
+        Sub_map_draw_fog(sub_map)
+    end
+    local challenge = sub_map:GetUserIValue("CHALLENGE")
+    if challenge == 1 then
+        Sub_map_callenge_pcicon_update(sub_map)
+    end
+    Sub_map_update_remove_member(sub_map)
+end
+
+function Sub_map_time_update_(sub_map, sub_map_timer)
+    local server_time = geTime.GetServerSystemTime()
+    local hour = server_time.wHour
+    local min = server_time.wMinute
+    local ampm = "AM"
+    local display_hour = hour
+    if hour == 0 then
+        display_hour = 12
+        ampm = "AM"
+    elseif hour == 12 then
+        display_hour = 12
+        ampm = "PM"
+    elseif hour > 12 then
+        display_hour = hour - 12
+        ampm = "PM"
+    end
+    local display_min = string.format("%02d", min)
+    local clock_text = string.format("{ol}{s18}%s %d:%s", ampm, display_hour, display_min)
+    local clock = GET_CHILD(sub_map, "clock")
+    if not clock then
+        clock = sub_map:CreateOrGetControl("richtext", "clock", 0, 0)
+        AUTO_CAST(clock)
+    end
+    clock:SetGravity(ui.RIGHT, ui.BOTTOM)
+    clock:SetMargin(0, 0, 10, 5)
+    clock:SetText(clock_text)
+    local colony_battle_info = ui.GetFrame("colony_battle_info")
+    if colony_battle_info:IsVisible() == 1 and g.sub_map_settings.minimap == 1 then
+        local colony_clock = GET_CHILD(sub_map, "colony_clock")
+        if not colony_clock then
+            colony_clock = sub_map:CreateOrGetControl("richtext", "colony_clock", 0, 0)
+            AUTO_CAST(clock)
+        end
+        colony_clock:SetGravity(ui.LEFT, ui.BOTTOM)
+        colony_clock:SetMargin(0, 0, 0, 5)
+        local colony_end_time = session.colonywar.GetEndTime()
+        local remain_time = -1 * imcTime.GetDiffSecFromNow(colony_end_time.wHour, colony_end_time.wMinute, 0)
+        if remain_time <= 0 then
+            sub_map:RemoveChild("colony_clock")
+            return
+        end
+        local remain_min = math.floor(remain_time / 60)
+        local remain_sec = remain_time % 60
+        local remain_time_str = string.format("{ol}{s18}" .. ClMsg("RemainTime") .. " %d:%02d", remain_min, remain_sec)
+        colony_clock:SetText(remain_time_str)
+    end
+end
+
+function Sub_map_draw_fog(sub_map)
+    local map_pic = GET_CHILD_RECURSIVELY(sub_map, "map_pic")
+    AUTO_CAST(map_pic)
+    HIDE_CHILD_BYNAME(map_pic, "sub_map_fog_")
+    local map_frame = ui.GetFrame("map")
+    local map = GET_CHILD(map_frame, "map")
+    AUTO_CAST(map)
+    local map_zoom = math.abs(tonumber(map_pic:GetWidth()) / tonumber(map:GetWidth()))
+    local list = session.GetMapFogList(g.map_name)
+    local cnt = list:Count()
+    for i = 0, cnt - 1 do
+        local tile = list:PtrAt(i)
+        if tile.revealed == 0 then
+            local name = string.format("sub_map_fog_%d", i)
+            local tile_X = (tile.x * map_zoom)
+            local tile_Y = (tile.y * map_zoom)
+            local tile_width = math.ceil(tile.w * map_zoom)
+            local tile_height = math.ceil(tile.h * map_zoom)
+            local pic = map_pic:CreateOrGetControl("picture", name, tile_X, tile_Y, tile_width, tile_height)
+            AUTO_CAST(pic)
+            pic:SetImage("fullred")
+            pic:SetEnableStretch(1)
+            pic:SetAlpha(40)
+            pic:EnableHitTest(0)
+            pic:ShowWindow(1)
+        end
+    end
+    sub_map:Invalidate()
+end
+
+function Sub_map_callenge_pcicon_update(sub_map)
+    local gbox = GET_CHILD(sub_map, "gbox")
+    local names = {}
+    for i = 0, gbox:GetChildCount() - 1 do
+        local child = gbox:GetChildByIndex(i)
+        if child and child:GetName() ~= "map_pic" and child:GetName() ~= "my" then
+            local aid = tonumber(child:GetName())
+            if aid then
+                gbox:RemoveChild(child:GetName())
+            end
+            names[child:GetName()] = true
+        end
+    end
+    local map_pic = GET_CHILD(gbox, "map_pic")
+    local mapprop = session.GetCurrentMapProp()
+    local party_list = session.party.GetPartyMemberList(PARTY_NORMAL)
+    local party_count = party_list:Count()
+    local my_info = session.party.GetMyPartyObj(PARTY_NORMAL)
+    local my_handle = session.GetMyHandle()
+    local icon_size = sub_map:GetUserIValue("ICON_SIZE")
+    local selected_objects, selected_objects_count = SelectObject(GetMyPCObject(), 5000, "ALL")
+    local icon_img_160063 = GetClassByType("Item", 870004).Icon
+    local icon_img_160055 = GetClassByType("Item", 664039).Icon
+    for i = 1, selected_objects_count do
+        local handle = GetHandle(selected_objects[i])
+        if not g.sub_map_handles[tostring(handle)] then
+            local actor = world.GetActor(handle)
+            if handle and actor then
+                local clsid = actor:GetType()
+                local mon_cls = GetClassByType("Monster", clsid)
+                if clsid == 160063 or clsid == 160055 then
+                    local icon_name = "mon_" .. handle
+                    names[icon_name] = false
+                    local world_pos = actor:GetPos()
+                    local pos = mapprop:WorldPosToMinimapPos(world_pos, map_pic:GetWidth(), map_pic:GetHeight())
+                    local x = (pos.x - icon_size / 4)
+                    local y = (pos.y - icon_size / 4)
+                    local icon = gbox:CreateOrGetControl("picture", icon_name, icon_size * 0.5, icon_size * 0.5,
+                        ui.LEFT, ui.TOP, 0, 0, 0, 0)
+                    AUTO_CAST(icon)
+                    icon:SetPos(x, y)
+                    if clsid == 160063 then
+                        icon:SetImage(icon_img_160063)
+                    elseif clsid == 160055 then
+                        icon:SetImage(icon_img_160055)
+                    end
+                    icon:SetEnableStretch(1)
+                    icon:ShowWindow(1)
+                end
+                if my_handle ~= handle and info.IsPC(handle) == 1 then
+                    for j = 0, party_count - 1 do
+                        local pc_info = party_list:Element(j)
+                        local name = pc_info:GetName()
+                        local apc = actor:GetPCApc()
+                        if apc then
+                            local actor_name = apc:GetFamilyName()
+                            if my_info ~= pc_info and name == actor_name then
+                                names[name] = false -- 削除対象から除外
+                                local inst_info = pc_info:GetInst()
+                                local world_pos = actor:GetPos()
+                                local hp = inst_info.hp
+                                local pc_icon = GET_CHILD(gbox, name)
+                                if not pc_icon then
+                                    pc_icon = gbox:CreateOrGetControl("picture", name, 0, 0, icon_size * 1.25,
+                                        icon_size * 1.25)
+                                end
+                                AUTO_CAST(pc_icon)
+                                pc_icon:SetTextTooltip("{ol}{s10}" .. name)
+                                pc_icon:SetEnableStretch(1)
+                                local pos = mapprop:WorldPosToMinimapPos(world_pos, map_pic:GetWidth(),
+                                    map_pic:GetHeight())
+                                local x = (pos.x - icon_size * 1.25 / 2)
+                                local y = (pos.y - icon_size * 1.25 / 2)
+                                pc_icon:SetPos(x, y)
+                                pc_icon:ShowWindow(1)
+                                local image_name = "Archer_party"
+                                if hp <= 0 then
+                                    image_name = "die_party"
+                                end
+                                pc_icon:SetImage(image_name)
+                                break
+                            end
+                        end
+                    end
+                end
+            end
+        end
+    end
+    for check_name, bool in pairs(names) do
+        if bool == true and not string.find(check_name, "_MONPOS_") and not string.find(check_name, "SCR") then
+            local icon = GET_CHILD(gbox, check_name)
+            if icon then
+                gbox:RemoveChild(check_name)
+            end
+        end
+    end
+end
+
+function Sub_map_update_remove_member(sub_map)
+    local gbox = GET_CHILD(sub_map, "gbox")
+    local icons = {}
+    for i = 0, gbox:GetChildCount() - 1 do
+        local child = gbox:GetChildByIndex(i)
+        if child then
+            local aid = tonumber(child:GetName())
+            if aid then
+                icons[aid] = true
+            end
+        end
+    end
+    local function process_member_list(party_type)
+        local list = session.party.GetPartyMemberList(party_type)
+        local my_handle = session.GetMyHandle()
+        local my_info = session.party.GetMyPartyObj(party_type)
+        if my_info then
+            for i = 0, list:Count() - 1 do
+                local pc_info = list:Element(i)
+                local aid = tonumber(pc_info:GetAID())
+                local handle = pc_info:GetHandle()
+                if handle ~= my_handle and pc_info:GetMapID() == my_info:GetMapID() and pc_info:GetChannel() ==
+                    my_info:GetChannel() then
+                    icons[aid] = false
+                end
+            end
+        end
+    end
+    process_member_list(PARTY_NORMAL)
+    process_member_list(PARTY_GUILD)
+    for aid, remove in pairs(icons) do
+        if remove == true then
+            gbox:RemoveChild(tostring(aid))
+        end
+    end
+end
+
+function Sub_map_MAP_CHARACTER_UPDATE()
+    local sub_map = ui.GetFrame(addon_name_lower .. "sub_map")
+    if not sub_map then
+        return
+    end
+    AUTO_CAST(sub_map)
+    local my_handle = session.GetMyHandle()
+    local map_pic = GET_CHILD_RECURSIVELY(sub_map, "map_pic")
+    AUTO_CAST(map_pic)
+    local pos = info.GetPositionInMap(my_handle, map_pic:GetWidth(), map_pic:GetHeight())
+    local my = GET_CHILD_RECURSIVELY(sub_map, "my")
+    AUTO_CAST(my)
+    my:ShowWindow(0)
+    my:SetOffset(pos.x - my:GetWidth() / 2, pos.y - my:GetHeight() / 2)
+    local mapprop = session.GetCurrentMapProp()
+    local angle = info.GetAngle(my_handle) - mapprop.RotateAngle
+    my:SetAngle(angle)
+    my:ShowWindow(1)
+    map_pic:Invalidate()
+    local challenge = sub_map:GetUserIValue("CHALLENGE")
+    if challenge == 0 then
+        Sub_map_mapicon_update(sub_map, map_pic)
+    end
+end
+
+function Sub_map_mapicon_update(sub_map, map_pic)
+    local now = imcTime.GetAppTimeMS()
+    if g.sub_map_last_update_time then
+        if now - g.sub_map_last_update_time < 1000 then
+            return
+        end
+    end
+    g.sub_map_last_update_time = now
+    local map_tbl = Sub_map_get_mapinfo(sub_map, map_pic)
+    local gbox = GET_CHILD(sub_map, "gbox")
+    local function split(str, delim)
+        local return_data = {}
+        for match in string.gmatch(str, "[^" .. delim .. "]+") do
+            table.insert(return_data, match)
+        end
+        return return_data
+    end
+    local icon_size = sub_map:GetUserIValue("ICON_SIZE")
+    for i, data in ipairs(map_tbl) do
+        if string.find(data.class_type, "treasure_box") then
+            local item_split = split(data.argstr2, ":")
+            local item_name = GetClass("Item", item_split[2]).Name
+            local icon = GET_CHILD(gbox, "icon_" .. i)
+            if not icon then
+                icon = gbox:CreateOrGetControl("picture", "icon_" .. i, 0, 0, icon_size, icon_size)
+                AUTO_CAST(icon)
+                icon:SetOffset(data.map_pos.x - icon:GetWidth() / 2, data.map_pos.y - icon:GetHeight() / 2)
+                icon:SetEnableStretch(1)
+            end
+            icon:SetTextTooltip("{ol}{s10}" .. data.argstr1 .. "{nl}" .. item_name)
+            if data.state then
+                icon:SetImage("icon_item_box")
+            else
+                icon:SetText("{ol}{s10}" .. data.argstr1)
+                icon:SetImage("compen_btn")
+            end
+        end
+        if string.find(data.class_type, "statue_vakarine") or string.find(data.class_type, "klaipeda_square_statue") or
+            string.find(data.class_type, "npc_orsha_goddess") or string.find(data.class_type, "statue_zemina") then
+            local icon = GET_CHILD(gbox, "icon_" .. i)
+            if not icon then
+                icon = gbox:CreateOrGetControl("picture", "icon_" .. i, 0, 0, icon_size, icon_size)
+                AUTO_CAST(icon)
+                icon:SetOffset(data.map_pos.x - icon:GetWidth() / 2, data.map_pos.y - icon:GetHeight() / 2)
+                icon:SetEnableStretch(1)
+                icon:SetTextTooltip("{ol}{s10}" .. data.name)
+                icon:SetImage(data.icon_name)
+            end
+            if data.state then
+                icon:SetColorTone("FFFFFFFF")
+            else
+                icon:SetColorTone("FF555555")
+            end
+        end
+    end
+    gbox:Invalidate()
+end
+
+function Sub_map_get_mapinfo(sub_map, map_pic)
+    if not g.map_name or g.map_name == "" or g.map_name == "None" then
+        return
+    end
+    local property = geMapTable.GetMapProp(g.map_name)
+    local class_list, class_count = GetClassList("GenType_" .. g.map_name)
+    local mongens = property.mongens
+    local map_tbl = {}
+    local count = mongens:Count()
+    for i = 0, count - 1 do
+        local mon_prop = mongens:Element(i)
+        local ies_data = GetClassByIndexFromList(class_list, i)
+        local class_type = ies_data.ClassType
+        local state = GetNPCState(g.map_name, ies_data.GenType)
+        if not state then
+            state = false
+        end
+        local gen_list = mon_prop.GenList
+        local map_pos
+        if gen_list:Count() > 0 then
+            map_pos = property:WorldPosToMinimapPos(gen_list:Element(0), map_pic:GetWidth(), map_pic:GetHeight())
+        end
+        local icon_name = mon_prop:GetMinimapIcon()
+        if string.find(class_type, "treasure_box") then
+            if ies_data.ArgStr1 ~= "None" then
+                local data = {
+                    class_type = class_type,
+                    state = state,
+                    map_pos = map_pos,
+                    icon_name = icon_name,
+                    argstr1 = ies_data.ArgStr1,
+                    argstr2 = ies_data.ArgStr2,
+                    argstr3 = ies_data.ArgStr3,
+                    name = ies_data.Name
+                }
+                table.insert(map_tbl, data)
+            end
+        elseif string.find(class_type, "statue_zemina") or string.find(class_type, "statue_vakarine") or
+            string.find(class_type, "klaipeda_square_statue") or string.find(class_type, "npc_orsha_goddess") then
+            local data = {
+                class_type = class_type,
+                state = state,
+                map_pos = map_pos,
+                icon_name = icon_name,
+                argstr1 = ies_data.ArgStr1,
+                argstr2 = ies_data.ArgStr2,
+                argstr3 = ies_data.ArgStr3,
+                name = ies_data.Name
+            }
+            table.insert(map_tbl, data)
+        end
+    end
+    return map_tbl
+end
+
+function Sub_map_MAP_MON_MINIMAP(frame, msg, str, num, info)
+    local sub_map = ui.GetFrame(addon_name_lower .. "sub_map")
+    if not sub_map then
+        return
+    end
+    AUTO_CAST(sub_map)
+    local gbox = GET_CHILD(sub_map, "gbox")
+    local handle = info.handle
+    g.sub_map_handles = g.sub_map_handles or {}
+    if g.sub_map_handles[tostring(handle)] then
+        return
+    end
+    local mon_cls = GetClassByType("Monster", info.type)
+    if not mon_cls then
+        return
+    end
+    local mon_rank = TryGetProp(mon_cls, "MonRank", "None")
+    local is_boss = (mon_rank == "Boss")
+    local is_mob_display = (g.sub_map_settings.mob_display == 1)
+    if not is_boss and not is_mob_display then
+        return
+    end
+    local base_size = sub_map:GetUserIValue("ICON_SIZE")
+    local icon_w, icon_h
+    if is_boss then
+        if is_mob_display then
+            icon_w, icon_h = base_size * 1.5, base_size * 1.5
+        else
+            icon_w, icon_h = base_size, base_size
+        end
+    else
+        icon_w, icon_h = base_size / 3, base_size / 3
+    end
+    g.sub_map_handles[tostring(handle)] = true
+    local mon_pic = gbox:CreateOrGetControl("picture", "_MONPOS_" .. handle, 0, 0, icon_w, icon_h)
+    AUTO_CAST(mon_pic)
+    mon_pic:SetUserValue("HANDLE", handle)
+    if mon_cls.MinimapIcon ~= "None" then
+        mon_pic:SetImage(mon_cls.MinimapIcon)
+    else
+        mon_pic:SetImage("fullwhite")
+        mon_pic:SetColorTone("FFFF4500")
+    end
+    mon_pic:SetEnableStretch(1)
+    local map_pic = GET_CHILD_RECURSIVELY(sub_map, "map_pic")
+    AUTO_CAST(map_pic)
+    if map_pic then
+        local map_prop = session.GetCurrentMapProp()
+        local pos = map_prop:WorldPosToMinimapPos(info.x, info.z, map_pic:GetWidth(), map_pic:GetHeight())
+        mon_pic:SetOffset(pos.x - icon_w / 2, pos.y - icon_h / 2)
+    end
+    mon_pic:ShowWindow(1)
+    if not mon_pic:HaveUpdateScript("Sub_map_monpic_auto_update") then
+        mon_pic:RunUpdateScript("Sub_map_monpic_auto_update", 0.5)
+    end
+end
+
+function Sub_map_monpic_auto_update(mon_pic)
+    local sub_map = mon_pic:GetTopParentFrame()
+    local gbox = GET_CHILD(sub_map, "gbox")
+    local handle = mon_pic:GetUserIValue("HANDLE")
+    local actor = world.GetActor(handle)
+    if actor then
+        local map_prop = session.GetCurrentMapProp()
+        local map_pic = GET_CHILD_RECURSIVELY(sub_map, "map_pic")
+        AUTO_CAST(map_pic)
+        local actor_pos = actor:GetPos()
+        local mon_cls = GetClassByType("Monster", actor:GetType())
+        if mon_cls then
+            local pos = map_prop:WorldPosToMinimapPos(actor_pos, map_pic:GetWidth(), map_pic:GetHeight())
+            local x = pos.x - mon_pic:GetWidth() / 2
+            local y = pos.y - mon_pic:GetHeight() / 2
+            mon_pic:SetOffset(x, y)
+        end
+    end
+    return 1
+end
+
+function Sub_map_ON_MON_MINIMAP_END(frame, msg, str, handle)
+    local sub_map = ui.GetFrame(addon_name_lower .. "sub_map")
+    if not sub_map then
+        return
+    end
+    AUTO_CAST(sub_map)
+    local gbox = GET_CHILD(sub_map, "gbox")
+    local mon_pic = GET_CHILD(gbox, "_MONPOS_" .. handle)
+    if mon_pic then
+        if g.sub_map_handles then
+            g.sub_map_handles[tostring(handle)] = nil
+        end
+        gbox:RemoveChild("_MONPOS_" .. handle)
+        gbox:Invalidate()
+    end
+end
+
+function Sub_map_MAP_UPDATE_PARTY_INST(frame, msg, str, party_type)
+    local sub_map = ui.GetFrame(addon_name_lower .. "sub_map")
+    if not sub_map then
+        return
+    end
+    AUTO_CAST(sub_map)
+    local gbox = GET_CHILD(sub_map, "gbox")
+    local map_prop = session.GetCurrentMapProp()
+    local my_info = session.party.GetMyPartyObj(party_type)
+    local list = session.party.GetPartyMemberList(party_type)
+    local count = list:Count()
+    for i = 0, count - 1 do
+        local pc_info = list:Element(i)
+        if my_info ~= pc_info then
+            local aid = pc_info:GetAID()
+            local pc_icon = GET_CHILD(gbox, aid)
+            if pc_icon then
+                local inst_info = pc_info:GetInst()
+                Sub_map_SET_MINIMAP_ICON(pc_icon, inst_info.hp, aid)
+                Sub_map_SET_MAPPOS(sub_map, pc_icon, inst_info, map_prop)
+            end
+        end
+    end
+end
+
+function Sub_map_SET_MINIMAP_ICON(pc_icon, hp, aid)
+    local image_name = "die_party"
+    if hp > 0 then
+        if session.party.GetPartyMemberInfoByAID(PARTY_NORMAL, aid) then
+            image_name = "Archer_party"
+        elseif session.party.GetPartyMemberInfoByAID(PARTY_GUILD, aid) then
+            image_name = "Wizard_party"
+        end
+    end
+    pc_icon:SetImage(image_name)
+end
+
+function Sub_map_SET_MAPPOS(sub_map, pc_icon, inst_info, map_prop, info)
+    local world_pos = inst_info:GetPos()
+    local map_pic = GET_CHILD_RECURSIVELY(sub_map, "map_pic")
+    local pos
+    if info then
+        pos = map_prop:WorldPosToMinimapPos(info.x, info.z, map_pic:GetWidth(), map_pic:GetHeight())
+    else
+        pos = map_prop:WorldPosToMinimapPos(world_pos, map_pic:GetWidth(), map_pic:GetHeight())
+    end
+    local icon_size = sub_map:GetUserIValue("ICON_SIZE")
+    local x = (pos.x - icon_size / 2)
+    local y = (pos.y - icon_size / 2)
+    pc_icon:SetPos(x, y)
+end
+
+function Sub_map_update_party_or_guild(frame, msg, arg, num, info)
+    local sub_map = ui.GetFrame(addon_name_lower .. "sub_map")
+    if not sub_map then
+        return
+    end
+    AUTO_CAST(sub_map)
+    local party_type = 0
+    if msg == "GUILD_INFO_UPDATE" then
+        party_type = 1
+    end
+    local list = session.party.GetPartyMemberList(party_type)
+    local count = list:Count()
+    if count == 1 then
+        return
+    end
+    local my_info = session.party.GetMyPartyObj(party_type)
+    if not my_info then
+        return
+    end
+    local map_prop = session.GetCurrentMapProp()
+    for i = 0, count - 1 do
+        local pc_info = list:Element(i)
+        if my_info ~= pc_info and my_info:GetMapID() == pc_info:GetMapID() and my_info:GetChannel() ==
+            pc_info:GetChannel() then
+            Sub_map_CREATE_PICTURE(sub_map, pc_info, party_type, map_prop, info)
+        end
+    end
+end
+
+function Sub_map_CREATE_PICTURE(sub_map, pc_info, party_type, mapprop, info)
+    local aid = pc_info:GetAID()
+    local gbox = GET_CHILD(sub_map, "gbox")
+    local pc_icon = GET_CHILD(gbox, aid)
+    if not pc_icon then
+        local icon_size = sub_map:GetUserIValue("ICON_SIZE")
+        pc_icon = gbox:CreateOrGetControl("picture", aid, 0, 0, icon_size, icon_size)
+        AUTO_CAST(pc_icon)
+    end
+    pc_icon:SetEnableStretch(1)
+    pc_icon:SetTooltipType("partymap")
+    local name = ""
+    if type(_G["NATIVE_LANG_ON_INIT"]) == "function" then
+        local ntr = _G["ADDONS"]["norisan"]["NATIVE_LANG"]
+        name = ntr.names[pc_info:GetName()] or pc_info:GetName() -- {#FF0000}★
+        name = string.gsub(name, "{#FF0000}★", "")
+        name = string.gsub(name, "{/}", "")
+    end
+    local inst_info = pc_info:GetInst()
+    if pc_info:GetName() ~= name then
+        local tool_msg = "{ol}" .. name .. "(" .. ClMsg("Level") .. pc_info:GetLevel() .. "){nl}" .. "HP : (" ..
+                             inst_info.hp .. "/" .. inst_info.maxhp .. "){nl}" .. "SP : (" .. inst_info.sp .. "/" ..
+                             inst_info.maxsp .. ")"
+        pc_icon:SetTextTooltip(tool_msg)
+        -- pc_icon:SetTooltipArg(pc_info:GetName(), party_type)
+    else
+        pc_icon:SetTooltipArg(pc_info:GetName(), party_type)
+    end
+    pc_icon:ShowWindow(1)
+    Sub_map_SET_MINIMAP_ICON(pc_icon, inst_info.hp, aid)
+    Sub_map_SET_MAPPOS(sub_map, pc_icon, inst_info, mapprop, info)
+end
+-- sub_map ここまで
 
 -- sub_slotset ここから
 function Sub_slotset_save_settings()
@@ -1323,7 +6390,7 @@ function sub_slotset_on_init()
     if not g.sub_slotset_settings.personal[g.cid] then
         Sub_slotset_char_load_settings()
     end
-    g.setup_hook_and_event(g.addon, "SET_QUEST_CTRL_TEXT", "Sub_slotset_SET_QUEST_CTRL_TEXT", false)
+    g.setup_hook_and_event(g.addon, "SET_QUEST_CTRL_TEXT", "Sub_slotset_SET_QUEST_CTRL_TEXT", true)
     g.setup_hook_and_event(g.addon, "EMO_OPEN", "Sub_slotset_EMO_OPEN", true)
     if g.settings.sub_slotset.use == 0 then
         if g.sub_slotset_settings.share then
@@ -1390,11 +6457,11 @@ function Sub_slotset_SET_QUEST_CTRL_TEXT(my_frame, my_msg)
     end
     local quest_ctrl, quest_ies = g.get_event_args(my_msg)
     AUTO_CAST(quest_ctrl)
-    local nametxt = GET_CHILD(quest_ctrl, "name", "ui::CRichText")
-    AUTO_CAST(nametxt)
+    --[[local nametxt = GET_CHILD(quest_ctrl, "name", "ui::CRichText")
+    AUTO_CAST(nametxt)]]
     local leveltxt = GET_CHILD(quest_ctrl, "level", "ui::CRichText")
     AUTO_CAST(leveltxt)
-    local font = ""
+    --[[local font = ""
     local color = ""
     if quest_ies.QuestMode == "MAIN" then
         font = quest_ctrl:GetUserConfig("MAIN_FONT")
@@ -1413,7 +6480,7 @@ function Sub_slotset_SET_QUEST_CTRL_TEXT(my_frame, my_msg)
         color = quest_ctrl:GetUserConfig("KEYITEM_COLOR")
     end
     nametxt:SetText(font .. color .. quest_ies.Name)
-    leveltxt:SetText(color .. "Lv " .. quest_ies.Level)
+    leveltxt:SetText(color .. "Lv " .. quest_ies.Level)]]
     local rect = leveltxt:GetMargin()
     leveltxt:SetMargin(rect.left - 10, rect.top, rect.right, rect.bottom)
     local questmark = GET_CHILD(quest_ctrl, "questmark")
@@ -2410,12 +7477,12 @@ function Another_warehouse_ACCOUNT_WAREHOUSE_UPDATE_VIS_LOG(my_frame, my_msg)
 end
 
 function Another_warehouse_ACCOUNTWAREHOUSE_CLOSE()
+    local inventory = ui.GetFrame("inventory")
+    SET_INV_LBTN_FUNC(inventory, "None")
+    INVENTORY_SET_CUSTOM_RBTNDOWN("None")
     local monstercardslot = ui.GetFrame("monstercardslot")
     monstercardslot:SetLayerLevel(96)
     ui.DestroyFrame(addon_name_lower .. "awh")
-    INVENTORY_SET_CUSTOM_RBTNDOWN("None")
-    local inventory = ui.GetFrame("inventory")
-    SET_INV_LBTN_FUNC(inventory, "None")
     ui.DestroyFrame(addon_name_lower .. "awh_setting")
     if g.settings.another_warehouse.use == 0 then
         return
@@ -2424,6 +7491,7 @@ function Another_warehouse_ACCOUNTWAREHOUSE_CLOSE()
 end
 
 function Another_warehouse_frame_close(parent, ctrl)
+    INVENTORY_SET_CUSTOM_RBTNDOWN("ACCOUNT_WAREHOUSE_INV_RBTN")
     Another_warehouse_ACCOUNTWAREHOUSE_CLOSE()
     ui.DestroyFrame(addon_name_lower .. "awh")
     local accountwarehouse = ui.GetFrame("accountwarehouse")
@@ -2457,7 +7525,6 @@ function Another_warehouse_frame_close(parent, ctrl)
     DESTROY_CHILD_BYNAME(gbox, "awh_count_text")
     DESTROY_CHILD_BYNAME(gbox, "awh_close")
     DESTROY_CHILD_BYNAME(gbox, "awh_name_text")
-    INVENTORY_SET_CUSTOM_RBTNDOWN("ACCOUNT_WAREHOUSE_INV_RBTN")
 end
 
 function Another_warehouse_OPEN_DLG_ACCOUNTWAREHOUSE()
@@ -6114,6 +11181,15 @@ function Cc_helper_inventory_btn_init()
         out_btn:SetTextTooltip(g.lang == "Japanese" and "{ol}[CCH]{nl}倉庫から搬出して装備します" or
                                    "{ol}[CCH]{nl}It is carried out from the warehouse and equipped")
     end
+    local inventory_btns = {"moncard_btn", "helper_btn", "cabinet_btn", "goddess_mgr_btn"}
+    if inventory then
+        for _, btn_name in ipairs(inventory_btns) do
+            local btn = GET_CHILD_RECURSIVELY(inventory, btn_name)
+            if btn and btn:IsVisible() == 0 then
+                btn:ShowWindow(1)
+            end
+        end
+    end
 end
 
 function Cc_helper_setting_frame_init(frame)
@@ -6446,16 +11522,15 @@ function Cc_helper_toggle_settings(frame, ctrl)
 end
 
 function Cc_helper_setting_frame_close(cch_setting)
+    INVENTORY_SET_CUSTOM_RBTNDOWN("None")
     ui.DestroyFrame(cch_setting:GetName())
     if g.settings.another_warehouse.use == 1 then
         local awh = ui.GetFrame(addon_name_lower .. "awh")
-        local cch_setting = ui.GetFrame(addon_name_lower .. "cch_setting")
         if awh and awh:IsVisible() == 1 then
             INVENTORY_SET_CUSTOM_RBTNDOWN("Another_warehouse_inv_rbtn")
             return
         end
     end
-    INVENTORY_SET_CUSTOM_RBTNDOWN("None")
 end
 
 function Cc_helper_setting_copy()
@@ -7692,17 +12767,9 @@ function Cc_helper_end_of_operation(btn, is_mcc)
     end
     local accountwarehouse = ui.GetFrame("accountwarehouse")
     if g.cc_helper_settings.etc.wh_close == 1 and not is_mcc then
-        accountwarehouse:RunUpdateScript("ACCOUNTWAREHOUSE_CLOSE", 1.0)
-    else
-        accountwarehouse:RunUpdateScript("ON_OPEN_ACCOUNTWAREHOUSE", 0.1)
-        accountwarehouse:RunUpdateScript("Cc_helper_frame_init", 0.1)
-        if g.settings.another_warehouse.use == 1 then
-            accountwarehouse:RunUpdateScript("Another_warehouse_OPEN_DLG_ACCOUNTWAREHOUSE", 0.1)
-        end
-        inventory:RunUpdateScript("INVENTORY_OPEN", 0.1)
-        if is_mcc == 1 then
-            Monster_card_changer_monstercardpreset_open(1)
-        end
+        ACCOUNTWAREHOUSE_CLOSE()
+    elseif is_mcc == 1 then
+        Monster_card_changer_monstercardpreset_open(1)
     end
     local btn_name = btn:GetName()
     if btn_name == "cch_out_btn" then
@@ -7969,6 +13036,7 @@ function other_character_skill_list_on_init()
     g.setup_hook_and_event(g.addon, "INVENTORY_OPEN", "Other_character_skill_list_save_enchant", true)
     g.setup_hook_and_event(g.addon, "INVENTORY_CLOSE", "Other_character_skill_list_save_enchant", true)
     g.setup_hook_and_event(g.addon, "APPS_TRY_MOVE_BARRACK", "Other_character_skill_list_save_enchant", true)
+    g.addon:RegisterMsg("ESCAPE_PRESSED", "Other_character_skill_list_ESCAPE_PRESSED")
 end
 
 function Other_character_skill_list_save_enchant()
@@ -7986,6 +13054,15 @@ function Other_character_skill_list_save_enchant()
     end
     g.ocsl_last_save_time = current_time
     local inventory = ui.GetFrame("inventory")
+    local inventory_btns = {"moncard_btn", "helper_btn", "cabinet_btn", "goddess_mgr_btn"}
+    if inventory then
+        for _, btn_name in ipairs(inventory_btns) do
+            local btn = GET_CHILD_RECURSIVELY(inventory, btn_name)
+            if btn and btn:IsVisible() == 0 then
+                btn:ShowWindow(1)
+            end
+        end
+    end
     local pc_name = session.GetMySession():GetPCApc():GetName()
     local equip_item_list = session.GetEquipItemList()
     local count = equip_item_list:Count()
@@ -8542,6 +13619,11 @@ function Other_character_skill_list_char_report(ocsl, ctrl, char_name_str, num)
     report:ShowWindow(1)
 end
 
+function Other_character_skill_list_ESCAPE_PRESSED()
+    local ocsl = ui.GetFrame(addon_name_lower .. "ocsl")
+    Other_character_skill_list_frame_close(ocsl)
+end
+
 function Other_character_skill_list_frame_close(parent)
     local ocsl = parent:GetTopParentFrame()
     ui.DestroyFrame(ocsl:GetName())
@@ -8734,651 +13816,6 @@ function Cupole_manager_summon_cupole(_nexus_addons)
 end
 -- Cupole Manager ここまで
 
--- no_check ここから
-function no_check_on_init()
-    No_check_inventory_frame_init()
-    g.setup_hook_and_event(g.addon, "BEFORE_APPLIED_YESSCP_OPEN_BASIC_MSG",
-        "No_check_BEFORE_APPLIED_YESSCP_OPEN_BASIC_MSG", false)
-    g.setup_hook_and_event(g.addon, "CARD_SLOT_EQUIP", "No_check_CARD_SLOT_EQUIP", false)
-    g.setup_hook_and_event(g.addon, "EQUIP_CARDSLOT_INFO_OPEN", "No_check_EQUIP_CARDSLOT_INFO_OPEN", false)
-    g.setup_hook_and_event(g.addon, "EQUIP_GODDESSCARDSLOT_INFO_OPEN", "No_check_EQUIP_GODDESSCARDSLOT_INFO_OPEN", false)
-    g.setup_hook_and_event(g.addon, "GODDESS_MGR_SOCKET_REQ_GEM_REMOVE", "No_check_GODDESS_MGR_SOCKET_REQ_GEM_REMOVE",
-        false)
-    g.setup_hook_and_event(g.addon, "UNLOCK_TRANSMUTATIONSPREADER_BELONGING_SCROLL_EXEC_ASK_AGAIN",
-        "No_check_UNLOCK_TRANSMUTATIONSPREADER_BELONGING_SCROLL_EXEC_ASK_AGAIN", false)
-    g.setup_hook_and_event(g.addon, "UNLOCK_ACC_BELONGING_SCROLL_EXEC_ASK_AGAIN",
-        "No_check_UNLOCK_ACC_BELONGING_SCROLL_EXEC_ASK_AGAIN", false)
-    g.setup_hook_and_event(g.addon, "SELECT_ZONE_MOVE_CHANNEL", "No_check_SELECT_ZONE_MOVE_CHANNEL", false)
-    g.setup_hook_and_event(g.addon, "BEFORE_APPLIED_NON_EQUIP_ITEM_OPEN", "No_check_BEFORE_APPLIED_NON_EQUIP_ITEM_OPEN",
-        false)
-    g.setup_hook_and_event(g.addon, "INVENTORY_CLOSE", "No_check_frame_close", true)
-    g.setup_hook_and_event(g.addon, "MORU_LBTN_CLICK", "No_check_MORU_LBTN_CLICK", true)
-    if g.get_map_type() == "City" then
-        local _nexus_addons = ui.GetFrame("_nexus_addons")
-        _nexus_addons:RunUpdateScript("No_check_timer_update", 0.3)
-    end
-end
-
-function No_check_inventory_frame_init()
-    local inventory = ui.GetFrame("inventory")
-    local searchSkin = GET_CHILD_RECURSIVELY(inventory, "searchSkin")
-    if g.settings.no_check.use == 1 then -- !
-        local searchGbox = GET_CHILD_RECURSIVELY(inventory, "searchGbox")
-        local btn = searchGbox:CreateOrGetControl("button", "btn", 160, -3, 35, 38)
-        AUTO_CAST(btn)
-        searchSkin:Resize(284, 30)
-        searchSkin:SetMargin(38, 0, 0, 5)
-        btn:SetSkinName("test_pvp_btn")
-        local tool_tip = g.lang == "Japanese" and
-                             "{ol}[No Check]{nl}左クリック: アイテム連続フレーム表示{nl}右クリック: ゴミ箱フレーム表示" or
-                             "{ol}[No Check]{nl}Left Click: Item continuous frame display{nl}Right Click: Trash frame display"
-        btn:SetTextTooltip(tool_tip)
-        btn:SetText("{img equipment_info_btn_mark2 32 32}")
-        btn:SetEventScript(ui.LBUTTONUP, "No_check_continuous_use_frame")
-        btn:SetEventScript(ui.RBUTTONUP, "No_check_delete_item_frame")
-    else
-        searchSkin:Resize(317, 30)
-        searchSkin:SetMargin(5, 0, 0, 5)
-        DESTROY_CHILD_BYNAME(inventory, "btn")
-    end
-end
--- アイテム連続使用
-function No_check_continuous_use_frame(frame, ctrl, str, num)
-    local inventory = ui.GetFrame("inventory")
-    local no_check_use = ui.CreateNewFrame("notice_on_pc", addon_name_lower .. "no_check_use", 0, 0, 0, 0)
-    AUTO_CAST(no_check_use)
-    no_check_use:SetGravity(ui.RIGHT, ui.TOP)
-    no_check_use:SetSkinName("test_win_lastpopup")
-    local rect = no_check_use:GetMargin()
-    no_check_use:SetMargin(rect.left - rect.left, rect.top - rect.top + 300,
-        rect.right == 0 and rect.right + 310 + 200 or rect.right, rect.bottom)
-    no_check_use:Resize(300, 300)
-    no_check_use:RemoveAllChild()
-    no_check_use:ShowWindow(1)
-    local item_slot = no_check_use:CreateOrGetControl('slot', 'item_slot', 115, 100, 70, 70)
-    AUTO_CAST(item_slot)
-    item_slot:SetSkinName("slot")
-    INVENTORY_SET_CUSTOM_RBTNDOWN("No_check_inv_rbtn")
-    item_slot:SetEventScript(ui.RBUTTONUP, "No_check_use_icon_clear")
-    local notice = no_check_use:CreateOrGetControl('richtext', 'notice', 30, 180, 0, 0)
-    AUTO_CAST(notice)
-    notice:SetText(g.lang == "Japanese" and "{ol}{s20}アイテムを連続使用します" or
-                       "{ol}{s18}Use the item continuously")
-    local continuous_use = no_check_use:CreateOrGetControl('button', 'continuous_use', 40, 220, 100, 50)
-    AUTO_CAST(continuous_use)
-    continuous_use:SetSkinName("test_red_button")
-    continuous_use:SetText(g.lang == "Japanese" and "{ol}{s16}連続使用" or "{ol}{s16}Continu")
-    continuous_use:SetEventScript(ui.LBUTTONUP, "No_check_continuous_use")
-    local cancel = no_check_use:CreateOrGetControl('button', 'cancel', 155, 220, 100, 50)
-    AUTO_CAST(cancel)
-    cancel:SetSkinName("test_gray_button")
-    cancel:SetText(g.lang == "Japanese" and "{ol}{s16}キャンセル" or "{ol}{s16}Cancel")
-    cancel:SetEventScript(ui.LBUTTONUP, "No_check_frame_close")
-end
-
-function No_check_use_icon_clear(no_check_use, item_slot)
-    CLEAR_SLOT_ITEM_INFO(item_slot)
-end
-
-function No_check_continuous_use(no_check_use, ctrl, str, num)
-    local item_slot = GET_CHILD(no_check_use, "item_slot")
-    AUTO_CAST(item_slot)
-    local clsid = item_slot:GetUserIValue("CLASS_ID")
-    if clsid == 0 then
-        return
-    end
-    local inv_item = session.GetInvItemByType(clsid)
-    if inv_item then
-        no_check_use:RunUpdateScript("No_check_icontinuous_use_result", 0.5)
-    end
-end
-
-function No_check_icontinuous_use_result(no_check_use)
-    local item_slot = GET_CHILD(no_check_use, "item_slot")
-    AUTO_CAST(item_slot)
-    local clsid = item_slot:GetUserIValue("CLASS_ID")
-    local inv_item = session.GetInvItemByType(clsid)
-    if inv_item then
-        INV_ICON_USE(inv_item)
-        local item_cls = GetClassByType("Item", clsid)
-        SET_SLOT_ITEM_CLS(item_slot, item_cls)
-        SET_SLOT_ITEM_TEXT(item_slot, inv_item, item_cls)
-        return 1
-    else
-        No_check_use_icon_clear(no_check_use, item_slot)
-    end
-end
--- ゴミ箱フレーム
-function No_check_delete_item_frame()
-    local no_check_delete = ui.CreateNewFrame("notice_on_pc", addon_name_lower .. "no_check_delete", 0, 0, 10, 10)
-    AUTO_CAST(no_check_delete)
-    no_check_delete:SetSkinName("test_frame_low")
-    no_check_delete:SetGravity(ui.RIGHT, ui.TOP)
-    local rect = no_check_delete:GetMargin()
-    no_check_delete:SetMargin(rect.left - rect.left, rect.top - rect.top + 100,
-        rect.right == 0 and rect.right + 310 + 200 or rect.right, rect.bottom)
-    no_check_delete:SetLayerLevel(100)
-    no_check_delete:Resize(300, 698)
-    no_check_delete:RemoveAllChild()
-    local title = no_check_delete:CreateOrGetControl('richtext', 'title', 10, 15, 0, 0)
-    AUTO_CAST(title)
-    title:SetText(g.lang == "Japanese" and "{ol}{s18}ゴミ箱スロット" or "{ol}{s18}Discard item Slots")
-    local close = no_check_delete:CreateOrGetControl("button", "close", 0, 0, 25, 25)
-    AUTO_CAST(close)
-    close:SetImage("testclose_button")
-    close:SetGravity(ui.RIGHT, ui.TOP)
-    close:SetEventScript(ui.LBUTTONUP, "No_check_frame_close")
-    close:SetEventScriptArgString(ui.LBUTTONUP, "true")
-    local delete_gb = no_check_delete:CreateOrGetControl("groupbox", "delete_gb", 10, 40, 380, 380)
-    AUTO_CAST(delete_gb)
-    delete_gb:SetSkinName("test_frame_midle_light")
-    delete_gb:Resize(280, 600)
-    no_check_delete:ShowWindow(1)
-    local delete_slotset = delete_gb:CreateOrGetControl('slotset', 'delete_slotset', 0, 0, 0, 0)
-    AUTO_CAST(delete_slotset)
-    delete_slotset:SetSlotSize(40, 40)
-    delete_slotset:EnablePop(0)
-    delete_slotset:EnableDrag(1)
-    delete_slotset:EnableDrop(1)
-    delete_slotset:SetColRow(7, 15)
-    delete_slotset:SetSpc(0, 0)
-    delete_slotset:SetSkinName('slot')
-    delete_slotset:CreateSlots()
-    local slot_count = delete_slotset:GetSlotCount()
-    local go_func = no_check_delete:CreateOrGetControl("button", "go_func", 0, 0, 100, 43)
-    AUTO_CAST(go_func)
-    go_func:SetText(g.lang == "Japanese" and "{ol}{s16}スタート" or "{ol}{s16}START")
-    go_func:SetMargin(190, 645, 100, 0)
-    go_func:SetSkinName("test_red_button")
-    go_func:SetEventScript(ui.LBUTTONUP, "No_check_delete_item_msgbox")
-    local stop_func = no_check_delete:CreateOrGetControl("button", "stop_func", 0, 0, 100, 43)
-    AUTO_CAST(stop_func)
-    stop_func:SetText(g.lang == "Japanese" and "{ol}{s16}ストップ" or "{ol}{s16}STOP")
-    stop_func:SetMargin(10, 645, 100, 0)
-    stop_func:SetSkinName("test_gray_button")
-    stop_func:SetEventScript(ui.LBUTTONUP, "No_check_delete_item")
-    stop_func:SetEventScriptArgString(ui.LBUTTONUP, "true")
-    INVENTORY_SET_CUSTOM_RBTNDOWN("No_check_inv_rbtn")
-    g.no_check_iesids = {}
-end
-
-function No_check_delete_item_clear(parent, slot, iesid, num)
-    CLEAR_SLOT_ITEM_INFO(slot)
-    slot:SetUserValue("DELETE_IDSID", "None")
-    slot:SetUserValue("DELETE_NAME", "None")
-    slot:SetUserValue("DELETE_COUNT", 0)
-    g.no_check_iesids[iesid] = nil
-    local inventory = ui.GetFrame("inventory")
-    local inv_slot = INV_GET_SLOT_BY_ITEMGUID(iesid)
-    if inv_slot then
-        AUTO_CAST(inv_slot)
-        inv_slot:Select(0)
-        inv_slot:RunUpdateScript("No_check_inv_invalidate", 0.1)
-        inv_slot:Invalidate()
-    end
-end
-
-function No_check_delete_check(iesid, cls_id)
-    if GetCraftState() == 1 then
-        return false
-    end
-    if true == BEING_TRADING_STATE() then
-        return false
-    end
-    local inventory = ui.GetFrame("inventory")
-    local inv_item = session.GetInvItemByGuid(iesid)
-    if not inv_item then
-        return false
-    end
-    if true == inv_item.isLockState or true == IS_TEMP_LOCK(inventory, inv_item) then
-        ui.SysMsg(ClMsg("MaterialItemIsLock"))
-        return false
-    end
-    local item_cls = GetClassByType("Item", cls_id)
-    if not item_cls then
-        return false
-    end
-    local item_prop = geItemTable.IsDestroyable(cls_id)
-    if item_cls.Destroyable == 'NO' or item_prop == false then
-        local item_obj = GetIES(inv_item:GetObject())
-        if item_obj.ItemLifeTimeOver == 0 then
-            ui.AlarmMsg("ItemIsNotDestroy")
-            return false
-        end
-    end
-    return true
-end
-
-function No_check_delete_item_msgbox()
-    local yes_scp = string.format("No_check_delete_item_reserve()")
-    local msg = g.lang == "Japanese" and
-                    "{ol}{#FF0000}本当にゴミ捨てを開始しますか？{nl}(リカバリーサービス対象外かも)" or
-                    "{ol}{#FF0000}Are you sure you want to start trashing?{nl}(might not be covered by the{nl} recovery service)"
-    ui.MsgBox(msg, yes_scp, "None")
-end
-
-function No_check_delete_item_reserve()
-    local no_check_delete = ui.GetFrame(addon_name_lower .. "no_check_delete")
-    no_check_delete_item(no_check_delete)
-    no_check_delete:RunUpdateScript("No_check_delete_item", 0.5)
-end
-
-function No_check_delete_item(no_check_delete, stop_func)
-    if stop_func then
-        return 0
-    end
-    if no_check_delete and no_check_delete:IsVisible() == 0 then
-        return 0
-    end
-    local delete_slotset = GET_CHILD_RECURSIVELY(no_check_delete, "delete_slotset")
-    AUTO_CAST(delete_slotset)
-    local slot_count = delete_slotset:GetSlotCount()
-    for i = 1, slot_count do
-        local slot = GET_CHILD(delete_slotset, "slot" .. i)
-        AUTO_CAST(slot)
-        local icon = slot:GetIcon()
-        if icon then
-            local iesid = slot:GetUserValue("DELETE_IDSID")
-            local name = slot:GetUserValue("DELETE_NAME")
-            local count = slot:GetUserIValue("DELETE_COUNT")
-            local trans_name = dic.getTranslatedStr(name)
-            No_check_delete_item_execute(slot, iesid, trans_name, count)
-            return 1
-        end
-    end
-    No_check_frame_close(no_check_delete, delete_slotset)
-    return 0
-end
-
-function No_check_delete_item_execute(slot, iesid, trans_name, count)
-    IMC_LOG("INFO_NORMAL", "EXEC_DELETE_ITEMDROP")
-    local pc = GetMyPCObject()
-    local msg = g.lang == "Japanese" and "{ol}{#FFFF00}[" .. trans_name .. "]{/}{ol}{#FFFFFF}を" .. "{ol}{#FFFF00}[" ..
-                    count .. "個]{/}" .. "{ol}{#FFFFFF}捨てました" or "{ol}{#FFFFFF}Discarded {/}" ..
-                    "{ol}{#FFFF00}[" .. count .. "]{ol}{#FFFFFF} piece " .. "{ol}{#FFFF00}[" .. trans_name .. "]{/}"
-    imcAddOn.BroadMsg("NOTICE_Dm_!", msg, 0.4)
-    item.DropDelete(iesid, count)
-    No_check_delete_item_clear(nil, slot, iesid, nil)
-end
--- 連続使用とゴミ捨ての共通。インベントリマウス制御
-function No_check_inv_rbtn(item_obj, slot)
-    local icon = slot:GetIcon()
-    local icon_info = icon:GetInfo()
-    local no_check_use = ui.GetFrame(addon_name_lower .. "no_check_use")
-    if no_check_use and no_check_use:IsVisible() == 1 then
-        local clsid = icon_info.type
-        local inv_item = session.GetInvItemByType(clsid)
-        local item_slot = GET_CHILD(no_check_use, "item_slot")
-        local item_cls = GetClassByType("Item", clsid)
-        item_slot:SetUserValue("CLASS_ID", clsid)
-        SET_SLOT_ITEM_CLS(item_slot, item_cls)
-        SET_SLOT_ITEM_TEXT(item_slot, inv_item, item_cls)
-        return
-    end
-    local no_check_delete = ui.GetFrame(addon_name_lower .. "no_check_delete")
-    if no_check_delete and no_check_delete:IsVisible() == 1 then
-        AUTO_CAST(no_check_delete)
-        local iesid = icon_info:GetIESID()
-        local inv_item = session.GetInvItemByGuid(iesid)
-        local item_obj = GetIES(inv_item:GetObject())
-        if g.no_check_iesids[iesid] then
-            local msg = g.lang == "Japanese" and "{ol}既に登録されています" or "{ol}Already registered"
-            ui.SysMsg(msg)
-            return
-        end
-        if not No_check_delete_check(iesid, item_obj.ClassID) then
-            return
-        end
-        local delete_slotset = GET_CHILD_RECURSIVELY(no_check_delete, "delete_slotset")
-        AUTO_CAST(delete_slotset)
-        local slot_count = delete_slotset:GetSlotCount()
-        for i = 1, slot_count do
-            local slot = GET_CHILD(delete_slotset, "slot" .. i)
-            AUTO_CAST(slot)
-            local icon = slot:GetIcon()
-            if not icon then
-                icon = CreateIcon(slot)
-                slot:SetUserValue("DELETE_IDSID", iesid)
-                slot:SetUserValue("DELETE_NAME", item_obj.Name)
-                slot:SetUserValue("DELETE_COUNT", inv_item.count)
-                g.no_check_iesids[iesid] = true
-                SET_SLOT_ITEM_CLS(slot, item_obj)
-                SET_SLOT_ITEM_TEXT(slot, inv_item, item_obj)
-                SET_SLOT_STYLESET(slot, item_obj)
-                SET_SLOT_IESID(slot, iesid)
-                SET_SLOT_ICOR_CATEGORY(slot, item_obj)
-                icon:SetTooltipArg("None", 0, iesid)
-                SET_ITEM_TOOLTIP_TYPE(icon, item_obj.ClassID, item_obj, "None")
-                SET_SLOT_ICOR_CATEGORY(slot, item_obj)
-                slot:SetEventScript(ui.RBUTTONUP, "No_check_delete_item_clear")
-                slot:SetEventScriptArgString(ui.RBUTTONUP, iesid)
-                local inventory = ui.GetFrame("inventory")
-                local inv_slot = INV_GET_SLOT_BY_ITEMGUID(iesid)
-                if inv_slot then
-                    AUTO_CAST(inv_slot)
-                    inv_slot:SetSelectedImage('socket_slot_check')
-                    inv_slot:Select(1)
-                    inv_slot:RunUpdateScript("No_check_inv_invalidate", 0.1)
-                    inv_slot:Invalidate()
-                end
-                return
-            end
-        end
-    end
-end
-
-function No_check_frame_close(frame, ctrl)
-    if frame:GetName() ~= "_nexus_addons" then
-        ui.DestroyFrame(frame:GetName())
-    end
-    INVENTORY_SET_CUSTOM_RBTNDOWN('None')
-    INVENTORY_CLEAR_SELECT(nil)
-    if ctrl:GetName() == "delete_slotset" then
-        ui.SysMsg("{ol}[No Check]End of Operation")
-    end
-end
-
-function No_check_inv_invalidate(inv_slot)
-    inv_slot:Invalidate()
-end
--- 欠片アイテム他使用時のメッセージボックス非表示
-function No_check_BEFORE_APPLIED_YESSCP_OPEN_BASIC_MSG(my_frame, my_msg)
-    local inv_item = g.get_event_args(my_msg)
-    if g.settings.no_check.use == 1 then
-        if not inv_item then
-            return
-        end
-        local item_obj = GetIES(inv_item:GetObject())
-        if not item_obj then
-            return
-        end
-        local inventory = ui.GetFrame("inventory")
-        inventory:SetUserValue("REQ_USE_ITEM_GUID", inv_item:GetIESID())
-        REQUEST_SUMMON_BOSS_TX()
-    else
-        g.FUNCS["BEFORE_APPLIED_YESSCP_OPEN_BASIC_MSG"](inv_item)
-    end
-end
--- レジェンドカード装着時のメッセージボックス非表示
-function No_check_CARD_SLOT_EQUIP(my_frame, my_msg)
-    local slot, item, group_name_str = g.get_event_args(my_msg)
-    if g.settings.no_check.use == 1 then
-        local item_obj = GetIES(item:GetObject())
-        if item_obj.GroupName == "Card" then
-            local slot_index = CARD_SLOT_GET_SLOT_INDEX(group_name_str, slot:GetSlotIndex())
-            local card_info = equipcard.GetCardInfo(slot_index + 1)
-            if card_info then
-                ui.SysMsg(ClMsg("AlreadyEquippedThatCardSlot"))
-                return
-            end
-            if item.isLockState == true then
-                ui.SysMsg(ClMsg("MaterialItemIsLock"))
-                return
-            end
-            local item_guid = item:GetIESID()
-            local inventory = ui.GetFrame("inventory")
-            inventory:SetUserValue("EQUIP_CARD_GUID", item_guid)
-            inventory:SetUserValue("EQUIP_CARD_SLOTINDEX", slot_index)
-            local pc_etc = GetMyEtcObject()
-            if pc_etc.IS_LEGEND_CARD_OPEN ~= 1 and group_name_str == 'LEG' then
-                ui.SysMsg(ClMsg("LegendCard_Slot_NotOpen"))
-                return
-            end
-            REQUEST_EQUIP_CARD_TX()
-        end
-    else
-        g.FUNCS["CARD_SLOT_EQUIP"](slot, item, group_name_str)
-    end
-end
--- レジェンドカード脱着時
-function No_check_EQUIP_CARDSLOT_INFO_OPEN(my_frame, my_msg)
-    local slot_index = g.get_event_args(my_msg)
-    if g.settings.no_check.use == 1 then
-        slot_index = slot_index .. " 1"
-        pc.ReqExecuteTx_NumArgs("SCR_TX_UNEQUIP_CARD_SLOT", slot_index)
-    else
-        g.FUNCS["EQUIP_CARDSLOT_INFO_OPEN"](slot_index)
-    end
-end
--- ゴッデスカード脱着時
-function No_check_EQUIP_GODDESSCARDSLOT_INFO_OPEN(my_frame, my_msg)
-    local slot_index = g.get_event_args(my_msg)
-    if g.settings.no_check.use == 1 then
-        slot_index = slot_index .. " 1"
-        pc.ReqExecuteTx_NumArgs("SCR_TX_UNEQUIP_CARD_SLOT", slot_index)
-    else
-        g.FUNCS["EQUIP_GODDESSCARDSLOT_INFO_OPEN"](slot_index)
-    end
-end
--- エーテルジェム着脱時のメッセージ非表示
-function No_check_GODDESS_MGR_SOCKET_REQ_GEM_REMOVE(my_frame, my_msg)
-    local parent, btn = g.get_event_args(my_msg)
-    if g.settings.no_check.use == 1 then
-        local frame = parent:GetTopParentFrame()
-        local slot = GET_CHILD_RECURSIVELY(frame, 'socket_slot')
-        local guid = slot:GetUserValue('ITEM_GUID')
-        if guid ~= 'None' then
-            local index = parent:GetUserValue('SLOT_INDEX')
-            local inv_item = session.GetInvItemByGuid(guid)
-            if not inv_item then
-                return
-            end
-            local item_obj = GetIES(inv_item:GetObject())
-            local item_name = dic.getTranslatedStr(TryGetProp(item_obj, 'Name', 'None'))
-            local gem_id = inv_item:GetEquipGemID(index)
-            local gem_cls = GetClassByType('Item', gem_id)
-            local gem_numarg1 = TryGetProp(gem_cls, 'NumberArg1', 0)
-            local price = gem_numarg1 * 100
-            local clmsg = 'None'
-            local msg_cls_name = ''
-            if TryGetProp(gem_cls, 'GemType', 'None') == 'Gem_High_Color' then
-                _GODDESS_MGR_SOCKET_REQ_GEM_REMOVE(index)
-            else
-                local pc = GetMyPCObject()
-                local is_gem_remove_care = IS_GEM_EXTRACT_FREE_CHECK(pc)
-                local free_gem = nil
-                for optionIdx = 1, 4 do
-                    free_gem = GET_GEM_PROPERTY_TEXT(item_obj, optionIdx, index)
-                    if free_gem then
-                        _GODDESS_MGR_SOCKET_REQ_GEM_REMOVE(index)
-                        return
-                    end
-                end
-                if is_gem_remove_care then
-                    msg_cls_name = "ReallyRemoveGem_Care"
-                else
-                    msg_cls_name = "ReallyRemoveGem"
-                end
-                local clmsg = "'" .. item_name .. ScpArgMsg("Auto_'_SeonTaeg") .. ScpArgMsg(msg_cls_name)
-                local yes_scp = string.format('_GODDESS_MGR_SOCKET_REQ_GEM_REMOVE(%s)', index)
-                local msgbox = ui.MsgBox(clmsg, yes_scp, '')
-                SET_MODAL_MSGBOX(msgbox)
-            end
-        end
-    else
-        g.FUNCS["GODDESS_MGR_SOCKET_REQ_GEM_REMOVE"](parent, btn)
-    end
-end
--- ゴッデス装備帰属解除時の簡易化
-function No_check_UNLOCK_TRANSMUTATIONSPREADER_BELONGING_SCROLL_EXEC_ASK_AGAIN(my_frame, my_msg)
-    local frame, btn = g.get_event_args(my_msg)
-    if g.settings.no_check.use == 1 then
-        local scroll_type = frame:GetUserValue("ScrollType")
-        local clickable = frame:GetUserValue("EnableTranscendButton")
-        if tonumber(clickable) ~= 1 then
-            return
-        end
-        local slot = GET_CHILD(frame, "slot")
-        local inv_item = GET_SLOT_ITEM(slot)
-        if not inv_item then
-            ui.MsgBox(ScpArgMsg("DropItemPlz"))
-            imcSound.PlaySoundEvent(frame:GetUserConfig("TRANS_BTN_OVER_SOUND"))
-            return
-        end
-        local item_obj = GetIES(inv_item:GetObject())
-        local scroll_guid = frame:GetUserValue("ScrollGuid")
-        local scroll_inv_item = session.GetInvItemByGuid(scroll_guid)
-        if not scroll_inv_item then
-            return
-        end
-        UNLOCK_TRANSMUTATIONSPREADER_BELONGING_SCROLL_EXEC()
-    else
-        g.FUNCS["UNLOCK_TRANSMUTATIONSPREADER_BELONGING_SCROLL_EXEC_ASK_AGAIN"](frame, btn)
-    end
-end
--- ゴッデスアクセ帰属解除時の簡易化
-function No_check_UNLOCK_ACC_BELONGING_SCROLL_EXEC_ASK_AGAIN(my_frame, my_msg)
-    local frame, btn = g.get_event_args(my_msg)
-    if g.settings.no_check.use == 1 then
-        local scroll_type = frame:GetUserValue("ScrollType")
-        local clickable = frame:GetUserValue("EnableTranscendButton")
-        if tonumber(clickable) ~= 1 then
-            return
-        end
-        local slot = GET_CHILD(frame, "slot")
-        local inv_item = GET_SLOT_ITEM(slot)
-        if not inv_item then
-            ui.MsgBox(ScpArgMsg("DropItemPlz"))
-            imcSound.PlaySoundEvent(frame:GetUserConfig("TRANS_BTN_OVER_SOUND"))
-            return
-        end
-        local item_obj = GetIES(invItem:GetObject())
-        local scroll_guid = frame:GetUserValue("ScrollGuid")
-        local scroll_inv_item = session.GetInvItemByGuid(scroll_guid)
-        if not scroll_inv_item then
-            return
-        end
-        UNLOCK_ACC_BELONGING_SCROLL_EXEC()
-    else
-        g.FUNCS["UNLOCK_ACC_BELONGING_SCROLL_EXEC_ASK_AGAIN"](frame, btn)
-    end
-end
--- チャンネル移動時の確認を削除
-function No_check_SELECT_ZONE_MOVE_CHANNEL(my_frame, my_msg)
-    local index, channel_id = g.get_event_args(my_msg)
-    if g.settings.no_check.use == 1 then
-        local zone_insts = session.serverState.GetMap()
-        if not zone_insts or zone_insts.pcCount == -1 then
-            ui.SysMsg(ClMsg("ChannelIsClosed"))
-            return
-        end
-        local pc = GetMyPCObject()
-        if IS_BOUNTY_BATTLE_BUFF_APPLIED(pc) == 1 then
-            ui.SysMsg(ClMsg("DoingBountyBattle"))
-            return
-        end
-        if IS_JUMP_MAP_BUFF_APPLIED(pc) == 1 then
-            return
-        end
-        RUN_GAMEEXIT_TIMER("Channel", channel_id)
-    else
-        g.FUNCS["SELECT_ZONE_MOVE_CHANNEL"](index, channel_id)
-    end
-end
--- カードブック使用時の確認削除
-function No_check_BEFORE_APPLIED_NON_EQUIP_ITEM_OPEN(my_frame, my_msg)
-    local inv_item = g.get_event_args(my_msg)
-    if g.settings.no_check.use == 1 then
-        if not inv_item then
-            return
-        end
-        local inventory = ui.GetFrame("inventory")
-        local item_obj = GetIES(inv_item:GetObject())
-        if not item_obj then
-            return
-        end
-        inventory:SetUserValue("REQ_USE_ITEM_GUID", inv_item:GetIESID())
-        if item_obj.Script == 'SCR_SUMMON_MONSTER_FROM_CARDBOOK' then
-            REQUEST_SUMMON_BOSS_TX()
-        elseif item_obj.Script == 'SCR_QUEST_CLEAR_LEGEND_CARD_LIFT' then
-            local textmsg = string.format("[ %s ]{nl}%s", item_obj.Name, ScpArgMsg("Use_Item_LegendCard_Slot_Open2"))
-            ui.MsgBox_NonNested(textmsg, item_obj.Name, "REQUEST_SUMMON_BOSS_TX", "None")
-            return
-        end
-    else
-        g.FUNCS["BEFORE_APPLIED_NON_EQUIP_ITEM_OPEN"](inv_item)
-    end
-end
-
-function No_check_timer_update(_nexus_addons, no_check_timer)
-    if g.settings.no_check.use == 0 then
-        return 0
-    end
-    No_check_WARNINGMSGBOX_FRAME_OPEN()
-    No_check_WARNINGMSGBOX_EX_FRAME_OPEN()
-    return 1
-end
--- warning_boxs制御
-function No_check_WARNINGMSGBOX_FRAME_OPEN()
-    local warningmsgbox = ui.GetFrame("warningmsgbox")
-    if warningmsgbox:IsVisible() == 0 then
-        return
-    end
-    local warningtext = GET_CHILD_RECURSIVELY(warningmsgbox, "warningtext")
-    local msg = ClMsg("destory_now")
-    msg = dictionary.ReplaceDicIDInCompStr(msg)
-    if string.find(warningtext:GetText(), msg) then
-        local input = GET_CHILD_RECURSIVELY(warningmsgbox, "input")
-        input:SetText(msg)
-    end
-end
-
-function No_check_WARNINGMSGBOX_EX_FRAME_OPEN()
-    local warningmsgbox_ex = ui.GetFrame('warningmsgbox_ex')
-    if warningmsgbox_ex:IsVisible() == 0 then
-        return
-    end
-    local compareText = GET_CHILD_RECURSIVELY(warningmsgbox_ex, "comparetext")
-    local start, finish = string.find(compareText:GetText(), "nl%}%[")
-    if start and finish then
-        local next_sub_string = compareText:GetText():sub(finish + 1)
-        local next_start, next_finish = string.find(next_sub_string, "%]")
-        if next_start and next_finish then
-            local desiredText = next_sub_string:sub(1, next_start - 1)
-            local input = GET_CHILD_RECURSIVELY(warningmsgbox_ex, "input")
-            input:SetText(desiredText)
-        end
-    end
-end
--- 連続金床強化
-function No_check_MORU_LBTN_CLICK(my_frame, my_msg)
-    if g.settings.no_check.use == 0 then
-        return
-    end
-    No_check_REINFORCE_131014_MSGBOX()
-end
-
-function No_check_REINFORCE_131014_MSGBOX()
-    local reinforce_131014 = ui.GetFrame("reinforce_131014")
-    local from_item, from_moru = GET_REINFORCE_TARGET_AND_MORU(reinforce_131014)
-    local from_item_obj = GetIES(from_item:GetObject())
-    local moru_obj = GetIES(from_moru:GetObject())
-    local exec = GET_CHILD_RECURSIVELY(reinforce_131014, "exec")
-    local skipOver5 = GET_CHILD_RECURSIVELY(reinforce_131014, "skipOver5")
-    skipOver5:SetCheck(1)
-    exec:ShowWindow(0)
-    No_check_REINFORCE_131014_EXEC(reinforce_131014, from_item, from_moru)
-end
-
-function No_check_REINFORCE_131014_EXEC(reinforce_131014)
-    if reinforce_131014:IsVisible() == 0 then
-        reinforce_131014:StopUpdateScript("No_check_REINFORCE_131014_EXEC")
-        return 0
-    end
-    local from_item, from_moru = GET_REINFORCE_TARGET_AND_MORU(reinforce_131014)
-    if from_item and from_moru ~= nil and reinforce_131014:IsVisible() == 1 then
-        session.ResetItemList()
-        session.AddItemID(from_item:GetIESID())
-        session.AddItemID(from_moru:GetIESID())
-        local resultlist = session.GetItemIDList()
-        item.DialogTransaction("ITEM_REINFORCE_131014", resultlist)
-        reinforce_131014:RunUpdateScript("No_check_REINFORCE_131014_EXEC", 0.3)
-    end
-    REINFORCE_131014_UPDATE_MORU_COUNT(reinforce_131014)
-    return 1
-end
--- no_check ここまで
-
 -- Battle_ritual ここから
 function Battle_ritual_save_settings()
     g.save_json(g.Battle_ritual_path, g.Battle_ritual_settings)
@@ -9411,7 +13848,7 @@ function battle_ritual_on_init()
         return
     end
     Battle_ritual_frame_init()
-    if g.get_map_type() == "Instance" then
+    if g.get_map_type() == "Instance" or g.map_id == 11244 or g.map_id == 8022 then -- 11244 聖域3F 11227 分裂 8022 ヴェルニケ
         g.addon:RegisterMsg('REQ_PLAYER_CONTENTS_RECORD', 'Battle_ritual_REQ_PLAYER_CONTENTS_RECORD')
         Battle_ritual_auto_buff_skill_start()
     end
@@ -10095,1020 +14532,6 @@ function Battle_ritual_overlord_off(_nexus_addons)
 end
 -- Battle_ritual ここまで
 
--- sub_map ここから
-function Sub_map_save_settings()
-    g.save_json(g.sub_map_path, g.sub_map_settings)
-end
-
-function Sub_map_load_settings()
-    g.sub_map_path = string.format("../addons/%s/%s/sub_map.json", addon_name_lower, g.active_id)
-    local settings = g.load_json(g.sub_map_path)
-    local ver = 1.1
-    if not settings or not settings.ver then
-        settings = {
-            visible = 1,
-            x = 0,
-            y = 0,
-            skin_name = "None",
-            move = 1,
-            size = 200,
-            minimap = 0,
-            challenge_minimap = 0,
-            challenge_only = 0,
-            loc_name = 0,
-            mob_display = 0,
-            ver = ver
-        }
-    end
-    g.sub_map_settings = settings
-    Sub_map_save_settings()
-end
-
-function sub_map_on_init()
-    if not g.sub_map_settings then
-        Sub_map_load_settings()
-    end
-    if g.settings.sub_map.use == 0 then
-        ui.DestroyFrame(addon_name_lower .. "sub_map")
-        return
-    end
-    g.sub_map_handles = {}
-    g.addon:RegisterMsg("MAP_CHARACTER_UPDATE", "Sub_map_MAP_CHARACTER_UPDATE")
-    g.addon:RegisterMsg("MON_MINIMAP", "Sub_map_MAP_MON_MINIMAP")
-    g.addon:RegisterMsg('MON_MINIMAP_END', 'Sub_map_ON_MON_MINIMAP_END')
-    g.addon:RegisterMsg("PARTY_INST_UPDATE", "Sub_map_MAP_UPDATE_PARTY_INST")
-    g.addon:RegisterMsg("PARTY_UPDATE", "Sub_map_update_party_or_guild")
-    g.addon:RegisterMsg("GUILD_INFO_UPDATE", "Sub_map_update_party_or_guild")
-    local _nexus_addons = ui.GetFrame("_nexus_addons")
-    _nexus_addons:SetVisible(1)
-    local init_sub_map_timer = _nexus_addons:CreateOrGetControl("timer", "init_sub_map_timer", 0, 0)
-    AUTO_CAST(init_sub_map_timer)
-    init_sub_map_timer:SetUpdateScript("Sub_map_frame_init")
-    init_sub_map_timer:Stop()
-    if g.get_map_type() ~= "Instance" then
-        init_sub_map_timer:Start(2.0)
-    end
-    local colony_list, cnt = GetClassList('guild_colony')
-    for i = 0, cnt - 1 do
-        local colonyCls = GetClassByIndexFromList(colony_list, i)
-        local check_word = "GuildColony_"
-        if string.find(g.map_name, check_word) then
-            init_sub_map_timer:Start(2.5)
-            break
-        end
-    end
-end
-
-function Sub_map_settings()
-    local list_frame = ui.GetFrame(addon_name_lower .. "list_frame")
-    local config = ui.CreateNewFrame("notice_on_pc", addon_name_lower .. "sub_map_setting_frame", 0, 0, 0, 0)
-    AUTO_CAST(config)
-    config:RemoveAllChild()
-    config:SetLayerLevel(999)
-    config:SetSkinName("test_frame_low")
-    local title_text = config:CreateOrGetControl("richtext", "title_text", 10, 10)
-    AUTO_CAST(title_text)
-    title_text:SetText("{ol}Sub Map")
-    local config_gb = config:CreateOrGetControl("groupbox", "config_gb", 10, 40, 0, 0)
-    AUTO_CAST(config_gb)
-    config_gb:SetSkinName("bg")
-    config:SetPos(list_frame:GetX() + list_frame:GetWidth(), list_frame:GetY())
-    local close = config:CreateOrGetControl("button", "close", 0, 0, 20, 20)
-    AUTO_CAST(close)
-    close:SetImage("testclose_button")
-    close:SetGravity(ui.RIGHT, ui.TOP)
-    close:SetEventScript(ui.LBUTTONUP, "Sub_map_setting_close")
-    local y = 10
-    local info_text = config_gb:CreateOrGetControl('richtext', 'info_text', 10, y + 5, 0, 30)
-    AUTO_CAST(info_text)
-    info_text:SetText(g.lang == "Japanese" and "{ol}サイズ設定" or "{ol}Size setting")
-    local size_edit = config_gb:CreateOrGetControl('edit', 'size_edit', info_text:GetWidth() + 20, y, 100, 30)
-    AUTO_CAST(size_edit)
-    size_edit:SetFontName("white_16_ol")
-    size_edit:SetTextAlign("center", "center")
-    size_edit:SetNumberMode(1)
-    size_edit:SetText("{ol}" .. g.sub_map_settings.size)
-    size_edit:SetTextTooltip(g.lang == "Japanese" and "{ol}150~350の間で設定" or "{ol}Setting range: 150 to 350")
-    size_edit:SetEventScript(ui.ENTERKEY, "Sub_map_setting_change")
-    y = y + 40
-    local move_check = config_gb:CreateOrGetControl('checkbox', "move_check", 10, y, 30, 30)
-    AUTO_CAST(move_check)
-    move_check:SetCheck(g.sub_map_settings.move == 1 and 0 or 1)
-    move_check:SetText(g.lang == "Japanese" and "{ol}チェックするとフレーム固定" or
-                           "{ol}If checked, the frame is fixed")
-    move_check:SetEventScript(ui.LBUTTONUP, "Sub_map_setting_change")
-    y = y + 40
-    local challenge_minimap = config_gb:CreateOrGetControl('checkbox', "challenge_minimap", 10, y, 30, 30)
-    AUTO_CAST(challenge_minimap)
-    challenge_minimap:SetCheck(g.sub_map_settings.challenge_minimap or 0)
-    challenge_minimap:SetText(g.lang == "Japanese" and
-                                  "{ol}チェックするとチャレンジでミニマップモード" or
-                                  "{ol}If checked, mini-map mode is enabled during the Challenge")
-    challenge_minimap:SetEventScript(ui.LBUTTONUP, "Sub_map_setting_change")
-    y = y + 40
-    local challenge_only = config_gb:CreateOrGetControl('checkbox', "challenge_only", 10, y, 30, 30)
-    AUTO_CAST(challenge_only)
-    challenge_only:SetCheck(g.sub_map_settings.challenge_only or 0)
-    challenge_only:SetText(g.lang == "Japanese" and "{ol}チェックするとチャレンジでのみ表示" or
-                               "{ol}If checked, display only during Challenges")
-    challenge_only:SetEventScript(ui.LBUTTONUP, "Sub_map_setting_change")
-    y = y + 40
-    local loc_name = config_gb:CreateOrGetControl('checkbox', "loc_name", 10, y, 30, 30)
-    AUTO_CAST(loc_name)
-    loc_name:SetCheck(g.sub_map_settings.loc_name or 0)
-    loc_name:SetText(g.lang == "Japanese" and "{ol}チェックすると地域名表示" or
-                         "{ol}If checked, display the region name")
-    loc_name:SetEventScript(ui.LBUTTONUP, "Sub_map_setting_change")
-    y = y + 40
-    local mob_display = config_gb:CreateOrGetControl('checkbox', "mob_display", 10, y, 30, 30)
-    AUTO_CAST(mob_display)
-    mob_display:SetCheck(g.sub_map_settings.mob_display or 0)
-    mob_display:SetText(g.lang == "Japanese" and "{ol}チェックするとチャレンジで雑魚を表示" or
-                            "{ol}If checked, display mobs only during Challenges")
-    mob_display:SetEventScript(ui.LBUTTONUP, "Sub_map_setting_change")
-    y = y + 40
-    local default_btn = config_gb:CreateOrGetControl("button", "default_btn", 20, y, 120, 30)
-    AUTO_CAST(default_btn)
-    default_btn:SetText(g.lang == "Japanese" and "{ol}フレーム初期位置" or "{ol}Init frame pos")
-    default_btn:SetEventScript(ui.LBUTTONUP, "Sub_map_setting_change")
-    y = y + 40
-    local skin_change = config_gb:CreateOrGetControl("button", "skin_change", 20, y, 120, 30)
-    AUTO_CAST(skin_change)
-    skin_change:SetText(g.lang == "Japanese" and "{ol}フレームスキン変更" or "{ol}Change frame skin")
-    skin_change:SetEventScript(ui.LBUTTONUP, "Sub_map_skin_change_context")
-    y = y + 30
-    config:Resize(challenge_minimap:GetWidth() + 40, y + 60)
-    config_gb:Resize(config:GetWidth() - 20, y + 10)
-    config:ShowWindow(1)
-end
-
-function Sub_map_setting_close(config)
-    ui.DestroyFrame(config:GetName())
-end
-
-function Sub_map_setting_change(parent, ctrl)
-    local ctrl_name = ctrl:GetName()
-    if ctrl_name == "size_edit" then
-        local size = tonumber(ctrl:GetText())
-        if size and size >= 150 and size <= 350 then
-            g.sub_map_settings.size = size
-        else
-            ui.SysMsg(g.lang == "Japanese" and "{ol}範囲外です" or "{ol}Out of range")
-            Sub_map_settings()
-            return
-        end
-    elseif ctrl_name == "move_check" then
-        local is_check = ctrl:IsChecked()
-        g.sub_map_settings.move = is_check == 1 and 0 or 1
-    elseif ctrl_name == "default_btn" then
-        g.sub_map_settings.x = 0
-        g.sub_map_settings.y = 0
-    else
-        g.sub_map_settings[ctrl_name] = ctrl:IsChecked()
-        if ctrl_name == "challenge_only" then
-            g.sub_map_settings.visible = ctrl:IsChecked() == 1 and 0 or 1
-        end
-    end
-    Sub_map_save_settings()
-    Sub_map_frame_init()
-end
-
-function Sub_map_skin_change_context(frame, ctrl)
-    local context = ui.CreateContextMenu("sub_map_context", "{ol}Sub Map Change Skin", 0, 0, 0, 0)
-    ui.AddContextMenuItem(context, "-----", "None")
-    ui.AddContextMenuItem(context, g.lang == "Japanese" and "{ol}無し" or "{ol}None",
-        string.format("Sub_map_skin_change('%s')", "None"))
-    ui.AddContextMenuItem(context, g.lang == "Japanese" and "{ol}薄め" or "{ol}Faint",
-        string.format("Sub_map_skin_change('%s')", "bg2"))
-    ui.AddContextMenuItem(context, g.lang == "Japanese" and "{ol}濃いめ" or "{ol}Darker",
-        string.format("Sub_map_skin_change('%s')", "bg"))
-    ui.OpenContextMenu(context)
-end
-
-function Sub_map_skin_change(skin_name)
-    g.sub_map_settings.skin_name = skin_name
-    Sub_map_save_settings()
-    Sub_map_frame_init()
-end
-
-function Sub_map_frame_init(_nexus_addons, init_sub_map_timer)
-    if init_sub_map_timer then
-        init_sub_map_timer:Stop()
-    end
-    local sub_map = ui.CreateNewFrame("notice_on_pc", addon_name_lower .. "sub_map", 0, 0, 0, 0)
-    AUTO_CAST(sub_map)
-    sub_map:ShowWindow(0)
-    local is_auto_challenge = session.IsAutoChallengeMap()
-    local is_solo_challenge = session.IsSoloChallengeMap()
-    local challenge = 0
-    if is_auto_challenge or is_solo_challenge then
-        challenge = 1
-    end
-    sub_map:SetUserValue("CHALLENGE", challenge)
-    sub_map:StopUpdateScript("Sub_map_frame_init")
-    sub_map:RemoveAllChild()
-    sub_map:EnableMove(g.sub_map_settings.move)
-    sub_map:EnableHittestFrame(1)
-    sub_map:SetTitleBarSkin("None")
-    sub_map:SetGravity(ui.RIGHT, ui.TOP)
-    sub_map:SetMargin(0, 0, 0, 0)
-    local use_minimap = (challenge == 1 and g.sub_map_settings.challenge_minimap == 1) or
-                            (challenge == 0 and g.sub_map_settings.minimap ~= 0)
-    if use_minimap then
-        sub_map:SetSkinName("bg")
-        local rect = sub_map:GetMargin()
-        sub_map:SetMargin(rect.left - rect.left, rect.top - rect.top + 70,
-            rect.right == 0 and rect.right + 35 or rect.right, rect.bottom)
-        sub_map:Resize(310, 350)
-    else
-        sub_map:SetSkinName(g.sub_map_settings.skin_name)
-        sub_map:SetLayerLevel(12)
-        local rect = sub_map:GetMargin()
-        sub_map:SetMargin(rect.left - rect.left, rect.top - rect.top + 50,
-            rect.right == 0 and rect.right + 550 or rect.right, rect.bottom)
-        if g.sub_map_settings.x ~= 0 and g.sub_map_settings.y ~= 0 then
-            sub_map:SetPos(g.sub_map_settings.x, g.sub_map_settings.y)
-        end
-    end
-    sub_map:SetEventScript(ui.LBUTTONUP, "Sub_map_frame_end_drag")
-    local title = sub_map:CreateOrGetControl("richtext", "title", 25, 2)
-    AUTO_CAST(title)
-    local map_real_name = GetClassByType("Map", g.map_id).Name
-    title:SetText("{ol}{S12}" .. map_real_name)
-    if challenge == 0 and g.sub_map_settings.challenge_only == 1 then
-        g.sub_map_settings.visible = 0
-    else
-        g.sub_map_settings.visible = 1
-    end
-    local display = sub_map:CreateOrGetControl("picture", "display", 5, 3, 15, 15)
-    AUTO_CAST(display)
-    display:SetEnableStretch(1)
-    display:EnableHitTest(1)
-    display:SetEventScript(ui.LBUTTONUP, "Sub_map_frame_toggle")
-    display:SetTextTooltip("{ol}Display / hide")
-    display:ShowWindow(1)
-    local size = g.sub_map_settings.size
-    if not use_minimap then
-        if g.sub_map_settings.visible == 1 then
-            display:SetImage("btn_minus")
-            sub_map:Resize(size + 10, size + 40)
-        else
-            display:SetImage("btn_plus")
-            sub_map:Resize(size + 10, 40)
-            sub_map:ShowWindow(1)
-            return
-        end
-    else
-        size = 310
-    end
-    local gbox = sub_map:CreateOrGetControl("picture", "gbox", size + 10, size + 10, ui.LEFT, ui.BOTTOM, 0, 30, 0, 0)
-    AUTO_CAST(gbox)
-    if not use_minimap then
-        gbox:SetEventScript(ui.MOUSEON, "Sub_map_frame_layer_change")
-        gbox:SetEventScriptArgString(ui.MOUSEON, "mouse_on")
-        gbox:SetEventScript(ui.MOUSEOFF, "Sub_map_frame_layer_change")
-        gbox:SetEventScriptArgString(ui.MOUSEOFF, "mouse_off")
-    end
-    gbox:SetEventScript(ui.LBUTTONDOWN, "Sub_map_frame_map_link")
-    gbox:SetEventScript(ui.RBUTTONDOWN, "Sub_map_mini_map")
-    gbox:SetTextTooltip(g.lang == "Japanese" and
-                            "{ol}LCTRL+右クリック: ミニマップモード 切替{nl}LCTRL+左クリック: マップリンク" or
-                            "{ol}LCTRL+Right click: Minimap Mode Toggle{nl}LCTRL+Left click: Map Link")
-    local map_pic = gbox:CreateOrGetControl("picture", "map_pic", size, size, ui.LEFT, ui.TOP, 0, 0, 0, 0)
-    AUTO_CAST(map_pic)
-    map_pic:SetEnableStretch(1)
-    map_pic:EnableHitTest(0)
-    if g.sub_map_settings.loc_name == 1 then
-        local name_group = map_pic:CreateOrGetControl("picture", "name_group", ui.CENTER_HORZ, ui.CENTER_VERT,
-            map_pic:GetWidth(), map_pic:GetHeight())
-        MAKE_MAP_AREA_INFO(name_group, GetClassByType("Map", g.map_id).ClassName, "{s12}", map_pic:GetWidth(),
-            map_pic:GetHeight(), -100, -30)
-        AUTO_CAST(name_group)
-        name_group:SetSkinName("None")
-    end
-    local icon_size = use_minimap and g.sub_map_settings.size * 0.08 or size * 0.08
-    sub_map:SetUserValue("ICON_SIZE", icon_size)
-    local my = gbox:CreateOrGetControl("picture", "my", icon_size * 2, icon_size * 2, ui.LEFT, ui.TOP, 0, 0, 0, 0)
-    AUTO_CAST(my)
-    my:ShowWindow(0)
-    my:SetImage("minimap_leader")
-    my:SetEnableStretch(1)
-    map_pic:SetImage(g.map_name)
-    Sub_map_char_update(sub_map, my, map_pic)
-    if challenge == 0 then
-        Sub_map_set_warp_point(sub_map, gbox, map_pic, g.map_name, icon_size, map_real_name)
-        Sub_map_mapicon_update(sub_map, map_pic)
-    end
-    local _nexus_addons = ui.GetFrame("_nexus_addons")
-    _nexus_addons:RunUpdateScript("Always_status_lazy_start", 0.1)
-    local sub_map_timer = _nexus_addons:CreateOrGetControl("timer", "sub_map_timer", 0, 0)
-    AUTO_CAST(sub_map_timer)
-    sub_map_timer:SetUpdateScript("Sub_map_timer_update")
-    sub_map_timer:Start(0.5)
-end
-
-function Sub_map_frame_end_drag(sub_map)
-    g.sub_map_settings.x = sub_map:GetX()
-    g.sub_map_settings.y = sub_map:GetY()
-    Sub_map_save_settings()
-end
-
-function Sub_map_frame_toggle(frame, ctrl)
-    if g.sub_map_settings.visible == 1 then
-        g.sub_map_settings.visible = 0
-    else
-        g.sub_map_settings.visible = 1
-    end
-    Sub_map_save_settings()
-    Sub_map_frame_init()
-end
-
-function Sub_map_frame_map_link(sub_map, gbox)
-    if keyboard.IsKeyPressed("LCTRL") ~= 1 then
-        return
-    end
-    local x, y = GET_LOCAL_MOUSE_POS(gbox)
-    local map_prop = geMapTable.GetMapProp(g.map_name)
-    local world_pos = map_prop:MinimapPosToWorldPos(x, y, gbox:GetWidth(), gbox:GetHeight())
-    LINK_MAP_POS(g.map_name, world_pos.x, world_pos.y)
-end
-
-function Sub_map_mini_map(sub_map, gbox)
-    if keyboard.IsKeyPressed("LCTRL") ~= 1 then
-        return
-    end
-    if g.sub_map_settings.minimap == 0 then
-        g.sub_map_settings.minimap = 1
-    else
-        g.sub_map_settings.minimap = 0
-    end
-    Sub_map_save_settings()
-    ui.DestroyFrame(addon_name_lower .. "sub_map")
-    ReserveScript("Sub_map_frame_init()", 0.1)
-end
-
-function Sub_map_frame_layer_change(sub_map, gbox, str)
-    if str == "mouse_on" then
-        sub_map:SetLayerLevel(999)
-    elseif str == "mouse_off" then
-        sub_map:SetLayerLevel(12)
-    end
-end
-
-function Sub_map_char_update(sub_map, my, map_pic)
-    local my_handle = session.GetMyHandle()
-    local pos = info.GetPositionInMap(my_handle, map_pic:GetWidth(), map_pic:GetHeight())
-    my:SetOffset(pos.x - my:GetWidth() / 2, pos.y - my:GetHeight() / 2)
-    local map_prop = session.GetCurrentMapProp()
-    local angle = info.GetAngle(my_handle) - map_prop.RotateAngle
-    my:SetAngle(angle)
-    my:ShowWindow(1)
-    map_pic:Invalidate()
-end
-
-function Sub_map_set_warp_point(sub_map, gbox, map_pic, map_name, icon_size, map_real_name)
-    local map_prop = geMapTable.GetMapProp(map_name)
-    local mongens = map_prop.mongens
-    local count = mongens:Count()
-    for i = 0, count - 1 do
-        local mon_prop = mongens:Element(i)
-        local icon_name = mon_prop:GetMinimapIcon()
-        if icon_name == "minimap_portal" or icon_name == "minimap_erosion" then
-            local gen_list = mon_prop.GenList
-            local gen_count = gen_list:Count()
-            for j = 0, gen_count - 1 do
-                local dialog = mon_prop:GetDialog()
-                local warp_cls = GetClass("Warp", mon_prop:GetDialog())
-                if not warp_cls then
-                    for match in dialog:gmatch("[a-zA-Z]+_(.*)") do
-                        warp_cls = GetClass("Warp", match)
-                    end
-                end
-                if warp_cls then
-                    local pos = gen_list:Element(j)
-                    local map_pos = map_prop:WorldPosToMinimapPos(pos.x, pos.z, map_pic:GetWidth(), map_pic:GetHeight())
-                    local icon = gbox:CreateOrGetControl("picture", "icon_" .. i, icon_size, icon_size, ui.LEFT, ui.TOP,
-                        0, 0, 0, 0)
-                    AUTO_CAST(icon)
-                    icon:SetTextTooltip("{ol}{s10}" .. map_real_name)
-                    icon:SetImage(mon_prop:GetMinimapIcon())
-                    icon:SetOffset(map_pos.x - icon:GetWidth() / 2, map_pos.y - icon:GetHeight() / 2)
-                    icon:SetEnableStretch(1)
-                end
-            end
-        end
-    end
-    gbox:Invalidate()
-end
-
-function Sub_map_timer_update(_nexus_addons, sub_map_timer)
-    local sub_map = ui.GetFrame(addon_name_lower .. "sub_map")
-    AUTO_CAST(sub_map)
-    local challenge = sub_map:GetUserIValue("CHALLENGE")
-    local use_minimap = (challenge == 1 and g.sub_map_settings.challenge_minimap == 1) or
-                            (challenge == 0 and g.sub_map_settings.minimap == 1)
-    if use_minimap then
-        Sub_map_time_update_(sub_map, sub_map_timer)
-        if ui.GetFrame("buffseller_target"):IsVisible() == 1 then
-            sub_map:SetLayerLevel(79)
-        elseif sub_map:GetLayerLevel() ~= 94 then
-            sub_map:SetLayerLevel(94)
-        end
-    end
-    if MAP_USE_FOG(g.map_name) ~= 0 then
-        Sub_map_draw_fog(sub_map)
-    end
-    local challenge = sub_map:GetUserIValue("CHALLENGE")
-    if challenge == 1 then
-        Sub_map_callenge_pcicon_update(sub_map)
-        --[[if g.sub_map_settings.mob_display == 1 then
-            sub_map_update_monster(sub_map)
-        end]]
-    end
-    Sub_map_update_remove_member(sub_map)
-end
-
-function Sub_map_time_update_(sub_map, sub_map_timer)
-    local server_time = geTime.GetServerSystemTime()
-    local hour = server_time.wHour
-    local min = server_time.wMinute
-    local ampm = "AM"
-    local display_hour = hour
-    if hour == 0 then
-        display_hour = 12
-        ampm = "AM"
-    elseif hour == 12 then
-        display_hour = 12
-        ampm = "PM"
-    elseif hour > 12 then
-        display_hour = hour - 12
-        ampm = "PM"
-    end
-    local display_min = string.format("%02d", min)
-    local clock_text = string.format("{ol}{s18}%s %d:%s", ampm, display_hour, display_min)
-    local clock = GET_CHILD(sub_map, "clock")
-    if not clock then
-        clock = sub_map:CreateOrGetControl("richtext", "clock", 0, 0)
-        AUTO_CAST(clock)
-    end
-    clock:SetGravity(ui.RIGHT, ui.BOTTOM)
-    clock:SetMargin(0, 0, 10, 5)
-    clock:SetText(clock_text)
-end
-
-function Sub_map_draw_fog(sub_map)
-    local map_pic = GET_CHILD_RECURSIVELY(sub_map, "map_pic")
-    AUTO_CAST(map_pic)
-    HIDE_CHILD_BYNAME(map_pic, "sub_map_fog_")
-    local map_frame = ui.GetFrame('map')
-    local map = GET_CHILD(map_frame, "map")
-    AUTO_CAST(map)
-    local map_zoom = math.abs(tonumber(map_pic:GetWidth()) / tonumber(map:GetWidth()))
-    local list = session.GetMapFogList(g.map_name)
-    local cnt = list:Count()
-    for i = 0, cnt - 1 do
-        local tile = list:PtrAt(i)
-        if tile.revealed == 0 then
-            local name = string.format("sub_map_fog_%d", i)
-            local tile_X = (tile.x * map_zoom)
-            local tile_Y = (tile.y * map_zoom)
-            local tile_width = math.ceil(tile.w * map_zoom)
-            local tile_height = math.ceil(tile.h * map_zoom)
-            local pic = map_pic:CreateOrGetControl("picture", name, tile_X, tile_Y, tile_width, tile_height)
-            AUTO_CAST(pic)
-            pic:SetImage("fullred")
-            pic:SetEnableStretch(1)
-            pic:SetAlpha(40)
-            pic:EnableHitTest(0)
-            pic:ShowWindow(1)
-        end
-    end
-    sub_map:Invalidate()
-end
-
-function Sub_map_callenge_pcicon_update(sub_map)
-    local gbox = GET_CHILD(sub_map, "gbox")
-    local names = {}
-    for i = 0, gbox:GetChildCount() - 1 do
-        local child = gbox:GetChildByIndex(i)
-        if child and child:GetName() ~= "map_pic" and child:GetName() ~= "my" then
-            local aid = tonumber(child:GetName())
-            if aid then
-                gbox:RemoveChild(child:GetName())
-            end
-            names[child:GetName()] = true
-        end
-    end
-    local map_pic = GET_CHILD(gbox, "map_pic")
-    local mapprop = session.GetCurrentMapProp()
-    local party_list = session.party.GetPartyMemberList(PARTY_NORMAL)
-    local party_count = party_list:Count()
-    local my_info = session.party.GetMyPartyObj(PARTY_NORMAL)
-    local my_handle = session.GetMyHandle()
-    local icon_size = sub_map:GetUserIValue("ICON_SIZE")
-    local selected_objects, selected_objects_count = SelectObject(GetMyPCObject(), 5000, "ALL")
-    local icon_img_160063 = GetClassByType("Item", 870004).Icon
-    local icon_img_160055 = GetClassByType("Item", 664039).Icon
-    for i = 1, selected_objects_count do
-        local handle = GetHandle(selected_objects[i])
-        if not g.sub_map_handles[tostring(handle)] then
-            local actor = world.GetActor(handle)
-            if handle and actor then
-                local clsid = actor:GetType()
-                local mon_cls = GetClassByType("Monster", clsid)
-                if clsid == 160063 or clsid == 160055 then
-                    local icon_name = "mon_" .. handle
-                    names[icon_name] = false
-                    local world_pos = actor:GetPos()
-                    local pos = mapprop:WorldPosToMinimapPos(world_pos, map_pic:GetWidth(), map_pic:GetHeight())
-                    local x = (pos.x - icon_size / 4)
-                    local y = (pos.y - icon_size / 4)
-                    local icon = gbox:CreateOrGetControl("picture", icon_name, icon_size * 0.5, icon_size * 0.5,
-                        ui.LEFT, ui.TOP, 0, 0, 0, 0)
-                    AUTO_CAST(icon)
-                    icon:SetPos(x, y)
-                    if clsid == 160063 then
-                        icon:SetImage(icon_img_160063)
-                    elseif clsid == 160055 then
-                        icon:SetImage(icon_img_160055)
-                    end
-                    icon:SetEnableStretch(1)
-                    icon:ShowWindow(1)
-                end
-
-                if my_handle ~= handle and info.IsPC(handle) == 1 then
-                    for j = 0, party_count - 1 do
-                        local pc_info = party_list:Element(j)
-                        local name = pc_info:GetName()
-                        local apc = actor:GetPCApc()
-                        if apc then
-                            local actor_name = apc:GetFamilyName()
-                            if my_info ~= pc_info and name == actor_name then
-                                names[name] = false -- 削除対象から除外
-                                local inst_info = pc_info:GetInst()
-                                local world_pos = actor:GetPos()
-                                local hp = inst_info.hp
-                                local pc_icon = GET_CHILD(gbox, name)
-                                if not pc_icon then
-                                    pc_icon = gbox:CreateOrGetControl("picture", name, 0, 0, icon_size * 1.25,
-                                        icon_size * 1.25)
-                                end
-                                AUTO_CAST(pc_icon)
-                                pc_icon:SetTextTooltip("{ol}{s10}" .. name)
-                                pc_icon:SetEnableStretch(1)
-                                local pos = mapprop:WorldPosToMinimapPos(world_pos, map_pic:GetWidth(),
-                                    map_pic:GetHeight())
-                                local x = (pos.x - icon_size * 1.25 / 2)
-                                local y = (pos.y - icon_size * 1.25 / 2)
-                                pc_icon:SetPos(x, y)
-                                pc_icon:ShowWindow(1)
-                                local image_name = 'Archer_party'
-                                if hp <= 0 then
-                                    image_name = 'die_party'
-                                end
-                                pc_icon:SetImage(image_name)
-                                break
-                            end
-                        end
-                    end
-                end
-            end
-        end
-    end
-    for check_name, bool in pairs(names) do
-        if bool == true and not string.find(check_name, "_MONPOS_") and not string.find(check_name, "SCR") then
-            local icon = GET_CHILD(gbox, check_name)
-            if icon then
-                gbox:RemoveChild(check_name)
-            end
-        end
-    end
-end
-
-function Sub_map_update_remove_member(sub_map)
-    local gbox = GET_CHILD(sub_map, "gbox")
-    local icons = {}
-    for i = 0, gbox:GetChildCount() - 1 do
-        local child = gbox:GetChildByIndex(i)
-        if child then
-            local aid = tonumber(child:GetName())
-            if aid then
-                icons[aid] = true
-            end
-        end
-    end
-    local function process_member_list(party_type)
-        local list = session.party.GetPartyMemberList(party_type)
-        local my_handle = session.GetMyHandle()
-        local my_info = session.party.GetMyPartyObj(party_type)
-        if my_info then
-            for i = 0, list:Count() - 1 do
-                local pc_info = list:Element(i)
-                local aid = tonumber(pc_info:GetAID())
-                local handle = pc_info:GetHandle()
-                if handle ~= my_handle and pc_info:GetMapID() == my_info:GetMapID() and pc_info:GetChannel() ==
-                    my_info:GetChannel() then
-                    icons[aid] = false
-                end
-            end
-        end
-    end
-    process_member_list(PARTY_NORMAL)
-    process_member_list(PARTY_GUILD)
-    for aid, remove in pairs(icons) do
-        if remove == true then
-            gbox:RemoveChild(tostring(aid))
-        end
-    end
-end
-
---[[function Sub_map_update_monster(sub_map) -- 雑魚は画面に映ってる分しか取れない。仕様っぽい。チャレンジでは取れる
-    local gbox = GET_CHILD(sub_map, "gbox")
-    local icon_size = sub_map:GetUserIValue("ICON_SIZE")
-    g.sub_map_handles = g.sub_map_handles or {}
-    local selected_objects, selected_objects_count = SelectObject(GetMyPCObject(), 5000, 'ENEMY')
-    for i = 1, selected_objects_count do
-        local handle = GetHandle(selected_objects[i])
-        if handle and info.IsMonster(handle) == 1 then
-            local actor = world.GetActor(handle)
-            if actor then
-                local cls_name = info.GetMonsterClassName(handle)
-                local mon_cls = GetClass("Monster", cls_name)
-                if mon_cls and TryGetProp(mon_cls, "MonRank", "None") ~= "Boss" and
-                    not g.sub_map_handles[tostring(handle)] then
-                    g.sub_map_handles[tostring(handle)] = true
-                    local mon_pic = GET_CHILD_RECURSIVELY(gbox, "_MONPOS_" .. handle)
-                    if not mon_pic then
-                        mon_pic = gbox:CreateOrGetControl("picture", "_MONPOS_" .. handle, 0, 0, icon_size / 2,
-                            icon_size / 2)
-                        AUTO_CAST(mon_pic)
-                        mon_pic:SetUserValue("HANDLE", handle)
-                        local img_name = "colonymonster"
-                        mon_pic:SetImage(img_name)
-                        mon_pic:SetEnableStretch(1)
-                        local map_prop = session.GetCurrentMapProp()
-                        local map_pic = GET_CHILD_RECURSIVELY(sub_map, "map_pic")
-                        AUTO_CAST(map_pic)
-                        if map_pic then
-                            local world_pos = actor:GetPos()
-                            local pos =
-                                map_prop:WorldPosToMinimapPos(world_pos, map_pic:GetWidth(), map_pic:GetHeight())
-                            local init_x = pos.x - mon_pic:GetWidth() / 2
-                            local init_y = pos.y - mon_pic:GetHeight() / 2
-                            mon_pic:SetOffset(init_x, init_y)
-                        end
-                        mon_pic:ShowWindow(1)
-                        if not mon_pic:HaveUpdateScript("Sub_map_monpic_auto_update") then
-                            mon_pic:RunUpdateScript("sub_map_monpic_auto_update", 0.5)
-                        end
-                    end
-                end
-            end
-        end
-    end
-end]]
-
-function Sub_map_MAP_CHARACTER_UPDATE()
-    local sub_map = ui.GetFrame(addon_name_lower .. "sub_map")
-    if not sub_map then
-        return
-    end
-    AUTO_CAST(sub_map)
-    local my_handle = session.GetMyHandle()
-    local map_pic = GET_CHILD_RECURSIVELY(sub_map, "map_pic")
-    AUTO_CAST(map_pic)
-    local pos = info.GetPositionInMap(my_handle, map_pic:GetWidth(), map_pic:GetHeight())
-    local my = GET_CHILD_RECURSIVELY(sub_map, "my")
-    AUTO_CAST(my)
-    my:ShowWindow(0)
-    my:SetOffset(pos.x - my:GetWidth() / 2, pos.y - my:GetHeight() / 2)
-    local mapprop = session.GetCurrentMapProp()
-    local angle = info.GetAngle(my_handle) - mapprop.RotateAngle
-    my:SetAngle(angle)
-    my:ShowWindow(1)
-    map_pic:Invalidate()
-    local challenge = sub_map:GetUserIValue("CHALLENGE")
-    if challenge == 0 then
-        Sub_map_mapicon_update(sub_map, map_pic)
-    end
-end
-
-function Sub_map_mapicon_update(sub_map, map_pic)
-    local now = imcTime.GetAppTimeMS()
-    if g.sub_map_last_update_time then
-        if now - g.sub_map_last_update_time < 1000 then
-            return
-        end
-    end
-    g.sub_map_last_update_time = now
-    local map_tbl = Sub_map_get_mapinfo(sub_map, map_pic)
-    local gbox = GET_CHILD(sub_map, "gbox")
-    local function split(str, delim)
-        local return_data = {}
-        for match in string.gmatch(str, "[^" .. delim .. "]+") do
-            table.insert(return_data, match)
-        end
-        return return_data
-    end
-    local icon_size = sub_map:GetUserIValue("ICON_SIZE")
-    for i, data in ipairs(map_tbl) do
-        if string.find(data.class_type, "treasure_box") then
-            local item_split = split(data.argstr2, ":")
-            local item_name = GetClass("Item", item_split[2]).Name
-            local icon = GET_CHILD(gbox, "icon_" .. i)
-            if not icon then
-                icon = gbox:CreateOrGetControl("picture", "icon_" .. i, 0, 0, icon_size, icon_size)
-                AUTO_CAST(icon)
-                icon:SetOffset(data.map_pos.x - icon:GetWidth() / 2, data.map_pos.y - icon:GetHeight() / 2)
-                icon:SetEnableStretch(1)
-            end
-            icon:SetTextTooltip("{ol}{s10}" .. data.argstr1 .. "{nl}" .. item_name)
-            if data.state then
-                icon:SetImage("icon_item_box")
-            else
-                icon:SetText("{ol}{s10}" .. data.argstr1)
-                icon:SetImage("compen_btn")
-            end
-        end
-        if string.find(data.class_type, "statue_vakarine") or string.find(data.class_type, "klaipeda_square_statue") or
-            string.find(data.class_type, "npc_orsha_goddess") or string.find(data.class_type, "statue_zemina") then
-            local icon = GET_CHILD(gbox, "icon_" .. i)
-            if not icon then
-                icon = gbox:CreateOrGetControl("picture", "icon_" .. i, 0, 0, icon_size, icon_size)
-                AUTO_CAST(icon)
-                icon:SetOffset(data.map_pos.x - icon:GetWidth() / 2, data.map_pos.y - icon:GetHeight() / 2)
-                icon:SetEnableStretch(1)
-                icon:SetTextTooltip("{ol}{s10}" .. data.name)
-                icon:SetImage(data.icon_name)
-            end
-            if data.state then
-                icon:SetColorTone("FFFFFFFF")
-            else
-                icon:SetColorTone("FF555555")
-            end
-        end
-    end
-    gbox:Invalidate()
-end
-
-function Sub_map_get_mapinfo(sub_map, map_pic)
-    if not g.map_name or g.map_name == "" or g.map_name == "None" then
-        return
-    end
-    local property = geMapTable.GetMapProp(g.map_name)
-    local class_list, class_count = GetClassList("GenType_" .. g.map_name)
-    local mongens = property.mongens
-    local map_tbl = {}
-    local count = mongens:Count()
-    for i = 0, count - 1 do
-        local mon_prop = mongens:Element(i)
-        local ies_data = GetClassByIndexFromList(class_list, i)
-        local class_type = ies_data.ClassType
-        local state = GetNPCState(g.map_name, ies_data.GenType)
-        if not state then
-            state = false
-        end
-        local gen_list = mon_prop.GenList
-        local map_pos
-        if gen_list:Count() > 0 then
-            map_pos = property:WorldPosToMinimapPos(gen_list:Element(0), map_pic:GetWidth(), map_pic:GetHeight())
-        end
-        local icon_name = mon_prop:GetMinimapIcon()
-        if string.find(class_type, "treasure_box") then
-            if ies_data.ArgStr1 ~= "None" then
-                local data = {
-                    class_type = class_type,
-                    state = state,
-                    map_pos = map_pos,
-                    icon_name = icon_name,
-                    argstr1 = ies_data.ArgStr1,
-                    argstr2 = ies_data.ArgStr2,
-                    argstr3 = ies_data.ArgStr3,
-                    name = ies_data.Name
-                }
-                table.insert(map_tbl, data)
-            end
-        elseif string.find(class_type, "statue_zemina") or string.find(class_type, "statue_vakarine") or
-            string.find(class_type, "klaipeda_square_statue") or string.find(class_type, "npc_orsha_goddess") then
-            local data = {
-                class_type = class_type,
-                state = state,
-                map_pos = map_pos,
-                icon_name = icon_name,
-                argstr1 = ies_data.ArgStr1,
-                argstr2 = ies_data.ArgStr2,
-                argstr3 = ies_data.ArgStr3,
-                name = ies_data.Name
-            }
-            table.insert(map_tbl, data)
-        end
-    end
-    return map_tbl
-end
-
-function Sub_map_MAP_MON_MINIMAP(frame, msg, str, num, info)
-    local sub_map = ui.GetFrame(addon_name_lower .. "sub_map")
-    if not sub_map then
-        return
-    end
-    AUTO_CAST(sub_map)
-    local gbox = GET_CHILD(sub_map, "gbox")
-    local handle = info.handle
-    g.sub_map_handles = g.sub_map_handles or {}
-    if g.sub_map_handles[tostring(handle)] then
-        return
-    end
-    local mon_cls = GetClassByType("Monster", info.type)
-    if not mon_cls then
-        return
-    end
-    local mon_rank = TryGetProp(mon_cls, "MonRank", "None")
-    local is_boss = (mon_rank == "Boss")
-    local is_mob_display = (g.sub_map_settings.mob_display == 1)
-    if not is_boss and not is_mob_display then
-        return
-    end
-    local base_size = sub_map:GetUserIValue("ICON_SIZE")
-    local icon_w, icon_h
-    if is_boss then
-        if is_mob_display then
-            icon_w, icon_h = base_size * 1.5, base_size * 1.5
-        else
-            icon_w, icon_h = base_size, base_size
-        end
-    else
-        icon_w, icon_h = base_size / 3, base_size / 3
-    end
-    g.sub_map_handles[tostring(handle)] = true
-    local mon_pic = gbox:CreateOrGetControl("picture", "_MONPOS_" .. handle, 0, 0, icon_w, icon_h)
-    AUTO_CAST(mon_pic)
-    mon_pic:SetUserValue("HANDLE", handle)
-    if mon_cls.MinimapIcon ~= "None" then
-        mon_pic:SetImage(mon_cls.MinimapIcon)
-    else
-        mon_pic:SetImage("fullwhite")
-        mon_pic:SetColorTone("FFFF4500")
-    end
-    mon_pic:SetEnableStretch(1)
-    local map_pic = GET_CHILD_RECURSIVELY(sub_map, "map_pic")
-    AUTO_CAST(map_pic)
-    if map_pic then
-        local map_prop = session.GetCurrentMapProp()
-        local pos = map_prop:WorldPosToMinimapPos(info.x, info.z, map_pic:GetWidth(), map_pic:GetHeight())
-        mon_pic:SetOffset(pos.x - icon_w / 2, pos.y - icon_h / 2)
-    end
-    mon_pic:ShowWindow(1)
-    if not mon_pic:HaveUpdateScript("Sub_map_monpic_auto_update") then
-        mon_pic:RunUpdateScript("Sub_map_monpic_auto_update", 0.5)
-    end
-end
-
-function Sub_map_monpic_auto_update(mon_pic)
-    local sub_map = mon_pic:GetTopParentFrame()
-    local gbox = GET_CHILD(sub_map, "gbox")
-    local handle = mon_pic:GetUserIValue("HANDLE")
-    local actor = world.GetActor(handle)
-    if actor then
-        local map_prop = session.GetCurrentMapProp()
-        local map_pic = GET_CHILD_RECURSIVELY(sub_map, "map_pic")
-        AUTO_CAST(map_pic)
-        local actor_pos = actor:GetPos()
-        local mon_cls = GetClassByType("Monster", actor:GetType())
-        if mon_cls then
-            local pos = map_prop:WorldPosToMinimapPos(actor_pos, map_pic:GetWidth(), map_pic:GetHeight())
-            local x = pos.x - mon_pic:GetWidth() / 2
-            local y = pos.y - mon_pic:GetHeight() / 2
-            mon_pic:SetOffset(x, y)
-        end
-    end
-    return 1
-end
-
-function Sub_map_ON_MON_MINIMAP_END(frame, msg, str, handle)
-    local sub_map = ui.GetFrame(addon_name_lower .. "sub_map")
-    if not sub_map then
-        return
-    end
-    AUTO_CAST(sub_map)
-    local gbox = GET_CHILD(sub_map, "gbox")
-    local mon_pic = GET_CHILD(gbox, "_MONPOS_" .. handle)
-    if mon_pic then
-        if g.sub_map_handles then
-            g.sub_map_handles[tostring(handle)] = nil
-        end
-        gbox:RemoveChild("_MONPOS_" .. handle)
-        gbox:Invalidate()
-    end
-end
-
-function Sub_map_MAP_UPDATE_PARTY_INST(frame, msg, str, party_type)
-    local sub_map = ui.GetFrame(addon_name_lower .. "sub_map")
-    if not sub_map then
-        return
-    end
-    AUTO_CAST(sub_map)
-    local gbox = GET_CHILD(sub_map, "gbox")
-    local map_prop = session.GetCurrentMapProp()
-    local my_info = session.party.GetMyPartyObj(party_type)
-    local list = session.party.GetPartyMemberList(party_type)
-    local count = list:Count()
-    for i = 0, count - 1 do
-        local pc_info = list:Element(i)
-        if my_info ~= pc_info then
-            local aid = pc_info:GetAID()
-            local pc_icon = GET_CHILD(gbox, aid)
-            if pc_icon then
-                local inst_info = pc_info:GetInst()
-                Sub_map_SET_MINIMAP_ICON(pc_icon, inst_info.hp, aid)
-                Sub_map_SET_MAPPOS(sub_map, pc_icon, inst_info, map_prop)
-            end
-        end
-    end
-end
-
-function Sub_map_SET_MINIMAP_ICON(pc_icon, hp, aid)
-    local image_name = 'die_party'
-    if hp > 0 then
-        if session.party.GetPartyMemberInfoByAID(PARTY_NORMAL, aid) then
-            image_name = 'Archer_party'
-        elseif session.party.GetPartyMemberInfoByAID(PARTY_GUILD, aid) then
-            image_name = 'Wizard_party'
-        end
-    end
-    pc_icon:SetImage(image_name)
-end
-
-function Sub_map_SET_MAPPOS(sub_map, pc_icon, inst_info, map_prop, info)
-    local world_pos = inst_info:GetPos()
-    local map_pic = GET_CHILD_RECURSIVELY(sub_map, 'map_pic')
-    local pos
-    if info then
-        pos = map_prop:WorldPosToMinimapPos(info.x, info.z, map_pic:GetWidth(), map_pic:GetHeight())
-    else
-        pos = map_prop:WorldPosToMinimapPos(world_pos, map_pic:GetWidth(), map_pic:GetHeight())
-    end
-    local icon_size = sub_map:GetUserIValue("ICON_SIZE")
-    local x = (pos.x - icon_size / 2)
-    local y = (pos.y - icon_size / 2)
-    pc_icon:SetPos(x, y)
-end
-
-function Sub_map_update_party_or_guild(frame, msg, arg, num, info)
-    local sub_map = ui.GetFrame(addon_name_lower .. "sub_map")
-    if not sub_map then
-        return
-    end
-    AUTO_CAST(sub_map)
-    local party_type = 0
-    if msg == "GUILD_INFO_UPDATE" then
-        party_type = 1
-    end
-    local list = session.party.GetPartyMemberList(party_type)
-    local count = list:Count()
-    if count == 1 then
-        return
-    end
-    local my_info = session.party.GetMyPartyObj(party_type)
-    if not my_info then
-        return
-    end
-    local map_prop = session.GetCurrentMapProp()
-    for i = 0, count - 1 do
-        local pc_info = list:Element(i)
-        if my_info ~= pc_info and my_info:GetMapID() == pc_info:GetMapID() and my_info:GetChannel() ==
-            pc_info:GetChannel() then
-            Sub_map_CREATE_PICTURE(sub_map, pc_info, party_type, map_prop, info)
-        end
-    end
-end
-
-function Sub_map_CREATE_PICTURE(sub_map, pc_info, party_type, mapprop, info)
-    local aid = pc_info:GetAID()
-    local gbox = GET_CHILD(sub_map, "gbox")
-    local pc_icon = GET_CHILD(gbox, aid)
-    if not pc_icon then
-        local icon_size = sub_map:GetUserIValue("ICON_SIZE")
-        pc_icon = gbox:CreateOrGetControl("picture", aid, 0, 0, icon_size, icon_size)
-        AUTO_CAST(pc_icon)
-    end
-    pc_icon:SetEnableStretch(1)
-    pc_icon:SetTooltipType("partymap")
-    local name = ""
-    --[[if type(_G["NATIVE_LANG_ON_INIT"]) == "function" then
-        local ntr = _G["ADDONS"]["norisan"]["NATIVE_LANG"]
-        name = ntr.names[pc_info:GetName()] or pc_info:GetName() -- {#FF0000}★
-        name = string.gsub(name, "{#FF0000}★", "")
-        name = string.gsub(name, "{/}", "")
-        ts(name)
-    end]]
-    pc_icon:SetTooltipArg(pc_info:GetName(), party_type)
-    pc_icon:ShowWindow(1)
-    local inst_info = pc_info:GetInst()
-    Sub_map_SET_MINIMAP_ICON(pc_icon, inst_info.hp, aid)
-    Sub_map_SET_MAPPOS(sub_map, pc_icon, inst_info, mapprop, info)
-end
--- sub_map ここまで
-
 -- indun_panel ここから
 local induns = {{
     challenge = {
@@ -11399,6 +14822,7 @@ function indun_panel_on_init()
         Indun_panel_load_settings()
     end
     g.setup_hook_and_event(g.addon, "CHAT_SYSTEM", "Indun_panel_CHAT_SYSTEM", true)
+    g.addon:RegisterMsg("ESCAPE_PRESSED", "Indun_panel_frame_init")
     if g.settings.indun_panel.use == 0 then
         ui.DestroyFrame(addon_name_lower .. "indun_panel")
         ui.DestroyFrame(addon_name_lower .. "indun_panel_map")
@@ -13081,7 +16505,7 @@ end
 function Indun_panel_raid_itemuse(indun_panel, ctrl, str, indun_type)
     local target_items = raid_tbl[indun_type]
     local buff_id = buff_ids[indun_type]
-    if not target_items or not buff_id then
+    if not buff_id then
         return
     end
     local indun_cls = GetClassByType("Indun", indun_type)
@@ -13092,11 +16516,13 @@ function Indun_panel_raid_itemuse(indun_panel, ctrl, str, indun_type)
     local is_limit_reached = (enter_count >= 2)
     local sweep_count = Indun_panel_sweep_count(buff_id)
     local ticket_item = nil
-    for _, class_id in ipairs(target_items) do
-        local inv_item = session.GetInvItemByType(class_id)
-        if inv_item then
-            ticket_item = inv_item
-            break
+    if target_items then
+        for _, class_id in ipairs(target_items) do
+            local inv_item = session.GetInvItemByType(class_id)
+            if inv_item then
+                ticket_item = inv_item
+                break
+            end
         end
     end
     if sweep_count > 0 then
@@ -13115,8 +16541,12 @@ function Indun_panel_raid_itemuse(indun_panel, ctrl, str, indun_type)
         if ticket_item then
             INV_ICON_USE(ticket_item)
         else
-            ui.SysMsg(g.lang == "Japanese" and "(自動マッチング/1人)入場券を持っていません" or
-                          "There are no ticket items in inventory")
+            if string.find(ctrl:GetName(), "use") then
+                ui.SysMsg(g.lang == "Japanese" and "(自動マッチング/1人)入場券を持っていません" or
+                              "There are no ticket items in inventory")
+            else
+                ui.SysMsg(g.lang == "Japanese" and "掃討バフがありません" or "There is no auto clear buff")
+            end
         end
     end
 end
@@ -13131,8 +16561,12 @@ function Indun_panel_sweep_count(buff_id)
 end
 
 function Indun_panel_enter_solo(indun_panel, ctrl, str, indun_type)
+    local pcparty = session.party.GetPartyInfo()
+    if not pcparty then
+        CREATE_PARTY_BTN()
+    end
     ReqRaidAutoUIOpen(indun_type)
-    ReqMoveToIndun(1, 0)
+    ReserveScript(string.format("ReqMoveToIndun(%d,%d)", 1, 0), 0.3)
 end
 
 function Indun_panel_enter_auto(indun_panel, ctrl, str, indun_type)
@@ -13943,2575 +17377,6 @@ function Ancient_auto_set_change_set(_nexus_addons, ancient_auto_set_timer)
 end
 -- Ancient Auto Set ここまで
 
--- ndun_list_viewer ここから
-g.ilv_RAID_KEYS = {"V", "L", "R", "N", "G", "M", "S", "U", "RO", "F", "P", "D"}
-g.ilv_RAID_INFO = {
-    V = {
-        name = "Veliora",
-        hard = 727,
-        solo = 726,
-        auto = 725,
-        icon = "icon_item_misc_boss_Veliora",
-        sweep_buff = 80045
-    },
-    L = {
-        name = "Limara",
-        hard = 724,
-        solo = 723,
-        auto = 722,
-        icon = "icon_item_misc_boss_Laimara",
-        sweep_buff = 80043
-    },
-    R = {
-        name = "Redania",
-        hard = 718,
-        solo = 717,
-        auto = 716,
-        icon = "icon_item_misc_boss_Redania",
-        sweep_buff = 80039
-    },
-    N = {
-        name = "Neringa",
-        hard = 709,
-        solo = 708,
-        auto = 707,
-        icon = "icon_item_misc_boss_DarkNeringa",
-        sweep_buff = 80035
-    },
-    G = {
-        name = "Golem",
-        hard = 712,
-        solo = 711,
-        auto = 710,
-        icon = "icon_item_misc_boss_CrystalGolem",
-        sweep_buff = 80037
-    },
-    M = {
-        name = "Merregina",
-        hard = 697,
-        solo = 696,
-        auto = 695,
-        icon = "icon_item_misc_merregina_blackpearl",
-        sweep_buff = 80032
-    },
-    S = {
-        name = "Slogutis",
-        hard = 690,
-        solo = 689,
-        auto = 688,
-        icon = "icon_item_misc_boss_Slogutis",
-        sweep_buff = 80031
-    },
-    U = {
-        name = "Upinis",
-        hard = 687,
-        solo = 686,
-        auto = 685,
-        icon = "icon_item_misc_boss_Upinis",
-        sweep_buff = 80030
-    },
-    RO = {
-        name = "Roze",
-        hard = 681,
-        solo = 680,
-        auto = 679,
-        icon = "icon_item_misc_boss_Roze",
-        sweep_buff = 80015
-    },
-    F = {
-        name = "Falouros",
-        hard = 678,
-        solo = 677,
-        auto = 676,
-        icon = "icon_item_misc_high_falouros",
-        sweep_buff = 80017
-    },
-    P = {
-        name = "Spreader",
-        hard = 675,
-        solo = 674,
-        auto = 673,
-        icon = "icon_item_misc_high_transmutationSpreader",
-        sweep_buff = 80016
-    },
-    D = {
-        name = "Delmore",
-        hard = 665,
-        solo = 667,
-        auto = 666,
-        icon = "icon_item_misc_RevivalPaulius",
-        sweep_buff = nil
-    }
-}
-function Indun_list_viewer_save_settings()
-    g.save_json(g.ilv_path, g.ilv_settings)
-end
-
-function Indun_list_viewer_load_settings()
-    g.ilv_path = string.format("../addons/%s/%s/indun_list_viewer.json", addon_name_lower, g.active_id)
-    g.ilv_old_path = string.format("../addons/%s/%s/settings_2510.json", "indun_list_viewer", g.active_id)
-    local settings = g.load_json(g.ilv_path)
-    if not settings then
-        settings = {}
-        local old_settings = g.load_json(g.ilv_old_path)
-        if old_settings then
-            local final_settings = {
-                options = old_settings.default_options or {},
-                display = old_settings.display_options or {},
-                chars = {}
-            }
-            for key, data in pairs(old_settings) do
-                if type(data) == "table" then
-                    if key ~= "default_options" and key ~= "display_options" then
-                        final_settings.chars[key] = data
-                    end
-                end
-            end
-            settings = final_settings
-        else
-            settings = {
-                options = {
-                    reset_time = 0,
-                    display_mode = "full",
-                    hidden = 0
-                },
-                display = {
-                    Memo = 1
-                },
-                chars = {}
-            }
-        end
-    end
-    if not settings.display then
-        settings.display = {}
-    end
-    if not settings.display.Memo then
-        settings.display.Memo = 1
-    end
-    for _, info in pairs(g.ilv_RAID_INFO) do
-        if info.name then
-            local h_key = info.name .. "_H"
-            local s_key = info.name .. "_S"
-            if not settings.display[h_key] then
-                settings.display[h_key] = 1
-            end
-            if not settings.display[s_key] then
-                settings.display[s_key] = 1
-            end
-        end
-    end
-    g.ilv_settings = settings
-    Indun_list_viewer_save_settings()
-end
-
-function Indun_list_viewer_char_load_settings()
-    local acc_info = session.barrack.GetMyAccount()
-    local layer_pc_count = acc_info:GetPCCount()
-    local barrack_all = acc_info:GetBarrackPCCount()
-    for order = 0, layer_pc_count - 1 do
-        local pc_info = acc_info:GetPCByIndex(order)
-        if pc_info then
-            local pc_apc = pc_info:GetApc()
-            local pc_name = pc_apc:GetName()
-            local pc_cid = pc_info:GetCID()
-            local existing_data = g.ilv_settings.chars[pc_name] or {}
-            g.ilv_settings.chars[pc_name] = {
-                layer = g.ilv_layer or existing_data.layer or 9,
-                order = order,
-                hide = existing_data.hide or false,
-                memo = existing_data.memo or "",
-                president_jobid = existing_data.president_jobid or "",
-                jobid = existing_data.jobid or "",
-                raid_count = existing_data.raid_count or {},
-                auto_clear_count = existing_data.auto_clear_count or {},
-                cid = pc_cid,
-                pc_name = pc_name
-            }
-        end
-    end
-    if barrack_all > 0 then
-        local barrack_chars = {}
-        for i = 0, barrack_all - 1 do
-            local pc_info = acc_info:GetBarrackPCByIndex(i)
-            if pc_info then
-                barrack_chars[pc_info:GetName()] = true
-            end
-        end
-        local chars_to_delete = {}
-        for char_name, _ in pairs(g.ilv_settings.chars) do
-            if not barrack_chars[char_name] then
-                table.insert(chars_to_delete, char_name)
-            end
-        end
-        if #chars_to_delete > 0 then
-            for _, char_name in ipairs(chars_to_delete) do
-                g.ilv_settings.chars[char_name] = nil
-            end
-        end
-    end
-    Indun_list_viewer_save_settings()
-end
-
-function indun_list_viewer_on_init()
-    if not g.ilv_settings then
-        Indun_list_viewer_load_settings()
-    end
-    if _G["BARRACK_CHARLIST_ON_INIT"] and _G["current_layer"] then
-        g.ilv_layer = _G["current_layer"]
-    end
-    if g.settings.indun_list_viewer.use == 0 then
-        Indun_list_viewer_disable()
-    else
-        if type(_G["Indun_list_viewer_title_frame_open"]) == "function" then
-            if type(_G["indun_list_viewer_title_frame_open"]) ~= "function" then
-                _G["indun_list_viewer_title_frame_open"] = _G["Indun_list_viewer_title_frame_open"]
-            end
-        end
-    end
-    g.setup_hook_and_event(g.addon, "APPS_TRY_MOVE_BARRACK", "Indun_list_viewer_save_current_char_counts", true)
-    g.setup_hook_and_event(g.addon, "APPS_TRY_LOGOUT", "Indun_list_viewer_save_current_char_counts", true)
-    g.setup_hook_and_event(g.addon, "APPS_TRY_EXIT", "Indun_list_viewer_save_current_char_counts", true)
-    g.setup_hook_and_event(g.addon, "STATUS_SELET_REPRESENTATION_CLASS",
-        "Indun_list_viewer_STATUS_SELET_REPRESENTATION_CLASS", true)
-    g.addon:RegisterMsg('EXPIREDITEM_ALERT_OPEN', 'Indun_list_viewer_EXPIREDITEM_ALERT_ON_MSG')
-
-    if g.get_map_type() == "City" then
-        Indun_list_viewer_char_load_settings()
-        Indun_list_viewer_sort_characters()
-        Indun_list_viewer_raid_reset_reserve()
-    end
-end
-
-function Indun_list_viewer_EXPIREDITEM_ALERT_ON_MSG(frame, msg, str, num)
-    local expireditem_alert = ui.GetFrame("expireditem_alert")
-    if expireditem_alert then
-        expireditem_alert:SetLayerLevel(100)
-    end
-end
-
-function Indun_list_viewer_disable()
-    if _G["indun_list_viewer_title_frame_open"] == _G["Indun_list_viewer_title_frame_open"] then
-        _G["indun_list_viewer_title_frame_open"] = nil
-    end
-end
-
-function Indun_list_viewer_raid_reset_reserve()
-    local server_time_str = date_time.get_lua_now_datetime_str()
-    if server_time_str then
-        local y, m, d, H, M, S = server_time_str:match("(%d+)-(%d+)-(%d+) (%d+):(%d+):(%d+)")
-        if y then
-            local server_now_timestamp = os.time({
-                year = tonumber(y),
-                month = tonumber(m),
-                day = tonumber(d),
-                hour = tonumber(H),
-                min = tonumber(M),
-                sec = tonumber(S)
-            })
-            if server_now_timestamp > g.ilv_settings.options.reset_time then
-                Indun_list_viewer_raid_reset()
-            end
-        end
-    end
-end
-
-function Indun_list_viewer_raid_reset()
-    local acc_info = session.barrack.GetMyAccount()
-    local barrack_pc_count = acc_info:GetBarrackPCCount() -- ゲーム起動直後はtonumber(0)そのため初期化は2回目以降
-    if barrack_pc_count > 0 then
-        for i = 0, barrack_pc_count - 1 do
-            local barrack_pc_info = acc_info:GetBarrackPCByIndex(i)
-            if barrack_pc_info then
-                local barrack_pc_name = barrack_pc_info:GetName()
-                local char_data = g.ilv_settings.chars[barrack_pc_name]
-                if char_data then
-                    char_data.raid_count = {}
-                    for _, key in ipairs(g.ilv_RAID_KEYS) do
-                        char_data.raid_count[key .. "_H"] = "?"
-                        char_data.raid_count[key .. "_A"] = "?"
-                    end
-                end
-            end
-        end
-        g.ilv_settings.options.reset_time = Indun_list_viewer_get_reset_time()
-        Indun_list_viewer_save_settings()
-        if g.settings.indun_list_viewer.use ~= 0 then
-            if g.lang == "Japanese" then
-                ui.SysMsg("[ILV]レイドの回数を初期化しました")
-            else
-                ui.SysMsg("[ILV]Raid counts were initialized")
-            end
-        end
-    end
-end
-
-function Indun_list_viewer_get_reset_time()
-    local server_time_str = date_time.get_lua_now_datetime_str()
-    if not server_time_str then
-        return 0
-    end
-    local year, month, day, hour, min, sec = server_time_str:match("(%d+)-(%d+)-(%d+) (%d+):(%d+):(%d+)")
-    if not year then
-        return 0
-    end
-    local now_table = {
-        year = tonumber(year),
-        month = tonumber(month),
-        day = tonumber(day),
-        hour = tonumber(hour),
-        min = tonumber(min),
-        sec = tonumber(sec)
-    }
-    local now_timestamp = os.time(now_table)
-    local current_day_of_week = tonumber(os.date("%w", now_timestamp)) + 1
-    local days_to_next_monday
-    if current_day_of_week == 2 and now_table.hour < 6 then
-        days_to_next_monday = 0
-    else
-        days_to_next_monday = (9 - current_day_of_week) % 7
-        if days_to_next_monday == 0 then
-            days_to_next_monday = 7
-        end
-    end
-    local next_monday_timestamp_base = now_timestamp + days_to_next_monday * 86400
-    local next_monday_date = os.date("*t", next_monday_timestamp_base)
-    local next_monday_6am_timestamp = os.time({
-        year = next_monday_date.year,
-        month = next_monday_date.month,
-        day = next_monday_date.day,
-        hour = 6,
-        min = 0,
-        sec = 0
-    })
-    return next_monday_6am_timestamp
-end
-
-function Indun_list_viewer_sort_characters()
-    g.ilv_sorted_settings = {}
-    for key, data in pairs(g.ilv_settings.chars) do
-        if type(data) == "table" then
-            table.insert(g.ilv_sorted_settings, data)
-        end
-    end
-    local function sort_layer_order(a, b)
-        if a.layer ~= b.layer then
-            return a.layer < b.layer
-        else
-            return a.order < b.order
-        end
-    end
-    table.sort(g.ilv_sorted_settings, sort_layer_order)
-end
-
-function Indun_list_viewer_STATUS_SELET_REPRESENTATION_CLASS(my_frame, my_msg)
-    local _, select_key = g.get_event_args(my_msg)
-    local pc_job_info = session.GetMainSession():GetPCJobInfo()
-    local job_count = pc_job_info:GetJobCount()
-    local job_id_parts = {}
-    for i = 0, job_count - 1 do
-        local job_info = pc_job_info:GetJobInfoByIndex(i)
-        table.insert(job_id_parts, job_info.jobID)
-    end
-    g.ilv_settings.chars[g.login_name].jobid = "/" .. table.concat(job_id_parts, "/")
-    g.ilv_settings.chars[g.login_name].president_jobid = tostring(select_key)
-    Indun_list_viewer_save_settings()
-    Indun_list_viewer_title_frame_open()
-end
-
-local function get_safe_entrance_count(indun_type)
-    local indun_cls = GetClassByType("Indun", indun_type)
-    if indun_cls and indun_cls.PlayPerResetType then
-        return GET_CURRENT_ENTERANCE_COUNT(indun_cls.PlayPerResetType)
-    end
-    return nil
-end
-
-function Indun_list_viewer_save_current_char_counts()
-    if g.get_map_type() ~= "City" then
-        return
-    end
-    local raid_data = {}
-    for key, raid in pairs(g.ilv_RAID_INFO) do
-        local count = get_safe_entrance_count(raid.hard)
-        raid_data[key .. "_H"] = count or "?"
-        count = get_safe_entrance_count(raid.auto)
-        raid_data[key .. "_A"] = count or "?"
-    end
-    g.ilv_settings.chars[g.login_name].raid_count = raid_data
-    local auto_clear_data = g.ilv_settings.chars[g.login_name].auto_clear_count
-    local my_handle = session.GetMyHandle()
-    for _, key in ipairs(g.ilv_RAID_KEYS) do
-        local raid = g.ilv_RAID_INFO[key]
-        auto_clear_data[key .. "_S"] = 0
-        if raid.sweep_buff then
-            local buff_info = info.GetBuff(my_handle, raid.sweep_buff)
-            if buff_info then
-                auto_clear_data[key .. "_S"] = buff_info.over
-            end
-        end
-    end
-    g.ilv_settings.chars[g.login_name].auto_clear_count = auto_clear_data
-    Indun_list_viewer_save_settings()
-end
-
-function Indun_list_viewer_INDUNINFO_SET_BUTTONS(indun_type, ctrl)
-    local indun_cls = GetClassByType('Indun', indun_type)
-    local dungeon_type = TryGetProp(indun_cls, "DungeonType", "None")
-    local btn_info_cls = GetClassByStrProp("IndunInfoButton", "DungeonType", dungeon_type)
-    if dungeon_type == "Raid" then
-        btn_info_cls = INDUNINFO_SET_BUTTONS_FIND_CLASS(indun_cls)
-    end
-    local red_button_scp = TryGetProp(btn_info_cls, "RedButtonScp")
-    ctrl:SetUserValue('MOVE_INDUN_CLASSID', indun_cls.ClassID)
-    ctrl:SetEventScript(ui.LBUTTONUP, red_button_scp)
-end
-
-function Indun_list_viewer_enter_hard(parent, ctrl, str, indun_type)
-    if str == "false" then
-        Indun_list_viewer_INDUNINFO_SET_BUTTONS(indun_type, ctrl)
-        ReserveScript(string.format("Indun_list_viewer_enter_hard(nil, nil, 'true', %d)", indun_type), 0.5)
-    else
-        SHOW_INDUNENTER_DIALOG(indun_type)
-        local indun_list_viewer = parent:GetTopParentFrame()
-        ui.DestroyFrame(indun_list_viewer:GetName())
-    end
-end
-
-function Indun_list_viewer_enter_solo_or_auto(parent, ctrl, move_type_str, indun_type)
-    local move_type = tonumber(move_type_str)
-    ReqRaidAutoUIOpen(indun_type)
-    if move_type == 2 then
-        local indunenter = ui.GetFrame("indunenter")
-        local indun_cls = GetClassByType('Indun', indunenter:GetUserValue('INDUN_TYPE'))
-        local min_rank = TryGetProp(indun_cls, 'PCRank')
-        if min_rank and min_rank > session.GetPcTotalJobGrade() then
-            ui.SysMsg(ScpArgMsg('IndunEnterNeedPCRank', 'NEED_RANK', min_rank))
-            return
-        end
-    end
-    ReserveScript(string.format("ReqMoveToIndun(%d, 0)", move_type), 0.3)
-    local indun_list_viewer = parent:GetTopParentFrame()
-    ui.DestroyFrame(indun_list_viewer:GetName())
-end
-
-function Indun_list_viewer_config(parent)
-    local indun_list_viewer = parent:GetTopParentFrame()
-    indun_list_viewer:RemoveAllChild()
-    local title_gb = indun_list_viewer:CreateOrGetControl("groupbox", "title_gb", 0, 0, 10, 10)
-    AUTO_CAST(title_gb)
-    local config_gb = indun_list_viewer:CreateOrGetControl("groupbox", "config_gb", 10, 35, 10, 10)
-    AUTO_CAST(config_gb)
-    config_gb:SetSkinName("bg")
-    local text = config_gb:CreateOrGetControl("richtext", "text", 10, 10)
-    AUTO_CAST(text)
-    text:SetText(g.lang == "Japanese" and "チェックすると表示" or "{ol}Check to show")
-    local x = text:GetX() + text:GetWidth() + 5
-    local text_x = 0
-    for _, raid_key in ipairs(g.ilv_RAID_KEYS) do
-        local raid_info = g.ilv_RAID_INFO[raid_key]
-        if text_x == 0 then
-            text_x = x
-        end
-        local pic = title_gb:CreateOrGetControl('picture', "title_pic_" .. raid_key .. "_H", x + 5, 5, 30, 30)
-        AUTO_CAST(pic)
-        pic:SetImage(raid_info.icon)
-        pic:SetEnableStretch(1)
-        pic:EnableHitTest(1)
-        local check = config_gb:CreateOrGetControl('checkbox', "check_" .. raid_key .. "_H", x, 5, 30, 30)
-        AUTO_CAST(check)
-        check:SetCheck(g.ilv_settings.display[raid_info.name .. "_H"])
-        check:SetEventScript(ui.LBUTTONDOWN, "Indun_list_viewer_display_check")
-        check:SetEventScriptArgString(ui.LBUTTONDOWN, raid_info.name .. "_H")
-        x = x + 30
-    end
-    local hard_text = title_gb:CreateOrGetControl("richtext", "hard_text", text_x - 40, 10)
-    AUTO_CAST(hard_text)
-    hard_text:SetText("{ol}Hard")
-    x = x + 100
-    text_x = 0
-    for _, raid_key in ipairs(g.ilv_RAID_KEYS) do
-        local raid_info = g.ilv_RAID_INFO[raid_key]
-        if text_x == 0 then
-            text_x = x
-        end
-        local pic = title_gb:CreateOrGetControl('picture', "title_pic_" .. raid_key .. "_S", x + 5, 5, 30, 30)
-        AUTO_CAST(pic)
-        pic:SetImage(raid_info.icon)
-        pic:SetEnableStretch(1)
-        pic:EnableHitTest(1)
-        local check = config_gb:CreateOrGetControl('checkbox', "check_" .. raid_key .. "_S", x, 5, 30, 30)
-        AUTO_CAST(check)
-        check:SetCheck(g.ilv_settings.display[raid_info.name .. "_S"])
-        check:SetEventScript(ui.LBUTTONDOWN, "Indun_list_viewer_display_check")
-        check:SetEventScriptArgString(ui.LBUTTONDOWN, raid_info.name .. "_S")
-        x = x + 30
-    end
-    local auto_text = title_gb:CreateOrGetControl("richtext", "auto_text", text_x - 80, 10)
-    AUTO_CAST(auto_text)
-    auto_text:SetText("{ol}Solo/Auto")
-    x = x + 30
-    local memo_text = title_gb:CreateOrGetControl("richtext", "memo_text", x, 10)
-    AUTO_CAST(memo_text)
-    memo_text:SetText("{ol}Memo")
-    local memo_check = config_gb:CreateOrGetControl('checkbox', "check_memo", x, 5, 30, 30)
-    AUTO_CAST(memo_check)
-    memo_check:SetCheck(g.ilv_settings.display["Memo"])
-    memo_check:SetEventScript(ui.LBUTTONDOWN, "Indun_list_viewer_display_check")
-    memo_check:SetEventScriptArgString(ui.LBUTTONDOWN, "Memo")
-    local close_button = title_gb:CreateOrGetControl("button", "close_button", 0, 0, 20, 20)
-    AUTO_CAST(close_button)
-    close_button:SetImage("testclose_button")
-    close_button:SetGravity(ui.LEFT, ui.TOP)
-    close_button:SetEventScript(ui.LBUTTONUP, "Indun_list_viewer_close")
-    close_button:SetEventScriptArgNumber(ui.LBUTTONUP, 1)
-    title_gb:Resize(x + 50, 55)
-    indun_list_viewer:Resize(title_gb:GetWidth() + 20, 85)
-    config_gb:Resize(indun_list_viewer:GetWidth() - 20, indun_list_viewer:GetHeight() - 45)
-end
-
-function Indun_list_viewer_display_check(parent, ctrl, key, num)
-    g.ilv_settings.display[key] = ctrl:IsChecked() == 1 and 1 or 0
-    Indun_list_viewer_save_settings()
-end
-
-function Indun_list_viewer_title_frame_open()
-    Indun_list_viewer_save_current_char_counts()
-    if g.settings.indun_list_viewer.use == 0 then
-        return
-    end
-    local indun_list_viewer = ui.CreateNewFrame("notice_on_pc", addon_name_lower .. "indun_list_viewer", 0, 0, 10, 10)
-    AUTO_CAST(indun_list_viewer)
-    indun_list_viewer:RemoveAllChild()
-    indun_list_viewer:SetLayerLevel(99)
-    indun_list_viewer:SetSkinName("test_frame_low")
-    local title_gb = indun_list_viewer:CreateOrGetControl("groupbox", "title_gb", 0, 0, 10, 10)
-    AUTO_CAST(title_gb)
-    local texts = (g.lang == "Japanese") and {
-        hard_raid = "ハード",
-        auto_raid = "左クリック:ソロ入場{nl}右クリック:自動入場{nl} {nl}入場回数/掃討回数",
-        mode_text = "チェックを入れるとスクロールモードに切替",
-        display_text = "チェックしたキャラはレイド回数非表示",
-        memo = "メモ",
-        display = "表示",
-        hidden = "チェックを入れると非表示キャラを表示しません"
-    } or {
-        hard_raid = "Hard Count",
-        auto_raid = "Left-click: Solo Entry{nl}Right-click: Automatic Entry{nl} {nl}Entry Count/Auto clear count",
-        mode_text = "Switch to scroll mode when checked",
-        display_text = "Checked characters hide raid count",
-        memo = "Memo",
-        display = "Disp",
-        hidden = "If checked, do not show hidden characters"
-    }
-    local x = 185
-    for _, raid_key in ipairs(g.ilv_RAID_KEYS) do
-        local raid_info = g.ilv_RAID_INFO[raid_key]
-        if g.ilv_settings.display[raid_info.name .. "_H"] == 1 then
-            local pic = title_gb:CreateOrGetControl('picture', "title_pic_" .. raid_key .. "_H", x, 5, 30, 30)
-            AUTO_CAST(pic)
-            pic:SetImage(raid_info.icon)
-            pic:SetEnableStretch(1)
-            pic:EnableHitTest(1)
-            pic:SetEventScript(ui.LBUTTONDOWN, "Indun_list_viewer_enter_hard")
-            pic:SetEventScriptArgNumber(ui.LBUTTONDOWN, raid_info.hard)
-            pic:SetEventScriptArgString(ui.LBUTTONDOWN, "false")
-            pic:SetTextTooltip("{ol}" .. texts.hard_raid)
-            x = x + 30
-        end
-    end
-    x = x + 30
-    for _, raid_key in ipairs(g.ilv_RAID_KEYS) do
-        local raid_info = g.ilv_RAID_INFO[raid_key]
-        if g.ilv_settings.display[raid_info.name .. "_S"] == 1 then
-            local pic = title_gb:CreateOrGetControl('picture', "title_pic_" .. raid_key .. "_S", x, 5, 30, 30)
-            AUTO_CAST(pic)
-            pic:SetImage(raid_info.icon)
-            pic:SetEnableStretch(1)
-            pic:EnableHitTest(1)
-            pic:SetEventScript(ui.LBUTTONUP, "Indun_list_viewer_enter_solo_or_auto")
-            pic:SetEventScriptArgString(ui.LBUTTONUP, "1")
-            pic:SetEventScriptArgNumber(ui.LBUTTONUP, raid_info.solo)
-            pic:SetEventScript(ui.RBUTTONUP, "Indun_list_viewer_enter_solo_or_auto")
-            pic:SetEventScriptArgString(ui.RBUTTONUP, "2")
-            pic:SetEventScriptArgNumber(ui.RBUTTONUP, raid_info.auto)
-            pic:SetTextTooltip("{ol}" .. texts.auto_raid)
-            x = x + 65
-        end
-    end
-    local close_button = title_gb:CreateOrGetControl("button", "close_button", 0, 0, 20, 20)
-    AUTO_CAST(close_button)
-    close_button:SetImage("testclose_button")
-    close_button:SetGravity(ui.LEFT, ui.TOP)
-    close_button:SetEventScript(ui.LBUTTONUP, "Indun_list_viewer_close")
-    local cc_button = title_gb:CreateOrGetControl('button', 'cc_button', 40, 5, 30, 30)
-    AUTO_CAST(cc_button)
-    cc_button:SetSkinName("None")
-    cc_button:SetText("{img barrack_button_normal 30 30}")
-    cc_button:SetEventScript(ui.LBUTTONUP, "APPS_TRY_MOVE_BARRACK")
-    local config_btn = title_gb:CreateOrGetControl('button', 'config_btn', 75, 5, 30, 30)
-    AUTO_CAST(config_btn)
-    config_btn:SetSkinName("None")
-    config_btn:SetText("{img config_button_normal 30 30}")
-    config_btn:SetEventScript(ui.LBUTTONUP, "Indun_list_viewer_config")
-    local mode_check = title_gb:CreateOrGetControl('checkbox', 'mode_check', 115, 5, 30, 30)
-    AUTO_CAST(mode_check)
-    mode_check:SetCheck(g.ilv_settings.options.display_mode == "slide" and 1 or 0)
-    mode_check:SetEventScript(ui.LBUTTONUP, "Indun_list_viewer_modechange")
-    mode_check:SetTextTooltip("{ol}" .. texts.mode_text)
-    local hidden_check = title_gb:CreateOrGetControl('checkbox', 'hidden_check', 150, 5, 30, 30)
-    AUTO_CAST(hidden_check)
-    hidden_check:SetCheck(g.ilv_settings.options.hidden)
-    hidden_check:SetEventScript(ui.LBUTTONUP, "Indun_list_viewer_modechange")
-    hidden_check:SetTextTooltip("{ol}" .. texts.hidden)
-    if g.ilv_settings.display["Memo"] == 1 then
-        local memo_text = title_gb:CreateOrGetControl("richtext", "memo_text", x, 10)
-        AUTO_CAST(memo_text)
-        memo_text:SetText("{ol}" .. texts.memo)
-        x = x + 160
-    end
-    local display_text = title_gb:CreateOrGetControl("richtext", "display_text", x, 10)
-    AUTO_CAST(display_text)
-    display_text:SetText("{ol}" .. texts.display)
-    display_text:SetTextTooltip("{ol}" .. texts.display_text)
-    indun_list_viewer:ShowWindow(1)
-    Indun_list_viewer_frame_open(indun_list_viewer)
-end
-
-function Indun_list_viewer_close(parent, ctrl, str, num)
-    local indun_list_viewer = parent:GetTopParentFrame()
-    ui.DestroyFrame(indun_list_viewer:GetName())
-    if num == 1 then
-        ReserveScript("Indun_list_viewer_title_frame_open()", 0.1)
-    end
-end
-
-function Indun_list_viewer_modechange(parent, ctrl)
-    local ctrl_name = ctrl:GetName()
-    local is_checked = ctrl:IsChecked()
-    if ctrl_name == "hidden_check" then
-        g.ilv_settings.options.hidden = is_checked
-    else -- mode_check
-        g.ilv_settings.options.display_mode = is_checked == 1 and "slide" or "full"
-    end
-    Indun_list_viewer_save_settings()
-    Indun_list_viewer_title_frame_open()
-end
-
-function Indun_list_viewer_frame_open(indun_list_viewer)
-    local title_gb = GET_CHILD(indun_list_viewer, "title_gb")
-    AUTO_CAST(title_gb)
-    local gb = indun_list_viewer:CreateOrGetControl("groupbox", "gb", 10, 35, 10, 10)
-    AUTO_CAST(gb)
-    gb:SetSkinName("bg")
-    local sorted_char_list = {}
-    for _, data in ipairs(g.ilv_sorted_settings) do
-        if type(data) == "table" then
-            if g.ilv_settings.options.hidden == 0 or not data.hide then
-                table.insert(sorted_char_list, data)
-            end
-        end
-    end
-    local y = 10
-    local max_x = 0
-    for _, data in ipairs(sorted_char_list) do
-        local x = 35
-        local pc_name = data.pc_name
-        local name = gb:CreateOrGetControl("richtext", pc_name, x, y)
-        AUTO_CAST(name)
-        name:SetText(("{ol}{s14}" .. (g.login_name == pc_name and "{#FF4500}" or "") .. pc_name))
-        Indun_list_viewer_job_slot(indun_list_viewer, data, y)
-        x = x + 60
-        if not data.hide then
-            local current_x = 180
-            for _, raid_key in ipairs(g.ilv_RAID_KEYS) do
-                local raid_info = g.ilv_RAID_INFO[raid_key]
-                if g.ilv_settings.display[raid_info.name .. "_H"] == 1 then
-                    local count = data.raid_count[raid_key .. "_H"] or "?"
-                    local text_ctrl = gb:CreateOrGetControl("richtext", raid_key .. "_H_" .. pc_name, current_x, y)
-                    AUTO_CAST(text_ctrl)
-                    text_ctrl:SetText("{ol}{s14}( " .. count .. " )")
-                    local limit = (raid_key == "P" or raid_key == "F") and 2 or 1
-                    text_ctrl:SetColorTone(count == limit and "FF990000" or "FFFFFFFF")
-                    current_x = current_x + 30
-                end
-            end
-            current_x = current_x + 30
-            for _, raid_key in ipairs(g.ilv_RAID_KEYS) do
-                local raid_info = g.ilv_RAID_INFO[raid_key]
-                if g.ilv_settings.display[raid_info.name .. "_S"] == 1 then
-                    local limit = (raid_key == "P" or raid_key == "F") and 4 or 2
-                    local count_a = data.raid_count[raid_key .. "_A"] or "?"
-                    local text_a = gb:CreateOrGetControl("richtext", raid_key .. "_A_" .. pc_name, current_x, y)
-                    AUTO_CAST(text_a)
-                    text_a:SetText("{ol}{s14}( " .. count_a .. " )")
-                    if count_a ~= "?" then
-                        if count_a > 0 then
-                            text_a:SetColorTone(count_a == limit and "FF990000" or "FFFFFFFF")
-                        end
-                    end
-                    if raid_key ~= "D" then
-                        current_x = current_x + 25
-                        local count_s = data.auto_clear_count[raid_key .. "_S"] or 0
-                        local text_s = gb:CreateOrGetControl("richtext", raid_key .. "_S_" .. pc_name, current_x, y)
-                        AUTO_CAST(text_s)
-                        text_s:SetText("{ol}{s14}/( " .. count_s .. " )")
-                        if count_s > 0 then
-                            text_s:SetColorTone(count_s == limit and "FFFFA500" or "FFFFFFFF")
-                        end
-                    end
-                    current_x = current_x + 40
-                end
-            end
-            if g.ilv_settings.display["Memo"] == 1 then
-                local memo = gb:CreateOrGetControl('edit', 'memo' .. pc_name, current_x, y - 2, 180, 20)
-                AUTO_CAST(memo)
-                memo:SetFontName("white_14_ol")
-                memo:SetTextAlign("left", "center")
-                memo:SetSkinName("inventory_serch")
-                memo:SetEventScript(ui.ENTERKEY, "Indun_list_viewer_memo_save")
-                memo:SetEventScriptArgString(ui.ENTERKEY, pc_name)
-                memo:SetText(data.memo or "")
-                current_x = current_x + 180
-            end
-            x = current_x
-        end
-        if x > max_x then
-            max_x = x
-        end
-        y = y + 25
-    end
-    local display_x = max_x + 20
-    y = 10
-    for _, data in ipairs(sorted_char_list) do
-        local pc_name = data.pc_name
-        local line = gb:CreateOrGetControl("labelline", "line" .. pc_name, 25, y + 20, max_x - 20, 1)
-        AUTO_CAST(line)
-        line:SetSkinName("labelline_def_3")
-        local display_check = gb:CreateOrGetControl('checkbox', 'display' .. pc_name, display_x, y - 5, 25, 25)
-        AUTO_CAST(display_check)
-        display_check:SetEventScript(ui.LBUTTONUP, "Indun_list_viewer_display_save")
-        display_check:SetEventScriptArgString(ui.LBUTTONUP, pc_name)
-        display_check:SetCheck(data.hide and 1 or 0)
-        y = y + 25
-    end
-    local frame_width = display_x + 60
-    local frame_height = y + 50
-    if g.ilv_settings.options.display_mode == "slide" and frame_height > 545 then
-        frame_height = 545
-        gb:EnableScrollBar(1)
-    end
-    indun_list_viewer:Resize(frame_width, frame_height)
-    gb:Resize(indun_list_viewer:GetWidth() - 20, indun_list_viewer:GetHeight() - 45)
-    title_gb:Resize(indun_list_viewer:GetWidth() - 20, 55)
-    local display_text = GET_CHILD_RECURSIVELY(indun_list_viewer, "display_text")
-    if display_text then
-        AUTO_CAST(display_text)
-        display_text:SetPos(display_x, 10)
-    end
-    local map_frame = ui.GetFrame("map")
-    indun_list_viewer:SetPos((map_frame:GetWidth() - indun_list_viewer:GetWidth()) / 2, 35)
-end
-
-function Indun_list_viewer_job_slot(indun_list_viewer, data, y)
-    local pc_name = data.pc_name
-    local job_id_str = data.jobid or ""
-    local president_id_str = data.president_jobid or ""
-    local _, _, last_job_id = GetJobListFromAdventureBookCharData(pc_name)
-    local prepresentative_job_id = (president_id_str ~= "") and president_id_str or last_job_id
-    local job_class = GetClassByType("Job", tonumber(prepresentative_job_id))
-    local job_icon_name = TryGetProp(job_class, "Icon")
-    local gb = GET_CHILD_RECURSIVELY(indun_list_viewer, "gb")
-    local job_slot = gb:CreateOrGetControl("slot", "jobslot" .. pc_name, 5, y - 4, 25, 25)
-    AUTO_CAST(job_slot)
-    job_slot:SetSkinName("None")
-    job_slot:EnableHitTest(1)
-    job_slot:EnablePop(0)
-    local job_icon = CreateIcon(job_slot)
-    job_icon:SetImage(job_icon_name)
-    local tooltip_parts = {}
-    if job_id_str ~= "" then
-        local highlight_color = "{#FF0000}"
-        for id_str in job_id_str:gmatch("/([^/]+)") do
-            local job_id_num = tonumber(id_str)
-            if job_id_num then
-                local cls = GetClassByType("Job", job_id_num)
-                if cls and cls.Name then
-                    local name = (string.gsub(dic.getTranslatedStr(cls.Name), "{s18}", ""))
-                    if id_str == president_id_str then
-                        table.insert(tooltip_parts, highlight_color .. name .. "{/}")
-                    else
-                        table.insert(tooltip_parts, name)
-                    end
-                end
-            end
-        end
-    else
-        if job_class and job_class.Name then
-            local name = TryGetProp(job_class, "Name")
-            table.insert(tooltip_parts, (string.gsub(dic.getTranslatedStr(name), "{s18}", "")))
-        end
-    end
-    local tooltip_text = "{ol}" .. table.concat(tooltip_parts, "{nl}")
-    if g.login_name == pc_name then
-        local r_click_text = (g.lang == "Japanese") and "右クリック: 表示アイコン選択" or
-                                 "Right-click: Select Display Icon"
-        tooltip_text = tooltip_text .. "{nl} {nl}" .. r_click_text
-        job_slot:SetEventScript(ui.RBUTTONDOWN, "STATUS_OPEN_CLASS_DROPLIST")
-        local name_text = GET_CHILD_RECURSIVELY(gb, pc_name)
-        name_text:SetEventScript(ui.RBUTTONDOWN, "STATUS_OPEN_CLASS_DROPLIST")
-    end
-    if type(_G["INSTANTCC_ON_INIT"]) == "function" then -- InstantCCアドオン連携
-        local cc_text = (g.lang == "Japanese") and "左クリック: キャラクターチェンジ" or
-                            "Left-click: Character Change"
-        tooltip_text = tooltip_text .. "{nl} {nl}{#FF4500}" .. cc_text
-        job_slot:SetEventScript(ui.LBUTTONDOWN, "Indun_list_viewer_INSTANTCC_DO_CC")
-        job_slot:SetEventScriptArgString(ui.LBUTTONDOWN, data.cid)
-        job_slot:SetEventScriptArgNumber(ui.LBUTTONDOWN, data.layer)
-        local name_text = GET_CHILD_RECURSIVELY(gb, pc_name)
-        name_text:SetEventScript(ui.LBUTTONDOWN, "Indun_list_viewer_INSTANTCC_DO_CC")
-        name_text:SetEventScriptArgString(ui.LBUTTONDOWN, data.cid)
-        name_text:SetEventScriptArgNumber(ui.LBUTTONDOWN, data.layer)
-        name_text:SetTextTooltip(tooltip_text)
-    end
-    job_icon:SetTextTooltip(tooltip_text)
-end
-
-function Indun_list_viewer_INSTANTCC_DO_CC(parent, ctrl, cid, layer)
-    INSTANTCC_DO_CC(cid, layer)
-end
-
-function Indun_list_viewer_memo_save(frame, ctrl, pc_name, num)
-    if g.ilv_settings.chars[pc_name] then
-        g.ilv_settings.chars[pc_name].memo = ctrl:GetText()
-        Indun_list_viewer_save_settings()
-    end
-    ui.SysMsg(g.lang == "Japanese" and "メモを登録しました。" or "MEMO registered.")
-end
-
-function Indun_list_viewer_display_save(frame, ctrl, pc_name, num)
-    local is_checked = ctrl:IsChecked()
-    if g.ilv_settings.chars[pc_name] then
-        g.ilv_settings.chars[pc_name].hide = (is_checked == 1)
-        Indun_list_viewer_save_settings()
-    end
-    Indun_list_viewer_title_frame_open()
-end
--- ndun_list_viewer ここまで
-
--- muteki ここから
-g.muteki_trans_tbl = {
-    etc = {
-        buff_time = '{#000000}Hide until Buff duration (sec){/}',
-        position_mode = '{#000000}Toggle Mode{/}',
-        mode_desc = "{ol}ON: Follow Mode{nl}OFF: Fixed Mode",
-        frame_lock = '{#000000}Frame Lock{/}',
-        layer_lv = '{#000000}Layer Level{/}',
-        layer_notice = 'MUTEKI Changed frame layer to %d',
-        icon_mode = '{#000000}Display in icon mode{/}',
-        color_tone = '{#FFFFFF}{ol}Current Color{/}',
-        hide_sec = 'MUTEKI Hide gauge with remaining time more than %d seconds',
-        not_notify = "{#000000}Hidden for this character{/}",
-        pt_chat = "{#000000}Notify buffs via PT chat{/}",
-        function_notice = "{#FFFFFF}{ol}Register by leftclick on the buff slot{nl}in the upper left corner of the screen{/}",
-        icon_rotate = "{#000000}Rotate icon{/}",
-        with_effect = "{#000000}With effect{/}",
-        nico_chat = "{#000000}Nico Chat Display{/}",
-        delete_notice = "{#FFFFFF}{ol}Right-click the icon to unregister{/}",
-        color_notice = "{#FFFFFF}{ol}The first two characters are for shade/density (AA = Light - FF = Dark)" ..
-            "{nl}The following six characters are the hexadecimal color code.{/}",
-        count_display = "{#000000}Display Buff Stacks{/}",
-        end_sound = "{#000000}Buff End Sound{/}",
-        add_check = 'Add %s to MUTEKI?',
-        add_buff = 'MUTEKI Added %s in settings',
-        delete_buff = 'MUTEKI Removed %s in settings',
-        add_new = '{#FFFFFF}{ol}Add Buff',
-        add_buffid = "{#FFFFFF}{ol}Add by Buff ID{/}",
-        lock_notice = "{#FFFFFF}{ol}Follow Mode is always locked",
-        debuff_time = "{#000000}Manual DeBuff Duration",
-        debuff_notice = "{#FFFFFF}{ol}Adjustment is required{nl}based on each character's skill level",
-        debuff_manage_set = "{#FFFFFF}{ol}Set duration to %s seconds",
-        auto_time = "{#FFFFFF}{ol}Turning ON automatically retrieves the debuff duration{nl}Note: This may not work correctly with some debuffs{nl}In that case, please turn it OFF and enter the value manually",
-        buff_time_cid = "{#000000}Manual Buff Duration",
-        buff_notice_cid = "{#FFFFFF}{ol}Manually input the duration for some buffs, such as magic circles{nl}whose time cannot be automatically retrieved{nl}Note: Values may vary depending on skill level and other factors",
-        skill_text = "{#000000}Skill ID",
-        skill_notice = "{#FFFFFF}{ol}If the duration is entered{nl}linking a buff to a skill enables time measurement",
-        skill_set = "{#FFFFFF}{ol}Linked to %s skill",
-        add_new_skill = '{#FFFFFF}{ol}Add Skill'
-    },
-    Japanese = {
-        buff_time = '{#000000}指定されたバフの残り時間まで非表示(秒){/}',
-        position_mode = '{#000000}モード切替{/}',
-        mode_desc = "{ol}ON: 追従モード{nl}OFF: 固定モード",
-        frame_lock = '{#000000}フレームロック{/}',
-        layer_lv = '{#000000}レイヤーレベル{/}',
-        layer_notice = 'MUTEKI フレームレイヤーを %d に変更しました',
-        icon_mode = '{#000000}アイコンモードで表示{/}',
-        color_tone = '{#FFFFFF}{ol}現在の色{/}',
-        hide_sec = 'MUTEKI %d 秒以上のバフは非表示になります',
-        not_notify = "{#000000}このキャラクターでは非表示{/}",
-        pt_chat = "{#000000}バフをPTチャットでお知らせ{/}",
-        function_notice = "{#FFFFFF}{ol}画面左上バフスロットを{nl}左クリックでも登録出来ます{/}",
-        icon_rotate = "{#000000}アイコン回転{/}",
-        with_effect = "{#000000}エフェクト付与{/}",
-        nico_chat = "{#000000}ニコチャット表示{/}",
-        delete_notice = "{#FFFFFF}{ol}アイコン右クリックで登録解除します{/}",
-        color_notice = "{#FFFFFF}{ol}先頭2文字は濃淡 (AA=薄い～FF=濃い)" ..
-            "{nl}続く6文字は16進数のカラーコード{/}",
-        count_display = "{#000000}バフ重複を表示{/}",
-        end_sound = "{#000000}バフ終了時に音でお知らせ{/}",
-        add_check = 'MUTEKIに%sを追加しますか？',
-        add_buff = 'MUTEKIに%sを追加しました.',
-        delete_buff = "MUTEKIから %s を削除しました.",
-        add_new = '{#FFFFFF}{ol}バフ追加',
-        add_buffid = "{#FFFFFF}{ol}バフIDで直接追加{/}",
-        lock_notice = "{#FFFFFF}{ol}追従モードでは常にロックされます",
-        debuff_time = "{#000000}デバフ継続時間を入力",
-        debuff_notice = "{#FFFFFF}{ol}キャラクター毎のスキルレベルなどで調整必要です",
-        debuff_manage_set = "{#FFFFFF}{ol}継続時間を %s 秒で設定しました",
-        auto_time = "{#FFFFFF}{ol}ONにするとデバフ継続時間を自動取得します{nl}一部のデバフでは機能しない場合があります{nl}その際はOFFにして手動で入力してください",
-        buff_time_cid = "{#000000}バフ継続時間を手動入力",
-        buff_notice_cid = "{#FFFFFF}{ol}魔法陣など一部の時間取得出来ないバフの継続時間を手動入力します{nl}値はスキルレベルなどで異なる場合があります",
-        skill_text = "{#000000}スキルID",
-        skill_notice = "{#FFFFFF}{ol}継続時間を入力した場合{nl}バフとスキルを紐づけることで時間計測が可能になります",
-        skill_set = "{#FFFFFF}{ol}%s スキルと紐づけました",
-        add_new_skill = '{#FFFFFF}{ol}スキル追加'
-    },
-    kr = {
-        buff_time = "{#000000}지정된 버프 잔여 시간까지 숨기기 (초){/}",
-        position_mode = "{#000000}모드 전환{/}",
-        mode_desc = "{ol}ON: 추종 모드{nl}OFF: 고정 모드",
-        frame_lock = "{#000000}프레임 잠금{/}",
-        layer_lv = "{#000000}레이어 레벨{/}",
-        layer_notice = 'MUTEKI 프레임 레이어를 %d 로 변경했습니다',
-        icon_mode = "{#000000}아이콘 모드로 표시{/}",
-        color_tone = "{#FFFFFF}{ol}현재 색상{/}",
-        hide_sec = "MUTEKI - %d초 이상 남은 버프는 표시하지 않습니다.",
-        not_notify = "{#000000}이 캐릭터에서는 숨김{/}",
-        pt_chat = "{#000000}PT 채팅으로 버프를 알려드립니다{/}",
-        function_notice = "{#FFFFFF}{ol}화면 왼쪽 상단의 버프 슬롯을{nl}왼쪽 클릭으로도 등록할 수 있습니다{/}",
-        icon_rotate = "{#000000}아이콘 회전{/}",
-        with_effect = "{#000000}효과 적용{/}",
-        nico_chat = "{#000000}니코 채팅 표시{/}",
-        delete_notice = "{#FFFFFF}{ol}아이콘을 마우스 오른쪽 버튼으로 클릭하여 등록 해제{/}",
-        color_notice = "{#FFFFFF}{ol}앞의 두 문자는 농도를 나타냅니다 (AA = 옅음 - FF = 진함)" ..
-            "{nl}이어지는 6개의 문자는 16진수 컬러 코드입니다{/}",
-        count_display = "{#000000}버프 중첩 표시{/}",
-        end_sound = "{#000000}버프 종료 시 소리로 알림{/}",
-        add_check = 'MUTEKI - 에 %s를 추가하시겠습니까?',
-        add_buff = "MUTEKI - %s 버프를 추가했습니다",
-        delete_buff = "MUTEKI - %s 버프를 삭제했습니다",
-        add_new = '{#FFFFFF}{ol}버프 추가',
-        add_buffid = "{#FFFFFF}{ol}버프ID로 직접 추가{/}",
-        lock_notice = "{#FFFFFF}{ol}추종 모드에서는 항상 잠금됩니다",
-        debuff_time = "{#000000}디버프 지속 시간 입력",
-        debuff_notice = "{#FFFFFF}{ol}캐릭터별 스킬 레벨에 따라 조정이 필요합니다",
-        debuff_manage_set = "{#FFFFFF}{ol}지속 시간을 %s 초로 설정했습니다",
-        auto_time = "{#FFFFFF}{ol}ON으로 설정 시 디버프 지속 시간을 자동으로 가져옵니다{nl}주의: 일부 디버프에서는 제대로 작동하지 않을 수 있습니다{nl}그럴 경우, 해당 기능을 OFF로 끄고 수동으로 입력해 주십시오",
-        buff_time_cid = "{#000000}버프 지속 시간 수동 입력",
-        buff_notice_cid = "{#FFFFFF}{ol}마법진 등 일부 시간 획득이 불가능한 버프의 지속 시간을 수동으로 입력합니다{nl}참고: 값은 스킬 레벨 등에 따라 달라질 수 있습니다",
-        skill_text = "{#000000}스킬 ID",
-        skill_notice = "{#FFFFFF}{ol}지속 시간을 입력한 경우{nl}버프와 스킬을 연동하면 시간 측정이 가능해집니다",
-        skill_set = "{#FFFFFF}{ol}%s 스킬과 연동했습니다",
-        add_new_skill = '{#FFFFFF}{ol}스킬 추가'
-    }
-}
-local function muteki_trans(text)
-    local trans_text = g.muteki_trans_tbl["etc"][text]
-    if g.lang == "Japanese" or g.lang == "kr" then
-        trans_text = g.muteki_trans_tbl[g.lang][text]
-    end
-    return trans_text
-end
-
-function Muteki_save_settings()
-    g.save_json(g.muteki_path, g.muteki_settings)
-end
-
-function Muteki_load_settings()
-    g.muteki_path = string.format("../addons/%s/%s/muteki.json", addon_name_lower, g.active_id)
-    g.muteki_old_path = string.format("../addons/%s/settings_2510.json", "muteki2ex")
-    local settings = g.load_json(g.muteki_path)
-    if not settings then
-        local old_settings = g.load_json(g.muteki_old_path)
-        if old_settings then
-            local valid_cids = {}
-            local sys_opt_path = string.format("../release/addon_setting/system_option/%s/settings.json", g.active_id)
-            local sys_opt_file = io.open(sys_opt_path, "r")
-            if sys_opt_file then
-                local content = sys_opt_file:read("*a")
-                sys_opt_file:close()
-                if content and content ~= "" then
-                    local status, data = pcall(json.decode, content)
-                    if status and data and data.pc_id then
-                        for k, _ in pairs(data.pc_id) do
-                            valid_cids[tostring(k)] = true
-                        end
-                    end
-                end
-            end
-            settings = {
-                etc = {},
-                buff_list = {}
-            }
-            settings.etc.rotate = old_settings.rotate or 0
-            settings.etc.hide_time = old_settings.hide_time or 300
-            settings.etc.mode = old_settings.mode or "fixed"
-            settings.etc.layer_lv = old_settings.layer_lv or 80
-            if old_settings.pos then
-                settings.etc.x = old_settings.pos.x
-                settings.etc.y = old_settings.pos.y
-                settings.etc.lock = old_settings.pos.lock and 0 or 1
-            else
-                settings.etc.x = 480
-                settings.etc.y = 640
-                settings.etc.lock = 1
-            end
-            if old_settings.buff_list then
-                local function filter_manage_table(source)
-                    local target = {}
-                    if source then
-                        for cid, list in pairs(source) do
-                            if valid_cids[tostring(cid)] and type(list) == "table" and next(list) then
-                                local new_list = {}
-                                for k, v in pairs(list) do
-                                    if type(v) == "boolean" then
-                                        new_list[k] = v and 1 or 0
-                                    else
-                                        new_list[k] = v
-                                    end
-                                end
-                                target[cid] = new_list
-                            end
-                        end
-                    end
-                    return target
-                end
-                for buff_id, data in pairs(old_settings.buff_list) do
-                    local new_data = {}
-                    new_data.color = data.color
-                    new_data.nico_chat = data.nico_chat
-                    new_data.effect_check = data.effect_check
-                    new_data.end_sound = data.end_sound
-                    new_data.pt_chat = data.pt_chat and 1 or 0
-                    new_data.circle_icon = data.circle_icon and 1 or 0
-                    new_data.count_display = data.count_display and 1 or 0
-                    local new_not_notify = {}
-                    if data.not_notify then
-                        for cid, val in pairs(data.not_notify) do
-                            if valid_cids[tostring(cid)] then
-                                new_not_notify[cid] = (val == true or val == 1) and 1 or 0
-                            end
-                        end
-                    end
-                    new_data.not_notify = new_not_notify
-                    new_data.debuffs = filter_manage_table(data.debuff_manage)
-                    new_data.buffs = filter_manage_table(data.buff_manage)
-                    settings.buff_list[buff_id] = new_data
-                end
-            end
-        else
-            settings = {
-                etc = {
-                    mode = "fixed",
-                    layer_lv = 80,
-                    hide_time = 300,
-                    rotate = 0,
-                    lock = 1,
-                    y = 640,
-                    x = 480
-                },
-                buff_list = {}
-            }
-        end
-    end
-    g.muteki_settings = settings
-    Muteki_save_settings()
-end
-
-function muteki_on_init()
-    if not g.muteki_settings then
-        Muteki_load_settings()
-    end
-    g.addon:RegisterMsg("BUFF_ADD", "Muteki_BUFF_ON_MSG")
-    g.addon:RegisterMsg("BUFF_UPDATE", "Muteki_BUFF_ON_MSG")
-    g.addon:RegisterMsg("BUFF_REMOVE", "Muteki_BUFF_ON_MSG")
-    g.setup_hook_and_event(g.addon, "ICON_USE", "Muteki_ICON_USE", true)
-    if g.settings.muteki.use == 0 then
-        ui.DestroyFrame(addon_name_lower .. "muteki")
-        return
-    end
-    g.muteki_default_color = "FFCCCC22"
-    g.muteki_buffs = {
-        circle = {},
-        gauge = {}
-    }
-    g.muteki_time_buffs = {}
-    g.muteki_buff_count = {}
-    g.muteki_highlander = false
-    if g.map_name == "c_highlander" then
-        g.muteki_highlander = true
-    end
-    Muteki_buff_frame_init()
-    Muteki_skill_list()
-    if g.muteki_overload and g.muteki_overload.cid == g.cid then
-        if g.muteki_overload.is_cool == 1 then
-            local now = imcTime.GetAppTime()
-            local elapsed = now - g.muteki_overload.start_time
-            local remain = 50 - elapsed
-            if remain > 0 then
-                local buff_id = g.muteki_overload.buff_id
-                local buff_id_str = tostring(buff_id)
-                local buff_data = g.muteki_settings.buff_list[buff_id_str]
-                if buff_data then
-                    g.muteki_buffs[buff_id_str] = {
-                        show = true,
-                        effect = false,
-                        start_time = now,
-                        set_time = remain,
-                        notify = 1
-                    }
-                    g.muteki_buff_count[buff_id_str] = 1
-                    local list_type = (buff_data.circle_icon == 1) and "circle" or "gauge"
-                    Muteki_insert_if_not_exists(g.muteki_buffs[list_type], buff_id)
-                    local muteki = ui.GetFrame(addon_name_lower .. "muteki")
-                    local buff_cls = GetClassByType('Buff', buff_id)
-                    Muteki_buff_frame(muteki, "BUFF_ADD", buff_id, buff_cls, buff_data, (buff_data.circle_icon == 1))
-                    Muteki_child_set_pos(muteki)
-                end
-            else
-                g.muteki_overload = nil
-            end
-        end
-    end
-    local _nexus_addons = ui.GetFrame("_nexus_addons")
-    _nexus_addons:RunUpdateScript("Muteki_buffslot_script", 2.0)
-end
-
-function Muteki_BUFF_ON_MSG(frame, msg, is_dummy, buff_id)
-    if g.settings.muteki.use == 0 then
-        return
-    end
-    local buff_id_str = tostring(buff_id)
-    local buff_data = g.muteki_settings.buff_list[buff_id_str]
-    local muteki = ui.GetFrame(addon_name_lower .. "muteki")
-    muteki:SetAlpha(10)
-    local notify_val = 0
-    if buff_data and buff_data.not_notify then
-        notify_val = buff_data.not_notify[g.cid] or 0
-    end
-    if (buff_data and notify_val == 0) or is_dummy == "dummy" then
-        local now = imcTime.GetAppTime()
-        if g.muteki_buffs[buff_id_str] and g.muteki_buffs[buff_id_str].start_time then
-            if now - g.muteki_buffs[buff_id_str].start_time < 0.5 then
-                return
-            end
-        end
-        local is_circle = false
-        if buff_data.circle_icon == 1 then
-            is_circle = true
-        end
-        local buff_cls = GetClassByType('Buff', buff_id)
-        local buff_name = buff_cls.Name
-        local overload_tbl = {4483, 4757}
-        if buff_id == overload_tbl[1] or buff_id == overload_tbl[2] then
-            local my_handle = session.GetMyHandle()
-            local info_buff = info.GetBuff(my_handle, buff_id)
-            if info_buff then
-                g.muteki_overload = {
-                    start_time = now, -- imcTime
-                    buff_id = buff_id,
-                    is_cool = 0,
-                    cid = g.cid
-                }
-                g.muteki_buffs[buff_id_str] = nil
-            else
-                if g.muteki_overload and g.muteki_overload.is_cool == 0 and msg == "BUFF_REMOVE" then
-                    g.muteki_time_buffs[buff_id_str] = {
-                        show = false,
-                        effect = false,
-                        start_time = now,
-                        set_time = 20,
-                        notify = 1
-                    }
-                    g.muteki_overload.is_cool = 1
-                    Muteki_BUFF_ON_MSG(frame, 'BUFF_ADD', is_dummy, buff_id)
-                    return
-                else
-                    if not (g.muteki_overload and g.muteki_overload.is_cool == 1) then
-                        g.muteki_overload = nil
-                    end
-                end
-            end
-        end
-        if msg == 'BUFF_ADD' then
-            g.muteki_remove_notice = g.muteki_remove_notice or {}
-            g.muteki_remove_notice[buff_id_str] = 0
-            g.muteki_buff_count = g.muteki_buff_count or {}
-            g.muteki_buff_count[buff_id_str] = (g.muteki_buff_count[buff_id_str] or 0) + 1
-            if g.muteki_time_buffs and g.muteki_time_buffs[buff_id_str] then
-                g.muteki_buffs[buff_id_str] = g.muteki_time_buffs[buff_id_str]
-                g.muteki_time_buffs[buff_id_str] = nil
-            elseif not g.muteki_buffs[buff_id_str] then
-                g.muteki_buffs[buff_id_str] = {
-                    show = false,
-                    effect = false,
-                    start_time = now,
-                    set_time = nil,
-                    notify = 0
-                }
-            end
-            g.muteki_buffs.circle = g.muteki_buffs.circle or {}
-            g.muteki_buffs.gauge = g.muteki_buffs.gauge or {}
-            if is_circle then
-                Muteki_insert_if_not_exists(g.muteki_buffs.circle, buff_id)
-            else
-                Muteki_insert_if_not_exists(g.muteki_buffs.gauge, buff_id)
-            end
-            if g.muteki_buffs[buff_id_str] and g.muteki_buffs[buff_id_str].notify == 0 then
-                if buff_data.pt_chat == 1 then
-                    if not string.find(buff_cls.Name, "NoData") then
-                        ui.Chat(string.format("/p %s start", buff_cls.Name))
-                    end
-                end
-                if buff_data.nico_chat == 1 then
-                    NICO_CHAT(string.format("{@st55_a}%s start", buff_name))
-                end
-                if buff_data.effect_check == 1 then
-                    local my_handle = session.GetMyHandle()
-                    local actor = world.GetActor(my_handle)
-                    effect.PlayActorEffect(actor, "F_sys_TPBOX_great_300", "None", 1.0, 6.0)
-                end
-                g.muteki_buffs[buff_id_str].notify = 1
-            end
-            if g.muteki_buff_count[buff_id_str] > 0 then
-                Muteki_child_set_pos(muteki)
-            end
-            Muteki_buff_frame(muteki, msg, buff_id, buff_cls, buff_data, is_circle)
-        elseif msg == 'BUFF_REMOVE' then
-            if g.muteki_buffs[buff_id_str] and g.muteki_buffs[buff_id_str].set_time then
-                local now = imcTime.GetAppTime()
-                if g.muteki_buffs[buff_id_str].set_time - (now - g.muteki_buffs[buff_id_str].start_time) > 0 then
-                    return
-                end
-            end
-            if is_dummy ~= "dummy" then
-                Muteki_handle_buff_end(muteki, buff_id)
-            end
-            Muteki_child_set_pos(muteki)
-        elseif msg == 'BUFF_UPDATE' then
-            if not g.muteki_buffs[buff_id_str] then
-                g.muteki_buffs[buff_id_str] = {
-                    show = false,
-                    effect = false,
-                    start_time = imcTime.GetAppTime(),
-                    set_time = nil,
-                    notify = 0
-                }
-            end
-            Muteki_buff_frame(muteki, msg, buff_id, buff_cls, buff_data, is_circle)
-        end
-    end
-end
-
-function Muteki_handle_buff_end(notice_frame, buff_id)
-    local buff_id_str = tostring(buff_id)
-    local buff_data = g.muteki_settings.buff_list[buff_id_str]
-    local buff_cls = GetClassByType('Buff', buff_id)
-    local notice = false
-    if g.muteki_remove_notice and g.muteki_remove_notice[buff_id_str] == 0 then
-        notice = true
-        g.muteki_remove_notice[buff_id_str] = 1
-    end
-    if notice then
-        if buff_data.pt_chat == 1 then
-            if not string.find(buff_cls.Name, "NoData") then
-                ui.Chat(string.format("/p %s end", buff_cls.Name))
-            end
-        end
-        if buff_data.nico_chat == 1 then
-            NICO_CHAT(string.format("{@st55_a}%s end", buff_cls.Name))
-        end
-        if buff_data.end_sound == 1 then
-            imcSound.PlaySoundEvent("sys_transcend_cast")
-        end
-    end
-    if g.muteki_buffs[buff_id_str] then
-        g.muteki_buffs[buff_id_str] = nil
-    end
-    if g.muteki_buff_count[buff_id_str] then
-        g.muteki_buff_count[buff_id_str] = nil
-    end
-    local ui_types = {"circle", "gauge"}
-    for _, ui_type in ipairs(ui_types) do
-        local child_name = ui_type .. "_" .. buff_id
-        local child = GET_CHILD(notice_frame, child_name)
-        if child then
-            local target_list = g.muteki_buffs[ui_type]
-            if target_list then
-                for i = #target_list, 1, -1 do
-                    if target_list[i] == buff_id then
-                        table.remove(target_list, i)
-                        break
-                    end
-                end
-            end
-            DESTROY_CHILD_BYNAME(notice_frame, child_name)
-        end
-    end
-end
-
-function Muteki_ICON_USE(my_frame, my_msg)
-    if g.settings.muteki.use == 0 then
-        return
-    end
-    local icon, reAction = g.get_event_args(my_msg)
-    if icon then
-        AUTO_CAST(icon)
-        local cur_time = ICON_UPDATE_SKILL_COOLDOWN(icon)
-        if cur_time > 0 then
-            return
-        end
-        local icon_info = icon:GetInfo()
-        if icon_info:GetCategory() == 'Skill' then
-            local skill_id = icon_info.type
-            local skill_id_str = tostring(skill_id)
-            if g.muteki_buffs[g.muteki_skills[skill_id_str].buff_id] then
-                return
-            end
-            local skill_list = g.muteki_skills[skill_id_str]
-            if skill_list then
-                g.muteki_time_buffs[skill_list.buff_id] = {
-                    show = false,
-                    effect = false,
-                    start_time = imcTime.GetAppTime(),
-                    set_time = skill_list.time,
-                    notify = 0
-                }
-                Muteki_BUFF_ON_MSG("", 'BUFF_ADD', "", tonumber(skill_list.buff_id))
-            end
-        end
-    end
-end
-
-function Muteki_SET_BUFF_SLOT(my_frame, my_msg)
-    local slot, capt, class, buff_type = g.get_event_args(my_msg)
-    AUTO_CAST(slot)
-    slot:SetEventScript(ui.LBUTTONDOWN, 'Muteki_add_buff_msg')
-    slot:SetEventScriptArgString(ui.LBUTTONDOWN, class.Name)
-    slot:SetEventScriptArgNumber(ui.LBUTTONDOWN, buff_type)
-end
-
-function Muteki_buffslot_script(_nexus_addons)
-    if s_buff_ui and s_buff_ui.slotlist then
-        for i = 0, s_buff_ui["buff_group_cnt"] do
-            local slotlist = s_buff_ui["slotlist"][i]
-            local slotcount = s_buff_ui["slotcount"][i]
-            local captionlist = s_buff_ui["captionlist"][i]
-            if slotcount ~= nil and slotcount >= 0 then
-                for i = 0, slotcount - 1 do
-                    local slot = slotlist[i]
-                    AUTO_CAST(slot)
-                    local icon = slot:GetIcon()
-                    local icon_info = icon:GetInfo()
-                    local buff_id = icon_info.type
-                    if buff_id ~= 0 then
-                        local buff_cls = GetClassByType("Buff", buff_id)
-                        slot:SetEventScript(ui.LBUTTONDOWN, 'Muteki_add_buff_msg')
-                        slot:SetEventScriptArgString(ui.LBUTTONDOWN, buff_cls.Name)
-                        slot:SetEventScriptArgNumber(ui.LBUTTONDOWN, buff_id)
-                    end
-                end
-            end
-        end
-        g.setup_hook_and_event(g.addon, 'SET_BUFF_SLOT', "Muteki_SET_BUFF_SLOT", true)
-    end
-    return 0
-end
-
-function Muteki_buff_frame_init()
-    local muteki = ui.CreateNewFrame("chat_memberlist", addon_name_lower .. "muteki", 0, 0, 0, 0)
-    AUTO_CAST(muteki)
-    muteki:SetSkinName("None")
-    if g.muteki_settings.etc.mode == "fixed" then
-        muteki:SetOffset(g.muteki_settings.etc.x, g.muteki_settings.etc.y)
-        muteki:StopUpdateScript("_FRAME_AUTOPOS")
-    else
-        local handle = session.GetMyHandle()
-        FRAME_AUTO_POS_TO_OBJ(muteki, handle, muteki:GetWidth() - 175, 50, 3, 1)
-        g.muteki_settings.etc.lock = 0
-        Muteki_save_settings()
-        local settings = ui.GetFrame(addon_name_lower .. "muteki_settings")
-        if settings then
-            AUTO_CAST(settings)
-            local move_toggle = GET_CHILD_RECURSIVELY(settings, "move_toggle")
-            AUTO_CAST(move_toggle)
-            local icon_name = "test_com_ability_on"
-            move_toggle:SetImage(icon_name)
-        end
-    end
-    muteki:SetLayerLevel(g.muteki_settings.etc.layer_lv)
-    muteki:EnableHittestFrame(g.muteki_settings.etc.lock)
-    muteki:EnableMove(g.muteki_settings.etc.lock)
-    if g.muteki_settings.etc.lock == 1 then
-        local title = muteki:CreateOrGetControl("richtext", "title", 0, 0, 40, 10)
-        AUTO_CAST(title)
-        title:SetGravity(ui.LEFT, ui.TOP)
-        title:SetText("{ol}{s10}Muteki")
-        muteki:SetSkinName("chat_window")
-        muteki:Resize(100, 20)
-        muteki:SetAlpha(10)
-    else
-        muteki:RemoveChild("title")
-        muteki:Resize(250, 210)
-    end
-    muteki:ShowWindow(1)
-    muteki:SetEventScript(ui.LBUTTONUP, "Muteki_notic_frame_end_drag")
-end
-
-function Muteki_notic_frame_end_drag(muteki)
-    g.muteki_settings.etc.x = muteki:GetX()
-    g.muteki_settings.etc.y = muteki:GetY()
-    Muteki_save_settings()
-end
-
-function Muteki_buff_frame(notice_frame, msg, buff_id, buff_cls, buff_data, is_circle)
-    local buff_id_str = tostring(buff_id)
-    local my_handle = session.GetMyHandle()
-    local info_buff = info.GetBuff(my_handle, buff_id) or
-                          (g.muteki_buffs[buff_id_str] and g.muteki_buffs[buff_id_str].set_time)
-    if not info_buff then
-        return
-    end
-    local image_name = GET_BUFF_ICON_NAME(buff_cls)
-    if image_name == "icon_None" then
-        image_name = "icon_item_nothing"
-    end
-    if msg == "BUFF_ADD" then
-        local is_cool = false
-        if g.muteki_overload and g.muteki_overload.is_cool == 1 and g.muteki_overload.buff_id == buff_id then
-            is_cool = true
-        end
-        local child
-        local start_time_sec = 0
-        if is_circle then
-            child = notice_frame:CreateOrGetControl("picture", "circle_" .. buff_id, 50, 5, 50, 50)
-            AUTO_CAST(child)
-            child:SetImage(image_name)
-            if g.muteki_settings.etc.rotate == 1 then
-                child:SetAngleLoop(3)
-            end
-            if is_cool then
-                child:SetColorTone("FF696969")
-            end
-            child:SetEnableStretch(1)
-            child:EnableHitTest(0)
-        else -- gauge
-            child = notice_frame:CreateOrGetControl("picture", "gauge_" .. buff_id, 0, 60, 250, 20)
-            AUTO_CAST(child)
-            child:SetEnableStretch(1)
-            child:EnableHitTest(0)
-            local gauge_back = child:CreateOrGetControl("picture", "gauge_back", 0, 10, 250, 10)
-            AUTO_CAST(gauge_back)
-            gauge_back:SetImage("fullblack")
-            gauge_back:SetEnableStretch(1)
-            gauge_back:EnableHitTest(0)
-            local gauge_front = child:CreateOrGetControl("picture", "gauge_front", 0, 10, 250, 10)
-            AUTO_CAST(gauge_front)
-            gauge_front:SetImage("fullwhite")
-            gauge_front:SetEnableStretch(1)
-            gauge_front:EnableHitTest(0)
-            if is_cool then
-                gauge_front:SetColorTone("FFFFFFFF")
-            else
-                gauge_front:SetColorTone(buff_data.color)
-            end
-            local buff_name_ctrl = child:CreateOrGetControl("richtext", "buff_name", 0, 0, 10, 20)
-            buff_name_ctrl:SetText(string.format("{ol}{s12}{img %s 15 15}%s", image_name, buff_cls.Name))
-            buff_name_ctrl:AdjustFontSizeByWidth(170)
-        end
-        child:SetUserValue("BUFF_ID", buff_id)
-        child:SetEnableStretch(1)
-        child:EnableHitTest(0)
-        if type(info_buff) == "number" then
-            start_time_sec = info_buff
-        elseif g.muteki_buffs[buff_id_str] and g.muteki_buffs[buff_id_str].set_time then
-            local now = imcTime.GetAppTime()
-            start_time_sec = g.muteki_buffs[buff_id_str].set_time - (g.muteki_buffs[buff_id_str].start_time - now)
-        else
-            start_time_sec = info_buff.time / 1000
-        end
-        child:SetUserValue("START_TIME", start_time_sec)
-        local buff_time_ctrl = child:CreateOrGetControl("richtext", "buff_time", 0, 0, 50, 30)
-        AUTO_CAST(buff_time_ctrl)
-        if buff_data.count_display == 1 and type(info_buff) ~= "number" then
-            local buff_over_ctrl = child:CreateOrGetControl("richtext", "buff_over", 0, 0, 0, 0)
-            AUTO_CAST(buff_over_ctrl)
-            if is_circle then
-                buff_over_ctrl:Resize(20, 20)
-                buff_over_ctrl:SetGravity(ui.RIGHT, ui.BOTTOM)
-                if start_time_sec > 0 then
-                    buff_over_ctrl:SetText(string.format("{ol}{s22}%d", info_buff.over))
-                    buff_time_ctrl:SetGravity(ui.LEFT, ui.TOP)
-                else
-                    buff_over_ctrl:SetText(string.format("{ol}{s35}%d", info_buff.over))
-                    local rect = buff_over_ctrl:GetMargin();
-                    buff_over_ctrl:SetMargin(rect.left, rect.top, rect.right + 12, rect.bottom + 5)
-                end
-            else -- gauge
-                buff_over_ctrl:Resize(30, 20)
-                buff_over_ctrl:SetOffset(220, 0)
-                buff_over_ctrl:SetGravity(ui.RIGHT, ui.CENTER_VERT)
-                buff_over_ctrl:SetText(string.format("{ol}{s20}%d", info_buff.over))
-            end
-            buff_over_ctrl:SetColorTone("FFFFFF00")
-        elseif not is_circle then
-            buff_time_ctrl:SetOffset(180, 0)
-            buff_time_ctrl:Resize(30, 20)
-            buff_time_ctrl:SetGravity(ui.RIGHT, ui.TOP)
-            local r = buff_time_ctrl:GetMargin()
-            buff_time_ctrl:SetMargin(r.left, r.top, r.right + 40, r.bottom)
-        elseif is_circle then
-            buff_time_ctrl:SetGravity(ui.RIGHT, ui.TOP)
-            local r = buff_time_ctrl:GetMargin()
-            buff_time_ctrl:SetMargin(r.left, r.top + 10, r.right, r.bottom)
-        end
-        Muteki_notice_update(child)
-        if not child:HaveUpdateScript("Muteki_notice_update") then
-            child:RunUpdateScript("Muteki_notice_update", 0.1)
-        end
-    elseif msg == "BUFF_UPDATE" then
-        local ui_type = is_circle and "circle" or "gauge"
-        local child = GET_CHILD(notice_frame, ui_type .. "_" .. buff_id)
-        if child then
-            local buff_over_ctrl = GET_CHILD(child, "buff_over")
-            if buff_over_ctrl and type(info_buff) ~= "number" then
-                local stat
-                if is_circle then
-                    stat = (info_buff.time <= 0) and string.format("{ol}{s35}%d", info_buff.over) or
-                               string.format("{ol}{s22}%d", info_buff.over)
-                else -- gauge
-                    stat = string.format("{ol}{s20}%d", info_buff.over)
-                end
-                buff_over_ctrl:SetText(stat)
-                buff_over_ctrl:SetColorTone("FFFFFF00")
-                if buff_cls.OverBuff <= info_buff.over then
-                    if not g.muteki_buffs[buff_id_str].effect then
-                        local my_handle = session.GetMyHandle()
-                        local actor = world.GetActor(my_handle)
-                        effect.PlayActorEffect(actor, 'F_pattern025_loop', 'None', 1.0, 1.5)
-                        imcSound.PlaySoundEvent("sys_cube_open_jackpot")
-                        g.muteki_buffs[buff_id_str].effect = true
-                    end
-                    buff_over_ctrl:SetColorTone("FFFF0000")
-                end
-            end
-            child:StopUpdateScript("Muteki_notice_update")
-            Muteki_notice_update(child)
-            if not child:HaveUpdateScript("Muteki_notice_update") then
-                child:RunUpdateScript("Muteki_notice_update", 0.1)
-            end
-        end
-    end
-end
-
-function Muteki_notice_update(child)
-    local child_name = child:GetName()
-    local muteki = child:GetParent()
-    local buff_id = child:GetUserIValue("BUFF_ID")
-    local buff_id_str = tostring(buff_id)
-    local my_handle = session.GetMyHandle()
-    local cur_time = Muteki_get_remaining_time(buff_id)
-    local ui_type = string.find(child:GetName(), "circle_") and "circle" or "gauge"
-    if cur_time <= 0 then
-        Muteki_BUFF_ON_MSG(nil, "BUFF_REMOVE", "", buff_id)
-        return 0
-    end
-    if (cur_time <= g.muteki_settings.etc.hide_time) or (cur_time == math.huge) then
-        child:ShowWindow(1)
-        g.muteki_buffs[buff_id_str].show = true
-    else
-        child:ShowWindow(0)
-        g.muteki_buffs[buff_id_str].show = false
-    end
-    Muteki_child_set_pos(muteki)
-    if g.muteki_buffs[buff_id_str].show == false then
-        return 1
-    end
-    if ui_type == "circle" then
-        if cur_time == math.huge then
-            local buff_over_ctrl = GET_CHILD(child, "buff_over")
-            buff_over_ctrl:ShowWindow(1)
-        elseif cur_time > 0 then
-            local stat = string.format("{ol}{s22}%.1f", cur_time)
-            if cur_time >= 60 then
-                local min = math.floor(cur_time / 60)
-                stat = string.format("{ol}{s22}%d{s10}%s", min, "min")
-            elseif cur_time <= 10 and cur_time > 5 then
-                stat = string.format("{ol}{s22}{#FF4500}%.1f", cur_time)
-            elseif cur_time <= 5 then
-                stat = string.format("{ol}{s22}{#FF0000}%.1f", cur_time)
-            end
-            local buff_time_ctrl = GET_CHILD(child, "buff_time")
-            if buff_time_ctrl then
-                buff_time_ctrl:SetText(stat)
-            end
-        end
-    elseif ui_type == "gauge" then
-        local buff_time_ctrl = GET_CHILD(child, "buff_time")
-        if cur_time > 0 and cur_time ~= math.huge then
-            buff_time_ctrl:ShowWindow(1)
-            buff_time_ctrl:SetText(string.format("{ol}{s18}%.1f", cur_time))
-            buff_time_ctrl:SetColorTone(g.muteki_settings.buff_list[buff_id_str].color)
-        else
-            buff_time_ctrl:ShowWindow(0)
-        end
-        local start_time = tonumber(child:GetUserValue("START_TIME"))
-        local ratio = 0
-        if cur_time == math.huge then
-            ratio = 1.0
-        elseif start_time > 0 then
-            ratio = cur_time / start_time
-        end
-        local gauge_front = GET_CHILD(child, "gauge_front")
-        AUTO_CAST(gauge_front)
-        if gauge_front then
-            gauge_front:Resize(250 * ratio, 10)
-        end
-        local gauge_front = GET_CHILD(child, "gauge_front")
-        AUTO_CAST(gauge_front)
-    end
-    return 1
-end
-
-function Muteki_child_set_pos(muteki)
-    local circle_count = Muteki_reorder_ui_elements(muteki, "circle")
-    local gauge_count = Muteki_reorder_ui_elements(muteki, "gauge")
-    local x = circle_count * 50 + 50
-    if x < 250 then
-        x = 250
-    end
-    local y = gauge_count * 25 + 60
-    if y < 60 then
-        y = 60
-    end
-    muteki:Resize(x, y)
-end
-
-function Muteki_reorder_ui_elements(muteki, ui_type)
-    local sorted_list = {}
-    local source_list = g.muteki_buffs[ui_type]
-    if source_list and type(source_list) == "table" then
-        for _, buff_id in ipairs(source_list) do
-            local cur_time = Muteki_get_remaining_time(buff_id)
-            if cur_time > 0 then
-                table.insert(sorted_list, {
-                    buff_id = buff_id,
-                    time = cur_time
-                })
-            end
-        end
-    end
-    table.sort(sorted_list, function(a, b)
-        return a.time < b.time
-    end)
-    local visible_count = 0
-    for _, entry in ipairs(sorted_list) do
-        local child = GET_CHILD(muteki, ui_type .. "_" .. entry.buff_id)
-        if child and child:IsVisible() == 1 then
-            if ui_type == "circle" then
-                child:SetOffset((visible_count + 1) * 50, 5)
-            else -- gauge
-                child:SetOffset(0, visible_count * 25 + 60)
-            end
-            visible_count = visible_count + 1
-            if not child:HaveUpdateScript("Muteki_notice_update") then
-                child:RunUpdateScript("Muteki_notice_update", 0.1)
-            end
-        end
-    end
-    return visible_count
-end
-
-function Muteki_get_remaining_time(buff_id)
-    local buff_id_str = tostring(buff_id)
-    local my_handle = session.GetMyHandle()
-    if g.muteki_buffs[buff_id_str] and g.muteki_buffs[buff_id_str].set_time then
-        local elapsed_time = imcTime.GetAppTime() - g.muteki_buffs[buff_id_str].start_time
-        return g.muteki_buffs[buff_id_str].set_time - elapsed_time
-    end
-    local info_buff = info.GetBuff(my_handle, buff_id)
-    if info_buff then
-        if info_buff.time > 0 then
-            return info_buff.time / 1000
-        elseif info_buff.time == 0 and info_buff.over > 0 then
-            return math.huge
-        end
-    end
-    return 0
-end
-
-function Muteki_insert_if_not_exists(list, value)
-    for _, existing_value in ipairs(list) do
-        if existing_value == value then
-            return
-        end
-    end
-    table.insert(list, value)
-end
-
-function Muteki_refresh_active_buffs()
-    local my_handle = session.GetMyHandle()
-    if g.muteki_settings.buff_list then
-        for b_id_str, buff_data in pairs(g.muteki_settings.buff_list) do
-            local b_id = tonumber(b_id_str)
-            local info_buff = info.GetBuff(my_handle, b_id)
-            if info_buff then
-                local not_notify_val = buff_data.not_notify and buff_data.not_notify[g.cid]
-                if not_notify_val == 1 then
-                    Muteki_BUFF_ON_MSG("", "BUFF_REMOVE", "dummy", b_id)
-                else
-                    Muteki_BUFF_ON_MSG("", "BUFF_REMOVE", "", b_id)
-                    Muteki_BUFF_ON_MSG("", "BUFF_ADD", "", b_id)
-                    Muteki_BUFF_ON_MSG("", "BUFF_UPDATE", "", b_id)
-                end
-            end
-        end
-    end
-end
-
-function Muteki_skill_list()
-    g.muteki_skills = {}
-    local buff_list = g.muteki_settings.buff_list
-    for buff_id, buff_data in pairs(buff_list) do
-        Muteki_process_management_data(buff_data.debuffs, "debuff_time", buff_id)
-        Muteki_process_management_data(buff_data.buffs, "buff_time", buff_id)
-    end
-end
-
-function Muteki_process_management_data(tbl, time_key, buff_id)
-    if not tbl then
-        return
-    end
-    for cid, info in pairs(tbl) do
-        if type(info) == "table" and info.skill_id and info[time_key] then
-            if cid == g.cid and info[time_key] > 0 then
-                local skill_id = info.skill_id
-                g.muteki_skills[tostring(skill_id)] = {
-                    time = info[time_key],
-                    buff_id = buff_id
-                }
-            end
-        end
-    end
-end
-
-function Muteki_setting_frame_init()
-    local settings = ui.CreateNewFrame("notice_on_pc", addon_name_lower .. "muteki_settings", 0, 50, 0, 0)
-    AUTO_CAST(settings)
-    settings:SetSkinName("test_frame_low")
-    settings:Resize(600, 1005)
-    settings:SetGravity(ui.LEFT, ui.TOP)
-    settings:SetOffset(0, 30)
-    settings:SetLayerLevel(999)
-    local title_gb = settings:CreateOrGetControl("groupbox", "title_gb", 0, 0, 600, 110)
-    AUTO_CAST(title_gb)
-    title_gb:SetSkinName("test_frame_top")
-    local title_text = title_gb:CreateOrGetControl("richtext", "title_text", 0, 0, ui.CENTER_HORZ, ui.TOP, 0, 15, 0, 0)
-    AUTO_CAST(title_text);
-    title_text:SetText('{ol}{s28}MUTEKI Settings')
-    local x = 0
-    local buff_time = title_gb:CreateOrGetControl('richtext', 'buff_time', 15, 60, 100, 30)
-    AUTO_CAST(buff_time)
-    buff_time:SetText(muteki_trans('buff_time'))
-    x = buff_time:GetWidth() + 15
-    local buff_time_edit = title_gb:CreateOrGetControl('edit', 'buff_time_edit', x, 60, 60, 20)
-    AUTO_CAST(buff_time_edit)
-    buff_time_edit:SetNumberMode(1)
-    buff_time_edit:SetFontName("white_16_ol")
-    buff_time_edit:SetText(g.muteki_settings.etc.hide_time)
-    buff_time_edit:SetTextAlign("center", "top")
-    buff_time_edit:SetTypingScp("Muteki_change_settings")
-    buff_time_edit:SetEventScript(ui.ENTERKEY, 'Muteki_change_settings')
-    x = x + buff_time_edit:GetWidth() + 20
-    local layer = title_gb:CreateOrGetControl('richtext', 'layer', x, 60, 10, 30)
-    AUTO_CAST(layer)
-    layer:SetText(muteki_trans('layer_lv'))
-    x = x + layer:GetWidth()
-    local layer_edit = title_gb:CreateOrGetControl('edit', 'layer_edit', x, 60, 50, 20)
-    AUTO_CAST(layer_edit)
-    layer_edit:SetNumberMode(1)
-    layer_edit:SetFontName("white_16_ol")
-    layer_edit:SetText(g.muteki_settings.etc.layer_lv or 80)
-    layer_edit:SetTextAlign("center", "top")
-    layer_edit:SetTypingScp("Muteki_change_settings")
-    layer_edit:SetEventScript(ui.ENTERKEY, 'Muteki_change_settings')
-    x = 0
-    local mode = title_gb:CreateOrGetControl('richtext', 'mode', 15, 85, 10, 30)
-    AUTO_CAST(mode)
-    mode:SetText(muteki_trans('position_mode'))
-    x = mode:GetWidth() + 15
-    local mode_toggle = title_gb:CreateOrGetControl('picture', "mode_toggle", x, 80, 60, 25);
-    AUTO_CAST(mode_toggle)
-    local icon_name = "test_com_ability_on"
-    if g.muteki_settings.etc.mode == "fixed" then
-        icon_name = "test_com_ability_off"
-    end
-    mode_toggle:SetImage(icon_name)
-    mode_toggle:SetEnableStretch(1)
-    mode_toggle:EnableHitTest(1)
-    mode_toggle:SetTextTooltip(muteki_trans("mode_desc"))
-    mode_toggle:SetEventScript(ui.LBUTTONUP, "Muteki_change_settings")
-    x = x + mode_toggle:GetWidth() + 10
-    local move = title_gb:CreateOrGetControl('richtext', 'move', x, 85, 10, 30)
-    AUTO_CAST(move)
-    move:SetText(muteki_trans('frame_lock'))
-    x = x + move:GetWidth()
-    local move_toggle = title_gb:CreateOrGetControl('picture', "move_toggle", x, 80, 60, 25);
-    AUTO_CAST(move_toggle)
-    local icon_name = "test_com_ability_on"
-    if g.muteki_settings.etc.lock == 1 then
-        icon_name = "test_com_ability_off"
-    end
-    move_toggle:SetImage(icon_name)
-    move_toggle:SetEnableStretch(1)
-    move_toggle:EnableHitTest(1)
-    move_toggle:SetTextTooltip(muteki_trans("lock_notice"))
-    move_toggle:SetEventScript(ui.LBUTTONUP, "Muteki_change_settings")
-    x = x + move_toggle:GetWidth() + 10
-    local rotate = title_gb:CreateOrGetControl('richtext', 'rotate', x, 85, 10, 30)
-    AUTO_CAST(rotate)
-    rotate:SetText(muteki_trans("icon_rotate"))
-    x = x + rotate:GetWidth()
-    local rotate_toggle = title_gb:CreateOrGetControl('picture', "rotate_toggle", x, 80, 60, 25);
-    AUTO_CAST(rotate_toggle)
-    local icon_name = "test_com_ability_on"
-    if g.muteki_settings.etc.rotate ~= 1 then
-        icon_name = "test_com_ability_off"
-    end
-    rotate_toggle:SetImage(icon_name)
-    rotate_toggle:SetEnableStretch(1)
-    rotate_toggle:EnableHitTest(1)
-    rotate_toggle:SetEventScript(ui.LBUTTONUP, "Muteki_change_settings")
-    local add = title_gb:CreateOrGetControl("button", "add", 530, 80, 50, 30)
-    AUTO_CAST(add)
-    add:SetSkinName("test_cardtext_btn")
-    add:SetText("{ol}" .. "Add")
-    add:SetTextTooltip(muteki_trans("add_new"))
-    add:SetEventScript(ui.LBUTTONUP, "Muteki_buff_list_open")
-    local close = title_gb:CreateOrGetControl("button", "close", 0, 0, 25, 25)
-    AUTO_CAST(close)
-    close:SetImage("testclose_button")
-    close:SetGravity(ui.RIGHT, ui.TOP)
-    close:SetEventScript(ui.LBUTTONUP, "Muteki_setting_frame_close")
-    local gb = settings:CreateOrGetControl("groupbox", "gb", 10, 110, 580, settings:GetHeight() - 120)
-    AUTO_CAST(gb)
-    gb:SetSkinName("bg")
-    gb:RemoveAllChild()
-    Muteki_setting_gbox_init(settings, gb)
-    settings:ShowWindow(1)
-end
-
-function Muteki_setting_gbox_init(settings, gb)
-    local sorted_buff_list = {}
-    if g.muteki_settings.buff_list and type(g.muteki_settings.buff_list) == "table" then
-        for buff_id_str, buff_data in pairs(g.muteki_settings.buff_list) do
-            table.insert(sorted_buff_list, {
-                buff_id = tonumber(buff_id_str),
-                data = buff_data
-            })
-        end
-    end
-    table.sort(sorted_buff_list, function(a, b)
-        return a.buff_id < b.buff_id
-    end)
-    local index = 1
-    for i, entry in ipairs(sorted_buff_list) do
-        index = index + 1
-        local buff_id = entry.buff_id
-        local buff_data = entry.data
-        local buff_cls = GetClassByType('Buff', buff_id)
-        local list = gb:CreateOrGetControl('groupbox', 'list' .. buff_id, 5, 5 + 175 * (i - 1), 555, 175)
-        list:SetSkinName("market_listbase")
-        local buff_pic = list:CreateOrGetControl('picture', 'buff_pic', 95, 10, 30, 30)
-        AUTO_CAST(buff_pic)
-        buff_pic:SetEnableStretch(1)
-        if buff_cls and buff_cls.Icon then
-            local icon_name = 'icon_' .. buff_cls.Icon
-            if buff_cls.Icon == "None" then
-                icon_name = "icon_item_nothing"
-            end
-            buff_pic:SetImage(icon_name)
-            buff_pic:SetTextTooltip(muteki_trans('delete_notice'))
-            buff_pic:SetEventScript(ui.RBUTTONUP, 'Muteki_delete_buff')
-            buff_pic:SetEventScriptArgString(ui.RBUTTONUP, buff_cls.Name)
-            buff_pic:SetEventScriptArgNumber(ui.RBUTTONUP, buff_id)
-            local buff_name = list:CreateOrGetControl('richtext', 'buff_name', 130, 15, 60, 30)
-            AUTO_CAST(buff_name)
-            buff_name:SetText('{#000000}' .. buff_cls.Name)
-            buff_name:SetTooltipType('buff')
-            buff_name:SetTooltipArg(buff_name, buff_id, 0)
-            local buff_edit = list:CreateOrGetControl('edit', 'buff_edit', 10, 10, 80, 30)
-            AUTO_CAST(buff_edit)
-            buff_edit:SetNumberMode(1)
-            buff_edit:SetFontName("white_16_ol")
-            buff_edit:SetText(buff_cls.ClassID)
-            buff_edit:SetTextAlign("center", "center")
-            buff_edit:SetTextTooltip(muteki_trans('function_notice'))
-            buff_edit:SetTypingScp("Muteki_add_buff")
-            buff_edit:SetEventScript(ui.ENTERKEY, 'Muteki_add_buff')
-            buff_edit:SetEventScriptArgString(ui.ENTERKEY, buff_id)
-        end
-        local circle = list:CreateOrGetControl('checkbox', 'circle', 10, 45, 200, 25)
-        AUTO_CAST(circle)
-        local circle_icon = buff_data.circle_icon
-        circle:SetCheck(circle_icon)
-        circle:SetText(muteki_trans('icon_mode'))
-        circle:SetEventScript(ui.LBUTTONUP, 'Muteki_setting_change')
-        circle:SetEventScriptArgString(ui.LBUTTONUP, buff_id)
-        local not_notify = list:CreateOrGetControl('checkbox', 'not_notify', 10, 70, 200, 25)
-        AUTO_CAST(not_notify)
-        not_notify:SetCheck(buff_data.not_notify[g.cid])
-        not_notify:SetText(muteki_trans('not_notify'))
-        not_notify:SetEventScript(ui.LBUTTONUP, 'Muteki_setting_change')
-        not_notify:SetEventScriptArgString(ui.LBUTTONUP, buff_id)
-        local pt_chat = list:CreateOrGetControl('checkbox', 'pt_chat', 10, 95, 200, 25)
-        AUTO_CAST(pt_chat)
-        pt_chat:SetCheck(buff_data.pt_chat)
-        pt_chat:SetText(muteki_trans('pt_chat'))
-        pt_chat:SetEventScript(ui.LBUTTONUP, 'Muteki_setting_change')
-        pt_chat:SetEventScriptArgString(ui.LBUTTONUP, buff_id)
-        local nico_chat = list:CreateOrGetControl('checkbox', 'nico_chat', 10, 120, 200, 25)
-        AUTO_CAST(nico_chat)
-        nico_chat:SetCheck(buff_data.nico_chat)
-        nico_chat:SetText(muteki_trans('nico_chat'))
-        nico_chat:SetEventScript(ui.LBUTTONUP, 'Muteki_setting_change')
-        nico_chat:SetEventScriptArgString(ui.LBUTTONUP, buff_id)
-        local effect = list:CreateOrGetControl('checkbox', 'effect', 270, 70, 200, 25)
-        AUTO_CAST(effect)
-        effect:SetCheck(buff_data.effect_check)
-        effect:SetText(muteki_trans('with_effect'))
-        effect:SetEventScript(ui.LBUTTONUP, 'Muteki_setting_change')
-        effect:SetEventScriptArgString(ui.LBUTTONUP, buff_id)
-        local color_pic = list:CreateOrGetControl('picture', 'color_pic', 510, 10, 30, 25)
-        AUTO_CAST(color_pic)
-        color_pic:SetEnableStretch(1)
-        color_pic:SetImage("chat_color")
-        color_pic:SetColorTone(buff_data.color or g.muteki_default_color)
-        color_pic:SetTextTooltip(muteki_trans('color_tone'))
-        local color_tbl = {'FFFFFF00', -- [1] 黄色
-        'FFFFD700', -- [2] ゴールド
-        'FFFF4500', -- [3] オレンジ
-        'FF00FF00', -- [4] ライムグリーン
-        'FF008000', -- [5] 緑
-        'FF00BFFF', -- [6] スカイブルー
-        'FF0000FF', -- [7] 青
-        'FF800080', -- [8] 紫
-        "FFFF1493", -- [9] ピンク
-        "FFFF0000" -- [10] 赤
-        }
-        local color_box = list:CreateOrGetControl('groupbox', "color_box", 315, 45, 220, 25);
-        AUTO_CAST(color_box)
-        for i = 1, #color_tbl do
-            local color_value = color_tbl[i]
-            local color = color_box:CreateOrGetControl("picture", "color_" .. i, 20 * i, 0, 20, 25);
-            AUTO_CAST(color)
-            color:SetImage("chat_color")
-            color:SetColorTone(color_value)
-            color:SetEventScript(ui.LBUTTONUP, 'Muteki_setting_change')
-            color:SetEventScriptArgString(ui.LBUTTONUP, color_value)
-            color:SetEventScriptArgNumber(ui.LBUTTONUP, buff_id)
-        end
-        local color_edit = list:CreateOrGetControl('edit', 'color_edit', 405, 10, 100, 30)
-        AUTO_CAST(color_edit)
-        color_edit:SetFontName("white_16_ol")
-        color_edit:SetText("{ol}" .. buff_data.color or g.muteki_default_color)
-        color_edit:SetTextAlign("center", "center")
-        color_edit:SetTextTooltip(muteki_trans('color_notice'))
-        color_edit:SetNumberMode(0)
-        color_edit:SetEventScript(ui.ENTERKEY, 'Muteki_setting_change')
-        color_edit:SetEventScriptArgString(ui.ENTERKEY, buff_data.color or g.muteki_default_color)
-        color_edit:SetEventScriptArgNumber(ui.ENTERKEY, buff_id)
-        if buff_cls.OverBuff > 1 then
-            local count_display = list:CreateOrGetControl('checkbox', 'count_display', 270, 95, 200, 25)
-            AUTO_CAST(count_display)
-            count_display:SetCheck(buff_data.count_display)
-            count_display:SetText(muteki_trans('count_display'))
-            count_display:SetEventScript(ui.LBUTTONUP, 'Muteki_setting_change')
-            count_display:SetEventScriptArgString(ui.LBUTTONUP, buff_id)
-        end
-        local x = 0
-        local xx = 0
-        local time_edit = list:CreateOrGetControl('edit', 'time_edit', 10, 145, 80, 25)
-        AUTO_CAST(time_edit)
-        time_edit:SetFontName("white_16_ol")
-        time_edit:SetTextAlign("center", "center")
-        time_edit:SetNumberMode(1)
-        local debuff_time = ""
-        local buff_time = ""
-        local current_buff_list = g.muteki_settings.buff_list[tostring(buff_id)]
-        if buff_cls.Group1 == "Debuff" or buff_cls.Group1 == "Deuff" then
-            if current_buff_list and current_buff_list.debuffs and current_buff_list.debuffs[g.cid] then
-                local d_manage = current_buff_list.debuffs[g.cid]
-                if d_manage.debuff_time and d_manage.debuff_time > 0 then
-                    debuff_time = d_manage.debuff_time
-                end
-            end
-            time_edit:SetText("{ol}" .. (debuff_time or ""))
-            time_edit:SetTextTooltip(muteki_trans('debuff_notice'))
-            time_edit:SetUserValue("SWITCH", "debuff")
-            time_edit:SetUserValue("BUFF_ID", buff_id)
-            time_edit:SetTypingScp("Muteki_setting_change")
-            time_edit:SetEventScript(ui.ENTERKEY, 'Muteki_setting_change')
-            time_edit:SetEventScriptArgString(ui.ENTERKEY, buff_id)
-            x = x + time_edit:GetWidth() + 15
-            local time = list:CreateOrGetControl('richtext', 'time', x, 147, 100, 25)
-            AUTO_CAST(time)
-            time:SetText(muteki_trans('debuff_time'))
-            x = x + time:GetWidth() + 10
-        else
-            if current_buff_list and current_buff_list.buffs and current_buff_list.buffs[g.cid] then
-                local b_manage = current_buff_list.buffs[g.cid]
-                if b_manage.buff_time and b_manage.buff_time > 0 then
-                    buff_time = b_manage.buff_time
-                end
-            end
-            time_edit:SetText("{ol}" .. (buff_time or ""))
-            time_edit:SetTextTooltip(muteki_trans('buff_notice_cid'))
-            time_edit:SetUserValue("SWITCH", "buff")
-            time_edit:SetUserValue("BUFF_ID", buff_id)
-            time_edit:SetTypingScp("Muteki_setting_change")
-            time_edit:SetEventScript(ui.ENTERKEY, 'Muteki_setting_change')
-            time_edit:SetEventScriptArgString(ui.ENTERKEY, buff_id)
-            xx = xx + time_edit:GetWidth() + 15
-            local time = list:CreateOrGetControl('richtext', 'time', xx, 147, 100, 25)
-            AUTO_CAST(time)
-            time:SetText(muteki_trans('buff_time_cid'))
-            xx = xx + time:GetWidth() + 10
-        end
-        x = x >= xx and x or xx
-        if buff_time ~= "" or debuff_time ~= "" then
-            local skill_edit = list:CreateOrGetControl('edit', 'skill_edit', x, 145, 80, 25)
-            AUTO_CAST(skill_edit)
-            skill_edit:SetFontName("white_16_ol")
-            local skill_id = ""
-            if current_buff_list then
-                if current_buff_list.buffs and current_buff_list.buffs[g.cid] then
-                    local bm = current_buff_list.buffs[g.cid]
-                    if bm.skill_id and bm.skill_id > 0 then
-                        skill_id = bm.skill_id
-                    end
-                end
-                if current_buff_list.debuffs and current_buff_list.debuffs[g.cid] then
-                    local dm = current_buff_list.debuffs[g.cid]
-                    if dm.skill_id and dm.skill_id > 0 then
-                        skill_id = dm.skill_id
-                    end
-                end
-            end
-            skill_edit:SetTextTooltip(muteki_trans('skill_notice'))
-            skill_edit:SetTextAlign("center", "center")
-            skill_edit:SetNumberMode(1)
-            skill_edit:SetText("{ol}" .. skill_id)
-            skill_edit:SetUserValue("SWITCH", time_edit:GetUserValue("SWITCH"))
-            skill_edit:SetUserValue("BUFF_ID", buff_id)
-            skill_edit:SetEventScript(ui.ENTERKEY, 'Muteki_setting_change')
-            skill_edit:SetEventScriptArgString(ui.ENTERKEY, buff_id)
-            skill_edit:SetTypingScp("Muteki_setting_change")
-            x = x + skill_edit:GetWidth() + 5
-            local skill_text = list:CreateOrGetControl('richtext', 'skill_text', x, 147, 100, 25)
-            AUTO_CAST(skill_text)
-            skill_text:SetText(muteki_trans('skill_text'))
-            x = x + skill_text:GetWidth() + 5
-            local add = list:CreateOrGetControl("button", "add", x, 140, 40, 30)
-            AUTO_CAST(add)
-            add:SetSkinName("test_cardtext_btn")
-            add:SetText("{ol}{s13}" .. "Add")
-            add:SetTextTooltip(muteki_trans("add_new_skill"))
-            add:SetEventScript(ui.LBUTTONUP, "Muteki_skill_list_open")
-            add:SetEventScriptArgNumber(ui.LBUTTONUP, tonumber(buff_id))
-        end
-        local end_sound = list:CreateOrGetControl('checkbox', 'end_sound', 270, 120, 200, 25)
-        AUTO_CAST(end_sound)
-        end_sound:SetCheck(buff_data.end_sound)
-        end_sound:SetText(muteki_trans('end_sound'))
-        end_sound:SetEventScript(ui.LBUTTONUP, 'Muteki_setting_change')
-        end_sound:SetEventScriptArgString(ui.LBUTTONUP, buff_id)
-    end
-    local list = gb:CreateOrGetControl('groupbox', 'list' .. index, 5, 5 + 175 * (index - 1), 555, 175)
-    list:SetSkinName("market_listbase")
-    local buff_edit = list:CreateOrGetControl('edit', 'buff_edit', 10, 10, 80, 30)
-    AUTO_CAST(buff_edit)
-    buff_edit:SetNumberMode(1)
-    buff_edit:SetFontName("white_16_ol")
-    buff_edit:SetTextAlign("center", "center")
-    buff_edit:SetTextTooltip(muteki_trans('function_notice'))
-    buff_edit:SetEventScript(ui.ENTERKEY, 'Muteki_add_buff')
-    buff_edit:SetTextTooltip(muteki_trans('function_notice'))
-    buff_edit:SetTypingScp("Muteki_add_buff")
-    for i, entry in ipairs(sorted_buff_list) do
-        local buff_id = entry.buff_id
-        if g.muteki_cur_pos and tostring(buff_id) == g.muteki_cur_pos then
-            gb:SetScrollPos(155 * (i - 3))
-            local list = GET_CHILD(gb, "list" .. buff_id)
-            list:SetSkinName("test_skin_01") -- monster_card_list
-            g.muteki_cur_pos = nil
-        end
-    end
-end
-
-function Muteki_change_settings_edit(ctrl)
-    local config_map = {
-        buff_time_edit = {
-            key = "hide_time",
-            default = 300,
-            msg_key = "hide_sec"
-        },
-        layer_edit = {
-            key = "layer_lv",
-            default = 80,
-            msg_key = "layer_notice"
-        }
-    }
-    local config = config_map[ctrl:GetName()]
-    if not config then
-        return
-    end
-    local val = tonumber(ctrl:GetText())
-    if val then
-        g.muteki_settings.etc[config.key] = val
-        ui.SysMsg(string.format(muteki_trans(config.msg_key), val))
-        Muteki_save_settings()
-        Muteki_setting_frame_init()
-        Muteki_buff_frame_init()
-        Muteki_refresh_active_buffs()
-    else
-        g.muteki_settings.etc[config.key] = config.default
-    end
-    return 0
-end
-
-function Muteki_change_settings(frame, ctrl, str, num)
-    local ctrl_name = ctrl:GetName()
-    if ctrl_name == "buff_time_edit" or ctrl_name == "layer_edit" then
-        ctrl:RunUpdateScript("Muteki_change_settings_edit", 1.0)
-        return
-    elseif ctrl_name == "mode_toggle" then
-        if g.muteki_settings.etc.mode == "fixed" then
-            g.muteki_settings.etc.mode = "trace"
-        else
-            g.muteki_settings.etc.mode = "fixed"
-        end
-    elseif ctrl_name == "move_toggle" then
-        if g.muteki_settings.etc.lock == 1 then
-            g.muteki_settings.etc.lock = 0
-        else
-            g.muteki_settings.etc.lock = 1
-        end
-    elseif ctrl_name == "rotate_toggle" then
-        if g.muteki_settings.etc.rotate == 1 then
-            g.muteki_settings.etc.rotate = 0
-        else
-            g.muteki_settings.etc.rotate = 1
-        end
-    end
-    Muteki_save_settings()
-    Muteki_setting_frame_init()
-    Muteki_buff_frame_init()
-    Muteki_refresh_active_buffs()
-end
-
-function Muteki_setting_change_edit(ctrl)
-    local switch = ctrl:GetUserValue("SWITCH")
-    local buff_id_str = ctrl:GetUserValue("BUFF_ID")
-    local ctrl_name = ctrl:GetName()
-    local input_val = tonumber(ctrl:GetText())
-    local type_key = (switch == "debuff") and "debuffs" or "buffs"
-    local setting_entry = g.muteki_settings.buff_list[buff_id_str]
-    if not setting_entry[type_key][g.cid] then
-        setting_entry[type_key][g.cid] = {}
-    end
-    local target_data = setting_entry[type_key][g.cid]
-    if ctrl_name == "skill_edit" then
-        if input_val then
-            local skill_cls = GetClassByType("Skill", input_val)
-            if skill_cls then
-                target_data.skill_id = input_val
-                ui.SysMsg(string.format(muteki_trans("skill_set"), skill_cls and skill_cls.Name or input_val))
-            else
-                ctrl:SetText("")
-                target_data.skill_id = 0
-            end
-        else
-            ctrl:SetText("")
-            target_data.skill_id = 0
-        end
-    else
-        local time_key = (switch == "debuff") and "debuff_time" or "buff_time"
-        target_data[time_key] = input_val or 0
-        if not input_val then
-            ctrl:SetText("")
-        end
-        ui.SysMsg(string.format(muteki_trans("debuff_manage_set"), target_data[time_key]))
-    end
-    Muteki_skill_list()
-    Muteki_setting_frame_init()
-    Muteki_save_settings()
-    Muteki_refresh_active_buffs()
-    return 0
-end
-
-function Muteki_setting_change(frame, ctrl, arg_str, arg_num)
-    local ctrl_name = ctrl:GetName()
-    local buff_id = arg_num
-    local buff_id_str = tostring(buff_id)
-    local not_notify = {}
-    if ctrl_name == "circle" then
-        g.muteki_settings.buff_list[arg_str].circle_icon = ctrl:IsChecked()
-    elseif ctrl_name == "not_notify" then
-        g.muteki_settings.buff_list[arg_str].not_notify[g.cid] = ctrl:IsChecked()
-    elseif ctrl_name == "pt_chat" then
-        g.muteki_settings.buff_list[arg_str].pt_chat = ctrl:IsChecked()
-    elseif ctrl_name == "nico_chat" then
-        g.muteki_settings.buff_list[arg_str].nico_chat = ctrl:IsChecked()
-    elseif ctrl_name == "effect" then
-        g.muteki_settings.buff_list[arg_str].effect_check = ctrl:IsChecked()
-    elseif ctrl_name == "count_display" then
-        g.muteki_settings.buff_list[arg_str].count_display = ctrl:IsChecked()
-    elseif ctrl_name == "end_sound" then
-        g.muteki_settings.buff_list[arg_str].end_sound = ctrl:IsChecked()
-    elseif ctrl_name == "color_edit" then
-        local color_text = ctrl:GetText()
-        if string.len(color_text) ~= 8 then
-            ctrl:SetText(g.muteki_settings.buff_list[buff_id_str].color)
-            ui.SysMsg(muteki_trans("color_notice"))
-            return
-        end
-        g.muteki_settings.buff_list[buff_id_str].color = color_text
-    elseif string.find(ctrl_name, "color_") then
-        g.muteki_settings.buff_list[buff_id_str].color = arg_str
-    elseif ctrl_name == "time_edit" or ctrl_name == "skill_edit" then
-        ctrl:RunUpdateScript("Muteki_setting_change_edit", 1.0)
-        return
-    end
-    Muteki_setting_frame_init()
-    Muteki_save_settings()
-    Muteki_refresh_active_buffs()
-end
-
-function Muteki_add_buff_msg(frame, ctrl, cls_name, buff_id)
-    local yes_scp = string.format("Muteki_add_buff('','%s','%s','')", ctrl:GetName(), buff_id)
-    local msg = string.format(muteki_trans('add_check'), cls_name)
-    ui.MsgBox(msg, yes_scp, "None")
-end
-
-function Muteki_add_buff_edit(ctrl)
-    local ctrl_name = ctrl:GetName()
-    local buff_id_str = ctrl:GetText()
-    local buff_id = tonumber(buff_id_str)
-    if buff_id and (ctrl_name == "buff_edit" or ctrl_name == "id_edit") then
-        local buff_cls = GetClassByType("Buff", buff_id)
-        if buff_cls then
-            g.muteki_settings.buff_list[tostring(buff_id)] = {
-                circle_icon = 0,
-                effect_check = 0,
-                not_notify = {},
-                count_display = 0,
-                pt_chat = 0,
-                nico_chat = 0,
-                end_sound = "None",
-                color = "FFCCCC22",
-                buffs = {},
-                debuffs = {}
-            }
-            ui.SysMsg(string.format(muteki_trans("add_buff"), buff_cls.Name))
-            Muteki_save_settings()
-            g.muteki_cur_pos = ctrl:GetY()
-            Muteki_setting_frame_init()
-        end
-    end
-    if ctrl_name == "id_edit" then
-        ctrl:SetText("")
-    end
-    Muteki_refresh_active_buffs()
-    return 0
-end
-
-function Muteki_add_buff(frame, ctrl, buff_id_str, num)
-    local ctrl_name = ""
-    if type(ctrl) == "string" then
-        ctrl_name = ctrl
-    else
-        ctrl_name = ctrl:GetName()
-    end
-    local buff_id_process = nil
-    if string.find(ctrl_name, "buff_set") then
-        buff_id_process = buff_id_str
-    elseif ctrl_name == "buff_edit" then
-        ctrl:RunUpdateScript("Muteki_add_buff_edit", 1.0)
-        return
-    elseif ctrl_name == "id_edit" then
-        ctrl:RunUpdateScript("Muteki_add_buff_edit", 1.0)
-        return
-    elseif string.find(ctrl_name, "slot") then
-        buff_id_process = buff_id_str
-    end
-    if buff_id_process and buff_id_process ~= "" then
-        local buff_id_num = tonumber(buff_id_process)
-        local buff_cls = GetClassByType("Buff", buff_id_num)
-        if buff_cls then
-            g.muteki_settings.buff_list[buff_id_process] = {
-                ["circle_icon"] = 0,
-                ["effect_check"] = 0,
-                ["not_notify"] = {},
-                ["count_display"] = 0,
-                ["pt_chat"] = 0,
-                ["nico_chat"] = 0,
-                ["end_sound"] = "None",
-                ["color"] = "FFCCCC22",
-                ["buffs"] = {},
-                ["debuffs"] = {}
-            }
-            ui.SysMsg(string.format(muteki_trans("add_buff"), buff_cls.Name))
-        else
-            return
-        end
-    end
-    Muteki_save_settings()
-    if not string.find(ctrl_name, "slot") then
-        g.muteki_cur_pos = buff_id_process
-        Muteki_setting_frame_init()
-    end
-    Muteki_refresh_active_buffs()
-end
-
-function Muteki_delete_buff(frame, ctrl, buff_name, buff_id)
-    local ctrl_name = ctrl:GetName()
-    if ctrl_name == "buff_pic" then
-        g.muteki_settings.buff_list[tostring(buff_id)] = nil
-        ui.SysMsg(string.format(muteki_trans("delete_buff"), buff_name))
-    end
-    Muteki_save_settings()
-    Muteki_setting_frame_init()
-    Muteki_BUFF_ON_MSG("", "BUFF_REMOVE", "dummy", buff_id)
-end
-
-function Muteki_buff_list_open(frame, ctrl, ctrl_text, num)
-    local buff_list_frame_name = addon_name_lower .. "muteki_buff_list"
-    local buff_list = ui.GetFrame(addon_name_lower .. "muteki_buff_list")
-    if not buff_list then
-        buff_list = ui.CreateNewFrame("notice_on_pc", addon_name_lower .. "muteki_buff_list", 0, 0, 10, 10)
-        AUTO_CAST(buff_list)
-        buff_list:SetSkinName("test_frame_low")
-        buff_list:Resize(500, 1005)
-        buff_list:SetPos(610, 30)
-        buff_list:SetLayerLevel(999)
-        local id_edit = buff_list:CreateOrGetControl('edit', 'id_edit', 20, 15, 80, 30)
-        AUTO_CAST(id_edit)
-        id_edit:SetNumberMode(1)
-        id_edit:SetFontName("white_16_ol")
-        id_edit:SetTextAlign("center", "center")
-        id_edit:SetText("")
-        id_edit:SetEventScript(ui.ENTERKEY, 'Muteki_add_buff')
-        id_edit:SetTextTooltip(muteki_trans("add_buffid"))
-        local search_edit = buff_list:CreateOrGetControl("edit", "search_edit", id_edit:GetWidth() + 40, 10, 305, 38)
-        AUTO_CAST(search_edit)
-        search_edit:SetFontName("white_18_ol")
-        search_edit:SetTextAlign("left", "center")
-        search_edit:SetSkinName("inventory_serch")
-        search_edit:SetEventScript(ui.ENTERKEY, "Muteki_buff_list_search")
-        local search_btn = search_edit:CreateOrGetControl("button", "search_btn", 0, 0, 40, 38)
-        AUTO_CAST(search_btn)
-        search_btn:SetImage("inven_s")
-        search_btn:SetGravity(ui.RIGHT, ui.TOP)
-        search_btn:SetEventScript(ui.LBUTTONUP, "Muteki_buff_list_search")
-        local close_button = buff_list:CreateOrGetControl('button', 'close_button', 0, 0, 20, 20)
-        AUTO_CAST(close_button)
-        close_button:SetImage("testclose_button")
-        close_button:SetGravity(ui.RIGHT, ui.TOP)
-        close_button:SetEventScript(ui.LBUTTONUP, "Muteki_buff_list_close")
-    end
-    local buff_list_gb = buff_list:CreateOrGetControl("groupbox", "buff_list_gb", 10, 50, 480,
-        buff_list:GetHeight() - 60)
-    AUTO_CAST(buff_list_gb)
-    buff_list_gb:SetSkinName("bg")
-    buff_list_gb:RemoveAllChild()
-    local cls_list, count = GetClassList("Buff")
-    local y = 0
-    for i = 0, count - 1 do
-        local buff_cls = GetClassByIndexFromList(cls_list, i)
-        if buff_cls then
-            local buff_id = buff_cls.ClassID
-            local buff_name = dictionary.ReplaceDicIDInCompStr(buff_cls.Name)
-            if ctrl_text == "" or (ctrl_text ~= "" and string.find(buff_name, ctrl_text)) then
-                local buff_slot = buff_list_gb:CreateOrGetControl('slot', 'buffslot' .. i, 10, y + 5, 30, 30)
-                AUTO_CAST(buff_slot)
-                local image_name = GET_BUFF_ICON_NAME(buff_cls)
-                if image_name == "icon_None" then
-                    image_name = "icon_item_nothing"
-                end
-                if buff_name ~= "None" then
-                    SET_SLOT_IMG(buff_slot, image_name)
-                    local icon = CreateIcon(buff_slot)
-                    AUTO_CAST(icon)
-                    icon:SetTooltipType('buff')
-                    icon:SetTooltipArg(buff_name, buff_id, 0)
-                    local buff_set = buff_list_gb:CreateOrGetControl('button', 'buff_set' .. buff_id, 45, y + 5, 40, 30)
-                    AUTO_CAST(buff_set)
-                    buff_set:SetText("{ol}Add")
-                    buff_set:SetSkinName("test_cardtext_btn")
-                    buff_set:SetTextTooltip(muteki_trans("add_new"))
-                    buff_set:SetEventScript(ui.LBUTTONUP, "Muteki_add_buff")
-                    buff_set:SetEventScriptArgString(ui.LBUTTONUP, buff_id)
-                    local buff_text = buff_list_gb:CreateOrGetControl('richtext', 'buff_text' .. buff_id, 90, y + 10,
-                        200, 30)
-                    AUTO_CAST(buff_text)
-                    buff_text:SetText("{ol}" .. buff_id .. " : " .. buff_name)
-                    buff_text:AdjustFontSizeByWidth(380)
-                    y = y + 35
-                end
-            end
-        end
-    end
-    buff_list:ShowWindow(1)
-end
-
-function Muteki_buff_list_search(frame, ctrl, str, num)
-    local search_edit = GET_CHILD_RECURSIVELY(frame, "search_edit")
-    local ctrl_text = search_edit:GetText()
-    if ctrl_text ~= "" then
-        Muteki_buff_list_open(frame, ctrl, ctrl_text)
-    else
-        Muteki_buff_list_open(frame, ctrl, "")
-    end
-end
-
-function Muteki_buff_list_close(frame, ctrl, str, num)
-    ui.DestroyFrame(frame:GetName())
-end
-
-function Muteki_skill_list_open(frame, add, ctrl_text, buff_id)
-    local skill_list = ui.GetFrame(addon_name_lower .. "muteki_skill_list")
-    if not skill_list then
-        skill_list = ui.CreateNewFrame("notice_on_pc", addon_name_lower .. "muteki_skill_list", 0, 0, 10, 10)
-        AUTO_CAST(skill_list)
-        skill_list:SetSkinName("test_frame_low")
-        skill_list:Resize(500, 1005)
-        skill_list:SetPos(610, 30)
-        skill_list:SetLayerLevel(999)
-        local title_text = skill_list:CreateOrGetControl('richtext', 'itle_text', 15, 15, 10, 30)
-        AUTO_CAST(title_text)
-        title_text:SetText("{#000000}{s20}Skill List")
-        local search_edit =
-            skill_list:CreateOrGetControl("edit", "search_edit", title_text:GetWidth() + 30, 10, 305, 38)
-        AUTO_CAST(search_edit)
-        search_edit:SetFontName("white_18_ol")
-        search_edit:SetTextAlign("left", "center")
-        search_edit:SetSkinName("inventory_serch")
-        search_edit:SetEventScript(ui.ENTERKEY, "Muteki_skill_list_search")
-        search_edit:SetEventScriptArgNumber(ui.ENTERKEY, buff_id)
-        local search_btn = search_edit:CreateOrGetControl("button", "search_btn", 0, 0, 40, 38)
-        AUTO_CAST(search_btn)
-        search_btn:SetImage("inven_s")
-        search_btn:SetGravity(ui.RIGHT, ui.TOP)
-        search_btn:SetEventScript(ui.LBUTTONUP, "Muteki_skill_list_search")
-        local close_button = skill_list:CreateOrGetControl('button', 'close_button', 0, 0, 20, 20)
-        AUTO_CAST(close_button)
-        close_button:SetImage("testclose_button")
-        close_button:SetGravity(ui.RIGHT, ui.TOP)
-        close_button:SetEventScript(ui.LBUTTONUP, "Muteki_skill_list_close")
-    end
-    local skill_list_gb = skill_list:CreateOrGetControl("groupbox", "skill_list_gb", 10, 50, 480,
-        skill_list:GetHeight() - 60)
-    AUTO_CAST(skill_list_gb)
-    skill_list_gb:SetSkinName("bg")
-    skill_list_gb:RemoveAllChild()
-    local cls_list, count = GetClassList("Skill")
-    local y = 0
-    for i = 0, count - 1 do
-        local skill_cls = GetClassByIndexFromList(cls_list, i)
-        if skill_cls then
-            local skill_id = skill_cls.ClassID
-            local skill_cls_name = skill_cls.ClassName
-            local skill_engname = skill_cls.EngName
-            local skill_caption = skill_cls.Caption
-            local skill_name = dictionary.ReplaceDicIDInCompStr(skill_cls.Name)
-            if ctrl_text == "" or (ctrl_text ~= "" and string.find(skill_name, ctrl_text)) then
-                local skill_slot = skill_list_gb:CreateOrGetControl('slot', 'skill_slot' .. i, 10, y + 5, 30, 30)
-                AUTO_CAST(skill_slot)
-                local image_name = "icon_" .. skill_cls.Icon
-                if skill_id > 10000 then
-                    if not string.find(skill_cls_name, "^Mon_") and not string.find(skill_engname, "plzInputEngName") and
-                        not string.find(skill_name, "_") and not string.find(skill_name, "TEST") then
-                        if ctrl_text == "" or (ctrl_text ~= "" and string.find(skill_name, ctrl_text)) then
-                            SET_SLOT_IMG(skill_slot, image_name)
-                            local icon = CreateIcon(skill_slot)
-                            AUTO_CAST(icon)
-                            SET_SKILL_TOOLTIP_BY_TYPE(icon, skill_id)
-                            local skill_set = skill_list_gb:CreateOrGetControl('button', 'skill_set' .. skill_id, 45,
-                                y + 5, 40, 30)
-                            AUTO_CAST(skill_set)
-                            skill_set:SetText("{ol}Add")
-                            skill_set:SetSkinName("test_cardtext_btn")
-                            skill_set:SetTextTooltip(muteki_trans("add_new_skill"))
-                            skill_set:SetEventScript(ui.LBUTTONUP, "Muteki_add_skill")
-                            skill_set:SetEventScriptArgNumber(ui.LBUTTONUP, skill_id)
-                            skill_set:SetEventScriptArgString(ui.LBUTTONUP, tostring(buff_id))
-                            local skill_text = skill_list_gb:CreateOrGetControl('richtext', 'skill_text' .. skill_id,
-                                90, y + 10, 200, 30)
-                            AUTO_CAST(skill_text)
-                            skill_text:SetText("{ol}" .. skill_id .. " : " .. skill_name)
-                            skill_text:AdjustFontSizeByWidth(380)
-                            y = y + 35
-                        end
-                    end
-                end
-            end
-        end
-
-    end
-    skill_list:ShowWindow(1)
-end
-
-function Muteki_skill_list_search(frame, ctrl, str, buff_id)
-    local search_edit = GET_CHILD_RECURSIVELY(frame, "search_edit")
-    local ctrl_text = search_edit:GetText()
-    if ctrl_text ~= "" then
-        Muteki_skill_list_open(frame, ctrl, ctrl_text, buff_id)
-    else
-        Muteki_skill_list_open(frame, ctrl, "", buff_id)
-    end
-end
-
-function Muteki_skill_list_close(frame, ctrl, str, num)
-    ui.DestroyFrame(frame:GetName())
-end
-
-function Muteki_add_skill(frame, ctrl, buff_id_str, skill_id)
-    local ctrl_name = ctrl:GetName()
-    local settings = ui.GetFrame(addon_name_lower .. "muteki_settings")
-    local list = GET_CHILD_RECURSIVELY(settings, 'list' .. buff_id_str)
-    local skill_edit = GET_CHILD(list, "skill_edit")
-    skill_edit:SetText(skill_id)
-    local switch = skill_edit:GetUserValue("SWITCH")
-    Muteki_setting_change_edit(skill_edit)
-end
-
-function Muteki_setting_frame_close(parent, ctrl)
-    local settings = parent:GetTopParentFrame()
-    ui.DestroyFrame(settings:GetName())
-    local buff_list_frame_name = addon_name_lower .. "muteki_buff_list"
-    local buff_list_frame = ui.GetFrame(buff_list_frame_name)
-    if buff_list_frame then
-        Muteki_buff_list_close(buff_list_frame, "", "", "")
-    end
-    local skill_list_frame_name = addon_name_lower .. "muteki_skill_list"
-    local skill_list_frame = ui.GetFrame(skill_list_frame_name)
-    if skill_list_frame then
-        Muteki_skill_list_close(skill_list_frame, "", "", "")
-    end
-end
--- muteki ここまで
-
 -- save_quest ここから
 function Save_quest_save_settings()
     g.save_json(g.save_quest_path, g.save_quest_settings)
@@ -16681,11 +17546,11 @@ function Save_quest_SET_QUEST_CTRL_MARK(my_frame, my_msg)
         return
     end
     AUTO_CAST(ctrl)
-    local level = GET_CHILD(ctrl, "level")
+    --[[local level = GET_CHILD(ctrl, "level")
     if level then
         AUTO_CAST(level)
         level:SetPos(0, 25)
-    end
+    end]]
     local quest_id = quest_cls.ClassID
     local save_text = GET_CHILD(ctrl, "save_text")
     if save_text then
@@ -16915,431 +17780,6 @@ function Save_quest_is_warp(quest_cls)
     return 0
 end
 -- save_quest ここまで
-
--- monster_kill_count ここから 
-function Monster_kill_count_save_settings()
-    g.save_json(g.mkc_path, g.mkc_settings)
-end
-
-function Monster_kill_count_load_settings()
-    g.mkc_path = string.format("../addons/%s/%s/monster_kill_count.json", addon_name_lower, g.active_id)
-    g.mkc_old_path = string.format("../addons/%s/%s/settings.json", "klcount", g.active_id)
-    local settings = g.load_json(g.mkc_path)
-    if settings then
-        g.mkc_settings = settings
-        return
-    end
-    local allowed_map_ids_by_level = {}
-    local map_list, cnt = GetClassList('Map')
-    for i = 0, cnt - 1 do
-        local map_cls = GetClassByIndexFromList(map_list, i)
-        if map_cls then
-            local map_level = map_cls.QuestLevel
-            local my_level = info.GetLevel(session.GetMyHandle())
-            if math.abs(my_level - map_level) <= 50 or map_cls.ClassID == 11244 then
-                allowed_map_ids_by_level[tostring(map_cls.ClassID)] = true
-            end
-        end
-    end
-    local old_settings = g.load_json(g.mkc_old_path)
-    local final_map_ids = {}
-    if old_settings then
-        settings = {
-            frame_x = old_settings.frame_x or 1340,
-            frame_y = old_settings.frame_y or 20,
-            map_ids = {}
-        }
-        local old_dir = string.format("../addons/%s/%s/", "klcount", g.active_id)
-        local new_folder_path = string.format("../addons/%s/%s/%s", addon_name_lower, g.active_id, "monster_kill_count")
-        os.execute('mkdir "' .. new_folder_path .. '"')
-        for map_id, _ in pairs(allowed_map_ids_by_level) do
-            local old_file_path = old_dir .. map_id .. ".json"
-            local new_file_path = new_folder_path .. "/" .. map_id .. ".json"
-            local old_file = io.open(old_file_path, "r")
-            if old_file then
-                local content = old_file:read("*a")
-                old_file:close()
-                if content and content ~= "" and pcall(json.decode, content) then
-                    local new_file = io.open(new_file_path, "w")
-                    if new_file then
-                        new_file:write(content)
-                        new_file:close()
-                        table.insert(final_map_ids, tonumber(map_id))
-                    end
-                end
-            end
-        end
-    else
-        settings = {
-            frame_x = 1340,
-            frame_y = 20,
-            map_ids = {}
-        }
-    end
-    local folder_path = string.format("../addons/%s/%s/%s", addon_name_lower, g.active_id, "monster_kill_count")
-    local win_folder_path = string.gsub(folder_path, "/", "\\")
-    local list_file_path = folder_path .. "/filelist_temp.txt"
-    os.execute('dir "' .. win_folder_path .. '\\*.json" /b > "' .. list_file_path .. '"')
-    local list_file = io.open(list_file_path, "r")
-    if list_file then
-        for line in list_file:lines() do
-            local map_id = string.match(line, "(%d+)%.json")
-            local file_path = folder_path .. "/" .. map_id .. ".json"
-            local file = io.open(file_path, "r")
-            if file then
-                local content = file:read("*a")
-                file:close()
-                if content and content ~= "" and pcall(json.decode, content) then
-                    local is_new = true
-                    for _, existing_id in pairs(final_map_ids) do
-                        if tostring(existing_id) == map_id then
-                            is_new = false
-                            break
-                        end
-                    end
-                    if is_new then
-                        if is_new and allowed_map_ids_by_level[map_id] then
-                            table.insert(final_map_ids, map_id)
-                            ts("Found orphan file, adding to list: " .. map_id)
-                        end
-                    end
-                else
-                    ts("Broken JSON removed: " .. tostring(map_id))
-                    os.remove(file_path)
-                end
-            end
-        end
-        list_file:close()
-    end
-    os.remove(list_file_path)
-    settings.map_ids = final_map_ids
-    g.mkc_settings = settings
-    Monster_kill_count_save_settings()
-end
-
-function monster_kill_count_on_init()
-    if not g.mkc_settings then
-        Monster_kill_count_load_settings()
-    end
-    g.setup_hook_and_event(g.addon, "APPLY_SCREEN", "Monster_kill_count_APPLY_SCREEN", true)
-    if g.get_map_type() == "Field" or g.get_map_type() == "Dungeon" then
-        local map_cls = GetClass("Map", g.map_name)
-        local map_level = map_cls.QuestLevel
-        local my_level = info.GetLevel(session.GetMyHandle())
-        if my_level - map_level <= 50 or g.map_id == 11244 then
-            g.addon:RegisterMsg("UI_CHALLENGE_MODE_TOTAL_KILL_COUNT",
-                "Monster_kill_count_ON_CHALLENGE_MODE_TOTAL_KILL_COUNT")
-            g.addon:RegisterMsg("EXP_UPDATE", "Monster_kill_count_EXP_UPDATE")
-            g.addon:RegisterMsg('ITEM_PICK', 'Monster_kill_count_ITEM_PICK')
-            g.mkc_autosave_counter = 0
-            if not g.mkc_map_id then
-                g.mkc_map_id = g.map_id
-                g.mkc_count = 0
-                g.mkc_start_time = imcTime.GetAppTimeMS() - 3000
-                g.mkc_last_tick_ms = g.mkc_start_time
-            elseif g.mkc_map_id ~= g.map_id then
-                local map_file_path = Monster_kill_count_get_map_filepath(g.mkc_map_id)
-                local map_data = g.load_json(map_file_path)
-                if map_data then
-                    g.save_json(map_file_path, map_data)
-                end
-                g.mkc_count = 0
-                g.mkc_start_time = imcTime.GetAppTimeMS() - 3000
-                g.mkc_last_tick_ms = g.mkc_start_time
-                g.mkc_map_id = g.map_id
-            end
-            local map_file_path = Monster_kill_count_get_map_filepath(g.map_id)
-            local map_data = g.load_json(map_file_path)
-            if not map_data then
-                map_data = {
-                    map_name = g.map_name,
-                    stay_time = 3000,
-                    kill_count = 0,
-                    get_items = {}
-                }
-            end
-            g.mkc_map_data = map_data
-            g.save_json(map_file_path, map_data)
-            Monster_kill_count_frame_init()
-        end
-    else
-        if g.mkc_map_id then
-            local map_file_path = Monster_kill_count_get_map_filepath(g.mkc_map_id)
-            local map_data = g.load_json(map_file_path)
-            if map_data then
-                g.save_json(map_file_path, map_data)
-            end
-            g.mkc_map_id = nil
-            g.mkc_count = nil
-            g.mkc_start_time = nil
-            ui.DestroyFrame(addon_name_lower .. "monster_kill_count")
-            local _nexus_addons = ui.GetFrame("_nexus_addons")
-            _nexus_addons:RemoveChild("monster_kill_count_timer")
-        end
-    end
-end
-
-function Monster_kill_count_get_map_filepath(map_id)
-    return string.format("../addons/%s/%s/%s/%s.json", addon_name_lower, g.active_id, "monster_kill_count", map_id)
-end
-
-function Monster_kill_count_APPLY_SCREEN(my_frame, my_msg)
-    Monster_kill_count_frame_init()
-end
-
-function Monster_kill_count_EXP_UPDATE(frame, msg)
-    local monster_kill_count = ui.GetFrame(addon_name_lower .. "monster_kill_count")
-    local count_text = GET_CHILD(monster_kill_count, "count_text")
-    AUTO_CAST(count_text)
-    g.mkc_count = g.mkc_count + 1
-    count_text:SetText(string.format("{ol}{s16}Count : %d{/}", g.mkc_count))
-    g.mkc_map_data.kill_count = g.mkc_map_data.kill_count + 1
-end
-
-function Monster_kill_count_ITEM_PICK(frame, msg, class_id, item_count)
-    local cls_id = tonumber(class_id)
-    if cls_id then
-        cls_id = math.floor(cls_id)
-        local cls_id_str = tostring(cls_id)
-        g.mkc_map_data.get_items = g.mkc_map_data.get_items or {}
-        if not g.mkc_map_data.get_items[cls_id_str] then
-            g.mkc_map_data.get_items[cls_id_str] = item_count
-        else
-            g.mkc_map_data.get_items[cls_id_str] = g.mkc_map_data.get_items[cls_id_str] + item_count
-        end
-    end
-end
-
-function Monster_kill_count_frame_init()
-    local monster_kill_count =
-        ui.CreateNewFrame("chat_memberlist", addon_name_lower .. "monster_kill_count", 0, 0, 0, 0)
-    AUTO_CAST(monster_kill_count)
-    monster_kill_count:SetSkinName("shadow_box")
-    monster_kill_count:SetTitleBarSkin("None")
-    monster_kill_count:EnableHitTest(1)
-    monster_kill_count:EnableMove(1)
-    monster_kill_count:SetAlpha(80)
-    monster_kill_count:SetLayerLevel(31)
-    monster_kill_count:SetEventScript(ui.LBUTTONUP, "Monster_kill_count_pos")
-    local map_frame = ui.GetFrame("map")
-    local width = map_frame:GetWidth()
-    local x = g.mkc_settings.frame_x
-    if g.mkc_settings.frame_x > 1920 and width <= 1920 then
-        local offset = g.mkc_settings.frame_x - 1920
-        x = 1920 - offset
-    end
-    monster_kill_count:SetPos(x, g.mkc_settings.frame_y)
-    local count_text = monster_kill_count:CreateOrGetControl("richtext", "count_text", 10, 10, 170, 30)
-    AUTO_CAST(count_text)
-    count_text:SetText(string.format("{ol}{s16}Count : %d{/}", g.mkc_count or 0))
-    local map_name = GetClassByType("Map", g.map_id).Name
-    local map_text = monster_kill_count:CreateOrGetControl("richtext", "map_text", 10, 35, 170, 30)
-    AUTO_CAST(map_text)
-    map_text:SetText(string.format("{ol}{s16}%s{/}", map_name))
-    local w = 170
-    if map_text:GetWidth() + 15 > 170 then
-        w = map_text:GetWidth() + 15
-    end
-    local timer_text = monster_kill_count:CreateOrGetControl("richtext", "timer_text", 90, 60, 200, 30)
-    AUTO_CAST(timer_text)
-    timer_text:SetGravity(ui.RIGHT, ui.BOTTOM)
-    local rect = timer_text:GetMargin()
-    timer_text:SetMargin(rect.left, rect.top, rect.right + 15, rect.bottom + 15)
-    monster_kill_count:Resize(w, 95)
-    local _nexus_addons = ui.GetFrame("_nexus_addons")
-    local monster_kill_count_timer = _nexus_addons:CreateOrGetControl("timer", "monster_kill_count_timer", 0, 0)
-    AUTO_CAST(monster_kill_count_timer)
-    monster_kill_count_timer:SetUpdateScript("Monster_kill_count_time_update")
-    monster_kill_count_timer:Start(1.0)
-end
-
-function Monster_kill_count_time_update(_nexus_addons)
-    local monster_kill_count = ui.GetFrame(addon_name_lower .. "monster_kill_count")
-    if g.settings.monster_kill_count.use == 1 then
-        monster_kill_count:ShowWindow(1)
-    else
-        ui.DestroyFrame(addon_name_lower .. "monster_kill_count")
-        -- monster_kill_count:ShowWindow(0)
-    end
-    local now_ms = imcTime.GetAppTimeMS()
-    g.mkc_diff_ms = now_ms - g.mkc_start_time
-    local total_sec = math.floor(g.mkc_diff_ms / 1000)
-    local h = math.floor(total_sec / 3600)
-    local m = math.floor((total_sec % 3600) / 60)
-    local s = (total_sec % 60)
-    local timer_text = GET_CHILD(monster_kill_count, "timer_text")
-    AUTO_CAST(timer_text)
-    timer_text:SetText(string.format("{ol}{s16}%02d:%02d:%02d{/}", h, m, s))
-    g.mkc_autosave_counter = g.mkc_autosave_counter + 1
-    local delta_ms = now_ms - g.mkc_last_tick_ms
-    if delta_ms < 0 then
-        delta_ms = 0
-    end
-    g.mkc_last_tick_ms = now_ms
-    g.mkc_map_data.stay_time = g.mkc_map_data.stay_time + delta_ms
-    if g.mkc_autosave_counter >= 60 then
-        local map_file_path = string.format("../addons/%s/%s/%s/%s.json", addon_name_lower, g.active_id,
-            "monster_kill_count", g.map_id)
-        g.save_json(map_file_path, g.mkc_map_data)
-        g.mkc_autosave_counter = 0
-    end
-end
-
-function Monster_kill_count_ON_CHALLENGE_MODE_TOTAL_KILL_COUNT(frame, msg, str, arg)
-    ui.DestroyFrame(addon_name_lower .. "monster_kill_count")
-    local _nexus_addons = ui.GetFrame("_nexus_addons")
-    _nexus_addons:RemoveChild("monster_kill_count_timer")
-end
-
-function Monster_kill_count_pos(monster_kill_count)
-    g.mkc_settings.frame_x = monster_kill_count:GetX()
-    g.mkc_settings.frame_y = monster_kill_count:GetY()
-    Monster_kill_count_save_settings()
-end
-
-function Monster_kill_count_information_context()
-    local context = ui.CreateContextMenu("monster_kill_count_context", "{ol}Map Info", 0, 0, 200, 0)
-    local sorted_map_ids = {}
-    for _, map_id in ipairs(g.mkc_settings.map_ids) do
-        table.insert(sorted_map_ids, tonumber(map_id))
-    end
-    table.sort(sorted_map_ids, function(a, b)
-        return a < b
-    end)
-    for i = 1, #sorted_map_ids do
-        local map_id = sorted_map_ids[i]
-        local map_id_str = tostring(map_id)
-        local map_file_path = Monster_kill_count_get_map_filepath(map_id_str)
-        local map_data = g.load_json(map_file_path)
-        if not map_data or not next(map_data.get_items) then
-            local map_cls = GetClassByType("Map", map_id)
-            map_data = {
-                map_name = map_cls and map_cls.ClassName,
-                stay_time = 0,
-                kill_count = 0,
-                get_items = {}
-            }
-            g.save_json(map_file_path, map_data)
-        else
-            local display_text = map_id .. " " .. GetClassByType("Map", map_id).Name
-            ui.AddContextMenuItem(context, display_text, string.format("Monster_kill_count_map_information(%d)", map_id))
-        end
-    end
-    ui.OpenContextMenu(context)
-end
-
-function Monster_kill_count_map_information_close(map_info)
-    if map_info then
-        ui.DestroyFrame(map_info:GetName())
-    end
-end
-
-function Monster_kill_count_map_information(map_id)
-    local map_file_path = Monster_kill_count_get_map_filepath(map_id)
-    local map_data = g.load_json(map_file_path)
-    local frame_name = addon_name_lower .. "mkc_map_info"
-    local map_info = ui.CreateNewFrame("notice_on_pc", frame_name, 0, 0, 0, 0)
-    AUTO_CAST(map_info)
-    map_info:SetPos(1000, 30)
-    map_info:SetSkinName("test_frame_low")
-    local close_btn = map_info:CreateOrGetControl("button", "close_button", 0, 0, 30, 30)
-    AUTO_CAST(close_btn)
-    close_btn:SetImage("testclose_button")
-    close_btn:SetGravity(ui.RIGHT, ui.TOP)
-    close_btn:SetEventScript(ui.LBUTTONUP, "Monster_kill_count_map_information_close")
-    local map_name_label = map_info:CreateOrGetControl('richtext', 'map_name_text', 20, 10, 50, 20)
-    AUTO_CAST(map_name_label)
-    map_name_label:SetText("{ol}" .. GetClassByType("Map", map_id).Name)
-    local info_box = map_info:CreateOrGetControl("groupbox", "info_gbox", 10, 40, 0, 0)
-    AUTO_CAST(info_box)
-    info_box:RemoveAllChild()
-    info_box:SetSkinName("bg")
-    local total_sec = (map_data.stay_time or 0) / 1000
-    local h = math.floor(total_sec / 3600)
-    local m = math.floor((total_sec % 3600) / 60)
-    local s = math.floor(total_sec % 60)
-    local kill_count_val = map_data.kill_count or 0
-    local stay_label = info_box:CreateOrGetControl('richtext', 'stay_time', 10, 10, 50, 20)
-    AUTO_CAST(stay_label)
-    stay_label:SetText(string.format("{ol}%s : %02d:%02d:%02d", g.lang == "Japanese" and "滞在時間" or "Stay Time",
-        h, m, s))
-    local kill_label = info_box:CreateOrGetControl('richtext', 'kill_count', 10, 35, 50, 20)
-    AUTO_CAST(kill_label)
-    kill_label:SetText(
-        string.format("{ol}%s : %d", g.lang == "Japanese" and "討伐数" or "Kill Count", kill_count_val))
-    local kill_per_hour_label = info_box:CreateOrGetControl('richtext', 'kill_count_hour', kill_label:GetWidth() + 20,
-        35, 50, 20)
-    AUTO_CAST(kill_per_hour_label)
-    if total_sec > 0 then
-        local kills_ph_val = math.floor(kill_count_val / total_sec * 3600)
-        kill_per_hour_label:SetText(string.format("{ol}(%s %d %s)", total_sec >= 3600 and "実績" or "予測",
-            kills_ph_val, "体/時"))
-    else
-        kill_per_hour_label:SetText("{ol}(N/A)")
-    end
-    local item_keys = {}
-    local total_item_num = 0
-    if map_data.get_items then
-        for item_id_str, count_val in pairs(map_data.get_items) do
-            table.insert(item_keys, tonumber(item_id_str))
-            total_item_num = total_item_num + count_val
-        end
-    end
-    table.sort(item_keys)
-    local total_items_label = info_box:CreateOrGetControl('richtext', 'total_items_text', 10, 60, 50, 20)
-    AUTO_CAST(total_items_label)
-    total_items_label:SetText(string.format("{ol}%s : %d",
-        g.lang == "Japanese" and "総獲得アイテム数" or "Total Items", total_item_num))
-    local current_y = 0
-    local max_x = 0
-    for _, item_id_num in ipairs(item_keys) do
-        local item_id_str_key = tostring(item_id_num)
-        local item_cls = GetClassByType('Item', item_id_num)
-        if item_cls and map_data.get_items[item_id_str_key] then
-            local item_get_count = map_data.get_items[item_id_str_key]
-            local item_disp_str1 = string.format("{ol}{img %s 24 24}  %s : %d %s", item_cls.Icon, item_cls.Name,
-                item_get_count, g.lang == "Japanese" and "個" or "pcs")
-            local item_label1 = info_box:CreateOrGetControl('richtext', 'display_text' .. item_id_str_key, 10,
-                95 + current_y, 50, 20)
-            AUTO_CAST(item_label1)
-            item_label1:SetText(item_disp_str1)
-            max_x = math.max(max_x, item_label1:GetWidth() + 10)
-            local kc_percent = kill_count_val > 0 and item_get_count / kill_count_val * 100 or 0
-            local ti_percent = total_item_num > 0 and item_get_count / total_item_num * 100 or 0
-            local sec_per_item = item_get_count > 0 and total_sec / item_get_count or 0
-            local item_disp_str2 = string.format("        %.1f%% (%s)   %.1f%% (%s)   %.1f %s", kc_percent, "対討伐",
-                ti_percent, "対総数", sec_per_item, "秒/個")
-            local item_label2 = info_box:CreateOrGetControl('richtext', 'display_text2' .. item_id_str_key, 10,
-                120 + current_y, 50, 20)
-            AUTO_CAST(item_label2)
-            item_label2:SetText("{ol}" .. item_disp_str2)
-            max_x = math.max(max_x, item_label2:GetWidth() + 10)
-            current_y = current_y + 55
-        end
-    end
-    local reset_btn = map_info:CreateOrGetControl("button", "reset_button", map_name_label:GetWidth() + 30, 5, 80, 30)
-    AUTO_CAST(reset_btn)
-    reset_btn:SetSkinName("test_red_button")
-    reset_btn:SetText("{ol}Map Reset")
-    reset_btn:SetEventScript(ui.LBUTTONUP, "Monster_kill_count_map_reset_reserve")
-    reset_btn:SetEventScriptArgNumber(ui.LBUTTONUP, map_id)
-    map_info:Resize(math.max(max_x + 40, 250), math.min(160 + current_y, 1000))
-    info_box:Resize(map_info:GetWidth() - 20, map_info:GetHeight() - 55)
-    map_info:SetLayerLevel(999)
-    map_info:ShowWindow(1)
-end
-
-function Monster_kill_count_map_reset_reserve(frame, ctrl, str, map_id)
-    ui.MsgBox("Map Reset?", string.format("Monster_kill_count_map_reset(%d)", map_id), "None")
-end
-
-function Monster_kill_count_map_reset(map_id)
-    local map_file_path = Monster_kill_count_get_map_filepath(map_id)
-    os.remove(map_file_path)
-    local map_info = ui.GetFrame(addon_name_lower .. "mkc_map_info")
-    Monster_kill_count_map_information_close(map_info)
-end
--- monster_kill_count ここまで
 
 -- my_buffs_control ここから
 function My_buffs_control_save_settings()
@@ -24215,309 +24655,6 @@ function Job_change_helper_end(str)
     ui.SysMsg("[JCH]End of Operation")
 end
 -- Job Change Helper ここまで
-
--- Instant CC ここから
-g.instant_cc = {
-    retry = nil,
-    do_cc = nil,
-    layer = 1
-}
-function Instant_cc_save_settings()
-    g.save_json(g.instant_cc_path, g.instant_cc_settings)
-end
-
-function Instant_cc_load_settings()
-    g.instant_cc_path = string.format("../addons/%s/%s/instant_cc.json", addon_name_lower, g.active_id)
-    local changed = false
-    local settings = g.load_json(g.instant_cc_path)
-    if not settings then
-        settings = {
-            characters = {},
-            per_barracks = false
-        }
-        changed = true
-    end
-    g.instant_cc_settings = settings
-    if changed then
-        Instant_cc_save_settings()
-    end
-end
-
-function instant_cc_on_init()
-    if not g.instant_cc_settings then
-        Instant_cc_load_settings()
-    end
-    g.instant_cc.do_cc = nil
-    g.instant_cc.retry = nil
-    _G["norisan"] = _G["norisan"] or {}
-    _G["norisan"]["HOOKS"] = _G["norisan"]["HOOKS"] or {}
-    if not _G["norisan"]["HOOKS"]["BARRACK_START_FRAME_OPEN"] then
-        _G["norisan"]["HOOKS"]["BARRACK_START_FRAME_OPEN"] = addon_name
-        Instant_cc_hook_BARRACK_START_FRAME_OPEN()
-    end
-    if _G["BARRACK_CHARLIST_ON_INIT"] and _G["current_layer"] then
-        g.instant_cc.layer = _G["current_layer"]
-    end
-    if _G["APPS_TRY_LEAVE"] then
-        g.FUNCS = g.FUNCS or {}
-        if not g.FUNCS["APPS_TRY_LEAVE"] then
-            g.FUNCS["APPS_TRY_LEAVE"] = _G["APPS_TRY_LEAVE"]
-        end
-        _G["APPS_TRY_LEAVE"] = Instant_cc_APPS_TRY_LEAVE
-    end
-    _G["INSTANTCC_ON_INIT"] = instant_cc_on_init
-    if g.settings.instant_cc.use == 0 then
-        _G["INSTANTCC_DO_CC"] = nil
-        _G["INSTANTCC_APPS_TRY_MOVE_BARRACK"] = nil
-        return
-    else
-        _G["INSTANTCC_DO_CC"] = Instant_cc_do_cc
-        _G["INSTANTCC_APPS_TRY_MOVE_BARRACK"] = Instant_cc_APPS_TRY_MOVE_BARRACK_
-    end
-    local acc_info = session.barrack.GetMyAccount()
-    local barrack_count = acc_info:GetBarrackPCCount() -- ゲーム起動直後はtonumber(0)
-    Instant_cc_save_char_data(acc_info, barrack_count)
-end
-
-function Instant_cc_settings_frame_init()
-    local list_frame = ui.GetFrame(addon_name_lower .. "list_frame")
-    local settings = ui.CreateNewFrame("chat_memberlist", addon_name_lower .. "instant_cc_settings")
-    AUTO_CAST(settings)
-    settings:SetPos(list_frame:GetX() + list_frame:GetWidth(), list_frame:GetY())
-    settings:EnableHitTest(1)
-    settings:SetLayerLevel(999)
-    settings:SetSkinName("test_frame_low")
-    local width = 0
-    local title = settings:CreateOrGetControl('richtext', 'title', 20, 10, 10, 30)
-    AUTO_CAST(title)
-    title:SetText("{#000000}{s20}instant CC Settings")
-    width = width + 20 + title:GetWidth() + 40
-    local close = settings:CreateOrGetControl('button', 'close', 0, 0, 20, 20)
-    AUTO_CAST(close)
-    close:SetImage("testclose_button")
-    close:SetGravity(ui.RIGHT, ui.TOP)
-    close:SetEventScript(ui.LBUTTONUP, "Instant_cc_settings_frame_close")
-    local gb = settings:CreateOrGetControl("groupbox", "gb", 10, 40, 100, 100)
-    AUTO_CAST(gb)
-    gb:SetSkinName("bg")
-    gb:RemoveAllChild()
-    local per_barracks = gb:CreateOrGetControl('checkbox', "per_barracks", 10, 5, 100, 30)
-    AUTO_CAST(per_barracks)
-    per_barracks:SetText(g.lang == "Japanese" and "{ol}チェックするとバラックごとに表示" or
-                             "{ol}Check to display per barracks")
-    per_barracks:SetCheck(g.instant_cc_settings.per_barracks and 1 or 0)
-    per_barracks:SetEventScript(ui.LBUTTONUP, "Instant_cc_setting")
-    width = per_barracks:GetWidth() + 40
-    settings:Resize(width, 90)
-    gb:Resize(settings:GetWidth() - 20, 40)
-    settings:ShowWindow(1)
-end
-
-function Instant_cc_settings_frame_close(frame)
-    local frame_name = addon_name_lower .. "instant_cc_settings"
-    ui.DestroyFrame(frame_name)
-end
-
-function Instant_cc_setting(frame, ctrl)
-    local is_check = ctrl:IsChecked()
-    if is_check == 1 then
-        g.instant_cc_settings.per_barracks = true
-    else
-        g.instant_cc_settings.per_barracks = false
-    end
-    Instant_cc_save_settings()
-end
-
-function Instant_cc_save_char_data(acc_info, barrack_count)
-    local characters = g.instant_cc_settings.characters
-    local pc_count = acc_info:GetPCCount() -- 毎回同じレイヤーのキャラは順番を取得
-    for i = 0, pc_count - 1 do
-        local pc_info = acc_info:GetPCByIndex(i)
-        if pc_info then
-            local pc_cid = pc_info:GetCID()
-            local pc_apc = pc_info:GetApc()
-            if pc_apc then
-                local pc_name = pc_apc:GetName()
-                characters[pc_name] = {
-                    name = pc_name,
-                    layer = g.instant_cc.layer,
-                    order = i,
-                    jobid = (acc_info:GetByStrCID(pc_cid) and acc_info:GetByStrCID(pc_cid):GetRepID()) or
-                        pc_apc:GetJob(),
-                    gender = pc_apc:GetGender(),
-                    level = pc_apc:GetLv(),
-                    cid = pc_cid
-                }
-            end
-        end
-    end
-    if barrack_count > 0 then -- ゲーム起動直後はカウント0なので、2回目以降動かす
-        local barrack_chars = {}
-        for i = 0, barrack_count - 1 do
-            local pc_info = acc_info:GetBarrackPCByIndex(i)
-            if pc_info then
-                barrack_chars[pc_info:GetName()] = true
-            end
-        end
-        local chars_to_delete = {}
-        for char_name, _ in pairs(characters) do
-            if not barrack_chars[char_name] then
-                table.insert(chars_to_delete, char_name)
-            end
-        end
-        if #chars_to_delete > 0 then
-            for _, char_name in ipairs(chars_to_delete) do
-                characters[char_name] = nil
-            end
-        end
-    end
-    Instant_cc_save_settings()
-    Instant_cc_sort_char_data()
-end
-
-function Instant_cc_sort_char_data()
-    g.instant_cc_sorted_list = {}
-    for _, char_data in pairs(g.instant_cc_settings.characters) do
-        table.insert(g.instant_cc_sorted_list, char_data)
-    end
-    local function dabble_sort(a, b)
-        if a.layer == b.layer then
-            return a.order < b.order
-        else
-            return a.layer < b.layer
-        end
-    end
-    table.sort(g.instant_cc_sorted_list, dabble_sort)
-end
-
-function Instant_cc_hook_BARRACK_START_FRAME_OPEN()
-    g.FUNCS = g.FUNCS or {}
-    local origin_func_name = "BARRACK_START_FRAME_OPEN"
-    if _G[origin_func_name] then
-        if not g.FUNCS[origin_func_name] then
-            g.FUNCS[origin_func_name] = _G[origin_func_name]
-        end
-        _G[origin_func_name] = Instant_cc_BARRACK_START_FRAME_OPEN
-    end
-end
-
-function Instant_cc_BARRACK_START_FRAME_OPEN(...)
-    local frame = select(1, ...)
-    if not frame then
-        return
-    end
-    local original_func = g.FUNCS["BARRACK_START_FRAME_OPEN"]
-    local result
-    if original_func then
-        result = original_func(...)
-    end
-    local barrack_gamestart = ui.GetFrame("barrack_gamestart")
-    local hidelogin = GET_CHILD_RECURSIVELY(barrack_gamestart, "hidelogin")
-    hidelogin:SetCheck(1)
-    if g.instant_cc.do_cc and not g.instant_cc.retry then
-        g.instant_cc.retry = 0
-        barrack_gamestart:RunUpdateScript("Instant_cc_start", 0.2)
-    end
-    return result
-end
-
-function Instant_cc_APPS_TRY_LEAVE(type)
-    local use_instant_cc = (g.settings and g.settings.instant_cc and g.settings.instant_cc.use == 1)
-    if not use_instant_cc or type ~= "Barrack" then
-        if g.FUNCS["APPS_TRY_LEAVE"] then
-            g.FUNCS["APPS_TRY_LEAVE"](type)
-        else
-            RUN_GAME_EXIT(type)
-        end
-        return
-    end
-    Instant_cc_APPS_TRY_MOVE_BARRACK_(nil, nil, nil, 0)
-end
-
-function Instant_cc_APPS_TRY_MOVE_BARRACK_(frame, msg, str, barrack_layer)
-    if barrack_layer == 0 then
-        barrack_layer = g.instant_cc.layer
-    end
-    local context = ui.CreateContextMenu("instant_cc_select_character", "{ol}Barrack Charactor List", 0, 0, 0, 0)
-    ui.AddContextMenuItem(context, "Return To Barrack", "Instant_cc_do_cc()")
-    if not g.instant_cc_settings.per_barracks then
-        for i = 1, #g.instant_cc_sorted_list do
-            local info = g.instant_cc_sorted_list[i]
-            local pc_name = info.name
-            local job_cls = GetClassByType("Job", info.jobid)
-            local job_name = GET_JOB_NAME(job_cls, info.gender)
-            job_name = string.gsub(dic.getTranslatedStr(job_name), "{s18}", "")
-            local str = "Lv" .. info.level .. " " .. pc_name .. " (" .. job_name .. ")          "
-            ui.AddContextMenuItem(context, str, string.format("Instant_cc_do_cc('%s',%d)", info.cid, info.layer))
-        end
-    else
-        ui.AddContextMenuItem(context, "Barrack 1",
-            string.format("Instant_cc_APPS_TRY_MOVE_BARRACK_(nil, nil, nil, %d)", 1))
-        ui.AddContextMenuItem(context, "Barrack 2",
-            string.format("Instant_cc_APPS_TRY_MOVE_BARRACK_(nil, nil, nil, %d)", 2))
-        ui.AddContextMenuItem(context, "Barrack 3",
-            string.format("Instant_cc_APPS_TRY_MOVE_BARRACK_(nil, nil, nil, %d)", 3))
-        for i = 1, #g.instant_cc_sorted_list do
-            local info = g.instant_cc_sorted_list[i]
-            local layer = info.layer
-            if barrack_layer == layer then
-                local pc_name = info.name
-                local job_cls = GetClassByType("Job", info.jobid)
-                local job_name = GET_JOB_NAME(job_cls, info.gender)
-                job_name = string.gsub(dic.getTranslatedStr(job_name), "{s18}", "")
-                local str = "Lv" .. info.level .. " " .. pc_name .. " (" .. job_name .. ")          "
-                ui.AddContextMenuItem(context, str, string.format("Instant_cc_do_cc('%s',%d)", info.cid, info.layer))
-            end
-        end
-    end
-    ui.OpenContextMenu(context)
-end
-
-function Instant_cc_do_cc(cid, layer)
-    if cid then
-        g.instant_cc.do_cc = {
-            cid = cid,
-            layer = layer
-        }
-    end
-    g.FUNCS["APPS_TRY_LEAVE"]("Barrack")
-end
-
-function Instant_cc_start()
-    barrack.SelectBarrackLayer(g.instant_cc.do_cc.layer)
-    barrack.SelectCharacterByCID(g.instant_cc.do_cc.cid)
-    local barrack_gamestart = ui.GetFrame("barrack_gamestart")
-    barrack_gamestart:StopUpdateScript("Instant_cc_to_game")
-    barrack_gamestart:RunUpdateScript("Instant_cc_to_game", 0.2)
-end
-
-function Instant_cc_retry()
-    g.instant_cc.retry = g.instant_cc.retry + 1
-    if g.instant_cc.retry > #g.instant_cc_sorted_list then
-        app.BarrackToLogin()
-        ui.SysMsg(g.lang == "Japanese" and
-                      "キャラクターの自動取得に失敗しました{nl}手動で選択してください" or
-                      "Failed to automatically retrieve the character{nl}Please select manually")
-        return
-    end
-    Instant_cc_start()
-end
-
-function Instant_cc_to_game(barrack_gamestart)
-    local barrack_pc_info = barrack.GetBarrackPCInfoByCID(g.instant_cc.do_cc.cid)
-    if not barrack_pc_info then
-        Instant_cc_retry()
-        return
-    end
-    local barrack_start_char = barrack.GetGameStartAccount()
-    if not barrack_start_char or barrack_start_char:GetCID() ~= g.instant_cc.do_cc.cid then
-        Instant_cc_retry()
-        return
-    end
-    BARRACK_TO_GAME()
-    return 0
-end
--- Instant CC ここまで
 
 --  Guild Event Warp ここから
 function Guild_event_warp_save_settings()

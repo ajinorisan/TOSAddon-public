@@ -8,7 +8,7 @@ local g = _G["ADDONS"][author][addon_name]
 local json = require("json")
 
 local function ts(...)
-    local num_args = select('#', ...)
+    local num_args = select("#", ...)
     if num_args == 0 then
         print("ts() -- 引数がありません")
         return

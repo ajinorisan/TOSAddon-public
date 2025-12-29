@@ -9234,4 +9234,843 @@ function g.setup_hook_and_event_before_after(my_addon, origin_func_name, my_func
             my_addon:RegisterMsg(origin_func_name, my_func_name)
         end
     end
+end]] --[[function mini_addons_questinfo_hide()
+    local chaseinfo = ui.GetFrame("chaseinfo")
+    local openMark_quest = GET_CHILD_RECURSIVELY(chaseinfo, "openMark_quest")
+    AUTO_CAST(openMark_quest)
+    if openMark_quest:GetUserValue("MINI_ADDONS_INIT") ~= "YES" then
+        openMark_quest:ShowWindow(1)
+        openMark_quest:SetEventScript(ui.RBUTTONUP, "mini_addons_questinfo_toggle")
+        local notice = g.lang == "Japanese" and
+                           "{ol}Mini Addons{nl}右クリック: クエストの表示/非表示切替" or
+                           "{ol}Mini Addons{nl}Right-click: Show/hide quests"
+        openMark_quest:SetTextTooltip(notice)
+        openMark_quest:SetUserValue("MINI_ADDONS_INIT", "YES")
+    end
+    local questinfoset_2 = ui.GetFrame("questinfoset_2")
+    local hide_setting = g.settings.quest_hide
+    local name_quest = GET_CHILD_RECURSIVELY(chaseinfo, "name_quest")
+    local name_achieve = GET_CHILD_RECURSIVELY(chaseinfo, "name_achieve")
+    if hide_setting == 1 then
+        questinfoset_2:ShowWindow(0)
+        name_quest:ShowWindow(0)
+        name_achieve:ShowWindow(0)
+        openMark_quest:SetImage("quest_arrow_l_btn")
+    else
+        questinfoset_2:ShowWindow(1)
+        name_quest:ShowWindow(1)
+        name_achieve:ShowWindow(1)
+        openMark_quest:SetImage("quest_arrow_r_btn")
+    end
+end]] --[[function mini_addons_questinfo_hide()
+    local chaseinfo = ui.GetFrame("chaseinfo")
+    local openMark_quest = GET_CHILD_RECURSIVELY(chaseinfo, "openMark_quest")
+    AUTO_CAST(openMark_quest)
+    if openMark_quest:GetUserValue("MINI_ADDONS_INIT") ~= "YES" then
+        openMark_quest:ShowWindow(1)
+        openMark_quest:SetEventScript(ui.RBUTTONUP, "mini_addons_questinfo_toggle")
+        local notice = g.lang == "Japanese" and
+                           "{ol}Mini Addons{nl}右クリック: クエストの表示/非表示切替" or
+                           "{ol}Mini Addons{nl}Right-click: Show/hide quests"
+        openMark_quest:SetTextTooltip(notice)
+        openMark_quest:SetUserValue("MINI_ADDONS_INIT", "YES")
+    end
+end]] --[[function mini_addons_BUFFLIST_ALL_CHECK(frame, ctrl, str, num)
+    local is_check = ctrl:IsChecked()
+    local frame = ctrl:GetTopParentFrame()
+    local i = 1
+    for buff_id, _ in pairs(g.buffs) do
+        local buffcheck = GET_CHILD_RECURSIVELY(frame, "buffcheck" .. i)
+        if buffcheck then
+            AUTO_CAST(buffcheck)
+            buffcheck:SetCheck(is_check)
+            g.buffs[buff_id] = is_check
+            i = i + 1
+        end
+    end
+    g.save_json(g.buffs_path, g.buffs)
+end
+
+function mini_addons_bufflist_search(frame, ctrl)
+    if ctrl:GetName() == "search_btn" then
+        ctrl = frame
+    end
+    local ctrl_text = ctrl:GetText()
+
+    if ctrl_text == "" then
+        mini_addons_BUFFLIST_FRAME_INIT()
+        return
+    end
+
+    local top_frame = ctrl:GetTopParentFrame()
+
+    local bufflist_bg = GET_CHILD(top_frame, "bufflist_bg")
+    bufflist_bg:RemoveAllChild()
+
+    local buffs = {}
+    local buff_id = tonumber(ctrl_text)
+    if buff_id then
+
+        for buff_id_str, check_state in pairs(g.buffs) do
+            if string.find(buff_id_str, ctrl_text, 1, true) then
+                local buff_data = {
+                    buff_id = tonumber(buff_id_str),
+                    check = check_state
+                }
+                table.insert(buffs, buff_data)
+            end
+        end
+
+    else
+        for buff_id_str, check_state in pairs(g.buffs) do
+            local buff_name = dic.getTranslatedStr(GetClassByType("Buff", buff_id_str).Name)
+            if string.find(buff_name, ctrl_text, 1, true) then
+                local buff_data = {
+                    buff_id = tonumber(buff_id_str),
+                    check = check_state
+                }
+                table.insert(buffs, buff_data)
+            end
+        end
+
+        local y = 0
+
+    end
+
+    local y = 0
+    for i, buff_data in ipairs(buffs) do
+        local buff_id = buff_data.buff_id
+        local check = buff_data.check
+        local bufflist_bg = GET_CHILD(top_frame, "bufflist_bg")
+        local buff_slot = bufflist_bg:CreateOrGetControl("slot", "buff_slot" .. buff_id, 10, y + 5, 30, 30)
+        AUTO_CAST(buff_slot)
+        local buff_cls = GetClassByType("Buff", buff_id)
+
+        if buff_cls then
+            SET_SLOT_IMG(buff_slot, GET_BUFF_ICON_NAME(buff_cls))
+
+            local icon = CreateIcon(buff_slot)
+            AUTO_CAST(icon)
+            icon:SetTooltipType("buff")
+            icon:SetTooltipArg(buff_cls.Name, buff_id, 0)
+
+            local buffcheck = bufflist_bg:CreateOrGetControl("checkbox", "buffcheck" .. buff_id, 45, y + 5, 30, 30)
+            AUTO_CAST(buffcheck)
+
+            buffcheck:SetCheck(check)
+
+            buffcheck:SetEventScript(ui.LBUTTONUP, "mini_addons_BUFFCHECK")
+            buffcheck:SetEventScriptArgNumber(ui.LBUTTONUP, buff_id)
+            buffcheck:SetText("{ol}" .. buff_cls.Name)
+            buffcheck:SetTextTooltip(g.lang == "Japanese" and "{ol}" .. buff_id ..
+                                         "{nl}チェックするとパーティーバフ表示" or "{ol}" .. buff_id ..
+                                         "{nl}Party buff display when checked")
+            y = y + 35
+
+        end
+    end
+
+end
+
+function mini_addons_BUFFLIST_FRAME_INIT()
+    local bufflistframe = ui.CreateNewFrame("notice_on_pc", "mini_addons_bufflist", 0, 0, 10, 10)
+    AUTO_CAST(bufflistframe)
+    bufflistframe:SetSkinName("test_frame_low")
+    bufflistframe:Resize(500, 1060)
+    bufflistframe:SetPos(10, 10)
+    bufflistframe:SetLayerLevel(121)
+    bufflistframe:RemoveAllChild()
+
+    local bg = bufflistframe:CreateOrGetControl("groupbox", "bufflist_bg", 10, 45, 480, 1005)
+    AUTO_CAST(bg)
+    bg:SetSkinName("bg")
+    bg:SetEventScript(ui.RBUTTONUP, "mini_addons_BUFFLIST_FRAME_CLOSE")
+    bg:SetTextTooltip(g.lang == "Japanese" and "{ol}右クリックで閉じます。" or "Right-click to close.")
+
+    local closeBtn = bufflistframe:CreateOrGetControl("button", "closeBtn", 450, 0, 30, 30)
+    AUTO_CAST(closeBtn)
+    closeBtn:SetImage("testclose_button")
+    closeBtn:SetGravity(ui.RIGHT, ui.TOP)
+    closeBtn:SetEventScript(ui.LBUTTONUP, "mini_addons_BUFFLIST_FRAME_CLOSE")
+
+    local all_toggle = bufflistframe:CreateOrGetControl("checkbox", "all_toggle", 435, 10, 25, 25)
+    AUTO_CAST(all_toggle)
+    all_toggle:SetTextTooltip(g.lang == "Japanese" and "{ol}全ての表示切替" or "Toggle All Displays")
+    all_toggle:SetEventScript(ui.LBUTTONUP, "mini_addons_BUFFLIST_ALL_CHECK")
+
+    local bufflisttext = bufflistframe:CreateOrGetControl("richtext", "bufflisttext", 10, 15, 200, 30)
+    AUTO_CAST(bufflisttext)
+    bufflisttext:SetText("{ol}BUFF LIST")
+
+    local search_edit = bufflistframe:CreateOrGetControl("edit", "search_edit", 120, 10, 305, 38)
+    AUTO_CAST(search_edit)
+    search_edit:SetFontName("white_18_ol")
+    search_edit:SetTextAlign("left", "center")
+    search_edit:SetSkinName("inventory_serch")
+
+    search_edit:SetEventScript(ui.ENTERKEY, "mini_addons_bufflist_search")
+
+    local search_btn = search_edit:CreateOrGetControl("button", "search_btn", 0, 0, 40, 38)
+    AUTO_CAST(search_btn)
+    search_btn:SetImage("inven_s")
+    search_btn:SetGravity(ui.RIGHT, ui.TOP)
+    search_btn:SetEventScript(ui.LBUTTONUP, "mini_addons_bufflist_search")
+
+    local buff_id_list_to_sort = {}
+    for buff_id_str, check_state in pairs(g.buffs) do
+        table.insert(buff_id_list_to_sort, {
+            id = tonumber(buff_id_str),
+            checked = (check_state == 0)
+        })
+    end
+
+    table.sort(buff_id_list_to_sort, function(a, b)
+        if b.checked and not a.checked then
+            return true
+        elseif not b.checked and a.checked then
+            return false
+        else
+
+            return a.id < b.id
+        end
+    end)
+
+    local y = 0
+
+    for item_index, buff_entry in ipairs(buff_id_list_to_sort) do
+        local buffID = buff_entry.id -- バフIDを取得
+        local is_checked_for_this_buff = buff_entry.checked
+        local buffslot = bg:CreateOrGetControl("slot", "buffslot" .. buffID, 10, y + 5, 30, 30)
+        AUTO_CAST(buffslot)
+        local buffCls = GetClassByType("Buff", buffID)
+
+        if buffCls then -- nilチェックは大事
+            SET_SLOT_IMG(buffslot, GET_BUFF_ICON_NAME(buffCls))
+
+            local icon = CreateIcon(buffslot)
+            AUTO_CAST(icon)
+            icon:SetTooltipType("buff")
+            icon:SetTooltipArg(buffCls.Name, buffID, 0)
+
+            local buffcheck = bg:CreateOrGetControl("checkbox", "buffcheck" .. buffID, 45, y + 5, 30, 30)
+            AUTO_CAST(buffcheck)
+
+            buffcheck:SetCheck(is_checked_for_this_buff and 0 or 1)
+
+            buffcheck:SetEventScript(ui.LBUTTONUP, "mini_addons_BUFFCHECK")
+            buffcheck:SetEventScriptArgNumber(ui.LBUTTONUP, buffID)
+            buffcheck:SetText("{ol}" .. buffCls.Name)
+            buffcheck:SetTextTooltip(g.lang == "Japanese" and "{ol}" .. buffID ..
+                                         "{nl}チェックするとパーティーバフ表示" or "{ol}" .. buffID ..
+                                         "{nl}Party buff display when checked")
+            y = y + 35
+
+        end
+    end
+
+    bufflistframe:ShowWindow(1)
+
+end
+
+
+
+function mini_addons_BUFFLIST_FRAME_CLOSE()
+    local frame = ui.GetFrame("mini_addons_bufflist")
+    frame:ShowWindow(0)
+end]] --[[function mini_addons_INVENTORY_TOTAL_LIST_GET(frame, setpos, isIgnorelifticon, invenTypeStr)
+    if g.settings.icor_status_search == 0 then
+        g.FUNCS["INVENTORY_TOTAL_LIST_GET"](frame, setpos, isIgnorelifticon, invenTypeStr)
+    else
+        mini_addons_INVENTORY_TOTAL_LIST_GET_(frame, setpos, isIgnorelifticon, invenTypeStr)
+    end
+end
+
+function mini_addons_INVENTORY_TOTAL_LIST_GET_(frame, setpos, isIgnorelifticon, invenTypeStr)
+
+    local frame = ui.GetFrame("inventory")
+    if frame == nil then
+        return
+    end
+
+    local liftIcon = ui.GetLiftIcon()
+    if nil == isIgnorelifticon then
+        isIgnorelifticon = "NO"
+    end
+
+    if isIgnorelifticon ~= "NO" and liftIcon ~= nil then
+        return
+    end
+
+    local mySession = session.GetMySession()
+    local cid = mySession:GetCID()
+    local sortType = _invenSortTypeOption[cid]
+    session.BuildInvItemSortedList()
+    local sortedList = session.GetInvItemSortedList()
+    local invItemCount = sortedList:size()
+
+    if sortType == nil then
+        sortType = 0
+    end
+
+    local blinkcolor = frame:GetUserConfig("TREE_SEARCH_BLINK_COLOR")
+    local group = GET_CHILD_RECURSIVELY(frame, "inventoryGbox", "ui::CGroupBox")
+
+    for typeNo = 1, #g_invenTypeStrList do
+        if invenTypeStr == nil or invenTypeStr == g_invenTypeStrList[typeNo] or typeNo == 1 then
+            local tree_box = GET_CHILD_RECURSIVELY(group, "treeGbox_" .. g_invenTypeStrList[typeNo], "ui::CGroupBox")
+            local tree = GET_CHILD_RECURSIVELY(tree_box, "inventree_" .. g_invenTypeStrList[typeNo], "ui::CTreeControl")
+
+            local groupfontname = frame:GetUserConfig("TREE_GROUP_FONT")
+            local tabwidth = frame:GetUserConfig("TREE_TAB_WIDTH")
+
+            tree:Clear()
+            tree:EnableDrawFrame(false)
+            tree:SetFitToChild(true, 60)
+            tree:SetFontName(groupfontname)
+            tree:SetTabWidth(tabwidth)
+
+            local slotSetNameListCnt = ui.inventory.GetInvenSlotSetNameCount()
+            for i = 1, slotSetNameListCnt do
+                local slotSetName = ui.inventory.GetInvenSlotSetNameByIndex(i - 1)
+                ui.inventory.RemoveInvenSlotSetName(slotSetName)
+            end
+
+            local groupNameListCnt = ui.inventory.GetInvenGroupNameCount()
+            for i = 1, groupNameListCnt do
+                local groupName = ui.inventory.GetInvenGroupNameByIndex(i - 1)
+                ui.inventory.RemoveInvenGroupName(groupName)
+            end
+
+            local customFunc = nil
+            local scriptName = frame:GetUserValue("CUSTOM_ICON_SCP")
+            local scriptArg = nil
+            if scriptName ~= nil then
+                customFunc = _G[scriptName]
+                local getArgFunc = _G[frame:GetUserValue("CUSTOM_ICON_ARG_SCP")]
+                if getArgFunc ~= nil then
+                    scriptArg = getArgFunc()
+                end
+            end
+        end
+    end
+
+    local baseidclslist, baseidcnt = GetClassList("inven_baseid")
+    local searchGbox = group:GetChild("searchGbox")
+    local searchSkin = GET_CHILD_RECURSIVELY(searchGbox, "searchSkin", "ui::CGroupBox")
+    local edit = GET_CHILD_RECURSIVELY(searchSkin, "ItemSearch", "ui::CEditControl")
+    local cap = edit:GetText()
+    if cap ~= "" then
+        local slotSetNameListCnt = ui.inventory.GetInvenSlotSetNameCount()
+        for i = 1, slotSetNameListCnt do
+            local getSlotSetName = ui.inventory.GetInvenSlotSetNameByIndex(i - 1)
+            local slotset = GET_CHILD_RECURSIVELY(tree, getSlotSetName, "ui::CSlotSet")
+            slotset:RemoveAllChild()
+            slotset:SetUserValue("SLOT_ITEM_COUNT", 0)
+        end
+    end
+
+    local invItemList = {}
+    local index_count = 1
+    for i = 0, invItemCount - 1 do
+        local invItem = sortedList:at(i)
+        if invItem ~= nil then
+            invItemList[index_count] = invItem
+            index_count = index_count + 1
+        end
+    end
+
+    -- 1 등급순 / 2 무게순 / 3 이름순 / 4 소지량순
+    if sortType == 1 then
+        table.sort(invItemList, INVENTORY_SORT_BY_GRADE)
+    elseif sortType == 2 then
+        table.sort(invItemList, INVENTORY_SORT_BY_WEIGHT)
+    elseif sortType == 3 then
+        table.sort(invItemList, INVENTORY_SORT_BY_NAME)
+    elseif sortType == 4 then
+        table.sort(invItemList, INVENTORY_SORT_BY_COUNT)
+    else
+        table.sort(invItemList, INVENTORY_SORT_BY_NAME)
+    end
+
+    if invenTitleName == nil then
+        invenTitleName = {}
+        for i = 1, baseidcnt do
+            local baseidcls = GetClassByIndexFromList(baseidclslist, i - 1)
+            local tempTitle = baseidcls.ClassName
+            if baseidcls.MergedTreeTitle ~= "NO" then
+                tempTitle = baseidcls.MergedTreeTitle
+            end
+
+            if table.find(invenTitleName, tempTitle) == 0 then
+                invenTitleName[#invenTitleName + 1] = tempTitle
+            end
+        end
+    end
+
+    local cls_inv_index = {}
+    local i_cnt = 0
+    for i = 1, #invenTitleName do
+        local category = invenTitleName[i]
+        for j = 1, #invItemList do
+            local invItem = invItemList[j]
+            if invItem ~= nil then
+                local itemCls = GetIES(invItem:GetObject())
+                if itemCls.MarketCategory ~= "None" then
+                    local baseidcls = nil
+                    if cls_inv_index[invItem.invIndex] == nil then
+                        baseidcls = GET_BASEID_CLS_BY_INVINDEX(invItem.invIndex)
+                        cls_inv_index[invItem.invIndex] = baseidcls
+                    else
+                        baseidcls = cls_inv_index[invItem.invIndex]
+                    end
+
+                    local titleName = baseidcls.ClassName
+                    if baseidcls.MergedTreeTitle ~= "NO" then
+                        titleName = baseidcls.MergedTreeTitle
+                    end
+
+                    if category == titleName then
+                        local typeStr = GET_INVENTORY_TREEGROUP(baseidcls)
+                        if itemCls ~= nil then
+                            local makeSlot = true
+                            if cap ~= "" then
+                                -- 인벤토리 안에 있는 아이템을 찾기 위한 로직
+                                local itemname = string.lower(dictionary.ReplaceDicIDInCompStr(itemCls.Name))
+                                -- 접두어도 포함시켜 검색해야되기 때문에, 접두를 찾아서 있으면 붙여주는 작업
+                                local prefixClassName = TryGetProp(itemCls, "LegendPrefix")
+                                if prefixClassName ~= nil and prefixClassName ~= "None" then
+                                    local prefixCls = GetClass("LegendSetItem", prefixClassName)
+                                    local prefixName = string.lower(dictionary.ReplaceDicIDInCompStr(prefixCls.Name))
+                                    itemname = prefixName .. " " .. itemname
+                                end
+
+                                local tempcap = string.lower(cap)
+                                local a = string.find(itemname, tempcap)
+
+                                if a == nil then
+                                    makeSlot = false
+
+                                    if TryGetProp(itemCls, "GroupName", "None") == "Earring" then
+                                        local max_option_count =
+                                            shared_item_earring.get_max_special_option_count(TryGetProp(itemCls,
+                                                "UseLv", 1))
+                                        for ii = 1, max_option_count do
+                                            local option_name = "EarringSpecialOption_" .. ii
+                                            local job = TryGetProp(itemCls, option_name, "None")
+                                            if job ~= "None" then
+                                                local job_cls = GetClass("Job", job)
+                                                if job_cls ~= nil then
+                                                    itemname = string.lower(
+                                                        dictionary.ReplaceDicIDInCompStr(job_cls.Name))
+                                                    a = string.find(itemname, tempcap)
+                                                    if a ~= nil then
+                                                        makeSlot = true
+                                                        break
+                                                    end
+                                                end
+                                            end
+                                        end
+                                    elseif TryGetProp(itemCls, "GroupName", "None") == "Icor" then
+
+                                        local max_option = 5
+                                        for iii = 1, max_option do
+                                            local item = GetIES(invItem:GetObject())
+                                            local option_name = "RandomOption_" .. iii
+                                            local option = TryGetProp(item, option_name, "None")
+                                            if option ~= "None" or option ~= nil then
+                                                itemname = string.lower(dictionary.ReplaceDicIDInCompStr(ClMsg(option)))
+                                            end
+                                            a = string.find(itemname, tempcap)
+                                            if a ~= nil then
+                                                makeSlot = true
+                                                break
+                                            end
+                                        end
+                                    end
+
+                                end
+                            end
+
+                            local viewOptionCheck = 1
+                            if typeStr == "Equip" then
+                                viewOptionCheck = CHECK_INVENTORY_OPTION_EQUIP(itemCls)
+                            elseif typeStr == "Card" then
+                                viewOptionCheck = CHECK_INVENTORY_OPTION_CARD(itemCls)
+                            elseif typeStr == "Etc" then
+                                viewOptionCheck = CHECK_INVENTORY_OPTION_ETC(itemCls)
+                            elseif typeStr == "Gem" then
+                                viewOptionCheck = CHECK_INVENTORY_OPTION_GEM(itemCls)
+                            end
+
+                            if makeSlot == true and viewOptionCheck == 1 then
+                                if invItem.count > 0 and baseidcls.ClassName ~= "Unused" then -- Unused로 설정된 것은 안보임
+                                    if invenTypeStr == nil or invenTypeStr == typeStr then
+                                        local tree_box = GET_CHILD_RECURSIVELY(group, "treeGbox_" .. typeStr,
+                                            "ui::CGroupBox")
+                                        local tree = GET_CHILD_RECURSIVELY(tree_box, "inventree_" .. typeStr,
+                                            "ui::CTreeControl")
+                                        INSERT_ITEM_TO_TREE(frame, tree, invItem, itemCls, baseidcls)
+                                    end
+                                    -- Request #95788 / 퀘스트 항목은 모두 보기 탭에서 보이지 않도록 함
+                                    if typeStr ~= "Quest" then
+                                        local tree_box_all =
+                                            GET_CHILD_RECURSIVELY(group, "treeGbox_All", "ui::CGroupBox")
+                                        local tree_all = GET_CHILD_RECURSIVELY(tree_box_all, "inventree_All",
+                                            "ui::CTreeControl")
+                                        INSERT_ITEM_TO_TREE(frame, tree_all, invItem, itemCls, baseidcls)
+                                    end
+                                end
+                            else
+                                if customFunc ~= nil then
+                                    local slot = slotSet:GetSlotByIndex(i)
+                                    if slot ~= nil then
+                                        customFunc(slot, scriptArg, invItem, nil)
+                                    end
+                                end
+
+                                -- 인벤토리 옵션 적용 중이면 빈 tree 만들어 "필터링 옵션 적용 중"이라는 문구 표시해주기
+                                local isOptionApplied = CHECK_INVENTORY_OPTION_APPLIED(baseidcls)
+                                if isOptionApplied == 1 and cap == "" then -- 검색 중에는 조건에 맞는 아이템 없으면 tree 안 만듬
+                                    if invenTypeStr == nil or invenTypeStr == typeStr then
+                                        local tree_box = GET_CHILD_RECURSIVELY(group, "treeGbox_" .. typeStr,
+                                            "ui::CGroupBox")
+                                        local tree = GET_CHILD_RECURSIVELY(tree_box, "inventree_" .. typeStr,
+                                            "ui::CTreeControl")
+                                        EMPTY_TREE_INVENTORY_OPTION_TEXT(baseidcls, tree) -- 해당 아이템이 속한 탭
+                                    end
+
+                                    -- Request #95788 / 퀘스트 항목은 모두 보기 탭에서 보이지 않도록 함
+                                    if typeStr ~= "Quest" then
+                                        local tree_box_all =
+                                            GET_CHILD_RECURSIVELY(group, "treeGbox_All", "ui::CGroupBox")
+                                        local tree_all = GET_CHILD_RECURSIVELY(tree_box_all, "inventree_All",
+                                            "ui::CTreeControl")
+                                        EMPTY_TREE_INVENTORY_OPTION_TEXT(baseidcls, tree_all) -- ALL 탭 
+                                    end
+                                end
+                            end
+                        end
+                    end
+                end
+            end
+        end
+    end
+
+    for typeNo = 1, #g_invenTypeStrList do
+        local tree_box = GET_CHILD_RECURSIVELY(group, "treeGbox_" .. g_invenTypeStrList[typeNo], "ui::CGroupBox")
+        local tree = GET_CHILD_RECURSIVELY(tree_box, "inventree_" .. g_invenTypeStrList[typeNo], "ui::CTreeControl")
+
+        -- 아이템 없는 빈 슬롯은 숨겨라
+        local slotSetNameListCnt = ui.inventory.GetInvenSlotSetNameCount()
+        for i = 1, slotSetNameListCnt do
+            local getSlotSetName = ui.inventory.GetInvenSlotSetNameByIndex(i - 1)
+            local slotset = GET_CHILD_RECURSIVELY(tree, getSlotSetName, "ui::CSlotSet")
+            if slotset ~= nil then
+                ui.InventoryHideEmptySlotBySlotSet(slotset)
+            end
+        end
+
+        ADD_GROUP_BOTTOM_MARGIN(frame, tree)
+        tree:OpenNodeAll()
+        tree:SetEventScript(ui.LBUTTONDOWN, "INVENTORY_TREE_OPENOPTION_CHANGE")
+        INVENTORY_CATEGORY_OPENCHECK(frame, tree)
+
+        -- 검색결과 스크롤 세팅은 여기서 하자. 트리 업데이트 후에 위치가 고정된 다음에.
+        for i = 1, slotSetNameListCnt do
+            local getSlotSetName = ui.inventory.GetInvenSlotSetNameByIndex(i - 1)
+            -- slotset = GET_CHILD_RECURSIVELY(tree, getSlotSetName, "ui::CSlotSet")
+
+            local slotsetnode = tree:FindByValue(getSlotSetName)
+            if setpos == "setpos" then
+                local savedPos = frame:GetUserValue("INVENTORY_CUR_SCROLL_POS")
+                if savedPos == "None" then
+                    savedPos = 0
+                end
+                tree_box:SetScrollPos(tonumber(savedPos))
+            end
+        end
+    end
+
+end]] --[[-- get_event_msg ここから
+function Get_event_msg_save_settings()
+    g.save_json(g.get_event_msg_path, g.get_event_msg_settings)
+end
+
+function Get_event_msg_load_settings()
+    g.get_event_msg_path = string.format("../addons/%s/%s/get_event_msg.json", addon_name_lower, g.active_id)
+    local settings = g.load_json(g.get_event_msg_path)
+    if not settings then
+        settings = {
+            guild_chat = 0
+        }
+    end
+    g.get_event_msg_settings = settings
+    Get_event_msg_save_settings()
+end
+
+function get_event_msg_on_init()
+    if not g.get_event_msg_settings then
+        Get_event_msg_load_settings()
+    end
+    g.addon:RegisterMsg("NOTICE_Dm_Global_Shout", "Get_event_msg_NOTICE_ON_MSG")
+end
+
+function Get_event_msg_NOTICE_ON_MSG(frame, msg, str, num)
+    local current_time = os.clock()
+    if g.get_event_msg_last_notice_time and (current_time - g.get_event_msg_last_notice_time < 1.0) then
+        if g.get_event_msg_last_notice_str == str then
+            return
+        end
+    end
+    local is_appear = string.find(str, "{name}AppearFieldBoss{map}")
+    local is_disappear = string.find(str, "{name}DisappearFieldBoss{map}")
+    if not is_appear and not is_disappear then
+        return
+    end
+    g.get_event_msg_last_notice_time = current_time
+    g.get_event_msg_last_notice_str = str
+    local clean_str = str
+    local args_part = str:match("%$%*%$(.*)#%$|#@!")
+    args_part = string.gsub(args_part, "%$%*%$|%$#", ":::")
+    args_part = string.gsub(args_part, "#%$|%$%*%$", ":::")
+    local name, map = "", ""
+    if args_part then
+        _, name, _, map = args_part:match("^(.-):::(.-):::(.-):::(.*)$")
+    end
+    name = dictionary.ReplaceDicIDInCompStr(name)
+    map = dictionary.ReplaceDicIDInCompStr(map)
+    local fmt = ""
+    if is_appear then
+        fmt = "[{map}]에 필드 보스[{name}]가 등장하였습니다."
+    elseif is_disappear then
+        fmt = "[{map}]에 필드 보스[{name}]가 처치되었습니다."
+    else
+        return
+    end
+    clean_str = dictionary.ReplaceDicIDInCompStr(fmt)
+    clean_str = string.gsub(clean_str, "{name}", name)
+    clean_str = string.gsub(clean_str, "{map}", map)
+    CHAT_SYSTEM(clean_str)
+    if g.get_event_msg_settings.guild_chat == 1 then
+        ui.Chat("/p " .. clean_str)
+    end
+end
+
+function Get_event_msg_setting()
+    local list_frame = ui.GetFrame(addon_name_lower .. "list_frame")
+    local setting = ui.CreateNewFrame("notice_on_pc", addon_name_lower .. "get_event_msg_setting", 0, 0, 0, 0)
+    AUTO_CAST(consettingfig)
+    setting:RemoveAllChild()
+    setting:SetLayerLevel(999)
+    setting:SetSkinName("test_frame_low")
+    local title_text = setting:CreateOrGetControl("richtext", "title_text", 10, 10)
+    AUTO_CAST(title_text)
+    title_text:SetText("{ol}Get Event Message")
+    local gb = setting:CreateOrGetControl("groupbox", "gb", 10, 40, 0, 0)
+    AUTO_CAST(gb)
+    gb:SetSkinName("bg")
+    setting:SetPos(list_frame:GetX() + list_frame:GetWidth(), list_frame:GetY())
+    local close = setting:CreateOrGetControl("button", "close", 0, 0, 20, 20)
+    AUTO_CAST(close)
+    close:SetImage("testclose_button")
+    close:SetGravity(ui.RIGHT, ui.TOP)
+    close:SetEventScript(ui.LBUTTONUP, "Get_event_msg_setting_close")
+    local y = 10
+    local guild_chat = gb:CreateOrGetControl("checkbox", "guild_chat", 10, y, 30, 30)
+    AUTO_CAST(guild_chat)
+    guild_chat:SetCheck(g.get_event_msg_settings.guild_chat)
+    guild_chat:SetText(g.lang == "Japanese" and "{ol}チェックするとギルドチャットで発言" or
+                           "{ol}If checked, it will post in guild chat")
+    guild_chat:SetEventScript(ui.LBUTTONUP, "Get_event_msg_setting_change")
+    y = y + 30
+    setting:Resize(guild_chat:GetWidth() + 40, y + 60)
+    gb:Resize(setting:GetWidth() - 20, y + 10)
+    setting:ShowWindow(1)
+end
+
+function Get_event_msg_setting_change(parent, ctrl)
+    local is_check = ctrl:IsChecked()
+    g.get_event_msg_settings.guild_chat = is_check
+    Get_event_msg_save_settings()
+end
+
+function Get_event_msg_setting_close(setting)
+    ui.DestroyFrame(setting:GetName())
+end
+
+function Get_event_msg_test()
+    imcAddOn.BroadMsg('NOTICE_Dm_Global_Shout', ScpArgMsg("{name}AppearFieldBoss{map}", 'name',
+        "(10주년) 황금 개복치", "map", "마족수감소 3구역"), 1)
+end
+-- Get_event_msg_test()
+-- get_event_msg ここまで]] --[[function mini_addons_second_frame(frame)
+    local menu_frame = ui.GetFrame("norisan_menu_frame") or ui.GetFrame(_G["norisan"]["MENU"].frame_name)
+    if menu_frame and menu_frame:IsVisible() == 1 then
+        return 0
+    end
+    local frame_name = addon_name_lower .. "second_open"
+    local second_open = ui.CreateNewFrame("notice_on_pc", frame_name, 0, 0, 0, 0)
+    AUTO_CAST(second_open)
+    second_open:SetSkinName("None")
+    second_open:Resize(40, 40)
+    second_open:SetGravity(ui.RIGHT, ui.TOP)
+    local rect = second_open:GetMargin()
+    second_open:SetMargin(rect.left, rect.top - 100, rect.right, rect.bottom)
+    second_open:SetTitleBarSkin("None")
+    local open_btn = second_open:CreateOrGetControl("picture", "open_btn", 0, 0, 40, 40)
+    AUTO_CAST(open_btn)
+    open_btn:SetImage("sysmenu_jal")
+    open_btn:SetEnableStretch(1)
+    open_btn:SetTextTooltip("{ol}Mini Addons Setting")
+    open_btn:SetEventScript(ui.LBUTTONUP, "mini_addons_SETTING_FRAME_INIT")
+    second_open:ShowWindow(1)
+    return 0
+end]] --[[
+function mini_addons_toggle_quest_set(frame, ctrl)
+    local chaseinfo = ui.GetFrame("chaseinfo")
+    local openMark_quest = GET_CHILD_RECURSIVELY(chaseinfo, "openMark_quest")
+    AUTO_CAST(openMark_quest)
+    openMark_quest:SetEventScript(ui.RBUTTONDOWN, "mini_addons_QUESTINFO_TOGGLE")
+    local notice =
+        g.lang == "Japanese" and "{ol}Mini Addons{nl}右クリック: クエストの表示/非表示切替" or
+            "{ol}Mini Addons{nl}Right-click: Show/hide quests"
+    openMark_quest:SetTextTooltip(notice)
+end]] --[[function mini_addons_FRAME_MOVE_RESERVE(frame, ctrl, str, num)
+
+    frame:SetSkinName("chat_window")
+    frame:Resize(40, 30)
+    frame:EnableHittestFrame(1)
+    frame:EnableMove(1)
+    frame:SetEventScript(ui.LBUTTONUP, "mini_addons_FRAME_MOVE_SAVE")
+end
+
+function mini_addons_FRAME_MOVE_SAVE(frame, ctrl, str, num)
+    local x = frame:GetX()
+    local y = frame:GetY()
+    g.settings["screen"] = {
+        x = x,
+        y = y
+    }
+    mini_addons_save_settings()
+    frame:StopUpdateScript("mini_addons_FRAME_MOVE_SETSKIN")
+    frame:RunUpdateScript("mini_addons_FRAME_MOVE_SETSKIN", 5.0)
+
+end
+
+function mini_addons_FRAME_MOVE_SETSKIN(frame)
+    frame:SetSkinName("None")
+    frame:Resize(30, 30)
+end
+
+function mini_addons_NEW_FRAME_INIT()
+
+    local newframe = ui.CreateNewFrame("notice_on_pc", "mini_addons_new", 0, 0, 0, 0)
+    AUTO_CAST(newframe)
+    newframe:SetSkinName("None")
+    newframe:Resize(30, 30)
+
+    if not g.settings["screen"] then
+        g.settings["screen"] = {
+            x = 1580,
+            y = 305
+        }
+        mini_addons_save_settings()
+    end
+
+    local map_frame = ui.GetFrame("map")
+    local width = map_frame:GetWidth()
+
+    local x = g.settings["screen"].x
+    local y = g.settings["screen"].y
+
+    if g.settings["screen"].x > 1920 and width <= 1920 then
+        x = 1580
+        y = 305
+    end
+
+    newframe:SetPos(x, y)
+    newframe:SetTitleBarSkin("None")
+
+    local btn = newframe:CreateOrGetControl("button", "mini", 0, 0, 30, 30)
+    AUTO_CAST(btn)
+    btn:SetSkinName("None")
+    btn:SetText("{img sysmenu_mac 30 30}")
+
+    btn:SetEventScript(ui.LBUTTONDOWN, "mini_addons_SETTING_FRAME_INIT")
+    btn:SetEventScriptArgString(ui.LBUTTONDOWN, "false")
+    local text = g.lang == "Japanese" and
+                     "{ol}左クリック: Mini Addons 設定{nl}右クリック: MUTE{nl}フレームの端を掴んで動かせます" or
+                     "{ol}Left click: Mini Addons settings{nl}Right click: MUTE{nl}Grab the edge of the frame and move it"
+    btn:SetTextTooltip(text)
+    btn:SetGravity(ui.LEFT, ui.TOP)
+
+    btn:SetEventScript(ui.MOUSEON, "mini_addons_FRAME_MOVE_RESERVE")
+    btn:SetEventScript(ui.MOUSEOFF, "mini_addons_FRAME_MOVE_SAVE")
+
+    newframe:ShowWindow(1)
+    btn:SetEventScript(ui.RBUTTONUP, "mini_addons_SOUND_TOGGLE")
+    g.addon:RegisterMsg("FPS_UPDATE", "mini_addons_FPS_UPDATE")
+
+    local chaseinfo = ui.GetFrame("chaseinfo")
+    local openMark_quest = GET_CHILD_RECURSIVELY(chaseinfo, "openMark_quest")
+    AUTO_CAST(openMark_quest)
+    openMark_quest:SetEventScript(ui.RBUTTONDOWN, "mini_addons_QUESTINFO_TOGGLE")
+    local notice =
+        g.lang == "Japanese" and "{ol}Mini Addons{nl}右クリック: クエストの表示/非表示切替" or
+            "{ol}Mini Addons{nl}Right-click: Show/hide quests"
+    openMark_quest:SetTextTooltip(notice)
+end]] --[[function mini_addons_CHECK_DREAMY_ABYSS()
+    local slogutis = GET_CURRENT_ENTERANCE_COUNT(GetClassByType("Indun", 690).PlayPerResetType)
+    local upinis = GET_CURRENT_ENTERANCE_COUNT(GetClassByType("Indun", 687).PlayPerResetType)
+
+    local langcode = option.GetCurrentCountry()
+
+    if slogutis ~= upinis then
+        if langcode == "Japanese" then
+            if slogutis ~= 1 then
+                imcSound.PlayMusicQueueLocal("colonywar_win")
+                _G.imcAddOn.BroadMsg("NOTICE_Dm_Global_Shout", "{st47}スローガティスまだやってへんで？",
+                    5.0)
+                NICO_CHAT("{@st55_a}スローガティスまだやってへんで？")
+            elseif upinis ~= 1 then
+                imcSound.PlayMusicQueueLocal("colonywar_win")
+                _G.imcAddOn.BroadMsg("NOTICE_Dm_Global_Shout", "{st47}ウピニスまだやってへんで？", 5.0)
+                NICO_CHAT("{@st55_a}ウピニスまだやってへんで？")
+            end
+        else
+            if slogutis ~= 1 then
+                imcSound.PlayMusicQueueLocal("colonywar_win")
+                _G.imcAddOn.BroadMsg("NOTICE_Dm_Global_Shout", "{st47}I haven't done Abyss yet, okay?", 5.0)
+            elseif upinis ~= 1 then
+                imcSound.PlayMusicQueueLocal("colonywar_win")
+                _G.imcAddOn.BroadMsg("NOTICE_Dm_Global_Shout", "{st47}I haven't done Dreamy yet, okay?", 5.0)
+            end
+        end
+    end
+
+    local neringa = GET_CURRENT_ENTERANCE_COUNT(GetClassByType("Indun", 709).PlayPerResetType)
+    local golem = GET_CURRENT_ENTERANCE_COUNT(GetClassByType("Indun", 712).PlayPerResetType)
+
+    if neringa ~= golem then
+        if langcode == "Japanese" then
+            if neringa ~= 1 then
+                imcSound.PlayMusicQueueLocal("colonywar_win")
+                _G.imcAddOn.BroadMsg("NOTICE_Dm_Global_Shout", "{st47}ネリンガまだやってへんで？", 5.0)
+                NICO_CHAT("{@st55_a}ネリンガまだやってへんで？")
+            elseif golem ~= 1 then
+                imcSound.PlayMusicQueueLocal("colonywar_win")
+                _G.imcAddOn.BroadMsg("NOTICE_Dm_Global_Shout", "{st47}ゴーレムまだやってへんで？", 5.0)
+                NICO_CHAT("{@st55_a}ゴーレムまだやってへんで？")
+            end
+        else
+            if neringa ~= 1 then
+                imcSound.PlayMusicQueueLocal("colonywar_win")
+                _G.imcAddOn.BroadMsg("NOTICE_Dm_Global_Shout", "{st47}I haven't done Neringa yet, okay?", 5.0)
+            elseif golem ~= 1 then
+                imcSound.PlayMusicQueueLocal("colonywar_win")
+                _G.imcAddOn.BroadMsg("NOTICE_Dm_Global_Shout", "{st47}I haven't done Golem yet, okay?", 5.0)
+            end
+        end
+    end
+
 end]] 
