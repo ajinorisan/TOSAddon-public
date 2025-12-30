@@ -32,6 +32,7 @@ Tree of Savior 用のアドオンを作成・改変しています。
 <details>
 <summary>紹介画像 & 更新履歴 (Native Lang)</summary>
 
+*   v1.0.5 読み込み時の負荷を分散、Other Character Skill Listのコピーは重すぎて諦めた。チーム倉庫のバニラ挙動修正、Another Warehouseのjsonを爆速luaに変更。
 *   v1.0.4 No Checkゴミ箱フレーム修正、クエスト表示バグ修正、Indun List Viewer、Indun Panel、Other Character Skill ListのフレームをESCで消せる様に、Indun Panelの掃討ボタンのバグ修正。
 *   v1.0.3 MKC、PITフレームちらつき修正、AW自動設定修正、SSSドロップ挙動修正。
 *   v1.0.2 AlwaysStatus修正。セーブファイルのバージョン管理。quickslot_operate修正、ポーション持ってない場合アイコン赤表示に変更
