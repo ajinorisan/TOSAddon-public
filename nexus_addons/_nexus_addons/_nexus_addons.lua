@@ -18,10 +18,11 @@
 -- 1.0.4 NCのゴミ箱バグ修正、SQ SSSのクエスト表示バグ修正、IP ILV OCSL ESCキーで消える様に。IP掃討ボタンバグ修正。
 -- 1.0.4.1 読み込み時の負荷を分散、ocslがクソ重たかったの修正
 -- 1.0.5 チーム倉庫のバニラ挙動修正、AWHのjsonをluaに変更
+-- 1.0.6 ILVのloadにバージョン管理追加。AWH使ってない場合のインベントリの挙動修正。IP激動の核の掃討部分修正
 local addon_name = "_NEXUS_ADDONS"
 local addon_name_lower = string.lower(addon_name)
 local author = "norisan"
-local ver = "1.0.5"
+local ver = "1.0.6"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -5349,23 +5350,22 @@ function Indun_list_viewer_load_settings()
     g.ilv_path = string.format("../addons/%s/%s/indun_list_viewer.json", addon_name_lower, g.active_id)
     g.ilv_old_path = string.format("../addons/%s/%s/settings_2510.json", "indun_list_viewer", g.active_id)
     local settings = g.load_json(g.ilv_path)
+    local need_save = false
+    local ver = 1.1 -- ■ バージョン定義
     if not settings then
-        settings = {}
         local old_settings = g.load_json(g.ilv_old_path)
         if old_settings then
-            local final_settings = {
+            settings = {
                 options = old_settings.default_options or {},
                 display = old_settings.display_options or {},
-                chars = {}
+                chars = {},
+                ver = ver
             }
             for key, data in pairs(old_settings) do
-                if type(data) == "table" then
-                    if key ~= "default_options" and key ~= "display_options" then
-                        final_settings.chars[key] = data
-                    end
+                if type(data) == "table" and key ~= "default_options" and key ~= "display_options" then
+                    settings.chars[key] = data
                 end
             end
-            settings = final_settings
         else
             settings = {
                 options = {
@@ -5376,30 +5376,38 @@ function Indun_list_viewer_load_settings()
                 display = {
                     Memo = 1
                 },
-                chars = {}
+                chars = {},
+                ver = ver
             }
         end
+        need_save = true
     end
-    if not settings.display then
-        settings.display = {}
-    end
-    if not settings.display.Memo then
-        settings.display.Memo = 1
-    end
-    for _, info in pairs(g.ilv_RAID_INFO) do
-        if info.name then
-            local h_key = info.name .. "_H"
-            local s_key = info.name .. "_S"
-            if not settings.display[h_key] then
-                settings.display[h_key] = 1
-            end
-            if not settings.display[s_key] then
-                settings.display[s_key] = 1
+    if not settings.ver or settings.ver < ver then
+        if not settings.display then
+            settings.display = {}
+        end
+        if settings.display.Memo == nil then
+            settings.display.Memo = 1
+        end
+        for _, info in pairs(g.ilv_RAID_INFO) do
+            if info.name then
+                local h_key = info.name .. "_H"
+                local s_key = info.name .. "_S"
+                if settings.display[h_key] == nil then
+                    settings.display[h_key] = 1
+                end
+                if settings.display[s_key] == nil then
+                    settings.display[s_key] = 1
+                end
             end
         end
+        settings.ver = ver
+        need_save = true
     end
     g.ilv_settings = settings
-    Indun_list_viewer_save_settings()
+    if need_save then
+        Indun_list_viewer_save_settings()
+    end
 end
 
 function Indun_list_viewer_char_load_settings()
@@ -8349,7 +8357,12 @@ end
 
 function Another_warehouse_frame_close(parent, ctrl)
     Another_warehouse_ACCOUNTWAREHOUSE_CLOSE()
-    INVENTORY_SET_CUSTOM_RBTNDOWN("ACCOUNT_WAREHOUSE_INV_RBTN")
+    local accountwarehouse = ui.GetFrame('accountwarehouse')
+    if accountwarehouse:IsVisible() == 1 then
+        INVENTORY_SET_CUSTOM_RBTNDOWN("ACCOUNT_WAREHOUSE_INV_RBTN")
+    else
+        INVENTORY_SET_CUSTOM_RBTNDOWN("None")
+    end
     ui.DestroyFrame(addon_name_lower .. "awh")
     local accountwarehouse = ui.GetFrame("accountwarehouse")
     local accountwarehousefilter = GET_CHILD_RECURSIVELY(accountwarehouse, "accountwarehousefilter")
@@ -8392,7 +8405,12 @@ function Another_warehouse_OPEN_DLG_ACCOUNTWAREHOUSE()
         Another_warehouse_load_cid_settings()
     end
     if g.settings.another_warehouse.use == 0 then
-        INVENTORY_SET_CUSTOM_RBTNDOWN("ACCOUNT_WAREHOUSE_INV_RBTN")
+        local accountwarehouse = ui.GetFrame('accountwarehouse')
+        if accountwarehouse:IsVisible() == 1 then
+            INVENTORY_SET_CUSTOM_RBTNDOWN("ACCOUNT_WAREHOUSE_INV_RBTN")
+        else
+            INVENTORY_SET_CUSTOM_RBTNDOWN("None")
+        end
         return
     end
     local monstercardslot = ui.GetFrame("monstercardslot")
@@ -11939,6 +11957,7 @@ function cc_helper_on_init()
     g.setup_hook_and_event(g.addon, "ACCOUNTWAREHOUSE_CLOSE", "Cc_helper_ACCOUNTWAREHOUSE_CLOSE", true)
     g.setup_hook_and_event(g.addon, "INVENTORY_CLOSE", "Cc_helper_INVENTORY_CLOSE", true)
     -- g.setup_hook_and_event(g.addon, "INVENTORY_SET_CUSTOM_RBTNDOWN", "Cc_helper_INVENTORY_SET_CUSTOM_RBTNDOWN", true)
+    -- g.setup_hook_and_event(g.addon, "ACCOUNT_WAREHOUSE_INV_RBTN", "Cc_helper_ACCOUNT_WAREHOUSE_INV_RBTN", true)
     if g.get_map_type() == "City" then
         g.addon:RegisterMsg("OPEN_DLG_ACCOUNTWAREHOUSE", "Cc_helper_frame_init")
     end
@@ -11948,7 +11967,12 @@ function cc_helper_on_init()
     end
 end
 
---[[function Cc_helper_INVENTORY_SET_CUSTOM_RBTNDOWN(my_frame, my_msg)
+--[[function Cc_helper_ACCOUNT_WAREHOUSE_INV_RBTN(my_frame, my_msg)
+    local itemObj, slot = g.get_event_args(my_msg)
+    ts(slot, my_msg)
+end
+
+function Cc_helper_INVENTORY_SET_CUSTOM_RBTNDOWN(my_frame, my_msg)
     local scriptName = g.get_event_args(my_msg)
     ts(scriptName)
 end]]
@@ -12405,7 +12429,12 @@ function Cc_helper_setting_frame_close(cch_setting)
             return
         end
     else
-        INVENTORY_SET_CUSTOM_RBTNDOWN("ACCOUNT_WAREHOUSE_INV_RBTN")
+        local accountwarehouse = ui.GetFrame('accountwarehouse')
+        if accountwarehouse:IsVisible() == 1 then
+            INVENTORY_SET_CUSTOM_RBTNDOWN("ACCOUNT_WAREHOUSE_INV_RBTN")
+        else
+            INVENTORY_SET_CUSTOM_RBTNDOWN("None")
+        end
     end
 end
 
@@ -16674,7 +16703,11 @@ function Indun_panel_raid_itemuse(indun_panel, ctrl, str, indun_type)
     if indun_cls then
         enter_count = GET_CURRENT_ENTERANCE_COUNT(indun_cls.PlayPerResetType) or 0
     end
-    local is_limit_reached = (enter_count >= 2)
+    local limit_count = 2
+    if indun_type == 673 or indun_type == 676 then
+        limit_count = 4
+    end
+    local is_limit_reached = (enter_count >= limit_count)
     local sweep_count = Indun_panel_sweep_count(buff_id)
     local ticket_item = nil
     if target_items then

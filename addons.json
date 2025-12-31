@@ -3,11 +3,31 @@
     "name": "Nexus Addons",
     "file": "nexus_addons",
     "extension": "ipf",
-    "fileVersion": "v1.0.5",
+    "fileVersion": "v1.0.6",
     "releaseTag": "nexus_addons",
     "unicode": "⛄",
     "description": "ゲーム内アドオンマネージャー 40種類以上のアドオンの詰合せ<br>In-game Addon Manager: A collection of over 40 types of addons<br>인게임 애드온 매니저: 40종류 이상의 애드온 모음<br>Contact information Discode<br>https://discord.gg/StaAcH8F",
     "tags": ["ajinori", "ajinorisan", "nexus", "addons"]
+  },
+  {
+    "name": "Native Lang",
+    "file": "native_lang",
+    "extension": "ipf",
+    "fileVersion": "v1.1.4",
+    "releaseTag": "native_lang",
+    "unicode": "⛄",
+    "description": "tar file location<br>https://github.com/ajinorisan/TOSAddon-public/tree/main/native_lang<br>キャラクター名、露店名、チャットを翻訳します。動作にchrome必要です。アドオン単体では機能しません。tarファイルをダウンロードしてアドオンフォルダに置いてください。<br>Translates character names, stall names, and chat. Requires chrome to run. Add-on by itself does not work. tar file must be downloaded and placed in add-on folder.<br>캐릭터명, 상점명, 채팅을 번역합니다. 작동하려면 chrome이 필요합니다. 애드온만으로는 작동하지 않습니다. tar 파일을 다운로드하여 애드온 폴더에 넣어주세요.",
+    "tags": ["ajinori", "ajinorisan"]
+  },
+  {
+    "name": "Mini Addons",
+    "file": "mini_addons",
+    "extension": "ipf",
+    "fileVersion": "v1.8.0",
+    "releaseTag": "mini_addons",
+    "unicode": "⛄",
+    "description": "Wide monitor supported<br>v1.7.4で設定フレームの場所を変更しました。コロニーの時の街で復活のタイマーを修正。色々と便利です。<br>In v1.7.4, the location of the settings frame has been changed. The revival timer in the Colony city has also been fixed, making various things more convenient.<br>v1.7.4에서 설정 프레임의 위치를 변경했습니다. 콜로니 지역의 도시에서 부활 타이머를 수정하여 여러모로 편리해졌습니다.",
+    "tags": ["ajinori", "ajinorisan", "mini", "Mini"]
   },
   {
     "name": "KL count",
@@ -77,16 +97,6 @@
     "releaseTag": "pick_item_tracker",
     "unicode": "⛄",
     "description": "BetterPickQueue オマージュ。必要最小限の情報を表示するシンプル版です。<br>BetterPickQueue Homage. A simple version that displays the minimum necessary information.<br>BetterPickQueue 오마주. 필요한 최소한의 정보만 표시하는 심플한 버전입니다.",
-    "tags": ["ajinori", "ajinorisan"]
-  },
-  {
-    "name": "Native Lang",
-    "file": "native_lang",
-    "extension": "ipf",
-    "fileVersion": "v1.1.4",
-    "releaseTag": "native_lang",
-    "unicode": "⛄",
-    "description": "tar file location<br>https://github.com/ajinorisan/TOSAddon-public/tree/main/native_lang<br>キャラクター名、露店名、チャットを翻訳します。動作にchrome必要です。アドオン単体では機能しません。tarファイルをダウンロードしてアドオンフォルダに置いてください。<br>Translates character names, stall names, and chat. Requires chrome to run. Add-on by itself does not work. tar file must be downloaded and placed in add-on folder.<br>캐릭터명, 상점명, 채팅을 번역합니다. 작동하려면 chrome이 필요합니다. 애드온만으로는 작동하지 않습니다. tar 파일을 다운로드하여 애드온 폴더에 넣어주세요.",
     "tags": ["ajinori", "ajinorisan"]
   },
   {
@@ -199,16 +209,6 @@
     "unicode": "⛄",
     "description": "キャラ毎に最後に連れていたペットを自動で召喚します。<br>Each character automatically summons the last pet they had with them.<br>캐릭터마다 마지막으로 데리고 있던 펫을 자동으로 소환합니다.",
     "tags": ["ajinori", "ajinorisan"]
-  },
-  {
-    "name": "Mini Addons",
-    "file": "mini_addons",
-    "extension": "ipf",
-    "fileVersion": "v1.7.9",
-    "releaseTag": "mini_addons",
-    "unicode": "⛄",
-    "description": "Wide monitor supported<br>v1.7.4で設定フレームの場所を変更しました。コロニーの時の街で復活のタイマーを修正。色々と便利です。<br>In v1.7.4, the location of the settings frame has been changed. The revival timer in the Colony city has also been fixed, making various things more convenient.<br>v1.7.4에서 설정 프레임의 위치를 변경했습니다. 콜로니 지역의 도시에서 부활 타이머를 수정하여 여러모로 편리해졌습니다.",
-    "tags": ["ajinori", "ajinorisan", "mini", "Mini"]
   },
   {
     "name": "Goddess Icor Manager",
