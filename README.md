@@ -32,6 +32,7 @@ Tree of Savior 用のアドオンを作成・改変しています。
 <details>
 <summary>紹介画像 & 更新履歴 (Native Lang)</summary>
 
+*   v1.0.7 Indun Panel表示速度変更。Character Change Helper自動着脱ロジックを見直し。Indun List Viewer最初回のロード処理変更。Sub Slotsetスキルフレーム表示時の挙動変更。競合アドオン有効時の排他処理を厳格化。
 *   v1.0.6 Indun List Viewerのloadにバージョン管理追加。Another Warehouse使ってない場合のインベントリの挙動修正。Indun Panel激動の核の掃討部分修正
 *   v1.0.5 読み込み時の負荷を分散、Other Character Skill Listのコピーは重すぎて諦めた。チーム倉庫のバニラ挙動修正、Another Warehouseのjsonを爆速luaに変更。
 *   v1.0.4 No Checkゴミ箱フレーム修正、クエスト表示バグ修正、Indun List Viewer、Indun Panel、Other Character Skill ListのフレームをESCで消せる様に、Indun Panelの掃討ボタンのバグ修正。
