@@ -21,10 +21,11 @@
 -- 1.0.6 ILVのloadにバージョン管理追加。AWH使ってない場合のインベントリの挙動修正。IP激動の核の掃討部分修正
 -- 1.0.7 IPの表示読込優先。CCH自動着脱を見直し。ILV最初回のロード処理変更。SSSスキルフレーム表示時の挙動変更。競合アドオン有効時の排他処理を厳格化。
 -- 1.0.8 CCH自動着脱更に見直し、フレーム作成修正、AWHのセッティング時の挙動見直し、VEのバグ修正。ICC掃討バフ12時間以下で表示。ARフレーム非表示に変更。IPフレーム挙動修正、NCのフレームボタン修正。
+-- 1.0.9 Mutekiゲージ位置修正、ESCの挙動修正。IPベリオラアイコン修正。AR再修正。CCHロード修正。ILV掃討バフ12時間以下で表示。
 local addon_name = "_NEXUS_ADDONS"
 local addon_name_lower = string.lower(addon_name)
 local author = "norisan"
-local ver = "1.0.8"
+local ver = "1.0.9"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -1316,7 +1317,7 @@ function _nexus_addons_update_frames(_nexus_addons)
     end
     local frames_to_check = {"always_status", "pick_item_tracker", "monster_kill_count", "debuff_notice",
                              "guild_event_warp", "lets_go_home", "relic_change", "vakarine_equip", "sub_map",
-                             "save_quest", "indun_panel", "Battle_ritual"}
+                             "save_quest", "indun_panel", "Battle_ritual", "muteki"}
     for _, frame_key in ipairs(frames_to_check) do
         local frame_name = addon_name_lower .. frame_key
         local frame = ui.GetFrame(frame_name)
@@ -1421,23 +1422,30 @@ function Another_warehouse_load_settings()
 end
 
 function Another_warehouse_load_cid_settings()
-    local old_settings = g.load_json(g.another_warehouse_old_path)
-    if old_settings and old_settings[g.cid] then
-        g.awh_settings.chars[g.cid] = old_settings[g.cid]
-        if g.awh_settings.chars[g.cid].transfer then
-            g.awh_settings.chars[g.cid].transfer = nil
-        end
-        if g.awh_settings.chars[g.cid].maney_check then
-            g.awh_settings.chars[g.cid].money_check = g.awh_settings.chars[g.cid].maney_check
-            g.awh_settings.chars[g.cid].maney_check = nil
-        end
+    local json_path = string.format("../addons/%s/%s/another_warehouse.json", addon_name_lower, g.active_id)
+    local json_settings = g.load_json(json_path)
+    if json_settings and json_settings.chars and json_settings.chars[g.cid] then
+        g.awh_settings.chars[g.cid] = json_settings.chars[g.cid]
     else
-        g.awh_settings.chars[g.cid] = {
-            money_check = 0,
-            name = g.login_name,
-            item_check = 0,
-            items = {}
-        }
+        local old_settings = g.load_json(g.another_warehouse_old_path)
+        if old_settings and old_settings[g.cid] then
+            g.awh_settings.chars[g.cid] = old_settings[g.cid]
+            local char_data = g.awh_settings.chars[g.cid]
+            if char_data.transfer then
+                char_data.transfer = nil
+            end
+            if char_data.maney_check then
+                char_data.money_check = char_data.maney_check
+                char_data.maney_check = nil
+            end
+        else
+            g.awh_settings.chars[g.cid] = {
+                money_check = 0,
+                name = g.login_name,
+                item_check = 0,
+                items = {}
+            }
+        end
     end
     Another_warehouse_save_settings()
 end
@@ -4269,71 +4277,8 @@ function Cc_helper_load_settings()
     end
 end
 
---[[function Cc_helper_save_settings()
-    g.save_json(g.cc_helper_path, g.cc_helper_settings)
-end
-
-function Cc_helper_load_settings()
-    g.cc_helper_path = string.format("../addons/%s/%s/cc_helper.json", addon_name_lower, g.active_id, g.cid)
-    local settings = g.load_json(g.cc_helper_path)
-    if not settings then
-        settings = {
-            etc = {
-                eco = 0,
-                agm_stop = 0,
-                wh_close = 0,
-                copys = {}
-            }
-        }
-        local old_copy_path = string.format("../addons/%s/%s/%s_copy.json", "cc_helper", g.active_id, g.active_id)
-        local copy_settings = g.load_json(old_copy_path)
-        if copy_settings then
-            local item_keys = {"seal", "ark", "leg", "god", "hair1", "hair2", "hair3", "gem1", "gem2", "gem3", "gem4",
-                               "pet", "core", "relic"}
-            local item_key_map = {}
-            for _, key in ipairs(item_keys) do
-                item_key_map[key] = true
-            end
-            for cid, char_data in pairs(copy_settings) do
-                if type(char_data) == "table" and next(char_data) then
-                    settings.etc.copys[cid] = {
-                        items = {}
-                    }
-                    for key, value in pairs(char_data) do
-                        if type(value) == "table" then
-                            if item_key_map[key] then
-                                settings.etc.copys[cid].items[key] = {}
-                                for k, v in pairs(value) do
-                                    if k == "memo" then
-                                        local result = StringSplit(v, ":::")
-                                        if #result > 0 then
-                                            if string.find(key, "hair") then
-                                                settings.etc.copys[cid].items[key].rank = result[#result]
-                                                table.remove(result, #result)
-                                                settings.etc.copys[cid].items[key].option = table.concat(result, ":::")
-                                            elseif key == "pet" then
-                                                settings.etc.copys[cid].items[key].option = result[#result]
-                                            end
-                                        end
-                                    elseif k ~= "skin" then
-                                        settings.etc.copys[cid].items[key][k] = v
-                                    end
-                                end
-                            end
-                        else
-                            settings.etc.copys[cid][key] = value
-                        end
-                    end
-                end
-            end
-        end
-    end
-    g.cc_helper_settings = settings
-    Cc_helper_save_settings()
-end]]
-
 function Cc_helper_char_load_settings()
-    local settings = g.load_json(g.cc_helper_path)
+    local settings = g.load_lua(g.cc_helper_path)
     if not settings[g.cid] then
         settings[g.cid] = {
             agm = 0,
@@ -5274,7 +5219,10 @@ function Cc_helper_unequip(in_btn)
             if setting_data.iesid and setting_data.iesid ~= "0" then
                 local inv_item = session.GetInvItemByGuid(setting_data.iesid)
                 if inv_item == nil then
-                    return 1
+                    local equip_item = session.GetEquipItemByGuid(setting_data.iesid)
+                    if equip_item ~= nil then
+                        return 1
+                    end
                 end
             end
         end
@@ -7411,8 +7359,14 @@ function other_character_skill_list_on_init()
     end
     g.setup_hook_and_event(g.addon, "INVENTORY_OPEN", "Other_character_skill_list_save_enchant", true)
     g.setup_hook_and_event(g.addon, "INVENTORY_CLOSE", "Other_character_skill_list_save_enchant", true)
-    g.setup_hook_and_event(g.addon, "APPS_TRY_MOVE_BARRACK", "Other_character_skill_list_save_enchant", true)
+    g.setup_hook(Other_character_skill_list_APPS_TRY_MOVE_BARRACK, "APPS_TRY_MOVE_BARRACK")
+    -- g.setup_hook_and_event(g.addon, "APPS_TRY_MOVE_BARRACK", "Other_character_skill_list_save_enchant", true)
     g.addon:RegisterMsg("ESCAPE_PRESSED", "Other_character_skill_list_ESCAPE_PRESSED")
+end
+
+function Other_character_skill_list_APPS_TRY_MOVE_BARRACK()
+    Other_character_skill_list_save_enchant()
+    g.FUNCS["APPS_TRY_MOVE_BARRACK"]()
 end
 
 function Other_character_skill_list_save_enchant()
@@ -8564,7 +8518,7 @@ function Muteki_buff_frame_init()
         muteki:StopUpdateScript("_FRAME_AUTOPOS")
     else
         local handle = session.GetMyHandle()
-        FRAME_AUTO_POS_TO_OBJ(muteki, handle, muteki:GetWidth() - 175, 50, 3, 1)
+        FRAME_AUTO_POS_TO_OBJ(muteki, handle, muteki:GetWidth() - 145, 50, 3, 1)
         g.muteki_settings.etc.lock = 0
         Muteki_save_settings()
         local settings = ui.GetFrame(addon_name_lower .. "muteki_settings")
@@ -10886,7 +10840,7 @@ function instant_cc_on_init()
         _G["INSTANTCC_DO_CC"] = Instant_cc_do_cc
         _G["INSTANTCC_APPS_TRY_MOVE_BARRACK"] = Instant_cc_APPS_TRY_MOVE_BARRACK_
     end
-    g.addon:RegisterMsg("EXPIREDITEM_ALERT_OPEN", "Instant_cc_EXPIREDITEM_ALERT_ON_MSG")
+    -- g.addon:RegisterMsg("EXPIREDITEM_ALERT_OPEN", "Instant_cc_EXPIREDITEM_ALERT_ON_MSG")
     local acc_info = session.barrack.GetMyAccount()
     local barrack_count = acc_info:GetBarrackPCCount() -- ゲーム起動直後はtonumber(0)
     Instant_cc_save_char_data(acc_info, barrack_count)
@@ -11171,7 +11125,8 @@ function Instant_cc_do_cc(cid, layer)
             layer = layer
         }
     end
-    if ui.CheckHoldedUI() == true then
+    g.FUNCS["APPS_TRY_LEAVE"]("Barrack")
+    --[[if ui.CheckHoldedUI() == true then
         ui.SysMsg(ClMsg("CantDoThatCuzDoingSomething"))
         return
     end
@@ -11188,6 +11143,7 @@ function Instant_cc_do_cc(cid, layer)
     g.instant_cc_sweep_tbl = {}
     local my_handle = session.GetMyHandle()
     local limit_time_ms = 12 * 60 * 60 * 1000
+
     for _, buff_id in ipairs(sweep_buffs) do
         local buff_info = info.GetBuff(my_handle, buff_id)
         if buff_info and buff_info.time <= limit_time_ms then
@@ -11203,7 +11159,7 @@ function Instant_cc_do_cc(cid, layer)
         return
     else
         g.FUNCS["APPS_TRY_LEAVE"]("Barrack")
-    end
+    end]]
 end
 
 function Instant_cc_start()
@@ -11516,47 +11472,51 @@ function indun_list_viewer_on_init()
     g.setup_hook_and_event(g.addon, "STATUS_SELET_REPRESENTATION_CLASS",
         "Indun_list_viewer_STATUS_SELET_REPRESENTATION_CLASS", true)
     g.setup_hook(Indun_list_viewer_APPS_TRY_LEAVE, "APPS_TRY_LEAVE")
-    -- g.setup_hook_and_event(g.addon, "APPS_TRY_LEAVE", "Indun_list_viewer_save_current_char_counts", true)
+    -- g.setup_hook_and_event(g.addon, "APPS_TRY_LEAVE", "Indun_list_viewer_APPS_TRY_LEAVE", true)
+end
+
+function Indun_list_viewer_APPS_TRY_MOVE_BARRACK()
+    Indun_list_viewer_APPS_TRY_LEAVE("Barrack")
 end
 
 function Indun_list_viewer_APPS_TRY_LEAVE(type)
-    if g.get_map_type() ~= "City" then
+    if g.get_map_type() == "City" then
+        Indun_list_viewer_save_current_char_counts()
+    end
+    --[[local use_instant_cc = (g.settings and g.settings.instant_cc and g.settings.instant_cc.use == 1)
+    if use_instant_cc then
         if g.FUNCS["APPS_TRY_LEAVE"] then
             g.FUNCS["APPS_TRY_LEAVE"](type)
         end
         return
+    end]]
+    local expireditem_alert = ui.GetFrame("expireditem_alert")
+    local near_future_sec = tonumber(expireditem_alert:GetUserConfig("NearFutureSec"))
+    local need_item = false
+    local need_token = false
+    if near_future_sec then
+        local list = GET_SCHEDULED_TO_EXPIRED_ITEM_LIST(near_future_sec)
+        need_item = (list ~= nil and #list > 0)
+        need_token = IS_NEED_TO_ALERT_TOKEN_EXPIRATION(near_future_sec)
     end
-    Indun_list_viewer_save_current_char_counts()
-    local use_instant_cc = (g.settings and g.settings.instant_cc and g.settings.instant_cc.use == 1)
-    if not use_instant_cc or (type ~= "Barrack") then
-        local expireditem_alert = ui.GetFrame("expireditem_alert")
-        local near_future_sec = tonumber(expireditem_alert:GetUserConfig("NearFutureSec"))
-        local need_item = false
-        local need_token = false
-        if near_future_sec then
-            local list = GET_SCHEDULED_TO_EXPIRED_ITEM_LIST(near_future_sec)
-            need_item = (list ~= nil and #list > 0)
-            need_token = IS_NEED_TO_ALERT_TOKEN_EXPIRATION(near_future_sec)
+    local sweep_buffs = {80045, 80043, 80039, 80035, 80037, 80032, 80031, 80030, 80015, 80017, 80016}
+    local sweep_tbl = {}
+    local my_handle = session.GetMyHandle()
+    local limit_time_ms = 12 * 60 * 60 * 1000
+    for _, buff_id in ipairs(sweep_buffs) do
+        local buff_info = info.GetBuff(my_handle, buff_id)
+        if buff_info and buff_info.time <= limit_time_ms then
+            table.insert(sweep_tbl, {
+                buff_over = buff_info.over,
+                buff_time = buff_info.time,
+                buff_id = buff_id
+            })
         end
-        local sweep_buffs = {80045, 80043, 80039, 80035, 80037, 80032, 80031, 80030, 80015, 80017, 80016}
-        local sweep_tbl = {}
-        local my_handle = session.GetMyHandle()
-        local limit_time_ms = 12 * 60 * 60 * 1000
-        for _, buff_id in ipairs(sweep_buffs) do
-            local buff_info = info.GetBuff(my_handle, buff_id)
-            if buff_info and buff_info.time <= limit_time_ms then
-                table.insert(sweep_tbl, {
-                    buff_over = buff_info.over,
-                    buff_time = buff_info.time,
-                    buff_id = buff_id
-                })
-            end
-        end
-        if need_item or need_token or #sweep_tbl > 0 then
-            g.instant_cc_sweep_tbl = sweep_tbl
-            imcAddOn.BroadMsg("EXPIREDITEM_ALERT_OPEN", type, 0)
-            return
-        end
+    end
+    if need_item or need_token or #sweep_tbl > 0 then
+        g.indun_list_viewer_sweep_tbl = sweep_tbl
+        imcAddOn.BroadMsg("EXPIREDITEM_ALERT_OPEN", type, 0)
+        return
     end
     if g.FUNCS["APPS_TRY_LEAVE"] then
         g.FUNCS["APPS_TRY_LEAVE"](type)
@@ -11604,6 +11564,83 @@ function Indun_list_viewer_EXPIREDITEM_ALERT_ON_MSG(frame, msg, str, num)
     if expireditem_alert then
         expireditem_alert:SetLayerLevel(100)
     end
+    if msg == "EXPIREDITEM_ALERT_OPEN" then
+        Indun_list_viewer_EXPIREDITEM_ALERT_OPEN(frame, str)
+        return
+    end
+end
+
+function Indun_list_viewer_EXPIREDITEM_ALERT_OPEN(frame, arg_str)
+    local expireditem_alert = ui.GetFrame("expireditem_alert")
+    local near_future_sec = tonumber(expireditem_alert:GetUserConfig("NearFutureSec"))
+    local itemlist = GET_CHILD(expireditem_alert, "itemlist", "ui::CGroupBox")
+    itemlist:RemoveAllChild()
+    local start_index = 0
+    local ypos = 0
+    if g.indun_list_viewer_sweep_tbl then
+        for key, data in ipairs(g.indun_list_viewer_sweep_tbl) do
+            if type(data) == "table" then
+                local ctrlset = itemlist:CreateOrGetControlSet("expireditem_ctrlset",
+                    "expireditem_ctrlset" .. start_index + 1, 0, ypos)
+                AUTO_CAST(ctrlset)
+                local name = GET_CHILD_RECURSIVELY(ctrlset, "name", "ui::CRichText")
+                local expiration_time = GET_CHILD_RECURSIVELY(ctrlset, "expirationTime", "ui::CRichText")
+                local remaining_time = GET_CHILD_RECURSIVELY(ctrlset, "remainingTime", "ui::CRichText")
+                local item_pic = GET_CHILD_RECURSIVELY(ctrlset, "item_pic", "ui::CPicture")
+                local buff_cls = GetClassByType("Buff", data.buff_id)
+                if buff_cls then
+                    name:SetTextByKey("itemname", buff_cls.Name)
+                    local icon_name = "icon_" .. buff_cls.Icon
+                    item_pic:SetImage(icon_name)
+                end
+                local expiration_systime = geTime.GetServerSystemTime()
+                expiration_systime = imcTime.AddSec(expiration_systime, data.buff_time / 1000)
+                expiration_time:SetTextByKey("year", expiration_systime.wYear)
+                expiration_time:SetTextByKey("month", GET_TWO_DIGIT_STR(expiration_systime.wMonth))
+                expiration_time:SetTextByKey("day", GET_TWO_DIGIT_STR(expiration_systime.wDay))
+                local buff_time = data.buff_time / 1000
+                local days = math.floor(buff_time / 86400)
+                local hours = math.floor((buff_time % 86400) / 3600)
+                local mins = math.floor(((buff_time % 86400) % 3600) / 60)
+                local sec = ((buff_time % 86400) % 3600) % 60
+                local dif_sec_msg = ""
+                if days > 0 then
+                    dif_sec_msg = ScpArgMsg("{Day}Day{Hour}Hour{Min}Min", "Day", days, "Hour", hours, "Min", mins)
+                elseif hours > 0 then
+                    dif_sec_msg = ScpArgMsg("{Hour}Hour{Min}Min{Sec}Sec", "Hour", hours, "Min", mins, "Sec", sec)
+                elseif mins > 0 then
+                    dif_sec_msg = ScpArgMsg("{Min}Min{Sec}Sec", "Min", mins, "Sec", sec)
+                else
+                    dif_sec_msg = ScpArgMsg("{Sec}Sec", "Sec", sec)
+                end
+                remaining_time:SetText(dif_sec_msg)
+                local time_parent = remaining_time:GetParent()
+                local amend_h = remaining_time:GetY() + remaining_time:GetHeight()
+                if amend_h < time_parent:GetHeight() then
+                    amend_h = ctrlset:GetHeight()
+                else
+                    local addedHeight = amend_h - time_parent:GetHeight()
+                    ctrlset:Resize(ctrlset:GetWidth(), ctrlset:GetHeight() + addedHeight)
+                end
+                ypos = ypos + ctrlset:GetHeight()
+                start_index = start_index + 1
+            end
+        end
+    end
+    if IS_NEED_TO_ALERT_TOKEN_EXPIRATION(near_future_sec, itemlist) then
+        ypos = ASK_EXPIREDITEM_ALERT_TOKEN(expireditem_alert, itemlist, start_index, ypos)
+        start_index = start_index + 1
+    end
+    local list = GET_SCHEDULED_TO_EXPIRED_ITEM_LIST(near_future_sec)
+    if list and #list >= 1 then
+        ypos = ASK_EXPIREDITEM_ALERT_LIFETIME(expireditem_alert, itemlist, near_future_sec, start_index, ypos)
+        start_index = start_index + #list
+    end
+    expireditem_alert:Resize(expireditem_alert:GetWidth(), expireditem_alert:GetOriginalHeight() + itemlist:GetHeight())
+    if arg_str then
+        expireditem_alert:SetUserValue("TimerType", arg_str)
+    end
+    expireditem_alert:ShowWindow(1)
 end
 
 function Indun_list_viewer_raid_reset_reserve()
@@ -11929,7 +11966,7 @@ function Indun_list_viewer_title_frame_open()
     AUTO_CAST(cc_button)
     cc_button:SetSkinName("None")
     cc_button:SetText("{img barrack_button_normal 30 30}")
-    cc_button:SetEventScript(ui.LBUTTONUP, "APPS_TRY_MOVE_BARRACK")
+    cc_button:SetEventScript(ui.LBUTTONUP, "Indun_list_viewer_APPS_TRY_MOVE_BARRACK")
     local config_btn = title_gb:CreateOrGetControl("button", "config_btn", 75, 5, 30, 30)
     AUTO_CAST(config_btn)
     config_btn:SetSkinName("None")
@@ -15658,7 +15695,7 @@ local induns = {{
         a = 725,
         ac = 80045,
         jp = "ベリオラ",
-        icon = {"Monster", 71040}
+        icon = {"Monster", 71043}
     }
 }, {
     laimara = {
@@ -25656,6 +25693,10 @@ function auto_repair_on_init()
     if _G[old_func] then
         return
     end
+    local durnotify = ui.GetFrame("durnotify")
+    if durnotify and durnotify:IsVisible() == 1 then
+        durnotify:Resize(0, 0)
+    end
     g.setup_hook_and_event(g.addon, "DURNOTIFY_UPDATE", "Auto_repair_DURNOTIFY_UPDATE", false)
     if g.get_map_type() == "City" then
         local auto_repair_item = session.GetInvItemByType(g.auto_repair.item_cls_id)
@@ -25795,7 +25836,9 @@ function Auto_repair_DURNOTIFY_UPDATE(my_frame, my_msg)
         g.FUNCS["DURNOTIFY_UPDATE"](frame, notOpenFrame)
         return
     end
-    frame:ShowWindow(0)
+    if frame and frame:IsVisible() == 0 then
+        frame:ShowWindow(1)
+    end
     local slot_set = GET_CHILD_RECURSIVELY(frame, 'slotlist', 'ui::CSlotSet')
     slot_set:ClearIconAll()
     for i = 0, slot_set:GetSlotCount() - 1 do
@@ -25810,7 +25853,7 @@ function Auto_repair_DURNOTIFY_UPDATE(my_frame, my_msg)
         local spot = item.GetEquipSpotName(equip_item.equipSpot)
         local slot_cnt = imcSlot:GetFilledSlotCount(slot_set)
         local temp_obj = equip_item:GetObject()
-        if temp_obj ~= nil then
+        if temp_obj then
             local obj = GetIES(temp_obj)
             if IS_DUR_UNDER_10PER(obj) == true then
                 local color_tone = "FF999900"

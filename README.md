@@ -32,6 +32,12 @@ Tree of Savior 用のアドオンを作成・改変しています。
 <details>
 <summary>紹介画像 & 更新履歴 (Nexus Addons)</summary>
 
+*   **v1.0.9**
+    *   Muteki: ゲージ位置修正、ESCボタン挙動修正。
+    *   Indun Panel: ベリオラアイコン修正。
+    *   Auto Repair: 再修正。
+    *   Indun List Viewer: 掃討のお知らせを12時間以下のみに再修正。
+    *   Character Change Helper: 保存データロード修正。
 *   **v1.0.8**
     *   Character Change Helper: 自動着脱ロジックを再度見直し。
     *   Another Warehouse: 設定入替えなど修正。
