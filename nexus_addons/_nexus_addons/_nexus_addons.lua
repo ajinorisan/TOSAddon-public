@@ -19,10 +19,12 @@
 -- 1.0.4.1 読み込み時の負荷を分散、ocslがクソ重たかったの修正
 -- 1.0.5 チーム倉庫のバニラ挙動修正、AWHのjsonをluaに変更
 -- 1.0.6 ILVのloadにバージョン管理追加。AWH使ってない場合のインベントリの挙動修正。IP激動の核の掃討部分修正
+-- 1.0.7 IPの表示読込優先。CCH自動着脱を見直し。ILV最初回のロード処理変更。SSSスキルフレーム表示時の挙動変更。競合アドオン有効時の排他処理を厳格化。
+-- 1.0.8 CCH自動着脱更に見直し、フレーム作成修正、AWHのセッティング時の挙動見直し、VEのバグ修正。ICC掃討バフ12時間以下で表示。ARフレーム非表示に変更。IPフレーム挙動修正、NCのフレームボタン修正。
 local addon_name = "_NEXUS_ADDONS"
 local addon_name_lower = string.lower(addon_name)
 local author = "norisan"
-local ver = "1.0.6"
+local ver = "1.0.8"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -250,7 +252,7 @@ g._nexus_addons = {{
         name = "Aethergem Manager",
         frame_use = false,
         config_func = "",
-        old_init_func = "KLCOUNT_ON_INIT"
+        old_init_func = "AETHERGEM_MGR_ON_INIT"
     }
 }, {
     key = "acquire_relic_reward",
@@ -601,7 +603,7 @@ g._nexus_addons = {{
         name = "Separate Buff Custom",
         frame_use = true,
         config_func = "Separate_buff_custom_settings",
-        old_init_func = "SUB_MAP_ON_INIT"
+        old_init_func = ""
     }
 }, {
     key = "silent_velnice_ranking",
@@ -896,11 +898,27 @@ function _nexus_addons_save_settings()
 end
 
 function _nexus_addons_load_settings()
-    local settings, err = g.load_json(g.settings_path)
+    local settings = g.load_json(g.settings_path)
     if not settings then
         settings = {}
     end
     local changed = false
+    local valid_keys = {}
+    for _, entry in ipairs(g._nexus_addons) do
+        valid_keys[entry.key] = true
+    end
+    for key, _ in pairs(settings) do
+        if not valid_keys[key] then
+            settings[key] = nil
+            changed = true
+        end
+    end
+    local force_update_keys = {
+        name = true,
+        config_func = true,
+        frame_use = true,
+        old_init_func = true
+    }
     for _, entry in ipairs(g._nexus_addons) do
         local key = entry.key
         local default_data = entry.data
@@ -913,6 +931,9 @@ function _nexus_addons_load_settings()
         elseif type(settings[key]) == "table" then
             for k, v in pairs(default_data) do
                 if settings[key][k] == nil then
+                    settings[key][k] = v
+                    changed = true
+                elseif force_update_keys[k] and settings[key][k] ~= v then
                     settings[key][k] = v
                     changed = true
                 end
@@ -942,7 +963,6 @@ function _NEXUS_ADDONS_ON_INIT(addon, frame)
         g.mkdir_new_folder()
         g.folders_created = true
     end
-    _nexus_addons_load_settings()
     g.login_name = session.GetMySession():GetPCApc():GetName()
     g.map_name = session.GetMapName()
     g.map_id = session.GetMapID()
@@ -951,7 +971,6 @@ function _NEXUS_ADDONS_ON_INIT(addon, frame)
     g.REGISTER = {}
     addon:RegisterMsg('GAME_START', '_nexus_addons_GAME_START')
     addon:RegisterMsg('GAME_START_3SEC', '_nexus_addons_GAME_START_3SEC')
-    addon:RegisterMsg('FPS_UPDATE', '_nexus_addons_update_frames')
     g.setup_hook(_nexus_addons_CHAT_SYSTEM, "CHAT_SYSTEM")
 end
 
@@ -1092,6 +1111,7 @@ function _nexus_addons_frame_init()
     AUTO_CAST(list_frame)
     list_frame:RemoveAllChild()
     list_frame:SetSkinName("test_frame_low")
+    list_frame:EnableHittestFrame(1)
     list_frame:SetTitleBarSkin("None")
     list_frame:SetLayerLevel(92)
     local title = list_frame:CreateOrGetControl('richtext', 'title', 20, 10, 10, 30)
@@ -1106,6 +1126,7 @@ function _nexus_addons_frame_init()
     AUTO_CAST(list_gb)
     list_gb:SetSkinName("bg")
     list_gb:RemoveAllChild()
+    list_gb:EnableHitTest(1)
     list_frame:ShowWindow(1)
     local base_num = 25
     local col1_x = 20
@@ -1242,6 +1263,9 @@ function _nexus_addons_toggle_addons(list_gb, use_toggle, child_addon_name, num)
 end
 
 function _nexus_addons_GAME_START(_nexus_addons, msg)
+    if not g.settings then
+        _nexus_addons_load_settings()
+    end
     _G["norisan"] = _G["norisan"] or {}
     _G["norisan"]["MENU"] = _G["norisan"]["MENU"] or {}
     local menu_data = {
@@ -1269,6 +1293,7 @@ end
 
 function _nexus_addons_GAME_START_3SEC(_nexus_addons, msg)
     _nexus_addons_init_addons(false, nil, _nexus_addons)
+    g.addon:RegisterMsg('FPS_UPDATE', '_nexus_addons_update_frames')
 end
 
 function _nexus_addons_fast_func(_nexus_addons)
@@ -1278,6 +1303,9 @@ function _nexus_addons_fast_func(_nexus_addons)
     end
     if g.quickslot_operate_settings and g.quickslot_operate_settings.straight then
         Quickslot_operate_redraw_slots()
+    end --
+    if g.indun_panel_settings and g.settings.indun_panel.use == 1 then
+        Indun_panel_frame_init()
     end
 end
 
@@ -1305,6 +1333,5963 @@ function _nexus_addons_update_frames(_nexus_addons)
         end
     end
 end
+-- another_warehouse ここから
+function Another_warehouse_save_settings()
+    g.save_lua(g.another_warehouse_path, g.awh_settings)
+end
+
+function Another_warehouse_load_settings()
+    g.another_warehouse_path = string.format("../addons/%s/%s/another_warehouse.lua", addon_name_lower, g.active_id)
+    local json_path = string.format("../addons/%s/%s/another_warehouse.json", addon_name_lower, g.active_id)
+    g.another_warehouse_old_path = string.format("../addons/%s/%s/settings.json", "another_warehouse", g.active_id)
+    local settings = g.load_lua(g.another_warehouse_path)
+    local need_save = false
+    local ver = 1.1 -- ■ バージョン定義
+    if not settings then
+        settings = g.load_json(json_path)
+        if settings then
+            need_save = true
+        end
+    end
+    if not settings then
+        local old_settings = g.load_json(g.another_warehouse_old_path)
+        if old_settings then
+            local new_take_set = {}
+            local old_items_map = old_settings.setitems or {}
+            local old_names_list = old_settings.handlelist or {}
+            for i, name in ipairs(old_names_list) do
+                local index_str = tostring(i)
+                local items = old_items_map[index_str]
+                if items then
+                    table.insert(new_take_set, {
+                        name = name,
+                        items = items
+                    })
+                end
+            end
+            settings = {
+                chars = {},
+                etc = {
+                    display_change = 0,
+                    leave_item = 0,
+                    auto_silver = 0
+                },
+                take_list = new_take_set,
+                items = old_settings.items or {},
+                ver = ver
+            }
+        else
+            local new_take_set = {}
+            for i = 1, 10 do
+                table.insert(new_take_set, {
+                    name = "Take Items " .. i,
+                    items = {}
+                })
+            end
+            settings = {
+                chars = {},
+                etc = {
+                    display_change = 0,
+                    leave_item = 0,
+                    auto_silver = 0
+                },
+                take_list = new_take_set,
+                items = {},
+                ver = ver
+            }
+        end
+        need_save = true
+    end
+    if not settings.ver or settings.ver < ver then
+        if not settings.take_list then
+            settings.take_list = {}
+        end
+        while #settings.take_list < 10 do
+            local next_num = #settings.take_list + 1
+            table.insert(settings.take_list, {
+                name = "Take Items " .. next_num,
+                items = {}
+            })
+        end
+        settings.ver = ver
+        need_save = true
+    end
+    g.awh_settings = settings
+    if need_save then
+        Another_warehouse_save_settings()
+    end
+end
+
+function Another_warehouse_load_cid_settings()
+    local old_settings = g.load_json(g.another_warehouse_old_path)
+    if old_settings and old_settings[g.cid] then
+        g.awh_settings.chars[g.cid] = old_settings[g.cid]
+        if g.awh_settings.chars[g.cid].transfer then
+            g.awh_settings.chars[g.cid].transfer = nil
+        end
+        if g.awh_settings.chars[g.cid].maney_check then
+            g.awh_settings.chars[g.cid].money_check = g.awh_settings.chars[g.cid].maney_check
+            g.awh_settings.chars[g.cid].maney_check = nil
+        end
+    else
+        g.awh_settings.chars[g.cid] = {
+            money_check = 0,
+            name = g.login_name,
+            item_check = 0,
+            items = {}
+        }
+    end
+    Another_warehouse_save_settings()
+end
+
+function another_warehouse_on_init()
+    if not g.awh_settings then
+        Another_warehouse_load_settings()
+    end
+    if not g.awh_settings.chars[g.cid] then
+        Another_warehouse_load_cid_settings()
+    end
+    local old_func = g.settings.another_warehouse.old_init_func
+    if _G[old_func] then
+        return
+    end
+    g.setup_hook_and_event(g.addon, 'ACCOUNT_WAREHOUSE_UPDATE_VIS_LOG',
+        "Another_warehouse_ACCOUNT_WAREHOUSE_UPDATE_VIS_LOG", true)
+    g.setup_hook_and_event(g.addon, 'ACCOUNTWAREHOUSE_CLOSE', "Another_warehouse_ACCOUNTWAREHOUSE_CLOSE", true)
+    g.addon:RegisterMsg("OPEN_DLG_ACCOUNTWAREHOUSE", "Another_warehouse_OPEN_DLG_ACCOUNTWAREHOUSE")
+    if g.settings.another_warehouse.use == 0 then
+        Another_warehouse_frame_close()
+        return
+    end
+    if g.get_map_type() == "City" then
+        Another_warehouse_accountwarehouse_init()
+    end
+end
+
+function Another_warehouse_accountwarehouse_init()
+    g.another_warehouse_func = false
+    if g.settings.another_warehouse.use == 0 then
+        Another_warehouse_frame_close()
+        return
+    end
+    g.addon:RegisterMsg("ACCOUNT_WAREHOUSE_ITEM_LIST", "Another_warehouse_on_msg")
+    g.addon:RegisterMsg("ACCOUNT_WAREHOUSE_ITEM_ADD", "Another_warehouse_on_msg")
+    g.addon:RegisterMsg("ACCOUNT_WAREHOUSE_ITEM_REMOVE", "Another_warehouse_on_msg")
+    g.addon:RegisterMsg("ACCOUNT_WAREHOUSE_ITEM_CHANGE_COUNT", "Another_warehouse_on_msg")
+    g.addon:RegisterMsg("ACCOUNT_WAREHOUSE_ITEM_IN", "Another_warehouse_on_msg")
+    if type(_G["YAACCOUNTINVENTORY_ON_INIT"]) == "function" then
+        _G["YAACCOUNTINVENTORY_ON_INIT"] = nil
+    end
+    local functionName = "WAREHOUSEMANAGER_ON_INIT"
+    if type(_G["WAREHOUSEMANAGER_ON_INIT"]) == "function" then
+        _G["WAREHOUSEMANAGER_ON_INIT"] = nil
+    end
+    g.awh_new_stack_add_item = {}
+end
+
+function Another_warehouse_on_msg(frame, msg, str, num)
+    if g.settings.another_warehouse.use == 0 then
+        return
+    end
+    local awh = ui.GetFrame(addon_name_lower .. "awh")
+    local gb = GET_CHILD(awh, "gb")
+    AUTO_CAST(gb)
+    local cur_pos = gb:GetScrollCurPos()
+    awh:SetUserValue("SCROLL_POS", cur_pos)
+    if msg == 'ACCOUNT_WAREHOUSE_ITEM_REMOVE' then
+        Another_warehouse_remove_recurse_guid(awh, str)
+        awh:RunUpdateScript("Another_warehouse_frame_update_remove", 3.0)
+        return
+    end
+    local index = awh:GetUserIValue("TAB_INDEX")
+    Another_warehouse_frame_update(awh, gb, "", index)
+end
+
+function Another_warehouse_frame_update_remove(awh)
+    awh:StopUpdateScript("Another_warehouse_frame_update_remove")
+    local gb = GET_CHILD(awh, "gb")
+    AUTO_CAST(gb)
+    local index = awh:GetUserIValue("TAB_INDEX")
+    Another_warehouse_frame_update(awh, gb, "", index)
+    return 0
+end
+
+function Another_warehouse_remove_recurse_guid(awh, guid)
+    local slot = ui.GetFocusObject()
+    if not slot then
+        return
+    end
+    local icon = slot:GetIcon()
+    if icon then
+        local icon_info = icon:GetInfo()
+        if icon_info:GetIESID() == guid then
+            slot:ClearIcon()
+            slot:SetSkinName("invenslot2")
+            slot:SetText("")
+            slot:RemoveAllChild()
+        end
+    end
+end
+
+function Another_warehouse_ACCOUNT_WAREHOUSE_UPDATE_VIS_LOG(my_frame, my_msg)
+    if g.settings.another_warehouse.use == 0 then
+        Another_warehouse_frame_close()
+        return
+    end
+    local accountwarehouse = ui.GetFrame("accountwarehouse")
+    local visgBox = GET_CHILD_RECURSIVELY(accountwarehouse, 'visgBox')
+    local cnt = session.AccountWarehouse.GetCount()
+    for i = cnt - 1, 0, -1 do
+        local log = session.AccountWarehouse.GetByIndex(i)
+        local ctrl_set = GET_CHILD(visgBox, "CTRLSET_" .. i)
+        local inputVis = ctrl_set:GetChild('inputVis')
+        inputVis:ShowWindow(0)
+        local new_input = ctrl_set:CreateOrGetControl("richtext", " new_input", 220, i, 50, 24)
+        AUTO_CAST(new_input)
+        new_input:SetGravity(ui.RIGHT, ui.CENTER_VERT)
+        new_input:SetMargin(0, 0, 330, 0)
+        new_input:SetTextAlign("right", "center")
+        if not string.find(inputVis:GetText(), "ZZZZZ") then
+            new_input:SetText(inputVis:GetText())
+        end
+    end
+end
+
+function Another_warehouse_ACCOUNTWAREHOUSE_CLOSE()
+    local inventory = ui.GetFrame("inventory")
+    SET_INV_LBTN_FUNC(inventory, "None")
+    INVENTORY_SET_CUSTOM_RBTNDOWN("None")
+    local monstercardslot = ui.GetFrame("monstercardslot")
+    monstercardslot:SetLayerLevel(96)
+    ui.DestroyFrame(addon_name_lower .. "awh")
+    ui.DestroyFrame(addon_name_lower .. "awh_setting")
+    if g.settings.another_warehouse.use == 0 then
+        return
+    end
+    Another_warehouse_set_item_close()
+end
+
+function Another_warehouse_frame_close(parent, ctrl)
+    Another_warehouse_ACCOUNTWAREHOUSE_CLOSE()
+    local accountwarehouse = ui.GetFrame('accountwarehouse')
+    if accountwarehouse:IsVisible() == 1 then
+        INVENTORY_SET_CUSTOM_RBTNDOWN("ACCOUNT_WAREHOUSE_INV_RBTN")
+    else
+        INVENTORY_SET_CUSTOM_RBTNDOWN("None")
+    end
+    ui.DestroyFrame(addon_name_lower .. "awh")
+    local accountwarehouse = ui.GetFrame("accountwarehouse")
+    local accountwarehousefilter = GET_CHILD_RECURSIVELY(accountwarehouse, "accountwarehousefilter")
+    accountwarehousefilter:ShowWindow(1)
+    local accountwarehouse = ui.GetFrame("accountwarehouse")
+    local accountwarehouse_tab = GET_CHILD_RECURSIVELY(accountwarehouse, "accountwarehouse_tab")
+    accountwarehouse_tab:ShowWindow(1)
+    local richtext_1 = GET_CHILD_RECURSIVELY(accountwarehouse, "richtext_1")
+    richtext_1:ShowWindow(1)
+    local itemcnt = GET_CHILD_RECURSIVELY(accountwarehouse, "itemcnt")
+    itemcnt:ShowWindow(1)
+    local slotgbox = GET_CHILD_RECURSIVELY(accountwarehouse, "slotgbox")
+    slotgbox:ShowWindow(1)
+    local richtext_3 = GET_CHILD_RECURSIVELY(accountwarehouse, "richtext_3")
+    richtext_3:ShowWindow(1)
+    local DepositSkin = accountwarehouse:GetChildRecursively("DepositSkin")
+    AUTO_CAST(DepositSkin)
+    DepositSkin:Resize(DepositSkin:GetWidth(), 35)
+    local buttons = {"cancel", "m1", "m5", "m10", "m50", "m100", "allout", "allin"}
+    for _, name in ipairs(buttons) do
+        DepositSkin:RemoveChild(name)
+    end
+    local gbox = GET_CHILD_RECURSIVELY(accountwarehouse, "gbox")
+    DESTROY_CHILD_BYNAME(gbox, "awh_search_edit")
+    DESTROY_CHILD_BYNAME(gbox, "awh_setting")
+    DESTROY_CHILD_BYNAME(gbox, "awh_help")
+    DESTROY_CHILD_BYNAME(gbox, "awh_leave")
+    DESTROY_CHILD_BYNAME(gbox, "awh_display_change")
+    DESTROY_CHILD_BYNAME(gbox, "awh_take")
+    DESTROY_CHILD_BYNAME(gbox, "awh_count_text")
+    DESTROY_CHILD_BYNAME(gbox, "awh_close")
+    DESTROY_CHILD_BYNAME(gbox, "awh_name_text")
+end
+
+function Another_warehouse_OPEN_DLG_ACCOUNTWAREHOUSE()
+    if g.settings.another_warehouse.use == 0 then
+        local accountwarehouse = ui.GetFrame('accountwarehouse')
+        if accountwarehouse:IsVisible() == 1 then
+            INVENTORY_SET_CUSTOM_RBTNDOWN("ACCOUNT_WAREHOUSE_INV_RBTN")
+        else
+            INVENTORY_SET_CUSTOM_RBTNDOWN("None")
+        end
+        return
+    end
+    local monstercardslot = ui.GetFrame("monstercardslot")
+    monstercardslot:SetLayerLevel(98)
+    local accountwarehouse = ui.GetFrame("accountwarehouse")
+    local accountwarehousefilter = GET_CHILD_RECURSIVELY(accountwarehouse, "accountwarehousefilter")
+    accountwarehousefilter:ShowWindow(0)
+    local accountwarehouse = ui.GetFrame("accountwarehouse")
+    local accountwarehouse_tab = GET_CHILD_RECURSIVELY(accountwarehouse, "accountwarehouse_tab")
+    accountwarehouse_tab:ShowWindow(0)
+    local richtext_1 = GET_CHILD_RECURSIVELY(accountwarehouse, "richtext_1")
+    richtext_1:ShowWindow(0)
+    local itemcnt = GET_CHILD_RECURSIVELY(accountwarehouse, "itemcnt")
+    itemcnt:ShowWindow(0)
+    local slotgbox = GET_CHILD_RECURSIVELY(accountwarehouse, "slotgbox")
+    slotgbox:ShowWindow(0)
+    local richtext_3 = GET_CHILD_RECURSIVELY(accountwarehouse, "richtext_3")
+    richtext_3:ShowWindow(0)
+    local gbox = GET_CHILD_RECURSIVELY(accountwarehouse, "gbox")
+    gbox:RemoveChild("awh_search_edit")
+    local search_edit = gbox:CreateOrGetControl("edit", "awh_search_edit", 0, 0, 295, 35)
+    AUTO_CAST(search_edit)
+    search_edit:SetFontName("white_18_ol")
+    search_edit:SetTextAlign("left", "center")
+    search_edit:SetSkinName("inventory_serch")
+    local margin = search_edit:GetMargin()
+    search_edit:SetMargin(margin.left + 115, margin.top + 20, margin.right, margin.bottom)
+    search_edit:SetEventScript(ui.ENTERKEY, "Another_warehouse_search")
+    local search_btn = search_edit:CreateOrGetControl("button", "search_btn", 0, 0, 60, 38)
+    AUTO_CAST(search_btn)
+    search_btn:SetImage("inven_s")
+    search_btn:SetGravity(ui.RIGHT, ui.TOP)
+    search_btn:SetEventScript(ui.LBUTTONUP, "Another_warehouse_search")
+    local awsetting = gbox:CreateOrGetControl("button", "awh_setting", 0, 0, 30, 43)
+    AUTO_CAST(awsetting)
+    awsetting:SetText("{img config_button_normal 27 27}")
+    awsetting:SetEventScript(ui.LBUTTONUP, "Another_warehouse_setting_frame_init")
+    awsetting:SetMargin(145, 60, 0, 0)
+    awsetting:SetSkinName("None")
+    awsetting:SetTextTooltip(g.lang == "Japanese" and "{ol}[AWH]{nl}自動倉庫設定" or
+                                 "{ol}[AWH]{nl}Automatic warehousing setup")
+    local help = gbox:CreateOrGetControl('button', "awh_help", 0, 0, 30, 30)
+    AUTO_CAST(help);
+    help:SetText("{ol}{img question_mark 20 20}")
+    help:SetMargin(115, 67, 0, 0)
+    help:SetTextTooltip("{ol}[AWH] HELP")
+    help:SetSkinName("test_pvp_btn")
+    help:SetEventScript(ui.LBUTTONUP, "Another_warehouse_help")
+    local leave = gbox:CreateOrGetControl('checkbox', "awh_leave", 0, 0, 30, 30)
+    AUTO_CAST(leave);
+    leave:SetCheck(g.awh_settings.etc.leave_item)
+    leave:SetMargin(180, 67, 0, 0)
+    leave:SetEventScript(ui.LBUTTONUP, "Another_warehouse_setting_check")
+    local tooltip_text = g.lang == "Japanese" and "{ol}チェックすると倉庫に1個残します" or
+                             "{ol}Check leaves one in the warehouse"
+    leave:SetTextTooltip(tooltip_text)
+    local display_change = gbox:CreateOrGetControl('checkbox', "awh_display_change", 0, 0, 30, 30)
+    AUTO_CAST(display_change);
+    display_change:SetCheck(g.awh_settings.etc.display_change or 0)
+    display_change:SetMargin(215, 67, 0, 0)
+    display_change:SetEventScript(ui.LBUTTONUP, "Another_warehouse_setting_check")
+    local tooltip_text = g.lang == "Japanese" and "{ol}チェックすると表示切替" or
+                             "{ol}Check to switch display"
+    display_change:SetTextTooltip(tooltip_text)
+    display_change:ShowWindow(1)
+    local take = gbox:CreateOrGetControl("button", "awh_take", 10, 0, 100, 43)
+    AUTO_CAST(take)
+    take:SetText("{@st66b}TAKE SET")
+    take:SetEventScript(ui.LBUTTONUP, "Another_warehouse_take_context")
+    take:SetEventScript(ui.RBUTTONUP, "Another_warehouse_setting_context")
+    take:SetMargin(310, 60, 0, 0)
+    take:SetSkinName("test_pvp_btn")
+    take:SetTextTooltip(g.lang == "Japanese" and
+                            "{ol}左クリック: 倉庫からセットで搬出します{nl}右クリック: セット設定を呼び出します" or
+                            "{ol}left-click: Move set from warehouse{nl}Right-click: Call up set settings")
+    local max_count = Another_warehouse_get_maxcount()
+    local item_count = Another_warehouse_item_count()
+    local count_text = gbox:CreateOrGetControl("richtext", "awh_count_text", 0, 0, 200, 24)
+    AUTO_CAST(count_text)
+    count_text:SetMargin(420, 73, 0, 0)
+    count_text:SetText("{@st42}" .. item_count .. "/" .. max_count .. "{/}")
+    count_text:SetFontName("white_16_ol")
+    local awclose = gbox:CreateOrGetControl("button", "awh_close", 10, 0, 100, 43)
+    AUTO_CAST(awclose)
+    awclose:SetText("{@st66b}AW CLOSE")
+    awclose:SetEventScript(ui.LBUTTONUP, "Another_warehouse_frame_close")
+    awclose:SetMargin(10, 60, 0, 0)
+    awclose:SetSkinName("test_pvp_btn")
+    local name_text = gbox:CreateOrGetControl("richtext", "awh_name_text", 15, 0, 200, 24)
+    AUTO_CAST(name_text)
+    name_text:SetMargin(10, 10, 0, 0)
+    name_text:SetText("{#000000}{s18}" .. g.login_name .. "{/}")
+    Another_warehouse_frame_over_lap()
+    Another_warehouse_money_input_btn(accountwarehouse)
+end
+
+function Another_warehouse_money_input_btn(accountwarehouse)
+    local DepositSkin = accountwarehouse:GetChildRecursively("DepositSkin")
+    AUTO_CAST(DepositSkin)
+    DepositSkin:Resize(DepositSkin:GetWidth(), 45)
+    local moneyInput = accountwarehouse:GetChildRecursively("moneyInput")
+    AUTO_CAST(moneyInput)
+    moneyInput:SetText("0")
+    local buttons = {{
+        name = "cancel",
+        text = "C",
+        val = 0
+    }, {
+        name = "m1",
+        text = "1M",
+        val = 1000000
+    }, {
+        name = "m5",
+        text = "5M",
+        val = 5000000
+    }, {
+        name = "m10",
+        text = "10M",
+        val = 10000000
+    }, {
+        name = "m50",
+        text = "50M",
+        val = 50000000
+    }, {
+        name = "m100",
+        text = "100M",
+        val = 100000000
+    }, {
+        name = "allout",
+        text = "{img chul_arrow 10 10}ALL",
+        val = nil
+    }, {
+        name = "allin",
+        text = "{img in_arrow 10 10}ALL",
+        val = nil
+    }}
+    local text_style = "{@st66b}{s12}"
+    for i, data in ipairs(buttons) do
+        local x_offset = i * 50
+        local btn = DepositSkin:CreateOrGetControl("button", data.name, DepositSkin:GetWidth() - x_offset,
+            DepositSkin:GetHeight() - 23, 50, 25)
+        AUTO_CAST(btn)
+        btn:SetText(text_style .. data.text)
+        btn:SetSkinName("test_pvp_btn")
+        btn:SetEventScript(ui.LBUTTONUP, "Another_warehouse_money_input_lbtn")
+        if data.val ~= nil then
+            btn:SetEventScriptArgNumber(ui.LBUTTONUP, data.val)
+            btn:SetEventScript(ui.RBUTTONUP, "Another_warehouse_money_input_rbtn")
+            btn:SetEventScriptArgNumber(ui.RBUTTONUP, data.val)
+        end
+    end
+end
+
+function Another_warehouse_money_input_lbtn(parent, ctrl, str, num)
+    local accountwarehouse = ctrl:GetTopParentFrame()
+    local moneyInput = accountwarehouse:GetChildRecursively("moneyInput")
+    AUTO_CAST(moneyInput)
+    local handle = accountwarehouse:GetUserIValue('HANDLE')
+    if ctrl:GetName() == "allout" then
+        local item_list = session.GetEtcItemList(IT_ACCOUNT_WAREHOUSE)
+        local guid_list = item_list:GetGuidList()
+        local sorted_guid_list = item_list:GetSortedGuidList()
+        local sorted_cnt = sorted_guid_list:Count()
+        local iesid
+        for i = 0, sorted_cnt - 1 do
+            local guid = sorted_guid_list:Get(i)
+            local inv_item = item_list:GetItemByGuid(guid)
+            local obj = GetIES(inv_item:GetObject());
+            if obj.ClassName == MONEY_NAME then
+                moneyInput:SetText(GET_COMMAED_STRING(inv_item:GetAmountStr()))
+                return
+            end
+        end
+        moneyInput:SetText("0")
+    elseif ctrl:GetName() == "allin" then
+        local silver = session.GetInvItemByName(MONEY_NAME)
+        if silver then
+            moneyInput:SetText(GET_COMMAED_STRING(silver:GetAmountStr()))
+        else
+            moneyInput:SetText("0")
+        end
+    elseif ctrl:GetName() == "cancel" then
+        moneyInput:SetText("0")
+    else
+        local current_val_str = string.gsub(moneyInput:GetText(), ",", "")
+        local current_val = tonumber(current_val_str) or 0
+        moneyInput:SetText(GET_COMMAED_STRING(SumForBigNumberInt64(current_val, "+" .. num)))
+    end
+end
+
+function Another_warehouse_money_input_rbtn(parent, ctrl, str, num)
+    local accountwarehouse = ctrl:GetTopParentFrame()
+    local moneyInput = accountwarehouse:GetChildRecursively("moneyInput")
+    AUTO_CAST(moneyInput)
+    if ctrl:GetName() == "cancel" then
+        moneyInput:SetText("0")
+        return
+    end
+    local current_val_str = string.gsub(moneyInput:GetText(), ",", "")
+    local current_val = tonumber(current_val_str) or 0
+    if (current_val - num) > 0 then
+        moneyInput:SetText(GET_COMMAED_STRING(SumForBigNumberInt64(current_val, "-" .. num)))
+    else
+        moneyInput:SetText("0")
+    end
+end
+
+function Another_warehouse_frame_over_lap()
+    local awh = ui.CreateNewFrame("notice_on_pc", addon_name_lower .. "awh", 0, 0, 670, 570)
+    AUTO_CAST(awh)
+    awh:SetGravity(ui.LEFT, ui.TOP)
+    awh:MoveFrame(0, 0)
+    awh:SetOffset(0, 205)
+    awh:SetSkinName("None")
+    awh:EnableMove(0)
+    awh:EnableHittestFrame(1)
+    awh:SetLayerLevel(97)
+    awh:RemoveAllChild()
+    local gb = awh:CreateOrGetControl("groupbox", "gb", 45, 0, 0, 0)
+    AUTO_CAST(gb)
+    gb:EnableScrollBar(1)
+    gb:SetSkinName("test_frame_midle")
+    awh:Resize(670, 570)
+    gb:Resize(613, 560)
+    awh:ShowWindow(1)
+    local inventory = ui.GetFrame("inventory")
+    INVENTORY_SET_CUSTOM_RBTNDOWN("Another_warehouse_inv_rbtn")
+    SET_INV_LBTN_FUNC(inventory, "Another_warehouse_inv_lbtn")
+    Another_warehouse_tab_change(awh, gb, "", 0)
+    Another_warehouse_auto_func_start(awh)
+end
+
+function Another_warehouse_tab_change(awh, ctrl, search_text, index)
+    local tab_index = awh:GetUserIValue("TAB_INDEX")
+    if tab_index ~= index then
+        local accountwarehouse = ui.GetFrame("accountwarehouse")
+        local search_edit = GET_CHILD_RECURSIVELY(accountwarehouse, "awh_search_edit")
+        search_edit:SetText("")
+    end
+    local tab_tbl = {"inventory_main", "inventory_equip", "inventory_supplies", "inventory_recipe", "inventory_card",
+                     "inventory_material", "inventory_gem", "inventory_premium", "inventory_housing", "alchemy_item_tab"}
+    for i, image in ipairs(tab_tbl) do
+        local tab = awh:CreateOrGetControl("picture", "tab" .. image, 5, (i - 1) * 55, 40, 60)
+        AUTO_CAST(tab)
+        tab:SetClickSound("inven_arrange")
+        tab:SetEventScript(ui.LBUTTONDOWN, "Another_warehouse_tab_change")
+        tab:SetEventScriptArgNumber(ui.LBUTTONDOWN, i)
+        if i == index then
+            tab:SetImage(image .. "_clicked")
+            awh:SetUserValue("TAB_INDEX", index)
+        else
+            tab:SetImage(image)
+        end
+        tab:SetEnableStretch(1)
+    end
+    if index == 0 then
+        local tab = GET_CHILD(awh, "tab" .. tab_tbl[1])
+        tab:SetImage(tab_tbl[1] .. "_clicked")
+        awh:SetUserValue("TAB_INDEX", 1)
+    end
+    local gb = GET_CHILD(awh, "gb")
+    AUTO_CAST(gb)
+    gb:RemoveAllChild()
+    Another_warehouse_frame_update(awh, gb, search_text, index)
+end
+
+function Another_warehouse_frame_update(awh, gb, search_text, index)
+    local tree = gb:CreateOrGetControl("tree", "inventory_tree", 5, 10, 0, 0)
+    AUTO_CAST(tree)
+    tree:Clear()
+    tree:InvalidateTree()
+    tree:EnableDrawFrame(false)
+    tree:EnableDrawTreeLine(false)
+    tree:SetFitToChild(true, 20) -- 下の余白
+    tree:SetFontName("white_20_ol")
+    tree:SetTabWidth("15")
+    tree:Resize(600, 0)
+    local item_list = session.GetEtcItemList(IT_ACCOUNT_WAREHOUSE)
+    local sorted_guid_list = item_list:GetSortedGuidList()
+    local warehouse_item_list = {}
+    local group_counts = {}
+    local slotset_counts = {}
+    local tab_filter_map = {nil, {
+        ["EquipGroup"] = true
+    }, {
+        ["NonEquipGroup"] = true,
+        ["Cube"] = true
+    }, {
+        ["Recipe"] = true
+    }, {
+        ["Card"] = true
+    }, {
+        ["Material"] = true
+    }, {
+        ["Gem"] = true
+    }, {
+        ["Premium"] = true
+    }, {
+        ["Housing"] = true
+    }, {
+        ["Ancient"] = true,
+        ["HiiddenAbility"] = true
+    }}
+    local current_filter = tab_filter_map[index]
+    for i = 0, sorted_guid_list:Count() - 1 do
+        local warehouse_item = item_list:GetItemByGuid(sorted_guid_list:Get(i))
+        if warehouse_item then
+            local item_cls = GetIES(warehouse_item:GetObject())
+            local baseid_cls = INV_GET_INVEN_BASEIDCLS_BY_ITEMGUID(warehouse_item:GetIESID())
+            if baseid_cls then
+                local type_str = GET_INVENTORY_TREEGROUP(baseid_cls)
+                if type_str ~= 'Quest' and baseid_cls.ClassName ~= 'Unused' then
+                    local make_slot = Another_warehouse_check_search_and_filter(warehouse_item, item_cls, search_text)
+                    if make_slot and warehouse_item.count > 0 then
+                        local group_name = baseid_cls.TreeGroup
+                        local is_visible = (current_filter == nil) or (current_filter[group_name] == true)
+                        if is_visible then
+                            table.insert(warehouse_item_list, warehouse_item)
+                            local group_name = baseid_cls.TreeGroup
+                            group_counts[group_name] = (group_counts[group_name] or 0) + 1
+                            local className = baseid_cls.ClassName
+                            if baseid_cls.MergedTreeTitle ~= "NO" then
+                                className = baseid_cls.MergedTreeTitle
+                            end
+                            local slotset_name = 'sset_' .. className
+                            slotset_counts[slotset_name] = (slotset_counts[slotset_name] or 0) + 1
+                        end
+                    end
+                end
+            end
+        end
+    end
+    --[[local fix_sort_addon = _G["ADDONS"]["weizlogy"]["fixinventorysort"]
+
+    if fix_sort_addon and type(fix_sort_addon) == "function" then
+        local sort_worker = fix_sort_addon()
+        if sort_worker and type(sort_worker.Sort) == "function" then
+            warehouse_item_list = sort_worker:Sort(warehouse_item_list, false)
+        end
+    else]]
+    table.sort(warehouse_item_list, INVENTORY_SORT_BY_NAME)
+    local created_groups = {}
+    local created_slotsets = {}
+    local group_order = {"Premium", "EquipGroup", "NonEquipGroup", "Cube", "Gem", "Card", "Recipe", "Material",
+                         "HiiddenAbility", "Ancient"}
+    local group_caption_map = {}
+    local baseid_list, cnt = GetClassList("inven_baseid")
+    for i = 0, cnt - 1 do
+        local cls = GetClassByIndexFromList(baseid_list, i)
+        if cls.TreeGroup ~= "None" then
+            group_caption_map[cls.TreeGroup] = cls.TreeGroupCaption
+        end
+    end
+    for _, group_name in ipairs(group_order) do
+        local count = group_counts[group_name]
+        local is_visible = (current_filter == nil) or (current_filter[group_name] == true)
+        if is_visible and count and count > 0 then
+            local caption = group_caption_map[group_name]
+            if caption then
+                local title_with_count = string.format("%s (%d)", caption, count)
+                local tree_group = tree:Add(title_with_count, group_name)
+                created_groups[group_name] = tree_group
+            end
+        end
+    end
+    for i = 0, cnt - 1 do
+        local baseid_cls = GetClassByIndexFromList(baseid_list, i)
+        local className = baseid_cls.ClassName
+        if baseid_cls.MergedTreeTitle ~= "NO" then
+            className = baseid_cls.MergedTreeTitle
+        end
+        local slotset_name = 'sset_' .. className
+        local count = slotset_counts[slotset_name]
+        local tree_group_name = baseid_cls.TreeGroup
+        local is_visible = (current_filter == nil) or (current_filter[tree_group_name] == true)
+        if is_visible and count and count > 0 and not created_slotsets[slotset_name] then
+            local tree_group = created_groups[tree_group_name]
+            if not tree_group then
+                local caption = baseid_cls.TreeGroupCaption
+                local group_count = group_counts[tree_group_name] or 0
+                local title_with_count = string.format("%s (%d)", caption, group_count)
+                tree_group = tree:Add(title_with_count, tree_group_name)
+                created_groups[tree_group_name] = tree_group
+            end
+            local margin_height = 5
+            local margin_name = "margin_top_" .. slotset_name
+            local margin = tree:CreateOrGetControl('richtext', margin_name, 0, 0, 400, margin_height)
+            AUTO_CAST(margin)
+            margin:EnableResizeByText(0)
+            margin:SetText("")
+            tree:Add(tree_group, margin, margin_name)
+            local slotset_title_value = slotset_name .. "_title"
+            local title_with_count = string.format("{s18}%s (%d)", baseid_cls.TreeSSetTitle, count)
+            local slotset_node = tree:Add(tree_group, title_with_count, slotset_title_value)
+            local new_slot_set = Another_warehouse_make_inven_slotset(tree, slotset_name)
+            tree:Add(slotset_node, new_slot_set, slotset_name)
+            created_slotsets[slotset_name] = new_slot_set
+        end
+    end
+    for _, inv_item in ipairs(warehouse_item_list) do
+        local item_cls = GetIES(inv_item:GetObject())
+        local baseid_cls = INV_GET_INVEN_BASEIDCLS_BY_ITEMGUID(inv_item:GetIESID())
+        local className = baseid_cls.ClassName
+        if baseid_cls.MergedTreeTitle ~= "NO" then
+            className = baseid_cls.MergedTreeTitle
+        end
+        local slotset_name = 'sset_' .. className
+        local new_slot_set = created_slotsets[slotset_name]
+        if new_slot_set then
+            AUTO_CAST(new_slot_set)
+            local slot_count = new_slot_set:GetSlotCount()
+            local count = new_slot_set:GetUserIValue("SLOT_ITEM_COUNT")
+            while slot_count <= count do
+                new_slot_set:ExpandRow()
+                slot_count = new_slot_set:GetSlotCount()
+            end
+            local slot = new_slot_set:GetSlotByIndex(count)
+            count = count + 1
+            new_slot_set:SetUserValue("SLOT_ITEM_COUNT", count)
+            slot:ShowWindow(1)
+            Another_warehouse_insert_item_to_tree(gb, tree, slot, inv_item, item_cls, slotset_name, baseid_cls)
+        end
+    end
+    for _, slotset in pairs(created_slotsets) do
+        local row = math.ceil(slotset:GetSlotCount() / slotset:GetCol())
+        local height = row * 54
+        slotset:Resize(slotset:GetWidth(), height)
+    end
+    local bottom_margin = 10 -- 隙間の高
+    for _, group_name in ipairs(group_order) do
+        local tree_group = created_groups[group_name]
+        if tree_group and tree:GetChildCount(tree_group) > 0 then
+            local margin_name = 'margin_' .. group_name
+            local margin = tree:CreateOrGetControl('richtext', margin_name, 0, 0, 400, bottom_margin)
+            AUTO_CAST(margin)
+            margin:EnableResizeByText(0)
+            margin:SetText("")
+            tree:Add(tree_group, margin, margin_name)
+        end
+    end
+    tree:OpenNodeAll()
+    local max_count = Another_warehouse_get_maxcount()
+    local item_count = Another_warehouse_item_count()
+    local accountwarehouse = ui.GetFrame("accountwarehouse")
+    local count_text = GET_CHILD_RECURSIVELY(accountwarehouse, "awh_count_text")
+    AUTO_CAST(count_text)
+    count_text:SetText("{@st42}" .. item_count .. "/" .. max_count .. "{/}")
+    count_text:SetFontName("white_16_ol")
+    awh:RunUpdateScript("Another_warehouse_set_scroll_pos")
+end
+
+function Another_warehouse_set_scroll_pos(awh)
+    awh:StopUpdateScript("Another_warehouse_set_scroll_pos")
+    local saved_pos = awh:GetUserIValue("SCROLL_POS")
+    local gb = GET_CHILD(awh, "gb")
+    AUTO_CAST(gb)
+    gb:SetScrollPos(saved_pos)
+    gb:InvalidateScrollBar()
+    return 0
+end
+
+function Another_warehouse_make_inven_slotset(tree, name)
+    local slotset = tree:CreateOrGetControl('slotset', name, 0, 0, 0, 0)
+    AUTO_CAST(slotset)
+    slotset:EnablePop(0)
+    slotset:EnableDrag(0)
+    slotset:EnableDrop(0)
+    slotset:SetMaxSelectionCount(999)
+    slotset:SetSlotSize(54, 54)
+    slotset:SetColRow(10, 1)
+    slotset:SetSpc(0, 0)
+    slotset:SetSkinName('invenslot')
+    slotset:EnableSelection(0)
+    slotset:CreateSlots()
+    return slotset
+end
+
+function Another_warehouse_insert_item_to_tree(gb, tree, slot, inv_item, item_cls, slotset_name, baseid_cls)
+    local slot_set = GET_CHILD_RECURSIVELY(gb, slotset_name)
+    UPDATE_INVENTORY_SLOT(slot, inv_item, item_cls)
+    slot:SetSkinName('invenslot2')
+    local item_cls = GetIES(inv_item:GetObject())
+    local iconImg = GET_ITEM_ICON_IMAGE(item_cls)
+    if geItemTable.IsStack(item_cls.ClassID) == 1 and Another_warehouse_is_stack_new_item(item_cls.ClassID) then
+        slot:SetHeaderImage('new_inventory_icon')
+    elseif geItemTable.IsStack(item_cls.ClassID) == 0 and
+        Another_warehouse_is_stack_new_item(item_cls.ClassID .. "_" .. inv_item:GetIESID()) then
+        slot:SetHeaderImage('new_inventory_icon')
+    else
+        slot:SetHeaderImage('None')
+    end
+    SET_SLOT_IMG(slot, iconImg)
+    SET_SLOT_COUNT(slot, inv_item.count)
+    SET_SLOT_STYLESET(slot, item_cls)
+    SET_SLOT_IESID(slot, inv_item:GetIESID())
+    SET_SLOT_ITEM_TEXT_USE_INVCOUNT(slot, inv_item, item_cls, nil)
+    slot:SetMaxSelectCount(inv_item.count);
+    local icon = slot:GetIcon()
+    icon:SetTooltipArg("accountwarehouse", inv_item.type, inv_item:GetIESID())
+    SET_ITEM_TOOLTIP_TYPE(icon, item_cls.ClassID, item_cls, "accountwarehouse")
+    SET_SLOT_ICOR_CATEGORY(slot, item_cls)
+    if inv_item.hasLifeTime == true or TryGetProp(item_cls, 'ExpireDateTime', 'None') ~= 'None' then
+        ICON_SET_ITEM_REMAIN_LIFETIME(icon, IT_ACCOUNT_WAREHOUSE)
+        slot:SetFrontImage('clock_inven')
+    else
+        CLEAR_ICON_REMAIN_LIFETIME(slot, icon)
+    end
+    if string.find(item_cls.ClassName, "GoddessIcor") and string.find(item_cls.ClassName, "high") then
+        local item_obj = GetIES(inv_item:GetObject())
+        SET_SLOT_STAR_TEXT(slot, item_obj)
+    end
+    slot:SetEventScript(ui.LBUTTONUP, "Another_warehouse_on_lbutton") -- inv_item:GetIESID()
+    slot:SetEventScriptArgString(ui.LBUTTONUP, inv_item:GetIESID())
+    slot:SetEventScript(ui.RBUTTONUP, "Another_warehouse_on_rbutton")
+    slot:SetEventScriptArgString(ui.RBUTTONUP, inv_item:GetIESID())
+    if g.awh_settings.etc.display_change == 1 then
+        if baseid_cls.TreeGroup == "Material" and slotset_name == "sset_Misc_Special" then
+            if string.find(item_cls.ClassName, "GoddessIcor") and not string.find(item_cls.ClassName, "EP17") then
+                slot:SetSkinName("invenslot_rare")
+            end
+        end
+        if baseid_cls.TreeGroup == "Recipe" then -- Material
+            local recipe_cls = GetClass('Recipe', item_cls.ClassName);
+            if recipe_cls ~= nil then
+                local taget_item = GetClass("Item", recipe_cls.TargetItem);
+                if taget_item then
+                    local image = GET_ITEM_ICON_IMAGE(taget_item)
+                    local recipe_pic = slot:CreateOrGetControl('picture', 'recipe_pic' .. inv_item:GetIESID(), 0, 0, 25,
+                        25)
+                    AUTO_CAST(recipe_pic)
+                    recipe_pic:SetEnableStretch(1)
+                    recipe_pic:SetGravity(ui.LEFT, ui.TOP)
+                    recipe_pic:SetImage(image)
+                    recipe_pic:SetTooltipArg("accountwarehouse", inv_item.type, inv_item:GetIESID())
+                    SET_ITEM_TOOLTIP_TYPE(recipe_pic, taget_item.ClassID, taget_item, "accountwarehouse")
+                end
+            end
+        end
+        if string.find(baseid_cls.ClassName, "Card") and not string.find(baseid_cls.ClassName, "Summon") and
+            not string.find(baseid_cls.ClassName, "CardAddExp") then
+            local image = TryGetProp(item_cls, "TooltipImage", "None")
+            if image ~= "None" then
+                icon:Set(image, 'Item', inv_item.type, inv_item.invIndex, inv_item:GetIESID(), inv_item.count)
+            end
+        end
+        if baseid_cls.ClassName == "Gem_GemSkill" then
+            for i = 1, 4 do
+                if TryGetProp(item_cls, 'RandomOption_' .. i, 'None') ~= 'None' and
+                    TryGetProp(item_cls, 'RandomOptionValue_' .. i, 0) > 0 then
+                    local star_pic =
+                        slot:CreateOrGetControl('richtext', 'star_pic' .. inv_item:GetIESID(), 0, 0, 18, 18)
+                    star_pic:SetText("{img star_mark 18 18}")
+                    star_pic:SetGravity(ui.RIGHT, ui.TOP)
+                end
+            end
+            local skill_cls = GetClass("Skill", TryGetProp(item_cls, 'SkillName', 'None'))
+            if skill_cls then
+                local image = "icon_" .. GET_ITEM_ICON_IMAGE(skill_cls)
+                icon:Set(image, 'Item', inv_item.type, inv_item.invIndex, inv_item:GetIESID(), inv_item.count)
+                local skill_pic = slot:CreateOrGetControl('picture', 'skill_pic' .. inv_item:GetIESID(), 0, 0, 25, 25)
+                AUTO_CAST(skill_pic)
+                local image = GET_ITEM_ICON_IMAGE(item_cls)
+                skill_pic:SetEnableStretch(1)
+                skill_pic:SetGravity(ui.LEFT, ui.TOP)
+                skill_pic:SetImage(image)
+                SET_ITEM_TOOLTIP_TYPE(skill_pic, item_cls.ClassID, item_cls, "accountwarehouse")
+            end
+        elseif baseid_cls.ClassName == "Gem_High_Color" then
+            local cls_name = item_cls.ClassName
+            if string.find(cls_name, "540") then
+                slot:SetSkinName("invenslot_pic_goddess")
+            elseif string.find(cls_name, "520") then
+                slot:SetSkinName("invenslot_legend")
+            elseif string.find(cls_name, "500") then
+                slot:SetSkinName("invenslot_unique")
+            elseif string.find(cls_name, "480") then
+                slot:SetSkinName("invenslot_rare")
+            else
+                slot:SetSkinName("invenslot_nomal")
+            end
+        end
+        if string.find(baseid_cls.ClassName, "OPTMisc_GoddessIcor") then
+            local cls_name = item_cls.ClassName
+            local is_special = string.find(cls_name, "EP17") or string.find(cls_name, "Weapon2") or
+                                   string.find(cls_name, "Armor2")
+            if not is_special then
+                slot:SetSkinName("invenslot_rare")
+            end
+        elseif string.find(baseid_cls.ClassName, "Armor") then
+            local cls_name = item_cls.ClassName
+            local is_special = string.find(cls_name, "EP17") or
+                                   (string.find(cls_name, "EP16") and string.find(cls_name, "high")) or
+                                   (string.find(cls_name, "EP13") and string.find(cls_name, "high2"))
+            if not is_special and (string.find(cls_name, "belt") or string.find(cls_name, "shoulder")) then
+                slot:SetSkinName("invenslot_rare")
+            end
+        end
+    end
+end
+
+function Another_warehouse_is_stack_new_item(class_id)
+    for k, v in pairs(g.awh_new_stack_add_item) do
+        if v == class_id then
+            return true
+        end
+    end
+    return false
+end
+
+function Another_warehouse_check_search_and_filter(inv_item, item_cls, search_text)
+    if search_text == "" then
+        return true
+    end
+    local temp_cap = string.lower(search_text)
+    local item_name = string.lower(dictionary.ReplaceDicIDInCompStr(item_cls.Name))
+    if string.find(item_name, temp_cap) then
+        return true
+    end
+    local prefix_class_name = TryGetProp(item_cls, "LegendPrefix")
+    if prefix_class_name and prefix_class_name ~= "None" then
+        local prefix_cls = GetClass('LegendSetItem', prefix_class_name)
+        if prefix_cls then
+            local prefix_name = string.lower(dictionary.ReplaceDicIDInCompStr(prefix_cls.Name))
+            if string.find(prefix_name .. " " .. item_name, temp_cap) then
+                return true
+            end
+        end
+    end
+    if TryGetProp(item_cls, 'GroupName', 'None') == 'Earring' then
+        local max_option_count = shared_item_earring.get_max_special_option_count(TryGetProp(item_cls, 'UseLv', 1))
+        for i = 1, max_option_count do
+            local option_name = 'EarringSpecialOption_' .. i
+            local job_id = TryGetProp(item_cls, option_name, 'None')
+            if job_id ~= 'None' then
+                local job_cls = GetClass('Job', job_id)
+                if job_cls and string.find(string.lower(dictionary.ReplaceDicIDInCompStr(job_cls.Name)), temp_cap) then
+                    return true
+                end
+            end
+        end
+    end
+    if TryGetProp(item_cls, 'GroupName', 'None') == 'Icor' then
+        local item = GetIES(inv_item:GetObject())
+        for i = 1, 5 do
+            local option = TryGetProp(item, 'RandomOption_' .. i, 'None')
+            if option and option ~= "None" and
+                string.find(string.lower(dictionary.ReplaceDicIDInCompStr(ClMsg(option))), temp_cap) then
+                return true
+            end
+        end
+    end
+    return false
+end
+
+function Another_warehouse_get_maxcount()
+    local acc_obj = GetMyAccountObj()
+    local token_bonus = 0
+    local my_handle = session.GetMyHandle()
+    local buff = info.GetBuff(my_handle, 70002)
+    if buff then
+        token_bonus = ADDITIONAL_SLOT_COUNT_BY_TOKEN + 280
+    end
+    local max_cnt = acc_obj.BasicAccountWarehouseSlotCount + acc_obj.MaxAccountWarehouseCount +
+                        acc_obj.AccountWareHouseExtend + acc_obj.AccountWareHouseExtendByItem + token_bonus
+    return max_cnt
+end
+-- 900011
+function Another_warehouse_item_count()
+    local item_list = session.GetEtcItemList(IT_ACCOUNT_WAREHOUSE)
+    local guid_list = item_list:GetSortedGuidList()
+    local cnt = item_list:Count()
+    local return_cnt = 0
+    for i = 0, cnt - 1 do
+        local guid = guid_list:Get(i);
+        local inv_item = item_list:GetItemByGuid(guid)
+        if inv_item then
+            local item_obj = GetIES(inv_item:GetObject())
+            if item_obj.ClassID ~= 900011 then -- 900011 Vis シルバー
+                return_cnt = return_cnt + 1
+            end
+        end
+    end
+    return return_cnt
+end
+
+function Another_warehouse_get_goal_index()
+    local acc_obj = GetMyAccountObj()
+    local base_count = acc_obj.BasicAccountWarehouseSlotCount + acc_obj.MaxAccountWarehouseCount +
+                           acc_obj.AccountWareHouseExtend + acc_obj.AccountWareHouseExtendByItem
+    local tab_index = {4, 3, 2, 1, 0}
+    local accountwarehouse = ui.GetFrame('accountwarehouse')
+    local tab = GET_CHILD(accountwarehouse, "accountwarehouse_tab")
+    local slotset = GET_CHILD_RECURSIVELY(accountwarehouse, "slotset")
+    for index = 1, #tab_index do
+        local i = tab_index[index]
+        tab:SelectTab(i)
+        if i > 0 and session.loginInfo.IsPremiumState(ITEM_TOKEN) then
+            local itemcnt = GET_CHILD_RECURSIVELY(accountwarehouse, "itemcnt")
+            local num_str = string.match(itemcnt:GetText(), "{@st42}(%d+)/")
+            local left = tonumber(num_str)
+            if left < 70 then
+                return ((i - 1) * 70) + base_count + left + 1
+            end
+        else
+            for j = 1, base_count do
+                local slot = slotset:GetSlotByIndex(j)
+                AUTO_CAST(slot)
+                if slot:GetIcon() == nil then
+                    return j
+                end
+            end
+        end
+    end
+end
+
+function Another_warehouse_check_valid(inv_item)
+    local item_count = Another_warehouse_item_count()
+    local max_count = Another_warehouse_get_maxcount()
+    if max_count <= item_count then
+        ui.SysMsg(ClMsg('CannotPutBecauseMaxSlot'))
+        return false
+    end
+    if true == inv_item.isLockState then
+        ui.SysMsg(ClMsg("MaterialItemIsLock"))
+        return false
+    end
+    local obj = GetIES(inv_item:GetObject())
+    local item_cls = GetClassByType("Item", obj.ClassID)
+    if item_cls.ItemType == 'Quest' then
+        ui.MsgBox(ScpArgMsg("IT_ISNT_REINFORCEABLE_ITEM"))
+        return false
+    end
+    local enable_team_trade = TryGetProp(item_cls, "TeamTrade")
+    if enable_team_trade and enable_team_trade == "NO" then
+        ui.SysMsg(ClMsg("ItemIsNotTradable"))
+        return false
+    end
+    if TryGetProp(obj, 'CharacterBelonging', 0) == 1 then
+        ui.SysMsg(ClMsg("ItemIsNotTradable"))
+        return false
+    end
+    return true
+end
+
+function Another_warehouse_search(frame, ctrl, str, num)
+    local awh = ui.GetFrame(addon_name_lower .. "awh")
+    local gb = GET_CHILD(awh, "gb")
+    AUTO_CAST(gb)
+    local search_text = ctrl:GetText()
+    local tab = GET_CHILD(awh, "tab" .. "inventory_main")
+    Another_warehouse_tab_change(awh, tab, search_text, 1)
+end
+
+function Another_warehouse_inv_lbtn(frame, inv_item, dumm)
+    if not Another_warehouse_check_valid(inv_item) then
+        return
+    end
+    local iesid = inv_item:GetIESID()
+    if keyboard.IsKeyPressed("LSHIFT") == 1 then
+        local count = math.min(10, inv_item.count)
+        Another_warehouse_putitem(inv_item, iesid, count)
+    else
+        Another_warehouse_putitem(inv_item, iesid, 1)
+    end
+end
+
+function Another_warehouse_inv_rbtn(item_obj, slot)
+    if g.settings.cc_helper.use == 1 then
+        local cch_setting = ui.GetFrame(addon_name_lower .. "cch_setting")
+        if cch_setting and cch_setting:IsVisible() == 1 then
+            INVENTORY_SET_CUSTOM_RBTNDOWN("Cc_helper_inv_rbtn")
+            return
+        end
+    end
+    local icon = slot:GetIcon()
+    local icon_info = icon:GetInfo()
+    local iesid = icon_info:GetIESID()
+    local inv_item = GET_PC_ITEM_BY_GUID(iesid)
+    if not inv_item then
+        return
+    end
+    -- ui.AlarmMsg(TryGetProp(GetIES(inv_item:GetObject()), 'BelongingCount', 0))
+    if not Another_warehouse_check_valid(inv_item) then
+        return
+    end
+    if keyboard.IsKeyPressed("LSHIFT") == 1 then
+        local accountwarehouse = ui.GetFrame("accountwarehouse")
+        local obj = GetIES(inv_item:GetObject())
+        local max_cnt = inv_item.count
+        local belonging_count = TryGetProp(obj, 'BelongingCount', 0)
+        if belonging_count > 0 then
+            max_cnt = inv_item.count - obj.BelongingCount
+            if max_cnt <= 0 then
+                max_cnt = 0
+            end
+        end
+        if inv_item.count > 1 or geItemTable.IsStack(obj.ClassID) == 1 then
+            INPUT_NUMBER_BOX(accountwarehouse, ScpArgMsg("InputCount"), "EXEC_PUT_ITEM_TO_ACCOUNT_WAREHOUSE", max_cnt,
+                1, max_cnt, nil, iesid)
+        else
+            Another_warehouse_putitem(inv_item, iesid, inv_item.count)
+        end
+    else
+        Another_warehouse_putitem(inv_item, iesid, inv_item.count)
+    end
+end
+
+function Another_warehouse_on_lbutton(parent, slot, iesid, num)
+    local accountwarehouse = ui.GetFrame("accountwarehouse")
+    local inv_item = session.GetEtcItemByGuid(IT_ACCOUNT_WAREHOUSE, iesid)
+    local obj = GetIES(inv_item:GetObject())
+    if keyboard.IsKeyPressed("LSHIFT") == 1 then
+        local count = math.min(10, inv_item.count)
+        Another_warehouse_takeitem(accountwarehouse, iesid, count)
+    else
+        Another_warehouse_takeitem(accountwarehouse, iesid, 1)
+    end
+end
+
+function Another_warehouse_on_rbutton(frame, slot, iesid, argnum)
+    if g.settings.cc_helper.use == 1 then
+        local cch_setting = ui.GetFrame(addon_name_lower .. "cch_setting")
+        if cch_setting and cch_setting:IsVisible() == 1 then
+            local slot = ui.GetFocusObject()
+            if not slot then
+                return
+            end
+            local icon = slot:GetIcon()
+            if icon then
+                local icon_info = icon:GetInfo()
+                local iesid = icon_info:GetIESID()
+                local awh_item = session.GetEtcItemByGuid(IT_ACCOUNT_WAREHOUSE, iesid)
+                if not awh_item then
+                    return
+                end
+                local item_obj = GetIES(awh_item:GetObject())
+                Cc_helper_inv_rbtn(item_obj, slot, iesid, awh_item)
+            end
+            return
+        end
+    end
+    local awh_setting = ui.GetFrame(addon_name_lower .. "awh_setting")
+    if awh_setting and awh_setting:IsVisible() == 1 then
+        AUTO_CAST(awh_setting)
+        local inv_item = session.GetEtcItemByGuid(IT_ACCOUNT_WAREHOUSE, iesid)
+        if not inv_item then
+            return
+        end
+        local obj = GetIES(inv_item:GetObject())
+        local cls_id = obj.ClassID
+        local item_cls = GetClassByType("Item", cls_id)
+        if inv_item.isLockState then
+            ui.SysMsg(ClMsg("MaterialItemIsLock"))
+            return
+        end
+        if item_cls.ItemType == 'Quest' then
+            ui.MsgBox(ScpArgMsg("IT_ISNT_REINFORCEABLE_ITEM"));
+            return
+        end
+        local enable_team_trade = TryGetProp(item_cls, "TeamTrade")
+        if enable_team_trade and enable_team_trade == "NO" then
+            ui.SysMsg(ClMsg("ItemIsNotTradable"))
+            return
+        end
+        local belonging_count = TryGetProp(obj, 'BelongingCount', 0)
+        if belonging_count > 0 and belonging_count >= inv_item.count then
+            ui.SysMsg(ClMsg("ItemIsNotTradable"))
+            return
+        end
+        if TryGetProp(obj, 'CharacterBelonging', 0) == 1 then
+            ui.SysMsg(ClMsg("ItemIsNotTradable"))
+            return
+        end
+        local items = {}
+        local slotset_name = ""
+        if keyboard.IsKeyPressed("LSHIFT") == 1 then
+            items = g.awh_settings.chars[g.cid].items
+            slotset_name = "char_slotset"
+        else
+            items = g.awh_settings.items
+            slotset_name = "team_slotset"
+        end
+        for key, value in pairs(items) do
+            if value.clsid == cls_id then
+                ui.SysMsg(g.lang == "Japanese" and "既に登録済です" or "Already registered")
+                return
+            end
+        end
+        local awh_setting = ui.GetFrame(addon_name_lower .. "awh_setting")
+        local target_slotset = GET_CHILD_RECURSIVELY(awh_setting, slotset_name)
+        local slotcount = target_slotset:GetSlotCount()
+        local index = 1
+        for i = 1, slotcount do
+            local awslot = GET_CHILD_RECURSIVELY(target_slotset, "slot" .. i)
+            local slot_icon = awslot:GetIcon()
+            if slot_icon == nil then
+                index = i
+                break
+            end
+        end
+        local ctrl = GET_CHILD_RECURSIVELY(target_slotset, "slot" .. index)
+        if tonumber(item_cls.MaxStack) > 1 then
+            awh_setting:SetUserValue("SLOT_NAME", ctrl:GetParent():GetName())
+            local msg = g.lang == "Japanese" and "インベントリに残す数を入力" or
+                            "Enter the number to be left in the inventory"
+            INPUT_NUMBER_BOX(awh_setting, msg, "Another_warehouse_setting_item_count", 0, 0,
+                tonumber(item_cls.MaxStack), cls_id, tostring(index), nil)
+        else
+            items[tostring(index)] = {
+                clsid = cls_id,
+                count = 0
+            }
+            SET_SLOT_ITEM_CLS(ctrl, item_cls)
+            Another_warehouse_save_settings()
+        end
+        return
+    end
+    local awh_set_items = ui.GetFrame(addon_name_lower .. "awh_set_items")
+    if awh_set_items and awh_set_items:IsVisible() == 1 then
+        AUTO_CAST(awh_set_items)
+        local name_edit = GET_CHILD(awh_set_items, "name_edit")
+        local name_text = string.gsub(name_edit:GetText(), "{ol}", "")
+        local index = 0
+        for i, data in ipairs(g.awh_settings.take_list) do
+            local name = data.name
+            if name == name_text then
+                index = i
+            end
+        end
+        local set_slotset = GET_CHILD_RECURSIVELY(awh_set_items, 'set_slotset')
+        AUTO_CAST(set_slotset)
+        local slotcount = set_slotset:GetSlotCount()
+        for i = 1, slotcount do
+            local slot = GET_CHILD(set_slotset, "slot" .. i)
+            AUTO_CAST(slot)
+            local slot_index = string.gsub(slot:GetName(), "slot", "")
+            local icon = slot:GetIcon()
+            if not icon then
+                local inv_item = session.GetEtcItemByGuid(IT_ACCOUNT_WAREHOUSE, iesid)
+                local obj = GetIES(inv_item:GetObject())
+                g.awh_settings.take_list[index].items[slot_index] = obj.ClassID
+                break
+            end
+        end
+        Another_warehouse_set_items_setting(index, name_text)
+        return
+    end
+    local accountwarehouse = ui.GetFrame("accountwarehouse")
+    local inv_item = session.GetEtcItemByGuid(IT_ACCOUNT_WAREHOUSE, iesid)
+    local obj = GetIES(inv_item:GetObject())
+    local count = inv_item.count
+    if keyboard.IsKeyPressed("LSHIFT") == 1 then
+        local belonging_count = TryGetProp(obj, 'BelongingCount', 0)
+        local max_cnt = inv_item.count
+        if belonging_count > 0 then
+            max_cnt = count - obj.BelongingCount
+            if max_cnt <= 0 then
+                max_cnt = 0
+            end
+        end
+        if count > 1 or geItemTable.IsStack(obj.ClassID) == 1 then
+            INPUT_NUMBER_BOX(accountwarehouse, ScpArgMsg("InputCount"), "Another_warehouse_take_item_from_warehouse",
+                max_cnt, 1, max_cnt, nil, iesid)
+        else
+            Another_warehouse_takeitem(accountwarehouse, iesid, 1)
+        end
+    else
+        if count > 1 or geItemTable.IsStack(obj.ClassID) == 1 then
+            if g.awh_settings.etc.leave_item == 1 then
+                count = count - 1
+            end
+            Another_warehouse_takeitem(accountwarehouse, iesid, count)
+        else
+            Another_warehouse_takeitem(accountwarehouse, iesid, 1)
+        end
+    end
+end
+
+function Another_warehouse_take_item_from_warehouse(accountwarehouse, count, input_frame)
+    input_frame:ShowWindow(0)
+    local iesid = input_frame:GetUserValue("ArgString")
+    session.ResetItemList()
+    session.AddItemID(iesid, count)
+    local handle = accountwarehouse:GetUserIValue("HANDLE")
+    item.TakeItemFromWarehouse_List(IT_ACCOUNT_WAREHOUSE, session.GetItemIDList(), handle)
+end
+
+function Another_warehouse_putitem(inv_item, iesid, count)
+    local item_obj = GetIES(inv_item:GetObject())
+    local goal_index = Another_warehouse_get_goal_index()
+    if Another_warehouse_check_valid(inv_item) then
+        local accountwarehouse = ui.GetFrame("accountwarehouse")
+        local handle = accountwarehouse:GetUserIValue("HANDLE")
+        item.PutItemToWarehouse(IT_ACCOUNT_WAREHOUSE, iesid, tostring(count), handle, goal_index)
+        local awh = ui.GetFrame(addon_name_lower .. "awh")
+        AUTO_CAST(awh)
+        awh:SetUserValue("TOOLTIP_COUNT", 0)
+        Another_warehouse_item_put_to(awh, iesid, count, item_obj.ClassID)
+        if geItemTable.IsStack(item_obj.ClassID) == 1 then
+            table.insert(g.awh_new_stack_add_item, item_obj.ClassID)
+        elseif geItemTable.IsStack(item_obj.ClassID) == 0 then
+            table.insert(g.awh_new_stack_add_item, item_obj.ClassID .. "_" .. iesid)
+        end
+        local gbox_warehouse = GET_CHILD_RECURSIVELY(accountwarehouse, "gbox_warehouse")
+        if gbox_warehouse then
+            gbox_warehouse:UpdateData()
+            accountwarehouse:Invalidate()
+        end
+    end
+end
+
+function Another_warehouse_takeitem(accountwarehouse, iesid, count)
+    session.ResetItemList()
+    session.AddItemID(iesid, count)
+    local handle = accountwarehouse:GetUserIValue("HANDLE")
+    item.TakeItemFromWarehouse_List(IT_ACCOUNT_WAREHOUSE, session.GetItemIDList(), handle)
+end
+
+function Another_warehouse_auto_func_start(awh)
+    local auto_money = g.awh_settings.chars[g.cid].money_check
+    local my_handle = session.GetMyHandle()
+    local buff = info.GetBuff(my_handle, 70002)
+    if not buff then
+        if auto_money == 1 then
+            Another_warehouse_silver(awh)
+        end
+        ui.SysMsg(g.lang == "Japanese" and "[AWH]トークンがないため自動処理を停止します" or
+                      "[AWH]Auto function stopped due to no token")
+        return
+    end
+    local auto_item = g.awh_settings.chars[g.cid].item_check
+    if auto_item == 0 and auto_money == 0 then
+        return
+    end
+    g.another_warehouse_func = true
+    if auto_item == 1 then
+        Another_warehouse_auto_item_start(awh)
+        return
+    end
+    if auto_money == 1 then
+        Another_warehouse_silver(awh)
+        return
+    end
+    Another_warehouse_end(awh)
+end
+
+function Another_warehouse_retry(frame)
+    Another_warehouse_auto_item_start(frame, true)
+    return 0
+end
+
+function Another_warehouse_auto_item_start(awh, is_retry)
+    local status, err = pcall(Another_warehouse_auto_item_start_logic, awh, is_retry)
+    if not status then
+        local msg = "{#FF0000}[AWH Error] " .. tostring(err)
+        ui.SysMsg(msg)
+    end
+end
+
+function Another_warehouse_auto_item_start_logic(awh, is_retry)
+    if not is_retry then
+        g.awh_retry_count = 0
+    end
+    local accountwarehouse = ui.GetFrame('accountwarehouse')
+    local item_list = session.GetEtcItemList(IT_ACCOUNT_WAREHOUSE)
+    local sorted_guid_list = item_list:GetSortedGuidList()
+    local sorted_cnt = sorted_guid_list:Count()
+    if sorted_cnt == 0 then
+        if accountwarehouse:IsVisible() == 1 then
+            if g.awh_retry_count < 5 then
+                g.awh_retry_count = g.awh_retry_count + 1
+                accountwarehouse:StopUpdateScript("Another_warehouse_retry")
+                accountwarehouse:RunUpdateScript("Another_warehouse_retry", 0.1)
+                return
+            else
+                local msg = g.lang == "Japanese" and
+                                "倉庫情報の取得に失敗しました{nl}アイテム自動取得をスキップします" or
+                                "Failed to retrieve warehouse info{nl}Auto-take skipped"
+                ui.SysMsg(msg)
+            end
+        end
+    end
+    g.awh_take_items = {}
+    g.awh_put_items = {}
+    for i = 0, sorted_cnt - 1 do
+        local guid = sorted_guid_list:Get(i)
+        local inv_item = item_list:GetItemByGuid(guid)
+        local cls_id = inv_item.type
+        local inv_count = g.awh_settings.etc.leave_item == 1 and inv_item.count - 1 or inv_item.count
+        local is_match = false
+        local char_items = g.awh_settings.chars[g.cid].items
+        for str_index, item in pairs(char_items) do
+            local char_clsid = item.clsid
+            local char_clsid_str = tostring(char_clsid)
+            local char_count = item.count == 0 and 1 or item.count
+            if cls_id == char_clsid and cls_id ~= 900011 then
+                if inv_count > 0 then
+                    g.awh_take_items[char_clsid_str] = {
+                        iesid = guid,
+                        count = char_count
+                    }
+                end
+                is_match = true
+                break
+            end
+        end
+        if not is_match then
+            local common_items = g.awh_settings.items
+            for str_index, item in pairs(common_items) do
+                local common_clsid = item.clsid
+                local common_clsid_str = tostring(common_clsid)
+                local common_count = item.count
+                if cls_id == common_clsid and cls_id ~= 900011 then
+                    if inv_count > 0 then
+                        g.awh_take_items[common_clsid_str] = {
+                            iesid = guid,
+                            count = common_count
+                        }
+                    end
+                    break
+                end
+            end
+        end
+    end
+    local inv_item_list = session.GetInvItemList()
+    local inv_guid_list = inv_item_list:GetGuidList()
+    local inv_cnt = inv_guid_list:Count()
+    for i = 0, inv_cnt - 1 do
+        local guid = inv_guid_list:Get(i)
+        local inv_item = inv_item_list:GetItemByGuid(guid)
+        local inv_obj = GetIES(inv_item:GetObject())
+        local inv_clsid = inv_obj.ClassID
+        local inv_clsid_str = tostring(inv_clsid)
+        if inv_clsid ~= 900011 then
+            if g.awh_take_items[inv_clsid_str] then
+                local take_data = g.awh_take_items[inv_clsid_str]
+                local old_need = take_data.count
+                local take_count = take_data.count - inv_item.count
+                if take_count <= 0 then
+                    g.awh_take_items[inv_clsid_str] = nil
+                else
+                    take_data.count = take_count
+                end
+            end
+            local target_count = 0
+            local is_target = false
+            for _, item in pairs(g.awh_settings.chars[g.cid].items) do
+                if item.clsid == inv_clsid then
+                    target_count = item.count == 0 and 1 or item.count
+                    is_target = true
+                    break
+                end
+            end
+            if not is_target then
+                for _, item in pairs(g.awh_settings.items) do
+                    if item.clsid == inv_clsid then
+                        target_count = item.count
+                        is_target = true
+                        break
+                    end
+                end
+            end
+            if is_target then
+                local put_count = inv_item.count - target_count
+                if put_count > 0 then
+                    g.awh_put_items[inv_clsid_str] = {
+                        iesid = guid,
+                        count = put_count,
+                        invcount = inv_item.count,
+                        initial_count = inv_item.count
+                    }
+                end
+            end
+        end
+    end
+    for cls_id, _ in pairs(g.awh_take_items) do
+        if g.awh_put_items[cls_id] then
+            g.awh_put_items[cls_id] = nil
+        end
+    end
+    Another_warehouse_item_take(awh)
+end
+
+function Another_warehouse_item_take(awh)
+    if awh:GetUserIValue("IS_TAKING") == 0 then
+        local item_list = session.GetEtcItemList(IT_ACCOUNT_WAREHOUSE)
+        local sorted_guid_list = item_list:GetSortedGuidList()
+        local sorted_cnt = sorted_guid_list:Count()
+        session.ResetItemList()
+        local take_count_total = 0
+        for cls_id, items in pairs(g.awh_take_items) do
+            for i = 0, sorted_cnt - 1 do
+                local guid = sorted_guid_list:Get(i)
+                local inv_item = item_list:GetItemByGuid(guid)
+                if guid == items.iesid then
+                    local count = math.min(items.count, inv_item.count)
+                    if count > 0 then
+                        session.AddItemID(guid, count)
+                        take_count_total = take_count_total + 1
+                    end
+                    break
+                end
+            end
+        end
+        if take_count_total == 0 then
+            awh:RunUpdateScript("Another_warehouse_item_put", 0.1)
+            return 0
+        end
+        local accountwarehouse = ui.GetFrame('accountwarehouse')
+        local handle = accountwarehouse:GetUserIValue('HANDLE')
+        item.TakeItemFromWarehouse_List(IT_ACCOUNT_WAREHOUSE, session.GetItemIDList(), handle)
+        awh:SetUserValue("IS_TAKING", 1)
+        awh:SetUserValue("TAKE_START_TIME", imcTime.GetAppTimeMS())
+        awh:StopUpdateScript("Another_warehouse_item_take")
+        awh:RunUpdateScript("Another_warehouse_item_take", 0.1)
+        return 1
+    end
+    local all_arrived = true
+    for cls_id, items in pairs(g.awh_take_items) do
+        local inv_item = session.GetInvItemByGuid(items.iesid)
+        if not inv_item then
+            all_arrived = false
+            break
+        end
+    end
+    local start_time = awh:GetUserIValue("TAKE_START_TIME")
+    local now = imcTime.GetAppTimeMS()
+    if all_arrived or (now - start_time > 1000) then
+        awh:SetUserValue("IS_TAKING", 0)
+        awh:SetUserValue("TOOLTIP_COUNT", 0)
+        awh:RunUpdateScript("Another_warehouse_item_put", 0.1)
+        return 0
+    end
+    return 1
+end
+
+function Another_warehouse_item_put(awh)
+    local accountwarehouse = ui.GetFrame('accountwarehouse')
+    if accountwarehouse:IsVisible() == 0 then
+        awh:StopUpdateScript("Another_warehouse_item_put")
+        return 0
+    end
+    local next_cls_id, item_data = next(g.awh_put_items)
+    if not next_cls_id then
+        if g.awh_settings.chars[g.cid].money_check == 1 then
+            Another_warehouse_silver(awh)
+        else
+            Another_warehouse_end(awh)
+        end
+        return 0
+    end
+    local is_finished = false
+    local inv_item = session.GetInvItemByGuid(item_data.iesid)
+    if not inv_item then
+        is_finished = true
+    elseif item_data.is_putting then
+        if inv_item.count < item_data.initial_count then
+            is_finished = true
+        else
+            return 1
+        end
+    end
+    if is_finished then
+        local count = item_data.real_put_count or item_data.count
+        Another_warehouse_item_put_to(awh, item_data.iesid, count, next_cls_id)
+        if geItemTable.IsStack(next_cls_id) == 1 then
+            table.insert(g.awh_new_stack_add_item, next_cls_id)
+        elseif geItemTable.IsStack(next_cls_id) == 0 then
+            table.insert(g.awh_new_stack_add_item, next_cls_id .. "_" .. item_data.iesid)
+        end
+        g.awh_put_items[tostring(next_cls_id)] = nil
+        if not next(g.awh_put_items) then
+            if g.awh_settings.chars[g.cid].money_check == 1 then
+                Another_warehouse_silver(awh)
+            else
+                Another_warehouse_end(awh)
+            end
+            return 0
+        end
+        return 1
+    end
+    if not Another_warehouse_check_valid(inv_item) then
+        awh:StopUpdateScript("Another_warehouse_item_put")
+        return 0
+    end
+    local handle = accountwarehouse:GetUserIValue("HANDLE")
+    local goal_index = Another_warehouse_get_goal_index()
+    local put_count = item_data.count
+    if put_count > inv_item.count then
+        put_count = inv_item.count
+    end
+    item_data.initial_count = inv_item.count
+    item.PutItemToWarehouse(IT_ACCOUNT_WAREHOUSE, item_data.iesid, tostring(put_count), handle, goal_index)
+    item_data.is_putting = true
+    item_data.real_put_count = put_count
+    return 1
+end
+
+function Another_warehouse_item_put_to(awh, guid, count, cls_id)
+    local item_cls = GetClassByType('Item', cls_id)
+    local icon_name = GET_ITEM_ICON_IMAGE(item_cls)
+    local item_name = item_cls.Name
+    local tooltip_count = awh:GetUserIValue("TOOLTIP_COUNT")
+    if tooltip_count >= 4 then
+        awh:SetUserValue("TOOLTIP_COUNT", 0)
+    else
+        awh:SetUserValue("TOOLTIP_COUNT", tooltip_count + 1)
+    end
+    Another_warehouse_item_tooltip(item_name, icon_name, count, tooltip_count)
+    local msg = g.lang == "Japanese" and "倉庫に格納しました" .. "：[" .. "{#EE82EE}" .. item_name ..
+                    "{#FFFF00}]×" .. "{#EE82EE}" .. count or "Item to warehousing" .. "：[" .. "{#EE82EE}" ..
+                    item_name .. "{#FFFF00}]×" .. "{#EE82EE}" .. count
+    CHAT_SYSTEM(msg)
+end
+
+function Another_warehouse_item_tooltip(item_name, icon_name, count, tooltip_count)
+    local awh_tooltip =
+        ui.CreateNewFrame("notice_on_pc", addon_name_lower .. "awh_tooltip" .. tooltip_count, 0, 0, 0, 0)
+    AUTO_CAST(awh_tooltip)
+    awh_tooltip:SetSkinName("None")
+    awh_tooltip:SetPos(680, 300 + tooltip_count * 55)
+    awh_tooltip:SetLayerLevel(100)
+    awh_tooltip:Resize(350, 64)
+    local tooltip_gb = awh_tooltip:CreateOrGetControl("groupbox", "tooltip_gb", 0, 0, 350, 64)
+    AUTO_CAST(tooltip_gb)
+    tooltip_gb:SetSkinName("item_show_tootip")
+    tooltip_gb:Resize(350, 64)
+    local tooltip_slot = tooltip_gb:CreateOrGetControl("slot", "tooltip_slot", 20, 10, 45, 45)
+    AUTO_CAST(tooltip_slot)
+    local tooltip_text = tooltip_gb:CreateOrGetControl("richtext", "tooltip_text", 75, 15, 265, 22)
+    AUTO_CAST(tooltip_text)
+    tooltip_text:Resize(265, 22)
+    tooltip_text:SetText("{ol}" .. item_name)
+    local tooltip_count = tooltip_gb:CreateOrGetControl("richtext", "tooltip_count", 75, 37, 265, 22)
+    AUTO_CAST(tooltip_count)
+    tooltip_count:Resize(265, 22)
+    local msg = g.lang == "Japanese" and count .. " 個搬入しました" or count .. " Pieces in warehouse"
+    tooltip_count:SetText("{ol}" .. msg)
+    SET_SLOT_ICON(tooltip_slot, icon_name)
+    awh_tooltip:ShowWindow(1)
+    awh_tooltip:RunUpdateScript("Another_warehouse_item_tooltip_close", 2.0)
+end
+
+function Another_warehouse_item_tooltip_close(awh_tooltip)
+    ui.DestroyFrame(awh_tooltip:GetName())
+end
+
+function Another_warehouse_silver(awh)
+    local silver = session.GetInvItemByType(900011)
+    local accountwarehouse = ui.GetFrame('accountwarehouse')
+    local handle = accountwarehouse:GetUserIValue('HANDLE')
+    local char_silver = 0
+    if silver then
+        char_silver = tonumber(silver:GetAmountStr())
+    end
+    char_silver = char_silver - g.awh_settings.etc.auto_silver
+    if char_silver > 0 then
+        item.PutItemToWarehouse(IT_ACCOUNT_WAREHOUSE, silver:GetIESID(), tostring(char_silver), handle)
+    elseif char_silver <= 0 then
+        session.ResetItemList()
+        session.AddItemIDWithAmount("0", tostring(-char_silver))
+        item.TakeItemFromWarehouse_List(IT_ACCOUNT_WAREHOUSE, session.GetItemIDList(), handle)
+    end
+    Another_warehouse_end(awh)
+end
+
+function Another_warehouse_end(awh)
+    g.another_warehouse_func = false
+    ui.SysMsg("[AWH]End of Operation")
+    imcSound.PlaySoundEvent('sys_cube_open_normal')
+    local awh = ui.GetFrame(addon_name_lower .. "awh")
+    local gb = GET_CHILD(awh, "gb")
+    AUTO_CAST(gb)
+    local index = awh:GetUserIValue("TAB_INDEX")
+    Another_warehouse_frame_update(awh, gb, "", index)
+end
+
+function Another_warehouse_setting_frame_init(frame, ctrl, str, num)
+    local inventory = ui.GetFrame('inventory')
+    inventory:ShowWindow(1)
+    INVENTORY_SET_CUSTOM_RBTNDOWN("None")
+    INVENTORY_SET_CUSTOM_RBTNDOWN("Another_warehouse_setting_rbtn")
+    local setting = ui.CreateNewFrame("notice_on_pc", addon_name_lower .. "awh_setting", 0, 0, 0, 0)
+    AUTO_CAST(setting)
+    setting:RemoveAllChild()
+    setting:SetPos(670, 10)
+    setting:Resize(740, 1060)
+    setting:SetLayerLevel(96)
+    setting:SetSkinName("test_frame_low")
+    local title_gb = setting:CreateOrGetControl("groupbox", "title_gb", 0, 0, setting:GetWidth(), 55)
+    title_gb:SetSkinName("test_frame_top")
+    AUTO_CAST(title_gb)
+    local title_text = title_gb:CreateOrGetControl("richtext", "title_text", 0, 0, ui.CENTER_HORZ, ui.TOP, 0, 15, 0, 0)
+    AUTO_CAST(title_text)
+    title_text:SetText('{ol}{s26}Another Warehouse Setting')
+    local close = setting:CreateOrGetControl("button", "close", 0, 0, 25, 25)
+    AUTO_CAST(close)
+    close:SetImage("testclose_button")
+    close:SetOffset(680, 15)
+    close:SetEventScript(ui.LBUTTONUP, "Another_warehouse_setting_close")
+    local money_check = setting:CreateOrGetControl('checkbox', 'money_check', 25, 65, 25, 25)
+    AUTO_CAST(money_check)
+    money_check:SetEventScript(ui.LBUTTONUP, "Another_warehouse_setting_check")
+    money_check:SetCheck(g.awh_settings.chars[g.cid].money_check)
+    money_check:SetText(g.lang == "Japanese" and "{ol}自動入出金" or "{ol}automatic deposit and withdrawal")
+    money_check:SetTextTooltip(g.lang == "Japanese" and
+                                   "{ol}チェックをすると、自動入出金有効化 各キャラクター毎に設定" or
+                                   "{ol}If checked, activate silver auto-deposit/withdrawal{nl}configured per character")
+    local item_check = setting:CreateOrGetControl('checkbox', 'item_check', 25, 95, 25, 25)
+    AUTO_CAST(item_check)
+    item_check:SetEventScript(ui.LBUTTONUP, "Another_warehouse_setting_check")
+    item_check:SetCheck(g.awh_settings.chars[g.cid].item_check)
+    item_check:SetText(g.lang == "Japanese" and "{ol}自動搬出入" or "{ol}Automatic item receipt and dispatch")
+    item_check:SetTextTooltip(g.lang == "Japanese" and
+                                  "{ol}チェックをすると、自動搬出入有効化 各キャラクター毎に設定" or
+                                  "{ol}If checked, activate item auto-deposit/withdrawal{nl}configured per character")
+    local help = setting:CreateOrGetControl('button', "awh_help", 695, 65, 25, 25)
+    AUTO_CAST(help)
+    help:SetText("{img question_mark 15 15}")
+    help:SetTextTooltip("HELP")
+    help:SetEventScript(ui.LBUTTONUP, "Another_warehouse_setting_help")
+    local amount_text = setting:CreateOrGetControl("richtext", "amount_text", 400, 65, 0, 30)
+    AUTO_CAST(amount_text)
+    amount_text:SetText(g.lang == "Japanese" and "{ol}自動入出金 金額設定" or "{ol}Auto Transfer Amount Config")
+    local amount_edit = setting:CreateOrGetControl('edit', 'amount_edit', 400, 90, 150, 35)
+    AUTO_CAST(amount_edit)
+    amount_edit:SetFontName("white_18_ol")
+    amount_edit:SetTextAlign("center", "center")
+    amount_edit:SetText(GET_COMMAED_STRING(g.awh_settings.etc.auto_silver or 0))
+    amount_edit:SetNumberMode(1)
+    amount_edit:SetEventScript(ui.ENTERKEY, 'Another_warehouse_setting_edit')
+    local team_text = setting:CreateOrGetControl("richtext", "team_text", 25, 125, 0, 0)
+    AUTO_CAST(team_text);
+    team_text:SetText(g.lang == "Japanese" and "{ol}チーム倉庫の共通設定" or
+                          "{ol}Team Storage Common Settings")
+    local char_text = setting:CreateOrGetControl("richtext", "char_text", 25, 695, 0, 0)
+    AUTO_CAST(char_text)
+    char_text:SetText(g.lang == "Japanese" and "{ol}チーム倉庫のキャラクター個別設定" or
+                          "{ol}Team Storage Character Settings")
+    local team_gb = setting:CreateOrGetControl("groupbox", "team_gb", 20, 145, setting:GetWidth() - 25, 540)
+    team_gb:SetSkinName("test_frame_low")
+    AUTO_CAST(team_gb)
+    Another_warehouse_setting_slot_set(team_gb, 'team_slotset')
+    local char_gb = setting:CreateOrGetControl("groupbox", "char_gb", 20, 715, setting:GetWidth() - 25, 330)
+    char_gb:SetSkinName("test_frame_low")
+    AUTO_CAST(char_gb)
+    Another_warehouse_setting_slot_set(char_gb, 'char_slotset')
+    setting:ShowWindow(1)
+end
+
+function Another_warehouse_setting_close(setting)
+    ui.DestroyFrame(setting:GetName())
+    local accountwarehouse = ui.GetFrame("accountwarehouse")
+    ACCOUNTWAREHOUSE_CLOSE(accountwarehouse)
+end
+
+function Another_warehouse_setting_check(frame, ctrl)
+    local ischeck = ctrl:IsChecked()
+    local ctrl_name = ctrl:GetName()
+    if ctrl_name == "awh_leave" then -- 
+        g.awh_settings.etc.leave_item = ischeck
+    elseif ctrl_name == "awh_display_change" then
+        g.awh_settings.etc.display_change = ischeck
+    elseif ctrl_name == "money_check" then
+        g.awh_settings.chars[g.cid].money_check = ischeck
+    elseif ctrl_name == "item_check" then
+        g.awh_settings.chars[g.cid].item_check = ischeck
+    end
+    Another_warehouse_save_settings()
+    local awh = ui.GetFrame(addon_name_lower .. "awh")
+    local gb = GET_CHILD(awh, "gb")
+    AUTO_CAST(gb)
+    local tab_index = awh:GetUserIValue("TAB_INDEX")
+    Another_warehouse_frame_update(awh, gb, "", tab_index)
+end
+
+function Another_warehouse_setting_edit(frame, ctrl)
+    local text = ctrl:GetText()
+    local clean_text = string.gsub(text, ",", "") -- カンマを空文字に置換
+    local ctrl_num = tonumber(clean_text) or 0
+    if ctrl:GetName() == "amount_edit" then
+        g.awh_settings.etc.auto_silver = ctrl_num
+        ctrl:SetText(GET_COMMAED_STRING(g.awh_settings.etc.auto_silver))
+    end
+    Another_warehouse_save_settings()
+end
+
+function Another_warehouse_setting_help()
+    local context = ui.CreateContextMenu("awh_setting_help_context", "{ol}[AWH] HELP", 30, 0, 100, 100)
+    local msg =
+        g.lang == "Japanese" and "インベントリ:マウス右クリックでチームのアイテム設定" or
+            "Inventory: right mouse click to set team items"
+    ui.AddContextMenuItem(context, "{ol}" .. msg, "None")
+    msg = g.lang == "Japanese" and
+              "インベントリ:左SHIFT+マウス右クリックで各キャラのアイテム設定" or
+              "Inventory: left SHIFT+mouse right click to set items for each character"
+    ui.AddContextMenuItem(context, "{ol}" .. msg, "None")
+    msg = g.lang == "Japanese" and "設定スロット:左SHIFT+マウス右クリックで設定個数変更" or
+              "Setting slot: left SHIFT+right mouse click to change the number of setting pieces"
+    ui.AddContextMenuItem(context, "{ol}" .. msg, "None")
+    msg = g.lang == "Japanese" and "設定スロット:マウス右クリックで設定消去" or
+              "Setting slot: right mouse click to clear settings"
+    ui.AddContextMenuItem(context, "{ol}" .. msg, "None")
+    ui.OpenContextMenu(context)
+end
+
+function Another_warehouse_setting_slot_set(parent, slot_set_name)
+    local slotset = parent:CreateOrGetControl('slotset', slot_set_name, 10, 10, 0, 0)
+    AUTO_CAST(slotset)
+    slotset:SetSlotSize(40, 40)
+    slotset:EnablePop(1)
+    slotset:EnableDrag(1)
+    slotset:EnableDrop(1)
+    slotset:SetColRow(17, 58)
+    slotset:SetSpc(0, 0)
+    slotset:SetSkinName('slot')
+    slotset:SetEventScript(ui.DROP, "Another_warehouse_setting_swap_item")
+    slotset:SetEventScript(ui.RBUTTONUP, "Another_warehouse_setting_icon_clear")
+    slotset:CreateSlots()
+    local slotcount = slotset:GetSlotCount()
+    local items = {}
+    if slot_set_name == 'team_slotset' then
+        items = g.awh_settings.items
+    elseif slot_set_name == 'char_slotset' then
+        items = g.awh_settings.chars[g.cid].items
+    end
+    for i = 1, slotcount do
+        local slot = GET_CHILD(slotset, "slot" .. i)
+        local str_index = tostring(i)
+        for key, value in pairs(items) do
+            if key == str_index then
+                local clsid = value.clsid
+                local count = value.count
+                local itemcls = GetClassByType("Item", clsid)
+                slot:SetUserValue("ITEM_CLSID", clsid)
+                SET_SLOT_ITEM_CLS(slot, itemcls)
+                if count ~= 0 then
+                    SET_SLOT_COUNT_TEXT(slot, count)
+                end
+            end
+        end
+    end
+end
+
+function Another_warehouse_setting_swap_item(parent, slot, str, num)
+    local frame = parent:GetTopParentFrame()
+    if frame:GetName() ~= addon_name_lower .. "awh_setting" then
+        return
+    end
+    local items = {}
+    local slot_set_name = parent:GetName()
+    if slot_set_name == 'team_slotset' then
+        items = g.awh_settings.items
+    elseif slot_set_name == 'char_slotset' then
+        items = g.awh_settings.chars[g.cid].items
+    end
+    local lift_icon = ui.GetLiftIcon()
+    local from_slot = lift_icon:GetParent()
+    local from_items = {}
+    local from_slot_set_name = from_slot:GetParent():GetName()
+    if from_slot_set_name == 'team_slotset' then
+        from_items = g.awh_settings.items
+    elseif from_slot_set_name == 'char_slotset' then
+        from_items = g.awh_settings.chars[g.cid].items
+    end
+    local from_index = string.gsub(from_slot:GetName(), "slot", "")
+    local from_data = from_items[from_index] -- データテーブルそのものを取得
+    local to_index = string.gsub(slot:GetName(), "slot", "")
+    local to_icon = slot:GetIcon()
+    if not to_icon then
+        from_items[from_index] = nil
+        items[to_index] = from_data
+    else
+        local to_data = items[to_index]
+        from_items[from_index] = to_data
+        items[to_index] = from_data
+    end
+    Another_warehouse_save_settings()
+    Another_warehouse_setting_frame_init(nil, nil, str, num)
+end
+
+function Another_warehouse_setting_icon_clear(parent, ctrl, str, num)
+    if keyboard.IsKeyPressed("LSHIFT") == 1 then
+        Another_warehouse_setting_count_change(parent, ctrl, str, num)
+        return
+    end
+    local items = {}
+    if parent:GetName() == 'team_slotset' then
+        items = g.awh_settings.items
+    elseif parent:GetName() == 'char_slotset' then
+        items = g.awh_settings.chars[g.cid].items
+    end
+    local str_index = string.gsub(ctrl:GetName(), "slot", "")
+    for key, value in pairs(items) do
+        if key == str_index then
+            ctrl:ClearIcon()
+            ctrl:ClearText()
+            items[str_index] = nil
+            Another_warehouse_save_settings()
+            break
+        end
+    end
+end
+
+function Another_warehouse_setting_count_change(frame, ctrl, strr, num)
+    local slot_index = tonumber(string.gsub(ctrl:GetName(), "slot", ""))
+    if slot_index then
+        local cls_id = ctrl:GetUserIValue("ITEM_CLSID")
+        local itemcls = GetClassByType("Item", cls_id)
+        local awh_setting = ui.GetFrame(addon_name_lower .. "awh_setting")
+        awh_setting:SetUserValue("SLOT_NAME", ctrl:GetParent():GetName())
+        local msg = g.lang == "Japanese" and "インベントリに残す数を入力" or
+                        "Enter the number to be left in the inventory"
+        INPUT_NUMBER_BOX(awh_setting, msg, "Another_warehouse_setting_item_count", 0, 0, tonumber(itemcls.MaxStack),
+            cls_id, tostring(slot_index), nil)
+    end
+end
+
+function Another_warehouse_setting_item_count(awh_setting, count, input_frame)
+    local clsid = input_frame:GetValue()
+    local index = input_frame:GetUserValue("ArgString")
+    local item_cls = GetClassByType("Item", clsid)
+    local user_value = awh_setting:GetUserValue("SLOT_NAME")
+    local items = {}
+    if user_value == "char_slotset" then
+        items = g.awh_settings.chars[g.cid].items
+    else
+        items = g.awh_settings.items
+    end
+    local slotset = GET_CHILD_RECURSIVELY(awh_setting, user_value)
+    local slot = GET_CHILD_RECURSIVELY(slotset, "slot" .. index)
+    items[tostring(index)] = {
+        clsid = clsid,
+        count = tonumber(count)
+    }
+    SET_SLOT_ITEM_CLS(slot, item_cls)
+    if tonumber(count) ~= 0 then
+        SET_SLOT_COUNT_TEXT(slot, tonumber(count))
+    end
+    Another_warehouse_save_settings()
+    input_frame:ShowWindow(0)
+end
+
+function Another_warehouse_setting_rbtn(item_obj, slot)
+    local icon = slot:GetIcon()
+    local icon_info = icon:GetInfo()
+    local iesid = icon_info:GetIESID()
+    local inv_item = GET_PC_ITEM_BY_GUID(iesid)
+    if not inv_item then
+        return
+    end
+    local cls_id = icon_info.type
+    local item_cls = GetClassByType("Item", cls_id)
+    local obj = GetIES(inv_item:GetObject())
+    if inv_item.isLockState then
+        ui.SysMsg(ClMsg("MaterialItemIsLock"))
+        return
+    end
+    if item_cls.ItemType == 'Quest' then
+        ui.MsgBox(ScpArgMsg("IT_ISNT_REINFORCEABLE_ITEM"));
+        return
+    end
+    local enable_team_trade = TryGetProp(item_cls, "TeamTrade")
+    if enable_team_trade and enable_team_trade == "NO" then
+        ui.SysMsg(ClMsg("ItemIsNotTradable"))
+        return
+    end
+    local belonging_count = TryGetProp(obj, 'BelongingCount', 0)
+    if belonging_count > 0 and belonging_count >= inv_item.count then
+        ui.SysMsg(ClMsg("ItemIsNotTradable"))
+        return
+    end
+    if TryGetProp(obj, 'CharacterBelonging', 0) == 1 then
+        ui.SysMsg(ClMsg("ItemIsNotTradable"))
+        return
+    end
+    local items = {}
+    local slotset_name = ""
+    if keyboard.IsKeyPressed("LSHIFT") == 1 then
+        items = g.awh_settings.chars[g.cid].items
+        slotset_name = "char_slotset"
+    else
+        items = g.awh_settings.items
+        slotset_name = 'team_slotset'
+    end
+    for key, value in pairs(items) do
+        if value.clsid == cls_id then
+            ui.SysMsg(g.lang == "Japanese" and "既に登録済です" or "Already registered")
+            return
+        end
+    end
+    local awh_setting = ui.GetFrame(addon_name_lower .. "awh_setting")
+    local slotset = GET_CHILD_RECURSIVELY(awh_setting, slotset_name)
+    local slotcount = slotset:GetSlotCount()
+    local index = 1
+    for i = 1, slotcount do
+        local awslot = GET_CHILD_RECURSIVELY(slotset, "slot" .. i)
+        local slot_icon = awslot:GetIcon()
+        if slot_icon == nil then
+            index = i
+            break
+        end
+    end
+    local ctrl = GET_CHILD_RECURSIVELY(slotset, "slot" .. index)
+    if tonumber(item_cls.MaxStack) > 1 then
+        awh_setting:SetUserValue("SLOT_NAME", ctrl:GetParent():GetName())
+        local msg = g.lang == "Japanese" and "インベントリに残す数を入力" or
+                        "Enter the number to be left in the inventory"
+        INPUT_NUMBER_BOX(awh_setting, msg, "Another_warehouse_setting_item_count", 0, 0, tonumber(item_cls.MaxStack),
+            cls_id, tostring(index), nil)
+    else
+        items[tostring(index)] = {
+            clsid = cls_id,
+            count = 0
+        }
+        SET_SLOT_ITEM_CLS(ctrl, item_cls)
+        Another_warehouse_save_settings()
+    end
+end
+
+function Another_warehouse_setting_context(frame, ctrl, str, num)
+    local context = ui.CreateContextMenu("awh_TAKE_SETTING", "{ol}{#FF0000}Slot Setting", 0, 20, 100, 100)
+    for i, data in ipairs(g.awh_settings.take_list) do
+        local name = data.name
+        local scp = string.format("Another_warehouse_set_items_setting(%d,'%s')", i, name)
+        ui.AddContextMenuItem(context, "{ol}{#FF0000}" .. name, scp)
+    end
+    ui.OpenContextMenu(context)
+end
+
+function Another_warehouse_set_items_setting(index, name)
+    local awh_set_items = ui.CreateNewFrame("notice_on_pc", addon_name_lower .. "awh_set_items", 0, 0, 0, 0)
+    AUTO_CAST(awh_set_items)
+    awh_set_items:SetSkinName("test_frame_low")
+    awh_set_items:SetPos(680, 170)
+    awh_set_items:SetLayerLevel(100)
+    awh_set_items:Resize(320, 608)
+    awh_set_items:RemoveAllChild()
+    local close = awh_set_items:CreateOrGetControl("button", "close", 0, 0, 25, 25)
+    AUTO_CAST(close)
+    close:SetImage("testclose_button")
+    close:SetGravity(ui.RIGHT, ui.TOP)
+    close:SetEventScript(ui.LBUTTONUP, "Another_warehouse_set_item_close")
+    local set_gb = awh_set_items:CreateOrGetControl("groupbox", "set_gb", 10, 50, 380, 380)
+    AUTO_CAST(set_gb)
+    set_gb:SetSkinName("test_frame_midle_light")
+    set_gb:Resize(300, 500)
+    awh_set_items:ShowWindow(1)
+    local name_edit = awh_set_items:CreateOrGetControl("edit", "name_edit", 10, 13, 210, 30)
+    AUTO_CAST(name_edit)
+    name_edit:SetFontName("white_16_ol")
+    name_edit:SetTextAlign("center", "center")
+    name_edit:SetText("{ol}" .. name)
+    name_edit:SetEventScript(ui.ENTERKEY, "Another_warehouse_set_name_edit")
+    name_edit:SetEventScriptArgString(ui.ENTERKEY, name)
+    name_edit:SetEventScriptArgNumber(ui.ENTERKEY, index)
+    local set_slotset = set_gb:CreateOrGetControl('slotset', 'set_slotset', 0, 0, 0, 0)
+    AUTO_CAST(set_slotset)
+    set_slotset:SetSlotSize(50, 50)
+    set_slotset:EnablePop(1)
+    set_slotset:EnableDrag(1)
+    set_slotset:EnableDrop(1)
+    set_slotset:SetEventScript(ui.DROP, "Another_warehouse_set_swap_item")
+    set_slotset:SetEventScriptArgString(ui.DROP, name)
+    set_slotset:SetEventScriptArgNumber(ui.DROP, index)
+    set_slotset:SetColRow(6, 10)
+    set_slotset:SetSpc(0, 0)
+    set_slotset:SetSkinName('slot')
+    set_slotset:CreateSlots()
+    local target_set = g.awh_settings.take_list[index]
+    local items_map = target_set.items
+    local slotcount = set_slotset:GetSlotCount()
+    for i = 1, slotcount do
+        local slot = GET_CHILD(set_slotset, "slot" .. i)
+        AUTO_CAST(slot)
+        local icon = slot:GetIcon()
+        if not icon then
+            slot:SetTextTooltip(g.lang == "Japanese" and "{ol}倉庫アイテム右クリックで設定" or
+                                    "{ol}Warehouse items right-click to setting")
+        end
+        local saved_clsid = items_map[tostring(i)]
+        if saved_clsid then
+            local item_cls = GetClassByType("Item", saved_clsid)
+            if item_cls then
+                SET_SLOT_ITEM_CLS(slot, item_cls)
+                slot:SetEventScript(ui.RBUTTONUP, "Another_warehouse_set_clear_item")
+                slot:SetEventScriptArgNumber(ui.RBUTTONUP, index)
+                slot:SetEventScriptArgString(ui.RBUTTONUP, name)
+            end
+        end
+    end
+    local init = awh_set_items:CreateOrGetControl("button", "init", 0, 0, 100, 43)
+    AUTO_CAST(init)
+    init:SetText(g.lang == "Japanese" and "{@st66b}初期化" or "{@st66b}Initialize")
+    init:SetMargin(210, 555, 0, 0)
+    init:SetSkinName("test_pvp_btn")
+    init:SetEventScript(ui.LBUTTONUP, "Another_warehouse_setslot_init")
+    init:SetEventScriptArgString(ui.LBUTTONUP, name)
+    init:SetEventScriptArgNumber(ui.LBUTTONUP, index)
+    local take = awh_set_items:CreateOrGetControl("button", "awh_take", 0, 0, 100, 43)
+    AUTO_CAST(take)
+    take:SetText(g.lang == "Japanese" and "{@st66b}取出し" or "{@st66b}Withdrawal")
+    take:SetMargin(10, 555, 0, 0)
+    take:SetSkinName("test_pvp_btn")
+    take:SetEventScript(ui.LBUTTONUP, "Another_warehouse_set_item_take_reserve")
+    take:SetEventScriptArgString(ui.LBUTTONUP, name)
+end
+
+function Another_warehouse_set_item_take_reserve(frame, ctrl, name)
+    Another_warehouse_set_item_take(name)
+end
+
+function Another_warehouse_set_clear_item(frame, ctrl, name, index)
+    local slot_index = string.gsub(ctrl:GetName(), "slot", "")
+    g.awh_settings.take_list[index].items[slot_index] = nil
+    Another_warehouse_save_settings()
+    Another_warehouse_set_items_setting(index, name)
+end
+
+function Another_warehouse_set_swap_item(parent, slot, name, index)
+    if parent:GetTopParentFrame():GetName() ~= addon_name_lower .. "awh_set_items" then
+        return
+    end
+    local lift_icon = ui.GetLiftIcon()
+    local from_slot = lift_icon:GetParent()
+    local from_index = string.gsub(from_slot:GetName(), "slot", "")
+    local from_clsid = g.awh_settings.take_list[index].items[from_index]
+    local to_index = string.gsub(slot:GetName(), "slot", "")
+    local to_icon = slot:GetIcon()
+    if not to_icon then
+        g.awh_settings.take_list[index].items[from_index] = nil
+        g.awh_settings.take_list[index].items[to_index] = from_clsid
+    else
+        local to_clsid = g.awh_settings.take_list[index].items[to_index]
+        g.awh_settings.take_list[index].items[from_index] = to_clsid
+        g.awh_settings.take_list[index].items[to_index] = from_clsid
+    end
+    Another_warehouse_save_settings()
+    Another_warehouse_set_items_setting(index, name)
+end
+
+function Another_warehouse_set_name_edit(frame, ctrl, name, index)
+    local new_name = string.gsub(ctrl:GetText(), "{ol}", "")
+    if new_name == "" then
+        ui.SysMsg(g.lang == "Japanese" and "文字を入れてください" or "Please enter the text")
+        return
+    end
+    for i, data in ipairs(g.awh_settings.take_list) do
+        if new_name == data.name then
+            ui.SysMsg(g.lang == "Japanese" and "既に登録済の名前です" or "Name already registered")
+            return
+        end
+    end
+    g.awh_settings.take_list[index].name = new_name
+    Another_warehouse_save_settings()
+    Another_warehouse_set_items_setting(index, new_name)
+end
+
+function Another_warehouse_set_item_close(frame)
+    ui.DestroyFrame(addon_name_lower .. "awh_set_items")
+end
+
+function Another_warehouse_setslot_init(frame, init, name, index)
+    local yes_scp = string.format("Another_warehouse_setslot_init_ok('%s',%d)", name, index)
+    local msg = g.lang == "Japanese" and "{ol}{#FFFFFF}セット初期化しますか？" or
+                    "{ol}{#FFFFFF}Initialize this set?"
+    local msgbox = ui.MsgBox(msg, yes_scp, 'None')
+end
+
+function Another_warehouse_setslot_init_ok(name, index)
+    g.awh_settings.take_list[index] = {
+        name = "Take Items " .. index,
+        items = {}
+    }
+    ui.SysMsg(g.lang == "Japanese" and "{ol}初期化しました" or "{ol}Initialized")
+    Another_warehouse_save_settings()
+    local new_name = "Take Items " .. index
+    Another_warehouse_set_items_setting(index, new_name)
+end
+
+function Another_warehouse_take_context(frame, ctrl, str, num)
+    local context = ui.CreateContextMenu("TAKE_SETTING", "{ol}Take items", 0, 20, 100, 100)
+    for i, data in ipairs(g.awh_settings.take_list) do
+        local name = data.name
+        local scp = string.format("Another_warehouse_set_item_take('%s')", name)
+        ui.AddContextMenuItem(context, name, scp)
+    end
+    ui.OpenContextMenu(context)
+end
+
+function Another_warehouse_set_item_take(name)
+    local accountwarehouse = ui.GetFrame('accountwarehouse')
+    local handle = accountwarehouse:GetUserIValue("HANDLE")
+    local item_list = session.GetEtcItemList(IT_ACCOUNT_WAREHOUSE)
+    session.ResetItemList()
+    local sorted_guid_list = item_list:GetSortedGuidList()
+    local sorted_cnt = sorted_guid_list:Count()
+    local take_count = 0
+    local target_items_map = {}
+    if g.awh_settings.take_list then
+        for i, set_data in ipairs(g.awh_settings.take_list) do
+            if set_data.name == name then
+                for key, item_id in pairs(set_data.items) do
+                    target_items_map[tonumber(item_id)] = true
+                end
+                break
+            end
+        end
+    end
+    for j = 0, sorted_cnt - 1 do
+        local guid = sorted_guid_list:Get(j)
+        local inv_item = item_list:GetItemByGuid(guid)
+        local cls_id = inv_item.type
+        if target_items_map[cls_id] then
+            local count = inv_item.count
+            if g.awh_settings.etc.leave_item == 1 then
+                count = count - 1
+            end
+            if count > 0 then
+                session.AddItemID(guid, count)
+                take_count = take_count + 1
+            end
+        end
+    end
+    if take_count > 0 then
+        item.TakeItemFromWarehouse_List(IT_ACCOUNT_WAREHOUSE, session.GetItemIDList(), handle)
+    end
+    local awh = ui.GetFrame(addon_name_lower .. "awh")
+    local gb = GET_CHILD(awh, "gb")
+    AUTO_CAST(gb)
+    local index = awh:GetUserIValue("TAB_INDEX")
+    Another_warehouse_frame_update(awh, gb, "", index)
+end
+
+function Another_warehouse_help()
+    local context = ui.CreateContextMenu("awh_help_context", "{ol}[AWH] HELP", 30, 0, 100, 100)
+    local msg = g.lang == "Japanese" and "インベントリ:アイコン右クリックで全数搬入" or
+                    "Inventory: right mouse click to Carry in all items"
+    ui.AddContextMenuItem(context, "{ol}" .. msg, "None")
+    msg = g.lang == "Japanese" and "インベントリ:アイコン左クリックで1個搬入" or
+              "Inventory: left mouse click to Carry in 1 items"
+    ui.AddContextMenuItem(context, "{ol}" .. msg, "None")
+    msg = g.lang == "Japanese" and "インベントリ:左SHIFT+アイコン右クリックで入力数量搬入" or
+              "Inventory: left SHIFT+mouse right click to Carry in Input quantity items"
+    ui.AddContextMenuItem(context, "{ol}" .. msg, "None")
+    msg = g.lang == "Japanese" and "インベントリ:左SHIFT+アイコン左クリックで10個搬入" or
+              "Inventory: left SHIFT+mouse left click to Carry in 10 items"
+    ui.AddContextMenuItem(context, "{ol}" .. msg, "None")
+    ui.AddContextMenuItem(context, "----------", "None")
+    msg = g.lang == "Japanese" and "チーム倉庫:アイコン右クリックで全数搬出" or
+              "Warehouse: right mouse click to Carry out all items"
+    ui.AddContextMenuItem(context, "{ol}" .. msg, "None")
+    msg = g.lang == "Japanese" and "チーム倉庫:アイコン左クリックで1個搬出" or
+              "Warehouse: left mouse click to Carry out 1 items"
+    ui.AddContextMenuItem(context, "{ol}" .. msg, "None")
+    msg = g.lang == "Japanese" and "チーム倉庫:左SHIFT+アイコン右クリックで入力数量搬出" or
+              "Warehouse: left SHIFT+mouse right click to Carry out Input quantity items"
+    ui.AddContextMenuItem(context, "{ol}" .. msg, "None")
+    msg = g.lang == "Japanese" and "チーム倉庫:左SHIFT+アイコン左クリックで10個搬出" or
+              "Warehouse: left SHIFT+mouse left click to Carry out 10 items"
+    ui.AddContextMenuItem(context, "{ol}" .. msg, "None")
+    ui.OpenContextMenu(context)
+end
+-- another_warehouse ここまで
+
+-- vakarine_equip ここから
+function Vakarine_equip_save_settings()
+    g.save_json(g.vakarine_equip_path, g.vakarine_equip_settings)
+end
+
+function Vakarine_equip_load_settings()
+    g.vakarine_equip_path = string.format("../addons/%s/%s/vakarine_equip.json", addon_name_lower, g.active_id)
+    local settings = g.load_json(g.vakarine_equip_path)
+    if not settings then
+        settings = {
+            buffid = {},
+            delay = 0.1,
+            jsr = 0,
+            x = 0,
+            y = 0,
+            move = 1,
+            chars = {},
+            auto_remove = 0
+        }
+    end
+    g.vakarine_equip_settings = settings
+    Vakarine_equip_save_settings()
+end
+
+function vakarine_equip_on_init()
+    ui.SetHoldUI(false)
+    if not g.vakarine_equip_settings then
+        Vakarine_equip_load_settings()
+    end
+    if not g.vakarine_equip_settings.chars[g.cid] then
+        Vakarine_equip_chrs_settings()
+    end
+    if g.settings.vakarine_equip.use == 0 then
+        ui.DestroyFrame(addon_name_lower .. "vakarine_equip")
+        return
+    end
+    g.addon:RegisterMsg('STAT_UPDATE', 'Vakarine_equip_stat_update')
+    g.addon:RegisterMsg('TAKE_DAMAGE', 'Vakarine_equip_stat_update')
+    g.addon:RegisterMsg('TAKE_HEAL', 'Vakarine_equip_stat_update')
+    g.addon:RegisterMsg('BUFF_ADD', 'Vakarine_equip_BUFF_ON_MSG')
+    g.addon:RegisterMsg('BUFF_UPDATE', 'Vakarine_equip_BUFF_ON_MSG')
+    Vakarine_equip_frame_init()
+    if g.get_map_type() ~= "City" then
+        Vakarine_equip_start_operation()
+    end
+end
+
+function Vakarine_equip_chrs_settings()
+    local equips = {"RH", "LH", "RH_SUB", "LH_SUB", "RING1", "RING2", "SHIRT", "PANTS", "GLOVES", "BOOTS", "SHOULDER",
+                    "BELT", "NECK"}
+    g.vakarine_equip_settings.chars[g.cid] = {
+        use = 0
+    }
+    for _, equip in ipairs(equips) do
+        g.vakarine_equip_settings.chars[g.cid][equip] = 0
+    end
+    Vakarine_equip_save_settings()
+end
+
+function Vakarine_equip_frame_init()
+    local vakarine_equip = ui.CreateNewFrame("notice_on_pc", addon_name_lower .. "vakarine_equip", 0, 0, 0, 0)
+    AUTO_CAST(vakarine_equip)
+    vakarine_equip:SetSkinName("None")
+    vakarine_equip:SetTitleBarSkin("None")
+    vakarine_equip:Resize(40, 30)
+    vakarine_equip:SetGravity(ui.RIGHT, ui.TOP)
+    vakarine_equip:EnableMove(g.vakarine_equip_settings.move == 1 and 0 or 1)
+    vakarine_equip:EnableHittestFrame(1)
+    local rect = vakarine_equip:GetMargin()
+    vakarine_equip:SetMargin(rect.left - rect.left, rect.top - rect.top + 300,
+        rect.right == 0 and rect.right + 10 or rect.right, rect.bottom)
+    if g.vakarine_equip_settings.x ~= 0 and g.vakarine_equip_settings.y ~= 0 then
+        vakarine_equip:SetPos(g.vakarine_equip_settings.x, g.vakarine_equip_settings.y)
+    end
+    vakarine_equip:SetEventScript(ui.LBUTTONUP, "Vakarine_equip_location_save")
+    local vaka_pic = vakarine_equip:CreateOrGetControl("picture", "vaka_pic", 0, 0, 30, 30)
+    AUTO_CAST(vaka_pic)
+    vaka_pic:SetImage("bakarine_emotion68") -- vaka_pic:SetImage("bakarine_emotion61") vaka_pic:SetImage("emoticon_0024")
+    vaka_pic:SetColorTone("FFFFFFFF")
+    vaka_pic:SetEnableStretch(1)
+    vaka_pic:EnableHitTest(1)
+    vaka_pic:SetGravity(ui.LEFT, ui.TOP)
+    vaka_pic:SetTextTooltip(g.lang == "Japanese" and
+                                "{ol}Vakarine Equip{nl} {nl}左クリック{nl}街: 設定{nl}街以外: 手動起動{nl} {nl}右クリック{nl}自動起動ON/OFF" or
+                                "{ol}Vakarine Equip{nl} {nl}Left click{nl}City: Setup{nl}Outside City: Manual activation{nl} {nl}Right click: Auto-activation ON/OFF")
+    if g.vakarine_equip_settings.chars[g.cid].use == 0 then
+        vaka_pic:SetColorTone("FF555555")
+    else
+        vaka_pic:SetColorTone("FFFFFFFF")
+    end
+    vaka_pic:SetEventScript(ui.RBUTTONUP, "Vakarine_equip_onoff_switch")
+    vaka_pic:SetEventScript(ui.LBUTTONUP, "Vakarine_equip_config_or_startup")
+    vakarine_equip:ShowWindow(1)
+    if g.vakarine_equip_animas_iesid and g.get_map_type() == "City" then
+        vakarine_equip:RunUpdateScript("Vakarine_equip_animas_equip", 1.0)
+    end
+end
+
+function Vakarine_equip_location_save(frame, ctrl)
+    if frame:GetName() == addon_name_lower .. "vakarine_equip" then
+        g.vakarine_equip_settings.x = frame:GetX()
+        g.vakarine_equip_settings.y = frame:GetY()
+    elseif ctrl:GetName() == "default_btn" then
+        g.vakarine_equip_settings.x = 0
+        g.vakarine_equip_settings.y = 0
+        ui.DestroyFrame(addon_name_lower .. "vakarine_equip")
+        ReserveScript("Vakarine_equip_frame_init()", 0.1)
+    end
+    Vakarine_equip_save_settings()
+end
+
+function Vakarine_equip_onoff_switch(vakarine_equip, vaka_pic)
+    if g.vakarine_equip_settings.chars[g.cid].use == 0 then
+        g.vakarine_equip_settings.chars[g.cid].use = 1
+        vaka_pic:SetColorTone("FFFFFFFF")
+    else
+        vaka_pic:SetColorTone("FF555555")
+        g.vakarine_equip_settings.chars[g.cid].use = 0
+    end
+    Vakarine_equip_save_settings()
+    if keyboard.IsKeyPressed("LSHIFT") == 1 then
+        Vakarine_equip_buff_list(nil, nil, "")
+        return
+    end
+end
+
+function Vakarine_equip_animas_equip(vakarine_equip)
+    local equip_item_list = session.GetEquipItemList()
+    local equip_item = equip_item_list:GetEquipItemByIndex(19)
+    if equip_item then
+        local iesid = equip_item:GetIESID()
+        local try = vakarine_equip:GetUserIValue("TRY")
+        if iesid ~= g.vakarine_equip_animas_iesid and try < 3 then
+            local equip_item = session.GetInvItemByGuid(g.vakarine_equip_animas_iesid)
+            item.Equip(equip_item.invIndex)
+            vakarine_equip:GetUserIValue("TRY", try + 1)
+            return 1
+        end
+    end
+    vakarine_equip:GetUserIValue("TRY", 0)
+    g.vakarine_equip_animas_iesid = nil
+    return 0
+end
+
+function Vakarine_equip_config_or_startup(frame, ctrl)
+    if g.get_map_type() == "City" then
+        Vakarine_equip_config_frame_open()
+    else
+        Vakarine_equip_start_operation(true)
+    end
+end
+
+function Vakarine_equip_start_operation(is_manual)
+    if not is_manual then
+        local char_data = g.vakarine_equip_settings.chars[g.cid]
+        if not char_data or char_data.use == 0 then
+            return
+        end
+    end
+    local is_vakarine = Vakarine_equip_is_vakarine()
+    if not is_vakarine and not is_manual then
+        return
+    end
+    local is_valid_map =
+        (g.get_map_type() == "Instance" and g.map_id ~= 11227) -- 11244 聖域3F 11227 分裂 8022 ヴェルニケ
+        or g.map_id == 8022 or g.map_id == 11244
+    if is_valid_map or is_manual or g.vakarine_equip_settings.jsr == 1 then
+        g.vakarine_equip_field_boss = nil
+        local inventory = ui.GetFrame("inventory")
+        inventory:ShowWindow(1)
+        DO_WEAPON_SLOT_CHANGE(inventory, 1)
+        ui.SetHoldUI(true)
+        local vakarine_equip = ui.GetFrame(addon_name_lower .. "vakarine_equip")
+        vakarine_equip:RunUpdateScript("Vakarine_equip_holdui_release", 10.0)
+        local equip_map = {
+            RH = 8,
+            LH = 9,
+            RH_SUB = 30,
+            LH_SUB = 31,
+            RING1 = 17,
+            RING2 = 18,
+            SHIRT = 3,
+            PANTS = 14,
+            GLOVES = 4,
+            BOOTS = 5,
+            SHOULDER = 34,
+            BELT = 33,
+            NECK = 19
+        }
+        g.vakarine_equip_queue = {}
+        local char_settings = g.vakarine_equip_settings.chars[g.cid]
+        local equip_item_list = session.GetEquipItemList()
+        for spot_name, index in pairs(equip_map) do
+            local current_item = equip_item_list:GetEquipItemByIndex(index)
+            if char_settings[spot_name] == 1 and current_item then
+                table.insert(g.vakarine_equip_queue, {
+                    spot = spot_name,
+                    index = index,
+                    iesid = current_item:GetIESID()
+                })
+            end
+        end
+        local animas_item = session.GetInvItemByName("NECK04_103")
+        g.vakarine_equip_animas_iesid = animas_item and animas_item:GetIESID() or nil
+        if #g.vakarine_equip_queue == 0 then
+            ui.SetHoldUI(false)
+            return
+        end
+        for i, data in ipairs(g.vakarine_equip_queue) do
+            if data.spot == "RH_SUB" then
+                item.UnEquip(data.index)
+                break
+            end
+        end
+        g.vakarine_equip_process_step = "unequip"
+        vakarine_equip:RunUpdateScript("Vakarine_equip_main_loop", g.vakarine_equip_settings.delay)
+    end
+end
+
+function Vakarine_equip_main_loop(vakarine_equip)
+    local equip_item_list = session.GetEquipItemList()
+    if g.vakarine_equip_process_step == "unequip" then
+        local all_unequipped = true
+        for _, data in ipairs(g.vakarine_equip_queue) do
+            local current_item = equip_item_list:GetEquipItemByIndex(data.index)
+            if current_item and current_item:GetIESID() ~= "0" then
+                item.UnEquip(data.index)
+                return 1
+            end
+        end
+        if all_unequipped then
+            g.vakarine_equip_process_step = "equip"
+        end
+        return 1
+    elseif g.vakarine_equip_process_step == "equip" then
+        local weapon_order = {"RH", "LH", "RH_SUB", "LH_SUB"}
+        for _, spot_name in ipairs(weapon_order) do
+            for _, data in ipairs(g.vakarine_equip_queue) do
+                if data.spot == spot_name then
+                    local current_item = equip_item_list:GetEquipItemByIndex(data.index)
+                    if not current_item or current_item:GetIESID() ~= data.iesid then
+                        local inv_item = session.GetInvItemByGuid(data.iesid)
+                        if inv_item then
+                            ITEM_EQUIP(inv_item.invIndex, data.spot)
+                            return 1
+                        end
+                    end
+                    break
+                end
+            end
+        end
+        for _, data in ipairs(g.vakarine_equip_queue) do
+            local spot_name = data.spot
+            if spot_name ~= "RH" and spot_name ~= "LH" and spot_name ~= "RH_SUB" and spot_name ~= "LH_SUB" and spot_name ~=
+                "NECK" then
+                local current_item = equip_item_list:GetEquipItemByIndex(data.index)
+                if not current_item or current_item:GetIESID() ~= data.iesid then
+                    local inv_item = session.GetInvItemByGuid(data.iesid)
+                    if inv_item then
+                        ITEM_EQUIP(inv_item.invIndex, data.spot)
+                        return 1
+                    end
+                end
+            end
+        end
+        for _, data in ipairs(g.vakarine_equip_queue) do
+            if data.spot == "NECK" then
+                local iesid_to_equip = g.vakarine_equip_animas_iesid or data.iesid
+                local current_item = equip_item_list:GetEquipItemByIndex(data.index)
+                local current_iesid = current_item and current_item:GetIESID() or "0"
+                if current_iesid ~= iesid_to_equip then
+                    local inv_item = session.GetInvItemByGuid(iesid_to_equip)
+                    if inv_item then
+                        ITEM_EQUIP(inv_item.invIndex, data.spot)
+                        return 1
+                    end
+                end
+                break
+            end
+        end
+        local inventory = ui.GetFrame("inventory")
+        inventory:ShowWindow(0)
+        imcAddOn.BroadMsg("NOTICE_Dm_stage_start", "[VE]End of Operation", 3)
+        ui.SetHoldUI(false)
+        return 0
+    end
+    return 1
+end
+
+function Vakarine_equip_is_vakarine()
+    local equip_item_list = session.GetEquipItemList()
+    local equip_guid_list = equip_item_list:GetGuidList()
+    local count = equip_guid_list:Count()
+    local vakarine_count = 0
+    for i = 0, count - 1 do
+        local guid = equip_guid_list:Get(i)
+        if guid ~= '0' then
+            local equip_item = equip_item_list:GetItemByGuid(guid)
+            local item = GetIES(equip_item:GetObject())
+            for j = 1, MAX_OPTION_EXTRACT_COUNT do
+                local prop_name = "RandomOption_" .. j
+                local cls_msg = ScpArgMsg(item[prop_name])
+                if string.find(cls_msg, "vakarine_bless") then
+                    vakarine_count = vakarine_count + 1
+                    break
+                end
+            end
+        end
+    end
+    if vakarine_count >= 5 then
+        return true
+    elseif vakarine_count == 4 then
+        return false
+    else
+        return false
+    end
+end
+
+function Vakarine_equip_holdui_release(frame)
+    ui.SetHoldUI(false)
+    return 0
+end
+
+function Vakarine_equip_config_frame_open()
+    local config = ui.CreateNewFrame("notice_on_pc", addon_name_lower .. "vakarine_equip_config_frame", 0, 0, 0, 0)
+    AUTO_CAST(config)
+    config:RemoveAllChild()
+    config:SetLayerLevel(999)
+    config:SetSkinName("test_frame_low")
+    local title_text = config:CreateOrGetControl("richtext", "title_text", 10, 10)
+    AUTO_CAST(title_text)
+    title_text:SetText("{ol}Vakarine Equip")
+    local config_gb = config:CreateOrGetControl("groupbox", "config_gb", 10, 40, 0, 0)
+    AUTO_CAST(config_gb)
+    config_gb:SetSkinName("bg")
+    local close = config:CreateOrGetControl("button", "close", 0, 0, 20, 20)
+    AUTO_CAST(close)
+    close:SetImage("testclose_button")
+    close:SetGravity(ui.RIGHT, ui.TOP)
+    close:SetEventScript(ui.LBUTTONUP, "Vakarine_equip_frame_close")
+    local jsr_check = config_gb:CreateOrGetControl('checkbox', "jsr_check", 10, 5, 30, 30)
+    AUTO_CAST(jsr_check)
+    jsr_check:SetCheck(g.vakarine_equip_settings.jsr)
+    local text = g.lang == "Japanese" and "チェックするとJSRで作動" or "Activated in JSR when checked"
+    jsr_check:SetText("{ol}" .. text)
+    jsr_check:SetEventScript(ui.LBUTTONUP, "Vakarine_equip_check_switch")
+    local x = 0
+    local width = jsr_check:GetWidth()
+    if x < width then
+        x = width
+    end
+    local y = 40
+    local equips = {"RH", "LH", "RH_SUB", "LH_SUB", "RING1", "RING2", "SHIRT", "PANTS", "GLOVES", "BOOTS", "SHOULDER",
+                    "BELT", "NECK"}
+    for i, equip_name in ipairs(equips) do
+        local check_box = config_gb:CreateOrGetControl('checkbox', "check_box" .. i, 20, y, 30, 30)
+        AUTO_CAST(check_box)
+        check_box:SetCheck(g.vakarine_equip_settings.chars[g.cid][equip_name])
+        check_box:SetTextTooltip(g.lang == "Japanese" and "{ol}チェックした装備を脱着します" or
+                                     "{ol}Remove and detach checked equipment")
+        check_box:SetEventScript(ui.LBUTTONUP, "Vakarine_equip_check_switch")
+        check_box:SetEventScriptArgString(ui.LBUTTONUP, equip_name)
+        if equip_name == "RING1" then
+            equip_name = "Ring1"
+        elseif equip_name == "RING2" then
+            equip_name = "Ring2"
+        elseif equip_name == "SHIRT" then
+            equip_name = "Shirt"
+        elseif equip_name == "PANTS" then
+            equip_name = "Pants"
+        end
+        check_box:SetText("{ol}" .. ClMsg(equip_name))
+        y = y + 30
+    end
+    y = y + 10
+    local move_check = config_gb:CreateOrGetControl('checkbox', "move_check", 10, y, 30, 30)
+    AUTO_CAST(move_check)
+    move_check:SetCheck(g.vakarine_equip_settings.move)
+    move_check:SetText(g.lang == "Japanese" and "{ol}チェックするとフレーム固定" or
+                           "{ol}If checked, the frame is fixed")
+    move_check:SetEventScript(ui.LBUTTONUP, "Vakarine_equip_check_switch")
+    y = y + 40
+    local default_btn = config_gb:CreateOrGetControl("button", "default_btn", 20, y, 120, 30)
+    AUTO_CAST(default_btn)
+    default_btn:SetText(g.lang == "Japanese" and "{ol}フレーム初期位置" or "{ol}Init frame pos")
+    default_btn:SetEventScript(ui.LBUTTONUP, "Vakarine_equip_location_save")
+    y = y + 30
+    config:Resize(x + 70, y + 60)
+    config_gb:Resize(x + 50, y + 10)
+    local list_frame = ui.GetFrame(addon_name_lower .. "list_frame")
+    if list_frame then
+        config:SetPos(list_frame:GetX() + list_frame:GetWidth(), list_frame:GetY())
+    else
+        local map_frame = ui.GetFrame("map")
+        local width = map_frame:GetWidth()
+        config:SetPos(width / 2 - config:GetWidth() / 2 or 1165, 105)
+    end
+    config:ShowWindow(1)
+end
+
+function Vakarine_equip_check_switch(config, ctrl, equip_name, num)
+    local ischeck = ctrl:IsChecked()
+    if ctrl:GetName() == "jsr_check" then
+        g.vakarine_equip_settings.jsr = ischeck
+    elseif ctrl:GetName() == "move_check" then
+        g.vakarine_equip_settings.move = ischeck
+        Vakarine_equip_frame_init()
+    elseif string.find(ctrl:GetName(), "check_box") then
+        g.vakarine_equip_settings.chars[g.cid][equip_name] = ischeck
+        if equip_name == "RH_SUB" then
+            g.vakarine_equip_settings.chars[g.cid]["LH_SUB"] = ischeck
+        elseif equip_name == "LH_SUB" then
+            g.vakarine_equip_settings.chars[g.cid]["RH_SUB"] = ischeck
+        end
+        Vakarine_equip_config_frame_open()
+    end
+    Vakarine_equip_save_settings()
+end
+
+function Vakarine_equip_stat_update()
+    if g.settings.vakarine_equip.use == 0 then
+        return
+    end
+    g.vakarine_equip_is_vakarine = Vakarine_equip_is_vakarine()
+    local charbaseinfo1_my = ui.GetFrame("charbaseinfo1_my")
+    if not charbaseinfo1_my then
+        return
+    end
+    local hp = GET_CHILD(charbaseinfo1_my, "pcHpGauge")
+    AUTO_CAST(hp)
+    local handle = session.GetMyHandle()
+    local stat = info.GetStat(handle)
+    local hp_now = (stat.HP * 100) / stat.maxHP
+    local status = ''
+    local color = ""
+    if (hp_now == 100) then
+        color = '#00EC00'
+        status = 'Perfect'
+    elseif g.vakarine_equip_is_vakarine and (hp_now <= 45) then
+        color = '#EA0000'
+        status = 'Revenge'
+    elseif not g.vakarine_equip_is_vakarine and (hp_now <= 35) then
+        color = '#EA0000'
+        status = 'Revenge'
+    elseif hp_now == 0 then
+        color = '#FFFFFF'
+    else
+        color = '#FFFFFF'
+    end
+    local effecttext =
+        charbaseinfo1_my:CreateOrGetControl("richtext", "effecttext", 0, 0, hp:GetWidth(), hp:GetHeight())
+    effecttext:SetText(string.format('{ol}{%s}{%s}%s', "s15", color, status))
+    effecttext:SetGravity(ui.RIGHT, ui.TOP)
+    effecttext:SetOffset(hp:GetX(), hp:GetY() - 25 - (15 - 15))
+    local hptext = charbaseinfo1_my:CreateOrGetControl("richtext", "hptext", 0, 0, hp:GetWidth(), hp:GetHeight())
+    hptext:SetText(string.format('{%s}{ol}{%s}%d%%', "s15", color, hp_now))
+    hptext:SetGravity(ui.RIGHT, ui.TOP)
+    hptext:SetOffset(hp:GetX(), hp:GetY() - 10 - (15 - 15))
+end
+
+function Vakarine_equip_BUFF_ON_MSG(frame, msg, str, buff_id)
+    if g.settings.vakarine_equip.use == 0 then
+        return
+    end
+    if g.vakarine_equip_settings and g.vakarine_equip_settings["buffid"] then
+        for id_str, val in pairs(g.vakarine_equip_settings["buffid"]) do
+            if tonumber(id_str) == buff_id then
+                if g.vakarine_equip_settings.auto_remove == 1 then
+                    if val and g.vakarine_equip_is_vakarine then
+                        packet.ReqRemoveBuff(buff_id) -- 良くないね
+                        return
+                    end
+                end
+            end
+        end
+    end
+end
+
+function Vakarine_equip_buff_list(buff_list, ctrl, ctrl_text)
+    local buff_list = ui.GetFrame(addon_name_lower .. "Vakarine_equip_buff_list")
+    if not buff_list then
+        buff_list = ui.CreateNewFrame("notice_on_pc", addon_name_lower .. "vakarine_equip_buff_list", 0, 0, 0, 0)
+        AUTO_CAST(buff_list)
+        buff_list:SetSkinName("test_frame_low")
+        buff_list:Resize(500, 1060)
+        buff_list:SetPos(150, 10)
+        buff_list:SetLayerLevel(121)
+        local search_edit = buff_list:CreateOrGetControl("edit", "search_edit", 40, 10, 305, 38)
+        AUTO_CAST(search_edit)
+        search_edit:SetFontName("white_18_ol")
+        search_edit:SetTextAlign("left", "center")
+        search_edit:SetSkinName("inventory_serch")
+        search_edit:SetEventScript(ui.ENTERKEY, "Vakarine_equip_buff_list_search")
+        local search_btn = search_edit:CreateOrGetControl("button", "search_btn", 0, 0, 40, 38)
+        AUTO_CAST(search_btn)
+        search_btn:SetImage("inven_s")
+        search_btn:SetGravity(ui.RIGHT, ui.TOP)
+        search_btn:SetEventScript(ui.LBUTTONUP, "Vakarine_equip_buff_list_search")
+        local func_toggle = buff_list:CreateOrGetControl('checkbox', 'func_toggle', 415, 15, 25, 25)
+        AUTO_CAST(func_toggle)
+        func_toggle:SetTextTooltip(g.lang == "Japanese" and "{ol}チェックすると自動バフ削除有効化" or
+                                       "{ol}Check to enable auto buff removal")
+        func_toggle:SetEventScript(ui.LBUTTONUP, "Vakarine_equip_buff_aoto_remove")
+        func_toggle:SetCheck(g.vakarine_equip_settings.auto_remove or 0)
+        local close = buff_list:CreateOrGetControl('button', 'close', 0, 0, 20, 20)
+        AUTO_CAST(close)
+        close:SetImage("testclose_button")
+        close:SetGravity(ui.RIGHT, ui.TOP)
+        close:SetEventScript(ui.LBUTTONUP, "Vakarine_equip_frame_close")
+    end
+    local buff_list_gb = buff_list:CreateOrGetControl("groupbox", "buff_list_gb", 10, 50, 480,
+        buff_list:GetHeight() - 60)
+    AUTO_CAST(buff_list_gb)
+    buff_list_gb:SetSkinName("bg")
+    buff_list_gb:RemoveAllChild()
+    local cls_list, count = GetClassList("Buff")
+    local all_buffs = {}
+    for i = 0, count - 1 do
+        local buff_cls = GetClassByIndexFromList(cls_list, i)
+        if buff_cls then
+            if buff_cls.Group1 ~= 'Debuff' and buff_cls.Group1 ~= 'Deuff' then
+                local buff_name = dictionary.ReplaceDicIDInCompStr(buff_cls.Name)
+                if not ctrl_text or ctrl_text == "" or string.find(buff_name, ctrl_text) then
+                    local image_name = GET_BUFF_ICON_NAME(buff_cls)
+                    if image_name ~= "icon_None" and buff_name ~= "None" then
+                        local is_checked = g.vakarine_equip_settings["buffid"][tostring(buff_cls.ClassID)] == true
+                        table.insert(all_buffs, {
+                            cls = buff_cls,
+                            name = buff_name,
+                            image = image_name,
+                            is_checked = is_checked
+                        })
+                    end
+                end
+            end
+        end
+    end
+    table.sort(all_buffs, function(a, b)
+        if a.is_checked and not b.is_checked then
+            return true
+        elseif not a.is_checked and b.is_checked then
+            return false
+        else
+            return a.cls.ClassID < b.cls.ClassID
+        end
+    end)
+    local y = 0
+    for _, buff_data in ipairs(all_buffs) do
+        local buff_cls = buff_data.cls
+        local buff_id = buff_cls.ClassID
+        local buff_slot = buff_list_gb:CreateOrGetControl('slot', 'buffslot' .. buff_id, 10, y + 5, 30, 30)
+        AUTO_CAST(buff_slot)
+        SET_SLOT_IMG(buff_slot, buff_data.image)
+        local icon = CreateIcon(buff_slot)
+        AUTO_CAST(icon)
+        icon:SetTooltipType('buff')
+        icon:SetTooltipArg(buff_data.name, buff_id, 0)
+        local buff_check = buff_list_gb:CreateOrGetControl('checkbox', 'buff_check' .. buff_id, 50, y + 10, 200, 30)
+        AUTO_CAST(buff_check)
+        buff_check:SetText("{ol}" .. buff_id .. " : " .. buff_data.name)
+        buff_check:SetTextTooltip(g.lang == "Japanese" and "{ol}チェックすると自動でバフ削除" or
+                                      "{ol}Check to automatically remove buff")
+        buff_check:SetCheck(buff_data.is_checked and 1 or 0)
+        buff_check:SetEventScript(ui.LBUTTONUP, "Vakarine_equip_buff_toggle")
+        buff_check:SetEventScriptArgString(ui.LBUTTONUP, buff_id)
+        y = y + 35
+    end
+    buff_list:ShowWindow(1)
+end
+
+function Vakarine_equip_buff_list_search(buff_list, ctrl, ctrl_text, num)
+    local search_edit = GET_CHILD_RECURSIVELY(buff_list, "search_edit")
+    local ctrl_text = search_edit:GetText()
+    if ctrl_text ~= "" then
+        Vakarine_equip_buff_list(buff_list, ctrl, ctrl_text)
+    else
+        Vakarine_equip_buff_list(buff_list, ctrl, "")
+    end
+end
+
+function Vakarine_equip_buff_aoto_remove()
+    if g.vakarine_equip_settings.auto_remove == 0 then
+        g.vakarine_equip_settings.auto_remove = 1
+    else
+        g.vakarine_equip_settings.auto_remove = 0
+    end
+    Vakarine_equip_save_settings()
+end
+
+function Vakarine_equip_buff_toggle(frame, ctrl, str_buff_id, num)
+    local is_check = ctrl:IsChecked()
+    if is_check == 1 then
+        g.vakarine_equip_settings["buffid"][str_buff_id] = true
+    else
+        g.vakarine_equip_settings["buffid"][str_buff_id] = false
+    end
+    Vakarine_equip_save_settings()
+end
+
+function Vakarine_equip_frame_close(frame, ctrl, str, num)
+    ui.DestroyFrame(frame:GetName())
+end
+-- vakarine_equip ここまで
+
+-- cc_helper ここから
+function Cc_helper_save_settings()
+    g.save_lua(g.cc_helper_path, g.cc_helper_settings)
+end
+
+function Cc_helper_load_settings()
+    g.cc_helper_path = string.format("../addons/%s/%s/cc_helper.lua", addon_name_lower, g.active_id)
+    local json_path = string.format("../addons/%s/%s/cc_helper.json", addon_name_lower, g.active_id)
+    local settings = g.load_lua(g.cc_helper_path)
+    local need_save = false
+    local ver = 1.1
+    if not settings then
+        settings = g.load_json(json_path)
+        if settings then
+            need_save = true -- JSONから読み込めたので、後でLua形式で保存する
+        end
+    end
+    if not settings then
+        settings = {
+            etc = {
+                eco = 0,
+                agm_stop = 0,
+                wh_close = 0,
+                copys = {}
+            },
+            ver = ver
+        }
+        local old_copy_path = string.format("../addons/%s/%s/%s_copy.json", "cc_helper", g.active_id, g.active_id)
+        local copy_settings = g.load_json(old_copy_path)
+        if copy_settings then
+            local item_keys = {"seal", "ark", "leg", "god", "hair1", "hair2", "hair3", "gem1", "gem2", "gem3", "gem4",
+                               "pet", "core", "relic"}
+            local item_key_map = {}
+            for _, key in ipairs(item_keys) do
+                item_key_map[key] = true
+            end
+            for cid, char_data in pairs(copy_settings) do
+                if type(char_data) == "table" and next(char_data) then
+                    settings.etc.copys[cid] = {
+                        items = {}
+                    }
+                    for key, value in pairs(char_data) do
+                        if type(value) == "table" then
+                            if item_key_map[key] then
+                                settings.etc.copys[cid].items[key] = {}
+                                for k, v in pairs(value) do
+                                    if k == "memo" then
+                                        local result = StringSplit(v, ":::")
+                                        if #result > 0 then
+                                            if string.find(key, "hair") then
+                                                settings.etc.copys[cid].items[key].rank = result[#result]
+                                                table.remove(result, #result)
+                                                settings.etc.copys[cid].items[key].option = table.concat(result, ":::")
+                                            elseif key == "pet" then
+                                                settings.etc.copys[cid].items[key].option = result[#result]
+                                            end
+                                        end
+                                    elseif k ~= "skin" then
+                                        settings.etc.copys[cid].items[key][k] = v
+                                    end
+                                end
+                            end
+                        else
+                            settings.etc.copys[cid][key] = value
+                        end
+                    end
+                end
+            end
+        end
+        need_save = true
+    end
+    if not settings.ver or settings.ver < ver then
+        settings.ver = ver
+        need_save = true
+    end
+    g.cc_helper_settings = settings
+    if need_save then
+        Cc_helper_save_settings()
+    end
+end
+
+--[[function Cc_helper_save_settings()
+    g.save_json(g.cc_helper_path, g.cc_helper_settings)
+end
+
+function Cc_helper_load_settings()
+    g.cc_helper_path = string.format("../addons/%s/%s/cc_helper.json", addon_name_lower, g.active_id, g.cid)
+    local settings = g.load_json(g.cc_helper_path)
+    if not settings then
+        settings = {
+            etc = {
+                eco = 0,
+                agm_stop = 0,
+                wh_close = 0,
+                copys = {}
+            }
+        }
+        local old_copy_path = string.format("../addons/%s/%s/%s_copy.json", "cc_helper", g.active_id, g.active_id)
+        local copy_settings = g.load_json(old_copy_path)
+        if copy_settings then
+            local item_keys = {"seal", "ark", "leg", "god", "hair1", "hair2", "hair3", "gem1", "gem2", "gem3", "gem4",
+                               "pet", "core", "relic"}
+            local item_key_map = {}
+            for _, key in ipairs(item_keys) do
+                item_key_map[key] = true
+            end
+            for cid, char_data in pairs(copy_settings) do
+                if type(char_data) == "table" and next(char_data) then
+                    settings.etc.copys[cid] = {
+                        items = {}
+                    }
+                    for key, value in pairs(char_data) do
+                        if type(value) == "table" then
+                            if item_key_map[key] then
+                                settings.etc.copys[cid].items[key] = {}
+                                for k, v in pairs(value) do
+                                    if k == "memo" then
+                                        local result = StringSplit(v, ":::")
+                                        if #result > 0 then
+                                            if string.find(key, "hair") then
+                                                settings.etc.copys[cid].items[key].rank = result[#result]
+                                                table.remove(result, #result)
+                                                settings.etc.copys[cid].items[key].option = table.concat(result, ":::")
+                                            elseif key == "pet" then
+                                                settings.etc.copys[cid].items[key].option = result[#result]
+                                            end
+                                        end
+                                    elseif k ~= "skin" then
+                                        settings.etc.copys[cid].items[key][k] = v
+                                    end
+                                end
+                            end
+                        else
+                            settings.etc.copys[cid][key] = value
+                        end
+                    end
+                end
+            end
+        end
+    end
+    g.cc_helper_settings = settings
+    Cc_helper_save_settings()
+end]]
+
+function Cc_helper_char_load_settings()
+    local settings = g.load_json(g.cc_helper_path)
+    if not settings[g.cid] then
+        settings[g.cid] = {
+            agm = 0,
+            agm_check = 0,
+            mcc = 0,
+            items = {},
+            name = g.login_name
+        }
+    end
+    local tbl = {"seal", "ark", "leg", "god", "hair1", "hair2", "hair3", "gem1", "gem2", "gem3", "gem4", "pet", "core",
+                 "relic"}
+    for _, key in ipairs(tbl) do
+        if not settings[g.cid].items[key] then
+            settings[g.cid].items[key] = {
+                iesid = "",
+                clsid = 0,
+                option = "",
+                rank = "",
+                image = ""
+            }
+        end
+    end
+    g.cc_helper_settings[g.cid] = settings[g.cid]
+    Cc_helper_save_settings()
+end
+
+function Cc_helper_ensure_settings_loaded()
+    if not g.cc_helper_settings then
+        Cc_helper_load_settings()
+    end
+    if not g.cc_helper_settings[g.cid] then
+        Cc_helper_char_load_settings()
+    end
+end
+
+function cc_helper_on_init()
+    Cc_helper_ensure_settings_loaded()
+    g.setup_hook_and_event(g.addon, "INVENTORY_OPEN", "Cc_helper_INVENTORY_OPEN", true)
+    g.setup_hook_and_event(g.addon, "ACCOUNTWAREHOUSE_CLOSE", "Cc_helper_ACCOUNTWAREHOUSE_CLOSE", true)
+    g.setup_hook_and_event(g.addon, "INVENTORY_CLOSE", "Cc_helper_INVENTORY_CLOSE", true)
+    if g.get_map_type() == "City" then
+        Cc_helper_frame_init()
+        g.addon:RegisterMsg("OPEN_DLG_ACCOUNTWAREHOUSE", "Cc_helper_frame_init")
+    end
+    if g.settings.cc_helper.use == 0 then
+        Cc_helper_ACCOUNTWAREHOUSE_CLOSE(nil, nil)
+        return
+    end
+end
+
+function Cc_helper_ACCOUNTWAREHOUSE_CLOSE(my_frame, my_msg)
+    local accountwarehouse = ui.GetFrame("accountwarehouse")
+    accountwarehouse:RemoveChild("cch_in_btn")
+    accountwarehouse:RemoveChild("cch_out_btn")
+    accountwarehouse:RemoveChild("cch_auto_close")
+    local inventory = ui.GetFrame("inventory")
+    inventory:RemoveChild("cch_in_btn") -- "setting"
+    inventory:RemoveChild("cch_out_btn")
+    inventory:RemoveChild("cch_setting")
+    local cch_setting = ui.GetFrame(addon_name_lower .. "cch_setting")
+    if cch_setting then
+        Cc_helper_setting_frame_close(cch_setting)
+    end
+end
+
+function Cc_helper_INVENTORY_OPEN(my_frame, my_msg)
+    if g.settings.cc_helper.use == 0 then
+        return
+    end
+    local inventory = ui.GetFrame("inventory")
+    inventory:SetUserValue("CCH_BTN_RETRY", 0)
+    inventory:RunUpdateScript("Cc_helper_inventory_btn_init_delayed", 0.1)
+end
+
+function Cc_helper_inventory_btn_init_delayed(inventory)
+    local in_btn = GET_CHILD(inventory, "cch_in_btn")
+    if in_btn then
+        return 0
+    end
+    if inventory:IsVisible() == 1 then
+        Cc_helper_frame_init()
+        return 0
+    end
+    local retry = inventory:GetUserIValue("CCH_BTN_RETRY")
+    if retry > 10 then
+        return 0
+    end
+    inventory:SetUserValue("CCH_BTN_RETRY", retry + 1)
+    return 1
+end
+
+function Cc_helper_INVENTORY_CLOSE()
+    local cch_setting = ui.GetFrame(addon_name_lower .. "cch_setting")
+    if cch_setting then
+        Cc_helper_setting_frame_close(cch_setting)
+    end
+end
+
+function Cc_helper_frame_init()
+    if g.settings.cc_helper.use == 0 then
+        return
+    end
+    Cc_helper_accountwarehouse_btn_init()
+    Cc_helper_inventory_btn_init()
+end
+
+function Cc_helper_accountwarehouse_btn_init()
+    local accountwarehouse = ui.GetFrame("accountwarehouse")
+    local in_btn = accountwarehouse:CreateOrGetControl("button", "cch_in_btn", 565, 120, 30, 30)
+    AUTO_CAST(in_btn)
+    in_btn:SetText("{img in_arrow 20 20}")
+    in_btn:SetEventScript(ui.LBUTTONUP, "Cc_helper_putitem")
+    in_btn:SetSkinName("test_pvp_btn")
+    in_btn:SetTextTooltip(g.lang == "Japanese" and "{ol}[CCH]{nl}装備を外して倉庫へ搬入します" or
+                              "{ol}[CCH]{nl}The equipment is removed{nl}and brought into the warehouse")
+    in_btn:ShowWindow(1)
+    local out_btn = accountwarehouse:CreateOrGetControl("button", "cch_out_btn", 595, 120, 30, 30)
+    AUTO_CAST(out_btn)
+    out_btn:SetText("{@st66b}{img chul_arrow 20 20}")
+    out_btn:SetEventScript(ui.LBUTTONUP, "Cc_helper_take_item")
+    out_btn:SetSkinName("test_pvp_btn")
+    out_btn:SetTextTooltip(g.lang == "Japanese" and "{ol}[CCH]{nl}倉庫から搬出して装備します" or
+                               "{ol}[CCH]{nl}It is carried out from the warehouse and equipped")
+    out_btn:ShowWindow(1)
+    local auto_close = accountwarehouse:CreateOrGetControl("checkbox", "cch_auto_close", 540, 120, 30, 30)
+    AUTO_CAST(auto_close)
+    auto_close:ShowWindow(1)
+    auto_close:SetTextTooltip(g.lang == "Japanese" and
+                                  "{ol}[CCH]{nl}動作終了後倉庫とインベントリーを閉じます" or
+                                  "{ol}[CCH]{nl}Closes storage and inventory after the operation is complete")
+    auto_close:SetEventScript(ui.LBUTTONUP, "Cc_helper_check_settings")
+    auto_close:SetCheck(g.cc_helper_settings.etc.wh_close)
+    auto_close:ShowWindow(1)
+end
+
+function Cc_helper_inventory_btn_init()
+    local inventory = ui.GetFrame("inventory")
+    local inventory_btns = {"moncard_btn", "helper_btn", "cabinet_btn", "goddess_mgr_btn"}
+    if inventory then
+        for _, btn_name in ipairs(inventory_btns) do
+            local btn = GET_CHILD_RECURSIVELY(inventory, btn_name)
+            if btn and btn:IsVisible() == 0 then
+                btn:ShowWindow(1)
+            end
+        end
+    end
+    local setting = inventory:CreateOrGetControl("button", "cch_setting", 205, 345, 30, 30)
+    AUTO_CAST(setting)
+    setting:SetSkinName("None")
+    setting:SetText("{img config_button_normal 30 30}")
+    setting:SetEventScript(ui.LBUTTONUP, "Cc_helper_setting_frame_init")
+    setting:SetEventScript(ui.RBUTTONUP, "Cc_helper_toggle_settings")
+    setting:SetTextTooltip(g.lang == "Japanese" and
+                               "{ol}[CCH]{nl}左クリック: 設定{nl}右クリック: エコモード切替" or
+                               "{ol}[CCH]{nl}Left Click: Settings{nl}Right Click: Eco Mode Toggle")
+    setting:ShowWindow(1)
+    local eco = setting:CreateOrGetControl("richtext", "eco", 7, 7, 30, 30)
+    AUTO_CAST(eco)
+    eco:SetText(g.cc_helper_settings.etc.eco == 1 and "{ol}{s10}{#FF0000}eco" or "")
+    eco:SetEventScript(ui.LBUTTONUP, "Cc_helper_setting_frame_init")
+    eco:SetEventScript(ui.RBUTTONUP, "Cc_helper_toggle_settings")
+    eco:SetTextTooltip(g.lang == "Japanese" and
+                           "{ol}[CCH]{nl}左クリック: 設定{nl}右クリック: エコモード切替" or
+                           "{ol}[CCH]{nl}Left Click: Settings{nl}Right Click: Eco Mode Toggle")
+    eco:ShowWindow(1)
+    local accountwarehouse = ui.GetFrame("accountwarehouse")
+    if accountwarehouse:IsVisible() == 1 then
+        local in_btn = inventory:CreateOrGetControl("button", "cch_in_btn", 235, 345, 30, 30)
+        AUTO_CAST(in_btn)
+        in_btn:SetText("{img in_arrow 20 20}")
+        in_btn:SetEventScript(ui.LBUTTONUP, "Cc_helper_putitem")
+        in_btn:SetSkinName("test_pvp_btn")
+        in_btn:SetTextTooltip(g.lang == "Japanese" and "{ol}[CCH]{nl}装備を外して倉庫へ搬入します" or
+                                  "{ol}[CCH]{nl}The equipment is removed{nl}and brought into the warehouse")
+        in_btn:ShowWindow(1)
+        local out_btn = inventory:CreateOrGetControl("button", "cch_out_btn", 265, 345, 30, 30)
+        AUTO_CAST(out_btn)
+        out_btn:SetText("{@st66b}{img chul_arrow 20 20}")
+        out_btn:SetEventScript(ui.LBUTTONUP, "Cc_helper_take_item")
+        out_btn:SetSkinName("test_pvp_btn")
+        out_btn:SetTextTooltip(g.lang == "Japanese" and "{ol}[CCH]{nl}倉庫から搬出して装備します" or
+                                   "{ol}[CCH]{nl}It is carried out from the warehouse and equipped")
+        out_btn:ShowWindow(1)
+    end
+end
+
+function Cc_helper_setting_frame_init(frame)
+    local cch_setting = ui.GetFrame(addon_name_lower .. "cch_setting")
+    if frame and cch_setting and cch_setting:IsVisible() == 1 then
+        Cc_helper_setting_frame_close(cch_setting)
+        return
+    end
+    Cc_helper_update_hair_stats()
+    INVENTORY_SET_CUSTOM_RBTNDOWN("Cc_helper_inv_rbtn")
+    cch_setting = ui.CreateNewFrame("notice_on_pc", addon_name_lower .. "cch_setting", 0, 0, 0, 0)
+    AUTO_CAST(cch_setting)
+    cch_setting:RemoveAllChild()
+    cch_setting:SetSkinName("test_frame_low")
+    cch_setting:SetLayerLevel(93)
+    cch_setting:SetGravity(ui.RIGHT, ui.TOP)
+    local rect = cch_setting:GetMargin()
+    cch_setting:SetMargin(rect.left - rect.left, rect.top - rect.top + 370,
+        rect.right == 0 and rect.right + 510 or rect.right, rect.bottom)
+    cch_setting:Resize(310, 520)
+    cch_setting:SetTitleBarSkin("None")
+    cch_setting:EnableHittestFrame(1)
+    local title_text = cch_setting:CreateOrGetControl("richtext", "title_text", 20, 15, 50, 30)
+    AUTO_CAST(title_text)
+    title_text:SetText("{ol}CC Helper Config")
+    local close = cch_setting:CreateOrGetControl("button", "close", 0, 0, 30, 30)
+    AUTO_CAST(close)
+    close:SetImage("testclose_button")
+    close:SetGravity(ui.RIGHT, ui.TOP)
+    close:SetEventScript(ui.LBUTTONUP, "Cc_helper_setting_frame_close")
+    local gbox = cch_setting:CreateOrGetControl("groupbox", "gbox", 10, 40, 0, 0)
+    AUTO_CAST(gbox)
+    gbox:SetSkinName("test_frame_midle_light")
+    local copy = gbox:CreateOrGetControl("button", "copy", 200, 10, 70, 30)
+    AUTO_CAST(copy)
+    copy:SetText("{ol}copy")
+    copy:SetEventScript(ui.LBUTTONUP, "Cc_helper_setting_copy")
+    copy:SetTextTooltip(g.lang == "Japanese" and "{ol}コピー用の設定を適用します" or
+                            "{ol}Applies the settings for copying")
+    local save = gbox:CreateOrGetControl("button", "save", 130, 10, 70, 30)
+    AUTO_CAST(save)
+    save:SetText("{ol}save")
+    save:SetEventScript(ui.LBUTTONUP, "Cc_helper_setting_save")
+    save:SetTextTooltip(g.lang == "Japanese" and "{ol}このキャラの設定をコピー用に保存します" or
+                            "{ol}Save this character settings for copying")
+    local save_delete = gbox:CreateOrGetControl("button", "save_delete", 60, 10, 70, 30)
+    AUTO_CAST(save_delete)
+    save_delete:SetText("{ol}delete")
+    save_delete:SetEventScript(ui.LBUTTONUP, "Cc_helper_setting_delete")
+    save_delete:SetTextTooltip(g.lang == "Japanese" and "{ol}コピー用の設定を削除します" or
+                                   "{ol}Delete settings for copying")
+    if g.settings.monster_card_changer.use == 1 then
+        local mccuse = gbox:CreateOrGetControl("checkbox", "mccuse", 10, 375, 25, 25)
+        AUTO_CAST(mccuse)
+        mccuse:SetText(g.lang == "Japanese" and "{ol}MCC 連携" or "{ol}MCC Linkage")
+        mccuse:SetTextTooltip(g.lang == "Japanese" and
+                                  "{ol}チェックを入れると[Monster Card Changer]と連携します{nl}各キャラクター個別設定" or
+                                  "{ol}If checked, it will work with [Monster Card Changer]{nl}Individual Character Settings")
+        mccuse:SetCheck(g.cc_helper_settings[g.cid].mcc)
+        mccuse:SetEventScript(ui.LBUTTONUP, "Cc_helper_check_settings")
+    else
+        g.cc_helper_settings[g.cid].mcc = 0
+    end
+    local agmuse = gbox:CreateOrGetControl("checkbox", "agmuse", 10, 405, 25, 25)
+    AUTO_CAST(agmuse)
+    agmuse:SetText(g.lang == "Japanese" and "{ol}エーテルジェム" or "{ol}Aether Gem")
+    agmuse:SetTextTooltip(g.lang == "Japanese" and
+                              "{ol}チェックを入れるとエーテルジェムも着脱します{nl}各キャラクター個別設定" or
+                              "{ol}If checked, Aethergems will also be equipped/unequipped{nl}Individual Character Settings")
+    agmuse:SetEventScript(ui.LBUTTONUP, "Cc_helper_check_settings")
+    agmuse:SetCheck(g.cc_helper_settings[g.cid].agm)
+    local agm_on_off = gbox:CreateOrGetControl("picture", "use_toggle", agmuse:GetWidth() + 10, 405, 60, 25)
+    AUTO_CAST(agm_on_off)
+    agm_on_off:SetImage(g.cc_helper_settings[g.cid].agm_check == 1 and "test_com_ability_on" or "test_com_ability_off")
+    agm_on_off:SetEnableStretch(1)
+    agm_on_off:EnableHitTest(1)
+    local tooltip_text =
+        g.lang == "Japanese" and "{ol}ONにするとエーテルジェム着脱時に確認します" or
+            "{ol}If ON, confirmation will be required{nl}when equipping/unequipping Aethergems"
+    agm_on_off:SetTextTooltip(tooltip_text)
+    agm_on_off:SetEventScript(ui.LBUTTONUP, "Cc_helper_toggle_settings")
+    local all_agm = gbox:CreateOrGetControl("checkbox", "all_agm", 10, 435, 25, 25)
+    AUTO_CAST(all_agm)
+    all_agm:SetText(g.lang == "Japanese" and "{ol}エーテルジェム 全体停止" or "{ol}Aether Gem All Stop")
+    all_agm:SetTextTooltip(g.lang == "Japanese" and
+                               "{ol}チェックを入れると、全てのキャラの{nl}エーテルジェム関係の動作をストップします" or
+                               "{ol}If checked, stops all ether gem-related actions for all characters")
+    all_agm:SetEventScript(ui.LBUTTONUP, "Cc_helper_check_settings")
+    all_agm:SetCheck(g.cc_helper_settings.etc.agm_stop) --
+    local pet_select = gbox:CreateOrGetControl("button", "pet_select", 180, 375, 100, 30)
+    AUTO_CAST(pet_select)
+    pet_select:SetText("{ol}pet select")
+    pet_select:SetEventScript(ui.LBUTTONUP, "Cc_helper_context_pet")
+    gbox:Resize(cch_setting:GetWidth() - 20, cch_setting:GetHeight() - 50)
+    cch_setting:ShowWindow(1)
+    Cc_helper_slot_create_reserve(cch_setting, gbox)
+end
+
+function Cc_helper_slot_create_reserve(cch_setting, gbox)
+    local slot_info = {
+        ["seal"] = {
+            x = 35,
+            y = 210,
+            text = "{ol}{s14}SEAL"
+        },
+        ["ark"] = {
+            x = 90,
+            y = 210,
+            text = "{ol}{s14}ARK"
+        },
+        ["core"] = {
+            x = 145,
+            y = 210,
+            text = "{ol}{s14}CORE"
+        },
+        ["relic"] = {
+            x = 200,
+            y = 210,
+            text = "{ol}{s14}RELIC"
+        },
+        ["gem1"] = {
+            x = 35,
+            y = 320,
+            text = "{ol}{s12}AETHER{nl}GEM1"
+        },
+        ["gem2"] = {
+            x = 90,
+            y = 320,
+            text = "{ol}{s12}AETHER{nl}GEM2"
+        },
+        ["gem3"] = {
+            x = 145,
+            y = 320,
+            text = "{ol}{s12}AETHER{nl}GEM3"
+        },
+        ["gem4"] = {
+            x = 200,
+            y = 320,
+            text = "{ol}{s12}AETHER{nl}GEM4"
+        },
+        ["leg"] = {
+            x = 30,
+            y = 45,
+            text = "{ol}{s14}LEGEND{nl}CARD"
+        },
+        ["god"] = {
+            x = 140,
+            y = 45,
+            text = "{ol}{s14}GODDESS{nl}CARD"
+        },
+        ["hair1"] = {
+            x = 35,
+            y = 265,
+            text = "{ol}{s14}HAIR1"
+        },
+        ["hair2"] = {
+            x = 90,
+            y = 265,
+            text = "{ol}{s14}HAIR2"
+        },
+        ["hair3"] = {
+            x = 145,
+            y = 265,
+            text = "{ol}{s14}HAIR3"
+        },
+        ["pet"] = {
+            x = 220,
+            y = 410,
+            text = "{ol}{s14}PET"
+        }
+    }
+    for key, value in pairs(slot_info) do
+        for k, v in pairs(g.cc_helper_settings[g.cid].items) do
+            if key == k then
+                local width = 50
+                local height = 50
+                if key == "leg" then
+                    width = 105 -- 9:13
+                    height = 160
+                end
+                if key == "god" then
+                    width = 120 -- 3:4
+                    height = 160
+                end
+                local skin = "invenslot2"
+                if key == "leg" then
+                    skin = "legendopen_cardslot"
+                elseif key == "god" then
+                    skin = "goddess_card__activation"
+                end
+                Cc_helper_slot_create(gbox, key, value.x, value.y, width, height, skin, value.text, v.clsid, v.iesid,
+                    v.option, v.rank, v.image)
+                break
+            end
+        end
+    end
+end
+
+function Cc_helper_slot_create(gbox, name, x, y, width, height, skin, text, clsid, iesid, option, rank, image)
+    local slot = GET_CHILD(gbox, name)
+    if not slot then
+        slot = gbox:CreateOrGetControl("slot", name, x, y, width, height)
+        AUTO_CAST(slot)
+        slot:SetSkinName(skin)
+        slot:SetText(text)
+        slot:EnablePop(1)
+        slot:EnableDrag(1)
+        slot:EnableDrop(1)
+    end
+    AUTO_CAST(slot)
+    slot:SetEventScript(ui.DROP, "Cc_helper_frame_drop")
+    slot:SetEventScript(ui.RBUTTONDOWN, "Cc_helper_cancel")
+    local item_cls = GetClassByType("Item", clsid)
+    if not item_cls then
+        item_cls = GetClassByType("Monster", clsid)
+        if not item_cls then
+            return
+        end
+        image = item_cls.Icon
+    end
+    if not string.find(name, "gem") then
+        SET_SLOT_ITEM_CLS(slot, item_cls)
+        SET_SLOT_IMG(slot, image)
+        SET_SLOT_IESID(slot, iesid)
+        if name ~= "leg" and name ~= "god" then
+            SET_SLOT_BG_BY_ITEMGRADE(slot, item_cls)
+        end
+        if string.find(name, "hair") then
+            if rank == "A" then
+                slot:SetSkinName("invenslot_pic_goddess")
+            elseif rank == "B" then
+                slot:SetSkinName("invenslot_legend")
+            elseif rank == "C" then
+                slot:SetSkinName("invenslot_unique")
+            end
+        end
+        local icon = slot:GetIcon()
+        if not icon and item_cls then
+            icon = CreateIcon(slot)
+        end
+        if clsid ~= 0 then
+            if string.find(name, "hair") then
+                if string.find(option, ":::") then
+                    local text = "{ol}Rank: " .. rank .. "{nl}"
+                    local result = StringSplit(option, ":::")
+                    if not string.find(option, "#@!") then
+                        for i = 1, 3 do
+                            local op_tbl = StringSplit(result[i], "/")
+                            local op_name = op_tbl[1]
+                            op_name = ScpArgMsg(op_name)
+                            local op_value = op_tbl[2]
+                            text = text .. op_name .. ScpArgMsg("PropUp") .. GET_COMMAED_STRING(op_value) .. "{nl}"
+                        end
+                    else
+                        text = text .. table.concat(result, "{nl}")
+
+                    end
+                    icon:SetTextTooltip(text)
+                end
+            elseif name == "pet" then
+                icon:SetTextTooltip(option)
+            else
+                icon:SetTooltipType("wholeitem")
+                icon:SetTooltipArg("None", clsid, iesid)
+            end
+        end
+    end
+    if string.find(name, "gem") then
+        if g.cc_helper_settings[g.cid].agm == 0 then
+            slot:ShowWindow(0)
+        elseif g.cc_helper_settings[g.cid].agm == 1 then
+            local gem_name = item_cls.ClassName
+            local icon = slot:GetIcon()
+            if not icon then
+                icon = CreateIcon(slot)
+            end
+            SET_SLOT_ITEM_CLS(slot, item_cls)
+            local lv_text = slot:CreateOrGetControl("richtext", "lv_text", 0, 30, 25, 25)
+            AUTO_CAST(lv_text)
+            if string.find(gem_name, "480") then
+                lv_text:SetText("{ol}{s14}LV480")
+                slot:SetSkinName("invenslot_rare")
+            elseif string.find(gem_name, "500") then
+                lv_text:SetText("{ol}{s14}LV500")
+                slot:SetSkinName("invenslot_unique")
+            elseif string.find(gem_name, "520") then
+                lv_text:SetText("{ol}{s14}LV520")
+                slot:SetSkinName("invenslot_legend")
+            elseif string.find(gem_name, "540") then
+                lv_text:SetText("{ol}{s14}LV540")
+                slot:SetSkinName("invenslot_pic_goddess")
+            else
+                lv_text:SetText("{ol}{s14}LV460")
+            end
+        end
+    end
+end
+
+function Cc_helper_check_settings(frame, ctrl)
+    local ctrl_name = ctrl:GetName()
+    if ctrl_name == "cch_auto_close" then
+        g.cc_helper_settings.etc.wh_close = ctrl:IsChecked()
+    elseif ctrl_name == "mccuse" then
+        g.cc_helper_settings[g.cid].mcc = ctrl:IsChecked()
+    elseif ctrl_name == "agmuse" then
+        g.cc_helper_settings[g.cid].agm = ctrl:IsChecked()
+        Cc_helper_setting_frame_init()
+    elseif ctrl_name == "all_agm" then
+        g.cc_helper_settings.etc.agm_stop = 1 - g.cc_helper_settings.etc.agm_stop
+    end
+    Cc_helper_save_settings()
+end
+
+function Cc_helper_toggle_settings(frame, ctrl)
+    local ctrl_name = ctrl:GetName()
+    if ctrl_name == "eco" or ctrl_name == "cch_setting" then
+        local eco = GET_CHILD_RECURSIVELY(frame, "eco")
+        if g.cc_helper_settings.etc.eco == 0 then
+            g.cc_helper_settings.etc.eco = 1
+            eco:SetText("{ol}{s10}{#FF0000}eco")
+        else
+            g.cc_helper_settings.etc.eco = 0
+            eco:SetText("")
+        end
+    elseif ctrl_name == "use_toggle" then
+        g.cc_helper_settings[g.cid].agm_check = 1 - g.cc_helper_settings[g.cid].agm_check
+        Cc_helper_setting_frame_init()
+    end
+    Cc_helper_save_settings()
+end
+
+function Cc_helper_setting_frame_close(cch_setting)
+    INVENTORY_SET_CUSTOM_RBTNDOWN("None")
+    ui.DestroyFrame(cch_setting:GetName())
+    if g.settings.another_warehouse.use == 1 then
+        local awh = ui.GetFrame(addon_name_lower .. "awh")
+        if awh and awh:IsVisible() == 1 then
+            INVENTORY_SET_CUSTOM_RBTNDOWN("Another_warehouse_inv_rbtn")
+            return
+        end
+    else
+        local accountwarehouse = ui.GetFrame('accountwarehouse')
+        if accountwarehouse:IsVisible() == 1 then
+            INVENTORY_SET_CUSTOM_RBTNDOWN("ACCOUNT_WAREHOUSE_INV_RBTN")
+        else
+            INVENTORY_SET_CUSTOM_RBTNDOWN("None")
+        end
+    end
+end
+
+function Cc_helper_setting_copy()
+    local title = g.lang == "Japanese" and "{ol}コピー元選択" or "{ol}Select Copy Source"
+    local context = ui.CreateContextMenu("cc_helper_copy_context", title, 0, 0, 0, 0)
+    ui.AddContextMenuItem(context, "{ol}" .. "-----", "")
+    for cid, char_data in pairs(g.cc_helper_settings.etc.copys) do
+        local job_cls = GetClassByType("Job", char_data.jobid)
+        local job_name = GET_JOB_NAME(job_cls, char_data.gender)
+        local name = char_data.name
+        local text = name .. " (" .. job_name .. ")"
+        local scp = ui.AddContextMenuItem(context, text, string.format("Cc_helper_load_copy('%s')", cid))
+    end
+    ui.OpenContextMenu(context)
+end
+
+function Cc_helper_load_copy(cid)
+    for key, value in pairs(g.cc_helper_settings.etc.copys[cid]) do
+        if type(value) == "table" then
+            g.cc_helper_settings[g.cid].items = value
+        elseif key == "mcc" or key == "agm" or key == "agm_check" then
+            if key == "mcc" then
+                g.cc_helper_settings[g.cid].mcc = value
+            elseif key == "agm" then
+                g.cc_helper_settings[g.cid].agm = value
+            elseif key == "agm_check" then
+                g.cc_helper_settings[g.cid].agm_check = value
+            end
+        end
+    end
+    g.cc_helper_settings[g.cid].name = g.login_name
+    Cc_helper_save_settings()
+    ui.SysMsg(g.lang == "Japanese" and "設定をコピーしました" or "Settings copied")
+    Cc_helper_setting_frame_init()
+end
+
+function Cc_helper_setting_delete(frame, ctrl)
+    local title = g.lang == "Japanese" and "削除データ選択" or "Select Data to Delete"
+    local context = ui.CreateContextMenu("cc_helper_delete_context", "{ol}{#FF0000}" .. title, 0, 0, 0, 0)
+    ui.AddContextMenuItem(context, "{ol}{#FF0000}" .. "-----", "")
+    for cid, char_data in pairs(g.cc_helper_settings.etc.copys) do
+        local job_cls = GetClassByType("Job", char_data.jobid)
+        local job_name = GET_JOB_NAME(job_cls, char_data.gender)
+        local name = char_data.name
+        local text = "{ol}{#FF0000}" .. name .. " (" .. job_name .. ")"
+        local scp = ui.AddContextMenuItem(context, text, string.format("Cc_helper_setting_delete_('%s')", cid))
+    end
+    ui.OpenContextMenu(context)
+end
+
+function Cc_helper_setting_delete_(cid)
+    g.cc_helper_settings.etc.copys[cid] = nil
+    ui.SysMsg(g.lang == "Japanese" and "設定を削除しました" or "Settings deleted")
+    Cc_helper_save_settings()
+end
+
+function Cc_helper_setting_save(frame, ctrl)
+    local current_char_data_str = json.encode(g.cc_helper_settings[g.cid])
+    local new_copy_data = json.decode(current_char_data_str)
+    g.cc_helper_settings.etc.copys[g.cid] = new_copy_data
+    local pc_info = session.barrack.GetMyAccount():GetByStrCID(g.cid)
+    local pc_apc = pc_info:GetApc()
+    local jobid = pc_info:GetRepID() or pc_apc:GetJob()
+    local gender = pc_apc:GetGender()
+    g.cc_helper_settings.etc.copys[g.cid].jobid = jobid
+    g.cc_helper_settings.etc.copys[g.cid].gender = gender
+    ui.SysMsg(g.lang == "Japanese" and "設定を保存しました" or "Settings saved")
+    Cc_helper_save_settings()
+end
+
+function Cc_helper_context_pet()
+    local pet_list = session.pet.GetPetInfoVec()
+    local context = ui.CreateContextMenu("PET_SELECT", "{ol}Pet Select", 400, 0, -400, 0)
+    for i = 0, pet_list:size() - 1 do
+        local info = pet_list:at(i)
+        local obj = GetIES(info:GetObject())
+        local name = info:GetName()
+        local pet_iesid = info:GetStrGuid()
+        local cls_name = obj.ClassName
+        local cls_id = obj.ClassID
+        local sin_name = obj.Name
+        local cls_list, list_cnt = GetClassList("Companion")
+        for index = 0, list_cnt - 1 do
+            local companion_ies = GetClassByIndexFromList(cls_list, index)
+            local ies_cls_name = companion_ies.ClassName
+            if cls_name == ies_cls_name then
+                local job_id = tonumber(companion_ies.JobID)
+                if job_id ~= 3014 then
+                    local option = "{ol}[LV:" .. obj.Lv .. "] " .. name .. " ( " .. dic.getTranslatedStr(obj.Name) ..
+                                       " ) "
+                    local companion_cls = GetClass("Companion", TryGetProp(obj, "ClassName", "None"))
+                    local pet_buff = TryGetProp(companion_cls, "PetBuff", "None")
+                    local buff_cls = GetClass("Buff", pet_buff)
+                    if buff_cls then
+                        local tool_tip = TryGetProp(buff_cls, "ToolTip", "None")
+                        if tool_tip ~= "None" then
+                            option = option .. "{nl}" .. dic.getTranslatedStr(tool_tip)
+                        end
+                    end
+                    local scp = string.format("Cc_helper_context_pet_set(%d,'%s','%s')", cls_id, pet_iesid, option)
+                    ui.AddContextMenuItem(context,
+                        "{img " .. obj.Icon .. " 20 20}" .. "{ol} [LV:" .. obj.Lv .. "] " .. name .. " ( " ..
+                            dic.getTranslatedStr(obj.Name) .. " ) ", scp)
+                    break
+                end
+            end
+        end
+    end
+    ui.OpenContextMenu(context)
+end
+
+function Cc_helper_context_pet_set(cls_id, pet_iesid, option)
+    local mon_cls = GetClassByType("Monster", cls_id)
+    local cch_setting = ui.GetFrame(addon_name_lower .. "cch_setting")
+    local slot = GET_CHILD_RECURSIVELY(cch_setting, "pet")
+    AUTO_CAST(slot)
+    local image = mon_cls.Icon
+    SET_SLOT_ITEM_CLS(slot, mon_cls)
+    SET_SLOT_IMG(slot, image)
+    SET_SLOT_IESID(slot, pet_iesid)
+    g.cc_helper_settings[g.cid].items.pet.iesid = pet_iesid
+    g.cc_helper_settings[g.cid].items.pet.clsid = cls_id
+    g.cc_helper_settings[g.cid].items.pet.image = image
+    g.cc_helper_settings[g.cid].items.pet.option = option
+    Cc_helper_save_settings()
+end
+
+function Cc_helper_cancel(frame, slot)
+    slot:ClearIcon()
+    slot:RemoveAllChild()
+    for key, value in pairs(g.cc_helper_settings[g.cid].items) do
+        if slot:GetName() == key then
+            value.image = ""
+            value.iesid = ""
+            value.clsid = 0
+            value.option = ""
+            if not string.find(key, "god") and not string.find(key, "leg") then
+                slot:SetSkinName("invenslot2")
+            end
+            break
+        end
+    end
+    Cc_helper_save_settings()
+end
+
+function Cc_helper_frame_drop(frame, ctrl)
+    local lift_icon = ui.GetLiftIcon()
+    local slot = lift_icon:GetParent()
+    local icon_info = lift_icon:GetInfo()
+    local iesid = icon_info:GetIESID()
+    local inv_item = session.GetInvItemByGuid(iesid)
+    local item_obj = GetIES(inv_item:GetObject())
+    Cc_helper_inv_rbtn(item_obj, slot, iesid)
+end
+
+function Cc_helper_inv_rbtn(item_obj, slot, iesid, awh_item)
+    local cch_setting = ui.GetFrame(addon_name_lower .. "cch_setting")
+    if not cch_setting or cch_setting:IsVisible() == 0 then
+        return
+    end
+    if not g.cc_helper_settings or not g.cc_helper_settings[g.cid] or not g.cc_helper_settings[g.cid].items then
+        return
+    end
+    local gbox = GET_CHILD(cch_setting, "gbox")
+    if not iesid then
+        local icon = slot:GetIcon()
+        local icon_info = icon:GetInfo()
+        iesid = icon_info:GetIESID()
+    end
+    local inv_item = awh_item or session.GetInvItemByGuid(iesid)
+    if not inv_item then
+        return
+    end
+    local image = TryGetProp(item_obj, "TooltipImage", "None")
+    local clsid = item_obj.ClassID
+    local type = item_obj.ClassType
+    local gem_type = GET_EQUIP_GEM_TYPE(item_obj)
+    local parent_name = slot:GetParent():GetName()
+    local char_belonging = TryGetProp(item_obj, "CharacterBelonging", 0)
+    local temp_tbl = {
+        ["Seal"] = "seal",
+        ["Ark"] = "ark",
+        ["LEG"] = "leg",
+        ["GODDESS"] = "god",
+        ["sset_HairAcc_Acc1"] = "hair1",
+        ["sset_HairAcc_Acc2"] = "hair2",
+        ["sset_HairAcc_Acc3"] = "hair3",
+        ["CORE"] = "core",
+        ["Relic"] = "relic",
+        ["aether"] = "gem"
+    }
+    for key, value in pairs(temp_tbl) do
+        local target_item_setting = g.cc_helper_settings[g.cid].items[value]
+        if target_item_setting then
+            if key == "Seal" and key == type and clsid ~= 614001 then
+                target_item_setting.clsid = clsid
+                target_item_setting.iesid = iesid
+                target_item_setting.image = image
+                Cc_helper_slot_create(gbox, value, nil, nil, nil, nil, nil, nil, clsid, iesid, nil, nil, image)
+                break
+            elseif key == "Ark" and key == type and char_belonging ~= 1 then
+                target_item_setting.clsid = clsid
+                target_item_setting.iesid = iesid
+                target_item_setting.image = image
+                Cc_helper_slot_create(gbox, value, nil, nil, nil, nil, nil, nil, clsid, iesid, nil, nil, image)
+                break
+            elseif key == "CORE" and key == type then
+                target_item_setting.clsid = clsid
+                target_item_setting.iesid = iesid
+                target_item_setting.image = image
+                Cc_helper_slot_create(gbox, value, nil, nil, nil, nil, nil, nil, clsid, iesid, nil, nil, image)
+                break
+            elseif key == "Relic" and key == type then
+                target_item_setting.clsid = clsid
+                target_item_setting.iesid = iesid
+                target_item_setting.image = image
+                Cc_helper_slot_create(gbox, value, nil, nil, nil, nil, nil, nil, clsid, iesid, nil, nil, image)
+                break
+            elseif key == "LEG" and key == item_obj.CardGroupName then
+                target_item_setting.clsid = clsid
+                target_item_setting.iesid = iesid
+                target_item_setting.image = image
+                Cc_helper_slot_create(gbox, value, nil, nil, nil, nil, nil, nil, clsid, iesid, nil, nil, image)
+                break
+            elseif key == "GODDESS" and key == item_obj.CardGroupName then
+                target_item_setting.clsid = clsid
+                target_item_setting.iesid = iesid
+                target_item_setting.image = image
+                Cc_helper_slot_create(gbox, value, nil, nil, nil, nil, nil, nil, clsid, iesid, nil, nil, image)
+                break
+            elseif key == "sset_HairAcc_Acc1" and key == parent_name then
+                local option, rank = Cc_helper_hair_option(item_obj)
+                target_item_setting.rank = rank
+                target_item_setting.option = option
+                target_item_setting.clsid = clsid
+                target_item_setting.iesid = iesid
+                target_item_setting.image = image
+                Cc_helper_slot_create(gbox, value, nil, nil, nil, nil, nil, nil, clsid, iesid, option, rank, image)
+                break
+            elseif key == "sset_HairAcc_Acc2" and key == parent_name then
+                local option, rank = Cc_helper_hair_option(item_obj)
+                target_item_setting.rank = rank
+                target_item_setting.option = option
+                target_item_setting.clsid = clsid
+                target_item_setting.iesid = iesid
+                target_item_setting.image = image
+                Cc_helper_slot_create(gbox, value, nil, nil, nil, nil, nil, nil, clsid, iesid, option, rank, image)
+                break
+            elseif key == "sset_HairAcc_Acc3" and key == parent_name then
+                local option, rank = Cc_helper_hair_option(item_obj)
+                target_item_setting.rank = rank
+                target_item_setting.option = option
+                target_item_setting.clsid = clsid
+                target_item_setting.iesid = iesid
+                target_item_setting.image = image
+                Cc_helper_slot_create(gbox, value, nil, nil, nil, nil, nil, nil, clsid, iesid, option, rank, image)
+                break
+            end
+        end
+        if gem_type == "aether" and key == "aether" then
+            if g.cc_helper_settings[g.cid].agm == 0 then
+                return
+            end
+            for i = 1, 4 do
+                local slot_name = "gem" .. i
+                local slot = GET_CHILD(gbox, slot_name)
+                if slot then
+                    local icon = slot:GetIcon()
+                    if not icon then
+                        if g.cc_helper_settings[g.cid].items[slot_name] then
+                            g.cc_helper_settings[g.cid].items[slot_name].clsid = clsid
+                            Cc_helper_slot_create(gbox, slot_name, nil, nil, nil, nil, nil, nil, clsid, iesid, nil, nil,
+                                image)
+                        end
+                        break
+                    end
+                end
+            end
+        end
+    end
+    Cc_helper_save_settings()
+end
+-- putitem
+function Cc_helper_putitem(frame, in_btn, str, step)
+    if g.another_warehouse_func == true then
+        ui.SysMsg(g.lang == "Japanese" and "[AWH]が作動中です" or "[AWH]is currently operating")
+        return
+    end
+    if step == 0 then
+        in_btn:SetUserValue("STEP", 0)
+        local monstercardslot = ui.GetFrame("monstercardslot")
+        if monstercardslot:IsVisible() == 0 then
+            MONSTERCARDSLOT_FRAME_OPEN()
+            in_btn:RunUpdateScript("Cc_helper_unequip_card_god", 0.1)
+            return
+        end
+    elseif step == 1 then
+        in_btn:SetUserValue("STEP", step)
+        in_btn:RunUpdateScript("Cc_helper_in_btn_start", 0.1)
+        return
+    elseif step == 2 then
+        local eco = g.cc_helper_settings.etc.eco or 0
+        in_btn:SetUserValue("STEP", step)
+        if eco == 0 then
+            in_btn:RunUpdateScript("Cc_helper_unequip_card_leg", 0.1)
+        else
+            Cc_helper_putitem(nil, in_btn, nil, 3)
+        end
+        return
+    elseif step == 3 then
+        in_btn:SetUserValue("STEP", step)
+        Cc_helper_inv_to_warehouse(in_btn)
+        in_btn:RunUpdateScript("Cc_helper_inv_to_warehouse", 0.2)
+        return
+    elseif step == 4 then
+        in_btn:SetUserValue("STEP", 4)
+        Cc_helper_in_btn_aethergem_mgr(in_btn)
+    elseif step == 5 then
+        in_btn:SetUserValue("STEP", 5)
+        in_btn:RunUpdateScript("Cc_helper_gem_inv_to_warehouse", 0.1)
+        return
+    elseif step == 6 then
+        in_btn:SetUserValue("STEP", 6)
+        if g.cc_helper_settings[g.cid].mcc == 1 then
+            Monster_card_changer_monstercardpreset_open(1)
+            in_btn:RunUpdateScript("Cc_helper_mcc_operation", 0.1)
+        else
+            Cc_helper_putitem(nil, in_btn, nil, 7)
+        end
+    elseif step == 7 then
+        in_btn:SetUserValue("STEP", 7)
+        Cc_helper_end_of_operation(in_btn)
+    end
+end
+
+function Cc_helper_unequip_card_god(in_btn)
+    local try = in_btn:GetUserIValue("TRY")
+    local target_key = "god"
+    local slot_index = 14
+    local setting_item = g.cc_helper_settings[g.cid].items["god"]
+    local save_clsid = setting_item.clsid
+    local save_iesid = setting_item.iesid
+    if save_clsid ~= 0 then
+        local card_info = equipcard.GetCardInfo(slot_index)
+        local is_equipped = (card_info and card_info:GetCardID() == save_clsid)
+        if is_equipped then
+            local arg_str = string.format("%d 1", slot_index - 1)
+            pc.ReqExecuteTx_NumArgs("SCR_TX_UNEQUIP_CARD_SLOT", arg_str)
+            return 1
+        end
+        if try < 2 then
+            local inv_item = session.GetInvItemByGuid(save_iesid)
+            if inv_item == nil then
+                in_btn:SetUserValue("TRY", try + 1)
+                return 1
+            end
+        end
+    end
+    in_btn:SetUserValue("TRY", 0)
+    in_btn:StopUpdateScript("Cc_helper_unequip_card_god")
+    Cc_helper_putitem(nil, in_btn, nil, 1)
+end
+
+function Cc_helper_in_btn_start(in_btn)
+    local inventory = ui.GetFrame("inventory")
+    if true == BEING_TRADING_STATE() then
+        return 0
+    end
+    local is_empty_slot = false
+    if session.GetInvItemList():Count() < MAX_INV_COUNT then
+        is_empty_slot = true
+    end
+    if is_empty_slot == true then
+        in_btn:StopUpdateScript("Cc_helper_in_btn_start")
+        in_btn:RunUpdateScript("Cc_helper_unequip", 0.1)
+        return 0
+    else
+        ui.SysMsg(ScpArgMsg("Auto_inBenToLie_Bin_SeulLosi_PilyoHapNiDa."))
+        return 0
+    end
+end
+
+function Cc_helper_unequip(in_btn)
+    local inventory = ui.GetFrame("inventory")
+    local eqp_tab = GET_CHILD_RECURSIVELY(inventory, "inventype_Tab")
+    eqp_tab:SelectTab(1)
+    local equip_tbl = {0, 20, 1, 25, 27, 29, 35}
+    local temp_tbl = {"hair1", "hair2", "hair3", "seal", "ark", "relic", "core"}
+    local equip_item_list = session.GetEquipItemList()
+    for i, equip_index in ipairs(equip_tbl) do
+        local equip_item = equip_item_list:GetEquipItemByIndex(equip_index)
+        if equip_item then
+            local iesid = equip_item:GetIESID()
+            local setting_data = g.cc_helper_settings[g.cid].items[temp_tbl[i]]
+            if setting_data and setting_data.clsid ~= 0 then
+                if iesid ~= "0" and setting_data.iesid == iesid then
+                    item.UnEquip(equip_index)
+                    return 1
+                end
+            end
+        end
+    end
+    for i, key in ipairs(temp_tbl) do
+        local setting_data = g.cc_helper_settings[g.cid].items[key]
+        if setting_data and setting_data.clsid ~= 0 then
+            if setting_data.iesid and setting_data.iesid ~= "0" then
+                local inv_item = session.GetInvItemByGuid(setting_data.iesid)
+                if inv_item == nil then
+                    return 1
+                end
+            end
+        end
+    end
+    in_btn:StopUpdateScript("Cc_helper_unequip")
+    Cc_helper_putitem(nil, in_btn, nil, 2)
+    return 0
+end
+
+function Cc_helper_unequip_card_leg(in_btn)
+    local try = in_btn:GetUserIValue("TRY")
+    local target_key = "leg"
+    local slot_index = 13
+    local setting_item = g.cc_helper_settings[g.cid].items["leg"]
+    local save_clsid = setting_item.clsid
+    local save_iesid = setting_item.iesid
+    if save_clsid ~= 0 then
+        local card_info = equipcard.GetCardInfo(slot_index)
+        local is_equipped = (card_info and card_info:GetCardID() == save_clsid)
+        if is_equipped then
+            local arg_str = string.format("%d 1", slot_index - 1)
+            pc.ReqExecuteTx_NumArgs("SCR_TX_UNEQUIP_CARD_SLOT", arg_str)
+            return 1
+        end
+        if try < 2 then
+            local inv_item = session.GetInvItemByGuid(save_iesid)
+            if inv_item == nil then
+                in_btn:SetUserValue("TRY", try + 1)
+                return 1
+            end
+        end
+    end
+    in_btn:StopUpdateScript("Cc_helper_unequip_card_leg")
+    in_btn:SetUserValue("TRY", 0)
+    Cc_helper_putitem(nil, in_btn, nil, 3)
+    return 0
+end
+
+function Cc_helper_inv_to_warehouse(in_btn)
+    local temp_tbl = {{
+        key = "seal",
+        value = "sset_Accessory_Seal"
+    }, {
+        key = "ark",
+        value = "sset_Accessory_Ark"
+    }, {
+        key = "core",
+        value = "sset_Accessory_Core"
+    }, {
+        key = "relic",
+        value = "sset_Relic"
+    }, {
+        key = "hair1",
+        value = "sset_HairAcc_Acc1"
+    }, {
+        key = "hair2",
+        value = "sset_HairAcc_Acc2"
+    }, {
+        key = "hair3",
+        value = "sset_HairAcc_Acc3"
+    }, {
+        key = "leg",
+        value = "sset_Card_CardLeg"
+    }, {
+        key = "god",
+        value = "sset_Card_CardGoddess"
+    }}
+    local accountwarehouse = ui.GetFrame("accountwarehouse")
+    if accountwarehouse:IsVisible() == 1 then
+        local handle = accountwarehouse:GetUserIValue("HANDLE")
+        local inventory = ui.GetFrame("inventory")
+        local inventype_Tab = GET_CHILD_RECURSIVELY(inventory, "inventype_Tab")
+        for i, data in ipairs(temp_tbl) do
+            local key = data.key
+            local value = data.value
+            local iesid = g.cc_helper_settings[g.cid].items[key].iesid
+            local inv_item = session.GetInvItemByGuid(iesid)
+            if inv_item then
+                if i <= 5 then
+                    inventype_Tab:SelectTab(1)
+                    local inventree_Equip = GET_CHILD_RECURSIVELY(inventory, "inventree_Equip")
+                    local child_count = inventree_Equip:GetChildCount()
+                    for j = 0, child_count - 1 do
+                        local child = inventree_Equip:GetChildByIndex(j)
+                        local child_name = child:GetName()
+                        if child_name == value then
+                            local child_y = child:GetY()
+                            local treeGbox_Equip = GET_CHILD_RECURSIVELY(inventory, "treeGbox_Equip")
+                            treeGbox_Equip:SetScrollPos(tonumber(child_y))
+                            break
+                        end
+                    end
+                else
+                    inventype_Tab:SelectTab(4)
+                    local inventree_Card = GET_CHILD_RECURSIVELY(inventory, "inventree_Card")
+                    local child_count = inventree_Card:GetChildCount()
+                    for j = 0, child_count - 1 do
+                        local child = inventree_Card:GetChildByIndex(j)
+                        local child_name = child:GetName()
+                        if child_name == value then
+                            local child_y = child:GetY()
+                            local treeGbox_Card = GET_CHILD_RECURSIVELY(inventory, "treeGbox_Card")
+                            treeGbox_Card:SetScrollPos(tonumber(child_y))
+                            break
+                        end
+                    end
+                end
+                if Cc_helper_checkvalid(inv_item) then
+                    local goal_index = Cc_helper_get_goal_index()
+                    local item_cls = GetClassByType("Item", g.cc_helper_settings[g.cid].items[key].clsid)
+                    local item_name = item_cls.Name
+                    local log = g.lang == "Japanese" and "倉庫に格納しました" .. "：[" .. "{#EE82EE}" ..
+                                    item_name .. "{#FFFF00}]×" .. "{#EE82EE}1" or "Item to warehousing" .. "：[" ..
+                                    "{#EE82EE}" .. item_name .. "{#FFFF00}]×" .. "{#EE82EE}1"
+                    CHAT_SYSTEM(log)
+                    item.PutItemToWarehouse(IT_ACCOUNT_WAREHOUSE, iesid, 1, handle, goal_index)
+                    imcSound.PlaySoundEvent("sys_jam_slot_equip")
+                    return 1
+                end
+            end
+        end
+        in_btn:StopUpdateScript("Cc_helper_inv_to_warehouse")
+        Cc_helper_putitem(nil, in_btn, nil, 4)
+        return 0
+    end
+    in_btn:StopUpdateScript("Cc_helper_inv_to_warehouse")
+    return 0
+end
+
+function Cc_helper_in_btn_aethergem_mgr(in_btn)
+    local inventory = ui.GetFrame("inventory")
+    local equip_slots = {"RH", "LH", "RH_SUB", "LH_SUB"}
+    local eco = g.cc_helper_settings.etc.eco or 0
+    local agm_stop = g.cc_helper_settings.etc.agm_stop or 0
+    local agm = g.cc_helper_settings[g.cid].agm
+    if eco == 0 and agm_stop == 0 and agm == 1 then
+        local eq_count = 0
+        local has_target_gem = false
+        g.cc_helper_guids = {}
+        for _, slot_name in ipairs(equip_slots) do
+            local equip_slot = GET_CHILD_RECURSIVELY(inventory, slot_name)
+            local icon = equip_slot:GetIcon()
+            if icon then
+                local icon_info = icon:GetInfo()
+                local iesid = icon_info:GetIESID()
+                g.cc_helper_guids[slot_name] = iesid
+                eq_count = eq_count + 1
+                if not has_target_gem then
+                    local equip_item = session.GetEquipItemByGuid(iesid)
+                    if equip_item then
+                        local gem_id = equip_item:GetEquipGemID(2) -- 2 = Aether Gem
+                        for i = 1, 4 do
+                            local gem_key = "gem" .. i
+                            if gem_id == g.cc_helper_settings[g.cid].items[gem_key].clsid then
+                                has_target_gem = true
+                                break
+                            end
+                        end
+                    end
+                end
+            end
+        end
+        if has_target_gem then
+            if eq_count == 4 then
+                Cc_helper_msgbox_frame(in_btn)
+                return
+            else
+                local msg = g.lang == "Japanese" and "{ol}武器4ヶ所着けてください" or
+                                "{ol}Please equip weapons in 4 slots"
+                ui.SysMsg(msg)
+                Cc_helper_putitem(nil, in_btn, nil, 6)
+                return
+            end
+        else
+            Cc_helper_putitem(nil, in_btn, nil, 6)
+            return
+        end
+    end
+    Cc_helper_putitem(nil, in_btn, nil, 6)
+end
+
+function Cc_helper_msgbox_frame(in_btn)
+    if g.cc_helper_settings[g.cid].agm_check == 1 then
+        local top_frame = in_btn:GetTopParentFrame()
+        local msg = g.lang == "Japanese" and "{ol}{#FFFFFF}エーテルジェムを付替えますか？" or
+                        "{ol}{#FFFFFF}Would you like to swap Aether Gems?"
+        local yes_scp = string.format("Cc_helper_start_agm_reserve('%s')", top_frame:GetName())
+        local no_scp = string.format("Cc_helper_start_agm_reserve('%s',%d)", top_frame:GetName(), 1)
+        ui.MsgBox(msg, yes_scp, no_scp)
+    else
+        Cc_helper_start_agm(in_btn)
+    end
+end
+
+function Cc_helper_start_agm_reserve(frame_name, no_scp)
+    local top_frame = ui.GetFrame(frame_name)
+    local in_btn = GET_CHILD_RECURSIVELY(top_frame, "cch_in_btn")
+    if not no_scp then
+        Cc_helper_start_agm(in_btn)
+    else
+        Cc_helper_putitem(nil, in_btn, nil, 6)
+    end
+end
+
+function Cc_helper_start_agm(btn)
+    local goddess_equip_manager = ui.GetFrame("goddess_equip_manager") -- layerlevel="92"
+    if goddess_equip_manager:IsVisible() == 0 then
+        help.RequestAddHelp("TUTO_GODDESSEQUIP_1")
+        goddess_equip_manager:ShowWindow(1)
+        goddess_equip_manager:SetLayerLevel(100)
+        local main_tab = GET_CHILD_RECURSIVELY(goddess_equip_manager, "main_tab")
+        main_tab:SelectTab(2)
+        GODDESS_MGR_SOCKET_OPEN(goddess_equip_manager)
+        GODDESS_EQUIP_UI_TUTORIAL_CHECK(goddess_equip_manager)
+        if btn:GetName() == "cch_in_btn" then
+            btn:SetUserValue("AG_STEP", 1)
+            btn:RunUpdateScript("Cc_helper_in_btn_agm", 0.1)
+        else
+            btn:SetUserValue("AG_STEP", 1)
+            btn:RunUpdateScript("Cc_helper_out_btn_agm", 0.1)
+        end
+    end
+end
+
+function Cc_helper_in_btn_agm(in_btn)
+    local inventory = ui.GetFrame("inventory")
+    if inventory:IsVisible() == 0 then
+        in_btn:StopUpdateScript("Cc_helper_in_btn_agm")
+        return 0
+    end
+    local ag_step = in_btn:GetUserIValue("AG_STEP")
+    local goddess_equip_manager = ui.GetFrame("goddess_equip_manager")
+    local spot_nums = {8, 9, 30}
+    local equips = {"RH", "LH", "RH_SUB", "LH_SUB"}
+    if ag_step <= 3 then
+        local guid = g.cc_helper_guids[equips[ag_step]]
+        local equip_item = session.GetEquipItemByGuid(guid)
+        if ag_step == 3 then
+            DO_WEAPON_SLOT_CHANGE(inventory, 2)
+        end
+        if not equip_item then
+            in_btn:SetUserValue("AG_STEP", ag_step + 1)
+        else
+            item.UnEquip(spot_nums[ag_step])
+        end
+        return 1
+    end
+    if ag_step >= 4 and ag_step <= 7 then
+        local gem_index = 2 -- エーテルジェムは2
+        local guid = g.cc_helper_guids[equips[ag_step - 3]]
+        local inv_item = session.GetInvItemByGuid(guid)
+        if inv_item then
+            local item_obj = GetIES(inv_item:GetObject())
+            GODDESS_MGR_SOCKET_REG_ITEM(goddess_equip_manager, inv_item, item_obj)
+            local gem_id = inv_item:GetEquipGemID(gem_index)
+            if not gem_id or gem_id ~= 0 then
+                _GODDESS_MGR_SOCKET_REQ_GEM_REMOVE(gem_index)
+            else
+                local spot_name = equips[ag_step - 3]
+                if ag_step == 4 then
+                    DO_WEAPON_SLOT_CHANGE(inventory, 1)
+                elseif ag_step == 6 then
+                    DO_WEAPON_SLOT_CHANGE(inventory, 2)
+                end
+                ITEM_EQUIP(inv_item.invIndex, spot_name)
+            end
+            return 1
+        else
+            in_btn:SetUserValue("AG_STEP", ag_step + 1)
+        end
+        return 1
+    end
+    g.cc_helper_guids = nil
+    goddess_equip_manager:SetLayerLevel(92)
+    Cc_helper_putitem(nil, in_btn, nil, 5)
+end
+
+function Cc_helper_gem_inv_to_warehouse(in_btn)
+    local inventory = ui.GetFrame("inventory")
+    local accountwarehouse = ui.GetFrame("accountwarehouse")
+    if inventory:IsVisible() == 0 or accountwarehouse:IsVisible() == 0 then
+        in_btn:StopUpdateScript("Cc_helper_gem_inv_to_warehouse")
+        return 0
+    end
+    if not g.cc_helper_gem_queue then
+        local gem_tab = GET_CHILD_RECURSIVELY(inventory, "inventype_Tab")
+        gem_tab:SelectTab(6)
+        local required_counts = {}
+        for i = 1, 4 do
+            local item_data = g.cc_helper_settings[g.cid].items["gem" .. i]
+            if item_data and item_data.clsid ~= 0 then
+                local id = item_data.clsid
+                required_counts[id] = (required_counts[id] or 0) + 1
+            end
+        end
+        local candidates = {}
+        local inv_list = session.GetInvItemList()
+        local guid_list = inv_list:GetGuidList()
+        local cnt = guid_list:Count()
+        for i = 0, cnt - 1 do
+            local guid = guid_list:Get(i)
+            local inv_item = inv_list:GetItemByGuid(guid)
+            local obj = GetIES(inv_item:GetObject())
+            local id = obj.ClassID
+            if required_counts[id] and Cc_helper_checkvalid(inv_item) then
+                local level = get_current_aether_gem_level(obj)
+                table.insert(candidates, {
+                    level = tonumber(level) or 0,
+                    iesid = guid,
+                    clsid = id,
+                    name = obj.Name,
+                    inv_item = inv_item
+                })
+            end
+        end
+        table.sort(candidates, function(a, b)
+            return a.level > b.level
+        end)
+        local queue = {}
+        local added_counts = {}
+        for _, gem in ipairs(candidates) do
+            local id = gem.clsid
+            local limit = required_counts[id] or 0
+            local current = added_counts[id] or 0
+            if current < limit then
+                table.insert(queue, gem)
+                added_counts[id] = current + 1
+            end
+        end
+        g.cc_helper_gem_queue = queue
+    end
+    if #g.cc_helper_gem_queue > 0 then
+        local gem_data = g.cc_helper_gem_queue[1]
+        local handle = accountwarehouse:GetUserIValue("HANDLE")
+        local inv_item = session.GetInvItemByGuid(gem_data.iesid)
+        if inv_item then
+            local goal_index = Cc_helper_get_goal_index()
+            local log = g.lang == "Japanese" and "倉庫に格納しました：[{#EE82EE}" .. gem_data.name ..
+                            "{#FFFF00}]×{#EE82EE}1" or "Item to warehousing：[{#EE82EE}" .. gem_data.name ..
+                            "{#FFFF00}]×{#EE82EE}1"
+            CHAT_SYSTEM(log)
+            session.ResetItemList()
+            session.AddItemID(gem_data.iesid, 1)
+            item.PutItemToWarehouse(IT_ACCOUNT_WAREHOUSE, gem_data.iesid, 1, handle, goal_index)
+            return 1
+        else
+            table.remove(g.cc_helper_gem_queue, 1)
+            return 1
+        end
+    end
+    g.cc_helper_gem_queue = nil
+    in_btn:StopUpdateScript("Cc_helper_gem_inv_to_warehouse")
+    Cc_helper_putitem(nil, in_btn, nil, 6)
+    return 0
+end
+
+function Cc_helper_mcc_operation(in_btn)
+    local monstercardpreset = ui.GetFrame("monstercardpreset")
+    if not g.monster_card_changer_ready then
+        return 1
+    elseif g.monster_card_changer_ready == 1 then
+        g.monster_card_changer_ready = 2
+        Monster_card_changer_remove(monstercardpreset)
+    elseif g.monster_card_changer_ready == 2 then
+        return 1
+    elseif g.monster_card_changer_ready == 3 then
+        g.monster_card_changer_ready = nil
+        in_btn:StopUpdateScript("Cc_helper_mcc_operation")
+        Cc_helper_putitem(nil, in_btn, nil, 7)
+        return 0
+    end
+    return 1
+end
+-- takeitem
+function Cc_helper_take_item(frame, out_btn, str, step)
+    if g.another_warehouse_func == true then
+        ui.SysMsg(g.lang == "Japanese" and "[AWH]が作動中です" or "[AWH] is currently operating")
+        return
+    end
+    if step == 0 then
+        out_btn:SetUserValue("STEP", 0)
+        out_btn:RunUpdateScript("Cc_helper_equip_take_warehouse_item", 0.1)
+    elseif step == 1 then
+        out_btn:SetUserValue("TRY", 0)
+        out_btn:SetUserValue("STEP", 1)
+        out_btn:RunUpdateScript("Cc_helper_equip_card", 0.1)
+    elseif step == 2 then
+        out_btn:SetUserValue("STEP", 2)
+        Cc_helper_equips_reserve(out_btn)
+    elseif step == 3 then
+        out_btn:SetUserValue("TRY", 0)
+        out_btn:SetUserValue("STEP", 3)
+        out_btn:RunUpdateScript("Cc_helper_equip_card", 0.1)
+    elseif step == 4 then
+        out_btn:SetUserValue("STEP", 4)
+        out_btn:RunUpdateScript("Cc_helper_take_agm_reserve", 0.1)
+    elseif step == 5 then
+        out_btn:SetUserValue("STEP", 5)
+        out_btn:RunUpdateScript("Cc_helper_out_btn_agm_reserve", 0.1)
+    elseif step == 6 then
+        out_btn:SetUserValue("STEP", 6)
+        if g.cc_helper_settings[g.cid].mcc == 1 then
+            Cc_helper_end_of_operation(out_btn, 1)
+            return
+        else
+            Cc_helper_take_item(nil, out_btn, nil, 7)
+        end
+    elseif step == 7 then
+        out_btn:SetUserValue("STEP", 7)
+        Cc_helper_end_of_operation(out_btn)
+    end
+end
+
+function Cc_helper_equip_take_warehouse_item(out_btn)
+    local req_time = out_btn:GetUserIValue("REQ_TIME")
+    if req_time == 0 then
+        g.cc_helper_take_guids = {} -- 必ず初期化
+        local equip_keys = {"seal", "ark", "relic", "core", "leg", "god", "hair1", "hair2", "hair3"}
+        local is_eco = (g.cc_helper_settings.etc.eco == 1)
+        local wh_list = session.GetEtcItemList(IT_ACCOUNT_WAREHOUSE)
+        session.ResetItemList()
+        for _, key in ipairs(equip_keys) do
+            if not (is_eco and key == "leg") then
+                local item_data = g.cc_helper_settings[g.cid].items[key]
+                local iesid = item_data and item_data.iesid or ""
+                if iesid ~= "" then
+                    if wh_list:GetItemByGuid(iesid) and not session.GetInvItemByGuid(iesid) then
+                        session.AddItemID(iesid, 1)
+                        table.insert(g.cc_helper_take_guids, iesid)
+                    end
+                end
+            end
+        end
+        if #g.cc_helper_take_guids == 0 then
+            return Cc_helper_equip_take_finish(out_btn)
+        end
+        local handle = ui.GetFrame("accountwarehouse"):GetUserIValue("HANDLE")
+        item.TakeItemFromWarehouse_List(IT_ACCOUNT_WAREHOUSE, session.GetItemIDList(), handle)
+        out_btn:SetUserValue("REQ_TIME", imcTime.GetAppTime())
+        return 1
+    end
+    if not g.cc_helper_take_guids or #g.cc_helper_take_guids == 0 then
+        ui.SysMsg("{#FF0000}Data Error: Item list lost.")
+        return Cc_helper_equip_take_finish(out_btn)
+    end
+    for _, guid in ipairs(g.cc_helper_take_guids) do
+        if not session.GetInvItemByGuid(guid) then
+            local elapsed = imcTime.GetAppTime() - req_time
+            if elapsed > 3.0 then
+                ui.SysMsg(g.lang == "Japanese" and "{#FF0000}倉庫取り出しタイムアウト" or
+                              "{#FF0000}Warehouse take timeout")
+                return Cc_helper_equip_take_finish(out_btn) -- タイムアウト強制終了
+            end
+            return 1
+        end
+    end
+    return Cc_helper_equip_take_finish(out_btn)
+end
+
+function Cc_helper_equip_take_finish(out_btn)
+    out_btn:StopUpdateScript("Cc_helper_equip_take_warehouse_item")
+    out_btn:SetUserValue("REQ_TIME", 0)
+    g.cc_helper_take_guids = nil
+    Cc_helper_update_hair_stats()
+    Cc_helper_take_item(nil, out_btn, nil, 1) -- 次のステップへ
+    return 0
+end
+
+function Cc_helper_equip_card(out_btn)
+    local inventory = ui.GetFrame("inventory")
+    local monstercardslot = ui.GetFrame("monstercardslot")
+    local step = out_btn:GetUserIValue("STEP")
+    local try = out_btn:GetUserIValue("TRY")
+    local key, card_index, next_step, is_eco_check
+    if step == 1 then
+        key = "god"
+        card_index = 13
+        next_step = 2
+        is_eco_check = false
+    elseif step == 3 then
+        key = "leg"
+        card_index = 12
+        next_step = 4
+        is_eco_check = true
+    end
+    if is_eco_check and g.cc_helper_settings.etc.eco == 1 then
+        out_btn:StopUpdateScript("Cc_helper_equip_card")
+        Cc_helper_take_item(nil, out_btn, nil, next_step)
+        return 0
+    end
+    local card_id = GETMYCARD_INFO(card_index)
+    if card_id == 0 then
+        local iesid = g.cc_helper_settings[g.cid].items[key].iesid
+        if iesid ~= "" then
+            local inv_item = session.GetInvItemByGuid(iesid)
+            if inv_item then
+                local inv_tab = GET_CHILD_RECURSIVELY(inventory, "inventype_Tab")
+                inv_tab:SelectTab(4)
+                MONSTERCARDSLOT_FRAME_OPEN()
+                local arg_str = string.format("%d#%s", card_index, tostring(iesid))
+                pc.ReqExecuteTx("SCR_TX_EQUIP_CARD_SLOT", arg_str)
+                return 1
+            elseif not inv_item and try <= 4 then
+                out_btn:SetUserValue("TRY", try + 1)
+                return 1
+            end
+        end
+    end
+    out_btn:StopUpdateScript("cc_helper_equip_card")
+    Cc_helper_take_item(nil, out_btn, nil, next_step)
+    return 0
+end
+
+function Cc_helper_equips_reserve(out_btn)
+    g.cc_helper_tbl = {{
+        ["HAT"] = "hair1"
+    }, {
+        ["HAT_T"] = "hair2"
+    }, {
+        ["HAT_L"] = "hair3"
+    }, {
+        ["SEAL"] = "seal"
+    }, {
+        ["ARK"] = "ark"
+    }, {
+        ["RELIC"] = "relic"
+    }, {
+        ["CORE"] = "core"
+    }}
+    out_btn:RunUpdateScript("Cc_helper_equips", 0.1)
+end
+
+function Cc_helper_equips(out_btn)
+    local inventory = ui.GetFrame("inventory")
+    local inventype_Tab = GET_CHILD_RECURSIVELY(inventory, "inventype_Tab")
+    inventype_Tab:SelectTab(1)
+    for i, data in ipairs(g.cc_helper_tbl) do
+        for spot, equip in pairs(data) do
+            local guid = g.cc_helper_settings[g.cid].items[equip].iesid
+            local inv_item = session.GetInvItemByGuid(guid)
+            if inv_item then
+                local equip_slot = GET_CHILD_RECURSIVELY(inventory, spot)
+                local icon = equip_slot:GetIcon()
+                if not icon then
+                    local item_index = inv_item.invIndex
+                    ITEM_EQUIP(item_index, spot)
+                    return 1
+                end
+            end
+        end
+    end
+    out_btn:StopUpdateScript("cc_helper_equips")
+    Cc_helper_take_item(nil, out_btn, nil, 3)
+end
+
+function Cc_helper_take_agm_reserve(out_btn)
+    local inventory = ui.GetFrame("inventory")
+    local equips = {"RH", "LH", "RH_SUB", "LH_SUB"}
+    for _, slot_name in ipairs(equips) do
+        local equip_slot = GET_CHILD_RECURSIVELY(inventory, slot_name)
+        local icon = equip_slot:GetIcon()
+        if icon then
+            local icon_info = icon:GetInfo()
+            local guid = icon_info:GetIESID()
+            local equip_item = session.GetEquipItemByGuid(guid)
+            local available = equip_item:IsAvailableSocket(2)
+            if not available then
+                out_btn:StopUpdateScript("Cc_helper_take_agm_reserve")
+                Cc_helper_take_item(nil, out_btn, nil, 6)
+                return 0
+            end
+        end
+    end
+    local eco = g.cc_helper_settings.etc.eco or 0
+    local agm_stop = g.cc_helper_settings.etc.agm_stop or 0
+    local agm = g.cc_helper_settings[g.cid].agm
+    if eco == 0 and agm_stop == 0 and agm == 1 then
+        local equipSlots = {"RH", "LH", "RH_SUB", "LH_SUB"}
+        local found_count = 0
+        local inventory = ui.GetFrame("inventory")
+        for _, slot_name in ipairs(equipSlots) do
+            local equipSlot = GET_CHILD_RECURSIVELY(inventory, slot_name)
+            local icon = equipSlot:GetIcon()
+            if icon then
+                local icon_info = icon:GetInfo()
+                local guid = icon_info:GetIESID()
+                local equip_item = session.GetEquipItemByGuid(guid)
+                local gem_id = equip_item:GetEquipGemID(2)
+                if gem_id == 0 then
+                    found_count = found_count + 1
+                end
+            end
+        end
+        if found_count == 4 then
+            if g.cc_helper_settings[g.cid].agm_check == 1 then
+                local top_frame = out_btn:GetTopParentFrame()
+                local msg = g.lang == "Japanese" and "{ol}{#FFFFFF}エーテルジェムを付替えますか？" or
+                                "{ol}{#FFFFFF}Would you like to swap Aether Gems?"
+                local yes_scp = string.format("Cc_helper_take_msg_func('%s','%s')", top_frame:GetName(),
+                    out_btn:GetName())
+                local no_scp = string.format("Cc_helper_take_msg_func('%s','%s',%d)", top_frame:GetName(),
+                    out_btn:GetName(), 1)
+                ui.MsgBox(msg, yes_scp, no_scp)
+                return
+            else
+                out_btn:StopUpdateScript("Cc_helper_take_agm_reserve")
+                Cc_helper_take_agm(out_btn)
+                return 0
+            end
+        end
+    end
+    out_btn:StopUpdateScript("Cc_helper_take_agm_reserve")
+    Cc_helper_take_item(nil, out_btn, nil, 6)
+    return 0
+end
+
+function Cc_helper_take_msg_func(top_frame_name, out_btn_name, is_no_scp)
+    local top_frame = ui.GetFrame(top_frame_name)
+    local out_btn = GET_CHILD(top_frame, "cch_out_btn")
+    if not is_no_scp then
+        Cc_helper_take_agm(out_btn)
+    else
+        Cc_helper_take_item(nil, out_btn, nil, 6)
+    end
+end
+
+function Cc_helper_take_agm(out_btn)
+    local inventory = ui.GetFrame("inventory")
+    local inv_tab = GET_CHILD_RECURSIVELY(inventory, "inventype_Tab")
+    inv_tab:SelectTab(6)
+    local gems = {}
+    for i = 1, 4 do
+        local clsid = g.cc_helper_settings[g.cid].items["gem" .. i].clsid
+        if clsid ~= 0 then
+            gems[clsid] = true
+        end
+    end
+    g.cc_helper_take_gems = {}
+    local item_list = session.GetEtcItemList(IT_ACCOUNT_WAREHOUSE)
+    local sorted_guid_list = item_list:GetSortedGuidList()
+    local sorted_cnt = sorted_guid_list:Count()
+    local accountwarehouse = ui.GetFrame("accountwarehouse")
+    local handle = accountwarehouse:GetUserIValue("HANDLE")
+    for i = 0, sorted_cnt - 1 do
+        local iesid = sorted_guid_list:Get(i)
+        local awh_item = item_list:GetItemByGuid(iesid)
+        local type = awh_item.type
+        local obj = GetIES(awh_item:GetObject())
+        if gems[type] then
+            local level = get_current_aether_gem_level(obj)
+            table.insert(g.cc_helper_take_gems, {
+                level = tonumber(level) or 0,
+                iesid = iesid,
+                clsid = type,
+                loc = "warehouse"
+            })
+        end
+    end
+    local inv_item_list = session.GetInvItemList()
+    local guid_list = inv_item_list:GetGuidList()
+    local cnt = guid_list:Count()
+    for i = 0, cnt - 1 do
+        local guid = guid_list:Get(i)
+        local inv_item = inv_item_list:GetItemByGuid(guid)
+        local item_obj = GetIES(inv_item:GetObject())
+        local cls_id = item_obj.ClassID
+        if gems[cls_id] then
+            local level = get_current_aether_gem_level(item_obj)
+            table.insert(g.cc_helper_take_gems, {
+                level = tonumber(level) or 0,
+                iesid = guid,
+                clsid = cls_id,
+                loc = "inventory"
+            })
+        end
+    end
+    table.sort(g.cc_helper_take_gems, function(a, b)
+        return a.level > b.level
+    end)
+    if #g.cc_helper_take_gems < 4 then
+        local msg = g.lang == "Japanese" and "{ol}指定のエーテルジェムが4個ありません" or
+                        "{ol}You don't have 4 of the Aether Gems"
+        ui.SysMsg(msg)
+        Cc_helper_take_item(nil, out_btn, nil, 6)
+        return
+    end
+    session.ResetItemList()
+    local take_count = 0
+    for i = 1, 4 do
+        if g.cc_helper_take_gems[i].loc == "warehouse" then
+            session.AddItemID(g.cc_helper_take_gems[i].iesid, 1)
+            take_count = take_count + 1
+        end
+    end
+    if take_count > 0 then
+        item.TakeItemFromWarehouse_List(IT_ACCOUNT_WAREHOUSE, session.GetItemIDList(), handle)
+    end
+    Cc_helper_take_item(nil, out_btn, nil, 5)
+end
+
+function Cc_helper_out_btn_agm_reserve(out_btn)
+    g.Cc_helper_gem_guids = {}
+    local eq_count = 0
+    local equips = {"RH_SUB", "LH_SUB", "RH", "LH"}
+    local inventory = ui.GetFrame("inventory")
+    for _, slot_name in ipairs(equips) do
+        local equip_slot = GET_CHILD_RECURSIVELY(inventory, slot_name)
+        local icon = equip_slot:GetIcon()
+        if icon then
+            local icon_info = icon:GetInfo()
+            local iesid = icon_info:GetIESID()
+            if not g.Cc_helper_gem_guids[slot_name] then
+                g.Cc_helper_gem_guids[slot_name] = iesid
+                eq_count = eq_count + 1
+            end
+        end
+    end
+    if eq_count == 4 then
+        out_btn:StopUpdateScript("Cc_helper_out_btn_agm_reserve")
+        Cc_helper_start_agm(out_btn)
+        return 0
+    end
+    local msg = g.lang == "Japanese" and "{ol}武器4ヶ所着けてください" or
+                    "{ol}Please equip weapons in 4 slots"
+    ui.SysMsg(msg)
+    out_btn:StopUpdateScript("Cc_helper_out_btn_agm_reserve")
+    cc_helper_take_item(nil, out_btn, nil, 6)
+    return 0
+end
+
+function Cc_helper_out_btn_agm(out_btn)
+    local inventory = ui.GetFrame("inventory")
+    if inventory:IsVisible() == 0 then
+        out_btn:StopUpdateScript("Cc_helper_out_btn_agm")
+        return 0
+    end
+    local ag_step = out_btn:GetUserIValue("AG_STEP")
+    local goddess_equip_manager = ui.GetFrame("goddess_equip_manager")
+    local spot_nums = {8, 9, 30}
+    local equips = {"RH", "LH", "RH_SUB", "LH_SUB"}
+    if ag_step <= 3 then
+        local guid = g.Cc_helper_gem_guids[equips[ag_step]]
+        local equip_item = session.GetEquipItemByGuid(guid)
+        if ag_step == 3 then
+            DO_WEAPON_SLOT_CHANGE(inventory, 2)
+        end
+        if not equip_item then
+            out_btn:SetUserValue("AG_STEP", ag_step + 1)
+        else
+            item.UnEquip(spot_nums[ag_step])
+        end
+        return 1
+    end
+    local msg = g.lang == "Japanese" and "エーテルジェムソケットが空いていません" or
+                    "The Aether Gem socket is unavailable"
+    if ag_step >= 4 and ag_step <= 7 then
+        local guid = g.Cc_helper_gem_guids[equips[ag_step - 3]]
+        local inv_item = session.GetInvItemByGuid(guid)
+        local gem_guid = g.cc_helper_take_gems[ag_step - 3].iesid
+        local inv_item = session.GetInvItemByGuid(guid)
+        if inv_item then
+            local item_obj = GetIES(inv_item:GetObject())
+            GODDESS_MGR_SOCKET_REG_ITEM(goddess_equip_manager, inv_item, item_obj)
+            local gem_item = session.GetInvItemByGuid(gem_guid)
+            if gem_item then
+                local gem_obj = GetIES(gem_item:GetObject())
+                local ctrl_set = GET_CHILD_RECURSIVELY(goddess_equip_manager, "AETHER_CSET_0")
+                local gem_id = ctrl_set:GetUserIValue("GEM_ID")
+                if gem_id == 0 then
+                    local gem_slot = GET_CHILD(ctrl_set, "gem_slot")
+                    GODDESS_MGR_SOCKET_AETHER_GEM_EQUIP(ctrl_set, gem_slot, gem_item, gem_obj)
+                end
+                return 1
+            else
+                local spot_name = equips[ag_step - 3]
+                if ag_step == 4 then
+                    DO_WEAPON_SLOT_CHANGE(inventory, 1)
+                elseif ag_step == 6 then
+                    DO_WEAPON_SLOT_CHANGE(inventory, 2)
+                end
+                ITEM_EQUIP(inv_item.invIndex, spot_name)
+                return 1
+            end
+        else
+            out_btn:SetUserValue("AG_STEP", ag_step + 1)
+            return 1
+        end
+    end
+    out_btn:StopUpdateScript("Cc_helper_out_btn_agm")
+    Cc_helper_take_item(nil, out_btn, nil, 6)
+    return 0
+end
+
+function Cc_helper_change_summoned_pet(companionlist)
+    local save_iesid = g.cc_helper_settings[g.cid].items["pet"].iesid
+    local save_clsid = g.cc_helper_settings[g.cid].items["pet"].clsid
+    local state = companionlist:GetUserValue("FUNCTION_")
+    local pet_list = session.pet.GetPetInfoVec()
+    for i = 0, pet_list:size() - 1 do
+        local info = pet_list:at(i)
+        local obj = GetIES(info:GetObject())
+        local id = obj.ClassID
+        local set_name = "_CTRLSET_" .. i
+        local ctrlset = GET_CHILD_RECURSIVELY(companionlist, set_name)
+        if ctrlset then
+            local slot = GET_CHILD_RECURSIVELY(ctrlset, "slot")
+            local icon = slot:GetIcon()
+            if icon then
+                local icon_info = icon:GetInfo()
+                local pet_guid = icon_info:GetIESID()
+                if state == "not" then
+                    if pet_guid == save_iesid then
+                        ICON_USE(icon)
+                        break
+                    end
+                elseif state == "different" then
+                    local summoned_pet = session.pet.GetSummonedPet()
+                    local summoned_iesid = summoned_pet:GetStrGuid()
+                    if pet_guid == summoned_iesid then
+                        companionlist:SetUserValue("FUNCTION_", "not")
+                        control.SummonPet(0, 0, 0)
+                        return 1
+                    end
+                end
+            end
+        end
+    end
+    local function USE_COMPANION_ICON_AFTER_ACTION()
+        local can_close = false
+        local pet_info = ui.GetFrame("pet_info")
+        if pet_info then
+            if pet_info:IsVisible() == 0 then
+                can_close = true
+            end
+        else
+            can_close = true
+        end
+        if can_close == true then
+            CLOSE_COMPANIONLIST()
+            CLOSE_PETLIST()
+        end
+    end
+    USE_COMPANION_ICON_AFTER_ACTION()
+    companionlist:Resize(305, 335)
+    return 0
+end
+
+function Cc_helper_end_of_operation(btn, is_mcc)
+    local inventory = ui.GetFrame("inventory")
+    local inventype_Tab = GET_CHILD_RECURSIVELY(inventory, "inventype_Tab")
+    if inventype_Tab then
+        inventype_Tab:SelectTab(0)
+    end
+    ui.SysMsg("{ol}[CCH]End of Operation")
+    local goddess_equip_manager = ui.GetFrame("goddess_equip_manager")
+    goddess_equip_manager:ShowWindow(0)
+    local monstercardslot = ui.GetFrame("monstercardslot")
+    if monstercardslot:IsVisible() == 1 and not is_mcc then
+        monstercardslot:RunUpdateScript("MONSTERCARDSLOT_CLOSE", 0.5)
+    end
+    local accountwarehouse = ui.GetFrame("accountwarehouse")
+    if g.cc_helper_settings.etc.wh_close == 1 and not is_mcc then
+        ACCOUNTWAREHOUSE_CLOSE()
+    elseif is_mcc == 1 then
+        Monster_card_changer_monstercardpreset_open(1)
+    end
+    local btn_name = btn:GetName()
+    if btn_name == "cch_out_btn" then
+        local save_clsid = g.cc_helper_settings[g.cid].items["pet"].clsid
+        if save_clsid ~= 0 then
+            local companionlist = ui.GetFrame("companionlist")
+            companionlist:Resize(0, 0)
+            local summoned_pet = session.pet.GetSummonedPet()
+            if not summoned_pet then
+                ON_OPEN_COMPANIONLIST()
+                companionlist:SetUserValue("FUNCTION_", "not")
+                companionlist:RunUpdateScript("Cc_helper_change_summoned_pet", 0.5)
+            else -- Different
+                local summoned_iesid = summoned_pet:GetStrGuid()
+                local save_iesid = g.cc_helper_settings[g.cid].items["pet"].iesid
+                if summoned_iesid ~= save_iesid then
+                    ON_OPEN_COMPANIONLIST()
+                    companionlist:SetUserValue("FUNCTION_", "different")
+                    companionlist:RunUpdateScript("Cc_helper_change_summoned_pet", 0.5)
+                end
+            end
+        end
+    end
+    return 0
+end
+
+function Cc_helper_hair_option(item_obj)
+    local str = ""
+    local rank = shared_enchant_special_option.get_item_rank(item_obj)
+    for i = 1, 3 do
+        local prop_name = "HatPropName_" .. i
+        local prop_value = "HatPropValue_" .. i
+        if item_obj[prop_value] ~= 0 and item_obj[prop_name] ~= "None" then
+            if not string.find(item_obj[prop_name], "ALLSKILL_") then
+                str = str .. item_obj[prop_name] .. "/" .. item_obj[prop_value]
+            else
+                local job = StringSplit(item_obj[prop_name], "_")[2]
+                if job == "ShadowMancer" then
+                    job = "Shadowmancer"
+                end
+                str = str .. job
+            end
+            str = str .. ":::"
+        end
+    end
+    str = str:gsub(" - ", "")
+    str = str:gsub("-", "")
+    return str, rank
+end
+
+function Cc_helper_update_hair_stats()
+    local hairs = {"hair1", "hair2", "hair3"}
+    local is_updated = false
+    local copys = g.cc_helper_settings.etc and g.cc_helper_settings.etc.copys
+    for _, key in ipairs(hairs) do
+        local item_data = g.cc_helper_settings[g.cid].items[key]
+        if item_data and item_data.iesid ~= "" then
+            local guid = item_data.iesid
+            local inv_item = session.GetInvItemByGuid(item_data.iesid)
+            if not inv_item then
+                inv_item = session.GetEquipItemByGuid(guid)
+            end
+            if not inv_item then
+                local accountwarehouse = ui.GetFrame("accountwarehouse")
+                if accountwarehouse and accountwarehouse:IsVisible() == 1 then
+                    inv_item = session.GetEtcItemByGuid(IT_ACCOUNT_WAREHOUSE, guid)
+                end
+            end
+            if inv_item then
+                local obj = GetIES(inv_item:GetObject())
+                local option, rank = Cc_helper_hair_option(obj)
+                if item_data.option ~= option or item_data.rank ~= rank then
+                    item_data.option = option
+                    item_data.rank = rank
+                    is_updated = true
+                end
+                if copys then
+                    for cid, char_data in pairs(copys) do
+                        if char_data.items then
+                            for copy_key, copy_item_data in pairs(char_data.items) do
+                                if copy_item_data.iesid == guid then
+                                    if copy_item_data.option ~= option or copy_item_data.rank ~= rank then
+                                        copy_item_data.option = option
+                                        copy_item_data.rank = rank
+                                        is_updated = true
+                                    end
+                                    break
+                                end
+                            end
+                        end
+                    end
+                end
+            end
+        end
+    end
+    if is_updated then
+        Cc_helper_save_settings()
+    end
+end
+
+function Cc_helper_checkvalid(inv_item)
+    local acc_obj = GetMyAccountObj()
+    local max_count = acc_obj.BasicAccountWarehouseSlotCount + acc_obj.MaxAccountWarehouseCount +
+                          acc_obj.AccountWareHouseExtend + acc_obj.AccountWareHouseExtendByItem
+    if session.loginInfo.IsPremiumState(ITEM_TOKEN) then
+        max_count = max_count + ADDITIONAL_SLOT_COUNT_BY_TOKEN + 280
+    end
+    local item_list = session.GetEtcItemList(IT_ACCOUNT_WAREHOUSE)
+    local item_count = item_list:GetSortedGuidList():Count()
+    if max_count <= item_count then
+        ui.SysMsg(ClMsg("CannotPutBecauseMaxSlot"))
+        return false
+    end
+    if true == inv_item.isLockState then
+        ui.SysMsg(ClMsg("MaterialItemIsLock"))
+        return false
+    end
+    local obj = GetIES(inv_item:GetObject())
+    local item_cls = GetClassByType("Item", obj.ClassID)
+    if item_cls.ItemType == "Quest" then
+        ui.MsgBox(ScpArgMsg("IT_ISNT_REINFORCEABLE_ITEM"))
+        return false
+    end
+    local enable_team_trade = TryGetProp(item_cls, "TeamTrade")
+    if not enable_team_trade and enable_team_trade == "NO" then
+        ui.SysMsg(ClMsg("ItemIsNotTradable"))
+        return false
+    end
+    if TryGetProp(obj, "CharacterBelonging", 0) == 1 then
+        ui.SysMsg(ClMsg("ItemIsNotTradable"))
+        return false
+    end
+    return true
+end
+
+function Cc_helper_get_goal_index()
+    local acc_obj = GetMyAccountObj()
+    local base_count = acc_obj.BasicAccountWarehouseSlotCount + acc_obj.MaxAccountWarehouseCount +
+                           acc_obj.AccountWareHouseExtend + acc_obj.AccountWareHouseExtendByItem
+    local tab_index = {4, 3, 2, 1, 0}
+    local accountwarehouse = ui.GetFrame("accountwarehouse")
+    local tab = GET_CHILD(accountwarehouse, "accountwarehouse_tab")
+    local slotset = GET_CHILD_RECURSIVELY(accountwarehouse, "slotset")
+    for index = 1, #tab_index do
+        local i = tab_index[index]
+        tab:SelectTab(i)
+        if i > 0 and session.loginInfo.IsPremiumState(ITEM_TOKEN) then
+            local itemcnt = GET_CHILD_RECURSIVELY(accountwarehouse, "itemcnt")
+            local num_str = string.match(itemcnt:GetText(), "{@st42}(%d+)/")
+            local left = tonumber(num_str)
+            if left < 70 then
+                return ((i - 1) * 70) + base_count + left + 1
+            end
+        else
+            for j = 1, base_count do
+                local slot = slotset:GetSlotByIndex(j)
+                AUTO_CAST(slot)
+                if slot:GetIcon() == nil then
+                    return j
+                end
+            end
+        end
+    end
+end
+-- cc_helper ここまで
+
+-- sub_slotset ここから
+function Sub_slotset_save_settings()
+    g.save_json(g.sub_slotset_path, g.sub_slotset_settings)
+end
+
+function Sub_slotset_load_settings()
+    g.sub_slotset_path = string.format("../addons/%s/%s/sub_slotset.json", addon_name_lower, g.active_id)
+    g.sub_slotset_old_path = string.format("../addons/%s/%s/settings.json", "sub_slotset", g.active_id)
+    local settings = g.load_json(g.sub_slotset_path)
+    if not settings then
+        settings = {
+            config = {
+                index = 0
+            },
+            share = {},
+            personal = {}
+        }
+        local old_settings = g.load_json(g.sub_slotset_old_path)
+        if old_settings then
+            for ss_name, data in pairs(old_settings) do
+                if string.find(ss_name, "sub_slotset_") then
+                    if data.etc then
+                        data.etc.x = data.etc.X
+                        data.etc.y = data.etc.Y
+                        data.etc.col = data.etc.column
+                        data.etc.X = nil
+                        data.etc.Y = nil
+                        data.etc.column = nil
+                    end
+                    settings.share["sub_slotset_" .. settings.config.index] = data
+                    settings.config.index = settings.config.index + 1
+                end
+            end
+        end
+    end
+    g.sub_slotset_settings = settings
+    Sub_slotset_save_settings()
+end
+
+function Sub_slotset_char_load_settings()
+    g.sub_slotset_old_personal_path = string.format("../addons/%s/%s.json", "sub_slotset", g.cid)
+    if not g.sub_slotset_settings.personal[g.cid] then
+        g.sub_slotset_settings.personal[g.cid] = {}
+        local old_personal_settings = g.load_json(g.sub_slotset_old_personal_path)
+        if old_personal_settings then
+            for ss_name, data in pairs(old_personal_settings) do
+                if string.find(ss_name, "sub_slotset_") then
+                    if data.etc then
+                        data.etc.x = data.etc.X
+                        data.etc.y = data.etc.Y
+                        data.etc.col = data.etc.column
+                        data.etc.X = nil
+                        data.etc.Y = nil
+                        data.etc.column = nil
+                    end
+                    local new_index = g.sub_slotset_settings.config.index
+                    g.sub_slotset_settings.personal[g.cid]["sub_slotset_" .. new_index] = data
+                    g.sub_slotset_settings.config.index = new_index + 1
+                end
+            end
+        end
+        Sub_slotset_save_settings()
+    end
+end
+
+function sub_slotset_on_init()
+    if not g.sub_slotset_settings then
+        Sub_slotset_load_settings()
+    end
+    local old_func = g.settings.sub_slotset.old_init_func
+    if _G[old_func] then
+        return
+    end
+    if not g.sub_slotset_settings.personal[g.cid] then
+        Sub_slotset_char_load_settings()
+    end
+    g.setup_hook_and_event(g.addon, "SET_QUEST_CTRL_TEXT", "Sub_slotset_SET_QUEST_CTRL_TEXT", true)
+    g.setup_hook_and_event(g.addon, "EMO_OPEN", "Sub_slotset_EMO_OPEN", true)
+    if g.settings.sub_slotset.use == 0 then
+        if g.sub_slotset_settings.share then
+            for ss_name, data in pairs(g.sub_slotset_settings.share) do
+                ui.DestroyFrame(addon_name_lower .. ss_name)
+            end
+        end
+        if g.sub_slotset_settings.personal[g.cid] then
+            for ss_name, data in pairs(g.sub_slotset_settings.personal[g.cid]) do
+                ui.DestroyFrame(addon_name_lower .. ss_name)
+            end
+        end
+        return
+    end
+    local _nexus_addons = ui.GetFrame("_nexus_addons")
+    _nexus_addons:RunUpdateScript("Sub_slotset_frame_init", 0.1)
+end
+
+function Sub_slotset_EMO_OPEN(my_frame, my_msg)
+    if g.settings.sub_slotset.use == 0 then
+        return
+    end
+    local button = g.get_event_args(my_msg)
+    local chat_emoticon = ui.GetFrame("chat_emoticon")
+    local group_name = chat_emoticon:GetUserValue("EMOTICON_GROUP")
+    if group_name == "None" then
+        group_name = "Normal"
+    end
+    local emoticons = GET_CHILD_RECURSIVELY(chat_emoticon, "emoticons")
+    local slot_count = emoticons:GetSlotCount()
+    local count = 0
+    for i = 1, slot_count do
+        local slot = GET_CHILD_RECURSIVELY(emoticons, "slot" .. i)
+        local icon = slot:GetIcon()
+        if icon then
+            count = count + 1
+        end
+    end
+    local gbox = GET_CHILD_RECURSIVELY(chat_emoticon, "gbox")
+    gbox:RemoveAllChild()
+    local emoticons = gbox:CreateOrGetControl('slotset', 'emoticons', 0, 0, 420, 0)
+    AUTO_CAST(emoticons)
+    emoticons:SetSlotSize(42, 42)
+    emoticons:EnablePop(1)
+    emoticons:EnableDrag(1)
+    emoticons:EnableDrop(0)
+    emoticons:EnableHitTest(1)
+    emoticons:SetColRow(10, math.ceil(count / 10))
+    emoticons:SetSpc(0, 0)
+    emoticons:SetSkinName('invenslot')
+    emoticons:CreateSlots()
+    for i = 0, count - 1 do
+        local slot = emoticons:GetSlotByIndex(i)
+        AUTO_CAST(slot)
+        local icon = CreateIcon(slot)
+        slot:SetEventScript(ui.LBUTTONDOWN, "CHAT_EMOTICON_SELECT")
+    end
+    CHAT_EMOTICON_MAKELIST(chat_emoticon)
+end
+
+function Sub_slotset_SET_QUEST_CTRL_TEXT(my_frame, my_msg)
+    if g.settings.sub_slotset.use == 0 then
+        return
+    end
+    local quest_ctrl, quest_ies = g.get_event_args(my_msg)
+    AUTO_CAST(quest_ctrl)
+    --[[local nametxt = GET_CHILD(quest_ctrl, "name", "ui::CRichText")
+    AUTO_CAST(nametxt)]]
+    local leveltxt = GET_CHILD(quest_ctrl, "level", "ui::CRichText")
+    AUTO_CAST(leveltxt)
+    --[[local font = ""
+    local color = ""
+    if quest_ies.QuestMode == "MAIN" then
+        font = quest_ctrl:GetUserConfig("MAIN_FONT")
+        color = quest_ctrl:GetUserConfig("MAIN_COLOR")
+    elseif quest_ies.QuestMode == "SUB" then
+        font = quest_ctrl:GetUserConfig("SUB_FONT")
+        color = quest_ctrl:GetUserConfig("SUB_COLOR")
+    elseif quest_ies.QuestMode == "REPEAT" then
+        font = quest_ctrl:GetUserConfig("REPEAT_FONT")
+        color = quest_ctrl:GetUserConfig("REPEAT_COLOR")
+    elseif quest_ies.QuestMode == "PARTY" then
+        font = quest_ctrl:GetUserConfig("PARTY_FONT")
+        color = quest_ctrl:GetUserConfig("PARTY_COLOR")
+    elseif quest_ies.QuestMode == "KEYITEM" then
+        font = quest_ctrl:GetUserConfig("KEYITEM_FONT")
+        color = quest_ctrl:GetUserConfig("KEYITEM_COLOR")
+    end
+    nametxt:SetText(font .. color .. quest_ies.Name)
+    leveltxt:SetText(color .. "Lv " .. quest_ies.Level)]]
+    local rect = leveltxt:GetMargin()
+    leveltxt:SetMargin(rect.left - 10, rect.top, rect.right, rect.bottom)
+    local questmark = GET_CHILD(quest_ctrl, "questmark")
+    AUTO_CAST(questmark)
+    local image_name = questmark:GetImageName()
+    local result = SCR_QUEST_CHECK_C(GetMyPCObject(), quest_ies.ClassName)
+    if (result == 'POSSIBLE' and quest_ies.POSSI_WARP == 'YES') or
+        (result == 'PROGRESS' and quest_ies.PROG_WARP == 'YES') or
+        (result == 'SUCCESS' and quest_ies.SUCC_WARP == 'YES') then
+        local slot = quest_ctrl:CreateOrGetControl("slot", "slot", 78, 5, 20, 20)
+        AUTO_CAST(slot)
+        slot:EnablePop(1)
+        slot:EnableDrop(0)
+        local icon = CreateIcon(slot)
+        icon:SetImage("questinfo_return")
+        icon:SetUserValue("QUEST_ID", quest_ies.ClassID)
+        local msg = g.lang == "Japanese" and "{ol}Sub Slotset{nl}左クリック: スロットに登録" or
+                        "{ol}Sub Slotset{nl}LeftClick:for Registration"
+        icon:SetTextTooltip(msg)
+    end
+end
+
+function Sub_slotset_frame_init()
+    if g.sub_slotset_settings.share then
+        for ss_name, data in pairs(g.sub_slotset_settings.share) do
+            Sub_slotset_process(ss_name, data, true)
+        end
+    end
+    if g.sub_slotset_settings.personal[g.cid] then
+        for ss_name, data in pairs(g.sub_slotset_settings.personal[g.cid]) do
+            Sub_slotset_process(ss_name, data, false)
+        end
+    end
+    return 1
+end
+
+function Sub_slotset_process(ss_name, data, is_share)
+    local frame_name = addon_name_lower .. ss_name
+    local sub_slotset = ui.GetFrame(frame_name)
+    if not sub_slotset then
+        sub_slotset = ui.CreateNewFrame("notice_on_pc", frame_name, 0, 0, 0, 0)
+        AUTO_CAST(sub_slotset)
+        sub_slotset:SetSkinName("chat_window_2")
+        sub_slotset:SetAlpha(20)
+        sub_slotset:SetLayerLevel(data.etc.layer)
+        sub_slotset:EnableHittestFrame(1)
+        sub_slotset:SetEventScript(ui.LBUTTONUP, "Sub_slotset_end_drag")
+        sub_slotset:SetEventScript(ui.RBUTTONUP, "Sub_slotset_rbtn")
+        Sub_slotset_slotset_make(sub_slotset, data.etc, true)
+        if is_share then
+            local titlelabel = sub_slotset:CreateOrGetControl('richtext', 'titlelabel', 0, 0, 0, 0)
+            titlelabel:SetTextAlign('center', 'center')
+            titlelabel:SetGravity(ui.LEFT, ui.TOP)
+            titlelabel:SetText("{ol}{s10}shared")
+        else
+            sub_slotset:RemoveChild("titlelabel")
+        end
+        if data.etc then
+            if data.etc.x and data.etc.y then
+                sub_slotset:SetPos(data.etc.x, data.etc.y)
+            end
+            sub_slotset:EnableMove(data.etc.lock and 0 or 1)
+        end
+    end
+    if sub_slotset:IsVisible() == 0 then
+        sub_slotset:ShowWindow(1)
+    end
+    Sub_slotset_update_contents(sub_slotset, data)
+end
+
+function Sub_slotset_change_layer(skillability)
+
+end
+
+function Sub_slotset_update_contents(sub_slotset, data)
+    local slot_set = GET_CHILD(sub_slotset, "slotset")
+    if not slot_set then
+        return
+    end
+    slot_set:SetUserValue("LAYER", data.etc.layer)
+    local skillability = ui.GetFrame("skillability")
+    if skillability:IsVisible() == 1 then
+        local lift_icon = ui.GetLiftIcon()
+        if lift_icon then
+            sub_slotset:SetLayerLevel(999)
+        else
+            sub_slotset:SetLayerLevel(data.etc.layer)
+        end
+    else
+        sub_slotset:SetLayerLevel(data.etc.layer)
+    end
+    slot_set:EnablePop(data.etc.lock and 0 or 1)
+    slot_set:EnableDrag(data.etc.lock and 0 or 1)
+    slot_set:EnableDrop(data.etc.lock and 0 or 1)
+    slot_set:EnableHitTest(1)
+    local slot_count = slot_set:GetSlotCount()
+    for i = 1, slot_count do
+        local slot = GET_CHILD(slot_set, "slot" .. i)
+        AUTO_CAST(slot)
+        local str_i = tostring(i)
+        local saved_item = data[str_i]
+        slot:EnablePop(data.etc.lock and 0 or 1)
+        slot:EnableDrag(data.etc.lock and 0 or 1)
+        slot:EnableDrop(data.etc.lock and 0 or 1)
+        slot:SetEventScript(ui.DROP, 'Sub_slotset_drop')
+        slot:SetEventScriptArgNumber(ui.DROP, i)
+        slot:SetEventScript(ui.POP, 'Sub_slotset_pop')
+        slot:SetEventScriptArgString(ui.POP, str_i)
+        slot:SetEventScript(ui.RBUTTONUP, 'Sub_slotset_slot_rbutton')
+        if saved_item and saved_item.iesid then
+            local iesid = saved_item.iesid
+            local category = saved_item.category
+            local cls_id = saved_item.clsid
+            slot:EnableDrop(data.etc.lock and 0 or 1)
+            slot:SetEventScriptArgNumber(ui.RBUTTONUP, cls_id)
+            slot:SetEventScriptArgString(ui.RBUTTONUP, category)
+            slot:SetEventScriptArgString(ui.DROP, category)
+            local icon = slot:GetIcon()
+            if not icon then
+                icon = CreateIcon(slot)
+            end
+            if category == "Item" then
+                local item_cls = GetClassByType("Item", cls_id)
+                SET_SLOT_ITEM_CLS(slot, item_cls)
+                local inv_item = session.GetInvItemByGuid(iesid) or session.GetInvItemByType(cls_id)
+                if inv_item then
+                    local item_obj = GetIES(inv_item:GetObject())
+                    icon:SetColorTone('FFFFFFFF')
+                    SET_SLOT_ITEM_IMAGE(slot, inv_item)
+                    ICON_SET_ITEM_COOLDOWN_OBJ(icon, item_obj)
+                    Sub_slotset_SET_SLOT_ITEM_TEXT(slot, inv_item, item_cls)
+                else
+                    icon:SetColorTone('FFFF0000')
+                    slot:SetText("{s15}{ol}{b}" .. 0, 'count', ui.RIGHT, ui.BOTTOM, -2, 1);
+                end
+            elseif category == "Pose" then
+                local pose = GetClassByType('Pose', cls_id)
+                if pose then
+                    icon:Set(pose.Icon, category, cls_id, 0, iesid)
+                    icon:SetColorTone('FFFFFFFF')
+                    icon:SetTextTooltip(pose.Name)
+                end
+                slot:ClearText()
+            elseif category == "Skill" then
+                icon:SetOnCoolTimeUpdateScp('ICON_UPDATE_SKILL_COOLDOWN')
+                icon:SetEnableUpdateScp('ICON_UPDATE_SKILL_ENABLE')
+                icon:SetColorTone('FFFFFFFF')
+                icon:SetTooltipType('skill')
+                icon:Set('icon_' .. GetClassString('Skill', cls_id, 'Icon'), category, cls_id, 0, iesid)
+                icon:SetTooltipNumArg(cls_id)
+                icon:SetTooltipIESID(iesid)
+                slot:ClearText()
+                QUICKSLOT_MAKE_GAUGE(slot)
+                QUICKSLOT_SET_GAUGE_VISIBLE(slot, 0)
+                SET_QUICKSLOT_OVERHEAT(slot)
+            elseif category == 'Ability' then
+                local pc = GetMyPCObject()
+                local abil_class = GetClassByType("Ability", cls_id)
+                local abil_ies = GetAbilityIESObject(pc, abil_class.ClassName)
+                if abil_class then
+                    icon:SetTooltipType("ability")
+                    icon:SetTooltipNumArg(cls_id)
+                    icon:Set(abil_class.Icon, category, cls_id, 0, iesid)
+                    local abil_ies = GetAbilityIESObject(pc, abil_class.ClassName)
+                    if abil_ies then
+                        icon:SetColorTone('FFFFFFFF')
+                        SET_ABILITY_TOGGLE_COLOR(icon, cls_id)
+                    else
+                        icon:SetColorTone('FFFF0000')
+                    end
+                end
+                slot:ClearText()
+            elseif category == 'Quest' then
+                local pc = GetMyPCObject()
+                local quest_ies = GetClassByType("QuestProgressCheck", cls_id)
+                if quest_ies then
+                    local result = SCR_QUEST_CHECK_Q(pc, quest_ies.ClassName)
+                    local target_map_name = GET_QUEST_LOCATION(quest_ies)
+                    local zone_name = GetClassString('Map', target_map_name, 'Name')
+                    icon:SetImage("questinfo_return")
+                    local check_result = SCR_QUEST_CHECK_C(pc, quest_ies.ClassName)
+                    if (check_result == 'POSSIBLE' and quest_ies.POSSI_WARP == 'YES') or
+                        (check_result == 'PROGRESS' and quest_ies.PROG_WARP == 'YES') or
+                        (check_result == 'SUCCESS' and quest_ies.SUCC_WARP == 'YES') then
+                        icon:SetColorTone('FFFFFFFF')
+                    else
+                        icon:SetColorTone('FFFF0000')
+                    end
+                    icon:SetTextTooltip("{ol}" .. quest_ies.Name)
+                    SET_SLOT_COUNT_TEXT(slot, zone_name, '{s10}{ol}{b}', ui.LEFT, ui.BOTTOM, 0, 0)
+                end
+            elseif category == 'Emoticon' then
+                local list, cnt = GetClassList("chat_emoticons")
+                local acc_obj = GetMyAccountObj()
+                local etc_obj = GetMyEtcObject()
+                local target_group = cls_id
+                for j = 0, cnt - 1 do
+                    local cls = GetClassByIndexFromList(list, j)
+                    if cls.IconGroup == target_group then
+                        if iesid == cls.ClassName then
+                            local image_name = cls.ClassName
+                            local name_parts = StringSplit(cls.ClassName, "motion_")
+                            if #name_parts > 1 then
+                                image_name = name_parts[2]
+                            end
+                            slot:SetUserValue("EMO_ID", target_group)
+                            local is_owned = false
+                            if cls.CheckServer == 'YES' then
+                                local target_obj = acc_obj
+                                if TryGetProp(cls, 'HaveUnit', 'None') == 'PC' then
+                                    target_obj = etc_obj
+                                end
+                                if TryGetProp(target_obj, 'HaveEmoticon_' .. cls.ClassID, 0) > 0 then
+                                    is_owned = true
+                                end
+                            else
+                                is_owned = true
+                            end
+                            if not icon then
+                                icon = CreateIcon(slot)
+                            end
+                            icon:SetImage(image_name)
+                            slot:ClearText()
+                            if is_owned then
+                                icon:SetColorTone('FFFFFFFF')
+                            else
+                                icon:SetColorTone('FF696969')
+                            end
+                            break
+                        end
+                    end
+                end
+            elseif category == 'None' then
+                CLEAR_SLOT_ITEM_INFO(slot)
+                slot:ClearText()
+            end
+        else
+            slot:ClearIcon()
+            slot:ClearText()
+        end
+    end
+end
+
+function Sub_slotset_SET_SLOT_ITEM_TEXT(slot, inv_item, item_obj)
+    if item_obj.MaxStack > 1 then
+        Sub_slotset_SET_SLOT_COUNT_TEXT(slot, inv_item.count)
+        return
+    end
+    local lv = TryGetProp(item_obj, "Level");
+    if lv and lv > 1 then
+        slot:SetFrontImage('enchantlevel_indi_icon')
+        slot:SetText('{s20}{ol}{#FFFFFF}{b}' .. lv, 'count', ui.LEFT, ui.TOP, 8, 2)
+        return
+    end
+end
+
+function Sub_slotset_SET_SLOT_COUNT_TEXT(slot, count, font)
+    if not font then
+        font = '{s15}{ol}{b}'
+    end
+    slot:SetText(font .. count, 'count', ui.RIGHT, ui.BOTTOM, -2, 1)
+end
+
+function Sub_slotset_pop(parent, slot, str_i, num)
+    local sub_slotset = slot:GetTopParentFrame()
+    local sub_slotset_name = string.gsub(sub_slotset:GetName(), addon_name_lower, "")
+    local target_settings, is_share = Sub_slotset_get_settings(sub_slotset_name)
+    if keyboard.IsKeyPressed("LSHIFT") == 1 then
+        CLEAR_SLOT_ITEM_INFO(slot)
+        target_settings[str_i] = nil
+        Sub_slotset_save_settings()
+        return
+    end
+    g.sub_slotset_drag = nil
+    if target_settings and target_settings[str_i] then
+        g.sub_slotset_drag = {
+            index = str_i,
+            data = target_settings[str_i],
+            frame_name = sub_slotset_name
+        }
+    end
+end
+
+function Sub_slotset_drop(parent, slot, category, i)
+    local sub_slotset = slot:GetTopParentFrame()
+    local sub_slotset_name = string.gsub(sub_slotset:GetName(), addon_name_lower, "")
+    local target_settings, is_share = Sub_slotset_get_settings(sub_slotset_name)
+    if not target_settings then
+        return
+    end
+    local str_i = tostring(i)
+    if g.sub_slotset_drag and g.sub_slotset_drag.frame_name == sub_slotset_name then
+        local from_index = g.sub_slotset_drag.index
+        if from_index == str_i then
+            g.sub_slotset_drag = nil
+            return
+        end
+        local swap_target = target_settings[str_i]
+        target_settings[str_i] = g.sub_slotset_drag.data
+        target_settings[from_index] = swap_target
+        g.sub_slotset_drag = nil
+        Sub_slotset_save_settings()
+        Sub_slotset_update_contents(sub_slotset, target_settings)
+        return
+    end
+    local lift_icon = ui.GetLiftIcon()
+    local poseid = lift_icon:GetUserValue('POSEID')
+    local info = lift_icon:GetInfo()
+    if not info then
+        return
+    end
+    local image = info:GetImageName()
+    local cls_id = info.type
+    local iesid = info:GetIESID()
+    local category_val = info:GetCategory()
+    local chat_emoticon = ui.GetFrame("chat_emoticon")
+    local group_name = chat_emoticon:GetUserValue("EMOTICON_GROUP")
+    if group_name == "Motion" then
+        image = "motion_" .. image
+    end
+    if group_name == "None" then
+        group_name = "Normal"
+    end
+    if string.find(image, "emot") then
+        target_settings[str_i] = {
+            category = "Emoticon",
+            clsid = group_name,
+            iesid = image
+        }
+        local chat = ui.GetFrame('chat')
+        local mainchat = chat:GetChild('mainchat')
+        SET_CHAT_TEXT_TO_CHATFRAME("")
+        mainchat:RunEnterKeyScript()
+        ui.ProcessReturnKey()
+        chat:ShowWindow(0)
+    elseif image == "questinfo_return" then
+        local quest_id = lift_icon:GetUserIValue("QUEST_ID")
+        target_settings[str_i] = {
+            category = "Quest",
+            clsid = quest_id,
+            iesid = ""
+        }
+    elseif poseid ~= "None" then
+        target_settings[str_i] = {
+            category = 'Pose',
+            clsid = poseid,
+            iesid = ""
+        }
+    else
+        target_settings[str_i] = {
+            category = category_val,
+            clsid = cls_id,
+            iesid = iesid
+        }
+    end
+    Sub_slotset_save_settings()
+    Sub_slotset_update_contents(sub_slotset, target_settings)
+end
+
+function Sub_slotset_slot_rbutton(frame, slot, category, cls_id)
+    if category == 'Item' then
+        SLOT_ITEMUSE_BY_TYPE(frame, slot, category, cls_id)
+    elseif category == 'Pose' then
+        control.Pose(GetClassByType('Pose', cls_id).ClassName)
+    elseif category == 'Skill' or category == 'Ability' then
+        local icon = slot:GetIcon()
+        if icon then
+            ICON_USE(icon)
+        end
+    elseif category == 'Quest' then
+        local quest_ies = GetClassByType("QuestProgressCheck", cls_id)
+        local pc = GetMyPCObject()
+        local result = SCR_QUEST_CHECK_Q(pc, quest_ies.ClassName)
+        if (result == 'POSSIBLE' and quest_ies.POSSI_WARP == 'YES') or
+            (result == 'PROGRESS' and quest_ies.PROG_WARP == 'YES') or
+            (result == 'SUCCESS' and quest_ies.SUCC_WARP == 'YES') then
+            local cheat = string.format("/retquest %d", cls_id)
+            movie.QuestWarp(session.GetMyHandle(), cheat, 1)
+            packet.ClientDirect("QuestWarp")
+        else
+            local icon = slot:GetIcon()
+            if icon then
+                icon:SetColorTone('FFFF0000')
+            end
+        end
+    elseif category == 'Emoticon' then
+        local icongroup = slot:GetUserValue("EMO_ID")
+        local chat_emoticon = ui.GetFrame("chat_emoticon")
+        local chat = ui.GetFrame('chat')
+        local mainchat = chat:GetChild('mainchat')
+        AUTO_CAST(mainchat)
+        local icon = slot:GetIcon()
+        if icon then
+            local image_name = icon:GetInfo():GetImageName()
+            local tag = ""
+            if image_name ~= "" then
+                if icongroup == 'Motion' then
+                    local image_name = icon:GetInfo():GetImageName()
+                    if not string.find(image_name, "motion_") then
+                        image_name = "motion_" .. image_name
+                        tag = string.format("{spine %s %d %d}{/}", image_name, 120, 120)
+                    end
+                else
+                    tag = string.format("{img %s %d %d}{/}", image_name, 30, 30)
+                end
+                SET_CHAT_TEXT_TO_CHATFRAME(tag)
+                mainchat:RunEnterKeyScript()
+                ui.ProcessReturnKey()
+                chat:ShowWindow(0)
+            end
+        end
+    end
+end
+
+function Sub_slotset_get_settings(sub_slotset_name)
+    local settings = g.sub_slotset_settings.share[sub_slotset_name]
+    if settings then
+        return settings, true
+    end
+    if g.sub_slotset_settings.personal[g.cid] then
+        settings = g.sub_slotset_settings.personal[g.cid][sub_slotset_name]
+        if settings then
+            return settings, false
+        end
+    end
+    return nil
+end
+
+function Sub_slotset_setting(sub_slotset_name)
+    local x = 0
+    local y = 0
+    local is_new = true
+    local list_frame = ui.GetFrame(addon_name_lower .. "list_frame")
+    if list_frame then
+        x = list_frame:GetX() + list_frame:GetWidth()
+        y = list_frame:GetY()
+    else
+        local client_Width = ui.GetClientInitialWidth() -- 1920
+        local client_Height = ui.GetClientInitialHeight() -- 1080
+        x = client_Width / 2
+        y = client_Height / 2
+        is_new = false
+    end
+    local setting = ui.CreateNewFrame("notice_on_pc", addon_name_lower .. "sub_slotset_setting", 0, 0, 0, 0)
+    AUTO_CAST(setting)
+    setting:SetPos(x, y)
+    setting:EnableHittestFrame(1)
+    setting:SetLayerLevel(999)
+    setting:RemoveAllChild()
+    setting:SetSkinName("test_frame_low")
+    local title_text = setting:CreateOrGetControl('richtext', 'title_text', 20, 15, 50, 30)
+    AUTO_CAST(title_text)
+    if is_new then
+        title_text:SetText("{ol}Sub Slotset Config")
+    else
+        title_text:SetText("{ol}{s14}Sub Slotset Resettings")
+    end
+    local close = setting:CreateOrGetControl("button", "close", 0, 0, 20, 20)
+    AUTO_CAST(close)
+    close:SetImage("testclose_button")
+    close:SetGravity(ui.RIGHT, ui.TOP)
+    close:SetEventScript(ui.LBUTTONUP, "Sub_slotset_setting_close")
+    local gbox = setting:CreateOrGetControl("groupbox", "gbox", 10, 40, 0, 0)
+    AUTO_CAST(gbox)
+    gbox:SetSkinName("test_frame_midle_light")
+    g.sub_slotset_col = g.sub_slotset_col or 3
+    g.sub_slotset_row = g.sub_slotset_row or 3
+    g.sub_slotset_size = g.sub_slotset_size or 48
+    g.sub_slotset_layer = g.sub_slotset_layer or 90
+    g.sub_slotset_personal = g.sub_slotset_personal or 0
+    local col = gbox:CreateOrGetControl("richtext", "col", 10, 10, 80, 25)
+    AUTO_CAST(col)
+    col:SetText("{ol}{s16}Column")
+    local col_edit = gbox:CreateOrGetControl('edit', 'col_edit', 10, 35, 80, 25)
+    AUTO_CAST(col_edit)
+    col_edit:SetFontName('white_16_ol')
+    col_edit:SetSkinName('test_weight_skin')
+    col_edit:SetTextAlign('center', 'center')
+    col_edit:SetText(g.sub_slotset_col)
+    col_edit:SetNumberMode(1)
+    col_edit:SetMaxLen(2)
+    col_edit:SetTypingScp("Sub_slotset_setting_edit")
+    col_edit:SetEventScript(ui.ENTERKEY, "Sub_slotset_setting_edit")
+    local row = gbox:CreateOrGetControl("richtext", "row", 100, 10, 80, 25)
+    AUTO_CAST(row)
+    row:SetText("{ol}{s16}Row")
+    local row_edit = gbox:CreateOrGetControl('edit', 'row_edit', 100, 35, 80, 25)
+    AUTO_CAST(row_edit)
+    row_edit:SetFontName('white_16_ol')
+    row_edit:SetSkinName('test_weight_skin')
+    row_edit:SetTextAlign('center', 'center')
+    row_edit:SetNumberMode(1)
+    row_edit:SetMaxLen(2)
+    row_edit:SetText(g.sub_slotset_row)
+    row_edit:SetTypingScp("Sub_slotset_setting_edit")
+    row_edit:SetEventScript(ui.ENTERKEY, "Sub_slotset_setting_edit")
+    local size = gbox:CreateOrGetControl("richtext", "size", 10, 70, 80, 25)
+    AUTO_CAST(size)
+    size:SetText("{ol}{s16}Slot Size")
+    local size_edit = gbox:CreateOrGetControl('edit', 'size_edit', 10, 95, 80, 25)
+    AUTO_CAST(size_edit)
+    size_edit:SetFontName('white_16_ol')
+    size_edit:SetSkinName('test_weight_skin')
+    size_edit:SetTextAlign('center', 'center')
+    size_edit:SetNumberMode(1)
+    size_edit:SetText(g.sub_slotset_size)
+    size_edit:SetMaxLen(2)
+    size_edit:SetTypingScp("Sub_slotset_setting_edit")
+    size_edit:SetEventScript(ui.ENTERKEY, "Sub_slotset_setting_edit")
+    local layer = gbox:CreateOrGetControl("richtext", "layer", 100, 70, 80, 25)
+    AUTO_CAST(layer)
+    layer:SetText("{ol}{s16}Layer")
+    local layer_edit = gbox:CreateOrGetControl('edit', 'layer_edit', 100, 95, 80, 25)
+    AUTO_CAST(layer_edit)
+    layer_edit:SetFontName('white_16_ol')
+    layer_edit:SetSkinName('test_weight_skin')
+    layer_edit:SetTextAlign('center', 'center')
+    layer_edit:SetNumberMode(1)
+    layer_edit:SetText(g.sub_slotset_layer)
+    layer_edit:SetMaxLen(3)
+    layer_edit:SetTypingScp("Sub_slotset_setting_edit")
+    layer_edit:SetEventScript(ui.ENTERKEY, "Sub_slotset_setting_edit")
+    local parsonal = gbox:CreateOrGetControl("checkbox", "parsonal", 10, 130, 30, 30)
+    AUTO_CAST(parsonal)
+    if is_new then
+        parsonal:SetTextTooltip(g.lang == "Japanese" and
+                                    "{ol}チェックを入れるとキャラ用に作成{nl}後から変更可能" or
+                                    "{ol}If checked, created for the character{nl}Can be changed later")
+        parsonal:SetText(g.lang == "Japanese" and "{ol}キャラクター専用" or "{ol}Character Only")
+        parsonal:SetCheck(g.sub_slotset_personal)
+        local make = gbox:CreateOrGetControl('button', 'make', 100, 165, 80, 30)
+        AUTO_CAST(make)
+        make:SetSkinName("test_red_button")
+        make:SetText("{ol}{s16}Make")
+        make:SetEventScript(ui.LBUTTONUP, "Sub_slotset_make")
+    else
+        parsonal:SetTextTooltip(g.lang == "Japanese" and "{ol}チェックを入れるとキャラ用に切替" or
+                                    "{ol}If checked, switches to character-specific setting")
+        parsonal:SetText(g.lang == "Japanese" and "{ol}共有/キャラ切替" or "{ol}Shared/Character{nl}Switch")
+        local target_settings = g.sub_slotset_settings.share[sub_slotset_name]
+        parsonal:SetCheck(target_settings and 0 or 1)
+        parsonal:SetEventScript(ui.LBUTTONUP, "Sub_slotset_setting_checkbox")
+        local change = gbox:CreateOrGetControl('button', 'change', 100, 165, 80, 30)
+        AUTO_CAST(change)
+        change:SetSkinName("test_red_button")
+        change:SetText("{ol}{s16}Change")
+        change:SetEventScript(ui.LBUTTONUP, "Sub_slotset_change")
+        change:SetEventScriptArgString(ui.LBUTTONUP, sub_slotset_name)
+    end
+    parsonal:SetEventScript(ui.LBUTTONUP, "Sub_slotset_setting_checkbox")
+    setting:Resize(210, 255)
+    gbox:Resize(setting:GetWidth() - 20, setting:GetHeight() - 50)
+    setting:ShowWindow(1)
+end
+
+function Sub_slotset_setting_close(setting)
+    ui.DestroyFrame(setting:GetName())
+end
+
+function Sub_slotset_end_drag(sub_slotset, ctrl)
+    local sub_slotset_name = string.gsub(sub_slotset:GetName(), addon_name_lower, "")
+    local target_settings = Sub_slotset_get_settings(sub_slotset_name)
+    if target_settings and target_settings.etc then
+        target_settings.etc.x = sub_slotset:GetX()
+        target_settings.etc.y = sub_slotset:GetY()
+        Sub_slotset_save_settings()
+    end
+end
+
+function Sub_slotset_setting_checkbox(parent, ctrl)
+    g.sub_slotset_personal = ctrl:IsChecked()
+end
+
+function Sub_slotset_setting_edit(parent, ctrl)
+    local ctrl_name = ctrl:GetName()
+    local val = tonumber(ctrl:GetText())
+    if not val then
+        return
+    end
+    if (ctrl_name == "col_edit" or ctrl_name == "row_edit") and val > 10 then
+        ui.SysMsg(g.lang == "Japanese" and "10以下で設定してください" or "Enter 10 or less")
+        val = 10
+        ctrl:SetText(val)
+    end
+    if ctrl_name == "col_edit" then
+        g.sub_slotset_col = val
+    elseif ctrl_name == "row_edit" then
+        g.sub_slotset_row = val
+    elseif ctrl_name == "size_edit" then
+        local row_edit = GET_CHILD_RECURSIVELY(parent, "row_edit")
+        local current_row = tonumber(row_edit:GetText())
+        if not current_row or current_row == 0 then
+            current_row = g.sub_slotset_row or 1
+        end
+        local map = ui.GetFrame("map")
+        local h = map:GetHeight()
+        local limit_size = math.floor(tonumber(h) / current_row)
+        if val > limit_size then
+            local msg = g.lang == "Japanese" and
+                            string.format("入力は %d 以下に制限されています", limit_size) or
+                            string.format("Input is limited to %d or less", limit_size)
+            ui.SysMsg(msg)
+            val = 48
+            ctrl:SetText(val)
+        end
+        g.sub_slotset_size = val
+    elseif ctrl_name == "layer_edit" then
+        g.sub_slotset_layer = val
+    end
+end
+
+function Sub_slotset_change(parent, ctrl, sub_slotset_name)
+    local target_settings, is_in_share = Sub_slotset_get_settings(sub_slotset_name)
+    if not target_settings then
+        return
+    end
+    local setting_frame = ctrl:GetTopParentFrame()
+    ui.DestroyFrame(setting_frame:GetName())
+    local function CloneTable(orig)
+        local orig_type = type(orig)
+        local copy
+        if orig_type == 'table' then
+            copy = {}
+            for orig_key, orig_value in next, orig, nil do
+                copy[CloneTable(orig_key)] = CloneTable(orig_value)
+            end
+            setmetatable(copy, CloneTable(getmetatable(orig)))
+        else
+            copy = orig
+        end
+        return copy
+    end
+    if is_in_share and g.sub_slotset_personal == 1 then -- Share -> Personal
+        if not g.sub_slotset_settings.personal[g.cid] then
+            g.sub_slotset_settings.personal[g.cid] = {}
+        end
+        g.sub_slotset_settings.personal[g.cid][sub_slotset_name] = CloneTable(target_settings)
+        g.sub_slotset_settings.share[sub_slotset_name] = nil
+        target_settings = g.sub_slotset_settings.personal[g.cid][sub_slotset_name]
+    elseif not is_in_share and g.sub_slotset_personal == 0 then -- Personal -> Share
+        g.sub_slotset_settings.share[sub_slotset_name] = CloneTable(target_settings)
+        if g.sub_slotset_settings.personal[g.cid] then
+            g.sub_slotset_settings.personal[g.cid][sub_slotset_name] = nil
+        end
+        target_settings = g.sub_slotset_settings.share[sub_slotset_name]
+    end
+    Sub_slotset_save_settings()
+    local index = tonumber((string.gsub(sub_slotset_name, "sub_slotset_", "")))
+    Sub_slotset_make(parent, ctrl, sub_slotset_name, index, target_settings)
+end
+
+function Sub_slotset_make(parent, ctrl, sub_slotset_name, index, target_settings)
+    local setting = ctrl:GetTopParentFrame()
+    local is_share = (g.sub_slotset_personal == 0)
+    if target_settings then
+        local sub_slotset = ui.GetFrame("_nexus_addons" .. sub_slotset_name)
+        AUTO_CAST(sub_slotset)
+        sub_slotset:RemoveAllChild()
+        target_settings.etc = {
+            x = target_settings.etc.x,
+            y = target_settings.etc.y,
+            row = g.sub_slotset_row,
+            col = g.sub_slotset_col,
+            size = g.sub_slotset_size,
+            layer = g.sub_slotset_layer,
+            lock = target_settings.etc.lock
+        }
+        sub_slotset:SetLayerLevel(g.sub_slotset_layer)
+        sub_slotset:SetEventScript(ui.LBUTTONUP, "Sub_slotset_end_drag")
+        -- sub_slotset:SetEventScript(ui.RBUTTONUP, "Sub_slotset_rbtn")
+        Sub_slotset_save_settings()
+        local is_share = (g.sub_slotset_settings.share[sub_slotset_name] ~= nil)
+        Sub_slotset_slotset_make(sub_slotset, target_settings.etc, is_share)
+        return
+    end
+    local setting = ctrl:GetTopParentFrame()
+    ui.DestroyFrame(setting:GetName())
+    local list_frame_name = addon_name_lower .. "list_frame"
+    ui.DestroyFrame(addon_name_lower .. "list_frame")
+    local tbl
+    local is_share_new = false
+    if g.sub_slotset_personal == 1 then
+        if not g.sub_slotset_settings.personal[g.cid] then
+            g.sub_slotset_settings.personal[g.cid] = {}
+        end
+        tbl = g.sub_slotset_settings.personal[g.cid]
+    else
+        tbl = g.sub_slotset_settings.share
+        is_share_new = true
+    end
+    local new_index = g.sub_slotset_settings.config.index
+    local new_name = "sub_slotset_" .. new_index
+    local sub_slotset = ui.CreateNewFrame("notice_on_pc", addon_name_lower .. "sub_slotset_" .. new_index, 0, 0, 0, 0)
+    AUTO_CAST(sub_slotset)
+    tbl["sub_slotset_" .. new_index] = {}
+    tbl["sub_slotset_" .. new_index].etc = {
+        x = setting:GetX() + 100,
+        y = setting:GetY() + 400,
+        row = g.sub_slotset_row,
+        col = g.sub_slotset_col,
+        size = g.sub_slotset_size,
+        layer = g.sub_slotset_layer,
+        lock = false
+    }
+    g.sub_slotset_settings.config.index = new_index + 1
+    Sub_slotset_save_settings()
+    sub_slotset:SetSkinName("chat_window_2")
+    sub_slotset:SetAlpha(20)
+    sub_slotset:SetLayerLevel(g.sub_slotset_layer)
+    sub_slotset:EnableHittestFrame(1)
+    sub_slotset:EnableMove(1)
+    sub_slotset:SetPos(setting:GetX() + 100, setting:GetY() + 400)
+    sub_slotset:ShowWindow(1)
+    sub_slotset:SetEventScript(ui.LBUTTONUP, "Sub_slotset_end_drag")
+    -- sub_slotset:SetEventScript(ui.RBUTTONUP, "Sub_slotset_rbtn")
+    Sub_slotset_slotset_make(sub_slotset, tbl[new_name].etc, is_share_new)
+end
+
+function Sub_slotset_slotset_make(sub_slotset, etc_settings, is_share)
+    local slotset = sub_slotset:CreateOrGetControl('slotset', 'slotset', 2, 9, 0, 0)
+    AUTO_CAST(slotset)
+    slotset:EnablePop(1)
+    slotset:EnableDrag(1)
+    slotset:EnableDrop(1)
+    slotset:EnableHitTest(1)
+    local col = (etc_settings and etc_settings.col) or g.sub_slotset_col or 3
+    local row = (etc_settings and etc_settings.row) or g.sub_slotset_row or 3
+    local size = (etc_settings and etc_settings.size) or g.sub_slotset_size or 48
+    local is_locked = (etc_settings and etc_settings.lock) or false
+    slotset:SetColRow(col, row)
+    slotset:SetSlotSize(size, size)
+    slotset:SetSpc(2, 2)
+    slotset:SetSkinName('invenslot2')
+    slotset:CreateSlots()
+    if g.sub_slotset_personal == 0 then
+        local titlelabel = sub_slotset:CreateOrGetControl('richtext', 'titlelabel', 0, 0, 0, 0)
+        titlelabel:SetTextAlign('center', 'center')
+        titlelabel:SetGravity(ui.LEFT, ui.TOP)
+        titlelabel:SetText("{ol}{s10}shared")
+    else
+        sub_slotset:RemoveChild("titlelabel")
+    end
+    local gb = sub_slotset:CreateOrGetControl("groupbox", "gb", 0, 0, 20, 30)
+    AUTO_CAST(gb)
+    gb:SetGravity(ui.RIGHT, ui.TOP)
+    local text = g.lang == "Japanese" and
+                     "{ol}右クリック: 各種設定{nl} {nl}スロット LSHIFT+左クリック: アイコン削除" or
+                     "{ol}Right Click: Various Settings{nl} {nl}Slot LSHIFT + Left Click: Remove Icon"
+    gb:SetTextTooltip(text)
+    gb:SetEventScript(ui.RBUTTONUP, "Sub_slotset_rbtn")
+    local itemlock = gb:CreateOrGetControlSet('inv_itemlock', "itemlock", 0, 0)
+    itemlock:SetGrayStyle(is_locked and 0 or 1)
+    sub_slotset:Resize(size * col + 10 + col * 2, size * row + 10 + row * 2)
+    return slotset
+end
+
+function Sub_slotset_rbtn(sub_slotset, ctrl)
+    local sub_slotset_name = string.gsub(sub_slotset:GetName(), "_nexus_addons", "")
+    local context = ui.CreateContextMenu("slotset_context",
+        g.lang == "Japanese" and "{ol}各種設定" or "{ol}Various Settings", 0, 0, 100, 100)
+    ui.AddContextMenuItem(context, " ", "None")
+    local scp = string.format("Sub_slotset_remove_msg('%s')", sub_slotset_name)
+    local msg = g.lang == "Japanese" and "{ol}スロットセット削除" or "{ol}Remove Slot Set"
+    ui.AddContextMenuItem(context, msg, scp)
+    scp = string.format("Sub_slotset_lock_toggle('%s')", sub_slotset_name)
+    msg = g.lang == "Japanese" and "{ol}スロットセットロック切替" or "{ol}Toggle Slot Set Lock"
+    ui.AddContextMenuItem(context, msg, scp)
+    scp = string.format("Sub_slotset_resetting('%s')", sub_slotset_name)
+    msg = g.lang == "Japanese" and "{ol}スロットセット設定変更" or "{ol}Change Slot Set Settings"
+    ui.AddContextMenuItem(context, msg, scp)
+    ui.AddContextMenuItem(context, "  ", "None")
+    ui.OpenContextMenu(context)
+end
+
+function Sub_slotset_remove_msg(sub_slotset_name)
+    local scp = string.format("Sub_slotset_remove('%s')", sub_slotset_name)
+    local msg = g.lang == "Japanese" and "削除しますか？" or "Confirm Deletion?"
+    ui.MsgBox(msg, scp, "None")
+end
+
+function Sub_slotset_remove(sub_slotset_name)
+    local _, is_in_share = Sub_slotset_get_settings(sub_slotset_name)
+    if is_in_share == true then
+        g.sub_slotset_settings.share[sub_slotset_name] = nil
+    elseif is_in_share == false then
+        g.sub_slotset_settings.personal[g.cid][sub_slotset_name] = nil
+    end
+    Sub_slotset_save_settings()
+    ui.DestroyFrame(addon_name_lower .. sub_slotset_name)
+end
+
+function Sub_slotset_lock_toggle(sub_slotset_name)
+    local sub_srotset = ui.GetFrame(addon_name_lower .. sub_slotset_name)
+    local target_settings = Sub_slotset_get_settings(sub_slotset_name)
+    if not target_settings then
+        return
+    end
+    target_settings.etc.lock = not target_settings.etc.lock
+    local is_locked = target_settings.etc.lock
+    local itemlock = GET_CHILD_RECURSIVELY(sub_srotset, "itemlock")
+    AUTO_CAST(itemlock)
+    itemlock:SetGrayStyle(is_locked and 0 or 1)
+    sub_srotset:EnableMove(is_locked and 0 or 1)
+    Sub_slotset_save_settings()
+end
+
+function Sub_slotset_resetting(sub_slotset_name)
+    local target_settings, is_share = Sub_slotset_get_settings(sub_slotset_name)
+    g.sub_slotset_col = target_settings.etc.col
+    g.sub_slotset_row = target_settings.etc.row
+    g.sub_slotset_size = target_settings.etc.size
+    g.sub_slotset_layer = target_settings.etc.layer
+    g.sub_slotset_personal = is_share and 0 or 1
+    Sub_slotset_setting(sub_slotset_name)
+end
+-- sub_slotset ここまで
+
 -- other_character_skill_list ここから
 function Other_character_skill_list_save_settings()
     g.save_lua(g.ocsl_path, g.ocsl_settings)
@@ -1399,6 +7384,10 @@ function Other_character_skill_list_char_load_settings()
 end
 
 function other_character_skill_list_on_init()
+    local old_func = g.settings.other_character_skill_list.old_init_func
+    if _G[old_func] then
+        return
+    end
     if _G["BARRACK_CHARLIST_ON_INIT"] and _G["current_layer"] then
         g.ocsl_layer = _G["current_layer"]
     end
@@ -1413,7 +7402,10 @@ function other_character_skill_list_on_init()
             end
         end
     end
-    if g.get_map_type() == "City" and g.ocsl_settings then
+    if not g.ocsl_settings then
+        Other_character_skill_list_load_settings()
+    end
+    if g.get_map_type() == "City" then
         Other_character_skill_list_char_load_settings()
         Other_character_skill_list_sort()
     end
@@ -1426,11 +7418,6 @@ end
 function Other_character_skill_list_save_enchant()
     if g.get_map_type() ~= "City" then
         return
-    end
-    if not g.ocsl_settings then
-        Other_character_skill_list_load_settings()
-        Other_character_skill_list_char_load_settings()
-        Other_character_skill_list_sort()
     end
     local current_time = os.time()
     if g.ocsl_last_save_time and current_time - g.ocsl_last_save_time < 0.5 then
@@ -2267,6 +8254,10 @@ end
 function muteki_on_init()
     if not g.muteki_settings then
         Muteki_load_settings()
+    end
+    local old_func = g.settings.muteki.old_init_func
+    if _G[old_func] then
+        return
     end
     g.addon:RegisterMsg("BUFF_ADD", "Muteki_BUFF_ON_MSG")
     g.addon:RegisterMsg("BUFF_UPDATE", "Muteki_BUFF_ON_MSG")
@@ -3775,6 +9766,15 @@ end
 
 function No_check_inventory_frame_init()
     local inventory = ui.GetFrame("inventory")
+    local inventory_btns = {"moncard_btn", "helper_btn", "cabinet_btn", "goddess_mgr_btn"}
+    if inventory then
+        for _, btn_name in ipairs(inventory_btns) do
+            local btn = GET_CHILD_RECURSIVELY(inventory, btn_name)
+            if btn and btn:IsVisible() == 0 then
+                btn:ShowWindow(1)
+            end
+        end
+    end
     local searchSkin = GET_CHILD_RECURSIVELY(inventory, "searchSkin")
     if g.settings.no_check.use == 1 then -- !
         local searchGbox = GET_CHILD_RECURSIVELY(inventory, "searchGbox")
@@ -3793,7 +9793,8 @@ function No_check_inventory_frame_init()
     else
         searchSkin:Resize(317, 30)
         searchSkin:SetMargin(5, 0, 0, 5)
-        DESTROY_CHILD_BYNAME(inventory, "btn")
+        local searchGbox = GET_CHILD_RECURSIVELY(inventory, "searchGbox")
+        DESTROY_CHILD_BYNAME(searchGbox, "btn")
     end
 end
 -- アイテム連続使用
@@ -4495,6 +10496,10 @@ function monster_kill_count_on_init()
     if not g.mkc_settings then
         Monster_kill_count_load_settings()
     end
+    local old_func = g.settings.monster_kill_count.old_init_func
+    if _G[old_func] then
+        return
+    end
     g.setup_hook_and_event(g.addon, "APPLY_SCREEN", "Monster_kill_count_APPLY_SCREEN", true)
     if g.get_map_type() == "Field" or g.get_map_type() == "Dungeon" then
         local map_cls = GetClass("Map", g.map_name)
@@ -4871,13 +10876,7 @@ function instant_cc_on_init()
     if _G["BARRACK_CHARLIST_ON_INIT"] and _G["current_layer"] then
         g.instant_cc.layer = _G["current_layer"]
     end
-    if _G["APPS_TRY_LEAVE"] then
-        g.FUNCS = g.FUNCS or {}
-        if not g.FUNCS["APPS_TRY_LEAVE"] then
-            g.FUNCS["APPS_TRY_LEAVE"] = _G["APPS_TRY_LEAVE"]
-        end
-        _G["APPS_TRY_LEAVE"] = Instant_cc_APPS_TRY_LEAVE
-    end
+    g.setup_hook(Instant_cc_APPS_TRY_LEAVE, "APPS_TRY_LEAVE")
     _G["INSTANTCC_ON_INIT"] = instant_cc_on_init
     if g.settings.instant_cc.use == 0 then
         _G["INSTANTCC_DO_CC"] = nil
@@ -5188,9 +11187,10 @@ function Instant_cc_do_cc(cid, layer)
     local sweep_buffs = {80045, 80043, 80039, 80035, 80037, 80032, 80031, 80030, 80015, 80017, 80016}
     g.instant_cc_sweep_tbl = {}
     local my_handle = session.GetMyHandle()
+    local limit_time_ms = 12 * 60 * 60 * 1000
     for _, buff_id in ipairs(sweep_buffs) do
         local buff_info = info.GetBuff(my_handle, buff_id)
-        if buff_info then
+        if buff_info and buff_info.time <= limit_time_ms then
             table.insert(g.instant_cc_sweep_tbl, {
                 buff_over = buff_info.over,
                 buff_time = buff_info.time,
@@ -5343,15 +11343,22 @@ g.ilv_RAID_INFO = {
     }
 }
 function Indun_list_viewer_save_settings()
-    g.save_json(g.ilv_path, g.ilv_settings)
+    g.save_lua(g.ilv_path, g.ilv_settings)
 end
 
 function Indun_list_viewer_load_settings()
-    g.ilv_path = string.format("../addons/%s/%s/indun_list_viewer.json", addon_name_lower, g.active_id)
+    g.ilv_path = string.format("../addons/%s/%s/indun_list_viewer.lua", addon_name_lower, g.active_id)
+    local json_path = string.format("../addons/%s/%s/indun_list_viewer.json", addon_name_lower, g.active_id)
     g.ilv_old_path = string.format("../addons/%s/%s/settings_2510.json", "indun_list_viewer", g.active_id)
-    local settings = g.load_json(g.ilv_path)
+    local settings = g.load_lua(g.ilv_path)
     local need_save = false
-    local ver = 1.1 -- ■ バージョン定義
+    local ver = 1.1
+    if not settings then
+        settings = g.load_json(json_path)
+        if settings then
+            need_save = true
+        end
+    end
     if not settings then
         local old_settings = g.load_json(g.ilv_old_path)
         if old_settings then
@@ -5412,58 +11419,92 @@ end
 
 function Indun_list_viewer_char_load_settings()
     local acc_info = session.barrack.GetMyAccount()
-    local layer_pc_count = acc_info:GetPCCount()
-    local barrack_all = acc_info:GetBarrackPCCount()
-    for order = 0, layer_pc_count - 1 do
-        local pc_info = acc_info:GetPCByIndex(order)
-        if pc_info then
-            local pc_apc = pc_info:GetApc()
-            local pc_name = pc_apc:GetName()
-            local pc_cid = pc_info:GetCID()
-            local existing_data = g.ilv_settings.chars[pc_name] or {}
-            g.ilv_settings.chars[pc_name] = {
-                layer = g.ilv_layer or existing_data.layer or 9,
-                order = order,
-                hide = existing_data.hide or false,
-                memo = existing_data.memo or "",
-                president_jobid = existing_data.president_jobid or "",
-                jobid = existing_data.jobid or "",
-                raid_count = existing_data.raid_count or {},
-                auto_clear_count = existing_data.auto_clear_count or {},
-                cid = pc_cid,
-                pc_name = pc_name
-            }
-        end
-    end
-    if barrack_all > 0 then
-        local barrack_chars = {}
-        for i = 0, barrack_all - 1 do
-            local pc_info = acc_info:GetBarrackPCByIndex(i)
+    if acc_info then
+        local layer_pc_count = acc_info:GetPCCount()
+        local barrack_all = acc_info:GetBarrackPCCount()
+        for order = 0, layer_pc_count - 1 do
+            local pc_info = acc_info:GetPCByIndex(order)
             if pc_info then
-                barrack_chars[pc_info:GetName()] = true
+                local pc_apc = pc_info:GetApc()
+                local pc_name = pc_apc:GetName()
+                local pc_cid = pc_info:GetCID()
+                local existing_data = g.ilv_settings.chars[pc_name] or {}
+                g.ilv_settings.chars[pc_name] = {
+                    layer = g.ilv_layer or existing_data.layer or 9,
+                    order = order,
+                    hide = existing_data.hide or false,
+                    memo = existing_data.memo or "",
+                    president_jobid = existing_data.president_jobid or "",
+                    jobid = existing_data.jobid or "",
+                    raid_count = existing_data.raid_count or {},
+                    auto_clear_count = existing_data.auto_clear_count or {},
+                    cid = pc_cid,
+                    pc_name = pc_name
+                }
             end
         end
-        local chars_to_delete = {}
-        for char_name, _ in pairs(g.ilv_settings.chars) do
-            if not barrack_chars[char_name] then
-                table.insert(chars_to_delete, char_name)
+        if barrack_all > 0 then
+            local barrack_chars = {}
+            for i = 0, barrack_all - 1 do
+                local pc_info = acc_info:GetBarrackPCByIndex(i)
+                if pc_info then
+                    barrack_chars[pc_info:GetName()] = true
+                end
             end
-        end
-        if #chars_to_delete > 0 then
+            local chars_to_delete = {}
+            for char_name, _ in pairs(g.ilv_settings.chars) do
+                if not barrack_chars[char_name] then
+                    table.insert(chars_to_delete, char_name)
+                end
+            end
             for _, char_name in ipairs(chars_to_delete) do
                 g.ilv_settings.chars[char_name] = nil
             end
         end
+        Indun_list_viewer_save_settings()
+        return
     end
-    Indun_list_viewer_save_settings()
+    if g.get_map_type() == "City" then
+        local pc_name = session.GetMySession():GetPCApc():GetName()
+        local pc_cid = session.GetMySession():GetCID()
+        local existing_data = g.ilv_settings.chars[pc_name] or {}
+        g.ilv_settings.chars[pc_name] = {
+            layer = g.ilv_layer or existing_data.layer or 1,
+            order = existing_data.order or 99,
+            hide = existing_data.hide or false,
+            memo = existing_data.memo or "",
+            president_jobid = existing_data.president_jobid or "",
+            jobid = existing_data.jobid or "",
+            raid_count = existing_data.raid_count or {},
+            auto_clear_count = existing_data.auto_clear_count or {},
+            cid = pc_cid,
+            pc_name = pc_name
+        }
+        Indun_list_viewer_save_settings()
+    end
 end
 
 function indun_list_viewer_on_init()
     if _G["BARRACK_CHARLIST_ON_INIT"] and _G["current_layer"] then
         g.ilv_layer = _G["current_layer"]
     end
+    if not g.ilv_settings then
+        Indun_list_viewer_load_settings()
+    end
+    local old_func = g.settings.indun_list_viewer.old_init_func
+    if _G[old_func] then
+        return
+    end
+    g.addon:RegisterMsg("EXPIREDITEM_ALERT_OPEN", "Indun_list_viewer_EXPIREDITEM_ALERT_ON_MSG")
+    if g.get_map_type() == "City" then
+        Indun_list_viewer_char_load_settings()
+        Indun_list_viewer_sort_characters()
+        Indun_list_viewer_raid_reset_reserve()
+    end
     if g.settings.indun_list_viewer.use == 0 then
-        Indun_list_viewer_disable()
+        if _G["indun_list_viewer_title_frame_open"] == _G["Indun_list_viewer_title_frame_open"] then
+            _G["indun_list_viewer_title_frame_open"] = nil
+        end
     else
         if type(_G["Indun_list_viewer_title_frame_open"]) == "function" then
             if type(_G["indun_list_viewer_title_frame_open"]) ~= "function" then
@@ -5471,23 +11512,97 @@ function indun_list_viewer_on_init()
             end
         end
     end
-    g.addon:RegisterMsg("EXPIREDITEM_ALERT_OPEN", "Indun_list_viewer_EXPIREDITEM_ALERT_ON_MSG")
     g.addon:RegisterMsg("ESCAPE_PRESSED", "Indun_list_viewer_ESCAPE_PRESSED")
     g.setup_hook_and_event(g.addon, "STATUS_SELET_REPRESENTATION_CLASS",
         "Indun_list_viewer_STATUS_SELET_REPRESENTATION_CLASS", true)
-    g.setup_hook_and_event(g.addon, "APPS_TRY_LEAVE", "Indun_list_viewer_save_current_char_counts", true)
+    g.setup_hook(Indun_list_viewer_APPS_TRY_LEAVE, "APPS_TRY_LEAVE")
+    -- g.setup_hook_and_event(g.addon, "APPS_TRY_LEAVE", "Indun_list_viewer_save_current_char_counts", true)
+end
+
+function Indun_list_viewer_APPS_TRY_LEAVE(type)
+    if g.get_map_type() ~= "City" then
+        if g.FUNCS["APPS_TRY_LEAVE"] then
+            g.FUNCS["APPS_TRY_LEAVE"](type)
+        end
+        return
+    end
+    Indun_list_viewer_save_current_char_counts()
+    local use_instant_cc = (g.settings and g.settings.instant_cc and g.settings.instant_cc.use == 1)
+    if not use_instant_cc or (type ~= "Barrack") then
+        local expireditem_alert = ui.GetFrame("expireditem_alert")
+        local near_future_sec = tonumber(expireditem_alert:GetUserConfig("NearFutureSec"))
+        local need_item = false
+        local need_token = false
+        if near_future_sec then
+            local list = GET_SCHEDULED_TO_EXPIRED_ITEM_LIST(near_future_sec)
+            need_item = (list ~= nil and #list > 0)
+            need_token = IS_NEED_TO_ALERT_TOKEN_EXPIRATION(near_future_sec)
+        end
+        local sweep_buffs = {80045, 80043, 80039, 80035, 80037, 80032, 80031, 80030, 80015, 80017, 80016}
+        local sweep_tbl = {}
+        local my_handle = session.GetMyHandle()
+        local limit_time_ms = 12 * 60 * 60 * 1000
+        for _, buff_id in ipairs(sweep_buffs) do
+            local buff_info = info.GetBuff(my_handle, buff_id)
+            if buff_info and buff_info.time <= limit_time_ms then
+                table.insert(sweep_tbl, {
+                    buff_over = buff_info.over,
+                    buff_time = buff_info.time,
+                    buff_id = buff_id
+                })
+            end
+        end
+        if need_item or need_token or #sweep_tbl > 0 then
+            g.instant_cc_sweep_tbl = sweep_tbl
+            imcAddOn.BroadMsg("EXPIREDITEM_ALERT_OPEN", type, 0)
+            return
+        end
+    end
+    if g.FUNCS["APPS_TRY_LEAVE"] then
+        g.FUNCS["APPS_TRY_LEAVE"](type)
+    end
+end
+
+local function get_safe_entrance_count(indun_type)
+    local indun_cls = GetClassByType("Indun", indun_type)
+    if indun_cls and indun_cls.PlayPerResetType then
+        return GET_CURRENT_ENTERANCE_COUNT(indun_cls.PlayPerResetType)
+    end
+    return nil
+end
+
+function Indun_list_viewer_save_current_char_counts()
+    if g.get_map_type() ~= "City" then
+        return
+    end
+    local raid_data = {}
+    for key, raid in pairs(g.ilv_RAID_INFO) do
+        local count = get_safe_entrance_count(raid.hard)
+        raid_data[key .. "_H"] = count or "?"
+        count = get_safe_entrance_count(raid.auto)
+        raid_data[key .. "_A"] = count or "?"
+    end
+    g.ilv_settings.chars[g.login_name].raid_count = raid_data
+    local auto_clear_data = g.ilv_settings.chars[g.login_name].auto_clear_count
+    local my_handle = session.GetMyHandle()
+    for _, key in ipairs(g.ilv_RAID_KEYS) do
+        local raid = g.ilv_RAID_INFO[key]
+        auto_clear_data[key .. "_S"] = 0
+        if raid.sweep_buff then
+            local buff_info = info.GetBuff(my_handle, raid.sweep_buff)
+            if buff_info then
+                auto_clear_data[key .. "_S"] = buff_info.over
+            end
+        end
+    end
+    g.ilv_settings.chars[g.login_name].auto_clear_count = auto_clear_data
+    Indun_list_viewer_save_settings()
 end
 
 function Indun_list_viewer_EXPIREDITEM_ALERT_ON_MSG(frame, msg, str, num)
     local expireditem_alert = ui.GetFrame("expireditem_alert")
     if expireditem_alert then
         expireditem_alert:SetLayerLevel(100)
-    end
-end
-
-function Indun_list_viewer_disable()
-    if _G["indun_list_viewer_title_frame_open"] == _G["Indun_list_viewer_title_frame_open"] then
-        _G["indun_list_viewer_title_frame_open"] = nil
     end
 end
 
@@ -5615,50 +11730,6 @@ function Indun_list_viewer_STATUS_SELET_REPRESENTATION_CLASS(my_frame, my_msg)
     g.ilv_settings.chars[g.login_name].president_jobid = tostring(select_key)
     Indun_list_viewer_save_settings()
     Indun_list_viewer_title_frame_open()
-end
-
-local function get_safe_entrance_count(indun_type)
-    local indun_cls = GetClassByType("Indun", indun_type)
-    if indun_cls and indun_cls.PlayPerResetType then
-        return GET_CURRENT_ENTERANCE_COUNT(indun_cls.PlayPerResetType)
-    end
-    return nil
-end
-
-function Indun_list_viewer_save_current_char_counts()
-    if g.get_map_type() == "City" then
-        if not g.ilv_settings then
-            Indun_list_viewer_load_settings()
-        end
-        Indun_list_viewer_char_load_settings()
-        Indun_list_viewer_sort_characters()
-        Indun_list_viewer_raid_reset_reserve()
-    else
-        return
-    end
-    local raid_data = {}
-    for key, raid in pairs(g.ilv_RAID_INFO) do
-        local count = get_safe_entrance_count(raid.hard)
-        raid_data[key .. "_H"] = count or "?"
-        count = get_safe_entrance_count(raid.auto)
-        raid_data[key .. "_A"] = count or "?"
-    end
-    g.ilv_settings.chars[g.login_name].raid_count = raid_data
-    local auto_clear_data = g.ilv_settings.chars[g.login_name].auto_clear_count
-    local my_handle = session.GetMyHandle()
-    for _, key in ipairs(g.ilv_RAID_KEYS) do
-        local raid = g.ilv_RAID_INFO[key]
-        auto_clear_data[key .. "_S"] = 0
-        if raid.sweep_buff then
-            local buff_info = info.GetBuff(my_handle, raid.sweep_buff)
-            if buff_info then
-                auto_clear_data[key .. "_S"] = buff_info.over
-            end
-        end
-    end
-    g.ilv_settings.chars[g.login_name].auto_clear_count = auto_clear_data
-    Indun_list_viewer_save_settings()
-    return
 end
 
 function Indun_list_viewer_INDUNINFO_SET_BUTTONS(indun_type, ctrl)
@@ -5813,36 +11884,40 @@ function Indun_list_viewer_title_frame_open()
     local x = 185
     for _, raid_key in ipairs(g.ilv_RAID_KEYS) do
         local raid_info = g.ilv_RAID_INFO[raid_key]
-        if g.ilv_settings.display[raid_info.name .. "_H"] == 1 then
-            local pic = title_gb:CreateOrGetControl("picture", "title_pic_" .. raid_key .. "_H", x, 5, 30, 30)
-            AUTO_CAST(pic)
-            pic:SetImage(raid_info.icon)
-            pic:SetEnableStretch(1)
-            pic:EnableHitTest(1)
-            pic:SetEventScript(ui.LBUTTONDOWN, "Indun_list_viewer_enter_hard")
-            pic:SetEventScriptArgNumber(ui.LBUTTONDOWN, raid_info.hard)
-            pic:SetEventScriptArgString(ui.LBUTTONDOWN, "false")
-            pic:SetTextTooltip("{ol}" .. texts.hard_raid)
-            x = x + 30
+        if raid_info and raid_info.name then -- ここで安全確認
+            if g.ilv_settings.display[raid_info.name .. "_H"] == 1 then
+                local pic = title_gb:CreateOrGetControl("picture", "title_pic_" .. raid_key .. "_H", x, 5, 30, 30)
+                AUTO_CAST(pic)
+                pic:SetImage(raid_info.icon)
+                pic:SetEnableStretch(1)
+                pic:EnableHitTest(1)
+                pic:SetEventScript(ui.LBUTTONDOWN, "Indun_list_viewer_enter_hard")
+                pic:SetEventScriptArgNumber(ui.LBUTTONDOWN, raid_info.hard)
+                pic:SetEventScriptArgString(ui.LBUTTONDOWN, "false")
+                pic:SetTextTooltip("{ol}" .. texts.hard_raid)
+                x = x + 30
+            end
         end
     end
     x = x + 30
     for _, raid_key in ipairs(g.ilv_RAID_KEYS) do
         local raid_info = g.ilv_RAID_INFO[raid_key]
-        if g.ilv_settings.display[raid_info.name .. "_S"] == 1 then
-            local pic = title_gb:CreateOrGetControl("picture", "title_pic_" .. raid_key .. "_S", x, 5, 30, 30)
-            AUTO_CAST(pic)
-            pic:SetImage(raid_info.icon)
-            pic:SetEnableStretch(1)
-            pic:EnableHitTest(1)
-            pic:SetEventScript(ui.LBUTTONUP, "Indun_list_viewer_enter_solo_or_auto")
-            pic:SetEventScriptArgString(ui.LBUTTONUP, "1")
-            pic:SetEventScriptArgNumber(ui.LBUTTONUP, raid_info.solo)
-            pic:SetEventScript(ui.RBUTTONUP, "Indun_list_viewer_enter_solo_or_auto")
-            pic:SetEventScriptArgString(ui.RBUTTONUP, "2")
-            pic:SetEventScriptArgNumber(ui.RBUTTONUP, raid_info.auto)
-            pic:SetTextTooltip("{ol}" .. texts.auto_raid)
-            x = x + 65
+        if raid_info and raid_info.name then -- ここで安全確認
+            if g.ilv_settings.display[raid_info.name .. "_S"] == 1 then
+                local pic = title_gb:CreateOrGetControl("picture", "title_pic_" .. raid_key .. "_S", x, 5, 30, 30)
+                AUTO_CAST(pic)
+                pic:SetImage(raid_info.icon)
+                pic:SetEnableStretch(1)
+                pic:EnableHitTest(1)
+                pic:SetEventScript(ui.LBUTTONUP, "Indun_list_viewer_enter_solo_or_auto")
+                pic:SetEventScriptArgString(ui.LBUTTONUP, "1")
+                pic:SetEventScriptArgNumber(ui.LBUTTONUP, raid_info.solo)
+                pic:SetEventScript(ui.RBUTTONUP, "Indun_list_viewer_enter_solo_or_auto")
+                pic:SetEventScriptArgString(ui.RBUTTONUP, "2")
+                pic:SetEventScriptArgNumber(ui.RBUTTONUP, raid_info.auto)
+                pic:SetTextTooltip("{ol}" .. texts.auto_raid)
+                x = x + 65
+            end
         end
     end
     local close_button = title_gb:CreateOrGetControl("button", "close_button", 0, 0, 20, 20)
@@ -5925,6 +12000,9 @@ function Indun_list_viewer_frame_open(indun_list_viewer)
     end
     local y = 10
     local max_x = 0
+    if not g.ilv_RAID_KEYS or not g.ilv_RAID_INFO then
+        return
+    end
     for _, data in ipairs(sorted_char_list) do
         local x = 35
         local pc_name = data.pc_name
@@ -5935,43 +12013,50 @@ function Indun_list_viewer_frame_open(indun_list_viewer)
         x = x + 60
         if not data.hide then
             local current_x = 180
+            local raid_count_data = data.raid_count or {}
+            local auto_clear_data = data.auto_clear_count or {}
             for _, raid_key in ipairs(g.ilv_RAID_KEYS) do
                 local raid_info = g.ilv_RAID_INFO[raid_key]
-                if g.ilv_settings.display[raid_info.name .. "_H"] == 1 then
-                    local count = data.raid_count[raid_key .. "_H"] or "?"
-                    local text_ctrl = gb:CreateOrGetControl("richtext", raid_key .. "_H_" .. pc_name, current_x, y)
-                    AUTO_CAST(text_ctrl)
-                    text_ctrl:SetText("{ol}{s14}( " .. count .. " )")
-                    local limit = (raid_key == "P" or raid_key == "F") and 2 or 1
-                    text_ctrl:SetColorTone(count == limit and "FF990000" or "FFFFFFFF")
-                    current_x = current_x + 30
+                if raid_info and raid_info.name then
+                    if g.ilv_settings.display[raid_info.name .. "_H"] == 1 then
+                        local count = raid_count_data[raid_key .. "_H"] or "?"
+                        local text_ctrl = gb:CreateOrGetControl("richtext", raid_key .. "_H_" .. pc_name, current_x, y)
+                        AUTO_CAST(text_ctrl)
+                        text_ctrl:SetText("{ol}{s14}( " .. count .. " )")
+                        local limit = (raid_key == "P" or raid_key == "F") and 2 or 1
+                        local num_count = tonumber(count) or 0
+                        text_ctrl:SetColorTone(num_count >= limit and "FF990000" or "FFFFFFFF")
+                        current_x = current_x + 30
+                    end
                 end
             end
             current_x = current_x + 30
             for _, raid_key in ipairs(g.ilv_RAID_KEYS) do
                 local raid_info = g.ilv_RAID_INFO[raid_key]
-                if g.ilv_settings.display[raid_info.name .. "_S"] == 1 then
-                    local limit = (raid_key == "P" or raid_key == "F") and 4 or 2
-                    local count_a = data.raid_count[raid_key .. "_A"] or "?"
-                    local text_a = gb:CreateOrGetControl("richtext", raid_key .. "_A_" .. pc_name, current_x, y)
-                    AUTO_CAST(text_a)
-                    text_a:SetText("{ol}{s14}( " .. count_a .. " )")
-                    if count_a ~= "?" then
-                        if count_a > 0 then
-                            text_a:SetColorTone(count_a == limit and "FF990000" or "FFFFFFFF")
+                if raid_info and raid_info.name then
+                    if g.ilv_settings.display[raid_info.name .. "_S"] == 1 then
+                        local limit = (raid_key == "P" or raid_key == "F") and 4 or 2
+                        local count_a = raid_count_data[raid_key .. "_A"] or "?"
+                        local text_a = gb:CreateOrGetControl("richtext", raid_key .. "_A_" .. pc_name, current_x, y)
+                        AUTO_CAST(text_a)
+                        text_a:SetText("{ol}{s14}( " .. count_a .. " )")
+                        local num_a = tonumber(count_a)
+                        if num_a and num_a > 0 then
+                            text_a:SetColorTone(num_a == limit and "FF990000" or "FFFFFFFF")
                         end
-                    end
-                    if raid_key ~= "D" then
-                        current_x = current_x + 25
-                        local count_s = data.auto_clear_count[raid_key .. "_S"] or 0
-                        local text_s = gb:CreateOrGetControl("richtext", raid_key .. "_S_" .. pc_name, current_x, y)
-                        AUTO_CAST(text_s)
-                        text_s:SetText("{ol}{s14}/( " .. count_s .. " )")
-                        if count_s > 0 then
-                            text_s:SetColorTone(count_s == limit and "FFFFA500" or "FFFFFFFF")
+                        if raid_key ~= "D" then
+                            current_x = current_x + 25
+                            local count_s = auto_clear_data[raid_key .. "_S"] or 0
+                            local text_s = gb:CreateOrGetControl("richtext", raid_key .. "_S_" .. pc_name, current_x, y)
+                            AUTO_CAST(text_s)
+                            text_s:SetText("{ol}{s14}/( " .. count_s .. " )")
+                            local num_s = tonumber(count_s)
+                            if num_s and num_s > 0 then
+                                text_s:SetColorTone(num_s == limit and "FFFFA500" or "FFFFFFFF")
+                            end
                         end
+                        current_x = current_x + 40
                     end
-                    current_x = current_x + 40
                 end
             end
             if g.ilv_settings.display["Memo"] == 1 then
@@ -6030,8 +12115,11 @@ function Indun_list_viewer_job_slot(indun_list_viewer, data, y)
     local president_id_str = data.president_jobid or ""
     local _, _, last_job_id = GetJobListFromAdventureBookCharData(pc_name)
     local prepresentative_job_id = (president_id_str ~= "") and president_id_str or last_job_id
-    local job_class = GetClassByType("Job", tonumber(prepresentative_job_id))
-    local job_icon_name = TryGetProp(job_class, "Icon")
+    local job_class = GetClassByType("Job", tonumber(prepresentative_job_id) or 0)
+    local job_icon_name = "icon_item_nothing" -- デフォルト（?マークや空）
+    if job_class then
+        job_icon_name = TryGetProp(job_class, "Icon", "icon_item_nothing")
+    end
     local gb = GET_CHILD_RECURSIVELY(indun_list_viewer, "gb")
     local job_slot = gb:CreateOrGetControl("slot", "jobslot" .. pc_name, 5, y - 4, 25, 25)
     AUTO_CAST(job_slot)
@@ -6142,6 +12230,10 @@ end
 function sub_map_on_init()
     if not g.sub_map_settings then
         Sub_map_load_settings()
+    end
+    local old_func = g.settings.sub_map.old_init_func
+    if _G[old_func] then
+        return
     end
     if g.settings.sub_map.use == 0 then
         ui.DestroyFrame(addon_name_lower .. "sub_map")
@@ -7113,3219 +13205,6 @@ function Sub_map_CREATE_PICTURE(sub_map, pc_info, party_type, mapprop, info)
 end
 -- sub_map ここまで
 
--- sub_slotset ここから
-function Sub_slotset_save_settings()
-    g.save_json(g.sub_slotset_path, g.sub_slotset_settings)
-end
-
-function Sub_slotset_load_settings()
-    g.sub_slotset_path = string.format("../addons/%s/%s/sub_slotset.json", addon_name_lower, g.active_id)
-    g.sub_slotset_old_path = string.format("../addons/%s/%s/settings.json", "sub_slotset", g.active_id)
-    local settings = g.load_json(g.sub_slotset_path)
-    if not settings then
-        settings = {
-            config = {
-                index = 0
-            },
-            share = {},
-            personal = {}
-        }
-        local old_settings = g.load_json(g.sub_slotset_old_path)
-        if old_settings then
-            for ss_name, data in pairs(old_settings) do
-                if string.find(ss_name, "sub_slotset_") then
-                    if data.etc then
-                        data.etc.x = data.etc.X
-                        data.etc.y = data.etc.Y
-                        data.etc.col = data.etc.column
-                        data.etc.X = nil
-                        data.etc.Y = nil
-                        data.etc.column = nil
-                    end
-                    settings.share["sub_slotset_" .. settings.config.index] = data
-                    settings.config.index = settings.config.index + 1
-                end
-            end
-        end
-    end
-    g.sub_slotset_settings = settings
-    Sub_slotset_save_settings()
-end
-
-function Sub_slotset_char_load_settings()
-    g.sub_slotset_old_personal_path = string.format("../addons/%s/%s.json", "sub_slotset", g.cid)
-    if not g.sub_slotset_settings.personal[g.cid] then
-        g.sub_slotset_settings.personal[g.cid] = {}
-        local old_personal_settings = g.load_json(g.sub_slotset_old_personal_path)
-        if old_personal_settings then
-            for ss_name, data in pairs(old_personal_settings) do
-                if string.find(ss_name, "sub_slotset_") then
-                    if data.etc then
-                        data.etc.x = data.etc.X
-                        data.etc.y = data.etc.Y
-                        data.etc.col = data.etc.column
-                        data.etc.X = nil
-                        data.etc.Y = nil
-                        data.etc.column = nil
-                    end
-                    local new_index = g.sub_slotset_settings.config.index
-                    g.sub_slotset_settings.personal[g.cid]["sub_slotset_" .. new_index] = data
-                    g.sub_slotset_settings.config.index = new_index + 1
-                end
-            end
-        end
-        Sub_slotset_save_settings()
-    end
-end
-
-function sub_slotset_on_init()
-    if not g.sub_slotset_settings then
-        Sub_slotset_load_settings()
-    end
-    if not g.sub_slotset_settings.personal[g.cid] then
-        Sub_slotset_char_load_settings()
-    end
-    g.setup_hook_and_event(g.addon, "SET_QUEST_CTRL_TEXT", "Sub_slotset_SET_QUEST_CTRL_TEXT", true)
-    g.setup_hook_and_event(g.addon, "EMO_OPEN", "Sub_slotset_EMO_OPEN", true)
-    if g.settings.sub_slotset.use == 0 then
-        if g.sub_slotset_settings.share then
-            for ss_name, data in pairs(g.sub_slotset_settings.share) do
-                ui.DestroyFrame(addon_name_lower .. ss_name)
-            end
-        end
-        if g.sub_slotset_settings.personal[g.cid] then
-            for ss_name, data in pairs(g.sub_slotset_settings.personal[g.cid]) do
-                ui.DestroyFrame(addon_name_lower .. ss_name)
-            end
-        end
-        return
-    end
-    local _nexus_addons = ui.GetFrame("_nexus_addons")
-    _nexus_addons:RunUpdateScript("Sub_slotset_frame_init", 0.1)
-end
-
-function Sub_slotset_EMO_OPEN(my_frame, my_msg)
-    if g.settings.sub_slotset.use == 0 then
-        return
-    end
-    local button = g.get_event_args(my_msg)
-    local chat_emoticon = ui.GetFrame("chat_emoticon")
-    local group_name = chat_emoticon:GetUserValue("EMOTICON_GROUP")
-    if group_name == "None" then
-        group_name = "Normal"
-    end
-    local emoticons = GET_CHILD_RECURSIVELY(chat_emoticon, "emoticons")
-    local slot_count = emoticons:GetSlotCount()
-    local count = 0
-    for i = 1, slot_count do
-        local slot = GET_CHILD_RECURSIVELY(emoticons, "slot" .. i)
-        local icon = slot:GetIcon()
-        if icon then
-            count = count + 1
-        end
-    end
-    local gbox = GET_CHILD_RECURSIVELY(chat_emoticon, "gbox")
-    gbox:RemoveAllChild()
-    local emoticons = gbox:CreateOrGetControl('slotset', 'emoticons', 0, 0, 420, 0)
-    AUTO_CAST(emoticons)
-    emoticons:SetSlotSize(42, 42)
-    emoticons:EnablePop(1)
-    emoticons:EnableDrag(1)
-    emoticons:EnableDrop(0)
-    emoticons:EnableHitTest(1)
-    emoticons:SetColRow(10, math.ceil(count / 10))
-    emoticons:SetSpc(0, 0)
-    emoticons:SetSkinName('invenslot')
-    emoticons:CreateSlots()
-    for i = 0, count - 1 do
-        local slot = emoticons:GetSlotByIndex(i)
-        AUTO_CAST(slot)
-        local icon = CreateIcon(slot)
-        slot:SetEventScript(ui.LBUTTONDOWN, "CHAT_EMOTICON_SELECT")
-    end
-    CHAT_EMOTICON_MAKELIST(chat_emoticon)
-end
-
-function Sub_slotset_SET_QUEST_CTRL_TEXT(my_frame, my_msg)
-    if g.settings.sub_slotset.use == 0 then
-        return
-    end
-    local quest_ctrl, quest_ies = g.get_event_args(my_msg)
-    AUTO_CAST(quest_ctrl)
-    --[[local nametxt = GET_CHILD(quest_ctrl, "name", "ui::CRichText")
-    AUTO_CAST(nametxt)]]
-    local leveltxt = GET_CHILD(quest_ctrl, "level", "ui::CRichText")
-    AUTO_CAST(leveltxt)
-    --[[local font = ""
-    local color = ""
-    if quest_ies.QuestMode == "MAIN" then
-        font = quest_ctrl:GetUserConfig("MAIN_FONT")
-        color = quest_ctrl:GetUserConfig("MAIN_COLOR")
-    elseif quest_ies.QuestMode == "SUB" then
-        font = quest_ctrl:GetUserConfig("SUB_FONT")
-        color = quest_ctrl:GetUserConfig("SUB_COLOR")
-    elseif quest_ies.QuestMode == "REPEAT" then
-        font = quest_ctrl:GetUserConfig("REPEAT_FONT")
-        color = quest_ctrl:GetUserConfig("REPEAT_COLOR")
-    elseif quest_ies.QuestMode == "PARTY" then
-        font = quest_ctrl:GetUserConfig("PARTY_FONT")
-        color = quest_ctrl:GetUserConfig("PARTY_COLOR")
-    elseif quest_ies.QuestMode == "KEYITEM" then
-        font = quest_ctrl:GetUserConfig("KEYITEM_FONT")
-        color = quest_ctrl:GetUserConfig("KEYITEM_COLOR")
-    end
-    nametxt:SetText(font .. color .. quest_ies.Name)
-    leveltxt:SetText(color .. "Lv " .. quest_ies.Level)]]
-    local rect = leveltxt:GetMargin()
-    leveltxt:SetMargin(rect.left - 10, rect.top, rect.right, rect.bottom)
-    local questmark = GET_CHILD(quest_ctrl, "questmark")
-    AUTO_CAST(questmark)
-    local image_name = questmark:GetImageName()
-    local result = SCR_QUEST_CHECK_C(GetMyPCObject(), quest_ies.ClassName)
-    if (result == 'POSSIBLE' and quest_ies.POSSI_WARP == 'YES') or
-        (result == 'PROGRESS' and quest_ies.PROG_WARP == 'YES') or
-        (result == 'SUCCESS' and quest_ies.SUCC_WARP == 'YES') then
-        local slot = quest_ctrl:CreateOrGetControl("slot", "slot", 78, 5, 20, 20)
-        AUTO_CAST(slot)
-        slot:EnablePop(1)
-        slot:EnableDrop(0)
-        local icon = CreateIcon(slot)
-        icon:SetImage("questinfo_return")
-        icon:SetUserValue("QUEST_ID", quest_ies.ClassID)
-        local msg = g.lang == "Japanese" and "{ol}Sub Slotset{nl}左クリック: スロットに登録" or
-                        "{ol}Sub Slotset{nl}LeftClick:for Registration"
-        icon:SetTextTooltip(msg)
-    end
-end
-
-function Sub_slotset_frame_init()
-    if g.sub_slotset_settings.share then
-        for ss_name, data in pairs(g.sub_slotset_settings.share) do
-            Sub_slotset_process(ss_name, data, true)
-        end
-    end
-    if g.sub_slotset_settings.personal[g.cid] then
-        for ss_name, data in pairs(g.sub_slotset_settings.personal[g.cid]) do
-            Sub_slotset_process(ss_name, data, false)
-        end
-    end
-    return 1
-end
-
-function Sub_slotset_process(ss_name, data, is_share)
-    local frame_name = addon_name_lower .. ss_name
-    local sub_slotset = ui.GetFrame(frame_name)
-    if not sub_slotset then
-        sub_slotset = ui.CreateNewFrame("notice_on_pc", frame_name, 0, 0, 0, 0)
-        AUTO_CAST(sub_slotset)
-        sub_slotset:SetSkinName("chat_window_2")
-        sub_slotset:SetAlpha(20)
-        sub_slotset:SetLayerLevel(data.etc.layer)
-        sub_slotset:EnableHittestFrame(1)
-        sub_slotset:SetEventScript(ui.LBUTTONUP, "Sub_slotset_end_drag")
-        sub_slotset:SetEventScript(ui.RBUTTONUP, "Sub_slotset_rbtn")
-        Sub_slotset_slotset_make(sub_slotset, data.etc, true)
-        if is_share then
-            local titlelabel = sub_slotset:CreateOrGetControl('richtext', 'titlelabel', 0, 0, 0, 0)
-            titlelabel:SetTextAlign('center', 'center')
-            titlelabel:SetGravity(ui.LEFT, ui.TOP)
-            titlelabel:SetText("{ol}{s10}shared")
-        else
-            sub_slotset:RemoveChild("titlelabel")
-        end
-        if data.etc then
-            if data.etc.x and data.etc.y then
-                sub_slotset:SetPos(data.etc.x, data.etc.y)
-            end
-            sub_slotset:EnableMove(data.etc.lock and 0 or 1)
-        end
-    end
-    if sub_slotset:IsVisible() == 0 then
-        sub_slotset:ShowWindow(1)
-    end
-    Sub_slotset_update_contents(sub_slotset, data)
-end
-
-function Sub_slotset_update_contents(sub_slotset, data)
-    local slot_set = GET_CHILD(sub_slotset, "slotset")
-    if not slot_set then
-        return
-    end
-    local skillability = ui.GetFrame("skillability")
-    if skillability:IsVisible() == 1 then
-        sub_slotset:SetLayerLevel(999)
-    else
-        sub_slotset:SetLayerLevel(data.etc.layer)
-    end
-    slot_set:EnablePop(data.etc.lock and 0 or 1)
-    slot_set:EnableDrag(data.etc.lock and 0 or 1)
-    slot_set:EnableDrop(data.etc.lock and 0 or 1)
-    slot_set:EnableHitTest(1)
-    local slot_count = slot_set:GetSlotCount()
-    for i = 1, slot_count do
-        local slot = GET_CHILD(slot_set, "slot" .. i)
-        AUTO_CAST(slot)
-        local str_i = tostring(i)
-        local saved_item = data[str_i]
-        slot:EnablePop(data.etc.lock and 0 or 1)
-        slot:EnableDrag(data.etc.lock and 0 or 1)
-        slot:EnableDrop(data.etc.lock and 0 or 1)
-        slot:SetEventScript(ui.DROP, 'Sub_slotset_drop')
-        slot:SetEventScriptArgNumber(ui.DROP, i)
-        slot:SetEventScript(ui.POP, 'Sub_slotset_pop')
-        slot:SetEventScriptArgString(ui.POP, str_i)
-        slot:SetEventScript(ui.RBUTTONUP, 'Sub_slotset_slot_rbutton')
-        if saved_item and saved_item.iesid then
-            local iesid = saved_item.iesid
-            local category = saved_item.category
-            local cls_id = saved_item.clsid
-            slot:EnableDrop(data.etc.lock and 0 or 1)
-            slot:SetEventScriptArgNumber(ui.RBUTTONUP, cls_id)
-            slot:SetEventScriptArgString(ui.RBUTTONUP, category)
-            slot:SetEventScriptArgString(ui.DROP, category)
-            local icon = slot:GetIcon()
-            if not icon then
-                icon = CreateIcon(slot)
-            end
-            if category == "Item" then
-                local item_cls = GetClassByType("Item", cls_id)
-                SET_SLOT_ITEM_CLS(slot, item_cls)
-                local inv_item = session.GetInvItemByGuid(iesid) or session.GetInvItemByType(cls_id)
-                if inv_item then
-                    local item_obj = GetIES(inv_item:GetObject())
-                    icon:SetColorTone('FFFFFFFF')
-                    SET_SLOT_ITEM_IMAGE(slot, inv_item)
-                    ICON_SET_ITEM_COOLDOWN_OBJ(icon, item_obj)
-                    Sub_slotset_SET_SLOT_ITEM_TEXT(slot, inv_item, item_cls)
-                else
-                    icon:SetColorTone('FFFF0000')
-                    slot:SetText("{s15}{ol}{b}" .. 0, 'count', ui.RIGHT, ui.BOTTOM, -2, 1);
-                end
-            elseif category == "Pose" then
-                local pose = GetClassByType('Pose', cls_id)
-                if pose then
-                    icon:Set(pose.Icon, category, cls_id, 0, iesid)
-                    icon:SetColorTone('FFFFFFFF')
-                    icon:SetTextTooltip(pose.Name)
-                end
-                slot:ClearText()
-            elseif category == "Skill" then
-                icon:SetOnCoolTimeUpdateScp('ICON_UPDATE_SKILL_COOLDOWN')
-                icon:SetEnableUpdateScp('ICON_UPDATE_SKILL_ENABLE')
-                icon:SetColorTone('FFFFFFFF')
-                icon:SetTooltipType('skill')
-                icon:Set('icon_' .. GetClassString('Skill', cls_id, 'Icon'), category, cls_id, 0, iesid)
-                icon:SetTooltipNumArg(cls_id)
-                icon:SetTooltipIESID(iesid)
-                slot:ClearText()
-                QUICKSLOT_MAKE_GAUGE(slot)
-                QUICKSLOT_SET_GAUGE_VISIBLE(slot, 0)
-                SET_QUICKSLOT_OVERHEAT(slot)
-            elseif category == 'Ability' then
-                local pc = GetMyPCObject()
-                local abil_class = GetClassByType("Ability", cls_id)
-                local abil_ies = GetAbilityIESObject(pc, abil_class.ClassName)
-                if abil_class then
-                    icon:SetTooltipType("ability")
-                    icon:SetTooltipNumArg(cls_id)
-                    icon:Set(abil_class.Icon, category, cls_id, 0, iesid)
-                    local abil_ies = GetAbilityIESObject(pc, abil_class.ClassName)
-                    if abil_ies then
-                        icon:SetColorTone('FFFFFFFF')
-                        SET_ABILITY_TOGGLE_COLOR(icon, cls_id)
-                    else
-                        icon:SetColorTone('FFFF0000')
-                    end
-                end
-                slot:ClearText()
-            elseif category == 'Quest' then
-                local pc = GetMyPCObject()
-                local quest_ies = GetClassByType("QuestProgressCheck", cls_id)
-                if quest_ies then
-                    local result = SCR_QUEST_CHECK_Q(pc, quest_ies.ClassName)
-                    local target_map_name = GET_QUEST_LOCATION(quest_ies)
-                    local zone_name = GetClassString('Map', target_map_name, 'Name')
-                    icon:SetImage("questinfo_return")
-                    local check_result = SCR_QUEST_CHECK_C(pc, quest_ies.ClassName)
-                    if (check_result == 'POSSIBLE' and quest_ies.POSSI_WARP == 'YES') or
-                        (check_result == 'PROGRESS' and quest_ies.PROG_WARP == 'YES') or
-                        (check_result == 'SUCCESS' and quest_ies.SUCC_WARP == 'YES') then
-                        icon:SetColorTone('FFFFFFFF')
-                    else
-                        icon:SetColorTone('FFFF0000')
-                    end
-                    icon:SetTextTooltip("{ol}" .. quest_ies.Name)
-                    SET_SLOT_COUNT_TEXT(slot, zone_name, '{s10}{ol}{b}', ui.LEFT, ui.BOTTOM, 0, 0)
-                end
-            elseif category == 'Emoticon' then
-                local list, cnt = GetClassList("chat_emoticons")
-                local acc_obj = GetMyAccountObj()
-                local etc_obj = GetMyEtcObject()
-                local target_group = cls_id
-                for j = 0, cnt - 1 do
-                    local cls = GetClassByIndexFromList(list, j)
-                    if cls.IconGroup == target_group then
-                        if iesid == cls.ClassName then
-                            local image_name = cls.ClassName
-                            local name_parts = StringSplit(cls.ClassName, "motion_")
-                            if #name_parts > 1 then
-                                image_name = name_parts[2]
-                            end
-                            slot:SetUserValue("EMO_ID", target_group)
-                            local is_owned = false
-                            if cls.CheckServer == 'YES' then
-                                local target_obj = acc_obj
-                                if TryGetProp(cls, 'HaveUnit', 'None') == 'PC' then
-                                    target_obj = etc_obj
-                                end
-                                if TryGetProp(target_obj, 'HaveEmoticon_' .. cls.ClassID, 0) > 0 then
-                                    is_owned = true
-                                end
-                            else
-                                is_owned = true
-                            end
-                            if not icon then
-                                icon = CreateIcon(slot)
-                            end
-                            icon:SetImage(image_name)
-                            slot:ClearText()
-                            if is_owned then
-                                icon:SetColorTone('FFFFFFFF')
-                            else
-                                icon:SetColorTone('FF696969')
-                            end
-                            break
-                        end
-                    end
-                end
-            elseif category == 'None' then
-                CLEAR_SLOT_ITEM_INFO(slot)
-                slot:ClearText()
-            end
-        else
-            slot:ClearIcon()
-            slot:ClearText()
-        end
-    end
-end
-
-function Sub_slotset_SET_SLOT_ITEM_TEXT(slot, inv_item, item_obj)
-    if item_obj.MaxStack > 1 then
-        Sub_slotset_SET_SLOT_COUNT_TEXT(slot, inv_item.count)
-        return
-    end
-    local lv = TryGetProp(item_obj, "Level");
-    if lv and lv > 1 then
-        slot:SetFrontImage('enchantlevel_indi_icon')
-        slot:SetText('{s20}{ol}{#FFFFFF}{b}' .. lv, 'count', ui.LEFT, ui.TOP, 8, 2)
-        return
-    end
-end
-
-function Sub_slotset_SET_SLOT_COUNT_TEXT(slot, count, font)
-    if not font then
-        font = '{s15}{ol}{b}'
-    end
-    slot:SetText(font .. count, 'count', ui.RIGHT, ui.BOTTOM, -2, 1)
-end
-
-function Sub_slotset_pop(parent, slot, str_i, num)
-    local sub_slotset = slot:GetTopParentFrame()
-    local sub_slotset_name = string.gsub(sub_slotset:GetName(), addon_name_lower, "")
-    local target_settings, is_share = Sub_slotset_get_settings(sub_slotset_name)
-    if keyboard.IsKeyPressed("LSHIFT") == 1 then
-        CLEAR_SLOT_ITEM_INFO(slot)
-        target_settings[str_i] = nil
-        Sub_slotset_save_settings()
-        return
-    end
-    g.sub_slotset_drag = nil
-    if target_settings and target_settings[str_i] then
-        g.sub_slotset_drag = {
-            index = str_i,
-            data = target_settings[str_i],
-            frame_name = sub_slotset_name
-        }
-    end
-end
-
-function Sub_slotset_drop(parent, slot, category, i)
-    local sub_slotset = slot:GetTopParentFrame()
-    local sub_slotset_name = string.gsub(sub_slotset:GetName(), addon_name_lower, "")
-    local target_settings, is_share = Sub_slotset_get_settings(sub_slotset_name)
-    if not target_settings then
-        return
-    end
-    local str_i = tostring(i)
-    if g.sub_slotset_drag and g.sub_slotset_drag.frame_name == sub_slotset_name then
-        local from_index = g.sub_slotset_drag.index
-        if from_index == str_i then
-            g.sub_slotset_drag = nil
-            return
-        end
-        local swap_target = target_settings[str_i]
-        target_settings[str_i] = g.sub_slotset_drag.data
-        target_settings[from_index] = swap_target
-        g.sub_slotset_drag = nil
-        Sub_slotset_save_settings()
-        Sub_slotset_update_contents(sub_slotset, target_settings)
-        return
-    end
-    local lift_icon = ui.GetLiftIcon()
-    local poseid = lift_icon:GetUserValue('POSEID')
-    local info = lift_icon:GetInfo()
-    if not info then
-        return
-    end
-    local image = info:GetImageName()
-    local cls_id = info.type
-    local iesid = info:GetIESID()
-    local category_val = info:GetCategory()
-    local chat_emoticon = ui.GetFrame("chat_emoticon")
-    local group_name = chat_emoticon:GetUserValue("EMOTICON_GROUP")
-    if group_name == "Motion" then
-        image = "motion_" .. image
-    end
-    if group_name == "None" then
-        group_name = "Normal"
-    end
-    if string.find(image, "emot") then
-        target_settings[str_i] = {
-            category = "Emoticon",
-            clsid = group_name,
-            iesid = image
-        }
-        local chat = ui.GetFrame('chat')
-        local mainchat = chat:GetChild('mainchat')
-        SET_CHAT_TEXT_TO_CHATFRAME("")
-        mainchat:RunEnterKeyScript()
-        ui.ProcessReturnKey()
-        chat:ShowWindow(0)
-    elseif image == "questinfo_return" then
-        local quest_id = lift_icon:GetUserIValue("QUEST_ID")
-        target_settings[str_i] = {
-            category = "Quest",
-            clsid = quest_id,
-            iesid = ""
-        }
-    elseif poseid ~= "None" then
-        target_settings[str_i] = {
-            category = 'Pose',
-            clsid = poseid,
-            iesid = ""
-        }
-    else
-        target_settings[str_i] = {
-            category = category_val,
-            clsid = cls_id,
-            iesid = iesid
-        }
-    end
-    Sub_slotset_save_settings()
-    Sub_slotset_update_contents(sub_slotset, target_settings)
-end
-
-function Sub_slotset_slot_rbutton(frame, slot, category, cls_id)
-    if category == 'Item' then
-        SLOT_ITEMUSE_BY_TYPE(frame, slot, category, cls_id)
-    elseif category == 'Pose' then
-        control.Pose(GetClassByType('Pose', cls_id).ClassName)
-    elseif category == 'Skill' or category == 'Ability' then
-        local icon = slot:GetIcon()
-        if icon then
-            ICON_USE(icon)
-        end
-    elseif category == 'Quest' then
-        local quest_ies = GetClassByType("QuestProgressCheck", cls_id)
-        local pc = GetMyPCObject()
-        local result = SCR_QUEST_CHECK_Q(pc, quest_ies.ClassName)
-        if (result == 'POSSIBLE' and quest_ies.POSSI_WARP == 'YES') or
-            (result == 'PROGRESS' and quest_ies.PROG_WARP == 'YES') or
-            (result == 'SUCCESS' and quest_ies.SUCC_WARP == 'YES') then
-            local cheat = string.format("/retquest %d", cls_id)
-            movie.QuestWarp(session.GetMyHandle(), cheat, 1)
-            packet.ClientDirect("QuestWarp")
-        else
-            local icon = slot:GetIcon()
-            if icon then
-                icon:SetColorTone('FFFF0000')
-            end
-        end
-    elseif category == 'Emoticon' then
-        local icongroup = slot:GetUserValue("EMO_ID")
-        local chat_emoticon = ui.GetFrame("chat_emoticon")
-        local chat = ui.GetFrame('chat')
-        local mainchat = chat:GetChild('mainchat')
-        AUTO_CAST(mainchat)
-        local icon = slot:GetIcon()
-        if icon then
-            local image_name = icon:GetInfo():GetImageName()
-            local tag = ""
-            if image_name ~= "" then
-                if icongroup == 'Motion' then
-                    local image_name = icon:GetInfo():GetImageName()
-                    if not string.find(image_name, "motion_") then
-                        image_name = "motion_" .. image_name
-                        tag = string.format("{spine %s %d %d}{/}", image_name, 120, 120)
-                    end
-                else
-                    tag = string.format("{img %s %d %d}{/}", image_name, 30, 30)
-                end
-                SET_CHAT_TEXT_TO_CHATFRAME(tag)
-                mainchat:RunEnterKeyScript()
-                ui.ProcessReturnKey()
-                chat:ShowWindow(0)
-            end
-        end
-    end
-end
-
-function Sub_slotset_get_settings(sub_slotset_name)
-    local settings = g.sub_slotset_settings.share[sub_slotset_name]
-    if settings then
-        return settings, true
-    end
-    if g.sub_slotset_settings.personal[g.cid] then
-        settings = g.sub_slotset_settings.personal[g.cid][sub_slotset_name]
-        if settings then
-            return settings, false
-        end
-    end
-    return nil
-end
-
-function Sub_slotset_setting(sub_slotset_name)
-    local x = 0
-    local y = 0
-    local is_new = true
-    local list_frame = ui.GetFrame(addon_name_lower .. "list_frame")
-    if list_frame then
-        x = list_frame:GetX() + list_frame:GetWidth()
-        y = list_frame:GetY()
-    else
-        local client_Width = ui.GetClientInitialWidth() -- 1920
-        local client_Height = ui.GetClientInitialHeight() -- 1080
-        x = client_Width / 2
-        y = client_Height / 2
-        is_new = false
-    end
-    local setting = ui.CreateNewFrame("notice_on_pc", addon_name_lower .. "sub_slotset_setting", 0, 0, 0, 0)
-    AUTO_CAST(setting)
-    setting:SetPos(x, y)
-    setting:EnableHittestFrame(1)
-    setting:SetLayerLevel(999)
-    setting:RemoveAllChild()
-    setting:SetSkinName("test_frame_low")
-    local title_text = setting:CreateOrGetControl('richtext', 'title_text', 20, 15, 50, 30)
-    AUTO_CAST(title_text)
-    if is_new then
-        title_text:SetText("{ol}Sub Slotset Config")
-    else
-        title_text:SetText("{ol}{s14}Sub Slotset Resettings")
-    end
-    local close = setting:CreateOrGetControl("button", "close", 0, 0, 20, 20)
-    AUTO_CAST(close)
-    close:SetImage("testclose_button")
-    close:SetGravity(ui.RIGHT, ui.TOP)
-    close:SetEventScript(ui.LBUTTONUP, "Sub_slotset_setting_close")
-    local gbox = setting:CreateOrGetControl("groupbox", "gbox", 10, 40, 0, 0)
-    AUTO_CAST(gbox)
-    gbox:SetSkinName("test_frame_midle_light")
-    g.sub_slotset_col = g.sub_slotset_col or 3
-    g.sub_slotset_row = g.sub_slotset_row or 3
-    g.sub_slotset_size = g.sub_slotset_size or 48
-    g.sub_slotset_layer = g.sub_slotset_layer or 90
-    g.sub_slotset_personal = g.sub_slotset_personal or 0
-    local col = gbox:CreateOrGetControl("richtext", "col", 10, 10, 80, 25)
-    AUTO_CAST(col)
-    col:SetText("{ol}{s16}Column")
-    local col_edit = gbox:CreateOrGetControl('edit', 'col_edit', 10, 35, 80, 25)
-    AUTO_CAST(col_edit)
-    col_edit:SetFontName('white_16_ol')
-    col_edit:SetSkinName('test_weight_skin')
-    col_edit:SetTextAlign('center', 'center')
-    col_edit:SetText(g.sub_slotset_col)
-    col_edit:SetNumberMode(1)
-    col_edit:SetMaxLen(2)
-    col_edit:SetTypingScp("Sub_slotset_setting_edit")
-    col_edit:SetEventScript(ui.ENTERKEY, "Sub_slotset_setting_edit")
-    local row = gbox:CreateOrGetControl("richtext", "row", 100, 10, 80, 25)
-    AUTO_CAST(row)
-    row:SetText("{ol}{s16}Row")
-    local row_edit = gbox:CreateOrGetControl('edit', 'row_edit', 100, 35, 80, 25)
-    AUTO_CAST(row_edit)
-    row_edit:SetFontName('white_16_ol')
-    row_edit:SetSkinName('test_weight_skin')
-    row_edit:SetTextAlign('center', 'center')
-    row_edit:SetNumberMode(1)
-    row_edit:SetMaxLen(2)
-    row_edit:SetText(g.sub_slotset_row)
-    row_edit:SetTypingScp("Sub_slotset_setting_edit")
-    row_edit:SetEventScript(ui.ENTERKEY, "Sub_slotset_setting_edit")
-    local size = gbox:CreateOrGetControl("richtext", "size", 10, 70, 80, 25)
-    AUTO_CAST(size)
-    size:SetText("{ol}{s16}Slot Size")
-    local size_edit = gbox:CreateOrGetControl('edit', 'size_edit', 10, 95, 80, 25)
-    AUTO_CAST(size_edit)
-    size_edit:SetFontName('white_16_ol')
-    size_edit:SetSkinName('test_weight_skin')
-    size_edit:SetTextAlign('center', 'center')
-    size_edit:SetNumberMode(1)
-    size_edit:SetText(g.sub_slotset_size)
-    size_edit:SetMaxLen(2)
-    size_edit:SetTypingScp("Sub_slotset_setting_edit")
-    size_edit:SetEventScript(ui.ENTERKEY, "Sub_slotset_setting_edit")
-    local layer = gbox:CreateOrGetControl("richtext", "layer", 100, 70, 80, 25)
-    AUTO_CAST(layer)
-    layer:SetText("{ol}{s16}Layer")
-    local layer_edit = gbox:CreateOrGetControl('edit', 'layer_edit', 100, 95, 80, 25)
-    AUTO_CAST(layer_edit)
-    layer_edit:SetFontName('white_16_ol')
-    layer_edit:SetSkinName('test_weight_skin')
-    layer_edit:SetTextAlign('center', 'center')
-    layer_edit:SetNumberMode(1)
-    layer_edit:SetText(g.sub_slotset_layer)
-    layer_edit:SetMaxLen(3)
-    layer_edit:SetTypingScp("Sub_slotset_setting_edit")
-    layer_edit:SetEventScript(ui.ENTERKEY, "Sub_slotset_setting_edit")
-    local parsonal = gbox:CreateOrGetControl("checkbox", "parsonal", 10, 130, 30, 30)
-    AUTO_CAST(parsonal)
-    if is_new then
-        parsonal:SetTextTooltip(g.lang == "Japanese" and
-                                    "{ol}チェックを入れるとキャラ用に作成{nl}後から変更可能" or
-                                    "{ol}If checked, created for the character{nl}Can be changed later")
-        parsonal:SetText(g.lang == "Japanese" and "{ol}キャラクター専用" or "{ol}Character Only")
-        parsonal:SetCheck(g.sub_slotset_personal)
-        local make = gbox:CreateOrGetControl('button', 'make', 100, 165, 80, 30)
-        AUTO_CAST(make)
-        make:SetSkinName("test_red_button")
-        make:SetText("{ol}{s16}Make")
-        make:SetEventScript(ui.LBUTTONUP, "Sub_slotset_make")
-    else
-        parsonal:SetTextTooltip(g.lang == "Japanese" and "{ol}チェックを入れるとキャラ用に切替" or
-                                    "{ol}If checked, switches to character-specific setting")
-        parsonal:SetText(g.lang == "Japanese" and "{ol}共有/キャラ切替" or "{ol}Shared/Character{nl}Switch")
-        local target_settings = g.sub_slotset_settings.share[sub_slotset_name]
-        parsonal:SetCheck(target_settings and 0 or 1)
-        parsonal:SetEventScript(ui.LBUTTONUP, "Sub_slotset_setting_checkbox")
-        local change = gbox:CreateOrGetControl('button', 'change', 100, 165, 80, 30)
-        AUTO_CAST(change)
-        change:SetSkinName("test_red_button")
-        change:SetText("{ol}{s16}Change")
-        change:SetEventScript(ui.LBUTTONUP, "Sub_slotset_change")
-        change:SetEventScriptArgString(ui.LBUTTONUP, sub_slotset_name)
-    end
-    parsonal:SetEventScript(ui.LBUTTONUP, "Sub_slotset_setting_checkbox")
-    setting:Resize(210, 255)
-    gbox:Resize(setting:GetWidth() - 20, setting:GetHeight() - 50)
-    setting:ShowWindow(1)
-end
-
-function Sub_slotset_setting_close(setting)
-    ui.DestroyFrame(setting:GetName())
-end
-
-function Sub_slotset_end_drag(sub_slotset, ctrl)
-    local sub_slotset_name = string.gsub(sub_slotset:GetName(), addon_name_lower, "")
-    local target_settings = Sub_slotset_get_settings(sub_slotset_name)
-    if target_settings and target_settings.etc then
-        target_settings.etc.x = sub_slotset:GetX()
-        target_settings.etc.y = sub_slotset:GetY()
-        Sub_slotset_save_settings()
-    end
-end
-
-function Sub_slotset_setting_checkbox(parent, ctrl)
-    g.sub_slotset_personal = ctrl:IsChecked()
-end
-
-function Sub_slotset_setting_edit(parent, ctrl)
-    local ctrl_name = ctrl:GetName()
-    local val = tonumber(ctrl:GetText())
-    if not val then
-        return
-    end
-    if (ctrl_name == "col_edit" or ctrl_name == "row_edit") and val > 10 then
-        ui.SysMsg(g.lang == "Japanese" and "10以下で設定してください" or "Enter 10 or less")
-        val = 10
-        ctrl:SetText(val)
-    end
-    if ctrl_name == "col_edit" then
-        g.sub_slotset_col = val
-    elseif ctrl_name == "row_edit" then
-        g.sub_slotset_row = val
-    elseif ctrl_name == "size_edit" then
-        local row_edit = GET_CHILD_RECURSIVELY(parent, "row_edit")
-        local current_row = tonumber(row_edit:GetText())
-        if not current_row or current_row == 0 then
-            current_row = g.sub_slotset_row or 1
-        end
-        local map = ui.GetFrame("map")
-        local h = map:GetHeight()
-        local limit_size = math.floor(tonumber(h) / current_row)
-        if val > limit_size then
-            local msg = g.lang == "Japanese" and
-                            string.format("入力は %d 以下に制限されています", limit_size) or
-                            string.format("Input is limited to %d or less", limit_size)
-            ui.SysMsg(msg)
-            val = 48
-            ctrl:SetText(val)
-        end
-        g.sub_slotset_size = val
-    elseif ctrl_name == "layer_edit" then
-        g.sub_slotset_layer = val
-    end
-end
-
-function Sub_slotset_change(parent, ctrl, sub_slotset_name)
-    local target_settings, is_in_share = Sub_slotset_get_settings(sub_slotset_name)
-    if not target_settings then
-        return
-    end
-    local setting_frame = ctrl:GetTopParentFrame()
-    ui.DestroyFrame(setting_frame:GetName())
-    local function CloneTable(orig)
-        local orig_type = type(orig)
-        local copy
-        if orig_type == 'table' then
-            copy = {}
-            for orig_key, orig_value in next, orig, nil do
-                copy[CloneTable(orig_key)] = CloneTable(orig_value)
-            end
-            setmetatable(copy, CloneTable(getmetatable(orig)))
-        else
-            copy = orig
-        end
-        return copy
-    end
-    if is_in_share and g.sub_slotset_personal == 1 then -- Share -> Personal
-        if not g.sub_slotset_settings.personal[g.cid] then
-            g.sub_slotset_settings.personal[g.cid] = {}
-        end
-        g.sub_slotset_settings.personal[g.cid][sub_slotset_name] = CloneTable(target_settings)
-        g.sub_slotset_settings.share[sub_slotset_name] = nil
-        target_settings = g.sub_slotset_settings.personal[g.cid][sub_slotset_name]
-    elseif not is_in_share and g.sub_slotset_personal == 0 then -- Personal -> Share
-        g.sub_slotset_settings.share[sub_slotset_name] = CloneTable(target_settings)
-        if g.sub_slotset_settings.personal[g.cid] then
-            g.sub_slotset_settings.personal[g.cid][sub_slotset_name] = nil
-        end
-        target_settings = g.sub_slotset_settings.share[sub_slotset_name]
-    end
-    Sub_slotset_save_settings()
-    local index = tonumber((string.gsub(sub_slotset_name, "sub_slotset_", "")))
-    Sub_slotset_make(parent, ctrl, sub_slotset_name, index, target_settings)
-end
-
-function Sub_slotset_make(parent, ctrl, sub_slotset_name, index, target_settings)
-    local setting = ctrl:GetTopParentFrame()
-    local is_share = (g.sub_slotset_personal == 0)
-    if target_settings then
-        local sub_slotset = ui.GetFrame("_nexus_addons" .. sub_slotset_name)
-        AUTO_CAST(sub_slotset)
-        sub_slotset:RemoveAllChild()
-        target_settings.etc = {
-            x = target_settings.etc.x,
-            y = target_settings.etc.y,
-            row = g.sub_slotset_row,
-            col = g.sub_slotset_col,
-            size = g.sub_slotset_size,
-            layer = g.sub_slotset_layer,
-            lock = target_settings.etc.lock
-        }
-        sub_slotset:SetLayerLevel(g.sub_slotset_layer)
-        sub_slotset:SetEventScript(ui.LBUTTONUP, "Sub_slotset_end_drag")
-        -- sub_slotset:SetEventScript(ui.RBUTTONUP, "Sub_slotset_rbtn")
-        Sub_slotset_save_settings()
-        local is_share = (g.sub_slotset_settings.share[sub_slotset_name] ~= nil)
-        Sub_slotset_slotset_make(sub_slotset, target_settings.etc, is_share)
-        return
-    end
-    local setting = ctrl:GetTopParentFrame()
-    ui.DestroyFrame(setting:GetName())
-    local list_frame_name = addon_name_lower .. "list_frame"
-    ui.DestroyFrame(addon_name_lower .. "list_frame")
-    local tbl
-    local is_share_new = false
-    if g.sub_slotset_personal == 1 then
-        if not g.sub_slotset_settings.personal[g.cid] then
-            g.sub_slotset_settings.personal[g.cid] = {}
-        end
-        tbl = g.sub_slotset_settings.personal[g.cid]
-    else
-        tbl = g.sub_slotset_settings.share
-        is_share_new = true
-    end
-    local new_index = g.sub_slotset_settings.config.index
-    local new_name = "sub_slotset_" .. new_index
-    local sub_slotset = ui.CreateNewFrame("notice_on_pc", addon_name_lower .. "sub_slotset_" .. new_index, 0, 0, 0, 0)
-    AUTO_CAST(sub_slotset)
-    tbl["sub_slotset_" .. new_index] = {}
-    tbl["sub_slotset_" .. new_index].etc = {
-        x = setting:GetX() + 100,
-        y = setting:GetY() + 400,
-        row = g.sub_slotset_row,
-        col = g.sub_slotset_col,
-        size = g.sub_slotset_size,
-        layer = g.sub_slotset_layer,
-        lock = false
-    }
-    g.sub_slotset_settings.config.index = new_index + 1
-    Sub_slotset_save_settings()
-    sub_slotset:SetSkinName("chat_window_2")
-    sub_slotset:SetAlpha(20)
-    sub_slotset:SetLayerLevel(g.sub_slotset_layer)
-    sub_slotset:EnableHittestFrame(1)
-    sub_slotset:EnableMove(1)
-    sub_slotset:SetPos(setting:GetX() + 100, setting:GetY() + 400)
-    sub_slotset:ShowWindow(1)
-    sub_slotset:SetEventScript(ui.LBUTTONUP, "Sub_slotset_end_drag")
-    -- sub_slotset:SetEventScript(ui.RBUTTONUP, "Sub_slotset_rbtn")
-    Sub_slotset_slotset_make(sub_slotset, tbl[new_name].etc, is_share_new)
-end
-
-function Sub_slotset_slotset_make(sub_slotset, etc_settings, is_share)
-    local slotset = sub_slotset:CreateOrGetControl('slotset', 'slotset', 2, 9, 0, 0)
-    AUTO_CAST(slotset)
-    slotset:EnablePop(1)
-    slotset:EnableDrag(1)
-    slotset:EnableDrop(1)
-    slotset:EnableHitTest(1)
-    local col = (etc_settings and etc_settings.col) or g.sub_slotset_col or 3
-    local row = (etc_settings and etc_settings.row) or g.sub_slotset_row or 3
-    local size = (etc_settings and etc_settings.size) or g.sub_slotset_size or 48
-    local is_locked = (etc_settings and etc_settings.lock) or false
-    slotset:SetColRow(col, row)
-    slotset:SetSlotSize(size, size)
-    slotset:SetSpc(2, 2)
-    slotset:SetSkinName('invenslot2')
-    slotset:CreateSlots()
-    if g.sub_slotset_personal == 0 then
-        local titlelabel = sub_slotset:CreateOrGetControl('richtext', 'titlelabel', 0, 0, 0, 0)
-        titlelabel:SetTextAlign('center', 'center')
-        titlelabel:SetGravity(ui.LEFT, ui.TOP)
-        titlelabel:SetText("{ol}{s10}shared")
-    else
-        sub_slotset:RemoveChild("titlelabel")
-    end
-    local gb = sub_slotset:CreateOrGetControl("groupbox", "gb", 0, 0, 20, 30)
-    AUTO_CAST(gb)
-    gb:SetGravity(ui.RIGHT, ui.TOP)
-    local text = g.lang == "Japanese" and
-                     "{ol}右クリック: 各種設定{nl} {nl}スロット LSHIFT+左クリック: アイコン削除" or
-                     "{ol}Right Click: Various Settings{nl} {nl}Slot LSHIFT + Left Click: Remove Icon"
-    gb:SetTextTooltip(text)
-    gb:SetEventScript(ui.RBUTTONUP, "Sub_slotset_rbtn")
-    local itemlock = gb:CreateOrGetControlSet('inv_itemlock', "itemlock", 0, 0)
-    itemlock:SetGrayStyle(is_locked and 0 or 1)
-    sub_slotset:Resize(size * col + 10 + col * 2, size * row + 10 + row * 2)
-    return slotset
-end
-
-function Sub_slotset_rbtn(sub_slotset, ctrl)
-    local sub_slotset_name = string.gsub(sub_slotset:GetName(), "_nexus_addons", "")
-    local context = ui.CreateContextMenu("slotset_context",
-        g.lang == "Japanese" and "{ol}各種設定" or "{ol}Various Settings", 0, 0, 100, 100)
-    ui.AddContextMenuItem(context, " ", "None")
-    local scp = string.format("Sub_slotset_remove_msg('%s')", sub_slotset_name)
-    local msg = g.lang == "Japanese" and "{ol}スロットセット削除" or "{ol}Remove Slot Set"
-    ui.AddContextMenuItem(context, msg, scp)
-    scp = string.format("Sub_slotset_lock_toggle('%s')", sub_slotset_name)
-    msg = g.lang == "Japanese" and "{ol}スロットセットロック切替" or "{ol}Toggle Slot Set Lock"
-    ui.AddContextMenuItem(context, msg, scp)
-    scp = string.format("Sub_slotset_resetting('%s')", sub_slotset_name)
-    msg = g.lang == "Japanese" and "{ol}スロットセット設定変更" or "{ol}Change Slot Set Settings"
-    ui.AddContextMenuItem(context, msg, scp)
-    ui.AddContextMenuItem(context, "  ", "None")
-    ui.OpenContextMenu(context)
-end
-
-function Sub_slotset_remove_msg(sub_slotset_name)
-    local scp = string.format("Sub_slotset_remove('%s')", sub_slotset_name)
-    local msg = g.lang == "Japanese" and "削除しますか？" or "Confirm Deletion?"
-    ui.MsgBox(msg, scp, "None")
-end
-
-function Sub_slotset_remove(sub_slotset_name)
-    local _, is_in_share = Sub_slotset_get_settings(sub_slotset_name)
-    if is_in_share == true then
-        g.sub_slotset_settings.share[sub_slotset_name] = nil
-    elseif is_in_share == false then
-        g.sub_slotset_settings.personal[g.cid][sub_slotset_name] = nil
-    end
-    Sub_slotset_save_settings()
-    ui.DestroyFrame(addon_name_lower .. sub_slotset_name)
-end
-
-function Sub_slotset_lock_toggle(sub_slotset_name)
-    local sub_srotset = ui.GetFrame(addon_name_lower .. sub_slotset_name)
-    local target_settings = Sub_slotset_get_settings(sub_slotset_name)
-    if not target_settings then
-        return
-    end
-    target_settings.etc.lock = not target_settings.etc.lock
-    local is_locked = target_settings.etc.lock
-    local itemlock = GET_CHILD_RECURSIVELY(sub_srotset, "itemlock")
-    AUTO_CAST(itemlock)
-    itemlock:SetGrayStyle(is_locked and 0 or 1)
-    sub_srotset:EnableMove(is_locked and 0 or 1)
-    Sub_slotset_save_settings()
-end
-
-function Sub_slotset_resetting(sub_slotset_name)
-    local target_settings, is_share = Sub_slotset_get_settings(sub_slotset_name)
-    g.sub_slotset_col = target_settings.etc.col
-    g.sub_slotset_row = target_settings.etc.row
-    g.sub_slotset_size = target_settings.etc.size
-    g.sub_slotset_layer = target_settings.etc.layer
-    g.sub_slotset_personal = is_share and 0 or 1
-    Sub_slotset_setting(sub_slotset_name)
-end
--- sub_slotset ここまで
-
--- another_warehouse ここから
-function Another_warehouse_save_settings()
-    g.save_lua(g.another_warehouse_path, g.awh_settings)
-end
-
-function Another_warehouse_load_settings()
-    g.another_warehouse_path = string.format("../addons/%s/%s/another_warehouse.lua", addon_name_lower, g.active_id)
-    local json_path = string.format("../addons/%s/%s/another_warehouse.json", addon_name_lower, g.active_id)
-    g.another_warehouse_old_path = string.format("../addons/%s/%s/settings.json", "another_warehouse", g.active_id)
-    local settings = g.load_lua(g.another_warehouse_path)
-    local need_save = false
-    if not settings then
-        settings = g.load_json(json_path)
-        if settings then
-            need_save = true
-        end
-    end
-    if not settings then
-        local old_settings = g.load_json(g.another_warehouse_old_path)
-        if old_settings then
-            local new_take_set = {}
-            local old_items_map = old_settings.setitems or {}
-            local old_names_list = old_settings.handlelist or {}
-            for i, name in ipairs(old_names_list) do
-                local index_str = tostring(i)
-                local items = old_items_map[index_str]
-                if items then
-                    table.insert(new_take_set, {
-                        name = name,
-                        items = items
-                    })
-                end
-            end
-            settings = {
-                chars = {},
-                etc = {
-                    display_change = 0,
-                    leave_item = 0,
-                    auto_silver = 0
-                },
-                take_list = new_take_set,
-                items = old_settings.items or {}
-            }
-        else
-            local name_list = {"Take Items 1", "Take Items 2", "Take Items 3", "Take Items 4", "Take Items 5",
-                               "Take Items 6", "Take Items 7", "Take Items 8", "Take Items 9", "Take Items 10"}
-            local new_take_set = {}
-            for i, name in ipairs(name_list) do
-                table.insert(new_take_set, {
-                    name = name,
-                    items = {}
-                })
-            end
-            settings = {
-                chars = {},
-                etc = {
-                    display_change = 0,
-                    leave_item = 0,
-                    auto_silver = 0
-                },
-                take_list = new_take_set,
-                items = {}
-            }
-        end
-        need_save = true
-    end
-    g.awh_settings = settings
-    if need_save then
-        Another_warehouse_save_settings()
-    end
-end
---[[function Another_warehouse_save_settings()
-    g.save_json(g.another_warehouse_path, g.awh_settings)
-end
-
-function Another_warehouse_load_settings()
-    g.another_warehouse_path = string.format("../addons/%s/%s/another_warehouse.json", addon_name_lower, g.active_id)
-    g.another_warehouse_old_path = string.format("../addons/%s/%s/settings.json", "another_warehouse", g.active_id)
-    local settings = g.load_json(g.another_warehouse_path)
-    if not settings then
-        local old_settings = g.load_json(g.another_warehouse_old_path)
-        if old_settings then
-            local new_take_set = {}
-            local old_items_map = old_settings.setitems or {}
-            local old_names_list = old_settings.handlelist or {}
-            for i, name in ipairs(old_names_list) do
-                local index_str = tostring(i)
-                local items = old_items_map[index_str]
-                if items then
-                    table.insert(new_take_set, {
-                        name = name,
-                        items = items
-                    })
-                end
-            end
-            settings = {
-                chars = {},
-                etc = {
-                    display_change = 0,
-                    leave_item = 0,
-                    auto_silver = 0
-                },
-                take_list = new_take_set,
-                items = old_settings.items or {}
-            }
-        else
-            local name_list = {"Take Items 1", "Take Items 2", "Take Items 3", "Take Items 4", "Take Items 5",
-                               "Take Items 6", "Take Items 7", "Take Items 8", "Take Items 9", "Take Items 10"}
-            local new_take_set = {}
-            for i, name in ipairs(name_list) do
-                table.insert(new_take_set, {
-                    name = name,
-                    items = {}
-                })
-            end
-            settings = {
-                chars = {},
-                etc = {
-                    display_change = 0,
-                    leave_item = 0,
-                    auto_silver = 0
-                },
-                take_list = new_take_set,
-                items = {}
-            }
-        end
-        g.awh_settings = settings
-        Another_warehouse_save_settings()
-    else
-        g.awh_settings = settings
-    end
-end]]
-
-function Another_warehouse_load_cid_settings()
-    local old_settings = g.load_json(g.another_warehouse_old_path)
-    if old_settings and old_settings[g.cid] then
-        g.awh_settings.chars[g.cid] = old_settings[g.cid]
-        if g.awh_settings.chars[g.cid].transfer then
-            g.awh_settings.chars[g.cid].transfer = nil
-        end
-        if g.awh_settings.chars[g.cid].maney_check then
-            g.awh_settings.chars[g.cid].money_check = g.awh_settings.chars[g.cid].maney_check
-            g.awh_settings.chars[g.cid].maney_check = nil
-        end
-    else
-        g.awh_settings.chars[g.cid] = {
-            money_check = 0,
-            name = g.login_name,
-            item_check = 0,
-            items = {}
-        }
-    end
-    Another_warehouse_save_settings()
-end
-
-function another_warehouse_on_init()
-    g.setup_hook_and_event(g.addon, 'ACCOUNT_WAREHOUSE_UPDATE_VIS_LOG',
-        "Another_warehouse_ACCOUNT_WAREHOUSE_UPDATE_VIS_LOG", true)
-    g.setup_hook_and_event(g.addon, 'ACCOUNTWAREHOUSE_CLOSE', "Another_warehouse_ACCOUNTWAREHOUSE_CLOSE", true)
-    g.addon:RegisterMsg("OPEN_DLG_ACCOUNTWAREHOUSE", "Another_warehouse_OPEN_DLG_ACCOUNTWAREHOUSE")
-    if g.settings.another_warehouse.use == 0 then
-        Another_warehouse_frame_close()
-        return
-    end
-    if g.get_map_type() == "City" then
-        Another_warehouse_accountwarehouse_init()
-    end
-end
-
-function Another_warehouse_accountwarehouse_init()
-    g.another_warehouse_func = false
-    if g.settings.another_warehouse.use == 0 then
-        Another_warehouse_frame_close()
-        return
-    end
-    g.addon:RegisterMsg("ACCOUNT_WAREHOUSE_ITEM_LIST", "Another_warehouse_on_msg")
-    g.addon:RegisterMsg("ACCOUNT_WAREHOUSE_ITEM_ADD", "Another_warehouse_on_msg")
-    g.addon:RegisterMsg("ACCOUNT_WAREHOUSE_ITEM_REMOVE", "Another_warehouse_on_msg")
-    g.addon:RegisterMsg("ACCOUNT_WAREHOUSE_ITEM_CHANGE_COUNT", "Another_warehouse_on_msg")
-    g.addon:RegisterMsg("ACCOUNT_WAREHOUSE_ITEM_IN", "Another_warehouse_on_msg")
-    if type(_G["YAACCOUNTINVENTORY_ON_INIT"]) == "function" then
-        _G["YAACCOUNTINVENTORY_ON_INIT"] = nil
-    end
-    local functionName = "WAREHOUSEMANAGER_ON_INIT"
-    if type(_G["WAREHOUSEMANAGER_ON_INIT"]) == "function" then
-        _G["WAREHOUSEMANAGER_ON_INIT"] = nil
-    end
-    g.awh_new_stack_add_item = {}
-end
-
-function Another_warehouse_on_msg(frame, msg, str, num)
-    if g.settings.another_warehouse.use == 0 then
-        return
-    end
-    local awh = ui.GetFrame(addon_name_lower .. "awh")
-    local gb = GET_CHILD(awh, "gb")
-    AUTO_CAST(gb)
-    local cur_pos = gb:GetScrollCurPos()
-    awh:SetUserValue("SCROLL_POS", cur_pos)
-    if msg == 'ACCOUNT_WAREHOUSE_ITEM_REMOVE' then
-        Another_warehouse_remove_recurse_guid(awh, str)
-        awh:RunUpdateScript("Another_warehouse_frame_update_remove", 3.0)
-        return
-    end
-    local index = awh:GetUserIValue("TAB_INDEX")
-    Another_warehouse_frame_update(awh, gb, "", index)
-end
-
-function Another_warehouse_frame_update_remove(awh)
-    awh:StopUpdateScript("Another_warehouse_frame_update_remove")
-    local gb = GET_CHILD(awh, "gb")
-    AUTO_CAST(gb)
-    local index = awh:GetUserIValue("TAB_INDEX")
-    Another_warehouse_frame_update(awh, gb, "", index)
-    return 0
-end
-
-function Another_warehouse_remove_recurse_guid(awh, guid)
-    local slot = ui.GetFocusObject()
-    if not slot then
-        return
-    end
-    local icon = slot:GetIcon()
-    if icon then
-        local icon_info = icon:GetInfo()
-        if icon_info:GetIESID() == guid then
-            slot:ClearIcon()
-            slot:SetSkinName("invenslot2")
-            slot:SetText("")
-            slot:RemoveAllChild()
-        end
-    end
-end
-
-function Another_warehouse_ACCOUNT_WAREHOUSE_UPDATE_VIS_LOG(my_frame, my_msg)
-    if g.settings.another_warehouse.use == 0 then
-        Another_warehouse_frame_close()
-        return
-    end
-    local accountwarehouse = ui.GetFrame("accountwarehouse")
-    local visgBox = GET_CHILD_RECURSIVELY(accountwarehouse, 'visgBox')
-    local cnt = session.AccountWarehouse.GetCount()
-    for i = cnt - 1, 0, -1 do
-        local log = session.AccountWarehouse.GetByIndex(i)
-        local ctrl_set = GET_CHILD(visgBox, "CTRLSET_" .. i)
-        local inputVis = ctrl_set:GetChild('inputVis')
-        inputVis:ShowWindow(0)
-        local new_input = ctrl_set:CreateOrGetControl("richtext", " new_input", 220, i, 50, 24)
-        AUTO_CAST(new_input)
-        new_input:SetGravity(ui.RIGHT, ui.CENTER_VERT)
-        new_input:SetMargin(0, 0, 330, 0)
-        new_input:SetTextAlign("right", "center")
-        if not string.find(inputVis:GetText(), "ZZZZZ") then
-            new_input:SetText(inputVis:GetText())
-        end
-    end
-end
-
-function Another_warehouse_ACCOUNTWAREHOUSE_CLOSE()
-    local inventory = ui.GetFrame("inventory")
-    SET_INV_LBTN_FUNC(inventory, "None")
-    INVENTORY_SET_CUSTOM_RBTNDOWN("None")
-    local monstercardslot = ui.GetFrame("monstercardslot")
-    monstercardslot:SetLayerLevel(96)
-    ui.DestroyFrame(addon_name_lower .. "awh")
-    ui.DestroyFrame(addon_name_lower .. "awh_setting")
-    if g.settings.another_warehouse.use == 0 then
-        return
-    end
-    Another_warehouse_set_item_close()
-end
-
-function Another_warehouse_frame_close(parent, ctrl)
-    Another_warehouse_ACCOUNTWAREHOUSE_CLOSE()
-    local accountwarehouse = ui.GetFrame('accountwarehouse')
-    if accountwarehouse:IsVisible() == 1 then
-        INVENTORY_SET_CUSTOM_RBTNDOWN("ACCOUNT_WAREHOUSE_INV_RBTN")
-    else
-        INVENTORY_SET_CUSTOM_RBTNDOWN("None")
-    end
-    ui.DestroyFrame(addon_name_lower .. "awh")
-    local accountwarehouse = ui.GetFrame("accountwarehouse")
-    local accountwarehousefilter = GET_CHILD_RECURSIVELY(accountwarehouse, "accountwarehousefilter")
-    accountwarehousefilter:ShowWindow(1)
-    local accountwarehouse = ui.GetFrame("accountwarehouse")
-    local accountwarehouse_tab = GET_CHILD_RECURSIVELY(accountwarehouse, "accountwarehouse_tab")
-    accountwarehouse_tab:ShowWindow(1)
-    local richtext_1 = GET_CHILD_RECURSIVELY(accountwarehouse, "richtext_1")
-    richtext_1:ShowWindow(1)
-    local itemcnt = GET_CHILD_RECURSIVELY(accountwarehouse, "itemcnt")
-    itemcnt:ShowWindow(1)
-    local slotgbox = GET_CHILD_RECURSIVELY(accountwarehouse, "slotgbox")
-    slotgbox:ShowWindow(1)
-    local richtext_3 = GET_CHILD_RECURSIVELY(accountwarehouse, "richtext_3")
-    richtext_3:ShowWindow(1)
-    local DepositSkin = accountwarehouse:GetChildRecursively("DepositSkin")
-    AUTO_CAST(DepositSkin)
-    DepositSkin:Resize(DepositSkin:GetWidth(), 35)
-    local buttons = {"cancel", "m1", "m5", "m10", "m50", "m100", "allout", "allin"}
-    for _, name in ipairs(buttons) do
-        DepositSkin:RemoveChild(name)
-    end
-    local gbox = GET_CHILD_RECURSIVELY(accountwarehouse, "gbox")
-    DESTROY_CHILD_BYNAME(gbox, "awh_search_edit")
-    DESTROY_CHILD_BYNAME(gbox, "awh_setting")
-    DESTROY_CHILD_BYNAME(gbox, "awh_help")
-    DESTROY_CHILD_BYNAME(gbox, "awh_leave")
-    DESTROY_CHILD_BYNAME(gbox, "awh_display_change")
-    DESTROY_CHILD_BYNAME(gbox, "awh_take")
-    DESTROY_CHILD_BYNAME(gbox, "awh_count_text")
-    DESTROY_CHILD_BYNAME(gbox, "awh_close")
-    DESTROY_CHILD_BYNAME(gbox, "awh_name_text")
-end
-
-function Another_warehouse_OPEN_DLG_ACCOUNTWAREHOUSE()
-    if not g.awh_settings then
-        Another_warehouse_load_settings()
-    end
-    if not g.awh_settings.chars[g.cid] then
-        Another_warehouse_load_cid_settings()
-    end
-    if g.settings.another_warehouse.use == 0 then
-        local accountwarehouse = ui.GetFrame('accountwarehouse')
-        if accountwarehouse:IsVisible() == 1 then
-            INVENTORY_SET_CUSTOM_RBTNDOWN("ACCOUNT_WAREHOUSE_INV_RBTN")
-        else
-            INVENTORY_SET_CUSTOM_RBTNDOWN("None")
-        end
-        return
-    end
-    local monstercardslot = ui.GetFrame("monstercardslot")
-    monstercardslot:SetLayerLevel(98)
-    local accountwarehouse = ui.GetFrame("accountwarehouse")
-    local accountwarehousefilter = GET_CHILD_RECURSIVELY(accountwarehouse, "accountwarehousefilter")
-    accountwarehousefilter:ShowWindow(0)
-    local accountwarehouse = ui.GetFrame("accountwarehouse")
-    local accountwarehouse_tab = GET_CHILD_RECURSIVELY(accountwarehouse, "accountwarehouse_tab")
-    accountwarehouse_tab:ShowWindow(0)
-    local richtext_1 = GET_CHILD_RECURSIVELY(accountwarehouse, "richtext_1")
-    richtext_1:ShowWindow(0)
-    local itemcnt = GET_CHILD_RECURSIVELY(accountwarehouse, "itemcnt")
-    itemcnt:ShowWindow(0)
-    local slotgbox = GET_CHILD_RECURSIVELY(accountwarehouse, "slotgbox")
-    slotgbox:ShowWindow(0)
-    local richtext_3 = GET_CHILD_RECURSIVELY(accountwarehouse, "richtext_3")
-    richtext_3:ShowWindow(0)
-    local gbox = GET_CHILD_RECURSIVELY(accountwarehouse, "gbox")
-    gbox:RemoveChild("awh_search_edit")
-    local search_edit = gbox:CreateOrGetControl("edit", "awh_search_edit", 0, 0, 295, 35)
-    AUTO_CAST(search_edit)
-    search_edit:SetFontName("white_18_ol")
-    search_edit:SetTextAlign("left", "center")
-    search_edit:SetSkinName("inventory_serch")
-    local margin = search_edit:GetMargin()
-    search_edit:SetMargin(margin.left + 115, margin.top + 20, margin.right, margin.bottom)
-    search_edit:SetEventScript(ui.ENTERKEY, "Another_warehouse_search")
-    local search_btn = search_edit:CreateOrGetControl("button", "search_btn", 0, 0, 60, 38)
-    AUTO_CAST(search_btn)
-    search_btn:SetImage("inven_s")
-    search_btn:SetGravity(ui.RIGHT, ui.TOP)
-    search_btn:SetEventScript(ui.LBUTTONUP, "Another_warehouse_search")
-    local awsetting = gbox:CreateOrGetControl("button", "awh_setting", 0, 0, 30, 43)
-    AUTO_CAST(awsetting)
-    awsetting:SetText("{img config_button_normal 27 27}")
-    awsetting:SetEventScript(ui.LBUTTONUP, "Another_warehouse_setting_frame_init")
-    awsetting:SetMargin(145, 60, 0, 0)
-    awsetting:SetSkinName("None")
-    awsetting:SetTextTooltip(g.lang == "Japanese" and "{ol}[AWH]{nl}自動倉庫設定" or
-                                 "{ol}[AWH]{nl}Automatic warehousing setup")
-    local help = gbox:CreateOrGetControl('button', "awh_help", 0, 0, 30, 30)
-    AUTO_CAST(help);
-    help:SetText("{ol}{img question_mark 20 20}")
-    help:SetMargin(115, 67, 0, 0)
-    help:SetTextTooltip("{ol}[AWH] HELP")
-    help:SetSkinName("test_pvp_btn")
-    help:SetEventScript(ui.LBUTTONUP, "Another_warehouse_help")
-    local leave = gbox:CreateOrGetControl('checkbox', "awh_leave", 0, 0, 30, 30)
-    AUTO_CAST(leave);
-    leave:SetCheck(g.awh_settings.etc.leave_item)
-    leave:SetMargin(180, 67, 0, 0)
-    leave:SetEventScript(ui.LBUTTONUP, "Another_warehouse_setting_check")
-    local tooltip_text = g.lang == "Japanese" and "{ol}チェックすると倉庫に1個残します" or
-                             "{ol}Check leaves one in the warehouse"
-    leave:SetTextTooltip(tooltip_text)
-    local display_change = gbox:CreateOrGetControl('checkbox', "awh_display_change", 0, 0, 30, 30)
-    AUTO_CAST(display_change);
-    display_change:SetCheck(g.awh_settings.etc.display_change or 0)
-    display_change:SetMargin(215, 67, 0, 0)
-    display_change:SetEventScript(ui.LBUTTONUP, "Another_warehouse_setting_check")
-    local tooltip_text = g.lang == "Japanese" and "{ol}チェックすると表示切替" or
-                             "{ol}Check to switch display"
-    display_change:SetTextTooltip(tooltip_text)
-    display_change:ShowWindow(1)
-    local take = gbox:CreateOrGetControl("button", "awh_take", 10, 0, 100, 43)
-    AUTO_CAST(take)
-    take:SetText("{@st66b}TAKE SET")
-    take:SetEventScript(ui.LBUTTONUP, "Another_warehouse_take_context")
-    take:SetEventScript(ui.RBUTTONUP, "Another_warehouse_setting_context")
-    take:SetMargin(310, 60, 0, 0)
-    take:SetSkinName("test_pvp_btn")
-    take:SetTextTooltip(g.lang == "Japanese" and
-                            "{ol}左クリック: 倉庫からセットで搬出します{nl}右クリック: セット設定を呼び出します" or
-                            "{ol}left-click: Move set from warehouse{nl}Right-click: Call up set settings")
-    local max_count = Another_warehouse_get_maxcount()
-    local item_count = Another_warehouse_item_count()
-    local count_text = gbox:CreateOrGetControl("richtext", "awh_count_text", 0, 0, 200, 24)
-    AUTO_CAST(count_text)
-    count_text:SetMargin(420, 73, 0, 0)
-    count_text:SetText("{@st42}" .. item_count .. "/" .. max_count .. "{/}")
-    count_text:SetFontName("white_16_ol")
-    local awclose = gbox:CreateOrGetControl("button", "awh_close", 10, 0, 100, 43)
-    AUTO_CAST(awclose)
-    awclose:SetText("{@st66b}AW CLOSE")
-    awclose:SetEventScript(ui.LBUTTONUP, "Another_warehouse_frame_close")
-    awclose:SetMargin(10, 60, 0, 0)
-    awclose:SetSkinName("test_pvp_btn")
-    local name_text = gbox:CreateOrGetControl("richtext", "awh_name_text", 15, 0, 200, 24)
-    AUTO_CAST(name_text)
-    name_text:SetMargin(10, 10, 0, 0)
-    name_text:SetText("{#000000}{s18}" .. g.login_name .. "{/}")
-    Another_warehouse_frame_over_lap()
-    Another_warehouse_money_input_btn(accountwarehouse)
-end
-
-function Another_warehouse_money_input_btn(accountwarehouse)
-    local DepositSkin = accountwarehouse:GetChildRecursively("DepositSkin")
-    AUTO_CAST(DepositSkin)
-    DepositSkin:Resize(DepositSkin:GetWidth(), 45)
-    local moneyInput = accountwarehouse:GetChildRecursively("moneyInput")
-    AUTO_CAST(moneyInput)
-    moneyInput:SetText("0")
-    local buttons = {{
-        name = "cancel",
-        text = "C",
-        val = 0
-    }, {
-        name = "m1",
-        text = "1M",
-        val = 1000000
-    }, {
-        name = "m5",
-        text = "5M",
-        val = 5000000
-    }, {
-        name = "m10",
-        text = "10M",
-        val = 10000000
-    }, {
-        name = "m50",
-        text = "50M",
-        val = 50000000
-    }, {
-        name = "m100",
-        text = "100M",
-        val = 100000000
-    }, {
-        name = "allout",
-        text = "{img chul_arrow 10 10}ALL",
-        val = nil
-    }, {
-        name = "allin",
-        text = "{img in_arrow 10 10}ALL",
-        val = nil
-    }}
-    local text_style = "{@st66b}{s12}"
-    for i, data in ipairs(buttons) do
-        local x_offset = i * 50
-        local btn = DepositSkin:CreateOrGetControl("button", data.name, DepositSkin:GetWidth() - x_offset,
-            DepositSkin:GetHeight() - 23, 50, 25)
-        AUTO_CAST(btn)
-        btn:SetText(text_style .. data.text)
-        btn:SetSkinName("test_pvp_btn")
-        btn:SetEventScript(ui.LBUTTONUP, "Another_warehouse_money_input_lbtn")
-        if data.val ~= nil then
-            btn:SetEventScriptArgNumber(ui.LBUTTONUP, data.val)
-            btn:SetEventScript(ui.RBUTTONUP, "Another_warehouse_money_input_rbtn")
-            btn:SetEventScriptArgNumber(ui.RBUTTONUP, data.val)
-        end
-    end
-end
-
-function Another_warehouse_money_input_lbtn(parent, ctrl, str, num)
-    local accountwarehouse = ctrl:GetTopParentFrame()
-    local moneyInput = accountwarehouse:GetChildRecursively("moneyInput")
-    AUTO_CAST(moneyInput)
-    local handle = accountwarehouse:GetUserIValue('HANDLE')
-    if ctrl:GetName() == "allout" then
-        local item_list = session.GetEtcItemList(IT_ACCOUNT_WAREHOUSE)
-        local guid_list = item_list:GetGuidList()
-        local sorted_guid_list = item_list:GetSortedGuidList()
-        local sorted_cnt = sorted_guid_list:Count()
-        local iesid
-        for i = 0, sorted_cnt - 1 do
-            local guid = sorted_guid_list:Get(i)
-            local inv_item = item_list:GetItemByGuid(guid)
-            local obj = GetIES(inv_item:GetObject());
-            if obj.ClassName == MONEY_NAME then
-                moneyInput:SetText(GET_COMMAED_STRING(inv_item:GetAmountStr()))
-                return
-            end
-        end
-        moneyInput:SetText("0")
-    elseif ctrl:GetName() == "allin" then
-        local silver = session.GetInvItemByName(MONEY_NAME)
-        if silver then
-            moneyInput:SetText(GET_COMMAED_STRING(silver:GetAmountStr()))
-        else
-            moneyInput:SetText("0")
-        end
-    elseif ctrl:GetName() == "cancel" then
-        moneyInput:SetText("0")
-    else
-        local current_val_str = string.gsub(moneyInput:GetText(), ",", "")
-        local current_val = tonumber(current_val_str) or 0
-        moneyInput:SetText(GET_COMMAED_STRING(SumForBigNumberInt64(current_val, "+" .. num)))
-    end
-end
-
-function Another_warehouse_money_input_rbtn(parent, ctrl, str, num)
-    local accountwarehouse = ctrl:GetTopParentFrame()
-    local moneyInput = accountwarehouse:GetChildRecursively("moneyInput")
-    AUTO_CAST(moneyInput)
-    if ctrl:GetName() == "cancel" then
-        moneyInput:SetText("0")
-        return
-    end
-    local current_val_str = string.gsub(moneyInput:GetText(), ",", "")
-    local current_val = tonumber(current_val_str) or 0
-    if (current_val - num) > 0 then
-        moneyInput:SetText(GET_COMMAED_STRING(SumForBigNumberInt64(current_val, "-" .. num)))
-    else
-        moneyInput:SetText("0")
-    end
-end
-
-function Another_warehouse_frame_over_lap()
-    local awh = ui.CreateNewFrame("notice_on_pc", addon_name_lower .. "awh", 0, 0, 670, 570)
-    AUTO_CAST(awh)
-    awh:SetGravity(ui.LEFT, ui.TOP)
-    awh:MoveFrame(0, 0)
-    awh:SetOffset(0, 205)
-    awh:SetSkinName("None")
-    awh:EnableMove(0)
-    awh:EnableHittestFrame(1)
-    awh:SetLayerLevel(97)
-    awh:RemoveAllChild()
-    local gb = awh:CreateOrGetControl("groupbox", "gb", 45, 0, 0, 0)
-    AUTO_CAST(gb)
-    gb:EnableScrollBar(1)
-    gb:SetSkinName("test_frame_midle")
-    awh:Resize(670, 570)
-    gb:Resize(613, 560)
-    awh:ShowWindow(1)
-    local inventory = ui.GetFrame("inventory")
-    INVENTORY_SET_CUSTOM_RBTNDOWN("Another_warehouse_inv_rbtn")
-    SET_INV_LBTN_FUNC(inventory, "Another_warehouse_inv_lbtn")
-    Another_warehouse_tab_change(awh, gb, "", 0)
-    Another_warehouse_auto_func_start(awh)
-end
-
-function Another_warehouse_tab_change(awh, ctrl, search_text, index)
-    local tab_index = awh:GetUserIValue("TAB_INDEX")
-    if tab_index ~= index then
-        local accountwarehouse = ui.GetFrame("accountwarehouse")
-        local search_edit = GET_CHILD_RECURSIVELY(accountwarehouse, "awh_search_edit")
-        search_edit:SetText("")
-    end
-    local tab_tbl = {"inventory_main", "inventory_equip", "inventory_supplies", "inventory_recipe", "inventory_card",
-                     "inventory_material", "inventory_gem", "inventory_premium", "inventory_housing", "alchemy_item_tab"}
-    for i, image in ipairs(tab_tbl) do
-        local tab = awh:CreateOrGetControl("picture", "tab" .. image, 5, (i - 1) * 55, 40, 60)
-        AUTO_CAST(tab)
-        tab:SetClickSound("inven_arrange")
-        tab:SetEventScript(ui.LBUTTONDOWN, "Another_warehouse_tab_change")
-        tab:SetEventScriptArgNumber(ui.LBUTTONDOWN, i)
-        if i == index then
-            tab:SetImage(image .. "_clicked")
-            awh:SetUserValue("TAB_INDEX", index)
-        else
-            tab:SetImage(image)
-        end
-        tab:SetEnableStretch(1)
-    end
-    if index == 0 then
-        local tab = GET_CHILD(awh, "tab" .. tab_tbl[1])
-        tab:SetImage(tab_tbl[1] .. "_clicked")
-        awh:SetUserValue("TAB_INDEX", 1)
-    end
-    local gb = GET_CHILD(awh, "gb")
-    AUTO_CAST(gb)
-    gb:RemoveAllChild()
-    Another_warehouse_frame_update(awh, gb, search_text, index)
-end
-
-function Another_warehouse_frame_update(awh, gb, search_text, index)
-    local tree = gb:CreateOrGetControl("tree", "inventory_tree", 5, 10, 0, 0)
-    AUTO_CAST(tree)
-    tree:Clear()
-    tree:InvalidateTree()
-    tree:EnableDrawFrame(false)
-    tree:EnableDrawTreeLine(false)
-    tree:SetFitToChild(true, 20) -- 下の余白
-    tree:SetFontName("white_20_ol")
-    tree:SetTabWidth("15")
-    tree:Resize(600, 0)
-    local item_list = session.GetEtcItemList(IT_ACCOUNT_WAREHOUSE)
-    local sorted_guid_list = item_list:GetSortedGuidList()
-    local warehouse_item_list = {}
-    local group_counts = {}
-    local slotset_counts = {}
-    local tab_filter_map = {nil, {
-        ["EquipGroup"] = true
-    }, {
-        ["NonEquipGroup"] = true,
-        ["Cube"] = true
-    }, {
-        ["Recipe"] = true
-    }, {
-        ["Card"] = true
-    }, {
-        ["Material"] = true
-    }, {
-        ["Gem"] = true
-    }, {
-        ["Premium"] = true
-    }, {
-        ["Housing"] = true
-    }, {
-        ["Ancient"] = true,
-        ["HiiddenAbility"] = true
-    }}
-    local current_filter = tab_filter_map[index]
-    for i = 0, sorted_guid_list:Count() - 1 do
-        local warehouse_item = item_list:GetItemByGuid(sorted_guid_list:Get(i))
-        if warehouse_item then
-            local item_cls = GetIES(warehouse_item:GetObject())
-            local baseid_cls = INV_GET_INVEN_BASEIDCLS_BY_ITEMGUID(warehouse_item:GetIESID())
-            if baseid_cls then
-                local type_str = GET_INVENTORY_TREEGROUP(baseid_cls)
-                if type_str ~= 'Quest' and baseid_cls.ClassName ~= 'Unused' then
-                    local make_slot = Another_warehouse_check_search_and_filter(warehouse_item, item_cls, search_text)
-                    if make_slot and warehouse_item.count > 0 then
-                        local group_name = baseid_cls.TreeGroup
-                        local is_visible = (current_filter == nil) or (current_filter[group_name] == true)
-                        if is_visible then
-                            table.insert(warehouse_item_list, warehouse_item)
-                            local group_name = baseid_cls.TreeGroup
-                            group_counts[group_name] = (group_counts[group_name] or 0) + 1
-                            local className = baseid_cls.ClassName
-                            if baseid_cls.MergedTreeTitle ~= "NO" then
-                                className = baseid_cls.MergedTreeTitle
-                            end
-                            local slotset_name = 'sset_' .. className
-                            slotset_counts[slotset_name] = (slotset_counts[slotset_name] or 0) + 1
-                        end
-                    end
-                end
-            end
-        end
-    end
-    table.sort(warehouse_item_list, INVENTORY_SORT_BY_NAME)
-    local created_groups = {}
-    local created_slotsets = {}
-    local group_order = {"Premium", "EquipGroup", "NonEquipGroup", "Cube", "Gem", "Card", "Recipe", "Material",
-                         "HiiddenAbility", "Ancient"}
-    local group_caption_map = {}
-    local baseid_list, cnt = GetClassList("inven_baseid")
-    for i = 0, cnt - 1 do
-        local cls = GetClassByIndexFromList(baseid_list, i)
-        if cls.TreeGroup ~= "None" then
-            group_caption_map[cls.TreeGroup] = cls.TreeGroupCaption
-        end
-    end
-    for _, group_name in ipairs(group_order) do
-        local count = group_counts[group_name]
-        local is_visible = (current_filter == nil) or (current_filter[group_name] == true)
-        if is_visible and count and count > 0 then
-            local caption = group_caption_map[group_name]
-            if caption then
-                local title_with_count = string.format("%s (%d)", caption, count)
-                local tree_group = tree:Add(title_with_count, group_name)
-                created_groups[group_name] = tree_group
-            end
-        end
-    end
-    for i = 0, cnt - 1 do
-        local baseid_cls = GetClassByIndexFromList(baseid_list, i)
-        local className = baseid_cls.ClassName
-        if baseid_cls.MergedTreeTitle ~= "NO" then
-            className = baseid_cls.MergedTreeTitle
-        end
-        local slotset_name = 'sset_' .. className
-        local count = slotset_counts[slotset_name]
-        local tree_group_name = baseid_cls.TreeGroup
-        local is_visible = (current_filter == nil) or (current_filter[tree_group_name] == true)
-        if is_visible and count and count > 0 and not created_slotsets[slotset_name] then
-            local tree_group = created_groups[tree_group_name]
-            if not tree_group then
-                local caption = baseid_cls.TreeGroupCaption
-                local group_count = group_counts[tree_group_name] or 0
-                local title_with_count = string.format("%s (%d)", caption, group_count)
-                tree_group = tree:Add(title_with_count, tree_group_name)
-                created_groups[tree_group_name] = tree_group
-            end
-            local margin_height = 5
-            local margin_name = "margin_top_" .. slotset_name
-            local margin = tree:CreateOrGetControl('richtext', margin_name, 0, 0, 400, margin_height)
-            AUTO_CAST(margin)
-            margin:EnableResizeByText(0)
-            margin:SetText("")
-            tree:Add(tree_group, margin, margin_name)
-            local slotset_title_value = slotset_name .. "_title"
-            local title_with_count = string.format("{s18}%s (%d)", baseid_cls.TreeSSetTitle, count)
-            local slotset_node = tree:Add(tree_group, title_with_count, slotset_title_value)
-            local new_slot_set = Another_warehouse_make_inven_slotset(tree, slotset_name)
-            tree:Add(slotset_node, new_slot_set, slotset_name)
-            created_slotsets[slotset_name] = new_slot_set
-        end
-    end
-    for _, inv_item in ipairs(warehouse_item_list) do
-        local item_cls = GetIES(inv_item:GetObject())
-        local baseid_cls = INV_GET_INVEN_BASEIDCLS_BY_ITEMGUID(inv_item:GetIESID())
-        local className = baseid_cls.ClassName
-        if baseid_cls.MergedTreeTitle ~= "NO" then
-            className = baseid_cls.MergedTreeTitle
-        end
-        local slotset_name = 'sset_' .. className
-        local new_slot_set = created_slotsets[slotset_name]
-        if new_slot_set then
-            AUTO_CAST(new_slot_set)
-            local slot_count = new_slot_set:GetSlotCount()
-            local count = new_slot_set:GetUserIValue("SLOT_ITEM_COUNT")
-            while slot_count <= count do
-                new_slot_set:ExpandRow()
-                slot_count = new_slot_set:GetSlotCount()
-            end
-            local slot = new_slot_set:GetSlotByIndex(count)
-            count = count + 1
-            new_slot_set:SetUserValue("SLOT_ITEM_COUNT", count)
-            slot:ShowWindow(1)
-            Another_warehouse_insert_item_to_tree(gb, tree, slot, inv_item, item_cls, slotset_name, baseid_cls)
-        end
-    end
-    for _, slotset in pairs(created_slotsets) do
-        local row = math.ceil(slotset:GetSlotCount() / slotset:GetCol())
-        local height = row * 54
-        slotset:Resize(slotset:GetWidth(), height)
-    end
-    local bottom_margin = 10 -- 隙間の高
-    for _, group_name in ipairs(group_order) do
-        local tree_group = created_groups[group_name]
-        if tree_group and tree:GetChildCount(tree_group) > 0 then
-            local margin_name = 'margin_' .. group_name
-            local margin = tree:CreateOrGetControl('richtext', margin_name, 0, 0, 400, bottom_margin)
-            AUTO_CAST(margin)
-            margin:EnableResizeByText(0)
-            margin:SetText("")
-            tree:Add(tree_group, margin, margin_name)
-        end
-    end
-    tree:OpenNodeAll()
-    local max_count = Another_warehouse_get_maxcount()
-    local item_count = Another_warehouse_item_count()
-    local accountwarehouse = ui.GetFrame("accountwarehouse")
-    local count_text = GET_CHILD_RECURSIVELY(accountwarehouse, "awh_count_text")
-    AUTO_CAST(count_text)
-    count_text:SetText("{@st42}" .. item_count .. "/" .. max_count .. "{/}")
-    count_text:SetFontName("white_16_ol")
-    awh:RunUpdateScript("Another_warehouse_set_scroll_pos")
-end
-
-function Another_warehouse_set_scroll_pos(awh)
-    awh:StopUpdateScript("Another_warehouse_set_scroll_pos")
-    local saved_pos = awh:GetUserIValue("SCROLL_POS")
-    local gb = GET_CHILD(awh, "gb")
-    AUTO_CAST(gb)
-    gb:SetScrollPos(saved_pos)
-    gb:InvalidateScrollBar()
-    return 0
-end
-
-function Another_warehouse_make_inven_slotset(tree, name)
-    local slotset = tree:CreateOrGetControl('slotset', name, 0, 0, 0, 0)
-    AUTO_CAST(slotset)
-    slotset:EnablePop(0)
-    slotset:EnableDrag(0)
-    slotset:EnableDrop(0)
-    slotset:SetMaxSelectionCount(999)
-    slotset:SetSlotSize(54, 54)
-    slotset:SetColRow(10, 1)
-    slotset:SetSpc(0, 0)
-    slotset:SetSkinName('invenslot')
-    slotset:EnableSelection(0)
-    slotset:CreateSlots()
-    return slotset
-end
-
-function Another_warehouse_insert_item_to_tree(gb, tree, slot, inv_item, item_cls, slotset_name, baseid_cls)
-    local slot_set = GET_CHILD_RECURSIVELY(gb, slotset_name)
-    UPDATE_INVENTORY_SLOT(slot, inv_item, item_cls)
-    slot:SetSkinName('invenslot2')
-    local item_cls = GetIES(inv_item:GetObject())
-    local iconImg = GET_ITEM_ICON_IMAGE(item_cls)
-    if geItemTable.IsStack(item_cls.ClassID) == 1 and Another_warehouse_is_stack_new_item(item_cls.ClassID) then
-        slot:SetHeaderImage('new_inventory_icon')
-    elseif geItemTable.IsStack(item_cls.ClassID) == 0 and
-        Another_warehouse_is_stack_new_item(item_cls.ClassID .. "_" .. inv_item:GetIESID()) then
-        slot:SetHeaderImage('new_inventory_icon')
-    else
-        slot:SetHeaderImage('None')
-    end
-    SET_SLOT_IMG(slot, iconImg)
-    SET_SLOT_COUNT(slot, inv_item.count)
-    SET_SLOT_STYLESET(slot, item_cls)
-    SET_SLOT_IESID(slot, inv_item:GetIESID())
-    SET_SLOT_ITEM_TEXT_USE_INVCOUNT(slot, inv_item, item_cls, nil)
-    slot:SetMaxSelectCount(inv_item.count);
-    local icon = slot:GetIcon()
-    icon:SetTooltipArg("accountwarehouse", inv_item.type, inv_item:GetIESID())
-    SET_ITEM_TOOLTIP_TYPE(icon, item_cls.ClassID, item_cls, "accountwarehouse")
-    SET_SLOT_ICOR_CATEGORY(slot, item_cls)
-    if inv_item.hasLifeTime == true or TryGetProp(item_cls, 'ExpireDateTime', 'None') ~= 'None' then
-        ICON_SET_ITEM_REMAIN_LIFETIME(icon, IT_ACCOUNT_WAREHOUSE)
-        slot:SetFrontImage('clock_inven')
-    else
-        CLEAR_ICON_REMAIN_LIFETIME(slot, icon)
-    end
-    if string.find(item_cls.ClassName, "GoddessIcor") and string.find(item_cls.ClassName, "high") then
-        local item_obj = GetIES(inv_item:GetObject())
-        SET_SLOT_STAR_TEXT(slot, item_obj)
-    end
-    slot:SetEventScript(ui.LBUTTONUP, "Another_warehouse_on_lbutton") -- inv_item:GetIESID()
-    slot:SetEventScriptArgString(ui.LBUTTONUP, inv_item:GetIESID())
-    slot:SetEventScript(ui.RBUTTONUP, "Another_warehouse_on_rbutton")
-    slot:SetEventScriptArgString(ui.RBUTTONUP, inv_item:GetIESID())
-    if g.awh_settings.etc.display_change == 1 then
-        if baseid_cls.TreeGroup == "Material" and slotset_name == "sset_Misc_Special" then
-            if string.find(item_cls.ClassName, "GoddessIcor") and not string.find(item_cls.ClassName, "EP17") then
-                slot:SetSkinName("invenslot_rare")
-            end
-        end
-        if baseid_cls.TreeGroup == "Recipe" then -- Material
-            local recipe_cls = GetClass('Recipe', item_cls.ClassName);
-            if recipe_cls ~= nil then
-                local taget_item = GetClass("Item", recipe_cls.TargetItem);
-                if taget_item then
-                    local image = GET_ITEM_ICON_IMAGE(taget_item)
-                    local recipe_pic = slot:CreateOrGetControl('picture', 'recipe_pic' .. inv_item:GetIESID(), 0, 0, 25,
-                        25)
-                    AUTO_CAST(recipe_pic)
-                    recipe_pic:SetEnableStretch(1)
-                    recipe_pic:SetGravity(ui.LEFT, ui.TOP)
-                    recipe_pic:SetImage(image)
-                    recipe_pic:SetTooltipArg("accountwarehouse", inv_item.type, inv_item:GetIESID())
-                    SET_ITEM_TOOLTIP_TYPE(recipe_pic, taget_item.ClassID, taget_item, "accountwarehouse")
-                end
-            end
-        end
-        if string.find(baseid_cls.ClassName, "Card") and not string.find(baseid_cls.ClassName, "Summon") and
-            not string.find(baseid_cls.ClassName, "CardAddExp") then
-            local image = TryGetProp(item_cls, "TooltipImage", "None")
-            if image ~= "None" then
-                icon:Set(image, 'Item', inv_item.type, inv_item.invIndex, inv_item:GetIESID(), inv_item.count)
-            end
-        end
-        if baseid_cls.ClassName == "Gem_GemSkill" then
-            for i = 1, 4 do
-                if TryGetProp(item_cls, 'RandomOption_' .. i, 'None') ~= 'None' and
-                    TryGetProp(item_cls, 'RandomOptionValue_' .. i, 0) > 0 then
-                    local star_pic =
-                        slot:CreateOrGetControl('richtext', 'star_pic' .. inv_item:GetIESID(), 0, 0, 18, 18)
-                    star_pic:SetText("{img star_mark 18 18}")
-                    star_pic:SetGravity(ui.RIGHT, ui.TOP)
-                end
-            end
-            local skill_cls = GetClass("Skill", TryGetProp(item_cls, 'SkillName', 'None'))
-            if skill_cls then
-                local image = "icon_" .. GET_ITEM_ICON_IMAGE(skill_cls)
-                icon:Set(image, 'Item', inv_item.type, inv_item.invIndex, inv_item:GetIESID(), inv_item.count)
-                local skill_pic = slot:CreateOrGetControl('picture', 'skill_pic' .. inv_item:GetIESID(), 0, 0, 25, 25)
-                AUTO_CAST(skill_pic)
-                local image = GET_ITEM_ICON_IMAGE(item_cls)
-                skill_pic:SetEnableStretch(1)
-                skill_pic:SetGravity(ui.LEFT, ui.TOP)
-                skill_pic:SetImage(image)
-                SET_ITEM_TOOLTIP_TYPE(skill_pic, item_cls.ClassID, item_cls, "accountwarehouse")
-            end
-        elseif baseid_cls.ClassName == "Gem_High_Color" then
-            local cls_name = item_cls.ClassName
-            if string.find(cls_name, "540") then
-                slot:SetSkinName("invenslot_pic_goddess")
-            elseif string.find(cls_name, "520") then
-                slot:SetSkinName("invenslot_legend")
-            elseif string.find(cls_name, "500") then
-                slot:SetSkinName("invenslot_unique")
-            elseif string.find(cls_name, "480") then
-                slot:SetSkinName("invenslot_rare")
-            else
-                slot:SetSkinName("invenslot_nomal")
-            end
-        end
-        if string.find(baseid_cls.ClassName, "OPTMisc_GoddessIcor") then
-            local cls_name = item_cls.ClassName
-            local is_special = string.find(cls_name, "EP17") or string.find(cls_name, "Weapon2") or
-                                   string.find(cls_name, "Armor2")
-            if not is_special then
-                slot:SetSkinName("invenslot_rare")
-            end
-        elseif string.find(baseid_cls.ClassName, "Armor") then
-            local cls_name = item_cls.ClassName
-            local is_special = string.find(cls_name, "EP17") or
-                                   (string.find(cls_name, "EP16") and string.find(cls_name, "high")) or
-                                   (string.find(cls_name, "EP13") and string.find(cls_name, "high2"))
-            if not is_special and (string.find(cls_name, "belt") or string.find(cls_name, "shoulder")) then
-                slot:SetSkinName("invenslot_rare")
-            end
-        end
-    end
-end
-
-function Another_warehouse_is_stack_new_item(class_id)
-    for k, v in pairs(g.awh_new_stack_add_item) do
-        if v == class_id then
-            return true
-        end
-    end
-    return false
-end
-
-function Another_warehouse_check_search_and_filter(inv_item, item_cls, search_text)
-    if search_text == "" then
-        return true
-    end
-    local temp_cap = string.lower(search_text)
-    local item_name = string.lower(dictionary.ReplaceDicIDInCompStr(item_cls.Name))
-    if string.find(item_name, temp_cap) then
-        return true
-    end
-    local prefix_class_name = TryGetProp(item_cls, "LegendPrefix")
-    if prefix_class_name and prefix_class_name ~= "None" then
-        local prefix_cls = GetClass('LegendSetItem', prefix_class_name)
-        if prefix_cls then
-            local prefix_name = string.lower(dictionary.ReplaceDicIDInCompStr(prefix_cls.Name))
-            if string.find(prefix_name .. " " .. item_name, temp_cap) then
-                return true
-            end
-        end
-    end
-    if TryGetProp(item_cls, 'GroupName', 'None') == 'Earring' then
-        local max_option_count = shared_item_earring.get_max_special_option_count(TryGetProp(item_cls, 'UseLv', 1))
-        for i = 1, max_option_count do
-            local option_name = 'EarringSpecialOption_' .. i
-            local job_id = TryGetProp(item_cls, option_name, 'None')
-            if job_id ~= 'None' then
-                local job_cls = GetClass('Job', job_id)
-                if job_cls and string.find(string.lower(dictionary.ReplaceDicIDInCompStr(job_cls.Name)), temp_cap) then
-                    return true
-                end
-            end
-        end
-    end
-    if TryGetProp(item_cls, 'GroupName', 'None') == 'Icor' then
-        local item = GetIES(inv_item:GetObject())
-        for i = 1, 5 do
-            local option = TryGetProp(item, 'RandomOption_' .. i, 'None')
-            if option and option ~= "None" and
-                string.find(string.lower(dictionary.ReplaceDicIDInCompStr(ClMsg(option))), temp_cap) then
-                return true
-            end
-        end
-    end
-    return false
-end
-
-function Another_warehouse_get_maxcount()
-    local acc_obj = GetMyAccountObj()
-    local token_bonus = 0
-    local my_handle = session.GetMyHandle()
-    local buff = info.GetBuff(my_handle, 70002)
-    if buff then
-        token_bonus = ADDITIONAL_SLOT_COUNT_BY_TOKEN + 280
-    end
-    local max_cnt = acc_obj.BasicAccountWarehouseSlotCount + acc_obj.MaxAccountWarehouseCount +
-                        acc_obj.AccountWareHouseExtend + acc_obj.AccountWareHouseExtendByItem + token_bonus
-    return max_cnt
-end
--- 900011
-function Another_warehouse_item_count()
-    local item_list = session.GetEtcItemList(IT_ACCOUNT_WAREHOUSE)
-    local guid_list = item_list:GetSortedGuidList()
-    local cnt = item_list:Count()
-    local return_cnt = 0
-    for i = 0, cnt - 1 do
-        local guid = guid_list:Get(i);
-        local inv_item = item_list:GetItemByGuid(guid)
-        if inv_item then
-            local item_obj = GetIES(inv_item:GetObject())
-            if item_obj.ClassID ~= 900011 then -- 900011 Vis シルバー
-                return_cnt = return_cnt + 1
-            end
-        end
-    end
-    return return_cnt
-end
-
-function Another_warehouse_get_goal_index()
-    local acc_obj = GetMyAccountObj()
-    local base_count = acc_obj.BasicAccountWarehouseSlotCount + acc_obj.MaxAccountWarehouseCount +
-                           acc_obj.AccountWareHouseExtend + acc_obj.AccountWareHouseExtendByItem
-    local tab_index = {4, 3, 2, 1, 0}
-    local accountwarehouse = ui.GetFrame('accountwarehouse')
-    local tab = GET_CHILD(accountwarehouse, "accountwarehouse_tab")
-    local slotset = GET_CHILD_RECURSIVELY(accountwarehouse, "slotset")
-    for index = 1, #tab_index do
-        local i = tab_index[index]
-        tab:SelectTab(i)
-        if i > 0 and session.loginInfo.IsPremiumState(ITEM_TOKEN) then
-            local itemcnt = GET_CHILD_RECURSIVELY(accountwarehouse, "itemcnt")
-            local num_str = string.match(itemcnt:GetText(), "{@st42}(%d+)/")
-            local left = tonumber(num_str)
-            if left < 70 then
-                return ((i - 1) * 70) + base_count + left + 1
-            end
-        else
-            for j = 1, base_count do
-                local slot = slotset:GetSlotByIndex(j)
-                AUTO_CAST(slot)
-                if slot:GetIcon() == nil then
-                    return j
-                end
-            end
-        end
-    end
-end
-
-function Another_warehouse_check_valid(inv_item)
-    local item_count = Another_warehouse_item_count()
-    local max_count = Another_warehouse_get_maxcount()
-    if max_count <= item_count then
-        ui.SysMsg(ClMsg('CannotPutBecauseMaxSlot'))
-        return false
-    end
-    if true == inv_item.isLockState then
-        ui.SysMsg(ClMsg("MaterialItemIsLock"))
-        return false
-    end
-    local obj = GetIES(inv_item:GetObject())
-    local item_cls = GetClassByType("Item", obj.ClassID)
-    if item_cls.ItemType == 'Quest' then
-        ui.MsgBox(ScpArgMsg("IT_ISNT_REINFORCEABLE_ITEM"))
-        return false
-    end
-    local enable_team_trade = TryGetProp(item_cls, "TeamTrade")
-    if enable_team_trade and enable_team_trade == "NO" then
-        ui.SysMsg(ClMsg("ItemIsNotTradable"))
-        return false
-    end
-    if TryGetProp(obj, 'CharacterBelonging', 0) == 1 then
-        ui.SysMsg(ClMsg("ItemIsNotTradable"))
-        return false
-    end
-    return true
-end
-
-function Another_warehouse_search(frame, ctrl, str, num)
-    local awh = ui.GetFrame(addon_name_lower .. "awh")
-    local gb = GET_CHILD(awh, "gb")
-    AUTO_CAST(gb)
-    local search_text = ctrl:GetText()
-    local tab = GET_CHILD(awh, "tab" .. "inventory_main")
-    Another_warehouse_tab_change(awh, tab, search_text, 1)
-end
-
-function Another_warehouse_inv_lbtn(frame, inv_item, dumm)
-    if not Another_warehouse_check_valid(inv_item) then
-        return
-    end
-    local iesid = inv_item:GetIESID()
-    if keyboard.IsKeyPressed("LSHIFT") == 1 then
-        local count = math.min(10, inv_item.count)
-        Another_warehouse_putitem(inv_item, iesid, count)
-    else
-        Another_warehouse_putitem(inv_item, iesid, 1)
-    end
-end
-
-function Another_warehouse_inv_rbtn(item_obj, slot)
-    if g.settings.cc_helper.use == 1 then
-        local cch_setting = ui.GetFrame(addon_name_lower .. "cch_setting")
-        if cch_setting and cch_setting:IsVisible() == 1 then
-            INVENTORY_SET_CUSTOM_RBTNDOWN("Cc_helper_inv_rbtn")
-            return
-        end
-    end
-    local icon = slot:GetIcon()
-    local icon_info = icon:GetInfo()
-    local iesid = icon_info:GetIESID()
-    local inv_item = GET_PC_ITEM_BY_GUID(iesid)
-    if not inv_item then
-        return
-    end
-    -- ui.AlarmMsg(TryGetProp(GetIES(inv_item:GetObject()), 'BelongingCount', 0))
-    if not Another_warehouse_check_valid(inv_item) then
-        return
-    end
-    if keyboard.IsKeyPressed("LSHIFT") == 1 then
-        local accountwarehouse = ui.GetFrame("accountwarehouse")
-        local obj = GetIES(inv_item:GetObject())
-        local max_cnt = inv_item.count
-        local belonging_count = TryGetProp(obj, 'BelongingCount', 0)
-        if belonging_count > 0 then
-            max_cnt = inv_item.count - obj.BelongingCount
-            if max_cnt <= 0 then
-                max_cnt = 0
-            end
-        end
-        if inv_item.count > 1 or geItemTable.IsStack(obj.ClassID) == 1 then
-            INPUT_NUMBER_BOX(accountwarehouse, ScpArgMsg("InputCount"), "EXEC_PUT_ITEM_TO_ACCOUNT_WAREHOUSE", max_cnt,
-                1, max_cnt, nil, iesid)
-        else
-            Another_warehouse_putitem(inv_item, iesid, inv_item.count)
-        end
-    else
-        Another_warehouse_putitem(inv_item, iesid, inv_item.count)
-    end
-end
-
-function Another_warehouse_on_lbutton(parent, slot, iesid, num)
-    local accountwarehouse = ui.GetFrame("accountwarehouse")
-    local inv_item = session.GetEtcItemByGuid(IT_ACCOUNT_WAREHOUSE, iesid)
-    local obj = GetIES(inv_item:GetObject())
-    if keyboard.IsKeyPressed("LSHIFT") == 1 then
-        local count = math.min(10, inv_item.count)
-        Another_warehouse_takeitem(accountwarehouse, iesid, count)
-    else
-        Another_warehouse_takeitem(accountwarehouse, iesid, 1)
-    end
-end
-
-function Another_warehouse_on_rbutton(frame, slot, iesid, argnum)
-    if g.settings.cc_helper.use == 1 then
-        local cch_setting = ui.GetFrame(addon_name_lower .. "cch_setting")
-        if cch_setting and cch_setting:IsVisible() == 1 then
-            local slot = ui.GetFocusObject()
-            if not slot then
-                return
-            end
-            local icon = slot:GetIcon()
-            if icon then
-                local icon_info = icon:GetInfo()
-                local iesid = icon_info:GetIESID()
-                local awh_item = session.GetEtcItemByGuid(IT_ACCOUNT_WAREHOUSE, iesid)
-                if not awh_item then
-                    return
-                end
-                local item_obj = GetIES(awh_item:GetObject())
-                Cc_helper_inv_rbtn(item_obj, slot, iesid, awh_item)
-            end
-            return
-        end
-    end
-    local awh_setting = ui.GetFrame(addon_name_lower .. "awh_setting")
-    if awh_setting and awh_setting:IsVisible() == 1 then
-        AUTO_CAST(awh_setting)
-        local inv_item = session.GetEtcItemByGuid(IT_ACCOUNT_WAREHOUSE, iesid)
-        if not inv_item then
-            return
-        end
-        local obj = GetIES(inv_item:GetObject())
-        local cls_id = obj.ClassID
-        local item_cls = GetClassByType("Item", cls_id)
-        if inv_item.isLockState then
-            ui.SysMsg(ClMsg("MaterialItemIsLock"))
-            return
-        end
-        if item_cls.ItemType == 'Quest' then
-            ui.MsgBox(ScpArgMsg("IT_ISNT_REINFORCEABLE_ITEM"));
-            return
-        end
-        local enable_team_trade = TryGetProp(item_cls, "TeamTrade")
-        if enable_team_trade and enable_team_trade == "NO" then
-            ui.SysMsg(ClMsg("ItemIsNotTradable"))
-            return
-        end
-        local belonging_count = TryGetProp(obj, 'BelongingCount', 0)
-        if belonging_count > 0 and belonging_count >= inv_item.count then
-            ui.SysMsg(ClMsg("ItemIsNotTradable"))
-            return
-        end
-        if TryGetProp(obj, 'CharacterBelonging', 0) == 1 then
-            ui.SysMsg(ClMsg("ItemIsNotTradable"))
-            return
-        end
-        local items = {}
-        local slotset_name = ""
-        if keyboard.IsKeyPressed("LSHIFT") == 1 then
-            items = g.awh_settings.chars[g.cid].items
-            slotset_name = "char_slotset"
-        else
-            items = g.awh_settings.items
-            slotset_name = "team_slotset"
-        end
-        for key, value in pairs(items) do
-            if value.clsid == cls_id then
-                ui.SysMsg(g.lang == "Japanese" and "既に登録済です" or "Already registered")
-                return
-            end
-        end
-        local awh_setting = ui.GetFrame(addon_name_lower .. "awh_setting")
-        local target_slotset = GET_CHILD_RECURSIVELY(awh_setting, slotset_name)
-        local slotcount = target_slotset:GetSlotCount()
-        local index = 1
-        for i = 1, slotcount do
-            local awslot = GET_CHILD_RECURSIVELY(target_slotset, "slot" .. i)
-            local slot_icon = awslot:GetIcon()
-            if slot_icon == nil then
-                index = i
-                break
-            end
-        end
-        local ctrl = GET_CHILD_RECURSIVELY(target_slotset, "slot" .. index)
-        if tonumber(item_cls.MaxStack) > 1 then
-            awh_setting:SetUserValue("SLOT_NAME", ctrl:GetParent():GetName())
-            local msg = g.lang == "Japanese" and "インベントリに残す数を入力" or
-                            "Enter the number to be left in the inventory"
-            INPUT_NUMBER_BOX(awh_setting, msg, "Another_warehouse_setting_item_count", 0, 0,
-                tonumber(item_cls.MaxStack), cls_id, tostring(index), nil)
-        else
-            items[tostring(index)] = {
-                clsid = cls_id,
-                count = 0
-            }
-            SET_SLOT_ITEM_CLS(ctrl, item_cls)
-            Another_warehouse_save_settings()
-        end
-        return
-    end
-    local awh_set_items = ui.GetFrame(addon_name_lower .. "awh_set_items")
-    if awh_set_items and awh_set_items:IsVisible() == 1 then
-        AUTO_CAST(awh_set_items)
-        local name_edit = GET_CHILD(awh_set_items, "name_edit")
-        local name_text = string.gsub(name_edit:GetText(), "{ol}", "")
-        local index = 0
-        for i, data in ipairs(g.awh_settings.take_list) do
-            local name = data.name
-            if name == name_text then
-                index = i
-            end
-        end
-        local set_slotset = GET_CHILD_RECURSIVELY(awh_set_items, 'set_slotset')
-        AUTO_CAST(set_slotset)
-        local slotcount = set_slotset:GetSlotCount()
-        for i = 1, slotcount do
-            local slot = GET_CHILD(set_slotset, "slot" .. i)
-            AUTO_CAST(slot)
-            local slot_index = string.gsub(slot:GetName(), "slot", "")
-            local icon = slot:GetIcon()
-            if not icon then
-                local inv_item = session.GetEtcItemByGuid(IT_ACCOUNT_WAREHOUSE, iesid)
-                local obj = GetIES(inv_item:GetObject())
-                g.awh_settings.take_list[index].items[slot_index] = obj.ClassID
-                break
-            end
-        end
-        Another_warehouse_set_items_setting(index, name_text)
-        return
-    end
-    local accountwarehouse = ui.GetFrame("accountwarehouse")
-    local inv_item = session.GetEtcItemByGuid(IT_ACCOUNT_WAREHOUSE, iesid)
-    local obj = GetIES(inv_item:GetObject())
-    local count = inv_item.count
-    if keyboard.IsKeyPressed("LSHIFT") == 1 then
-        local belonging_count = TryGetProp(obj, 'BelongingCount', 0)
-        local max_cnt = inv_item.count
-        if belonging_count > 0 then
-            max_cnt = count - obj.BelongingCount
-            if max_cnt <= 0 then
-                max_cnt = 0
-            end
-        end
-        if count > 1 or geItemTable.IsStack(obj.ClassID) == 1 then
-            INPUT_NUMBER_BOX(accountwarehouse, ScpArgMsg("InputCount"), "Another_warehouse_take_item_from_warehouse",
-                max_cnt, 1, max_cnt, nil, iesid)
-        else
-            Another_warehouse_takeitem(accountwarehouse, iesid, 1)
-        end
-    else
-        if count > 1 or geItemTable.IsStack(obj.ClassID) == 1 then
-            if g.awh_settings.etc.leave_item == 1 then
-                count = count - 1
-            end
-            Another_warehouse_takeitem(accountwarehouse, iesid, count)
-        else
-            Another_warehouse_takeitem(accountwarehouse, iesid, 1)
-        end
-    end
-end
-
-function Another_warehouse_take_item_from_warehouse(accountwarehouse, count, input_frame)
-    input_frame:ShowWindow(0)
-    local iesid = input_frame:GetUserValue("ArgString")
-    session.ResetItemList()
-    session.AddItemID(iesid, count)
-    local handle = accountwarehouse:GetUserIValue("HANDLE")
-    item.TakeItemFromWarehouse_List(IT_ACCOUNT_WAREHOUSE, session.GetItemIDList(), handle)
-end
-
-function Another_warehouse_putitem(inv_item, iesid, count)
-    local item_obj = GetIES(inv_item:GetObject())
-    local goal_index = Another_warehouse_get_goal_index()
-    if Another_warehouse_check_valid(inv_item) then
-        local accountwarehouse = ui.GetFrame("accountwarehouse")
-        local handle = accountwarehouse:GetUserIValue("HANDLE")
-        item.PutItemToWarehouse(IT_ACCOUNT_WAREHOUSE, iesid, tostring(count), handle, goal_index)
-        local awh = ui.GetFrame(addon_name_lower .. "awh")
-        AUTO_CAST(awh)
-        awh:SetUserValue("TOOLTIP_COUNT", 0)
-        Another_warehouse_item_put_to(awh, iesid, count, item_obj.ClassID)
-        if geItemTable.IsStack(item_obj.ClassID) == 1 then
-            table.insert(g.awh_new_stack_add_item, item_obj.ClassID)
-        elseif geItemTable.IsStack(item_obj.ClassID) == 0 then
-            table.insert(g.awh_new_stack_add_item, item_obj.ClassID .. "_" .. iesid)
-        end
-        local gbox_warehouse = GET_CHILD_RECURSIVELY(accountwarehouse, "gbox_warehouse")
-        if gbox_warehouse then
-            gbox_warehouse:UpdateData()
-            accountwarehouse:Invalidate()
-        end
-    end
-end
-
-function Another_warehouse_takeitem(accountwarehouse, iesid, count)
-    session.ResetItemList()
-    session.AddItemID(iesid, count)
-    local handle = accountwarehouse:GetUserIValue("HANDLE")
-    item.TakeItemFromWarehouse_List(IT_ACCOUNT_WAREHOUSE, session.GetItemIDList(), handle)
-end
-
-function Another_warehouse_auto_func_start(awh)
-    local auto_money = g.awh_settings.chars[g.cid].money_check
-    local my_handle = session.GetMyHandle()
-    local buff = info.GetBuff(my_handle, 70002)
-    if not buff then
-        if auto_money == 1 then
-            Another_warehouse_silver(awh)
-        end
-        ui.SysMsg(g.lang == "Japanese" and "[AWH]トークンがないため自動処理を停止します" or
-                      "[AWH]Auto function stopped due to no token")
-        return
-    end
-    local auto_item = g.awh_settings.chars[g.cid].item_check
-    if auto_item == 0 and auto_money == 0 then
-        return
-    end
-    g.another_warehouse_func = true
-    if auto_item == 1 then
-        Another_warehouse_auto_item_start(awh)
-        return
-    end
-    if auto_money == 1 then
-        Another_warehouse_silver(awh)
-        return
-    end
-    Another_warehouse_end(awh)
-end
-
-function Another_warehouse_retry(frame)
-    Another_warehouse_auto_item_start(frame, true)
-    return 0
-end
-
-function Another_warehouse_auto_item_start(awh, is_retry)
-    local status, err = pcall(Another_warehouse_auto_item_start_logic, awh, is_retry)
-    if not status then
-        local msg = "{#FF0000}[AWH Error] " .. tostring(err)
-        ui.SysMsg(msg)
-    end
-end
-
-function Another_warehouse_auto_item_start_logic(awh, is_retry)
-    if not is_retry then
-        g.awh_retry_count = 0
-    end
-    local accountwarehouse = ui.GetFrame('accountwarehouse')
-    local item_list = session.GetEtcItemList(IT_ACCOUNT_WAREHOUSE)
-    local sorted_guid_list = item_list:GetSortedGuidList()
-    local sorted_cnt = sorted_guid_list:Count()
-    if sorted_cnt == 0 then
-        if accountwarehouse:IsVisible() == 1 then
-            if g.awh_retry_count < 5 then
-                g.awh_retry_count = g.awh_retry_count + 1
-                accountwarehouse:StopUpdateScript("Another_warehouse_retry")
-                accountwarehouse:RunUpdateScript("Another_warehouse_retry", 0.1)
-                return
-            else
-                local msg = g.lang == "Japanese" and
-                                "倉庫情報の取得に失敗しました{nl}アイテム自動取得をスキップします" or
-                                "Failed to retrieve warehouse info{nl}Auto-take skipped"
-                ui.SysMsg(msg)
-            end
-        end
-    end
-    g.awh_take_items = {}
-    g.awh_put_items = {}
-    for i = 0, sorted_cnt - 1 do
-        local guid = sorted_guid_list:Get(i)
-        local inv_item = item_list:GetItemByGuid(guid)
-        local cls_id = inv_item.type
-        local inv_count = g.awh_settings.etc.leave_item == 1 and inv_item.count - 1 or inv_item.count
-        local is_match = false
-        local char_items = g.awh_settings.chars[g.cid].items
-        for str_index, item in pairs(char_items) do
-            local char_clsid = item.clsid
-            local char_clsid_str = tostring(char_clsid)
-            local char_count = item.count == 0 and 1 or item.count
-            if cls_id == char_clsid and cls_id ~= 900011 then
-                if inv_count > 0 then
-                    g.awh_take_items[char_clsid_str] = {
-                        iesid = guid,
-                        count = char_count
-                    }
-                end
-                is_match = true
-                break
-            end
-        end
-        if not is_match then
-            local common_items = g.awh_settings.items
-            for str_index, item in pairs(common_items) do
-                local common_clsid = item.clsid
-                local common_clsid_str = tostring(common_clsid)
-                local common_count = item.count
-                if cls_id == common_clsid and cls_id ~= 900011 then
-                    if inv_count > 0 then
-                        g.awh_take_items[common_clsid_str] = {
-                            iesid = guid,
-                            count = common_count
-                        }
-                    end
-                    break
-                end
-            end
-        end
-    end
-    local inv_item_list = session.GetInvItemList()
-    local inv_guid_list = inv_item_list:GetGuidList()
-    local inv_cnt = inv_guid_list:Count()
-    for i = 0, inv_cnt - 1 do
-        local guid = inv_guid_list:Get(i)
-        local inv_item = inv_item_list:GetItemByGuid(guid)
-        local inv_obj = GetIES(inv_item:GetObject())
-        local inv_clsid = inv_obj.ClassID
-        local inv_clsid_str = tostring(inv_clsid)
-        if inv_clsid ~= 900011 then
-            if g.awh_take_items[inv_clsid_str] then
-                local take_data = g.awh_take_items[inv_clsid_str]
-                local old_need = take_data.count
-                local take_count = take_data.count - inv_item.count
-                if take_count <= 0 then
-                    g.awh_take_items[inv_clsid_str] = nil
-                else
-                    take_data.count = take_count
-                end
-            end
-            local target_count = 0
-            local is_target = false
-            for _, item in pairs(g.awh_settings.chars[g.cid].items) do
-                if item.clsid == inv_clsid then
-                    target_count = item.count == 0 and 1 or item.count
-                    is_target = true
-                    break
-                end
-            end
-            if not is_target then
-                for _, item in pairs(g.awh_settings.items) do
-                    if item.clsid == inv_clsid then
-                        target_count = item.count
-                        is_target = true
-                        break
-                    end
-                end
-            end
-            if is_target then
-                local put_count = inv_item.count - target_count
-                if put_count > 0 then
-                    g.awh_put_items[inv_clsid_str] = {
-                        iesid = guid,
-                        count = put_count,
-                        invcount = inv_item.count,
-                        initial_count = inv_item.count
-                    }
-                end
-            end
-        end
-    end
-    for cls_id, _ in pairs(g.awh_take_items) do
-        if g.awh_put_items[cls_id] then
-            g.awh_put_items[cls_id] = nil
-        end
-    end
-    Another_warehouse_item_take(awh)
-end
-
-function Another_warehouse_item_take(awh)
-    if awh:GetUserIValue("IS_TAKING") == 0 then
-        local item_list = session.GetEtcItemList(IT_ACCOUNT_WAREHOUSE)
-        local sorted_guid_list = item_list:GetSortedGuidList()
-        local sorted_cnt = sorted_guid_list:Count()
-        session.ResetItemList()
-        local take_count_total = 0
-        for cls_id, items in pairs(g.awh_take_items) do
-            for i = 0, sorted_cnt - 1 do
-                local guid = sorted_guid_list:Get(i)
-                local inv_item = item_list:GetItemByGuid(guid)
-                if guid == items.iesid then
-                    local count = math.min(items.count, inv_item.count)
-                    if count > 0 then
-                        session.AddItemID(guid, count)
-                        take_count_total = take_count_total + 1
-                    end
-                    break
-                end
-            end
-        end
-        if take_count_total == 0 then
-            awh:RunUpdateScript("Another_warehouse_item_put", 0.1)
-            return 0
-        end
-        local accountwarehouse = ui.GetFrame('accountwarehouse')
-        local handle = accountwarehouse:GetUserIValue('HANDLE')
-        item.TakeItemFromWarehouse_List(IT_ACCOUNT_WAREHOUSE, session.GetItemIDList(), handle)
-        awh:SetUserValue("IS_TAKING", 1)
-        awh:SetUserValue("TAKE_START_TIME", imcTime.GetAppTimeMS())
-        awh:StopUpdateScript("Another_warehouse_item_take")
-        awh:RunUpdateScript("Another_warehouse_item_take", 0.1)
-        return 1
-    end
-    local all_arrived = true
-    for cls_id, items in pairs(g.awh_take_items) do
-        local inv_item = session.GetInvItemByGuid(items.iesid)
-        if not inv_item then
-            all_arrived = false
-            break
-        end
-    end
-    local start_time = awh:GetUserIValue("TAKE_START_TIME")
-    local now = imcTime.GetAppTimeMS()
-    if all_arrived or (now - start_time > 1000) then
-        awh:SetUserValue("IS_TAKING", 0)
-        awh:SetUserValue("TOOLTIP_COUNT", 0)
-        awh:RunUpdateScript("Another_warehouse_item_put", 0.1)
-        return 0
-    end
-    return 1
-end
-
-function Another_warehouse_item_put(awh)
-    local accountwarehouse = ui.GetFrame('accountwarehouse')
-    if accountwarehouse:IsVisible() == 0 then
-        awh:StopUpdateScript("Another_warehouse_item_put")
-        return 0
-    end
-    local next_cls_id, item_data = next(g.awh_put_items)
-    if not next_cls_id then
-        if g.awh_settings.chars[g.cid].money_check == 1 then
-            Another_warehouse_silver(awh)
-        else
-            Another_warehouse_end(awh)
-        end
-        return 0
-    end
-    local is_finished = false
-    local inv_item = session.GetInvItemByGuid(item_data.iesid)
-    if not inv_item then
-        is_finished = true
-    elseif item_data.is_putting then
-        if inv_item.count < item_data.initial_count then
-            is_finished = true
-        else
-            return 1
-        end
-    end
-    if is_finished then
-        local count = item_data.real_put_count or item_data.count
-        Another_warehouse_item_put_to(awh, item_data.iesid, count, next_cls_id)
-        if geItemTable.IsStack(next_cls_id) == 1 then
-            table.insert(g.awh_new_stack_add_item, next_cls_id)
-        elseif geItemTable.IsStack(next_cls_id) == 0 then
-            table.insert(g.awh_new_stack_add_item, next_cls_id .. "_" .. item_data.iesid)
-        end
-        g.awh_put_items[tostring(next_cls_id)] = nil
-        if not next(g.awh_put_items) then
-            if g.awh_settings.chars[g.cid].money_check == 1 then
-                Another_warehouse_silver(awh)
-            else
-                Another_warehouse_end(awh)
-            end
-            return 0
-        end
-        return 1
-    end
-    if not Another_warehouse_check_valid(inv_item) then
-        awh:StopUpdateScript("Another_warehouse_item_put")
-        return 0
-    end
-    local handle = accountwarehouse:GetUserIValue("HANDLE")
-    local goal_index = Another_warehouse_get_goal_index()
-    local put_count = item_data.count
-    if put_count > inv_item.count then
-        put_count = inv_item.count
-    end
-    item_data.initial_count = inv_item.count
-    item.PutItemToWarehouse(IT_ACCOUNT_WAREHOUSE, item_data.iesid, tostring(put_count), handle, goal_index)
-    item_data.is_putting = true
-    item_data.real_put_count = put_count
-    return 1
-end
-
-function Another_warehouse_item_put_to(awh, guid, count, cls_id)
-    local item_cls = GetClassByType('Item', cls_id)
-    local icon_name = GET_ITEM_ICON_IMAGE(item_cls)
-    local item_name = item_cls.Name
-    local tooltip_count = awh:GetUserIValue("TOOLTIP_COUNT")
-    if tooltip_count >= 4 then
-        awh:SetUserValue("TOOLTIP_COUNT", 0)
-    else
-        awh:SetUserValue("TOOLTIP_COUNT", tooltip_count + 1)
-    end
-    Another_warehouse_item_tooltip(item_name, icon_name, count, tooltip_count)
-    local msg = g.lang == "Japanese" and "倉庫に格納しました" .. "：[" .. "{#EE82EE}" .. item_name ..
-                    "{#FFFF00}]×" .. "{#EE82EE}" .. count or "Item to warehousing" .. "：[" .. "{#EE82EE}" ..
-                    item_name .. "{#FFFF00}]×" .. "{#EE82EE}" .. count
-    CHAT_SYSTEM(msg)
-end
-
-function Another_warehouse_item_tooltip(item_name, icon_name, count, tooltip_count)
-    local awh_tooltip =
-        ui.CreateNewFrame("notice_on_pc", addon_name_lower .. "awh_tooltip" .. tooltip_count, 0, 0, 0, 0)
-    AUTO_CAST(awh_tooltip)
-    awh_tooltip:SetSkinName("None")
-    awh_tooltip:SetPos(680, 300 + tooltip_count * 55)
-    awh_tooltip:SetLayerLevel(100)
-    awh_tooltip:Resize(350, 64)
-    local tooltip_gb = awh_tooltip:CreateOrGetControl("groupbox", "tooltip_gb", 0, 0, 350, 64)
-    AUTO_CAST(tooltip_gb)
-    tooltip_gb:SetSkinName("item_show_tootip")
-    tooltip_gb:Resize(350, 64)
-    local tooltip_slot = tooltip_gb:CreateOrGetControl("slot", "tooltip_slot", 20, 10, 45, 45)
-    AUTO_CAST(tooltip_slot)
-    local tooltip_text = tooltip_gb:CreateOrGetControl("richtext", "tooltip_text", 75, 15, 265, 22)
-    AUTO_CAST(tooltip_text)
-    tooltip_text:Resize(265, 22)
-    tooltip_text:SetText("{ol}" .. item_name)
-    local tooltip_count = tooltip_gb:CreateOrGetControl("richtext", "tooltip_count", 75, 37, 265, 22)
-    AUTO_CAST(tooltip_count)
-    tooltip_count:Resize(265, 22)
-    local msg = g.lang == "Japanese" and count .. " 個搬入しました" or count .. " Pieces in warehouse"
-    tooltip_count:SetText("{ol}" .. msg)
-    SET_SLOT_ICON(tooltip_slot, icon_name)
-    awh_tooltip:ShowWindow(1)
-    awh_tooltip:RunUpdateScript("Another_warehouse_item_tooltip_close", 2.0)
-end
-
-function Another_warehouse_item_tooltip_close(awh_tooltip)
-    ui.DestroyFrame(awh_tooltip:GetName())
-end
-
-function Another_warehouse_silver(awh)
-    local silver = session.GetInvItemByType(900011)
-    local accountwarehouse = ui.GetFrame('accountwarehouse')
-    local handle = accountwarehouse:GetUserIValue('HANDLE')
-    local char_silver = 0
-    if silver then
-        char_silver = tonumber(silver:GetAmountStr())
-    end
-    char_silver = char_silver - g.awh_settings.etc.auto_silver
-    if char_silver > 0 then
-        item.PutItemToWarehouse(IT_ACCOUNT_WAREHOUSE, silver:GetIESID(), tostring(char_silver), handle)
-    elseif char_silver <= 0 then
-        session.ResetItemList()
-        session.AddItemIDWithAmount("0", tostring(-char_silver))
-        item.TakeItemFromWarehouse_List(IT_ACCOUNT_WAREHOUSE, session.GetItemIDList(), handle)
-    end
-    Another_warehouse_end(awh)
-end
-
-function Another_warehouse_end(awh)
-    g.another_warehouse_func = false
-    ui.SysMsg("[AWH]End of Operation")
-    imcSound.PlaySoundEvent('sys_cube_open_normal')
-    local awh = ui.GetFrame(addon_name_lower .. "awh")
-    local gb = GET_CHILD(awh, "gb")
-    AUTO_CAST(gb)
-    local index = awh:GetUserIValue("TAB_INDEX")
-    Another_warehouse_frame_update(awh, gb, "", index)
-end
-
-function Another_warehouse_setting_frame_init(frame, ctrl, str, num)
-    local inventory = ui.GetFrame('inventory')
-    inventory:ShowWindow(1)
-    INVENTORY_SET_CUSTOM_RBTNDOWN("None")
-    INVENTORY_SET_CUSTOM_RBTNDOWN("Another_warehouse_setting_rbtn")
-    local setting = ui.CreateNewFrame("notice_on_pc", addon_name_lower .. "awh_setting", 0, 0, 0, 0)
-    AUTO_CAST(setting)
-    setting:RemoveAllChild()
-    setting:SetPos(670, 10)
-    setting:Resize(740, 1060)
-    setting:SetLayerLevel(96)
-    setting:SetSkinName("test_frame_low")
-    local title_gb = setting:CreateOrGetControl("groupbox", "title_gb", 0, 0, setting:GetWidth(), 55)
-    title_gb:SetSkinName("test_frame_top")
-    AUTO_CAST(title_gb)
-    local title_text = title_gb:CreateOrGetControl("richtext", "title_text", 0, 0, ui.CENTER_HORZ, ui.TOP, 0, 15, 0, 0)
-    AUTO_CAST(title_text)
-    title_text:SetText('{ol}{s26}Another Warehouse Setting')
-    local close = setting:CreateOrGetControl("button", "close", 0, 0, 25, 25)
-    AUTO_CAST(close)
-    close:SetImage("testclose_button")
-    close:SetOffset(680, 15)
-    close:SetEventScript(ui.LBUTTONUP, "Another_warehouse_setting_close")
-    local money_check = setting:CreateOrGetControl('checkbox', 'money_check', 25, 65, 25, 25)
-    AUTO_CAST(money_check)
-    money_check:SetEventScript(ui.LBUTTONUP, "Another_warehouse_setting_check")
-    money_check:SetCheck(g.awh_settings.chars[g.cid].money_check)
-    money_check:SetText(g.lang == "Japanese" and "{ol}自動入出金" or "{ol}automatic deposit and withdrawal")
-    money_check:SetTextTooltip(g.lang == "Japanese" and
-                                   "{ol}チェックをすると、自動入出金有効化 各キャラクター毎に設定" or
-                                   "{ol}If checked, activate silver auto-deposit/withdrawal{nl}configured per character")
-    local item_check = setting:CreateOrGetControl('checkbox', 'item_check', 25, 95, 25, 25)
-    AUTO_CAST(item_check)
-    item_check:SetEventScript(ui.LBUTTONUP, "Another_warehouse_setting_check")
-    item_check:SetCheck(g.awh_settings.chars[g.cid].item_check)
-    item_check:SetText(g.lang == "Japanese" and "{ol}自動搬出入" or "{ol}Automatic item receipt and dispatch")
-    item_check:SetTextTooltip(g.lang == "Japanese" and
-                                  "{ol}チェックをすると、自動搬出入有効化 各キャラクター毎に設定" or
-                                  "{ol}If checked, activate item auto-deposit/withdrawal{nl}configured per character")
-    local help = setting:CreateOrGetControl('button', "awh_help", 695, 65, 25, 25)
-    AUTO_CAST(help)
-    help:SetText("{img question_mark 15 15}")
-    help:SetTextTooltip("HELP")
-    help:SetEventScript(ui.LBUTTONUP, "Another_warehouse_setting_help")
-    local amount_text = setting:CreateOrGetControl("richtext", "amount_text", 400, 65, 0, 30)
-    AUTO_CAST(amount_text)
-    amount_text:SetText(g.lang == "Japanese" and "{ol}自動入出金 金額設定" or "{ol}Auto Transfer Amount Config")
-    local amount_edit = setting:CreateOrGetControl('edit', 'amount_edit', 400, 90, 150, 35)
-    AUTO_CAST(amount_edit)
-    amount_edit:SetFontName("white_18_ol")
-    amount_edit:SetTextAlign("center", "center")
-    amount_edit:SetText(GET_COMMAED_STRING(g.awh_settings.etc.auto_silver or 0))
-    amount_edit:SetNumberMode(1)
-    amount_edit:SetEventScript(ui.ENTERKEY, 'Another_warehouse_setting_edit')
-    local team_text = setting:CreateOrGetControl("richtext", "team_text", 25, 125, 0, 0)
-    AUTO_CAST(team_text);
-    team_text:SetText(g.lang == "Japanese" and "{ol}チーム倉庫の共通設定" or
-                          "{ol}Team Storage Common Settings")
-    local char_text = setting:CreateOrGetControl("richtext", "char_text", 25, 695, 0, 0)
-    AUTO_CAST(char_text)
-    char_text:SetText(g.lang == "Japanese" and "{ol}チーム倉庫のキャラクター個別設定" or
-                          "{ol}Team Storage Character Settings")
-    local team_gb = setting:CreateOrGetControl("groupbox", "team_gb", 20, 145, setting:GetWidth() - 25, 540)
-    team_gb:SetSkinName("test_frame_low")
-    AUTO_CAST(team_gb)
-    Another_warehouse_setting_slot_set(team_gb, 'team_slotset')
-    local char_gb = setting:CreateOrGetControl("groupbox", "char_gb", 20, 715, setting:GetWidth() - 25, 330)
-    char_gb:SetSkinName("test_frame_low")
-    AUTO_CAST(char_gb)
-    Another_warehouse_setting_slot_set(char_gb, 'char_slotset')
-    setting:ShowWindow(1)
-end
-
-function Another_warehouse_setting_close(setting)
-    ui.DestroyFrame(setting:GetName())
-    local accountwarehouse = ui.GetFrame("accountwarehouse")
-    ACCOUNTWAREHOUSE_CLOSE(accountwarehouse)
-end
-
-function Another_warehouse_setting_check(frame, ctrl)
-    local ischeck = ctrl:IsChecked()
-    local ctrl_name = ctrl:GetName()
-    if ctrl_name == "awh_leave" then -- 
-        g.awh_settings.etc.leave_item = ischeck
-    elseif ctrl_name == "awh_display_change" then
-        g.awh_settings.etc.display_change = ischeck
-    elseif ctrl_name == "money_check" then
-        g.awh_settings.chars[g.cid].money_check = ischeck
-    elseif ctrl_name == "item_check" then
-        g.awh_settings.chars[g.cid].item_check = ischeck
-    end
-    Another_warehouse_save_settings()
-    local awh = ui.GetFrame(addon_name_lower .. "awh")
-    local gb = GET_CHILD(awh, "gb")
-    AUTO_CAST(gb)
-    local tab_index = awh:GetUserIValue("TAB_INDEX")
-    Another_warehouse_frame_update(awh, gb, "", tab_index)
-end
-
-function Another_warehouse_setting_edit(frame, ctrl)
-    local text = ctrl:GetText()
-    local clean_text = string.gsub(text, ",", "") -- カンマを空文字に置換
-    local ctrl_num = tonumber(clean_text) or 0
-    if ctrl:GetName() == "amount_edit" then
-        g.awh_settings.etc.auto_silver = ctrl_num
-        ctrl:SetText(GET_COMMAED_STRING(g.awh_settings.etc.auto_silver))
-    end
-    Another_warehouse_save_settings()
-end
-
-function Another_warehouse_setting_help()
-    local context = ui.CreateContextMenu("awh_setting_help_context", "{ol}[AWH] HELP", 30, 0, 100, 100)
-    local msg =
-        g.lang == "Japanese" and "インベントリ:マウス右クリックでチームのアイテム設定" or
-            "Inventory: right mouse click to set team items"
-    ui.AddContextMenuItem(context, "{ol}" .. msg, "None")
-    msg = g.lang == "Japanese" and
-              "インベントリ:左SHIFT+マウス右クリックで各キャラのアイテム設定" or
-              "Inventory: left SHIFT+mouse right click to set items for each character"
-    ui.AddContextMenuItem(context, "{ol}" .. msg, "None")
-    msg = g.lang == "Japanese" and "設定スロット:左SHIFT+マウス右クリックで設定個数変更" or
-              "Setting slot: left SHIFT+right mouse click to change the number of setting pieces"
-    ui.AddContextMenuItem(context, "{ol}" .. msg, "None")
-    msg = g.lang == "Japanese" and "設定スロット:マウス右クリックで設定消去" or
-              "Setting slot: right mouse click to clear settings"
-    ui.AddContextMenuItem(context, "{ol}" .. msg, "None")
-    ui.OpenContextMenu(context)
-end
-
-function Another_warehouse_setting_slot_set(parent, slot_set_name)
-    local slotset = parent:CreateOrGetControl('slotset', slot_set_name, 10, 10, 0, 0)
-    AUTO_CAST(slotset)
-    slotset:SetSlotSize(40, 40)
-    slotset:EnablePop(1)
-    slotset:EnableDrag(1)
-    slotset:EnableDrop(1)
-    slotset:SetColRow(17, 58)
-    slotset:SetSpc(0, 0)
-    slotset:SetSkinName('slot')
-    slotset:SetEventScript(ui.RBUTTONUP, "Another_warehouse_setting_icon_clear")
-    slotset:CreateSlots()
-    local slotcount = slotset:GetSlotCount()
-    local items = {}
-    if slot_set_name == 'team_slotset' then
-        items = g.awh_settings.items
-    elseif slot_set_name == 'char_slotset' then
-        items = g.awh_settings.chars[g.cid].items
-    end
-    for i = 1, slotcount do
-        local slot = GET_CHILD(slotset, "slot" .. i)
-        local str_index = tostring(i)
-        for key, value in pairs(items) do
-            if key == str_index then
-                local clsid = value.clsid
-                local count = value.count
-                local itemcls = GetClassByType("Item", clsid)
-                slot:SetUserValue("ITEM_CLSID", clsid)
-                SET_SLOT_ITEM_CLS(slot, itemcls)
-                if count ~= 0 then
-                    SET_SLOT_COUNT_TEXT(slot, count)
-                end
-            end
-        end
-    end
-end
-
-function Another_warehouse_setting_icon_clear(parent, ctrl, str, num)
-    if keyboard.IsKeyPressed("LSHIFT") == 1 then
-        Another_warehouse_setting_count_change(parent, ctrl, str, num)
-        return
-    end
-    local items = {}
-    if parent:GetName() == 'team_slotset' then
-        items = g.awh_settings.items
-    elseif parent:GetName() == 'char_slotset' then
-        items = g.awh_settings.chars[g.cid].items
-    end
-    local str_index = string.gsub(ctrl:GetName(), "slot", "")
-    for key, value in pairs(items) do
-        if key == str_index then
-            ctrl:ClearIcon()
-            items[str_index] = nil
-            Another_warehouse_save_settings()
-            break
-        end
-    end
-end
-
-function Another_warehouse_setting_count_change(frame, ctrl, strr, num)
-    local slot_index = tonumber(string.gsub(ctrl:GetName(), "slot", ""))
-    if slot_index then
-        local cls_id = ctrl:GetUserIValue("ITEM_CLSID")
-        local itemcls = GetClassByType("Item", cls_id)
-        local awh_setting = ui.GetFrame(addon_name_lower .. "awh_setting")
-        awh_setting:SetUserValue("SLOT_NAME", ctrl:GetParent():GetName())
-        local msg = g.lang == "Japanese" and "インベントリに残す数を入力" or
-                        "Enter the number to be left in the inventory"
-        INPUT_NUMBER_BOX(awh_setting, msg, "Another_warehouse_setting_item_count", 0, 0, tonumber(itemcls.MaxStack),
-            cls_id, tostring(slot_index), nil)
-    end
-end
-
-function Another_warehouse_setting_item_count(awh_setting, count, input_frame)
-    local clsid = input_frame:GetValue()
-    local index = input_frame:GetUserValue("ArgString")
-    local item_cls = GetClassByType("Item", clsid)
-    local user_value = awh_setting:GetUserValue("SLOT_NAME")
-    local items = {}
-    if user_value == "char_slotset" then
-        items = g.awh_settings.chars[g.cid].items
-    else
-        items = g.awh_settings.items
-    end
-    local slotset = GET_CHILD_RECURSIVELY(awh_setting, user_value)
-    local slot = GET_CHILD_RECURSIVELY(slotset, "slot" .. index)
-    items[tostring(index)] = {
-        clsid = clsid,
-        count = tonumber(count)
-    }
-    SET_SLOT_ITEM_CLS(slot, item_cls)
-    Another_warehouse_save_settings()
-    input_frame:ShowWindow(0)
-end
-
-function Another_warehouse_setting_rbtn(item_obj, slot)
-    local icon = slot:GetIcon()
-    local icon_info = icon:GetInfo()
-    local iesid = icon_info:GetIESID()
-    local inv_item = GET_PC_ITEM_BY_GUID(iesid)
-    if not inv_item then
-        return
-    end
-    local cls_id = icon_info.type
-    local item_cls = GetClassByType("Item", cls_id)
-    local obj = GetIES(inv_item:GetObject())
-    if inv_item.isLockState then
-        ui.SysMsg(ClMsg("MaterialItemIsLock"))
-        return
-    end
-    if item_cls.ItemType == 'Quest' then
-        ui.MsgBox(ScpArgMsg("IT_ISNT_REINFORCEABLE_ITEM"));
-        return
-    end
-    local enable_team_trade = TryGetProp(item_cls, "TeamTrade")
-    if enable_team_trade and enable_team_trade == "NO" then
-        ui.SysMsg(ClMsg("ItemIsNotTradable"))
-        return
-    end
-    local belonging_count = TryGetProp(obj, 'BelongingCount', 0)
-    if belonging_count > 0 and belonging_count >= inv_item.count then
-        ui.SysMsg(ClMsg("ItemIsNotTradable"))
-        return
-    end
-    if TryGetProp(obj, 'CharacterBelonging', 0) == 1 then
-        ui.SysMsg(ClMsg("ItemIsNotTradable"))
-        return
-    end
-    local items = {}
-    local slotset_name = ""
-    if keyboard.IsKeyPressed("LSHIFT") == 1 then
-        items = g.awh_settings.chars[g.cid].items
-        slotset_name = "char_slotset"
-    else
-        items = g.awh_settings.items
-        slotset_name = 'team_slotset'
-    end
-    for key, value in pairs(items) do
-        if value.clsid == cls_id then
-            ui.SysMsg(g.lang == "Japanese" and "既に登録済です" or "Already registered")
-            return
-        end
-    end
-    local awh_setting = ui.GetFrame(addon_name_lower .. "awh_setting")
-    local slotset = GET_CHILD_RECURSIVELY(awh_setting, slotset_name)
-    local slotcount = slotset:GetSlotCount()
-    local index = 1
-    for i = 1, slotcount do
-        local awslot = GET_CHILD_RECURSIVELY(slotset, "slot" .. i)
-        local slot_icon = awslot:GetIcon()
-        if slot_icon == nil then
-            index = i
-            break
-        end
-    end
-    local ctrl = GET_CHILD_RECURSIVELY(slotset, "slot" .. index)
-    if tonumber(item_cls.MaxStack) > 1 then
-        awh_setting:SetUserValue("SLOT_NAME", ctrl:GetParent():GetName())
-        local msg = g.lang == "Japanese" and "インベントリに残す数を入力" or
-                        "Enter the number to be left in the inventory"
-        INPUT_NUMBER_BOX(awh_setting, msg, "Another_warehouse_setting_item_count", 0, 0, tonumber(item_cls.MaxStack),
-            cls_id, tostring(index), nil)
-    else
-        items[tostring(index)] = {
-            clsid = cls_id,
-            count = 0
-        }
-        SET_SLOT_ITEM_CLS(ctrl, item_cls)
-        Another_warehouse_save_settings()
-    end
-end
-
-function Another_warehouse_setting_context(frame, ctrl, str, num)
-    local context = ui.CreateContextMenu("awh_TAKE_SETTING", "{ol}{#FF0000}Slot Setting", 0, 20, 100, 100)
-    for i, data in ipairs(g.awh_settings.take_list) do
-        local name = data.name
-        local scp = string.format("Another_warehouse_set_items_setting(%d,'%s')", i, name)
-        ui.AddContextMenuItem(context, "{ol}{#FF0000}" .. name, scp)
-    end
-    ui.OpenContextMenu(context)
-end
-
-function Another_warehouse_set_items_setting(index, name)
-    local awh_set_items = ui.CreateNewFrame("notice_on_pc", addon_name_lower .. "awh_set_items", 0, 0, 0, 0)
-    AUTO_CAST(awh_set_items)
-    awh_set_items:SetSkinName("test_frame_low")
-    awh_set_items:SetPos(680, 170)
-    awh_set_items:SetLayerLevel(100)
-    awh_set_items:Resize(320, 608)
-    awh_set_items:RemoveAllChild()
-    local close = awh_set_items:CreateOrGetControl("button", "close", 0, 0, 25, 25)
-    AUTO_CAST(close)
-    close:SetImage("testclose_button")
-    close:SetGravity(ui.RIGHT, ui.TOP)
-    close:SetEventScript(ui.LBUTTONUP, "Another_warehouse_set_item_close")
-    local set_gb = awh_set_items:CreateOrGetControl("groupbox", "set_gb", 10, 50, 380, 380)
-    AUTO_CAST(set_gb)
-    set_gb:SetSkinName("test_frame_midle_light")
-    set_gb:Resize(300, 500)
-    awh_set_items:ShowWindow(1)
-    local name_edit = awh_set_items:CreateOrGetControl("edit", "name_edit", 10, 13, 210, 30)
-    AUTO_CAST(name_edit)
-    name_edit:SetFontName("white_16_ol")
-    name_edit:SetTextAlign("center", "center")
-    name_edit:SetText("{ol}" .. name)
-    name_edit:SetEventScript(ui.ENTERKEY, "Another_warehouse_set_name_edit")
-    name_edit:SetEventScriptArgString(ui.ENTERKEY, name)
-    name_edit:SetEventScriptArgNumber(ui.ENTERKEY, index)
-    local set_slotset = set_gb:CreateOrGetControl('slotset', 'set_slotset', 0, 0, 0, 0)
-    AUTO_CAST(set_slotset)
-    set_slotset:SetSlotSize(50, 50)
-    set_slotset:EnablePop(1)
-    set_slotset:EnableDrag(1)
-    set_slotset:EnableDrop(1)
-    set_slotset:SetEventScript(ui.DROP, "Another_warehouse_set_swap_item")
-    set_slotset:SetEventScriptArgString(ui.DROP, name)
-    set_slotset:SetEventScriptArgNumber(ui.DROP, index)
-    set_slotset:SetColRow(6, 10)
-    set_slotset:SetSpc(0, 0)
-    set_slotset:SetSkinName('slot')
-    set_slotset:CreateSlots()
-    local target_set = g.awh_settings.take_list[index]
-    local items_map = target_set.items
-    local slotcount = set_slotset:GetSlotCount()
-    for i = 1, slotcount do
-        local slot = GET_CHILD(set_slotset, "slot" .. i)
-        AUTO_CAST(slot)
-        local icon = slot:GetIcon()
-        if not icon then
-            slot:SetTextTooltip(g.lang == "Japanese" and "{ol}倉庫アイテム右クリックで設定" or
-                                    "{ol}Warehouse items right-click to setting")
-        end
-        local saved_clsid = items_map[tostring(i)]
-        if saved_clsid then
-            local item_cls = GetClassByType("Item", saved_clsid)
-            if item_cls then
-                SET_SLOT_ITEM_CLS(slot, item_cls)
-                slot:SetEventScript(ui.RBUTTONUP, "Another_warehouse_set_clear_item")
-                slot:SetEventScriptArgNumber(ui.RBUTTONUP, index)
-                slot:SetEventScriptArgString(ui.RBUTTONUP, name)
-            end
-        end
-    end
-    local init = awh_set_items:CreateOrGetControl("button", "init", 0, 0, 100, 43)
-    AUTO_CAST(init)
-    init:SetText(g.lang == "Japanese" and "{@st66b}初期化" or "{@st66b}Initialize")
-    init:SetMargin(210, 555, 0, 0)
-    init:SetSkinName("test_pvp_btn")
-    init:SetEventScript(ui.LBUTTONUP, "Another_warehouse_setslot_init")
-    init:SetEventScriptArgString(ui.LBUTTONUP, name)
-    init:SetEventScriptArgNumber(ui.LBUTTONUP, index)
-    local take = awh_set_items:CreateOrGetControl("button", "awh_take", 0, 0, 100, 43)
-    AUTO_CAST(take)
-    take:SetText(g.lang == "Japanese" and "{@st66b}取出し" or "{@st66b}Withdrawal")
-    take:SetMargin(10, 555, 0, 0)
-    take:SetSkinName("test_pvp_btn")
-    take:SetEventScript(ui.LBUTTONUP, "Another_warehouse_set_item_take_reserve")
-    take:SetEventScriptArgString(ui.LBUTTONUP, name)
-end
-
-function Another_warehouse_set_item_take_reserve(frame, ctrl, name)
-    Another_warehouse_set_item_take(name)
-end
-
-function Another_warehouse_set_clear_item(frame, ctrl, name, index)
-    local slot_index = string.gsub(ctrl:GetName(), "slot", "")
-    g.awh_settings.take_list[index].items[slot_index] = nil
-    Another_warehouse_save_settings()
-    Another_warehouse_set_items_setting(index, name)
-end
-
-function Another_warehouse_set_swap_item(parent, slot, name, index)
-    if parent:GetTopParentFrame():GetName() ~= addon_name_lower .. "awh_set_items" then
-        return
-    end
-    local lift_icon = ui.GetLiftIcon()
-    local from_slot = lift_icon:GetParent()
-    local from_index = string.gsub(from_slot:GetName(), "slot", "")
-    local from_clsid = g.awh_settings.take_list[index].items[from_index]
-    local to_index = string.gsub(slot:GetName(), "slot", "")
-    local to_icon = slot:GetIcon()
-    if not to_icon then
-        g.awh_settings.take_list[index].items[from_index] = nil
-        g.awh_settings.take_list[index].items[to_index] = from_clsid
-    else
-        local to_clsid = g.awh_settings.take_list[index].items[to_index]
-        g.awh_settings.take_list[index].items[from_index] = to_clsid
-        g.awh_settings.take_list[index].items[to_index] = from_clsid
-    end
-    Another_warehouse_save_settings()
-    Another_warehouse_set_items_setting(index, name)
-end
-
-function Another_warehouse_set_name_edit(frame, ctrl, name, index)
-    local new_name = string.gsub(ctrl:GetText(), "{ol}", "")
-    if new_name == "" then
-        ui.SysMsg(g.lang == "Japanese" and "文字を入れてください" or "Please enter the text")
-        return
-    end
-    for i, data in ipairs(g.awh_settings.take_list) do
-        if new_name == data.name then
-            ui.SysMsg(g.lang == "Japanese" and "既に登録済の名前です" or "Name already registered")
-            return
-        end
-    end
-    g.awh_settings.take_list[index].name = new_name
-    Another_warehouse_save_settings()
-    Another_warehouse_set_items_setting(index, new_name)
-end
-
-function Another_warehouse_set_item_close(frame)
-    ui.DestroyFrame(addon_name_lower .. "awh_set_items")
-end
-
-function Another_warehouse_setslot_init(frame, init, name, index)
-    local yes_scp = string.format("Another_warehouse_setslot_init_ok('%s',%d)", name, index)
-    local msg = g.lang == "Japanese" and "{ol}{#FFFFFF}セット初期化しますか？" or
-                    "{ol}{#FFFFFF}Initialize this set?"
-    local msgbox = ui.MsgBox(msg, yes_scp, 'None')
-end
-
-function Another_warehouse_setslot_init_ok(name, index)
-    g.awh_settings.take_list[index] = {
-        name = "Take Items " .. index,
-        items = {}
-    }
-    ui.SysMsg(g.lang == "Japanese" and "{ol}初期化しました" or "{ol}Initialized")
-    Another_warehouse_save_settings()
-    local new_name = "Take Items " .. index
-    Another_warehouse_set_items_setting(index, new_name)
-end
-
-function Another_warehouse_take_context(frame, ctrl, str, num)
-    local context = ui.CreateContextMenu("TAKE_SETTING", "{ol}Take items", 0, 20, 100, 100)
-    for i, data in ipairs(g.awh_settings.take_list) do
-        local name = data.name
-        local scp = string.format("Another_warehouse_set_item_take('%s')", name)
-        ui.AddContextMenuItem(context, name, scp)
-    end
-    ui.OpenContextMenu(context)
-end
-
-function Another_warehouse_set_item_take(name)
-    local accountwarehouse = ui.GetFrame('accountwarehouse')
-    local handle = accountwarehouse:GetUserIValue("HANDLE")
-    local item_list = session.GetEtcItemList(IT_ACCOUNT_WAREHOUSE)
-    session.ResetItemList()
-    local sorted_guid_list = item_list:GetSortedGuidList()
-    local sorted_cnt = sorted_guid_list:Count()
-    local take_count = 0
-    local target_items_map = {}
-    if g.awh_settings.take_list then
-        for i, set_data in ipairs(g.awh_settings.take_list) do
-            if set_data.name == name then
-                for key, item_id in pairs(set_data.items) do
-                    target_items_map[tonumber(item_id)] = true
-                end
-                break
-            end
-        end
-    end
-    for j = 0, sorted_cnt - 1 do
-        local guid = sorted_guid_list:Get(j)
-        local inv_item = item_list:GetItemByGuid(guid)
-        local cls_id = inv_item.type
-        if target_items_map[cls_id] then
-            local count = inv_item.count
-            if g.awh_settings.etc.leave_item == 1 then
-                count = count - 1
-            end
-            if count > 0 then
-                session.AddItemID(guid, count)
-                take_count = take_count + 1
-            end
-        end
-    end
-    if take_count > 0 then
-        item.TakeItemFromWarehouse_List(IT_ACCOUNT_WAREHOUSE, session.GetItemIDList(), handle)
-    end
-    local awh = ui.GetFrame(addon_name_lower .. "awh")
-    local gb = GET_CHILD(awh, "gb")
-    AUTO_CAST(gb)
-    local index = awh:GetUserIValue("TAB_INDEX")
-    Another_warehouse_frame_update(awh, gb, "", index)
-end
-
-function Another_warehouse_help()
-    local context = ui.CreateContextMenu("awh_help_context", "{ol}[AWH] HELP", 30, 0, 100, 100)
-    local msg = g.lang == "Japanese" and "インベントリ:アイコン右クリックで全数搬入" or
-                    "Inventory: right mouse click to Carry in all items"
-    ui.AddContextMenuItem(context, "{ol}" .. msg, "None")
-    msg = g.lang == "Japanese" and "インベントリ:アイコン左クリックで1個搬入" or
-              "Inventory: left mouse click to Carry in 1 items"
-    ui.AddContextMenuItem(context, "{ol}" .. msg, "None")
-    msg = g.lang == "Japanese" and "インベントリ:左SHIFT+アイコン右クリックで入力数量搬入" or
-              "Inventory: left SHIFT+mouse right click to Carry in Input quantity items"
-    ui.AddContextMenuItem(context, "{ol}" .. msg, "None")
-    msg = g.lang == "Japanese" and "インベントリ:左SHIFT+アイコン左クリックで10個搬入" or
-              "Inventory: left SHIFT+mouse left click to Carry in 10 items"
-    ui.AddContextMenuItem(context, "{ol}" .. msg, "None")
-    ui.AddContextMenuItem(context, "----------", "None")
-    msg = g.lang == "Japanese" and "チーム倉庫:アイコン右クリックで全数搬出" or
-              "Warehouse: right mouse click to Carry out all items"
-    ui.AddContextMenuItem(context, "{ol}" .. msg, "None")
-    msg = g.lang == "Japanese" and "チーム倉庫:アイコン左クリックで1個搬出" or
-              "Warehouse: left mouse click to Carry out 1 items"
-    ui.AddContextMenuItem(context, "{ol}" .. msg, "None")
-    msg = g.lang == "Japanese" and "チーム倉庫:左SHIFT+アイコン右クリックで入力数量搬出" or
-              "Warehouse: left SHIFT+mouse right click to Carry out Input quantity items"
-    ui.AddContextMenuItem(context, "{ol}" .. msg, "None")
-    msg = g.lang == "Japanese" and "チーム倉庫:左SHIFT+アイコン左クリックで10個搬出" or
-              "Warehouse: left SHIFT+mouse left click to Carry out 10 items"
-    ui.AddContextMenuItem(context, "{ol}" .. msg, "None")
-    ui.OpenContextMenu(context)
-end
--- another_warehouse ここまで
-
 -- quickslot_operate ここから
 g.quickslot_operate_raid_list = {
     Paramune = {623, 667, 666, 665, 674, 673, 675, 680, 679, 681, 707, 708, 710, 711, 709, 712, 722, 723, 724, 725, 726,
@@ -10414,6 +13293,10 @@ end
 function Quickslot_operate_lazy_start(frame)
     if not g.quickslot_operate_settings then
         Quickslot_operate_load_settings()
+    end
+    local old_func = g.settings.quickslot_operate.old_init_func
+    if _G[old_func] then
+        return
     end
     if g.settings.quickslot_operate.use == 1 then
         Quickslot_operate_init_logic()
@@ -11395,6 +14278,16 @@ function Always_status_load_settings()
     Always_status_save_settings()
 end
 
+function Always_status_char_load_settings()
+    if not g.always_status_settings.chars[g.cid] then
+        g.always_status_settings.chars[g.cid] = {
+            use_set = 1,
+            on = 1
+        }
+        Always_status_save_settings()
+    end
+end
+
 function always_status_on_init()
     if not g.always_status_settings then
         local _nexus_addons = ui.GetFrame("_nexus_addons")
@@ -11413,8 +14306,10 @@ function always_status_on_init()
         return
     end
     if g.always_status_settings["chars"] and not g.always_status_settings["chars"][g.cid] then
-        Always_status_load_settings()
-        Always_status_frame_init()
+        Always_status_char_load_settings()
+    end
+    local old_func = g.settings.always_status.old_init_func
+    if _G[old_func] then
         return
     end
     Always_status_frame_init()
@@ -11423,6 +14318,10 @@ end
 function Always_status_lazy_start(frame)
     if not g.always_status_settings then
         Always_status_load_settings()
+    end
+    local old_func = g.settings.always_status.old_init_func
+    if _G[old_func] then
+        return
     end
     if g.always_status_settings and g.settings.always_status.use == 1 then
         Always_status_frame_init()
@@ -11851,1996 +14750,6 @@ function Always_status_color_select(parent, ctrl, color_str, num)
 end
 -- always_status ここまで
 
--- cc_helper ここから
-function Cc_helper_save_settings()
-    g.save_json(g.cc_helper_path, g.cc_helper_settings)
-end
-
-function Cc_helper_load_settings()
-    g.cc_helper_path = string.format("../addons/%s/%s/cc_helper.json", addon_name_lower, g.active_id, g.cid)
-    local settings = g.load_json(g.cc_helper_path)
-    if not settings then
-        settings = {
-            etc = {
-                eco = 0,
-                agm_stop = 0,
-                wh_close = 0,
-                copys = {}
-            }
-        }
-        local old_copy_path = string.format("../addons/%s/%s/%s_copy.json", "cc_helper", g.active_id, g.active_id)
-        local copy_settings = g.load_json(old_copy_path)
-        if copy_settings then
-            local item_keys = {"seal", "ark", "leg", "god", "hair1", "hair2", "hair3", "gem1", "gem2", "gem3", "gem4",
-                               "pet", "core", "relic"}
-            local item_key_map = {}
-            for _, key in ipairs(item_keys) do
-                item_key_map[key] = true
-            end
-            for cid, char_data in pairs(copy_settings) do
-                if type(char_data) == "table" and next(char_data) then
-                    settings.etc.copys[cid] = {
-                        items = {}
-                    }
-                    for key, value in pairs(char_data) do
-                        if type(value) == "table" then
-                            if item_key_map[key] then
-                                settings.etc.copys[cid].items[key] = {}
-                                for k, v in pairs(value) do
-                                    if k == "memo" then
-                                        local result = StringSplit(v, ":::")
-                                        if #result > 0 then
-                                            if string.find(key, "hair") then
-                                                settings.etc.copys[cid].items[key].rank = result[#result]
-                                                table.remove(result, #result)
-                                                settings.etc.copys[cid].items[key].option = table.concat(result, ":::")
-                                            elseif key == "pet" then
-                                                settings.etc.copys[cid].items[key].option = result[#result]
-                                            end
-                                        end
-                                    elseif k ~= "skin" then
-                                        settings.etc.copys[cid].items[key][k] = v
-                                    end
-                                end
-                            end
-                        else
-                            settings.etc.copys[cid][key] = value
-                        end
-                    end
-                end
-            end
-        end
-    end
-    g.cc_helper_settings = settings
-    Cc_helper_save_settings()
-end
-
-function Cc_helper_char_load_settings()
-    local settings = g.load_json(g.cc_helper_path)
-    if not settings[g.cid] then
-        settings[g.cid] = {
-            agm = 0,
-            agm_check = 0,
-            mcc = 0,
-            items = {},
-            name = g.login_name
-        }
-    end
-    local tbl = {"seal", "ark", "leg", "god", "hair1", "hair2", "hair3", "gem1", "gem2", "gem3", "gem4", "pet", "core",
-                 "relic"}
-    for _, key in ipairs(tbl) do
-        if not settings[g.cid].items[key] then
-            settings[g.cid].items[key] = {
-                iesid = "",
-                clsid = 0,
-                option = "",
-                rank = "",
-                image = ""
-            }
-        end
-    end
-    g.cc_helper_settings[g.cid] = settings[g.cid]
-    Cc_helper_save_settings()
-end
-
-function Cc_helper_ensure_settings_loaded()
-    if not g.cc_helper_settings then
-        Cc_helper_load_settings()
-    end
-    if g.cc_helper_settings and not g.cc_helper_settings[g.cid] then
-        Cc_helper_char_load_settings()
-    end
-end
-
-function cc_helper_on_init()
-    g.setup_hook_and_event(g.addon, "INVENTORY_OPEN", "Cc_helper_INVENTORY_OPEN", true)
-    g.setup_hook_and_event(g.addon, "ACCOUNTWAREHOUSE_CLOSE", "Cc_helper_ACCOUNTWAREHOUSE_CLOSE", true)
-    g.setup_hook_and_event(g.addon, "INVENTORY_CLOSE", "Cc_helper_INVENTORY_CLOSE", true)
-    -- g.setup_hook_and_event(g.addon, "INVENTORY_SET_CUSTOM_RBTNDOWN", "Cc_helper_INVENTORY_SET_CUSTOM_RBTNDOWN", true)
-    -- g.setup_hook_and_event(g.addon, "ACCOUNT_WAREHOUSE_INV_RBTN", "Cc_helper_ACCOUNT_WAREHOUSE_INV_RBTN", true)
-    if g.get_map_type() == "City" then
-        g.addon:RegisterMsg("OPEN_DLG_ACCOUNTWAREHOUSE", "Cc_helper_frame_init")
-    end
-    if g.settings.cc_helper.use == 0 then
-        Cc_helper_ACCOUNTWAREHOUSE_CLOSE(nil, nil)
-        return
-    end
-end
-
---[[function Cc_helper_ACCOUNT_WAREHOUSE_INV_RBTN(my_frame, my_msg)
-    local itemObj, slot = g.get_event_args(my_msg)
-    ts(slot, my_msg)
-end
-
-function Cc_helper_INVENTORY_SET_CUSTOM_RBTNDOWN(my_frame, my_msg)
-    local scriptName = g.get_event_args(my_msg)
-    ts(scriptName)
-end]]
-
-function Cc_helper_ACCOUNTWAREHOUSE_CLOSE(my_frame, my_msg)
-    local accountwarehouse = ui.GetFrame("accountwarehouse")
-    accountwarehouse:RemoveChild("cch_in_btn")
-    accountwarehouse:RemoveChild("cch_out_btn")
-    accountwarehouse:RemoveChild("cch_auto_close")
-    local inventory = ui.GetFrame("inventory")
-    inventory:RemoveChild("cch_in_btn")
-    inventory:RemoveChild("cch_out_btn")
-    local cch_setting = ui.GetFrame(addon_name_lower .. "cch_setting")
-    if cch_setting then
-        Cc_helper_setting_frame_close(cch_setting)
-    end
-end
-
-function Cc_helper_INVENTORY_OPEN(my_frame, my_msg)
-    Cc_helper_ensure_settings_loaded()
-    if g.settings.cc_helper.use == 0 then
-        return
-    end
-    Cc_helper_inventory_btn_init()
-end
-
-function Cc_helper_INVENTORY_CLOSE()
-    local cch_setting = ui.GetFrame(addon_name_lower .. "cch_setting")
-    if cch_setting then
-        Cc_helper_setting_frame_close(cch_setting)
-    end
-end
-
-function Cc_helper_frame_init()
-    if g.settings.cc_helper.use == 0 then
-        return
-    end
-    Cc_helper_ensure_settings_loaded()
-    local accountwarehouse = ui.GetFrame("accountwarehouse")
-    accountwarehouse:StopUpdateScript("ACCOUNTWAREHOUSE_CLOSE")
-    Cc_helper_inventory_btn_init()
-    Cc_helper_accountwarehouse_btn_init()
-end
-
-function Cc_helper_accountwarehouse_btn_init()
-    local accountwarehouse = ui.GetFrame("accountwarehouse")
-    local in_btn = accountwarehouse:CreateOrGetControl("button", "cch_in_btn", 565, 120, 30, 30)
-    AUTO_CAST(in_btn)
-    in_btn:SetText("{img in_arrow 20 20}")
-    in_btn:SetEventScript(ui.LBUTTONUP, "Cc_helper_putitem")
-    in_btn:SetSkinName("test_pvp_btn")
-    in_btn:SetTextTooltip(g.lang == "Japanese" and "{ol}[CCH]{nl}装備を外して倉庫へ搬入します" or
-                              "{ol}[CCH]{nl}The equipment is removed{nl}and brought into the warehouse")
-    local out_btn = accountwarehouse:CreateOrGetControl("button", "cch_out_btn", 595, 120, 30, 30)
-    AUTO_CAST(out_btn)
-    out_btn:SetText("{@st66b}{img chul_arrow 20 20}")
-    out_btn:SetEventScript(ui.LBUTTONUP, "Cc_helper_take_item")
-    out_btn:SetSkinName("test_pvp_btn")
-    out_btn:SetTextTooltip(g.lang == "Japanese" and "{ol}[CCH]{nl}倉庫から搬出して装備します" or
-                               "{ol}[CCH]{nl}It is carried out from the warehouse and equipped")
-    local auto_close = accountwarehouse:CreateOrGetControl("checkbox", "cch_auto_close", 540, 120, 30, 30)
-    AUTO_CAST(auto_close)
-    auto_close:ShowWindow(1)
-    auto_close:SetTextTooltip(g.lang == "Japanese" and
-                                  "{ol}[CCH]{nl}動作終了後倉庫とインベントリーを閉じます" or
-                                  "{ol}[CCH]{nl}Closes storage and inventory after the operation is complete")
-    auto_close:SetEventScript(ui.LBUTTONUP, "Cc_helper_check_settings")
-    auto_close:SetCheck(g.cc_helper_settings.etc.wh_close)
-end
-
-function Cc_helper_inventory_btn_init()
-    local inventory = ui.GetFrame("inventory")
-    local setting = inventory:CreateOrGetControl("button", "setting", 205, 345, 30, 30)
-    AUTO_CAST(setting)
-    setting:SetSkinName("None")
-    setting:SetText("{img config_button_normal 30 30}")
-    setting:SetEventScript(ui.LBUTTONUP, "Cc_helper_setting_frame_init")
-    setting:SetEventScript(ui.RBUTTONUP, "Cc_helper_toggle_settings")
-    setting:SetTextTooltip(g.lang == "Japanese" and
-                               "{ol}[CCH]{nl}左クリック: 設定{nl}右クリック: エコモード切替" or
-                               "{ol}[CCH]{nl}Left Click: Settings{nl}Right Click: Eco Mode Toggle")
-    local eco = setting:CreateOrGetControl("richtext", "eco", 7, 7, 30, 30)
-    AUTO_CAST(eco)
-    eco:SetText(g.cc_helper_settings.etc.eco == 1 and "{ol}{s10}{#FF0000}eco" or "")
-    eco:SetEventScript(ui.LBUTTONUP, "Cc_helper_setting_frame_init")
-    eco:SetEventScript(ui.RBUTTONUP, "Cc_helper_toggle_settings")
-    eco:SetTextTooltip(g.lang == "Japanese" and
-                           "{ol}[CCH]{nl}左クリック: 設定{nl}右クリック: エコモード切替" or
-                           "{ol}[CCH]{nl}Left Click: Settings{nl}Right Click: Eco Mode Toggle")
-    local accountwarehouse = ui.GetFrame("accountwarehouse")
-    if accountwarehouse:IsVisible() == 1 then
-        local in_btn = inventory:CreateOrGetControl("button", "cch_in_btn", 235, 345, 30, 30)
-        AUTO_CAST(in_btn)
-        in_btn:SetText("{img in_arrow 20 20}")
-        in_btn:SetEventScript(ui.LBUTTONUP, "Cc_helper_putitem")
-        in_btn:SetSkinName("test_pvp_btn")
-        in_btn:SetTextTooltip(g.lang == "Japanese" and "{ol}[CCH]{nl}装備を外して倉庫へ搬入します" or
-                                  "{ol}[CCH]{nl}The equipment is removed{nl}and brought into the warehouse")
-        local out_btn = inventory:CreateOrGetControl("button", "cch_out_btn", 265, 345, 30, 30)
-        AUTO_CAST(out_btn)
-        out_btn:SetText("{@st66b}{img chul_arrow 20 20}")
-        out_btn:SetEventScript(ui.LBUTTONUP, "Cc_helper_take_item")
-        out_btn:SetSkinName("test_pvp_btn")
-        out_btn:SetTextTooltip(g.lang == "Japanese" and "{ol}[CCH]{nl}倉庫から搬出して装備します" or
-                                   "{ol}[CCH]{nl}It is carried out from the warehouse and equipped")
-    end
-    local inventory_btns = {"moncard_btn", "helper_btn", "cabinet_btn", "goddess_mgr_btn"}
-    if inventory then
-        for _, btn_name in ipairs(inventory_btns) do
-            local btn = GET_CHILD_RECURSIVELY(inventory, btn_name)
-            if btn and btn:IsVisible() == 0 then
-                btn:ShowWindow(1)
-            end
-        end
-    end
-end
-
-function Cc_helper_setting_frame_init(frame)
-    local cch_setting = ui.GetFrame(addon_name_lower .. "cch_setting")
-    if frame and cch_setting and cch_setting:IsVisible() == 1 then
-        Cc_helper_setting_frame_close(cch_setting)
-        return
-    end
-    Cc_helper_update_hair_stats()
-    INVENTORY_SET_CUSTOM_RBTNDOWN("Cc_helper_inv_rbtn")
-    cch_setting = ui.CreateNewFrame("notice_on_pc", addon_name_lower .. "cch_setting", 0, 0, 0, 0)
-    AUTO_CAST(cch_setting)
-    cch_setting:RemoveAllChild()
-    cch_setting:SetSkinName("test_frame_low")
-    cch_setting:SetLayerLevel(93)
-    cch_setting:SetGravity(ui.RIGHT, ui.TOP)
-    local rect = cch_setting:GetMargin()
-    cch_setting:SetMargin(rect.left - rect.left, rect.top - rect.top + 370,
-        rect.right == 0 and rect.right + 510 or rect.right, rect.bottom)
-    cch_setting:Resize(310, 520)
-    cch_setting:SetTitleBarSkin("None")
-    cch_setting:EnableHittestFrame(1)
-    local title_text = cch_setting:CreateOrGetControl("richtext", "title_text", 20, 15, 50, 30)
-    AUTO_CAST(title_text)
-    title_text:SetText("{ol}CC Helper Config")
-    local close = cch_setting:CreateOrGetControl("button", "close", 0, 0, 30, 30)
-    AUTO_CAST(close)
-    close:SetImage("testclose_button")
-    close:SetGravity(ui.RIGHT, ui.TOP)
-    close:SetEventScript(ui.LBUTTONUP, "Cc_helper_setting_frame_close")
-    local gbox = cch_setting:CreateOrGetControl("groupbox", "gbox", 10, 40, 0, 0)
-    AUTO_CAST(gbox)
-    gbox:SetSkinName("test_frame_midle_light")
-    local copy = gbox:CreateOrGetControl("button", "copy", 200, 10, 70, 30)
-    AUTO_CAST(copy)
-    copy:SetText("{ol}copy")
-    copy:SetEventScript(ui.LBUTTONUP, "Cc_helper_setting_copy")
-    copy:SetTextTooltip(g.lang == "Japanese" and "{ol}コピー用の設定を適用します" or
-                            "{ol}Applies the settings for copying")
-    local save = gbox:CreateOrGetControl("button", "save", 130, 10, 70, 30)
-    AUTO_CAST(save)
-    save:SetText("{ol}save")
-    save:SetEventScript(ui.LBUTTONUP, "Cc_helper_setting_save")
-    save:SetTextTooltip(g.lang == "Japanese" and "{ol}このキャラの設定をコピー用に保存します" or
-                            "{ol}Save this character settings for copying")
-    local save_delete = gbox:CreateOrGetControl("button", "save_delete", 60, 10, 70, 30)
-    AUTO_CAST(save_delete)
-    save_delete:SetText("{ol}delete")
-    save_delete:SetEventScript(ui.LBUTTONUP, "Cc_helper_setting_delete")
-    save_delete:SetTextTooltip(g.lang == "Japanese" and "{ol}コピー用の設定を削除します" or
-                                   "{ol}Delete settings for copying")
-    if g.settings.monster_card_changer.use == 1 then
-        local mccuse = gbox:CreateOrGetControl("checkbox", "mccuse", 10, 375, 25, 25)
-        AUTO_CAST(mccuse)
-        mccuse:SetText(g.lang == "Japanese" and "{ol}MCC 連携" or "{ol}MCC Linkage")
-        mccuse:SetTextTooltip(g.lang == "Japanese" and
-                                  "{ol}チェックを入れると[Monster Card Changer]と連携します{nl}各キャラクター個別設定" or
-                                  "{ol}If checked, it will work with [Monster Card Changer]{nl}Individual Character Settings")
-        mccuse:SetCheck(g.cc_helper_settings[g.cid].mcc)
-        mccuse:SetEventScript(ui.LBUTTONUP, "Cc_helper_check_settings")
-    else
-        g.cc_helper_settings[g.cid].mcc = 0
-    end
-    local agmuse = gbox:CreateOrGetControl("checkbox", "agmuse", 10, 405, 25, 25)
-    AUTO_CAST(agmuse)
-    agmuse:SetText(g.lang == "Japanese" and "{ol}エーテルジェム" or "{ol}Aether Gem")
-    agmuse:SetTextTooltip(g.lang == "Japanese" and
-                              "{ol}チェックを入れるとエーテルジェムも着脱します{nl}各キャラクター個別設定" or
-                              "{ol}If checked, Aethergems will also be equipped/unequipped{nl}Individual Character Settings")
-    agmuse:SetEventScript(ui.LBUTTONUP, "Cc_helper_check_settings")
-    agmuse:SetCheck(g.cc_helper_settings[g.cid].agm)
-    local agm_on_off = gbox:CreateOrGetControl("picture", "use_toggle", agmuse:GetWidth() + 10, 405, 60, 25)
-    AUTO_CAST(agm_on_off)
-    agm_on_off:SetImage(g.cc_helper_settings[g.cid].agm_check == 1 and "test_com_ability_on" or "test_com_ability_off")
-    agm_on_off:SetEnableStretch(1)
-    agm_on_off:EnableHitTest(1)
-    local tooltip_text =
-        g.lang == "Japanese" and "{ol}ONにするとエーテルジェム着脱時に確認します" or
-            "{ol}If ON, confirmation will be required{nl}when equipping/unequipping Aethergems"
-    agm_on_off:SetTextTooltip(tooltip_text)
-    agm_on_off:SetEventScript(ui.LBUTTONUP, "Cc_helper_toggle_settings")
-    local all_agm = gbox:CreateOrGetControl("checkbox", "all_agm", 10, 435, 25, 25)
-    AUTO_CAST(all_agm)
-    all_agm:SetText(g.lang == "Japanese" and "{ol}エーテルジェム 全体停止" or "{ol}Aether Gem All Stop")
-    all_agm:SetTextTooltip(g.lang == "Japanese" and
-                               "{ol}チェックを入れると、全てのキャラの{nl}エーテルジェム関係の動作をストップします" or
-                               "{ol}If checked, stops all ether gem-related actions for all characters")
-    all_agm:SetEventScript(ui.LBUTTONUP, "Cc_helper_check_settings")
-    all_agm:SetCheck(g.cc_helper_settings.etc.agm_stop) --
-    local pet_select = gbox:CreateOrGetControl("button", "pet_select", 180, 375, 100, 30)
-    AUTO_CAST(pet_select)
-    pet_select:SetText("{ol}pet select")
-    pet_select:SetEventScript(ui.LBUTTONUP, "Cc_helper_context_pet")
-    gbox:Resize(cch_setting:GetWidth() - 20, cch_setting:GetHeight() - 50)
-    cch_setting:ShowWindow(1)
-    Cc_helper_slot_create_reserve(cch_setting, gbox)
-end
-
-function Cc_helper_slot_create_reserve(cch_setting, gbox)
-    local slot_info = {
-        ["seal"] = {
-            x = 35,
-            y = 210,
-            text = "{ol}{s14}SEAL"
-        },
-        ["ark"] = {
-            x = 90,
-            y = 210,
-            text = "{ol}{s14}ARK"
-        },
-        ["core"] = {
-            x = 145,
-            y = 210,
-            text = "{ol}{s14}CORE"
-        },
-        ["relic"] = {
-            x = 200,
-            y = 210,
-            text = "{ol}{s14}RELIC"
-        },
-        ["gem1"] = {
-            x = 35,
-            y = 320,
-            text = "{ol}{s12}AETHER{nl}GEM1"
-        },
-        ["gem2"] = {
-            x = 90,
-            y = 320,
-            text = "{ol}{s12}AETHER{nl}GEM2"
-        },
-        ["gem3"] = {
-            x = 145,
-            y = 320,
-            text = "{ol}{s12}AETHER{nl}GEM3"
-        },
-        ["gem4"] = {
-            x = 200,
-            y = 320,
-            text = "{ol}{s12}AETHER{nl}GEM4"
-        },
-        ["leg"] = {
-            x = 30,
-            y = 45,
-            text = "{ol}{s14}LEGEND{nl}CARD"
-        },
-        ["god"] = {
-            x = 140,
-            y = 45,
-            text = "{ol}{s14}GODDESS{nl}CARD"
-        },
-        ["hair1"] = {
-            x = 35,
-            y = 265,
-            text = "{ol}{s14}HAIR1"
-        },
-        ["hair2"] = {
-            x = 90,
-            y = 265,
-            text = "{ol}{s14}HAIR2"
-        },
-        ["hair3"] = {
-            x = 145,
-            y = 265,
-            text = "{ol}{s14}HAIR3"
-        },
-        ["pet"] = {
-            x = 220,
-            y = 410,
-            text = "{ol}{s14}PET"
-        }
-    }
-    for key, value in pairs(slot_info) do
-        for k, v in pairs(g.cc_helper_settings[g.cid].items) do
-            if key == k then
-                local width = 50
-                local height = 50
-                if key == "leg" then
-                    width = 105 -- 9:13
-                    height = 160
-                end
-                if key == "god" then
-                    width = 120 -- 3:4
-                    height = 160
-                end
-                local skin = "invenslot2"
-                if key == "leg" then
-                    skin = "legendopen_cardslot"
-                elseif key == "god" then
-                    skin = "goddess_card__activation"
-                end
-                Cc_helper_slot_create(gbox, key, value.x, value.y, width, height, skin, value.text, v.clsid, v.iesid,
-                    v.option, v.rank, v.image)
-                break
-            end
-        end
-    end
-end
-
-function Cc_helper_slot_create(gbox, name, x, y, width, height, skin, text, clsid, iesid, option, rank, image)
-    local slot = GET_CHILD(gbox, name)
-    if not slot then
-        slot = gbox:CreateOrGetControl("slot", name, x, y, width, height)
-        AUTO_CAST(slot)
-        slot:SetSkinName(skin)
-        slot:SetText(text)
-        slot:EnablePop(1)
-        slot:EnableDrag(1)
-        slot:EnableDrop(1)
-    end
-    AUTO_CAST(slot)
-    slot:SetEventScript(ui.DROP, "Cc_helper_frame_drop")
-    slot:SetEventScript(ui.RBUTTONDOWN, "Cc_helper_cancel")
-    local item_cls = GetClassByType("Item", clsid)
-    if not item_cls then
-        item_cls = GetClassByType("Monster", clsid)
-        if not item_cls then
-            return
-        end
-        image = item_cls.Icon
-    end
-    if not string.find(name, "gem") then
-        SET_SLOT_ITEM_CLS(slot, item_cls)
-        SET_SLOT_IMG(slot, image)
-        SET_SLOT_IESID(slot, iesid)
-        if name ~= "leg" and name ~= "god" then
-            SET_SLOT_BG_BY_ITEMGRADE(slot, item_cls)
-        end
-        if string.find(name, "hair") then
-            if rank == "A" then
-                slot:SetSkinName("invenslot_pic_goddess")
-            elseif rank == "B" then
-                slot:SetSkinName("invenslot_legend")
-            elseif rank == "C" then
-                slot:SetSkinName("invenslot_unique")
-            end
-        end
-        local icon = slot:GetIcon()
-        if not icon and item_cls then
-            icon = CreateIcon(slot)
-        end
-        if clsid ~= 0 then
-            if string.find(name, "hair") then
-                if string.find(option, ":::") then
-                    local text = "{ol}Rank: " .. rank .. "{nl}"
-                    local result = StringSplit(option, ":::")
-                    if not string.find(option, "#@!") then
-                        for i = 1, 3 do
-                            local op_tbl = StringSplit(result[i], "/")
-                            local op_name = op_tbl[1]
-                            op_name = ScpArgMsg(op_name)
-                            local op_value = op_tbl[2]
-                            text = text .. op_name .. ScpArgMsg("PropUp") .. GET_COMMAED_STRING(op_value) .. "{nl}"
-                        end
-                    else
-                        text = text .. table.concat(result, "{nl}")
-
-                    end
-                    icon:SetTextTooltip(text)
-                end
-            elseif name == "pet" then
-                icon:SetTextTooltip(option)
-            else
-                icon:SetTooltipType("wholeitem")
-                icon:SetTooltipArg("None", clsid, iesid)
-            end
-        end
-    end
-    if string.find(name, "gem") then
-        if g.cc_helper_settings[g.cid].agm == 0 then
-            slot:ShowWindow(0)
-        elseif g.cc_helper_settings[g.cid].agm == 1 then
-            local gem_name = item_cls.ClassName
-            local icon = slot:GetIcon()
-            if not icon then
-                icon = CreateIcon(slot)
-            end
-            SET_SLOT_ITEM_CLS(slot, item_cls)
-            local lv_text = slot:CreateOrGetControl("richtext", "lv_text", 0, 30, 25, 25)
-            AUTO_CAST(lv_text)
-            if string.find(gem_name, "480") then
-                lv_text:SetText("{ol}{s14}LV480")
-                slot:SetSkinName("invenslot_rare")
-            elseif string.find(gem_name, "500") then
-                lv_text:SetText("{ol}{s14}LV500")
-                slot:SetSkinName("invenslot_unique")
-            elseif string.find(gem_name, "520") then
-                lv_text:SetText("{ol}{s14}LV520")
-                slot:SetSkinName("invenslot_legend")
-            elseif string.find(gem_name, "540") then
-                lv_text:SetText("{ol}{s14}LV540")
-                slot:SetSkinName("invenslot_pic_goddess")
-            else
-                lv_text:SetText("{ol}{s14}LV460")
-            end
-        end
-    end
-end
-
-function Cc_helper_check_settings(frame, ctrl)
-    local ctrl_name = ctrl:GetName()
-    if ctrl_name == "cch_auto_close" then
-        g.cc_helper_settings.etc.wh_close = ctrl:IsChecked()
-    elseif ctrl_name == "mccuse" then
-        g.cc_helper_settings[g.cid].mcc = ctrl:IsChecked()
-    elseif ctrl_name == "agmuse" then
-        g.cc_helper_settings[g.cid].agm = ctrl:IsChecked()
-        Cc_helper_setting_frame_init()
-    elseif ctrl_name == "all_agm" then
-        g.cc_helper_settings.etc.agm_stop = 1 - g.cc_helper_settings.etc.agm_stop
-    end
-    Cc_helper_save_settings()
-end
-
-function Cc_helper_toggle_settings(frame, ctrl)
-    local ctrl_name = ctrl:GetName()
-    if ctrl_name == "eco" or ctrl_name == "setting" then
-        local eco = GET_CHILD_RECURSIVELY(frame, "eco")
-        if g.cc_helper_settings.etc.eco == 0 then
-            g.cc_helper_settings.etc.eco = 1
-            eco:SetText("{ol}{s10}{#FF0000}eco")
-        else
-            g.cc_helper_settings.etc.eco = 0
-            eco:SetText("")
-        end
-    elseif ctrl_name == "use_toggle" then
-        g.cc_helper_settings[g.cid].agm_check = 1 - g.cc_helper_settings[g.cid].agm_check
-        Cc_helper_setting_frame_init()
-    end
-    Cc_helper_save_settings()
-end
-
-function Cc_helper_setting_frame_close(cch_setting)
-    INVENTORY_SET_CUSTOM_RBTNDOWN("None")
-    ui.DestroyFrame(cch_setting:GetName())
-    if g.settings.another_warehouse.use == 1 then
-        local awh = ui.GetFrame(addon_name_lower .. "awh")
-        if awh and awh:IsVisible() == 1 then
-            INVENTORY_SET_CUSTOM_RBTNDOWN("Another_warehouse_inv_rbtn")
-            return
-        end
-    else
-        local accountwarehouse = ui.GetFrame('accountwarehouse')
-        if accountwarehouse:IsVisible() == 1 then
-            INVENTORY_SET_CUSTOM_RBTNDOWN("ACCOUNT_WAREHOUSE_INV_RBTN")
-        else
-            INVENTORY_SET_CUSTOM_RBTNDOWN("None")
-        end
-    end
-end
-
-function Cc_helper_setting_copy()
-    local title = g.lang == "Japanese" and "{ol}コピー元選択" or "{ol}Select Copy Source"
-    local context = ui.CreateContextMenu("cc_helper_copy_context", title, 0, 0, 0, 0)
-    ui.AddContextMenuItem(context, "{ol}" .. "-----", "")
-    for cid, char_data in pairs(g.cc_helper_settings.etc.copys) do
-        local job_cls = GetClassByType("Job", char_data.jobid)
-        local job_name = GET_JOB_NAME(job_cls, char_data.gender)
-        local name = char_data.name
-        local text = name .. " (" .. job_name .. ")"
-        local scp = ui.AddContextMenuItem(context, text, string.format("Cc_helper_load_copy('%s')", cid))
-    end
-    ui.OpenContextMenu(context)
-end
-
-function Cc_helper_load_copy(cid)
-    for key, value in pairs(g.cc_helper_settings.etc.copys[cid]) do
-        if type(value) == "table" then
-            g.cc_helper_settings[g.cid].items = value
-        elseif key == "mcc" or key == "agm" or key == "agm_check" then
-            if key == "mcc" then
-                g.cc_helper_settings[g.cid].mcc = value
-            elseif key == "agm" then
-                g.cc_helper_settings[g.cid].agm = value
-            elseif key == "agm_check" then
-                g.cc_helper_settings[g.cid].agm_check = value
-            end
-        end
-    end
-    g.cc_helper_settings[g.cid].name = g.login_name
-    Cc_helper_save_settings()
-    ui.SysMsg(g.lang == "Japanese" and "設定をコピーしました" or "Settings copied")
-    Cc_helper_setting_frame_init()
-end
-
-function Cc_helper_setting_delete(frame, ctrl)
-    local title = g.lang == "Japanese" and "削除データ選択" or "Select Data to Delete"
-    local context = ui.CreateContextMenu("cc_helper_delete_context", "{ol}{#FF0000}" .. title, 0, 0, 0, 0)
-    ui.AddContextMenuItem(context, "{ol}{#FF0000}" .. "-----", "")
-    for cid, char_data in pairs(g.cc_helper_settings.etc.copys) do
-        local job_cls = GetClassByType("Job", char_data.jobid)
-        local job_name = GET_JOB_NAME(job_cls, char_data.gender)
-        local name = char_data.name
-        local text = "{ol}{#FF0000}" .. name .. " (" .. job_name .. ")"
-        local scp = ui.AddContextMenuItem(context, text, string.format("Cc_helper_setting_delete_('%s')", cid))
-    end
-    ui.OpenContextMenu(context)
-end
-
-function Cc_helper_setting_delete_(cid)
-    g.cc_helper_settings.etc.copys[cid] = nil
-    ui.SysMsg(g.lang == "Japanese" and "設定を削除しました" or "Settings deleted")
-    Cc_helper_save_settings()
-end
-
-function Cc_helper_setting_save(frame, ctrl)
-    local current_char_data_str = json.encode(g.cc_helper_settings[g.cid])
-    local new_copy_data = json.decode(current_char_data_str)
-    g.cc_helper_settings.etc.copys[g.cid] = new_copy_data
-    local pc_info = session.barrack.GetMyAccount():GetByStrCID(g.cid)
-    local pc_apc = pc_info:GetApc()
-    local jobid = pc_info:GetRepID() or pc_apc:GetJob()
-    local gender = pc_apc:GetGender()
-    g.cc_helper_settings.etc.copys[g.cid].jobid = jobid
-    g.cc_helper_settings.etc.copys[g.cid].gender = gender
-    ui.SysMsg(g.lang == "Japanese" and "設定を保存しました" or "Settings saved")
-    Cc_helper_save_settings()
-end
-
-function Cc_helper_context_pet()
-    local pet_list = session.pet.GetPetInfoVec()
-    local context = ui.CreateContextMenu("PET_SELECT", "{ol}Pet Select", 400, 0, -400, 0)
-    for i = 0, pet_list:size() - 1 do
-        local info = pet_list:at(i)
-        local obj = GetIES(info:GetObject())
-        local name = info:GetName()
-        local pet_iesid = info:GetStrGuid()
-        local cls_name = obj.ClassName
-        local cls_id = obj.ClassID
-        local sin_name = obj.Name
-        local cls_list, list_cnt = GetClassList("Companion")
-        for index = 0, list_cnt - 1 do
-            local companion_ies = GetClassByIndexFromList(cls_list, index)
-            local ies_cls_name = companion_ies.ClassName
-            if cls_name == ies_cls_name then
-                local job_id = tonumber(companion_ies.JobID)
-                if job_id ~= 3014 then
-                    local option = "{ol}[LV:" .. obj.Lv .. "] " .. name .. " ( " .. dic.getTranslatedStr(obj.Name) ..
-                                       " ) "
-                    local companion_cls = GetClass("Companion", TryGetProp(obj, "ClassName", "None"))
-                    local pet_buff = TryGetProp(companion_cls, "PetBuff", "None")
-                    local buff_cls = GetClass("Buff", pet_buff)
-                    if buff_cls then
-                        local tool_tip = TryGetProp(buff_cls, "ToolTip", "None")
-                        if tool_tip ~= "None" then
-                            option = option .. "{nl}" .. dic.getTranslatedStr(tool_tip)
-                        end
-                    end
-                    local scp = string.format("Cc_helper_context_pet_set(%d,'%s','%s')", cls_id, pet_iesid, option)
-                    ui.AddContextMenuItem(context,
-                        "{img " .. obj.Icon .. " 20 20}" .. "{ol} [LV:" .. obj.Lv .. "] " .. name .. " ( " ..
-                            dic.getTranslatedStr(obj.Name) .. " ) ", scp)
-                    break
-                end
-            end
-        end
-    end
-    ui.OpenContextMenu(context)
-end
-
-function Cc_helper_context_pet_set(cls_id, pet_iesid, option)
-    local mon_cls = GetClassByType("Monster", cls_id)
-    local cch_setting = ui.GetFrame(addon_name_lower .. "cch_setting")
-    local slot = GET_CHILD_RECURSIVELY(cch_setting, "pet")
-    AUTO_CAST(slot)
-    local image = mon_cls.Icon
-    SET_SLOT_ITEM_CLS(slot, mon_cls)
-    SET_SLOT_IMG(slot, image)
-    SET_SLOT_IESID(slot, pet_iesid)
-    g.cc_helper_settings[g.cid].items.pet.iesid = pet_iesid
-    g.cc_helper_settings[g.cid].items.pet.clsid = cls_id
-    g.cc_helper_settings[g.cid].items.pet.image = image
-    g.cc_helper_settings[g.cid].items.pet.option = option
-    Cc_helper_save_settings()
-end
-
-function Cc_helper_cancel(frame, slot)
-    slot:ClearIcon()
-    slot:RemoveAllChild()
-    for key, value in pairs(g.cc_helper_settings[g.cid].items) do
-        if slot:GetName() == key then
-            value.image = ""
-            value.iesid = ""
-            value.clsid = 0
-            value.option = ""
-            if not string.find(key, "god") and not string.find(key, "leg") then
-                slot:SetSkinName("invenslot2")
-            end
-            break
-        end
-    end
-    Cc_helper_save_settings()
-end
-
-function Cc_helper_frame_drop(frame, ctrl)
-    local lift_icon = ui.GetLiftIcon()
-    local slot = lift_icon:GetParent()
-    local icon_info = lift_icon:GetInfo()
-    local iesid = icon_info:GetIESID()
-    local inv_item = session.GetInvItemByGuid(iesid)
-    local item_obj = GetIES(inv_item:GetObject())
-    Cc_helper_inv_rbtn(item_obj, slot, iesid)
-end
-
-function Cc_helper_inv_rbtn(item_obj, slot, iesid, awh_item)
-    local cch_setting = ui.GetFrame(addon_name_lower .. "cch_setting")
-    if not cch_setting or cch_setting:IsVisible() == 0 then
-        return
-    end
-    if not g.cc_helper_settings or not g.cc_helper_settings[g.cid] or not g.cc_helper_settings[g.cid].items then
-        return
-    end
-    local gbox = GET_CHILD(cch_setting, "gbox")
-    if not iesid then
-        local icon = slot:GetIcon()
-        local icon_info = icon:GetInfo()
-        iesid = icon_info:GetIESID()
-    end
-    local inv_item = awh_item or session.GetInvItemByGuid(iesid)
-    if not inv_item then
-        return
-    end
-    local image = TryGetProp(item_obj, "TooltipImage", "None")
-    local clsid = item_obj.ClassID
-    local type = item_obj.ClassType
-    local gem_type = GET_EQUIP_GEM_TYPE(item_obj)
-    local parent_name = slot:GetParent():GetName()
-    local char_belonging = TryGetProp(item_obj, "CharacterBelonging", 0)
-    local temp_tbl = {
-        ["Seal"] = "seal",
-        ["Ark"] = "ark",
-        ["LEG"] = "leg",
-        ["GODDESS"] = "god",
-        ["sset_HairAcc_Acc1"] = "hair1",
-        ["sset_HairAcc_Acc2"] = "hair2",
-        ["sset_HairAcc_Acc3"] = "hair3",
-        ["CORE"] = "core",
-        ["Relic"] = "relic",
-        ["aether"] = "gem"
-    }
-    for key, value in pairs(temp_tbl) do
-        local target_item_setting = g.cc_helper_settings[g.cid].items[value]
-        if target_item_setting then
-            if key == "Seal" and key == type and clsid ~= 614001 then
-                target_item_setting.clsid = clsid
-                target_item_setting.iesid = iesid
-                target_item_setting.image = image
-                Cc_helper_slot_create(gbox, value, nil, nil, nil, nil, nil, nil, clsid, iesid, nil, nil, image)
-                break
-            elseif key == "Ark" and key == type and char_belonging ~= 1 then
-                target_item_setting.clsid = clsid
-                target_item_setting.iesid = iesid
-                target_item_setting.image = image
-                Cc_helper_slot_create(gbox, value, nil, nil, nil, nil, nil, nil, clsid, iesid, nil, nil, image)
-                break
-            elseif key == "CORE" and key == type then
-                target_item_setting.clsid = clsid
-                target_item_setting.iesid = iesid
-                target_item_setting.image = image
-                Cc_helper_slot_create(gbox, value, nil, nil, nil, nil, nil, nil, clsid, iesid, nil, nil, image)
-                break
-            elseif key == "Relic" and key == type then
-                target_item_setting.clsid = clsid
-                target_item_setting.iesid = iesid
-                target_item_setting.image = image
-                Cc_helper_slot_create(gbox, value, nil, nil, nil, nil, nil, nil, clsid, iesid, nil, nil, image)
-                break
-            elseif key == "LEG" and key == item_obj.CardGroupName then
-                target_item_setting.clsid = clsid
-                target_item_setting.iesid = iesid
-                target_item_setting.image = image
-                Cc_helper_slot_create(gbox, value, nil, nil, nil, nil, nil, nil, clsid, iesid, nil, nil, image)
-                break
-            elseif key == "GODDESS" and key == item_obj.CardGroupName then
-                target_item_setting.clsid = clsid
-                target_item_setting.iesid = iesid
-                target_item_setting.image = image
-                Cc_helper_slot_create(gbox, value, nil, nil, nil, nil, nil, nil, clsid, iesid, nil, nil, image)
-                break
-            elseif key == "sset_HairAcc_Acc1" and key == parent_name then
-                local option, rank = Cc_helper_hair_option(item_obj)
-                target_item_setting.rank = rank
-                target_item_setting.option = option
-                target_item_setting.clsid = clsid
-                target_item_setting.iesid = iesid
-                target_item_setting.image = image
-                Cc_helper_slot_create(gbox, value, nil, nil, nil, nil, nil, nil, clsid, iesid, option, rank, image)
-                break
-            elseif key == "sset_HairAcc_Acc2" and key == parent_name then
-                local option, rank = Cc_helper_hair_option(item_obj)
-                target_item_setting.rank = rank
-                target_item_setting.option = option
-                target_item_setting.clsid = clsid
-                target_item_setting.iesid = iesid
-                target_item_setting.image = image
-                Cc_helper_slot_create(gbox, value, nil, nil, nil, nil, nil, nil, clsid, iesid, option, rank, image)
-                break
-            elseif key == "sset_HairAcc_Acc3" and key == parent_name then
-                local option, rank = Cc_helper_hair_option(item_obj)
-                target_item_setting.rank = rank
-                target_item_setting.option = option
-                target_item_setting.clsid = clsid
-                target_item_setting.iesid = iesid
-                target_item_setting.image = image
-                Cc_helper_slot_create(gbox, value, nil, nil, nil, nil, nil, nil, clsid, iesid, option, rank, image)
-                break
-            end
-        end
-        if gem_type == "aether" and key == "aether" then
-            if g.cc_helper_settings[g.cid].agm == 0 then
-                return
-            end
-            for i = 1, 4 do
-                local slot_name = "gem" .. i
-                local slot = GET_CHILD(gbox, slot_name)
-                if slot then
-                    local icon = slot:GetIcon()
-                    if not icon then
-                        if g.cc_helper_settings[g.cid].items[slot_name] then
-                            g.cc_helper_settings[g.cid].items[slot_name].clsid = clsid
-                            Cc_helper_slot_create(gbox, slot_name, nil, nil, nil, nil, nil, nil, clsid, iesid, nil, nil,
-                                image)
-                        end
-                        break
-                    end
-                end
-            end
-        end
-    end
-    Cc_helper_save_settings()
-end
--- putitem
-function Cc_helper_putitem(frame, in_btn, str, step)
-    if g.another_warehouse_func == true then
-        ui.SysMsg(g.lang == "Japanese" and "[AWH]が作動中です" or "[AWH] is currently operating")
-        return
-    end
-    if step == 0 then
-        in_btn:SetUserValue("STEP", 0)
-        in_btn:RunUpdateScript("Cc_helper_unequip_card", 0.1)
-    elseif step == 1 then
-        in_btn:SetUserValue("STEP", 1)
-        Cc_helper_in_btn_start(in_btn)
-    elseif step == 2 then
-        in_btn:SetUserValue("STEP", 2)
-        local temp_tbl = {"hair1", "hair2", "hair3", "seal", "ark", "core"}
-        local delay = 0.8
-        for _, equip in ipairs(temp_tbl) do
-            if g.cc_helper_settings[g.cid].items[equip].clsid ~= 0 then
-                delay = delay - 0.1
-            end
-        end
-        if delay > 0.3 then
-            delay = 0.3
-        end
-        in_btn:RunUpdateScript("Cc_helper_unequip_card", delay)
-    elseif step == 3 then
-        in_btn:SetUserValue("STEP", 3)
-        in_btn:RunUpdateScript("Cc_helper_inv_to_warehouse", 0.2)
-    elseif step == 4 then
-        in_btn:SetUserValue("STEP", 4)
-        Cc_helper_in_btn_aethergem_mgr(in_btn)
-    elseif step == 5 then
-        in_btn:SetUserValue("STEP", 5)
-        in_btn:RunUpdateScript("Cc_helper_gem_inv_to_warehouse", 0.1)
-    elseif step == 6 then
-        in_btn:SetUserValue("STEP", 6)
-        if g.cc_helper_settings[g.cid].mcc == 1 then
-            Monster_card_changer_monstercardpreset_open(1)
-            in_btn:RunUpdateScript("Cc_helper_mcc_operation", 0.1)
-        else
-            Cc_helper_putitem(nil, in_btn, nil, 7)
-        end
-    elseif step == 7 then
-        in_btn:SetUserValue("STEP", 7)
-        Cc_helper_end_of_operation(in_btn)
-    end
-end
-
-function Cc_helper_unequip_card(in_btn)
-    local step = in_btn:GetUserIValue("STEP")
-    local target_key, slot_index, next_step
-    if step == 0 then
-        target_key = "god"
-        slot_index = 14
-        next_step = 1
-    elseif step == 2 then
-        local eco = g.cc_helper_settings.etc.eco or 0
-        if eco == 1 then
-            in_btn:StopUpdateScript("Cc_helper_unequip_card")
-            Cc_helper_putitem(nil, in_btn, nil, 3)
-            return 0
-        end
-        target_key = "leg"
-        slot_index = 13
-        next_step = 3
-    else
-        return 0
-    end
-    local save_clsid = g.cc_helper_settings[g.cid].items[target_key].clsid
-    if save_clsid ~= 0 then
-        local card_info = equipcard.GetCardInfo(slot_index)
-        if card_info and card_info:GetCardID() == save_clsid then
-            local monstercardslot = ui.GetFrame("monstercardslot")
-            if monstercardslot:IsVisible() == 0 then
-                MONSTERCARDSLOT_FRAME_OPEN()
-            end
-            if in_btn:GetUserIValue("IS_REQ") == 0 then
-                in_btn:SetUserValue("IS_REQ", 1)
-                local arg_str = string.format("%d 1", slot_index - 1)
-                pc.ReqExecuteTx_NumArgs("SCR_TX_UNEQUIP_CARD_SLOT", arg_str)
-            end
-            return 1
-        end
-    end
-    in_btn:SetUserValue("IS_REQ", 0)
-    in_btn:StopUpdateScript("Cc_helper_unequip_card")
-    Cc_helper_putitem(nil, in_btn, nil, next_step)
-    return 0
-end
-
-function Cc_helper_in_btn_start(in_btn)
-    local inventory = ui.GetFrame("inventory")
-    if true == BEING_TRADING_STATE() then
-        return
-    end
-    local is_empty_slot = false
-    if session.GetInvItemList():Count() < MAX_INV_COUNT then
-        is_empty_slot = true
-    end
-    if is_empty_slot == true then
-        in_btn:RunUpdateScript("Cc_helper_unequip", 0.1)
-    else
-        ui.SysMsg(ScpArgMsg("Auto_inBenToLie_Bin_SeulLosi_PilyoHapNiDa."))
-        return
-    end
-end
-
-function Cc_helper_unequip(in_btn)
-    local inventory = ui.GetFrame("inventory")
-    local eqp_tab = GET_CHILD_RECURSIVELY(inventory, "inventype_Tab")
-    eqp_tab:SelectTab(1)
-    local equip_tbl = {0, 20, 1, 25, 27, 29, 35}
-    local temp_tbl = {"hair1", "hair2", "hair3", "seal", "ark", "relic", "core"}
-    local equip_item_list = session.GetEquipItemList()
-    for i, equip_index in ipairs(equip_tbl) do
-        local equip_item = equip_item_list:GetEquipItemByIndex(equip_index)
-        local iesid = equip_item:GetIESID()
-        if iesid ~= "0" then
-            if g.cc_helper_settings[g.cid].items[temp_tbl[i]].iesid == iesid then
-                item.UnEquip(equip_index)
-                return 1
-            end
-        end
-    end
-    in_btn:StopUpdateScript("Cc_helper_unequip")
-    Cc_helper_putitem(nil, in_btn, nil, 2)
-    return 0
-end
-
-function Cc_helper_inv_to_warehouse(in_btn)
-    local temp_tbl = {{
-        key = "seal",
-        value = "sset_Accessory_Seal"
-    }, {
-        key = "ark",
-        value = "sset_Accessory_Ark"
-    }, {
-        key = "core",
-        value = "sset_Accessory_Core"
-    }, {
-        key = "relic",
-        value = "sset_Relic"
-    }, {
-        key = "hair1",
-        value = "sset_HairAcc_Acc1"
-    }, {
-        key = "hair2",
-        value = "sset_HairAcc_Acc2"
-    }, {
-        key = "hair3",
-        value = "sset_HairAcc_Acc3"
-    }, {
-        key = "leg",
-        value = "sset_Card_CardLeg"
-    }, {
-        key = "god",
-        value = "sset_Card_CardGoddess"
-    }}
-    local accountwarehouse = ui.GetFrame("accountwarehouse")
-    if accountwarehouse:IsVisible() == 1 then
-        local handle = accountwarehouse:GetUserIValue("HANDLE")
-        local inventory = ui.GetFrame("inventory")
-        local inventype_Tab = GET_CHILD_RECURSIVELY(inventory, "inventype_Tab")
-        for i, data in ipairs(temp_tbl) do
-            local key = data.key
-            local value = data.value
-            local iesid = g.cc_helper_settings[g.cid].items[key].iesid
-            local inv_item = session.GetInvItemByGuid(iesid)
-            if inv_item then
-                if i <= 5 then
-                    inventype_Tab:SelectTab(1)
-                    local inventree_Equip = GET_CHILD_RECURSIVELY(inventory, "inventree_Equip")
-                    local child_count = inventree_Equip:GetChildCount()
-                    for j = 0, child_count - 1 do
-                        local child = inventree_Equip:GetChildByIndex(j)
-                        local child_name = child:GetName()
-                        if child_name == value then
-                            local child_y = child:GetY()
-                            local treeGbox_Equip = GET_CHILD_RECURSIVELY(inventory, "treeGbox_Equip")
-                            treeGbox_Equip:SetScrollPos(tonumber(child_y))
-                            break
-                        end
-                    end
-                else
-                    inventype_Tab:SelectTab(4)
-                    local inventree_Card = GET_CHILD_RECURSIVELY(inventory, "inventree_Card")
-                    local child_count = inventree_Card:GetChildCount()
-                    for j = 0, child_count - 1 do
-                        local child = inventree_Card:GetChildByIndex(j)
-                        local child_name = child:GetName()
-                        if child_name == value then
-                            local child_y = child:GetY()
-                            local treeGbox_Card = GET_CHILD_RECURSIVELY(inventory, "treeGbox_Card")
-                            treeGbox_Card:SetScrollPos(tonumber(child_y))
-                            break
-                        end
-                    end
-                end
-                if Cc_helper_checkvalid(inv_item) then
-                    local goal_index = Cc_helper_get_goal_index()
-                    local item_cls = GetClassByType("Item", g.cc_helper_settings[g.cid].items[key].clsid)
-                    local item_name = item_cls.Name
-                    local log = g.lang == "Japanese" and "倉庫に格納しました" .. "：[" .. "{#EE82EE}" ..
-                                    item_name .. "{#FFFF00}]×" .. "{#EE82EE}1" or "Item to warehousing" .. "：[" ..
-                                    "{#EE82EE}" .. item_name .. "{#FFFF00}]×" .. "{#EE82EE}1"
-                    CHAT_SYSTEM(log)
-                    item.PutItemToWarehouse(IT_ACCOUNT_WAREHOUSE, iesid, 1, handle, goal_index)
-                    imcSound.PlaySoundEvent("sys_jam_slot_equip")
-                    return 1
-                end
-            end
-        end
-        in_btn:StopUpdateScript("Cc_helper_inv_to_warehouse")
-        Cc_helper_putitem(nil, in_btn, nil, 4)
-        return 0
-    end
-    in_btn:StopUpdateScript("Cc_helper_inv_to_warehouse")
-    return 0
-end
-
-function Cc_helper_in_btn_aethergem_mgr(in_btn)
-    local inventory = ui.GetFrame("inventory")
-    local equip_slots = {"RH", "LH", "RH_SUB", "LH_SUB"}
-    local eco = g.cc_helper_settings.etc.eco or 0
-    local agm_stop = g.cc_helper_settings.etc.agm_stop or 0
-    local agm = g.cc_helper_settings[g.cid].agm
-    if eco == 0 and agm_stop == 0 and agm == 1 then
-        local eq_count = 0
-        local has_target_gem = false
-        g.cc_helper_guids = {}
-        for _, slot_name in ipairs(equip_slots) do
-            local equip_slot = GET_CHILD_RECURSIVELY(inventory, slot_name)
-            local icon = equip_slot:GetIcon()
-            if icon then
-                local icon_info = icon:GetInfo()
-                local iesid = icon_info:GetIESID()
-                g.cc_helper_guids[slot_name] = iesid
-                eq_count = eq_count + 1
-                if not has_target_gem then
-                    local equip_item = session.GetEquipItemByGuid(iesid)
-                    if equip_item then
-                        local gem_id = equip_item:GetEquipGemID(2) -- 2 = Aether Gem
-                        for i = 1, 4 do
-                            local gem_key = "gem" .. i
-                            if gem_id == g.cc_helper_settings[g.cid].items[gem_key].clsid then
-                                has_target_gem = true
-                                break
-                            end
-                        end
-                    end
-                end
-            end
-        end
-        if has_target_gem then
-            if eq_count == 4 then
-                Cc_helper_msgbox_frame(in_btn)
-                return
-            else
-                local msg = g.lang == "Japanese" and "{ol}武器4ヶ所着けてください" or
-                                "{ol}Please equip weapons in 4 slots"
-                ui.SysMsg(msg)
-                Cc_helper_putitem(nil, in_btn, nil, 6)
-                return
-            end
-        else
-            Cc_helper_putitem(nil, in_btn, nil, 6)
-            return
-        end
-    end
-    Cc_helper_putitem(nil, in_btn, nil, 6)
-end
-
-function Cc_helper_msgbox_frame(in_btn)
-    if g.cc_helper_settings[g.cid].agm_check == 1 then
-        local top_frame = in_btn:GetTopParentFrame()
-        local msg = g.lang == "Japanese" and "{ol}{#FFFFFF}エーテルジェムを付替えますか？" or
-                        "{ol}{#FFFFFF}Would you like to swap Aether Gems?"
-        local yes_scp = string.format("Cc_helper_start_agm_reserve('%s')", top_frame:GetName())
-        local no_scp = string.format("Cc_helper_start_agm_reserve('%s',%d)", top_frame:GetName(), 1)
-        ui.MsgBox(msg, yes_scp, no_scp)
-    else
-        Cc_helper_start_agm(in_btn)
-    end
-end
-
-function Cc_helper_start_agm_reserve(frame_name, no_scp)
-    local top_frame = ui.GetFrame(frame_name)
-    local in_btn = GET_CHILD_RECURSIVELY(top_frame, "cch_in_btn")
-    if not no_scp then
-        Cc_helper_start_agm(in_btn)
-    else
-        Cc_helper_putitem(nil, in_btn, nil, 6)
-    end
-end
-
-function Cc_helper_start_agm(btn)
-    local goddess_equip_manager = ui.GetFrame("goddess_equip_manager") -- layerlevel="92"
-    if goddess_equip_manager:IsVisible() == 0 then
-        help.RequestAddHelp("TUTO_GODDESSEQUIP_1")
-        goddess_equip_manager:ShowWindow(1)
-        goddess_equip_manager:SetLayerLevel(100)
-        local main_tab = GET_CHILD_RECURSIVELY(goddess_equip_manager, "main_tab")
-        main_tab:SelectTab(2)
-        GODDESS_MGR_SOCKET_OPEN(goddess_equip_manager)
-        GODDESS_EQUIP_UI_TUTORIAL_CHECK(goddess_equip_manager)
-        if btn:GetName() == "cch_in_btn" then
-            btn:SetUserValue("AG_STEP", 1)
-            btn:RunUpdateScript("Cc_helper_in_btn_agm", 0.1)
-        else
-            btn:SetUserValue("AG_STEP", 1)
-            btn:RunUpdateScript("Cc_helper_out_btn_agm", 0.1)
-        end
-    end
-end
-
-function Cc_helper_in_btn_agm(in_btn)
-    local inventory = ui.GetFrame("inventory")
-    if inventory:IsVisible() == 0 then
-        in_btn:StopUpdateScript("Cc_helper_in_btn_agm")
-        return 0
-    end
-    local ag_step = in_btn:GetUserIValue("AG_STEP")
-    local goddess_equip_manager = ui.GetFrame("goddess_equip_manager")
-    local spot_nums = {8, 9, 30}
-    local equips = {"RH", "LH", "RH_SUB", "LH_SUB"}
-    if ag_step <= 3 then
-        local guid = g.cc_helper_guids[equips[ag_step]]
-        local equip_item = session.GetEquipItemByGuid(guid)
-        if ag_step == 3 then
-            DO_WEAPON_SLOT_CHANGE(inventory, 2)
-        end
-        if not equip_item then
-            in_btn:SetUserValue("AG_STEP", ag_step + 1)
-        else
-            item.UnEquip(spot_nums[ag_step])
-        end
-        return 1
-    end
-    if ag_step >= 4 and ag_step <= 7 then
-        local gem_index = 2 -- エーテルジェムは2
-        local guid = g.cc_helper_guids[equips[ag_step - 3]]
-        local inv_item = session.GetInvItemByGuid(guid)
-        if inv_item then
-            local item_obj = GetIES(inv_item:GetObject())
-            GODDESS_MGR_SOCKET_REG_ITEM(goddess_equip_manager, inv_item, item_obj)
-            local gem_id = inv_item:GetEquipGemID(gem_index)
-            if not gem_id or gem_id ~= 0 then
-                _GODDESS_MGR_SOCKET_REQ_GEM_REMOVE(gem_index)
-            else
-                local spot_name = equips[ag_step - 3]
-                if ag_step == 4 then
-                    DO_WEAPON_SLOT_CHANGE(inventory, 1)
-                elseif ag_step == 6 then
-                    DO_WEAPON_SLOT_CHANGE(inventory, 2)
-                end
-                ITEM_EQUIP(inv_item.invIndex, spot_name)
-            end
-            return 1
-        else
-            in_btn:SetUserValue("AG_STEP", ag_step + 1)
-        end
-        return 1
-    end
-    g.cc_helper_guids = nil
-    goddess_equip_manager:SetLayerLevel(92)
-    Cc_helper_putitem(nil, in_btn, nil, 5)
-end
-
-function Cc_helper_gem_inv_to_warehouse(in_btn)
-    local inventory = ui.GetFrame("inventory")
-    local accountwarehouse = ui.GetFrame("accountwarehouse")
-    if inventory:IsVisible() == 0 or accountwarehouse:IsVisible() == 0 then
-        in_btn:StopUpdateScript("Cc_helper_gem_inv_to_warehouse")
-        return 0
-    end
-    if not g.cc_helper_gem_queue then
-        local gem_tab = GET_CHILD_RECURSIVELY(inventory, "inventype_Tab")
-        gem_tab:SelectTab(6)
-        local required_counts = {}
-        for i = 1, 4 do
-            local item_data = g.cc_helper_settings[g.cid].items["gem" .. i]
-            if item_data and item_data.clsid ~= 0 then
-                local id = item_data.clsid
-                required_counts[id] = (required_counts[id] or 0) + 1
-            end
-        end
-        local candidates = {}
-        local inv_list = session.GetInvItemList()
-        local guid_list = inv_list:GetGuidList()
-        local cnt = guid_list:Count()
-        for i = 0, cnt - 1 do
-            local guid = guid_list:Get(i)
-            local inv_item = inv_list:GetItemByGuid(guid)
-            local obj = GetIES(inv_item:GetObject())
-            local id = obj.ClassID
-            if required_counts[id] and Cc_helper_checkvalid(inv_item) then
-                local level = get_current_aether_gem_level(obj)
-                table.insert(candidates, {
-                    level = tonumber(level) or 0,
-                    iesid = guid,
-                    clsid = id,
-                    name = obj.Name,
-                    inv_item = inv_item
-                })
-            end
-        end
-        table.sort(candidates, function(a, b)
-            return a.level > b.level
-        end)
-        local queue = {}
-        local added_counts = {}
-        for _, gem in ipairs(candidates) do
-            local id = gem.clsid
-            local limit = required_counts[id] or 0
-            local current = added_counts[id] or 0
-            if current < limit then
-                table.insert(queue, gem)
-                added_counts[id] = current + 1
-            end
-        end
-        g.cc_helper_gem_queue = queue
-    end
-    if #g.cc_helper_gem_queue > 0 then
-        local gem_data = g.cc_helper_gem_queue[1]
-        local handle = accountwarehouse:GetUserIValue("HANDLE")
-        local inv_item = session.GetInvItemByGuid(gem_data.iesid)
-        if inv_item then
-            local goal_index = Cc_helper_get_goal_index()
-            local log = g.lang == "Japanese" and "倉庫に格納しました：[{#EE82EE}" .. gem_data.name ..
-                            "{#FFFF00}]×{#EE82EE}1" or "Item to warehousing：[{#EE82EE}" .. gem_data.name ..
-                            "{#FFFF00}]×{#EE82EE}1"
-            CHAT_SYSTEM(log)
-            session.ResetItemList()
-            session.AddItemID(gem_data.iesid, 1)
-            item.PutItemToWarehouse(IT_ACCOUNT_WAREHOUSE, gem_data.iesid, 1, handle, goal_index)
-            return 1
-        else
-            table.remove(g.cc_helper_gem_queue, 1)
-            return 1
-        end
-    end
-    g.cc_helper_gem_queue = nil
-    in_btn:StopUpdateScript("Cc_helper_gem_inv_to_warehouse")
-    Cc_helper_putitem(nil, in_btn, nil, 6)
-    return 0
-end
-
-function Cc_helper_mcc_operation(in_btn)
-    local monstercardpreset = ui.GetFrame("monstercardpreset")
-    if not g.monster_card_changer_ready then
-        return 1
-    elseif g.monster_card_changer_ready == 1 then
-        g.monster_card_changer_ready = 2
-        Monster_card_changer_remove(monstercardpreset)
-    elseif g.monster_card_changer_ready == 2 then
-        return 1
-    elseif g.monster_card_changer_ready == 3 then
-        g.monster_card_changer_ready = nil
-        in_btn:StopUpdateScript("Cc_helper_mcc_operation")
-        Cc_helper_putitem(nil, in_btn, nil, 7)
-        return 0
-    end
-    return 1
-end
--- takeitem
-function Cc_helper_take_item(frame, out_btn, str, step)
-    if g.another_warehouse_func == true then
-        ui.SysMsg(g.lang == "Japanese" and "[AWH]が作動中です" or "[AWH] is currently operating")
-        return
-    end
-    if step == 0 then
-        out_btn:SetUserValue("STEP", 0)
-        out_btn:RunUpdateScript("Cc_helper_equip_take_warehouse_item", 0.1)
-    elseif step == 1 then
-        out_btn:SetUserValue("TRY", 0)
-        out_btn:SetUserValue("STEP", 1)
-        out_btn:RunUpdateScript("Cc_helper_equip_card", 0.1)
-    elseif step == 2 then
-        out_btn:SetUserValue("STEP", 2)
-        Cc_helper_equips_reserve(out_btn)
-    elseif step == 3 then
-        out_btn:SetUserValue("TRY", 0)
-        out_btn:SetUserValue("STEP", 3)
-        out_btn:RunUpdateScript("Cc_helper_equip_card", 0.1)
-    elseif step == 4 then
-        out_btn:SetUserValue("STEP", 4)
-        out_btn:RunUpdateScript("Cc_helper_take_agm_reserve", 0.1)
-    elseif step == 5 then
-        out_btn:SetUserValue("STEP", 5)
-        out_btn:RunUpdateScript("Cc_helper_out_btn_agm_reserve", 0.1)
-    elseif step == 6 then
-        out_btn:SetUserValue("STEP", 6)
-        if g.cc_helper_settings[g.cid].mcc == 1 then
-            Cc_helper_end_of_operation(out_btn, 1)
-            return
-        else
-            Cc_helper_take_item(nil, out_btn, nil, 7)
-        end
-    elseif step == 7 then
-        out_btn:SetUserValue("STEP", 7)
-        Cc_helper_end_of_operation(out_btn)
-    end
-end
-
-function Cc_helper_equip_take_warehouse_item(out_btn)
-    local equip_tbl = {"seal", "ark", "relic", "core", "leg", "god", "hair1", "hair2", "hair3"}
-    if g.cc_helper_settings.etc.eco == 1 then
-        equip_tbl = {"seal", "ark", "relic", "core", "god", "hair1", "hair2", "hair3"}
-    end
-    if not g.cc_helper_take_guids then
-        g.cc_helper_take_guids = {}
-        local accountwarehouse = ui.GetFrame("accountwarehouse")
-        local handle = accountwarehouse:GetUserIValue("HANDLE")
-        local item_list = session.GetEtcItemList(IT_ACCOUNT_WAREHOUSE)
-        session.ResetItemList()
-        for _, equip in pairs(equip_tbl) do
-            local iesid = g.cc_helper_settings[g.cid].items[equip].iesid
-            if iesid ~= "" then
-                local inv_item = item_list:GetItemByGuid(iesid)
-                if inv_item then
-                    session.AddItemID(iesid, 1)
-                    table.insert(g.cc_helper_take_guids, iesid)
-                end
-            end
-        end
-        if #g.cc_helper_take_guids > 0 then
-            item.TakeItemFromWarehouse_List(IT_ACCOUNT_WAREHOUSE, session.GetItemIDList(), handle)
-        end
-        return 1
-    end
-    local count = #g.cc_helper_take_guids
-    for _, target_iesid in ipairs(g.cc_helper_take_guids) do
-        local inv_item = session.GetInvItemByGuid(target_iesid)
-        if inv_item then
-            count = count - 1
-        end
-    end
-    local equip_item_list = session.GetEquipItemList()
-    local equip_guid_list = equip_item_list:GetGuidList()
-    local eq_count = equip_guid_list:Count()
-    for i = 0, eq_count - 1 do
-        local guid = equip_guid_list:Get(i)
-        for _, target_iesid in ipairs(g.cc_helper_take_guids) do
-            if guid == target_iesid then
-                count = count - 1
-                break
-            end
-        end
-    end
-    if count == 0 then
-        out_btn:StopUpdateScript("Cc_helper_equip_take_warehouse_item")
-        g.cc_helper_take_guids = nil
-        Cc_helper_update_hair_stats()
-        Cc_helper_take_item(nil, out_btn, nil, 1)
-        return 0
-    else
-        return 1
-    end
-end
-
-function Cc_helper_equip_card(out_btn)
-    local inventory = ui.GetFrame("inventory")
-    local monstercardslot = ui.GetFrame("monstercardslot")
-    local step = out_btn:GetUserIValue("STEP")
-    local try = out_btn:GetUserIValue("TRY")
-    local key, card_index, next_step, is_eco_check
-    if step == 1 then
-        key = "god"
-        card_index = 13
-        next_step = 2
-        is_eco_check = false
-    elseif step == 3 then
-        key = "leg"
-        card_index = 12
-        next_step = 4
-        is_eco_check = true
-    end
-    if is_eco_check and g.cc_helper_settings.etc.eco == 1 then
-        out_btn:StopUpdateScript("Cc_helper_equip_card")
-        Cc_helper_take_item(nil, out_btn, nil, next_step)
-        return 0
-    end
-    local card_id = GETMYCARD_INFO(card_index)
-    if card_id == 0 then
-        local iesid = g.cc_helper_settings[g.cid].items[key].iesid
-        if iesid ~= "" then
-            local inv_item = session.GetInvItemByGuid(iesid)
-            if inv_item then
-                local inv_tab = GET_CHILD_RECURSIVELY(inventory, "inventype_Tab")
-                inv_tab:SelectTab(4)
-                MONSTERCARDSLOT_FRAME_OPEN()
-                local arg_str = string.format("%d#%s", card_index, tostring(iesid))
-                pc.ReqExecuteTx("SCR_TX_EQUIP_CARD_SLOT", arg_str)
-                return 1
-            elseif not inv_item and try <= 4 then
-                out_btn:SetUserValue("TRY", try + 1)
-                return 1
-            end
-        end
-    end
-    out_btn:StopUpdateScript("cc_helper_equip_card")
-    Cc_helper_take_item(nil, out_btn, nil, next_step)
-    return 0
-end
-
-function Cc_helper_equips_reserve(out_btn)
-    g.cc_helper_tbl = {{
-        ["HAT"] = "hair1"
-    }, {
-        ["HAT_T"] = "hair2"
-    }, {
-        ["HAT_L"] = "hair3"
-    }, {
-        ["SEAL"] = "seal"
-    }, {
-        ["ARK"] = "ark"
-    }, {
-        ["RELIC"] = "relic"
-    }, {
-        ["CORE"] = "core"
-    }}
-    out_btn:RunUpdateScript("Cc_helper_equips", 0.1)
-end
-
-function Cc_helper_equips(out_btn)
-    local inventory = ui.GetFrame("inventory")
-    local inventype_Tab = GET_CHILD_RECURSIVELY(inventory, "inventype_Tab")
-    inventype_Tab:SelectTab(1)
-    for i, data in ipairs(g.cc_helper_tbl) do
-        for spot, equip in pairs(data) do
-            local guid = g.cc_helper_settings[g.cid].items[equip].iesid
-            local inv_item = session.GetInvItemByGuid(guid)
-            if inv_item then
-                local equip_slot = GET_CHILD_RECURSIVELY(inventory, spot)
-                local icon = equip_slot:GetIcon()
-                if not icon then
-                    local item_index = inv_item.invIndex
-                    ITEM_EQUIP(item_index, spot)
-                    return 1
-                end
-            end
-        end
-    end
-    out_btn:StopUpdateScript("cc_helper_equips")
-    Cc_helper_take_item(nil, out_btn, nil, 3)
-end
-
-function Cc_helper_take_agm_reserve(out_btn)
-    local inventory = ui.GetFrame("inventory")
-    local equips = {"RH", "LH", "RH_SUB", "LH_SUB"}
-    for _, slot_name in ipairs(equips) do
-        local equip_slot = GET_CHILD_RECURSIVELY(inventory, slot_name)
-        local icon = equip_slot:GetIcon()
-        if icon then
-            local icon_info = icon:GetInfo()
-            local guid = icon_info:GetIESID()
-            local equip_item = session.GetEquipItemByGuid(guid)
-            local available = equip_item:IsAvailableSocket(2)
-            if not available then
-                out_btn:StopUpdateScript("Cc_helper_take_agm_reserve")
-                Cc_helper_take_item(nil, out_btn, nil, 6)
-                return 0
-            end
-        end
-    end
-    local eco = g.cc_helper_settings.etc.eco or 0
-    local agm_stop = g.cc_helper_settings.etc.agm_stop or 0
-    local agm = g.cc_helper_settings[g.cid].agm
-    if eco == 0 and agm_stop == 0 and agm == 1 then
-        local equipSlots = {"RH", "LH", "RH_SUB", "LH_SUB"}
-        local found_count = 0
-        local inventory = ui.GetFrame("inventory")
-        for _, slot_name in ipairs(equipSlots) do
-            local equipSlot = GET_CHILD_RECURSIVELY(inventory, slot_name)
-            local icon = equipSlot:GetIcon()
-            if icon then
-                local icon_info = icon:GetInfo()
-                local guid = icon_info:GetIESID()
-                local equip_item = session.GetEquipItemByGuid(guid)
-                local gem_id = equip_item:GetEquipGemID(2)
-                if gem_id == 0 then
-                    found_count = found_count + 1
-                end
-            end
-        end
-        if found_count == 4 then
-            if g.cc_helper_settings[g.cid].agm_check == 1 then
-                local top_frame = out_btn:GetTopParentFrame()
-                local msg = g.lang == "Japanese" and "{ol}{#FFFFFF}エーテルジェムを付替えますか？" or
-                                "{ol}{#FFFFFF}Would you like to swap Aether Gems?"
-                local yes_scp = string.format("Cc_helper_take_msg_func('%s','%s')", top_frame:GetName(),
-                    out_btn:GetName())
-                local no_scp = string.format("Cc_helper_take_msg_func('%s','%s',%d)", top_frame:GetName(),
-                    out_btn:GetName(), 1)
-                ui.MsgBox(msg, yes_scp, no_scp)
-                return
-            else
-                out_btn:StopUpdateScript("Cc_helper_take_agm_reserve")
-                Cc_helper_take_agm(out_btn)
-                return 0
-            end
-        end
-    end
-    out_btn:StopUpdateScript("Cc_helper_take_agm_reserve")
-    Cc_helper_take_item(nil, out_btn, nil, 6)
-    return 0
-end
-
-function Cc_helper_take_msg_func(top_frame_name, out_btn_name, is_no_scp)
-    local top_frame = ui.GetFrame(top_frame_name)
-    local out_btn = GET_CHILD(top_frame, "cch_out_btn")
-    if not is_no_scp then
-        Cc_helper_take_agm(out_btn)
-    else
-        Cc_helper_take_item(nil, out_btn, nil, 6)
-    end
-end
-
-function Cc_helper_take_agm(out_btn)
-    local inventory = ui.GetFrame("inventory")
-    local inv_tab = GET_CHILD_RECURSIVELY(inventory, "inventype_Tab")
-    inv_tab:SelectTab(6)
-    local gems = {}
-    for i = 1, 4 do
-        local clsid = g.cc_helper_settings[g.cid].items["gem" .. i].clsid
-        if clsid ~= 0 then
-            gems[clsid] = true
-        end
-    end
-    g.cc_helper_take_gems = {}
-    local item_list = session.GetEtcItemList(IT_ACCOUNT_WAREHOUSE)
-    local sorted_guid_list = item_list:GetSortedGuidList()
-    local sorted_cnt = sorted_guid_list:Count()
-    local accountwarehouse = ui.GetFrame("accountwarehouse")
-    local handle = accountwarehouse:GetUserIValue("HANDLE")
-    for i = 0, sorted_cnt - 1 do
-        local iesid = sorted_guid_list:Get(i)
-        local awh_item = item_list:GetItemByGuid(iesid)
-        local type = awh_item.type
-        local obj = GetIES(awh_item:GetObject())
-        if gems[type] then
-            local level = get_current_aether_gem_level(obj)
-            table.insert(g.cc_helper_take_gems, {
-                level = tonumber(level) or 0,
-                iesid = iesid,
-                clsid = type,
-                loc = "warehouse"
-            })
-        end
-    end
-    local inv_item_list = session.GetInvItemList()
-    local guid_list = inv_item_list:GetGuidList()
-    local cnt = guid_list:Count()
-    for i = 0, cnt - 1 do
-        local guid = guid_list:Get(i)
-        local inv_item = inv_item_list:GetItemByGuid(guid)
-        local item_obj = GetIES(inv_item:GetObject())
-        local cls_id = item_obj.ClassID
-        if gems[cls_id] then
-            local level = get_current_aether_gem_level(item_obj)
-            table.insert(g.cc_helper_take_gems, {
-                level = tonumber(level) or 0,
-                iesid = guid,
-                clsid = cls_id,
-                loc = "inventory"
-            })
-        end
-    end
-    table.sort(g.cc_helper_take_gems, function(a, b)
-        return a.level > b.level
-    end)
-    if #g.cc_helper_take_gems < 4 then
-        local msg = g.lang == "Japanese" and "{ol}指定のエーテルジェムが4個ありません" or
-                        "{ol}You don't have 4 of the Aether Gems"
-        ui.SysMsg(msg)
-        Cc_helper_take_item(nil, out_btn, nil, 6)
-        return
-    end
-    session.ResetItemList()
-    local take_count = 0
-    for i = 1, 4 do
-        if g.cc_helper_take_gems[i].loc == "warehouse" then
-            session.AddItemID(g.cc_helper_take_gems[i].iesid, 1)
-            take_count = take_count + 1
-        end
-    end
-    if take_count > 0 then
-        item.TakeItemFromWarehouse_List(IT_ACCOUNT_WAREHOUSE, session.GetItemIDList(), handle)
-    end
-    Cc_helper_take_item(nil, out_btn, nil, 5)
-end
-
-function Cc_helper_out_btn_agm_reserve(out_btn)
-    g.Cc_helper_gem_guids = {}
-    local eq_count = 0
-    local equips = {"RH_SUB", "LH_SUB", "RH", "LH"}
-    local inventory = ui.GetFrame("inventory")
-    for _, slot_name in ipairs(equips) do
-        local equip_slot = GET_CHILD_RECURSIVELY(inventory, slot_name)
-        local icon = equip_slot:GetIcon()
-        if icon then
-            local icon_info = icon:GetInfo()
-            local iesid = icon_info:GetIESID()
-            if not g.Cc_helper_gem_guids[slot_name] then
-                g.Cc_helper_gem_guids[slot_name] = iesid
-                eq_count = eq_count + 1
-            end
-        end
-    end
-    if eq_count == 4 then
-        out_btn:StopUpdateScript("Cc_helper_out_btn_agm_reserve")
-        Cc_helper_start_agm(out_btn)
-        return 0
-    end
-    local msg = g.lang == "Japanese" and "{ol}武器4ヶ所着けてください" or
-                    "{ol}Please equip weapons in 4 slots"
-    ui.SysMsg(msg)
-    out_btn:StopUpdateScript("Cc_helper_out_btn_agm_reserve")
-    cc_helper_take_item(nil, out_btn, nil, 6)
-    return 0
-end
-
-function Cc_helper_out_btn_agm(out_btn)
-    local inventory = ui.GetFrame("inventory")
-    if inventory:IsVisible() == 0 then
-        out_btn:StopUpdateScript("Cc_helper_out_btn_agm")
-        return 0
-    end
-    local ag_step = out_btn:GetUserIValue("AG_STEP")
-    local goddess_equip_manager = ui.GetFrame("goddess_equip_manager")
-    local spot_nums = {8, 9, 30}
-    local equips = {"RH", "LH", "RH_SUB", "LH_SUB"}
-    if ag_step <= 3 then
-        local guid = g.Cc_helper_gem_guids[equips[ag_step]]
-        local equip_item = session.GetEquipItemByGuid(guid)
-        if ag_step == 3 then
-            DO_WEAPON_SLOT_CHANGE(inventory, 2)
-        end
-        if not equip_item then
-            out_btn:SetUserValue("AG_STEP", ag_step + 1)
-        else
-            item.UnEquip(spot_nums[ag_step])
-        end
-        return 1
-    end
-    local msg = g.lang == "Japanese" and "エーテルジェムソケットが空いていません" or
-                    "The Aether Gem socket is unavailable"
-    if ag_step >= 4 and ag_step <= 7 then
-        local guid = g.Cc_helper_gem_guids[equips[ag_step - 3]]
-        local inv_item = session.GetInvItemByGuid(guid)
-        local gem_guid = g.cc_helper_take_gems[ag_step - 3].iesid
-        local inv_item = session.GetInvItemByGuid(guid)
-        if inv_item then
-            local item_obj = GetIES(inv_item:GetObject())
-            GODDESS_MGR_SOCKET_REG_ITEM(goddess_equip_manager, inv_item, item_obj)
-            local gem_item = session.GetInvItemByGuid(gem_guid)
-            if gem_item then
-                local gem_obj = GetIES(gem_item:GetObject())
-                local ctrl_set = GET_CHILD_RECURSIVELY(goddess_equip_manager, "AETHER_CSET_0")
-                local gem_id = ctrl_set:GetUserIValue("GEM_ID")
-                if gem_id == 0 then
-                    local gem_slot = GET_CHILD(ctrl_set, "gem_slot")
-                    GODDESS_MGR_SOCKET_AETHER_GEM_EQUIP(ctrl_set, gem_slot, gem_item, gem_obj)
-                end
-                return 1
-            else
-                local spot_name = equips[ag_step - 3]
-                if ag_step == 4 then
-                    DO_WEAPON_SLOT_CHANGE(inventory, 1)
-                elseif ag_step == 6 then
-                    DO_WEAPON_SLOT_CHANGE(inventory, 2)
-                end
-                ITEM_EQUIP(inv_item.invIndex, spot_name)
-                return 1
-            end
-        else
-            out_btn:SetUserValue("AG_STEP", ag_step + 1)
-            return 1
-        end
-    end
-    out_btn:StopUpdateScript("Cc_helper_out_btn_agm")
-    Cc_helper_take_item(nil, out_btn, nil, 6)
-    return 0
-end
-
-function Cc_helper_change_summoned_pet(companionlist)
-    local save_iesid = g.cc_helper_settings[g.cid].items["pet"].iesid
-    local save_clsid = g.cc_helper_settings[g.cid].items["pet"].clsid
-    local state = companionlist:GetUserValue("FUNCTION_")
-    local pet_list = session.pet.GetPetInfoVec()
-    for i = 0, pet_list:size() - 1 do
-        local info = pet_list:at(i)
-        local obj = GetIES(info:GetObject())
-        local id = obj.ClassID
-        local set_name = "_CTRLSET_" .. i
-        local ctrlset = GET_CHILD_RECURSIVELY(companionlist, set_name)
-        if ctrlset then
-            local slot = GET_CHILD_RECURSIVELY(ctrlset, "slot")
-            local icon = slot:GetIcon()
-            if icon then
-                local icon_info = icon:GetInfo()
-                local pet_guid = icon_info:GetIESID()
-                if state == "not" then
-                    if pet_guid == save_iesid then
-                        ICON_USE(icon)
-                        break
-                    end
-                elseif state == "different" then
-                    local summoned_pet = session.pet.GetSummonedPet()
-                    local summoned_iesid = summoned_pet:GetStrGuid()
-                    if pet_guid == summoned_iesid then
-                        companionlist:SetUserValue("FUNCTION_", "not")
-                        control.SummonPet(0, 0, 0)
-                        return 1
-                    end
-                end
-            end
-        end
-    end
-    local function USE_COMPANION_ICON_AFTER_ACTION()
-        local can_close = false
-        local pet_info = ui.GetFrame("pet_info")
-        if pet_info then
-            if pet_info:IsVisible() == 0 then
-                can_close = true
-            end
-        else
-            can_close = true
-        end
-        if can_close == true then
-            CLOSE_COMPANIONLIST()
-            CLOSE_PETLIST()
-        end
-    end
-    USE_COMPANION_ICON_AFTER_ACTION()
-    companionlist:Resize(305, 335)
-    return 0
-end
-
-function Cc_helper_end_of_operation(btn, is_mcc)
-    local inventory = ui.GetFrame("inventory")
-    local inventype_Tab = GET_CHILD_RECURSIVELY(inventory, "inventype_Tab")
-    if inventype_Tab then
-        inventype_Tab:SelectTab(0)
-    end
-    ui.SysMsg("{ol}[CCH]End of Operation")
-    local goddess_equip_manager = ui.GetFrame("goddess_equip_manager")
-    goddess_equip_manager:ShowWindow(0)
-    local monstercardslot = ui.GetFrame("monstercardslot")
-    if monstercardslot:IsVisible() == 1 and not is_mcc then
-        monstercardslot:RunUpdateScript("MONSTERCARDSLOT_CLOSE", 1.0)
-    end
-    local accountwarehouse = ui.GetFrame("accountwarehouse")
-    if g.cc_helper_settings.etc.wh_close == 1 and not is_mcc then
-        ACCOUNTWAREHOUSE_CLOSE()
-    elseif is_mcc == 1 then
-        Monster_card_changer_monstercardpreset_open(1)
-    end
-    local btn_name = btn:GetName()
-    if btn_name == "cch_out_btn" then
-        local save_clsid = g.cc_helper_settings[g.cid].items["pet"].clsid
-        if save_clsid ~= 0 then
-            local companionlist = ui.GetFrame("companionlist")
-            companionlist:Resize(0, 0)
-            local summoned_pet = session.pet.GetSummonedPet()
-            if not summoned_pet then
-                ON_OPEN_COMPANIONLIST()
-                companionlist:SetUserValue("FUNCTION_", "not")
-                companionlist:RunUpdateScript("Cc_helper_change_summoned_pet", 0.5)
-            else -- Different
-                local summoned_iesid = summoned_pet:GetStrGuid()
-                local save_iesid = g.cc_helper_settings[g.cid].items["pet"].iesid
-                if summoned_iesid ~= save_iesid then
-                    ON_OPEN_COMPANIONLIST()
-                    companionlist:SetUserValue("FUNCTION_", "different")
-                    companionlist:RunUpdateScript("Cc_helper_change_summoned_pet", 0.5)
-                end
-            end
-        end
-    end
-    return 0
-end
-
-function Cc_helper_hair_option(item_obj)
-    local str = ""
-    local rank = shared_enchant_special_option.get_item_rank(item_obj)
-    for i = 1, 3 do
-        local prop_name = "HatPropName_" .. i
-        local prop_value = "HatPropValue_" .. i
-        if item_obj[prop_value] ~= 0 and item_obj[prop_name] ~= "None" then
-            if not string.find(item_obj[prop_name], "ALLSKILL_") then
-                str = str .. item_obj[prop_name] .. "/" .. item_obj[prop_value]
-            else
-                local job = StringSplit(item_obj[prop_name], "_")[2]
-                if job == "ShadowMancer" then
-                    job = "Shadowmancer"
-                end
-                str = str .. job
-            end
-            str = str .. ":::"
-        end
-    end
-    str = str:gsub(" - ", "")
-    str = str:gsub("-", "")
-    return str, rank
-end
-
-function Cc_helper_update_hair_stats()
-    local hairs = {"hair1", "hair2", "hair3"}
-    local is_updated = false
-    local copys = g.cc_helper_settings.etc and g.cc_helper_settings.etc.copys
-    for _, key in ipairs(hairs) do
-        local item_data = g.cc_helper_settings[g.cid].items[key]
-        if item_data and item_data.iesid ~= "" then
-            local guid = item_data.iesid
-            local inv_item = session.GetInvItemByGuid(item_data.iesid)
-            if not inv_item then
-                inv_item = session.GetEquipItemByGuid(guid)
-            end
-            if not inv_item then
-                local accountwarehouse = ui.GetFrame("accountwarehouse")
-                if accountwarehouse and accountwarehouse:IsVisible() == 1 then
-                    inv_item = session.GetEtcItemByGuid(IT_ACCOUNT_WAREHOUSE, guid)
-                end
-            end
-            if inv_item then
-                local obj = GetIES(inv_item:GetObject())
-                local option, rank = Cc_helper_hair_option(obj)
-                if item_data.option ~= option or item_data.rank ~= rank then
-                    item_data.option = option
-                    item_data.rank = rank
-                    is_updated = true
-                end
-                if copys then
-                    for cid, char_data in pairs(copys) do
-                        if char_data.items then
-                            for copy_key, copy_item_data in pairs(char_data.items) do
-                                if copy_item_data.iesid == guid then
-                                    if copy_item_data.option ~= option or copy_item_data.rank ~= rank then
-                                        copy_item_data.option = option
-                                        copy_item_data.rank = rank
-                                        is_updated = true
-                                    end
-                                    break
-                                end
-                            end
-                        end
-                    end
-                end
-            end
-        end
-    end
-    if is_updated then
-        Cc_helper_save_settings()
-    end
-end
-
-function Cc_helper_checkvalid(inv_item)
-    local acc_obj = GetMyAccountObj()
-    local max_count = acc_obj.BasicAccountWarehouseSlotCount + acc_obj.MaxAccountWarehouseCount +
-                          acc_obj.AccountWareHouseExtend + acc_obj.AccountWareHouseExtendByItem
-    if session.loginInfo.IsPremiumState(ITEM_TOKEN) then
-        max_count = max_count + ADDITIONAL_SLOT_COUNT_BY_TOKEN + 280
-    end
-    local item_list = session.GetEtcItemList(IT_ACCOUNT_WAREHOUSE)
-    local item_count = item_list:GetSortedGuidList():Count()
-    if max_count <= item_count then
-        ui.SysMsg(ClMsg("CannotPutBecauseMaxSlot"))
-        return false
-    end
-    if true == inv_item.isLockState then
-        ui.SysMsg(ClMsg("MaterialItemIsLock"))
-        return false
-    end
-    local obj = GetIES(inv_item:GetObject())
-    local item_cls = GetClassByType("Item", obj.ClassID)
-    if item_cls.ItemType == "Quest" then
-        ui.MsgBox(ScpArgMsg("IT_ISNT_REINFORCEABLE_ITEM"))
-        return false
-    end
-    local enable_team_trade = TryGetProp(item_cls, "TeamTrade")
-    if not enable_team_trade and enable_team_trade == "NO" then
-        ui.SysMsg(ClMsg("ItemIsNotTradable"))
-        return false
-    end
-    if TryGetProp(obj, "CharacterBelonging", 0) == 1 then
-        ui.SysMsg(ClMsg("ItemIsNotTradable"))
-        return false
-    end
-    return true
-end
-
-function Cc_helper_get_goal_index()
-    local acc_obj = GetMyAccountObj()
-    local base_count = acc_obj.BasicAccountWarehouseSlotCount + acc_obj.MaxAccountWarehouseCount +
-                           acc_obj.AccountWareHouseExtend + acc_obj.AccountWareHouseExtendByItem
-    local tab_index = {4, 3, 2, 1, 0}
-    local accountwarehouse = ui.GetFrame("accountwarehouse")
-    local tab = GET_CHILD(accountwarehouse, "accountwarehouse_tab")
-    local slotset = GET_CHILD_RECURSIVELY(accountwarehouse, "slotset")
-    for index = 1, #tab_index do
-        local i = tab_index[index]
-        tab:SelectTab(i)
-        if i > 0 and session.loginInfo.IsPremiumState(ITEM_TOKEN) then
-            local itemcnt = GET_CHILD_RECURSIVELY(accountwarehouse, "itemcnt")
-            local num_str = string.match(itemcnt:GetText(), "{@st42}(%d+)/")
-            local left = tonumber(num_str)
-            if left < 70 then
-                return ((i - 1) * 70) + base_count + left + 1
-            end
-        else
-            for j = 1, base_count do
-                local slot = slotset:GetSlotByIndex(j)
-                AUTO_CAST(slot)
-                if slot:GetIcon() == nil then
-                    return j
-                end
-            end
-        end
-    end
-end
--- cc_helper ここまで
-
 -- Cupole Manager ここから
 function Cupole_manager_save_settings()
     g.save_json(g.cupole_manager_path, g.cupole_manager_settings)
@@ -13876,6 +14785,10 @@ end
 function cupole_manager_on_init()
     if not g.cupole_manager_settings then
         Cupole_manager_load_settings()
+    end
+    local old_func = g.settings.cupole_manager.old_init_func
+    if _G[old_func] then
+        return
     end
     if not g.cupole_manager_settings[g.cid] then
         g.cupole_manager_settings[g.cid] = {}
@@ -15018,16 +15931,7 @@ function indun_panel_on_init()
         ui.DestroyFrame(addon_name_lower .. "indun_panel_map")
         return
     end
-    if g.get_map_type() == "City" or
-        (g.indun_panel_settings.etc.field_mode == 1 and g.get_map_type() ~= "Instance" and g.map_id ~= 8022) then
-        local indun_panel = Indun_panel_frame_init()
-        if g.indun_panel_settings.etc.always_open == 1 then
-            Indun_panel_frame_open(indun_panel)
-        end
-        local _nexus_addons = ui.GetFrame("_nexus_addons")
-        g.indun_panel_challenge_start_time = imcTime.GetAppTimeMS()
-        _nexus_addons:RunUpdateScript("Indun_panel_challenge", 0.1)
-    end
+    Indun_panel_frame_init()
     g.setup_hook_and_event(g.addon, "INDUN_ALREADY_PLAYING", "Indun_panel_INDUN_ALREADY_PLAYING", false)
 end
 
@@ -15264,7 +16168,16 @@ function Indun_panel_challenge_map_close(frame)
     ui.DestroyFrame(frame:GetName())
 end
 
-function Indun_panel_frame_init()
+function Indun_panel_frame_init(is_toggle, msg)
+    if msg == "ESCAPE_PRESSED" then
+        if g.indun_panel_settings.etc.always_open == 1 then
+            return
+        end
+    end
+    if g.get_map_type() ~= "City" or
+        (g.indun_panel_settings.etc.field_mode ~= 1 and g.get_map_type() == "Instance" and g.map_id == 8022) then
+        return
+    end
     ui.DestroyFrame(addon_name_lower .. "indun_panel_map")
     local indun_panel = ui.CreateNewFrame("notice_on_pc", addon_name_lower .. "indun_panel", 0, 0, 0, 0)
     AUTO_CAST(indun_panel)
@@ -15275,7 +16188,7 @@ function Indun_panel_frame_init()
     local btn = indun_panel:CreateOrGetControl("button", "btn", 5, 5, 80, 30)
     AUTO_CAST(btn)
     btn:SetText("{ol}{s10}INDUNPANEL")
-    btn:SetEventScript(ui.LBUTTONUP, "Indun_panel_frame_open")
+    btn:SetEventScript(ui.LBUTTONUP, "Indun_panel_frame_toggle")
     btn:SetEventScript(ui.RBUTTONUP, "Indun_panel_always_init")
     btn:SetEventScriptArgString(ui.RBUTTONUP, "OPEN")
     btn:SetTextTooltip(g.lang == "Japanese" and "{ol}右クリック: 常時展開で開く" or
@@ -15293,6 +16206,14 @@ function Indun_panel_frame_init()
     end
     indun_panel:Resize(x, 40)
     indun_panel:ShowWindow(1)
+    if not is_toggle then
+        if g.indun_panel_settings.etc.always_open == 1 then
+            Indun_panel_frame_open(indun_panel)
+        end
+    end
+    local _nexus_addons = ui.GetFrame("_nexus_addons")
+    g.indun_panel_challenge_start_time = imcTime.GetAppTimeMS()
+    _nexus_addons:RunUpdateScript("Indun_panel_challenge", 0.1)
     return indun_panel
 end
 
@@ -15318,6 +16239,7 @@ end
 function Indun_panel_frame_drag(indun_panel)
     g.indun_panel_settings.etc.x = indun_panel:GetX()
     g.indun_panel_settings.etc.y = indun_panel:GetY()
+    Indun_panel_save_settings()
     Indun_panel_frame_init()
 end
 
@@ -15504,13 +16426,21 @@ function Indun_panel_always_init(indun_panel, ctrl, str)
     Indun_panel_save_settings()
 end
 
+function Indun_panel_frame_toggle(indun_panel)
+    if indun_panel:GetHeight() > 40 then
+        Indun_panel_frame_init(true)
+    else
+        Indun_panel_frame_open(indun_panel)
+    end
+end
+
 function Indun_panel_frame_open(indun_panel)
     indun_panel:RemoveAllChild()
     Indun_panel_setup_frame(indun_panel)
     local btn = indun_panel:CreateOrGetControl("button", "btn", 5, 5, 80, 30)
     AUTO_CAST(btn)
     btn:SetText("{ol}{s10}INDUNPANEL")
-    btn:SetEventScript(ui.LBUTTONUP, "Indun_panel_frame_init")
+    btn:SetEventScript(ui.LBUTTONUP, "Indun_panel_frame_toggle")
     btn:SetEventScript(ui.RBUTTONUP, "Indun_panel_always_init")
     btn:SetTextTooltip(g.lang == "Japanese" and "{ol}右クリック: 常時展開解除で閉じる" or
                            "{ol}Right click: Close with permanent unexpand")
@@ -15639,7 +16569,7 @@ function Indun_panel_setting_frame_open()
     local x = 200
     for _, item in ipairs(g.indun_panel_settings.set_names) do
         for key, name in pairs(item) do
-            local btn = indun_panel:CreateOrGetControl("button", name, x, 5, 80, 30)
+            local btn = indun_panel:CreateOrGetControl("button", name .. key, x, 5, 80, 30)
             AUTO_CAST(btn)
             btn:Resize(80, 30)
             btn:SetText("{ol}" .. name)
@@ -17202,6 +18132,10 @@ function ancient_auto_set_on_init()
     if not g.ancient_auto_set_settings then
         Ancient_auto_set_load_settings()
     end
+    local old_func = g.settings.ancient_auto_set.old_init_func
+    if _G[old_func] then
+        return
+    end
     if not g.ancient_auto_set_settings[g.cid] then
         g.ancient_auto_set_settings[g.cid] = {
             guids = {},
@@ -17608,6 +18542,10 @@ end
 function save_quest_on_init()
     if not g.save_quest_settings then
         Save_quest_load_settings()
+    end
+    local old_func = g.settings.save_quest.old_init_func
+    if _G[old_func] then
+        return
     end
     if g.settings.save_quest.use == 0 then
         ui.DestroyFrame(addon_name_lower .. "save_quest")
@@ -18064,6 +19002,10 @@ end
 function my_buffs_control_on_init()
     if not g.my_buffs_control_settings then
         My_buffs_control_load_settings()
+    end
+    local old_func = g.settings.my_buffs_control.old_init_func
+    if _G[old_func] then
+        return
     end
     if g.settings.my_buffs_control.use == 1 then
         My_buffs_control_frame()
@@ -19334,603 +20276,6 @@ function Separate_buff_custom_frame_close(buff_list)
 end
 -- separate_buff_custom ここまで
 
--- vakarine_equip ここから
-function Vakarine_equip_save_settings()
-    g.save_json(g.vakarine_equip_path, g.vakarine_equip_settings)
-end
-
-function Vakarine_equip_load_settings()
-    g.vakarine_equip_path = string.format("../addons/%s/%s/vakarine_equip.json", addon_name_lower, g.active_id)
-    local settings = g.load_json(g.vakarine_equip_path)
-    if not settings then
-        settings = {
-            buffid = {},
-            delay = 0.1,
-            jsr = 0,
-            x = 0,
-            y = 0,
-            move = 1,
-            chars = {},
-            auto_remove = 0
-        }
-    end
-    g.vakarine_equip_settings = settings
-    Vakarine_equip_save_settings()
-end
-
-function vakarine_equip_on_init()
-    ui.SetHoldUI(false)
-    if not g.vakarine_equip_settings then
-        Vakarine_equip_load_settings()
-    end
-    if not g.vakarine_equip_settings.chars[g.cid] then
-        Vakarine_equip_chrs_settings()
-    end
-    if g.settings.vakarine_equip.use == 0 then
-        ui.DestroyFrame(addon_name_lower .. "vakarine_equip")
-        return
-    end
-    g.addon:RegisterMsg('STAT_UPDATE', 'Vakarine_equip_stat_update')
-    g.addon:RegisterMsg('TAKE_DAMAGE', 'Vakarine_equip_stat_update')
-    g.addon:RegisterMsg('TAKE_HEAL', 'Vakarine_equip_stat_update')
-    g.addon:RegisterMsg('BUFF_ADD', 'Vakarine_equip_BUFF_ON_MSG')
-    g.addon:RegisterMsg('BUFF_UPDATE', 'Vakarine_equip_BUFF_ON_MSG')
-    Vakarine_equip_frame_init()
-    if g.get_map_type() ~= "City" then
-        Vakarine_equip_start_operation()
-    end
-end
-
-function Vakarine_equip_chrs_settings()
-    local equips = {"RH", "LH", "RH_SUB", "LH_SUB", "RING1", "RING2", "SHIRT", "PANTS", "GLOVES", "BOOTS", "SHOULDER",
-                    "BELT", "NECK"}
-    g.vakarine_equip_settings.chars[g.cid] = {
-        use = 0
-    }
-    for _, equip in ipairs(equips) do
-        g.vakarine_equip_settings.chars[g.cid][equip] = 0
-    end
-    Vakarine_equip_save_settings()
-end
-
-function Vakarine_equip_frame_init()
-    local vakarine_equip = ui.CreateNewFrame("notice_on_pc", addon_name_lower .. "vakarine_equip", 0, 0, 0, 0)
-    AUTO_CAST(vakarine_equip)
-    vakarine_equip:SetSkinName("None")
-    vakarine_equip:SetTitleBarSkin("None")
-    vakarine_equip:Resize(40, 30)
-    vakarine_equip:SetGravity(ui.RIGHT, ui.TOP)
-    vakarine_equip:EnableMove(g.vakarine_equip_settings.move == 1 and 0 or 1)
-    vakarine_equip:EnableHittestFrame(1)
-    local rect = vakarine_equip:GetMargin()
-    vakarine_equip:SetMargin(rect.left - rect.left, rect.top - rect.top + 300,
-        rect.right == 0 and rect.right + 10 or rect.right, rect.bottom)
-    if g.vakarine_equip_settings.x ~= 0 and g.vakarine_equip_settings.y ~= 0 then
-        vakarine_equip:SetPos(g.vakarine_equip_settings.x, g.vakarine_equip_settings.y)
-    end
-    vakarine_equip:SetEventScript(ui.LBUTTONUP, "Vakarine_equip_location_save")
-    local vaka_pic = vakarine_equip:CreateOrGetControl("picture", "vaka_pic", 0, 0, 30, 30)
-    AUTO_CAST(vaka_pic)
-    vaka_pic:SetImage("bakarine_emotion68") -- vaka_pic:SetImage("bakarine_emotion61") vaka_pic:SetImage("emoticon_0024")
-    vaka_pic:SetColorTone("FFFFFFFF")
-    vaka_pic:SetEnableStretch(1)
-    vaka_pic:EnableHitTest(1)
-    vaka_pic:SetGravity(ui.LEFT, ui.TOP)
-    vaka_pic:SetTextTooltip(g.lang == "Japanese" and
-                                "{ol}Vakarine Equip{nl} {nl}左クリック{nl}街: 設定{nl}街以外: 手動起動{nl} {nl}右クリック{nl}自動起動ON/OFF" or
-                                "{ol}Vakarine Equip{nl} {nl}Left click{nl}City: Setup{nl}Outside City: Manual activation{nl} {nl}Right click: Auto-activation ON/OFF")
-    if g.vakarine_equip_settings.chars[g.cid].use == 0 then
-        vaka_pic:SetColorTone("FF555555")
-    else
-        vaka_pic:SetColorTone("FFFFFFFF")
-    end
-    vaka_pic:SetEventScript(ui.RBUTTONUP, "Vakarine_equip_onoff_switch")
-    vaka_pic:SetEventScript(ui.LBUTTONUP, "Vakarine_equip_config_or_startup")
-    vakarine_equip:ShowWindow(1)
-    if g.vakarine_equip_animas_iesid and g.get_map_type() == "City" then
-        vakarine_equip:RunUpdateScript("Vakarine_equip_animas_equip", 1.0)
-    end
-end
-
-function Vakarine_equip_location_save(frame, ctrl)
-    if frame:GetName() == addon_name_lower .. "vakarine_equip" then
-        g.vakarine_equip_settings.x = frame:GetX()
-        g.vakarine_equip_settings.y = frame:GetY()
-    elseif ctrl:GetName() == "default_btn" then
-        g.vakarine_equip_settings.x = 0
-        g.vakarine_equip_settings.y = 0
-        ui.DestroyFrame(addon_name_lower .. "vakarine_equip")
-        ReserveScript("Vakarine_equip_frame_init()", 0.1)
-    end
-    Vakarine_equip_save_settings()
-end
-
-function Vakarine_equip_onoff_switch(vakarine_equip, vaka_pic)
-    if keyboard.IsKeyPressed("LSHIFT") == 1 then
-        Vakarine_equip_buff_list(nil, nil, "")
-        return
-    end
-    if g.vakarine_equip_settings.chars[g.cid].use == 0 then
-        g.vakarine_equip_settings.chars[g.cid].use = 1
-        vaka_pic:SetColorTone("FFFFFFFF")
-    else
-        vaka_pic:SetColorTone("FF555555")
-        g.vakarine_equip_settings.chars[g.cid].use = 0
-    end
-    Vakarine_equip_save_settings()
-end
-
-function Vakarine_equip_animas_equip(vakarine_equip)
-    local equip_item_list = session.GetEquipItemList()
-    local equip_item = equip_item_list:GetEquipItemByIndex(19)
-    if equip_item then
-        local iesid = equip_item:GetIESID()
-        local try = vakarine_equip:GetUserIValue("TRY")
-        if iesid ~= g.vakarine_equip_animas_iesid and try < 3 then
-            local equip_item = session.GetInvItemByGuid(g.vakarine_equip_animas_iesid)
-            item.Equip(equip_item.invIndex)
-            vakarine_equip:GetUserIValue("TRY", try + 1)
-            return 1
-        end
-    end
-    vakarine_equip:GetUserIValue("TRY", 0)
-    g.vakarine_equip_animas_iesid = nil
-    return 0
-end
-
-function Vakarine_equip_config_or_startup(frame, ctrl)
-    if g.get_map_type() == "City" then
-        Vakarine_equip_config_frame_open()
-    else
-        Vakarine_equip_start_operation(true)
-    end
-end
-
-function Vakarine_equip_start_operation(is_manual)
-    local is_vakarine = Vakarine_equip_is_vakarine()
-    if not is_vakarine and not is_manual then
-        return
-    end
-    local vakarine_equip = ui.GetFrame(addon_name_lower .. "vakarine_equip") -- 11244 聖域3F 11227 分裂 8022 ヴェルニケ
-    if (g.get_map_type() == "Instance" and g.map_id ~= 11227) or g.map_id == 8022 or g.map_id == 11244 or not is_manual or
-        g.vakarine_equip_settings.jsr == 1 then
-        g.vakarine_equip_field_boss = nil
-        local inventory = ui.GetFrame("inventory")
-        inventory:ShowWindow(1)
-        DO_WEAPON_SLOT_CHANGE(inventory, 1)
-        ui.SetHoldUI(true)
-        local vakarine_equip = ui.GetFrame(addon_name_lower .. "vakarine_equip")
-        vakarine_equip:RunUpdateScript("Vakarine_equip_holdui_release", 10.0)
-        local equip_map = {
-            RH = 8,
-            LH = 9,
-            RH_SUB = 30,
-            LH_SUB = 31,
-            RING1 = 17,
-            RING2 = 18,
-            SHIRT = 3,
-            PANTS = 14,
-            GLOVES = 4,
-            BOOTS = 5,
-            SHOULDER = 34,
-            BELT = 33,
-            NECK = 19
-        }
-        g.vakarine_equip_queue = {}
-        local char_settings = g.vakarine_equip_settings.chars[g.cid]
-        local equip_item_list = session.GetEquipItemList()
-        for spot_name, index in pairs(equip_map) do
-            local current_item = equip_item_list:GetEquipItemByIndex(index)
-            if char_settings[spot_name] == 1 and current_item then
-                table.insert(g.vakarine_equip_queue, {
-                    spot = spot_name,
-                    index = index,
-                    iesid = current_item:GetIESID()
-                })
-            end
-        end
-        local animas_item = session.GetInvItemByName("NECK04_103")
-        g.vakarine_equip_animas_iesid = animas_item and animas_item:GetIESID() or nil
-        if #g.vakarine_equip_queue == 0 then
-            ui.SetHoldUI(false)
-            return
-        end
-        for i, data in ipairs(g.vakarine_equip_queue) do
-            if data.spot == "RH_SUB" then
-                item.UnEquip(data.index)
-                break
-            end
-        end
-        g.vakarine_equip_process_step = "unequip"
-        vakarine_equip:RunUpdateScript("Vakarine_equip_main_loop", g.vakarine_equip_settings.delay)
-    end
-end
-
-function Vakarine_equip_main_loop(vakarine_equip)
-    local equip_item_list = session.GetEquipItemList()
-    if g.vakarine_equip_process_step == "unequip" then
-        local all_unequipped = true
-        for _, data in ipairs(g.vakarine_equip_queue) do
-            local current_item = equip_item_list:GetEquipItemByIndex(data.index)
-            if current_item and current_item:GetIESID() ~= "0" then
-                item.UnEquip(data.index)
-                return 1
-            end
-        end
-        if all_unequipped then
-            g.vakarine_equip_process_step = "equip"
-        end
-        return 1
-    elseif g.vakarine_equip_process_step == "equip" then
-        local weapon_order = {"RH", "LH", "RH_SUB", "LH_SUB"}
-        for _, spot_name in ipairs(weapon_order) do
-            for _, data in ipairs(g.vakarine_equip_queue) do
-                if data.spot == spot_name then
-                    local current_item = equip_item_list:GetEquipItemByIndex(data.index)
-                    if not current_item or current_item:GetIESID() ~= data.iesid then
-                        local inv_item = session.GetInvItemByGuid(data.iesid)
-                        if inv_item then
-                            ITEM_EQUIP(inv_item.invIndex, data.spot)
-                            return 1
-                        end
-                    end
-                    break
-                end
-            end
-        end
-        for _, data in ipairs(g.vakarine_equip_queue) do
-            local spot_name = data.spot
-            if spot_name ~= "RH" and spot_name ~= "LH" and spot_name ~= "RH_SUB" and spot_name ~= "LH_SUB" and spot_name ~=
-                "NECK" then
-                local current_item = equip_item_list:GetEquipItemByIndex(data.index)
-                if not current_item or current_item:GetIESID() ~= data.iesid then
-                    local inv_item = session.GetInvItemByGuid(data.iesid)
-                    if inv_item then
-                        ITEM_EQUIP(inv_item.invIndex, data.spot)
-                        return 1
-                    end
-                end
-            end
-        end
-        for _, data in ipairs(g.vakarine_equip_queue) do
-            if data.spot == "NECK" then
-                local iesid_to_equip = g.vakarine_equip_animas_iesid or data.iesid
-                local current_item = equip_item_list:GetEquipItemByIndex(data.index)
-                local current_iesid = current_item and current_item:GetIESID() or "0"
-                if current_iesid ~= iesid_to_equip then
-                    local inv_item = session.GetInvItemByGuid(iesid_to_equip)
-                    if inv_item then
-                        ITEM_EQUIP(inv_item.invIndex, data.spot)
-                        return 1
-                    end
-                end
-                break
-            end
-        end
-        local inventory = ui.GetFrame("inventory")
-        inventory:ShowWindow(0)
-        imcAddOn.BroadMsg("NOTICE_Dm_stage_start", "[VE]End of Operation", 3)
-        ui.SetHoldUI(false)
-        return 0
-    end
-    return 1
-end
-
-function Vakarine_equip_is_vakarine()
-    local equip_item_list = session.GetEquipItemList()
-    local equip_guid_list = equip_item_list:GetGuidList()
-    local count = equip_guid_list:Count()
-    local vakarine_count = 0
-    for i = 0, count - 1 do
-        local guid = equip_guid_list:Get(i)
-        if guid ~= '0' then
-            local equip_item = equip_item_list:GetItemByGuid(guid)
-            local item = GetIES(equip_item:GetObject())
-            for j = 1, MAX_OPTION_EXTRACT_COUNT do
-                local prop_name = "RandomOption_" .. j
-                local cls_msg = ScpArgMsg(item[prop_name])
-                if string.find(cls_msg, "vakarine_bless") then
-                    vakarine_count = vakarine_count + 1
-                    break
-                end
-            end
-        end
-    end
-    if vakarine_count >= 5 then
-        return true
-    elseif vakarine_count == 4 then
-        return false
-    else
-        return false
-    end
-end
-
-function Vakarine_equip_holdui_release(frame)
-    ui.SetHoldUI(false)
-    return 0
-end
-
-function Vakarine_equip_config_frame_open()
-    local config = ui.CreateNewFrame("notice_on_pc", addon_name_lower .. "vakarine_equip_config_frame", 0, 0, 0, 0)
-    AUTO_CAST(config)
-    config:RemoveAllChild()
-    config:SetLayerLevel(999)
-    config:SetSkinName("test_frame_low")
-    local title_text = config:CreateOrGetControl("richtext", "title_text", 10, 10)
-    AUTO_CAST(title_text)
-    title_text:SetText("{ol}Vakarine Equip")
-    local config_gb = config:CreateOrGetControl("groupbox", "config_gb", 10, 40, 0, 0)
-    AUTO_CAST(config_gb)
-    config_gb:SetSkinName("bg")
-    local close = config:CreateOrGetControl("button", "close", 0, 0, 20, 20)
-    AUTO_CAST(close)
-    close:SetImage("testclose_button")
-    close:SetGravity(ui.RIGHT, ui.TOP)
-    close:SetEventScript(ui.LBUTTONUP, "Vakarine_equip_frame_close")
-    local jsr_check = config_gb:CreateOrGetControl('checkbox', "jsr_check", 10, 5, 30, 30)
-    AUTO_CAST(jsr_check)
-    jsr_check:SetCheck(g.vakarine_equip_settings.jsr)
-    local text = g.lang == "Japanese" and "チェックするとJSRで作動" or "Activated in JSR when checked"
-    jsr_check:SetText("{ol}" .. text)
-    jsr_check:SetEventScript(ui.LBUTTONUP, "Vakarine_equip_check_switch")
-    local x = 0
-    local width = jsr_check:GetWidth()
-    if x < width then
-        x = width
-    end
-    local y = 40
-    local equips = {"RH", "LH", "RH_SUB", "LH_SUB", "RING1", "RING2", "SHIRT", "PANTS", "GLOVES", "BOOTS", "SHOULDER",
-                    "BELT", "NECK"}
-    for i, equip_name in ipairs(equips) do
-        local check_box = config_gb:CreateOrGetControl('checkbox', "check_box" .. i, 20, y, 30, 30)
-        AUTO_CAST(check_box)
-        check_box:SetCheck(g.vakarine_equip_settings.chars[g.cid][equip_name])
-        check_box:SetTextTooltip(g.lang == "Japanese" and "{ol}チェックした装備を脱着します" or
-                                     "{ol}Remove and detach checked equipment")
-        check_box:SetEventScript(ui.LBUTTONUP, "Vakarine_equip_check_switch")
-        check_box:SetEventScriptArgString(ui.LBUTTONUP, equip_name)
-        if equip_name == "RING1" then
-            equip_name = "Ring1"
-        elseif equip_name == "RING2" then
-            equip_name = "Ring2"
-        elseif equip_name == "SHIRT" then
-            equip_name = "Shirt"
-        elseif equip_name == "PANTS" then
-            equip_name = "Pants"
-        end
-        check_box:SetText("{ol}" .. ClMsg(equip_name))
-        y = y + 30
-    end
-    y = y + 10
-    local move_check = config_gb:CreateOrGetControl('checkbox', "move_check", 10, y, 30, 30)
-    AUTO_CAST(move_check)
-    move_check:SetCheck(g.vakarine_equip_settings.move)
-    move_check:SetText(g.lang == "Japanese" and "{ol}チェックするとフレーム固定" or
-                           "{ol}If checked, the frame is fixed")
-    move_check:SetEventScript(ui.LBUTTONUP, "Vakarine_equip_check_switch")
-    y = y + 40
-    local default_btn = config_gb:CreateOrGetControl("button", "default_btn", 20, y, 120, 30)
-    AUTO_CAST(default_btn)
-    default_btn:SetText(g.lang == "Japanese" and "{ol}フレーム初期位置" or "{ol}Init frame pos")
-    default_btn:SetEventScript(ui.LBUTTONUP, "Vakarine_equip_location_save")
-    y = y + 30
-    config:Resize(x + 70, y + 60)
-    config_gb:Resize(x + 50, y + 10)
-    local list_frame = ui.GetFrame(addon_name_lower .. "list_frame")
-    if list_frame then
-        config:SetPos(list_frame:GetX() + list_frame:GetWidth(), list_frame:GetY())
-    else
-        local map_frame = ui.GetFrame("map")
-        local width = map_frame:GetWidth()
-        config:SetPos(width / 2 - config:GetWidth() / 2 or 1165, 105)
-    end
-    config:ShowWindow(1)
-end
-
-function Vakarine_equip_check_switch(config, ctrl, equip_name, num)
-    local ischeck = ctrl:IsChecked()
-    if ctrl:GetName() == "jsr_check" then
-        g.vakarine_equip_settings.jsr = ischeck
-    elseif ctrl:GetName() == "move_check" then
-        g.vakarine_equip_settings.move = ischeck
-        Vakarine_equip_frame_init()
-    elseif string.find(ctrl:GetName(), "check_box") then
-        g.vakarine_equip_settings.chars[g.cid][equip_name] = ischeck
-        if equip_name == "RH_SUB" then
-            g.vakarine_equip_settings.chars[g.cid]["LH_SUB"] = ischeck
-        elseif equip_name == "LH_SUB" then
-            g.vakarine_equip_settings.chars[g.cid]["RH_SUB"] = ischeck
-        end
-        Vakarine_equip_config_frame_open()
-    end
-    Vakarine_equip_save_settings()
-end
-
-function Vakarine_equip_stat_update()
-    if g.settings.vakarine_equip.use == 0 then
-        return
-    end
-    g.vakarine_equip_is_vakarine = Vakarine_equip_is_vakarine()
-    local charbaseinfo1_my = ui.GetFrame("charbaseinfo1_my")
-    if not charbaseinfo1_my then
-        return
-    end
-    local hp = GET_CHILD(charbaseinfo1_my, "pcHpGauge")
-    AUTO_CAST(hp)
-    local handle = session.GetMyHandle()
-    local stat = info.GetStat(handle)
-    local hp_now = (stat.HP * 100) / stat.maxHP
-    local status = ''
-    local color = ""
-    if (hp_now == 100) then
-        color = '#00EC00'
-        status = 'Perfect'
-    elseif g.vakarine_equip_is_vakarine and (hp_now <= 45) then
-        color = '#EA0000'
-        status = 'Revenge'
-    elseif not g.vakarine_equip_is_vakarine and (hp_now <= 35) then
-        color = '#EA0000'
-        status = 'Revenge'
-    elseif hp_now == 0 then
-        color = '#FFFFFF'
-    else
-        color = '#FFFFFF'
-    end
-    local effecttext =
-        charbaseinfo1_my:CreateOrGetControl("richtext", "effecttext", 0, 0, hp:GetWidth(), hp:GetHeight())
-    effecttext:SetText(string.format('{ol}{%s}{%s}%s', "s15", color, status))
-    effecttext:SetGravity(ui.RIGHT, ui.TOP)
-    effecttext:SetOffset(hp:GetX(), hp:GetY() - 25 - (15 - 15))
-    local hptext = charbaseinfo1_my:CreateOrGetControl("richtext", "hptext", 0, 0, hp:GetWidth(), hp:GetHeight())
-    hptext:SetText(string.format('{%s}{ol}{%s}%d%%', "s15", color, hp_now))
-    hptext:SetGravity(ui.RIGHT, ui.TOP)
-    hptext:SetOffset(hp:GetX(), hp:GetY() - 10 - (15 - 15))
-end
-
-function Vakarine_equip_BUFF_ON_MSG(frame, msg, str, buff_id)
-    if g.settings.vakarine_equip.use == 0 then
-        return
-    end
-    if g.vakarine_equip_settings and g.vakarine_equip_settings["buffid"] then
-        for id_str, val in pairs(g.vakarine_equip_settings["buffid"]) do
-            if tonumber(id_str) == buff_id then
-                if g.vakarine_equip_settings.auto_remove == 1 then
-                    if val and g.vakarine_equip_is_vakarine then
-                        packet.ReqRemoveBuff(buff_id) -- 良くないね
-                        return
-                    end
-                end
-            end
-        end
-    end
-end
-
-function Vakarine_equip_buff_list(buff_list, ctrl, ctrl_text)
-    local buff_list = ui.GetFrame(addon_name_lower .. "Vakarine_equip_buff_list")
-    if not buff_list then
-        buff_list = ui.CreateNewFrame("notice_on_pc", addon_name_lower .. "vakarine_equip_buff_list", 0, 0, 0, 0)
-        AUTO_CAST(buff_list)
-        buff_list:SetSkinName("test_frame_low")
-        buff_list:Resize(500, 1060)
-        buff_list:SetPos(150, 10)
-        buff_list:SetLayerLevel(121)
-        local search_edit = buff_list:CreateOrGetControl("edit", "search_edit", 40, 10, 305, 38)
-        AUTO_CAST(search_edit)
-        search_edit:SetFontName("white_18_ol")
-        search_edit:SetTextAlign("left", "center")
-        search_edit:SetSkinName("inventory_serch")
-        search_edit:SetEventScript(ui.ENTERKEY, "Vakarine_equip_buff_list_search")
-        local search_btn = search_edit:CreateOrGetControl("button", "search_btn", 0, 0, 40, 38)
-        AUTO_CAST(search_btn)
-        search_btn:SetImage("inven_s")
-        search_btn:SetGravity(ui.RIGHT, ui.TOP)
-        search_btn:SetEventScript(ui.LBUTTONUP, "Vakarine_equip_buff_list_search")
-        local func_toggle = buff_list:CreateOrGetControl('checkbox', 'func_toggle', 415, 15, 25, 25)
-        AUTO_CAST(func_toggle)
-        func_toggle:SetTextTooltip(g.lang == "Japanese" and "{ol}チェックすると自動バフ削除有効化" or
-                                       "{ol}Check to enable auto buff removal")
-        func_toggle:SetEventScript(ui.LBUTTONUP, "Vakarine_equip_buff_aoto_remove")
-        func_toggle:SetCheck(g.vakarine_equip_settings.auto_remove or 0)
-        local close = buff_list:CreateOrGetControl('button', 'close', 0, 0, 20, 20)
-        AUTO_CAST(close)
-        close:SetImage("testclose_button")
-        close:SetGravity(ui.RIGHT, ui.TOP)
-        close:SetEventScript(ui.LBUTTONUP, "Vakarine_equip_frame_close")
-    end
-    local buff_list_gb = buff_list:CreateOrGetControl("groupbox", "buff_list_gb", 10, 50, 480,
-        buff_list:GetHeight() - 60)
-    AUTO_CAST(buff_list_gb)
-    buff_list_gb:SetSkinName("bg")
-    buff_list_gb:RemoveAllChild()
-    local cls_list, count = GetClassList("Buff")
-    local all_buffs = {}
-    for i = 0, count - 1 do
-        local buff_cls = GetClassByIndexFromList(cls_list, i)
-        if buff_cls then
-            if buff_cls.Group1 ~= 'Debuff' and buff_cls.Group1 ~= 'Deuff' then
-                local buff_name = dictionary.ReplaceDicIDInCompStr(buff_cls.Name)
-                if not ctrl_text or ctrl_text == "" or string.find(buff_name, ctrl_text) then
-                    local image_name = GET_BUFF_ICON_NAME(buff_cls)
-                    if image_name ~= "icon_None" and buff_name ~= "None" then
-                        local is_checked = g.vakarine_equip_settings["buffid"][tostring(buff_cls.ClassID)] == true
-                        table.insert(all_buffs, {
-                            cls = buff_cls,
-                            name = buff_name,
-                            image = image_name,
-                            is_checked = is_checked
-                        })
-                    end
-                end
-            end
-        end
-    end
-    table.sort(all_buffs, function(a, b)
-        if a.is_checked and not b.is_checked then
-            return true
-        elseif not a.is_checked and b.is_checked then
-            return false
-        else
-            return a.cls.ClassID < b.cls.ClassID
-        end
-    end)
-    local y = 0
-    for _, buff_data in ipairs(all_buffs) do
-        local buff_cls = buff_data.cls
-        local buff_id = buff_cls.ClassID
-        local buff_slot = buff_list_gb:CreateOrGetControl('slot', 'buffslot' .. buff_id, 10, y + 5, 30, 30)
-        AUTO_CAST(buff_slot)
-        SET_SLOT_IMG(buff_slot, buff_data.image)
-        local icon = CreateIcon(buff_slot)
-        AUTO_CAST(icon)
-        icon:SetTooltipType('buff')
-        icon:SetTooltipArg(buff_data.name, buff_id, 0)
-        local buff_check = buff_list_gb:CreateOrGetControl('checkbox', 'buff_check' .. buff_id, 50, y + 10, 200, 30)
-        AUTO_CAST(buff_check)
-        buff_check:SetText("{ol}" .. buff_id .. " : " .. buff_data.name)
-        buff_check:SetTextTooltip(g.lang == "Japanese" and "{ol}チェックすると自動でバフ削除" or
-                                      "{ol}Check to automatically remove buff")
-        buff_check:SetCheck(buff_data.is_checked and 1 or 0)
-        buff_check:SetEventScript(ui.LBUTTONUP, "Vakarine_equip_buff_toggle")
-        buff_check:SetEventScriptArgString(ui.LBUTTONUP, buff_id)
-        y = y + 35
-    end
-    buff_list:ShowWindow(1)
-end
-
-function Vakarine_equip_buff_list_search(buff_list, ctrl, ctrl_text, num)
-    local search_edit = GET_CHILD_RECURSIVELY(buff_list, "search_edit")
-    local ctrl_text = search_edit:GetText()
-    if ctrl_text ~= "" then
-        Vakarine_equip_buff_list(buff_list, ctrl, ctrl_text)
-    else
-        Vakarine_equip_buff_list(buff_list, ctrl, "")
-    end
-end
-
-function Vakarine_equip_buff_aoto_remove()
-    if g.vakarine_equip_settings.auto_remove == 0 then
-        g.vakarine_equip_settings.auto_remove = 1
-    else
-        g.vakarine_equip_settings.auto_remove = 0
-    end
-    Vakarine_equip_save_settings()
-end
-
-function Vakarine_equip_buff_toggle(frame, ctrl, str_buff_id, num)
-    local is_check = ctrl:IsChecked()
-    if is_check == 1 then
-        g.vakarine_equip_settings["buffid"][str_buff_id] = true
-    else
-        g.vakarine_equip_settings["buffid"][str_buff_id] = false
-    end
-    Vakarine_equip_save_settings()
-end
-
-function Vakarine_equip_frame_close(frame, ctrl, str, num)
-    ui.DestroyFrame(frame:GetName())
-end
--- vakarine_equip ここまで
-
 -- revival_timer ここから
 function Revival_timer_save_settings()
     g.save_json(g.revival_timer_path, g.revival_timer_settings)
@@ -19958,6 +20303,10 @@ end
 function revival_timer_on_init()
     if not g.revival_timer_settings then
         Revival_timer_load_settings()
+    end
+    local old_func = g.settings.revival_timer.old_init_func
+    if _G[old_func] then
+        return
     end
     if g.settings.revival_timer.use == 1 then
         Revival_timer_frame_init()
@@ -20289,6 +20638,10 @@ function relic_change_on_init()
     if not g.relic_change_settings then
         Relic_change_load_settings()
     end
+    local old_func = g.settings.relic_change.old_init_func
+    if _G[old_func] then
+        return
+    end
     if g.settings.relic_change.use == 0 then
         local relic_change = ui.GetFrame(addon_name_lower .. "relic_change")
         if relic_change then
@@ -20504,6 +20857,10 @@ end
 function monster_card_changer_on_init()
     if not g.monster_card_changer_settings then
         Monster_card_changer_load_settings()
+    end
+    local old_func = g.settings.monster_card_changer.old_init_func
+    if _G[old_func] then
+        return
     end
     if g.settings.monster_card_changer.use == 0 then
         Monster_card_changer_not_use()
@@ -21053,6 +21410,10 @@ function market_voucher_on_init()
     if not g.market_voucher_settings then
         Market_voucher_load_settings()
     end
+    local old_func = g.settings.market_voucher.old_init_func
+    if _G[old_func] then
+        return
+    end
     g.setup_hook_and_event(g.addon, "CABINET_GET_ALL_LIST", "Market_voucher_CABINET_GET_ALL_LIST", false)
     g.setup_hook_and_event(g.addon, "_BUY_MARKET_ITEM", "Market_voucher__BUY_MARKET_ITEM", false)
     g.setup_hook_and_event(g.addon, "_CABINET_ITEM_BUY", "Market_voucher__CABINET_ITEM_BUY", false)
@@ -21391,6 +21752,10 @@ end
 function lets_go_home_on_init()
     if not g.lets_go_home_settings then
         Lets_go_home_load_settings()
+    end
+    local old_func = g.settings.lets_go_home.old_init_func
+    if _G[old_func] then
+        return
     end
     if g.settings.lets_go_home.use == 0 then
         local lets_go_home = ui.GetFrame(addon_name_lower .. "lets_go_home")
@@ -21850,6 +22215,10 @@ function pick_item_tracker_on_init()
     if not g.pick_item_tracker_settings then
         Pick_item_tracker_load_settings()
     end
+    local old_func = g.settings.pick_item_tracker.old_init_func
+    if _G[old_func] then
+        return
+    end
     if g.get_map_type() ~= "City" and g.get_map_type() ~= "Instance" then
         if not g.pick_item_tracker_map_id or g.map_id ~= g.pick_item_tracker_map_id then
             g.pick_item_tracker_map_id = g.map_id
@@ -22062,6 +22431,10 @@ end
 function easy_buff_on_init()
     if not g.easy_buff_settings then
         Easy_buff_load_settings()
+    end
+    local old_func = g.settings.easy_buff.old_init_func
+    if _G[old_func] then
+        return
     end
     g.setup_hook_and_event(g.addon, "OPEN_FOOD_TABLE_UI", "Easy_buff_OPEN_FOOD_TABLE_UI", true)
     g.setup_hook_and_event(g.addon, "ITEMBUFF_REPAIR_UI_COMMON", "Easy_buff_ITEMBUFF_REPAIR_UI_COMMON", true)
@@ -23403,6 +23776,10 @@ function characters_item_serch_on_init()
     if not g.characters_item_serch_settings then
         Characters_item_serch_load_settings()
     end
+    local old_func = g.settings.characters_item_serch.old_init_func
+    if _G[old_func] then
+        return
+    end
     g.setup_hook_and_event(g.addon, "APPS_TRY_LEAVE", "Characters_item_serch_APPS_TRY_LEAVE", true)
     g.setup_hook_and_event(g.addon, "INVENTORY_CLOSE", "Characters_item_serch_INVENTORY_CLOSE", true)
     g.setup_hook_and_event(g.addon, "ACCOUNTWAREHOUSE_CLOSE", "Characters_item_serch_ACCOUNTWAREHOUSE_CLOSE", true)
@@ -24118,6 +24495,11 @@ function Party_marker_set(_nexus_addons, party_marker_timer)
             end
         end
     end
+    local is_colony = false
+    local check_word = "GuildColony_"
+    if string.find(g.map_name, check_word) then
+        is_colony = true
+    end
     g.party_marker = {}
     local list, count = SelectObject(GetMyPCObject(), 1000, 'ALL')
     for i = 1, count do
@@ -24137,7 +24519,11 @@ function Party_marker_set(_nexus_addons, party_marker_timer)
                         pic:SetImage("friend_party")
                         pic:SetEnableStretch(1)
                     end
-                    FRAME_AUTO_POS_TO_OBJ(party_marker, handle, 25, -70, 3, 1, 1)
+                    if is_colony then
+                        FRAME_AUTO_POS_TO_OBJ(party_marker, handle, 25, -70, 3, 1, 1)
+                    else
+                        FRAME_AUTO_POS_TO_OBJ(party_marker, handle, -25, -70, 3, 1, 1)
+                    end
                     party_marker:ShowWindow(1)
                 end
             end
@@ -24219,6 +24605,10 @@ end
 function aethergem_manager_on_init()
     if not g.aethergem_manager_settings then
         Aethergem_manager_load_settings()
+    end
+    local old_func = g.settings.aethergem_manager.old_init_func
+    if _G[old_func] then
+        return
     end
     Aethergem_manager_frame_init()
 end
@@ -24875,6 +25265,10 @@ function guild_event_warp_on_init()
     if not g.guild_event_warp_settings then
         Guild_event_warp_load_settings()
     end
+    local old_func = g.settings.guild_event_warp.old_init_func
+    if _G[old_func] then
+        return
+    end
     if g.settings.guild_event_warp.use == 0 then
         ui.DestroyFrame(addon_name_lower .. "guild_event_warp")
         return
@@ -25081,6 +25475,10 @@ function boss_direction_on_init()
     if not g.boss_direction_settings then
         Boss_direction_load_settings()
     end
+    local old_func = g.settings.boss_direction.old_init_func
+    if _G[old_func] then
+        return
+    end
     g.boss_direction_handls = {}
     if g.get_map_type() ~= "City" then
         Boss_direction_handle_check_reserve()
@@ -25254,6 +25652,10 @@ function auto_repair_on_init()
     if not g.auto_repair_settings then
         Auto_repair_load_settings()
     end
+    local old_func = g.settings.auto_repair.old_init_func
+    if _G[old_func] then
+        return
+    end
     g.setup_hook_and_event(g.addon, "DURNOTIFY_UPDATE", "Auto_repair_DURNOTIFY_UPDATE", false)
     if g.get_map_type() == "City" then
         local auto_repair_item = session.GetInvItemByType(g.auto_repair.item_cls_id)
@@ -25393,9 +25795,7 @@ function Auto_repair_DURNOTIFY_UPDATE(my_frame, my_msg)
         g.FUNCS["DURNOTIFY_UPDATE"](frame, notOpenFrame)
         return
     end
-    if frame:IsVisible() == 0 then
-        frame:ShowWindow(1)
-    end
+    frame:ShowWindow(0)
     local slot_set = GET_CHILD_RECURSIVELY(frame, 'slotlist', 'ui::CSlotSet')
     slot_set:ClearIconAll()
     for i = 0, slot_set:GetSlotCount() - 1 do
@@ -25530,6 +25930,10 @@ function auto_pet_summon_on_init()
         g.auto_pet_summon_cid = cid
         if not g.auto_pet_summon then
             Auto_pet_summon_load_settings()
+        end
+        local old_func = g.settings.auto_pet_summon.old_init_func
+        if _G[old_func] then
+            return
         end
         Auto_pet_summon_companion()
     end

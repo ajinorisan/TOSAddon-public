@@ -23,7 +23,7 @@ Tree of Savior 用のアドオンを作成・改変しています。
 
 ## アドオン紹介
 
-### Nexsus Addons
+### Nexus Addons
 
 40種類以上のアドオンの詰合せ。ゲーム内のヘルプを読んで。
 
@@ -32,14 +32,45 @@ Tree of Savior 用のアドオンを作成・改変しています。
 <details>
 <summary>紹介画像 & 更新履歴 (Native Lang)</summary>
 
-*   v1.0.7 Indun Panel表示速度変更。Character Change Helper自動着脱ロジックを見直し。Indun List Viewer最初回のロード処理変更。Sub Slotsetスキルフレーム表示時の挙動変更。競合アドオン有効時の排他処理を厳格化。
-*   v1.0.6 Indun List Viewerのloadにバージョン管理追加。Another Warehouse使ってない場合のインベントリの挙動修正。Indun Panel激動の核の掃討部分修正
-*   v1.0.5 読み込み時の負荷を分散、Other Character Skill Listのコピーは重すぎて諦めた。チーム倉庫のバニラ挙動修正、Another Warehouseのjsonを爆速luaに変更。
-*   v1.0.4 No Checkゴミ箱フレーム修正、クエスト表示バグ修正、Indun List Viewer、Indun Panel、Other Character Skill ListのフレームをESCで消せる様に、Indun Panelの掃討ボタンのバグ修正。
-*   v1.0.3 MKC、PITフレームちらつき修正、AW自動設定修正、SSSドロップ挙動修正。
-*   v1.0.2 AlwaysStatus修正。セーブファイルのバージョン管理。quickslot_operate修正、ポーション持ってない場合アイコン赤表示に変更
-*   v1.0.1 Another Warehouse、Character Change Helperのオリジナルとの競合を修正
-*   v1.0.0 公開
+*   **v1.0.8**
+    *   Character Change Helper: 自動着脱ロジックを再度見直し。
+    *   Another Warehouse: 設定入替えなど修正。
+    *   Vakarine Equip: バグ修正。
+    *   Indun List Viewer: 掃討のお知らせを12時間以下のみに。
+    *   Auto Repair: IMCの古いフレームを非表示に。
+    *   Indun Panel: フレームの場所保存バグ修正。
+    *   No Check: インベントリのボタンが消えるバグを修正。
+*   **v1.0.7**
+    *   Indun Panel: 表示速度変更。
+    *   Character Change Helper: 自動着脱ロジックを見直し。
+    *   Indun List Viewer: 初回ロード処理変更。
+    *   Sub Slotset: スキルフレーム表示時の挙動変更。
+    *   全般: 競合アドオン有効時の排他処理を厳格化。
+*   **v1.0.6**
+    *   Indun List Viewer: loadにバージョン管理追加。
+    *   Another Warehouse: 未使用時のインベントリ挙動修正。
+    *   Indun Panel: 激動の核の掃討部分修正。
+*   **v1.0.5**
+    *   全般: 読み込み時の負荷を分散。
+    *   Other Character Skill List: コピー機能は負荷が高いため廃止。
+    *   Another Warehouse: チーム倉庫のバニラ挙動修正。保存形式をjsonから爆速luaに変更。
+*   **v1.0.4**
+    *   No Check: ゴミ箱フレーム修正。
+    *   全般: クエスト表示バグ修正。
+    *   Indun List Viewer / Panel / Other Character Skill List: ESCキーでフレームを閉じられるように変更。
+    *   Indun Panel: 掃討ボタンのバグ修正。
+*   **v1.0.3**
+    *   MKC / PIT: フレームちらつき修正。
+    *   Another Warehouse: 自動設定修正。
+    *   全般: SSSドロップ挙動修正。
+*   **v1.0.2**
+    *   AlwaysStatus: 修正。
+    *   全般: セーブファイルのバージョン管理導入。
+    *   Quickslot Operate: 修正（ポーション未所持時はアイコンを赤表示に変更）。
+*   **v1.0.1**
+    *   Another Warehouse / Character Change Helper: オリジナルとの競合を修正。
+*   **v1.0.0**
+    *   公開
 
 </details>
 
