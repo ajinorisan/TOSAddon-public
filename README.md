@@ -30,7 +30,7 @@ Tree of Savior 用のアドオンを作成・改変しています。
 *   **アドオンマネージャー登録済**
 
 <details>
-<summary>紹介画像 & 更新履歴 (Native Lang)</summary>
+<summary>紹介画像 & 更新履歴 (Nexus Addons)</summary>
 
 *   **v1.0.8**
     *   Character Change Helper: 自動着脱ロジックを再度見直し。
@@ -38,8 +38,10 @@ Tree of Savior 用のアドオンを作成・改変しています。
     *   Vakarine Equip: バグ修正。
     *   Indun List Viewer: 掃討のお知らせを12時間以下のみに。
     *   Auto Repair: IMCの古いフレームを非表示に。
-    *   Indun Panel: フレームの場所保存バグ修正。
+    *   Indun Panel: フレームの場所保存バグ修正。ESCの挙動修正。
     *   No Check: インベントリのボタンが消えるバグを修正。
+    *   Party Marker: 位置修正。
+    *   全般: 設定フレーム貫通しない様に修正。
 *   **v1.0.7**
     *   Indun Panel: 表示速度変更。
     *   Character Change Helper: 自動着脱ロジックを見直し。
