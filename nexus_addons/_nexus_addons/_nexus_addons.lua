@@ -22,10 +22,11 @@
 -- 1.0.7 IPの表示読込優先。CCH自動着脱を見直し。ILV最初回のロード処理変更。SSSスキルフレーム表示時の挙動変更。競合アドオン有効時の排他処理を厳格化。
 -- 1.0.8 CCH自動着脱更に見直し、フレーム作成修正、AWHのセッティング時の挙動見直し、VEのバグ修正。ICC掃討バフ12時間以下で表示。ARフレーム非表示に変更。IPフレーム挙動修正、NCのフレームボタン修正。
 -- 1.0.9 Mutekiゲージ位置修正、ESCの挙動修正。IPベリオラアイコン修正。AR再修正。CCHロード修正。ILV掃討バフ12時間以下で表示。
+-- 1.1.0 Battle_ritualフレームスクロール。AWH fixinventorysort使える様に。DRPC200未満ですぐ補充に。
 local addon_name = "_NEXUS_ADDONS"
 local addon_name_lower = string.lower(addon_name)
 local author = "norisan"
-local ver = "1.0.9"
+local ver = "1.1.0"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -1967,7 +1968,7 @@ function Another_warehouse_frame_update(awh, gb, search_text, index)
             warehouse_item_list = sort_worker:Sort(warehouse_item_list, false)
         end
     else]]
-    table.sort(warehouse_item_list, INVENTORY_SORT_BY_NAME)
+    table.sort(warehouse_item_list, Another_warehouse_INVENTORY_SORT_BY_NAME)
     local created_groups = {}
     local created_slotsets = {}
     local group_order = {"Premium", "EquipGroup", "NonEquipGroup", "Cube", "Gem", "Card", "Recipe", "Material",
@@ -2076,6 +2077,14 @@ function Another_warehouse_frame_update(awh, gb, search_text, index)
     count_text:SetText("{@st42}" .. item_count .. "/" .. max_count .. "{/}")
     count_text:SetFontName("white_16_ol")
     awh:RunUpdateScript("Another_warehouse_set_scroll_pos")
+end
+
+function Another_warehouse_INVENTORY_SORT_BY_NAME(a, b)
+    local item_cls_a = GetIES(a:GetObject())
+    local item_cls_b = GetIES(b:GetObject())
+    local item_name_a = dic.getTranslatedStr(item_cls_a.Name)
+    local item_name_b = dic.getTranslatedStr(item_cls_b.Name)
+    return item_name_a < item_name_b
 end
 
 function Another_warehouse_set_scroll_pos(awh)
@@ -11456,6 +11465,7 @@ function indun_list_viewer_on_init()
         Indun_list_viewer_char_load_settings()
         Indun_list_viewer_sort_characters()
         Indun_list_viewer_raid_reset_reserve()
+        Indun_list_viewer_save_current_char_counts()
     end
     if g.settings.indun_list_viewer.use == 0 then
         if _G["indun_list_viewer_title_frame_open"] == _G["Indun_list_viewer_title_frame_open"] then
@@ -11472,7 +11482,7 @@ function indun_list_viewer_on_init()
     g.setup_hook_and_event(g.addon, "STATUS_SELET_REPRESENTATION_CLASS",
         "Indun_list_viewer_STATUS_SELET_REPRESENTATION_CLASS", true)
     g.setup_hook(Indun_list_viewer_APPS_TRY_LEAVE, "APPS_TRY_LEAVE")
-    -- g.setup_hook_and_event(g.addon, "APPS_TRY_LEAVE", "Indun_list_viewer_APPS_TRY_LEAVE", true)
+    g.setup_hook_and_event(g.addon, "APPS_TRY_MOVE_BARRACK", "Indun_list_viewer_APPS_TRY_MOVE_BARRACK", true)
 end
 
 function Indun_list_viewer_APPS_TRY_MOVE_BARRACK()
@@ -11518,8 +11528,13 @@ function Indun_list_viewer_APPS_TRY_LEAVE(type)
         imcAddOn.BroadMsg("EXPIREDITEM_ALERT_OPEN", type, 0)
         return
     end
-    if g.FUNCS["APPS_TRY_LEAVE"] then
-        g.FUNCS["APPS_TRY_LEAVE"](type)
+    local use_instant_cc = (g.settings and g.settings.instant_cc and g.settings.instant_cc.use == 1)
+    if use_instant_cc then
+        Instant_cc_APPS_TRY_LEAVE(type)
+    else
+        if g.FUNCS["APPS_TRY_LEAVE"] then
+            g.FUNCS["APPS_TRY_LEAVE"](type)
+        end
     end
 end
 
@@ -11565,6 +11580,7 @@ function Indun_list_viewer_EXPIREDITEM_ALERT_ON_MSG(frame, msg, str, num)
         expireditem_alert:SetLayerLevel(100)
     end
     if msg == "EXPIREDITEM_ALERT_OPEN" then
+        Indun_list_viewer_save_current_char_counts()
         Indun_list_viewer_EXPIREDITEM_ALERT_OPEN(frame, str)
         return
     end
@@ -12297,6 +12313,7 @@ function sub_map_on_init()
             g.sub_map_challenge = 1
             break
         end
+        Sub_map_frame_init()
     end
     if g.get_map_type() ~= "Instance" then
         local list = session.party.GetPartyMemberList(PARTY_NORMAL)
@@ -15162,7 +15179,7 @@ function Battle_ritual_settings_frame()
     close:SetGravity(ui.RIGHT, ui.TOP)
     close:SetEventScript(ui.LBUTTONUP, "Battle_ritual_frame_close")
     local gbox = setting:CreateOrGetControl("groupbox", "gbox", 10, 40, setting:GetWidth() - 20,
-        setting:GetHeight() - 50)
+        setting:GetHeight() - 50) -- 945
     AUTO_CAST(gbox)
     gbox:SetSkinName("test_frame_midle_light")
     gbox:EnableScrollBar(1)
@@ -15322,8 +15339,8 @@ function Battle_ritual_create_row(gbox, index, skill_id, buff_id, priority, y)
         priority_edit:SetTypingScp("Battle_ritual_priority")
     end
     local setting = gbox:GetParent()
-    setting:Resize(550, y + 100)
-    gbox:Resize(setting:GetWidth() - 20, setting:GetHeight() - 50)
+    setting:Resize(550, 945)
+    gbox:Resize(setting:GetWidth() - 20, 895) -- 945
     setting:ShowWindow(1)
 end
 
@@ -25423,16 +25440,21 @@ end
 
 -- Dungeon RP charger ここから
 function dungeon_rp_charger_on_init()
-    -- 11244 未知の聖域3F
-    -- 40049 レリックバフ
-    -- 11030036 エクトナイト(マケ売り可) misc_Ectonite
-    -- 11030451 エクトナイト misc_Ectonite_Care
-    if g.map_id == 11244 then
-        g.addon:RegisterMsg('BUFF_ADD', 'Dungeon_rp_charger_BUFF_ADD')
+    if g.map_id == 11244 then -- 11244 未知の聖域3F -- 40049 レリックバフ -- 11030036 エクトナイト(マケ売り可) misc_Ectonite    -- 11030451 エクトナイト misc_Ectonite_Care
+        local _nexus_addons = ui.GetFrame("_nexus_addons")
+        if _nexus_addons then
+            local dungeon_rp_charger_timer = GET_CHILD(_nexus_addons, "dungeon_rp_charger_timer")
+            if not dungeon_rp_charger_timer then
+                dungeon_rp_charger_timer = _nexus_addons:CreateOrGetControl("timer", "dungeon_rp_charger_timer", 0, 0)
+            end
+            AUTO_CAST(dungeon_rp_charger_timer)
+            dungeon_rp_charger_timer:SetUpdateScript("Dungeon_rp_charger_auto_charge")
+            dungeon_rp_charger_timer:Start(3.0)
+        end
     end
 end
 
-function Dungeon_rp_charger_BUFF_ADD(frame, msg, str, buff_id)
+--[[function Dungeon_rp_charger_BUFF_ADD(frame, msg, str, buff_id)
     if g.settings.dungeon_rp_charger.use == 0 then
         return
     end
@@ -25449,27 +25471,26 @@ function Dungeon_rp_charger_BUFF_ADD(frame, msg, str, buff_id)
             dungeon_rp_charger_timer:Start(1.0)
         end
     end
-end
+end]]
 
 function Dungeon_rp_charger_auto_charge(_nexus_addons, dungeon_rp_charger_timer)
-    local my_handle = session.GetMyHandle()
-    local relic_buff = info.GetBuff(my_handle, 40049)
-    if relic_buff then
+    if g.settings.dungeon_rp_charger.use == 0 then
         return
     end
     local pc = GetMyPCObject()
     local cur_rp, max_rp = shared_item_relic.get_rp(pc)
+    if cur_rp >= 200 then
+        return
+    end
     session.ResetItemList()
     local mat_item = session.GetInvItemByType(11030451)
     if not mat_item then
         mat_item = session.GetInvItemByType(11030036)
         if not mat_item then
-            dungeon_rp_charger_timer:Stop()
             return
         end
     end
     if mat_item.isLockState then
-        dungeon_rp_charger_timer:Stop()
         return
     end
     local item_index = mat_item:GetIESID()
@@ -25479,11 +25500,12 @@ function Dungeon_rp_charger_auto_charge(_nexus_addons, dungeon_rp_charger_timer)
         if recharge_count > cur_count then
             recharge_count = cur_count
         end
-        session.AddItemID(item_index, recharge_count)
-        local result_list = session.GetItemIDList()
-        item.DialogTransaction('RELIC_CHARGE_RP', result_list)
+        if recharge_count > 0 then
+            session.AddItemID(item_index, recharge_count)
+            local result_list = session.GetItemIDList()
+            item.DialogTransaction('RELIC_CHARGE_RP', result_list)
+        end
     end
-    dungeon_rp_charger_timer:Stop()
 end
 -- Dungeon RP charger ここまで
 

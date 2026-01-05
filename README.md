@@ -32,6 +32,10 @@ Tree of Savior 用のアドオンを作成・改変しています。
 <details>
 <summary>紹介画像 & 更新履歴 (Nexus Addons)</summary>
 
+*   **v1.1.0**
+    *   Another Warehouse: fixinventorysortを使える様に。
+    *   Battle Ritual: スクロールバー修正。
+    *   Dungeon RP Charger: RP200以下でエクトナイト使用に変更。
 *   **v1.0.9**
     *   Muteki: ゲージ位置修正、ESCボタン挙動修正。
     *   Indun Panel: ベリオラアイコン修正。

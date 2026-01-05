@@ -157,17 +157,13 @@ function Goddess_icor_manager_list_init(frame, ctrl, str, page)
     gim:ShowTitleBar(0)
     gim:SetSkinName("test_frame_midle_light")
     gim:RemoveAllChild()
-    Goddess_icor_manager_equip_gbox_init(gim, nil)
-    --[[if page == 2 then
-        g.num = 2
-        Goddess_icor_manager_list_gb_init(frame, 2)
-    else
-        g.num = 1
-        Goddess_icor_manager_list_gb_init(frame, 1)
-    end]]
+    if not page then
+        page = 1
+    end
+    Goddess_icor_manager_equip_gbox_init(gim, page)
 end
 
-function Goddess_icor_manager_equip_gbox_init(gim, ctrl_key)
+function Goddess_icor_manager_equip_gbox_init(gim, page)
     local equip_gb = gim:CreateOrGetControl("groupbox", "equip_bg", 1430, 5, 485, 1050)
     AUTO_CAST(equip_gb)
     equip_gb:SetSkinName('test_frame_midle_light')
@@ -204,14 +200,65 @@ function Goddess_icor_manager_equip_gbox_init(gim, ctrl_key)
     set_droplist:SetSkinName('droplist_normal')
     set_droplist:EnableHitTest(1)
     set_droplist:SetTextAlign("center", "center")
-    set_droplist:SetSelectedScp("Goddess_icor_manager_droplist_select")
+    -- set_droplist:SetSelectedScp("Goddess_icor_manager_droplist_select")
     set_droplist:AddItem(0, " ")
-    set_droplist:SelectItem(ctrl_key or 0)
+    set_droplist:SelectItem(0)
     set_droplist:Invalidate()
     for key, data in ipairs(g.gim_settings[g.cid].drop_items) do
         set_droplist:AddItem(key, "{ol}" .. data.set_name)
     end
-    local save_btn = equip_gb:CreateOrGetControl("button", "save_btn", set_droplist:GetX() + 10, 5, 80, 30)
+    local x = 5
+    local y = 50
+    local yy = 50
+    for i = 1, #g.gim_slot_list do
+        local equip_pic
+        if i <= 2 or i >= 7 then
+            equip_pic = equip_gb:CreateOrGetControl("picture", "equip_pic" .. i, x, y + 10, 238, 130)
+            y = y + 131
+        elseif i <= 6 or i >= 3 then
+            equip_pic = equip_gb:CreateOrGetControl("picture", "equip_pic" .. i, x + 240, yy + 10, 238, 130)
+            yy = yy + 131
+        end
+        AUTO_CAST(equip_pic)
+        equip_pic:SetImage("fullwhite")
+        equip_pic:SetColorTone("FFF0E68C")
+        equip_pic:SetEnableStretch(1)
+    end
+    for i = 1, #g.gim_slot_list do
+        local slot_info = g.gim_slot_list[i]
+        local equip_pic = GET_CHILD(equip_gb, "equip_pic" .. i)
+        local slot = equip_pic:CreateOrGetControl("richtext", "slot" .. i, 5, 5)
+        AUTO_CAST(slot)
+        slot:SetText("{ol}" .. ClMsg(slot_info.clmsg))
+        local inv_item = session.GetEquipItemBySpot(item.GetEquipSpotNum(slot_info.slot_name))
+        local item_obj = GetIES(inv_item:GetObject())
+        local item_dic = GET_ITEM_RANDOMOPTION_DIC(item_obj)
+        local size = item_dic["Size"]
+        local y = 25
+        if size ~= 0 then
+            for j = 1, size do
+                local key = "RandomOption_" .. j
+                local value_key = "RandomOptionValue_" .. j
+                local group_key = "RandomOptionGroup_" .. j
+                local equip_pic = GET_CHILD_RECURSIVELY(equip_gb, "equip_pic" .. i)
+                local text = equip_pic:CreateOrGetControl("richtext", "text" .. j, 5, y)
+                AUTO_CAST(text)
+                local option = item_dic[key]
+                local value = item_dic[value_key]
+                local group = item_dic[group_key]
+                -- local color = Goddess_icor_manager_color(tostring(group))
+                text:SetText("{ol}" .. ClMsg(option) .. "{#FFFFFF} : " .. value)
+                y = y + 20
+            end
+            -- local bg = GET_CHILD_RECURSIVELY(equip_gb, "new_bg" .. i)
+            -- local colortone = Goddess_icor_manager_set_frame_color_equip(bg, size, item_dic, slot)
+            -- bg:SetColorTone(colortone)
+        end
+    end
+    local inventory = ui.GetFrame("inventory")
+    DO_WEAPON_SLOT_CHANGE(inventory, 1)
+
+    --[[local save_btn = equip_gb:CreateOrGetControl("button", "save_btn", set_droplist:GetX() + 10, 5, 80, 30)
     AUTO_CAST(save_btn)
     save_btn:SetText(g.lang == "Japanese" and "{ol}保存" or "{ol}Save")
     -- save_btn:SetEventScript(ui.LBUTTONUP, "Goddess_icor_manager_set_save")
@@ -295,11 +342,9 @@ function Goddess_icor_manager_equip_gbox_init(gim, ctrl_key)
             local status_str = status_table[i]
             -- Goddess_icor_manager_newframe_set_status(status_bg, status, status_str, i)
         end
-    end
-    local inventory = ui.GetFrame("inventory")
-    DO_WEAPON_SLOT_CHANGE(inventory, 1)
+    end]]
 end
-
+-- ts(dictionary.ReplaceDicIDInCompStr("가죽 대상 공격력 상쇄"))
 function Goddess_icor_manager_droplist_select(frame, ctrl)
     local gim = ui.GetFrame(addon_name_lower .. "gim")
     local ctrl_key = tonumber(ctrl:GetSelItemKey())
