@@ -3,7 +3,7 @@
     "name": "Nexus Addons",
     "file": "nexus_addons",
     "extension": "ipf",
-    "fileVersion": "v1.1.0",
+    "fileVersion": "v1.1.1",
     "releaseTag": "nexus_addons",
     "unicode": "⛄",
     "description": "ゲーム内アドオンマネージャー 40種類以上のアドオンの詰合せ<br>※旧アドオンからのデータコピーをするために、旧アドオンをアンインストールせずに、一度、ゲームを起動してください<br>In-game Addon Manager: A collection of over 40 types of addons<br>※To copy data from the old addon, please launch the game once without uninstalling the old version<br>인게임 애드온 매니저: 40종류 이상의 애드온 모음<br>※ 구 애드온의 데이터를 복사하기 위해, 구 애드온을 삭제하지 마시고 우선 게임을 한 번 실행해 주시기 바랍니다<br>Contact information Discode<br>https://discord.gg/StaAcH8F",
@@ -23,21 +23,11 @@
     "name": "Mini Addons",
     "file": "mini_addons",
     "extension": "ipf",
-    "fileVersion": "v1.8.0",
+    "fileVersion": "v1.8.1",
     "releaseTag": "mini_addons",
     "unicode": "⛄",
-    "description": "Wide monitor supported<br>v1.7.4で設定フレームの場所を変更しました。コロニーの時の街で復活のタイマーを修正。色々と便利です。<br>In v1.7.4, the location of the settings frame has been changed. The revival timer in the Colony city has also been fixed, making various things more convenient.<br>v1.7.4에서 설정 프레임의 위치를 변경했습니다. 콜로니 지역의 도시에서 부활 타이머를 수정하여 여러모로 편리해졌습니다.",
+    "description": "ちょっとした便利機能の詰合せ<br>A collection of handy little features<br>소소하고 유용한 기능들의 모음집",
     "tags": ["ajinori", "ajinorisan", "mini", "Mini"]
-  },
-  {
-    "name": "Goddess Icor Manager",
-    "file": "goddess_icor_manager",
-    "extension": "ipf",
-    "fileVersion": "v1.1.4",
-    "releaseTag": "goddess_icor_manager",
-    "unicode": "⛄",
-    "description": "インベントリに付くボタンで、イコルのオプション付与を一覧表示して簡易化します。<br>A button attached to the inventory, which lists and simplifies the granting of options for the ichor.<br>인벤토리에 있는 버튼으로 이퀄의 옵션 부여를 목록화하여 간소화합니다.",
-    "tags": ["ajinori", "ajinorisan"]
   },
   {
     "name": "Market Favorite Rebuild",

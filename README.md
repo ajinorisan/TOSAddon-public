@@ -32,6 +32,12 @@ Tree of Savior 用のアドオンを作成・改変しています。
 <details>
 <summary>紹介画像 & 更新履歴 (Nexus Addons)</summary>
 
+*   **v1.1.1**
+    *   Character Change Helper: 装備外すロジック見直し。
+    *   Goddess Icor Manager: 追加。
+    *   Indun List Viewer: 掃討お知らせロジック見直し。
+    *   No Check: ゴッデスアクセバグ修正。
+    *   Another Warehouse: ローディング後最速読込に変更。
 *   **v1.1.0**
     *   Another Warehouse: fixinventorysortを使える様に。
     *   Battle Ritual: スクロールバー修正。
@@ -187,6 +193,7 @@ Tree of Savior 用のアドオンを作成・改変しています。
 
 **更新履歴:**
 
+*   v1.8.1 ダイアログ制御最速化、ブラックマーケットお知らせ修正。
 *   v1.8.0 コード書き直して整理、チャットフレーム改造バグ修正。
 *   v1.7.9 バグ修正、ボスレランキング取得表示、チャットフレーム拡張、ボスレランキング報酬ちょい残し、追加報酬券お知らせ
 *   v1.7.8 バグ修正、レリック自動補充補完機能、クールタイム音消去機能、インベントリスロット改造機能、アイテム再鑑定表表示機能追加

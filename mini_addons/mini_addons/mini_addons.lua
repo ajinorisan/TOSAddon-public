@@ -88,10 +88,11 @@
 -- v1.7.9.1 イベントシャウトチャット機能、インベントリor検索
 -- v1.7.9.2 コード見直し。書き直し。acutil排除
 -- v1.8.0 チャットフレーム改造のバグ修正
+-- v1.8.1 ダイアログ制御最速化。ブラックマーケットお知らせ修正。
 local addon_name = "MINI_ADDONS"
 local addon_name_lower = string.lower(addon_name)
 local author = "norisan"
-local ver = "1.8.0"
+local ver = "1.8.1"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -1070,25 +1071,97 @@ function mini_addons_GAME_START(frame, msg, str, num)
     if _G["AUTOMAPCHANGE_CAMERA_ZOOM"] and type(_G["AUTOMAPCHANGE_CAMERA_ZOOM"]) == "function" then
         _G["AUTOMAPCHANGE_CAMERA_ZOOM"] = nil
     end
-    -- クポルポーションフレームの移動と非表示
-    local cupole_external_addon = ui.GetFrame("cupole_external_addon")
-    cupole_external_addon:SetEventScript(ui.LBUTTONUP, "mini_addons_cupole_portion_frame_save")
+    g.addon:RegisterMsg("FPS_UPDATE", "mini_addons_FPS_UPDATE")
     -- クエストインフォを隠す
     mini_addons_ON_UPDATE_QUESTINFOSET_2(nil)
     g.setup_hook(mini_addons_ON_UPDATE_QUESTINFOSET_2, "ON_UPDATE_QUESTINFOSET_2")
-    -- お使いクエストフレーム
-    g.addon:RegisterMsg("QUEST_UPDATE", "mini_addons_quest_update")
-    g.addon:RegisterMsg("QUEST_UPDATE_", "mini_addons_quest_update")
-    g.addon:RegisterMsg("GET_NEW_QUEST", "mini_addons_quest_update")
-    mini_addons_quest_update()
+    -- ブラックマーケット削除
+    g.setup_hook(mini_addons_NOTICE_ON_MSG, "NOTICE_ON_MSG")
+    g.setup_hook(mini_addons_CHAT_TEXT_LINKCHAR_FONTSET, "CHAT_TEXT_LINKCHAR_FONTSET")
+    -- ダイアログ制御系
+    g.addon:RegisterMsg("DIALOG_CHANGE_SELECT", "mini_addons_DIALOG_CHANGE_SELECT")
     -- 最初回のイベントバナーのレイヤー下げる
     g.addon:RegisterMsg("DO_OPEN_EVENTBANNER_UI", "mini_addons_event_banner_layer")
     g.addon:RegisterMsg("EVENTBANNER_SOLODUNGEON", "mini_addons_event_banner_layer")
     -- 追加報酬券チェック
     g.addon:RegisterMsg("REQ_PLAYER_CONTENTS_RECORD", "mini_addons_REQ_PLAYER_CONTENTS_RECORD")
+    -- お使いクエストフレーム
+    g.addon:RegisterMsg("QUEST_UPDATE", "mini_addons_quest_update")
+    g.addon:RegisterMsg("QUEST_UPDATE_", "mini_addons_quest_update")
+    g.addon:RegisterMsg("GET_NEW_QUEST", "mini_addons_quest_update")
+    mini_addons_quest_update()
+    -- クポルポーションフレームの移動と非表示
+    local cupole_external_addon = ui.GetFrame("cupole_external_addon")
+    cupole_external_addon:SetEventScript(ui.LBUTTONUP, "mini_addons_cupole_portion_frame_save")
 end
 
 function mini_addons_GAME_START_3SEC(frame, msg, str, num)
+    -- EP13ショップを街で開ける
+    mini_addons_REPUTATION_SHOP_OPEN()
+    -- 町でBGMPLAYERを常に動かす
+    mini_addons_BGM_PLAY()
+    -- 小さいボタンをレイドで非表示
+    mini_addons_MINIMIZED_CLOSE()
+    -- ボタン右クリックでサウンドオフ
+    mini_addons_toggle_sound_set()
+    -- 自分のエフェクト設定を戻すIMCのバグ修正
+    mini_addons_MY_EFFECT_SETTING()
+    -- ボスのエフェクト設定を戻すIMCのバグ修正
+    mini_addons_BOSS_EFFECT_SETTING()
+    -- その他のエフェクト設定を戻すIMCのバグ修正
+    mini_addons_OTHER_EFFECT_SETTING()
+    -- パーティーメンバーの場所表示
+    mini_addons_partymember_get_map()
+    -- ヴァカリネを伝える
+    mini_addons_vakarine_notice()
+    -- チャンネル切替フレーム
+    mini_addons_GAME_START_CHANNEL_LIST()
+    -- イベントグローバルシャウトをチャットに残す
+    mini_addons_event_frame()
+    g.addon:RegisterMsg("NOTICE_Dm_Global_Shout", "mini_addons_event_NOTICE_ON_MSG")
+    g.addon:RegisterMsg("INV_ITEM_ADD", "mini_addons_event_frame")
+    g.addon:RegisterMsg("INV_ITEM_REMOVE", "mini_addons_event_frame")
+    -- バウバスお知らせ
+    g.setup_hook_and_event(g.addon, "NOTICE_ON_MSG", "mini_addons_NOTICE_ON_MSG_baubas", true)
+    -- どこでもメンバーインフォ
+    g.setup_hook(mini_addons_CHAT_RBTN_POPUP, "CHAT_RBTN_POPUP")
+    g.setup_hook(mini_addons_POPUP_GUILD_MEMBER, "POPUP_GUILD_MEMBER")
+    g.setup_hook(mini_addons_CONTEXT_PARTY, "CONTEXT_PARTY")
+    g.setup_hook(mini_addons_SHOW_PC_CONTEXT_MENU, "SHOW_PC_CONTEXT_MENU")
+    g.setup_hook(mini_addons_POPUP_DUMMY, "POPUP_DUMMY")
+    g.setup_hook(mini_addons_POPUP_FRIEND_COMPLETE_CTRLSET, "POPUP_FRIEND_COMPLETE_CTRLSET")
+    -- コインショップの数値を拡張
+    g.setup_hook(mini_addons_EARTHTOWERSHOP_CHANGECOUNT_NUM_CHANGE, "EARTHTOWERSHOP_CHANGECOUNT_NUM_CHANGE")
+    -- 4人以下の入場確認スキップ
+    g.setup_hook(mini_addons_INDUNENTER_REQ_UNDERSTAFF_ENTER_ALLOW, "INDUNENTER_REQ_UNDERSTAFF_ENTER_ALLOW")
+    -- ヴェルニケ階数を覚える
+    g.setup_hook(mini_addons_INDUN_EDITMSGBOX_FRAME_OPEN, "INDUN_EDITMSGBOX_FRAME_OPEN")
+    g.addon:RegisterMsg("SOLO_D_TIMER_TEXT_GAUGE_UPDATE", "mini_addons_SOLO_D_TIMER_UPDATE_TEXT_GAUGE")
+    -- PTバフの表示非表示切り替え
+    g.setup_hook(mini_addons_ON_PARTYINFO_BUFFLIST_UPDATE, "ON_PARTYINFO_BUFFLIST_UPDATE")
+    -- チャンネルのズレを直す
+    g.setup_hook(mini_addons_UPDATE_CURRENT_CHANNEL_TRAFFIC, "UPDATE_CURRENT_CHANNEL_TRAFFIC")
+    -- インベントリイコル検索
+    g.setup_hook(mini_addons_INVENTORY_TOTAL_LIST_GET, "INVENTORY_TOTAL_LIST_GET")
+    -- コロニー死んだ時に30秒タイマー動かないバグ修正
+    g.setup_hook(mini_addons_RESTART_ON_MSG, "RESTART_ON_MSG")
+    -- 装備錬成を自動化
+    g.setup_hook(mini_addons_COMMON_EQUIP_UPGRADE_PROGRESS, "COMMON_EQUIP_UPGRADE_PROGRESS")
+    g.setup_hook_and_event(g.addon, "COMMON_EQUIP_UPGRADE_OPEN", "mini_addons_COMMON_EQUIP_UPGRADE_OPEN", true)
+    -- パーティー情報フレームを小さくする
+    g.addon:RegisterMsg("PARTY_BUFFLIST_UPDATE", "mini_addons_PARTY_BUFFLIST_UPDATE")
+    -- インベントリを改造
+    g.addon:RegisterMsg("INV_ITEM_ADD", "mini_addons_inventory_open_func")
+    g.addon:RegisterMsg("INV_ITEM_REMOVE", "mini_addons_inventory_open_func")
+    g.setup_hook_and_event(g.addon, "INVENTORY_OPEN", "mini_addons_INVENTORY_OPEN", true)
+    -- ファミリーネームからログインネームへ変換
+    g.addon:RegisterMsg("BUFF_ADD", "mini_addons_PCNAME_REPLACE")
+    g.addon:RegisterMsg("BUFF_UPDATE", "mini_addons_PCNAME_REPLACE")
+    -- レイドレコードの2度呼ばれるバグ修正
+    g.addon:RegisterMsg("REQ_PLAYER_CONTENTS_RECORD", "mini_addons__REQ_PLAYER_CONTENTS_RECORD")
+    -- 死んだ時の選択肢を動かす
+    g.addon:RegisterMsg("RESTART_HERE", "mini_addons_RESTART_HERE")
+    g.addon:RegisterMsg("RESTART_CONTENTS_HERE", "mini_addons_RESTART_HERE")
     -- チャットフレーム改造
     if type(_G["ZCHATEXTENDS_ON_INIT"]) ~= "function" then
         mini_addons_update_chat_frame()
@@ -1116,24 +1189,10 @@ function mini_addons_GAME_START_3SEC(frame, msg, str, num)
     -- 製造自動セット
     g.setup_hook_and_event(g.addon, "CRAFT_RECIPE_FOCUS", "mini_addons_CRAFT_RECIPE_FOCUS", true)
     g.setup_hook_and_event(g.addon, "CRAFT_START_CRAFT", "mini_addons_CRAFT_START_CRAFT", true)
-    -- パーティーメンバーの場所表示
-    mini_addons_partymember_get_map()
     -- PTメンバーの死亡と復活をNICO_CHATで流す
     g.setup_hook_and_event(g.addon, "DRAW_CHAT_MSG", "mini_addons_DRAW_CHAT_MSG", true)
     -- ワールドマップにトークンワープのクールダウンを表示
     g.setup_hook_and_event(g.addon, "OPEN_WORLDMAP2_MINIMAP", "mini_addons_OPEN_WORLDMAP2_MINIMAP", true)
-    -- どこでもメンバーインフォ
-    g.setup_hook(mini_addons_CHAT_RBTN_POPUP, "CHAT_RBTN_POPUP")
-    g.setup_hook(mini_addons_POPUP_GUILD_MEMBER, "POPUP_GUILD_MEMBER")
-    g.setup_hook(mini_addons_CONTEXT_PARTY, "CONTEXT_PARTY")
-    g.setup_hook(mini_addons_SHOW_PC_CONTEXT_MENU, "SHOW_PC_CONTEXT_MENU")
-    g.setup_hook(mini_addons_POPUP_DUMMY, "POPUP_DUMMY")
-    g.setup_hook(mini_addons_POPUP_FRIEND_COMPLETE_CTRLSET, "POPUP_FRIEND_COMPLETE_CTRLSET")
-    -- バウバスお知らせ
-    g.setup_hook_and_event(g.addon, "NOTICE_ON_MSG", "mini_addons_NOTICE_ON_MSG_baubas", true)
-    -- ブラックマーケット削除
-    g.setup_hook(mini_addons_NOTICE_ON_MSG, "NOTICE_ON_MSG")
-    g.setup_hook(mini_addons_CHAT_TEXT_LINKCHAR_FONTSET, "CHAT_TEXT_LINKCHAR_FONTSET")
     -- FPS設定を手動入力
     g.setup_hook_and_event(g.addon, "SYS_OPTION_OPEN", "mini_addons_SYS_OPTION_OPEN", true)
     -- ボスレランキングにメンバーインフォ
@@ -1145,63 +1204,20 @@ function mini_addons_GAME_START_3SEC(frame, msg, str, num)
     -- チャットフレーム移動のワイドモニター制限解除
     g.setup_hook_and_event(g.addon, "_PROCESS_MOVE_MAIN_POPUPCHAT_FRAME",
         "mini_addons__PROCESS_MOVE_MAIN_POPUPCHAT_FRAME", false)
-    -- ヴァカリネを伝える
-    mini_addons_vakarine_notice()
-    -- コインショップの数値を拡張
-    g.setup_hook(mini_addons_EARTHTOWERSHOP_CHANGECOUNT_NUM_CHANGE, "EARTHTOWERSHOP_CHANGECOUNT_NUM_CHANGE")
-    -- 4人以下の入場確認スキップ
-    g.setup_hook(mini_addons_INDUNENTER_REQ_UNDERSTAFF_ENTER_ALLOW, "INDUNENTER_REQ_UNDERSTAFF_ENTER_ALLOW")
-    -- ヴェルニケ階数を覚える
-    g.setup_hook(mini_addons_INDUN_EDITMSGBOX_FRAME_OPEN, "INDUN_EDITMSGBOX_FRAME_OPEN")
-    g.addon:RegisterMsg("SOLO_D_TIMER_TEXT_GAUGE_UPDATE", "mini_addons_SOLO_D_TIMER_UPDATE_TEXT_GAUGE")
-    -- PTバフの表示非表示切り替え
-    g.setup_hook(mini_addons_ON_PARTYINFO_BUFFLIST_UPDATE, "ON_PARTYINFO_BUFFLIST_UPDATE")
-    -- チャンネルのズレを直す
-    g.setup_hook(mini_addons_UPDATE_CURRENT_CHANNEL_TRAFFIC, "UPDATE_CURRENT_CHANNEL_TRAFFIC")
-    -- インベントリイコル検索
-    g.setup_hook(mini_addons_INVENTORY_TOTAL_LIST_GET, "INVENTORY_TOTAL_LIST_GET")
-    -- イベントグローバルシャウトをチャットに残す
-    mini_addons_event_frame()
-    g.addon:RegisterMsg("NOTICE_Dm_Global_Shout", "mini_addons_event_NOTICE_ON_MSG")
-    g.addon:RegisterMsg("INV_ITEM_ADD", "mini_addons_event_frame")
-    g.addon:RegisterMsg("INV_ITEM_REMOVE", "mini_addons_event_frame")
-    -- 装備錬成を自動化
-    g.setup_hook(mini_addons_COMMON_EQUIP_UPGRADE_PROGRESS, "COMMON_EQUIP_UPGRADE_PROGRESS")
-    g.setup_hook_and_event(g.addon, "COMMON_EQUIP_UPGRADE_OPEN", "mini_addons_COMMON_EQUIP_UPGRADE_OPEN", true)
     -- マーケット販売時に持ってる最大値を自動入力
     g.setup_hook_and_event(g.addon, "MARKET_SELL_UPDATE_REG_SLOT_ITEM", "mini_addons_MARKET_SELL_UPDATE_REG_SLOT_ITEM",
         true)
-    -- レイドレコードの2度呼ばれるバグ修正
-    g.addon:RegisterMsg("REQ_PLAYER_CONTENTS_RECORD", "mini_addons__REQ_PLAYER_CONTENTS_RECORD")
     -- レイドレコードのサイズ、位置変更
     g.setup_hook_and_event(g.addon, "RAID_RECORD_INIT", "mini_addons_RAID_RECORD_INIT", true)
-    -- 自分のエフェクト設定を戻すIMCのバグ修正
-    mini_addons_MY_EFFECT_SETTING()
-    -- ボスのエフェクト設定を戻すIMCのバグ修正
-    mini_addons_BOSS_EFFECT_SETTING()
-    -- その他のエフェクト設定を戻すIMCのバグ修正
-    mini_addons_OTHER_EFFECT_SETTING()
     -- エンブレム、アークの着け忘れお知らせ
     g.setup_hook_and_event(g.addon, "SHOW_INDUNENTER_DIALOG", "mini_addons_SHOW_INDUNENTER_DIALOG", true)
     -- 自動マッチのレイヤーを下げる
     g.setup_hook_and_event(g.addon, "INDUNENTER_AUTOMATCH_TYPE", "mini_addons_INDUNENTER_AUTOMATCH_TYPE", true)
-    -- 死んだ時の選択肢を動かす
-    g.addon:RegisterMsg("RESTART_HERE", "mini_addons_RESTART_HERE")
-    g.addon:RegisterMsg("RESTART_CONTENTS_HERE", "mini_addons_RESTART_HERE")
     -- 死んだ時のマウス位置制御
     g.setup_hook_and_event(g.addon, "RESTART_CONTENTS_ON_HERE", "mini_addons_RESTART_CONTENTS_ON_HERE", true)
-    -- コロニー死んだ時に30秒タイマー動かないバグ修正
-    g.setup_hook(mini_addons_RESTART_ON_MSG, "RESTART_ON_MSG")
-    -- ダイアログ制御系
-    g.addon:RegisterMsg("DIALOG_CHANGE_SELECT", "mini_addons_DIALOG_CHANGE_SELECT")
-    -- ファミリーネームからログインネームへ変換
-    g.addon:RegisterMsg("BUFF_ADD", "mini_addons_PCNAME_REPLACE")
-    g.addon:RegisterMsg("BUFF_UPDATE", "mini_addons_PCNAME_REPLACE")
     -- オートキャスティングをキャラ毎に設定
     g.setup_hook_and_event(g.addon, "CONFIG_ENABLE_AUTO_CASTING", "mini_addons_CONFIG_ENABLE_AUTO_CASTING", true)
     mini_addons_SET_ENABLE_AUTO_CASTING()
-    -- チャンネル切替フレーム
-    mini_addons_GAME_START_CHANNEL_LIST()
     -- ペットコマンド制御
     g.setup_hook_and_event(g.addon, "SHOW_PET_RINGCOMMAND", "mini_addons_SHOW_PET_RINGCOMMAND", false)
     -- レリックゲージ
@@ -1215,20 +1231,6 @@ function mini_addons_GAME_START_3SEC(frame, msg, str, num)
             g.addon:RegisterMsg("RP_UPDATE", "mini_addons_CHARBASE_RELIC")
         end
     end
-    -- パーティー情報フレームを小さくする
-    g.addon:RegisterMsg("PARTY_BUFFLIST_UPDATE", "mini_addons_PARTY_BUFFLIST_UPDATE")
-    -- EP13ショップを街で開ける
-    mini_addons_REPUTATION_SHOP_OPEN()
-    -- 町でBGMPLAYERを常に動かす
-    mini_addons_BGM_PLAY()
-    -- 小さいボタンをレイドで非表示
-    mini_addons_MINIMIZED_CLOSE()
-    -- ボタン右クリックでサウンドオフ
-    mini_addons_toggle_sound_set()
-    -- インベントリを改造
-    g.addon:RegisterMsg("INV_ITEM_ADD", "mini_addons_inventory_open_func")
-    g.addon:RegisterMsg("INV_ITEM_REMOVE", "mini_addons_inventory_open_func")
-    g.setup_hook_and_event(g.addon, "INVENTORY_OPEN", "mini_addons_INVENTORY_OPEN", true)
     if g.get_map_type() == "City" then
         -- ヴェルニケ自動受取り
         mini_addons_SOLODUNGEON_RANKINGPAGE_GET_REWARD()
@@ -1252,9 +1254,192 @@ function mini_addons_GAME_START_3SEC(frame, msg, str, num)
         -- オプションリロールの表を横に表示
         g.addon:RegisterMsg("OPEN_DLG_REROLL_ITEM", "mini_addons_OPEN_DLG_REROLL_ITEM")
     end
-    g.addon:RegisterMsg("FPS_UPDATE", "mini_addons_FPS_UPDATE")
+    -- 細かい修正
+    mini_addons_minor_fixes()
     local sysmenu = ui.GetFrame("sysmenu")
     sysmenu:RunUpdateScript("mini_addons_make_menu", 2.0)
+end
+-- 細かい修正
+function mini_addons_minor_fixes()
+    -- ノーマルジェムはめる時の修正
+    g.setup_hook_and_event(g.addon, "GODDESS_MGR_SOCKET_INV_RBTN", "mini_addons_GODDESS_MGR_SOCKET_INV_RBTN", true)
+    -- カード強化とかジェム強化のインプット最適化
+    g.setup_hook_and_event(g.addon, "INPUT_NUMBER_BOX", "mini_addons_INPUT_NUMBER_BOX", true)
+    -- ジェムロースティング屋の最適化
+    g.setup_hook_and_event(g.addon, "GEMROASTING_TARGET_UI_CENCEL", "mini_addons_GEMROASTING_TARGET_UI_CENCEL", true)
+    g.setup_hook_and_event(g.addon, "ITEMBUFFGEMROASTING_UI_COMMON", "mini_addons_ITEMBUFFGEMROASTING_UI_COMMON", true)
+    -- 昔の装備ダメージフレーム消す
+    -- mini_addons_durnotify_hide()
+end
+-- ノーマルジェムはめる時の修正
+function mini_addons_GODDESS_MGR_SOCKET_INV_RBTN(my_frame, my_msg)
+    local item_obj, slot, guid = g.get_event_args(my_msg)
+    local inv_item = session.GetInvItemByGuid(guid)
+    local gem_type = GET_EQUIP_GEM_TYPE(item_obj)
+    local frame = ui.GetFrame('goddess_equip_manager')
+    local normal_inner_bg = GET_CHILD_RECURSIVELY(frame, 'normal_inner_bg')
+    local equip_item = session.GetInvItemByGuid(guid)
+    local equip_obj = GetIES(equip_item:GetObject())
+    local use_lv = TryGetProp(equip_obj, 'UseLv', 0)
+    local max_socket_cnt = GET_MAX_GODDESS_NORMAL_SOCKET_COUNT(use_lv)
+    for i = 0, max_socket_cnt - 1 do
+        local ctrlset = GET_CHILD(normal_inner_bg, 'NORMAL_CSET_' .. i)
+        AUTO_CAST(ctrlset)
+        local gem_id = ctrlset:GetUserIValue('GEM_ID')
+        if gem_id == 0 then
+            local gem_slot = GET_CHILD(ctrlset, 'gem_slot')
+            AUTO_CAST(gem_slot)
+            GODDESS_MGR_SOCKET_NORMAL_GEM_EQUIP(ctrlset, gem_slot, inv_item, item_obj)
+            break
+        end
+    end
+end
+-- カード強化とかジェム強化のインプット最適化
+function mini_addons_INPUT_NUMBER_BOX()
+    local reinforce_by_mix = ui.GetFrame("reinforce_by_mix")
+    if reinforce_by_mix:IsVisible() == 1 then
+        local title = GET_CHILD_RECURSIVELY(reinforce_by_mix, "title")
+        local titleValue = title:GetTextByKey("value")
+        if titleValue == "@dicID_^*$ETC_20150317_001699$*^" or titleValue == "@dicID_^*$ETC_20150323_010016$*^" then
+            local newframe = ui.GetFrame("inputstring")
+            local edit = GET_CHILD(newframe, 'input', "ui::CEditControl")
+            edit:SetEnableEditTag(1)
+            edit:SetText("1")
+        end
+    end
+end
+-- ジェムロースティング屋の最適化
+function mini_addons_GEMROASTING_TARGET_UI_CENCEL()
+    INVENTORY_SET_CUSTOM_RBTNDOWN("None")
+end
+
+function mini_addons_ITEMBUFFGEMROASTING_UI_COMMON(frame, msg)
+    INVENTORY_SET_CUSTOM_RBTNDOWN("mini_addons_gem_roasting_rbtn")
+end
+
+function mini_addons_gem_roasting_rbtn(item_obj, slot)
+    local icon = slot:GetIcon()
+    local icon_info = icon:GetInfo()
+    local iesid = icon_info:GetIESID()
+    local inv_item = GET_PC_ITEM_BY_GUID(iesid)
+    if not inv_item then
+        return
+    end
+    local type = icon_info.type
+    local item_cls = GetClassByType("Item", type)
+    local pc = GetMyPCObject()
+    local obj = GetIES(inv_item:GetObject())
+    local itembuffgemroasting = ui.GetFrame("itembuffgemroasting")
+    local target_slot = GET_CHILD_RECURSIVELY(itembuffgemroasting, "slot")
+    if obj.GemRoastingLv >= itembuffgemroasting:GetUserIValue("SKILLLEVEL") then
+        ui.SysMsg(ClMsg("CannontDropGam"))
+        return
+    end
+    local check_item = _G["ITEMBUFF_CHECK_" .. itembuffgemroasting:GetUserValue("SKILLNAME")]
+    if check_item(pc, obj) ~= 1 then
+        ui.SysMsg(ClMsg("WrongDropItem"))
+        return
+    end
+    local check_func = _G["ITEMBUFF_NEEDITEM_" .. itembuffgemroasting:GetUserValue("SKILLNAME")]
+    local name, cnt = check_func(pc, obj)
+    SET_SLOT_ITEM_IMAGE(target_slot, inv_item)
+    target_slot:SetUserValue("GEM_IESID", icon_info:GetIESID())
+    local roasting = itembuffgemroasting:GetChild("roasting")
+    local slotName = roasting:GetChild("slotName")
+    slotName:SetTextByKey("txt", obj.Name)
+    local effectGbox = GET_CHILD(roasting, "effectGbox")
+    AUTO_CAST(effectGbox)
+    effectGbox:RemoveChild('tooltip_gem_property')
+    local y_pos = 100
+    local tooltip_gem_property = effectGbox:CreateOrGetControlSet('tooltip_gem_property', 'tooltip_gem_property', 0,
+        y_pos)
+    AUTO_CAST(tooltip_gem_property)
+    local gem_property_gbox = GET_CHILD(tooltip_gem_property, 'gem_property_gbox')
+    AUTO_CAST(gem_property_gbox)
+    local inner_y_pos = 0
+    local inner_cset = nil
+    local inner_prop_count = 0
+    local inner_prop_y_pos = 0
+    local lv = GET_ITEM_LEVEL_EXP(obj, obj.ItemExp) - itembuffgemroasting:GetUserIValue("SKILLLEVEL")
+    if lv < 1 then
+        lv = 0
+    end
+    local gem_prop = geItemTable.GetProp(obj.ClassID)
+    local socket_penalty_prop = gem_prop:GetSocketPropertyByLevel(lv)
+    local prop_index = 0
+    local prop_name_list = GET_ITEM_PROP_NAME_LIST(obj)
+    for i = 1, #prop_name_list do
+        local title = prop_name_list[i]["Title"]
+        local prop_name = prop_name_list[i]["PropName"]
+        local prop_value = prop_name_list[i]["PropValue"]
+        local use_operator = prop_name_list[i]["UseOperator"]
+        if title then
+            inner_cset = gem_property_gbox:CreateOrGetControlSet('tooltip_each_gem_property', title, 0, inner_y_pos)
+            AUTO_CAST(inner_cset)
+            local type_text = GET_CHILD(inner_cset, 'type_text')
+            AUTO_CAST(type_text)
+            type_text:SetText(ScpArgMsg(title))
+            local type_icon = GET_CHILD(inner_cset, 'type_icon')
+            AUTO_CAST(type_icon)
+            local img_name = GET_ICONNAME_BY_WHENEQUIPSTR(tooltip_gem_property, title)
+            type_icon:SetImage(img_name)
+            inner_prop_count = 0
+            inner_prop_y_pos = type_text:GetHeight() + type_text:GetY()
+            inner_cset:GetChild("labelline"):ShowWindow(0)
+        else
+            if inner_cset then
+                local inner_inner_cset = inner_cset:CreateOrGetControlSet('tooltip_each_gem_property_each_text',
+                    'proptext' .. inner_prop_count, 0, inner_prop_y_pos)
+                AUTO_CAST(inner_inner_cset)
+                local real_text = nil
+                local penalty_text = nil
+                if use_operator and prop_value > 0 then
+                    real_text = ScpArgMsg(prop_name) .. " : " .. "{img green_up_arrow 16 16}" .. prop_value
+                else
+                    local prop_penalty_add = socket_penalty_prop:GetPropPenaltyAddByIndex(prop_index, 0)
+                    if nil == prop_penalty_add then
+                        ui.SysMsg(ClMsg("WrongDropItem"))
+                        GEMROASTING_UI_RESET(itembuffgemroasting)
+                        return
+                    end
+                    prop_index = prop_index + 1
+                    real_text = ScpArgMsg(prop_name) .. " : " .. "{img red_down_arrow 16 16}" .. prop_value
+                    penalty_text =
+                        string.format("   {img alch_gemlos_arrow %d %d}   ", 80, 18) .. ScpArgMsg('PropDown') ..
+                            prop_penalty_add.value
+                end
+                local prop_text = GET_CHILD(inner_inner_cset, 'prop_text')
+                AUTO_CAST(prop_text)
+                prop_text:SetText(real_text)
+                local prop_penalty_text = GET_CHILD(inner_inner_cset, 'prop_text2')
+                AUTO_CAST(prop_penalty_text)
+                prop_penalty_text:SetText(penalty_text)
+                prop_penalty_text:SetMargin(210, 0, 0, 0)
+                inner_prop_count = inner_prop_count + 1
+                AUTO_CAST(inner_cset)
+                inner_prop_y_pos = inner_inner_cset:GetY() + inner_inner_cset:GetHeight()
+                inner_cset:Resize(inner_cset:GetOriginalWidth(),
+                    inner_inner_cset:GetY() + inner_inner_cset:GetHeight() + 10)
+                inner_y_pos = inner_cset:GetY() + inner_cset:GetHeight()
+            end
+        end
+    end
+    gem_property_gbox:Resize(gem_property_gbox:GetOriginalWidth(), inner_y_pos)
+    tooltip_gem_property:Resize(tooltip_gem_property:GetWidth(), tooltip_gem_property:GetHeight() +
+        gem_property_gbox:GetHeight() + gem_property_gbox:GetY() + 10)
+    GEMROASTING_UPDATE_MATERIAL(itembuffgemroasting, cnt, icon_info:GetIESID())
+    GEMROASTING_VIEW(itembuffgemroasting)
+    if itembuffgemroasting:GetUserIValue("HANDLE") ~= session.GetMyHandle() then
+        local reqitemMoney = roasting:GetChild("reqitemMoney")
+        reqitemMoney:SetTextByKey("txt", cnt * itembuffgemroasting:GetUserIValue("PRICE"))
+    end
+end
+-- 昔の装備ダメージフレーム消す
+function mini_addons_durnotify_hide()
+    local durnotify = ui.GetFrame("durnotify")
+    if durnotify and durnotify:IsVisible() == 1 then
+        durnotify:Resize(0, 0)
+    end
 end
 
 function mini_addons_FPS_UPDATE()
@@ -1650,6 +1835,9 @@ local multiple_tokens = {
     ["Goddess_Raid_Veliora_Party"] = {11200438, 11200439}
 }
 function mini_addons_REQ_PLAYER_CONTENTS_RECORD(frame, msg)
+    if g.settings.multiple_item == 0 then
+        return
+    end
     local current_raid_name = session.mgame.GetCurrentMGameName()
     local target_tokens = multiple_tokens[current_raid_name]
     if not target_tokens then
@@ -3363,7 +3551,6 @@ function mini_addons_baubas_call_switch(frame, ctrl, str)
 end
 -- ブラックマーケットのお知らせ
 function mini_addons_NOTICE_ON_MSG(frame, msg, str, num)
-    ts(msg, str)
     if g.settings.chat_system == 1 then
         if string.find(str, "StartBlackMarketBetween") then
             return
@@ -4483,6 +4670,9 @@ function mini_addons_INVENTORY_TOTAL_LIST_GET(frame, set_pos, is_ignore_lift_ico
 end
 -- イベントグローバルシャウトをチャットに残す
 function mini_addons_event_NOTICE_ON_MSG(frame, msg, str, num)
+    if string.find(str, "StartBlackMarketBetween") then
+        return
+    end
     local current_time = os.clock()
     if not g.mini_addons_event_notice_time or (current_time - g.mini_addons_event_notice_time < 1800) then
         g.event_maps = g.event_maps or {} -- nilガード
@@ -5128,7 +5318,7 @@ function mini_addons_RESTART_ON_MSG(frame, msg, str, num)
             res_btn_6:SetText(text)
         end
         g.colony_wait_time = 30
-        restart:RunUpdateScript("Mini_addons_COLONY_WAR_RESTART_UPDATE", 1)
+        restart:RunUpdateScript("mini_addons_COLONY_WAR_RESTART_UPDATE", 1)
         AUTORESIZE_RESTART(restart)
         local res_btn_9 = GET_CHILD(restart, "restart9btn", "ui::CButton")
         if res_btn_9 then
@@ -6090,7 +6280,6 @@ function mini_addons_REROLL_ITEM_OPTION_LIST(reroll_frame)
         for i = 1, MAX_RANDOM_OPTION_COUNT do
             local op = GET_CHILD_RECURSIVELY(reroll_frame, "op" .. i)
             if op then
-                -- ts(op:GetName())
                 AUTO_CAST(op)
                 DESTROY_CHILD_BYNAME(reroll_frame, op:GetName())
             end
@@ -6575,7 +6764,6 @@ function mini_addons_inventory_open_func(frame, msg)
         end
         local armor_slot_set = GET_CHILD_RECURSIVELY(tree, "sset_Armor", "ui::CSlotSet")
         if armor_slot_set then
-            -- ts(tab_index, armor_slot_set:GetName())
             local child_count = armor_slot_set:GetChildCount()
             for i = 0, child_count - 1 do
                 local slot = armor_slot_set:GetChildByIndex(i)

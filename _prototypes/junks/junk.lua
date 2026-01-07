@@ -10073,4 +10073,405 @@ end]] --[[function mini_addons_CHECK_DREAMY_ABYSS()
         end
     end
 
+end]] --[[function Goddess_icor_manager_set_pos(frame, page_max)
+    for i = 1, page_max do
+        local bg = GET_CHILD_RECURSIVELY(frame, "bg" .. i)
+        AUTO_CAST(bg)
+        local pos = tonumber(g.settings[tostring(i)])
+        bg:SetScrollPos(0)
+        bg:Invalidate()
+    end
+end
+
+function Goddess_icor_manager_check()
+    local frame = ui.GetFrame("Goddess_icor_manager")
+    local equipframe = ui.GetFrame("Goddess_icor_manager_newframe")
+    local acc = GetMyAccountObj()
+    local remain_time = GET_REMAIN_SECOND_ENGRAVE_SLOT_EXTENSION_TIME(acc)
+    local page_max = 0
+    if tonumber(remain_time) ~= 0 then
+        page_max = GET_MAX_ENGARVE_SLOT_COUNT(acc) + 5
+    else
+        page_max = GET_MAX_ENGARVE_SLOT_COUNT(acc)
+    end
+    if g.settings.check ~= 0 then
+        for i = 1, page_max do
+            local pagename_text = GET_CHILD_RECURSIVELY(frame, "pagename_text" .. i)
+            local bg = GET_CHILD_RECURSIVELY(frame, "bg" .. i)
+            for j = 1, 8 do
+                local new_bg = GET_CHILD_RECURSIVELY(equipframe, "new_bg" .. j)
+                local equip_textcount = new_bg:GetChildCount() - 2
+                local equip_text = ""
+                for k = 1, equip_textcount do
+                    local text = GET_CHILD_RECURSIVELY(new_bg, "text" .. k):GetText()
+                    equip_text = equip_text .. text
+                end
+                equip_text = equip_text:gsub("{[^}]+}", "")
+                local icor_text = ""
+                local manage_bg = GET_CHILD_RECURSIVELY(bg, "manage_bg" .. j)
+                if manage_bg ~= nil then
+                    local bg_textcount = manage_bg:GetChildCount() - 2
+                    for k = 1, bg_textcount do
+                        local text = GET_CHILD_RECURSIVELY(manage_bg, "option" .. k):GetText()
+                        icor_text = icor_text .. text
+                    end
+                    icor_text = icor_text:gsub("{[^}]+}", "")
+                    if tostring(equip_text) == tostring(icor_text) and equip_text ~= "" then
+                        local star = manage_bg:CreateOrGetControl("richtext", "star" .. j, 25, 25)
+                        star:SetText("{img monster_card_starmark 25 25}")
+                        star:SetOffset(230, 0)
+                    elseif tostring(equip_text) ~= tostring(icor_text) and icor_text ~= "" then
+                        local equip_button = manage_bg:CreateOrGetControl("button", "equip_button", 225, 0, 30, 25)
+                        AUTO_CAST(equip_button)
+                        equip_button:SetText("{ol}{s14}E")
+                        equip_button:SetSkinName("test_red_button")
+                        equip_button:SetEventScript(ui.LBUTTONUP, "Goddess_icor_manager_equip_button")
+                        equip_button:SetEventScriptArgNumber(ui.LBUTTONUP, i) -- sets the 4th parameter (numarg)
+                        equip_button:SetEventScriptArgString(ui.LBUTTONUP, j)
+                        equip_button:SetTextTooltip(Goddess_icor_manager_language(
+                            "Equip the icor with a left click of the button."))
+                    end
+                end
+            end
+        end
+    else
+        local pagename_text1 = GET_CHILD_RECURSIVELY(frame, "pagename_text1")
+        if pagename_text1 ~= nil then
+            local page = math.min(5, page_max)
+            for i = 1, page do
+                local pagename_text = GET_CHILD_RECURSIVELY(frame, "pagename_text" .. i)
+                local bg = GET_CHILD_RECURSIVELY(frame, "bg" .. i)
+                for j = 1, 8 do
+                    local new_bg = GET_CHILD_RECURSIVELY(equipframe, "new_bg" .. j)
+                    local equip_textcount = new_bg:GetChildCount() - 2
+                    local equip_text = ""
+                    for k = 1, equip_textcount do
+                        local text = GET_CHILD_RECURSIVELY(new_bg, "text" .. k):GetText()
+                        equip_text = equip_text .. text
+                    end
+                    equip_text = equip_text:gsub("{[^}]+}", "")
+                    local icor_text = ""
+                    local manage_bg = GET_CHILD_RECURSIVELY(bg, "manage_bg" .. j)
+                    if manage_bg ~= nil then
+                        local bg_textcount = manage_bg:GetChildCount() - 2
+                        for k = 1, bg_textcount do
+                            local text = GET_CHILD_RECURSIVELY(manage_bg, "option" .. k):GetText()
+                            icor_text = icor_text .. text
+                        end
+                        icor_text = icor_text:gsub("{[^}]+}", "")
+                        if tostring(equip_text) == tostring(icor_text) and equip_text ~= "" then
+                            local star = manage_bg:CreateOrGetControl("richtext", "star" .. j, 25, 25)
+                            star:SetText("{img monster_card_starmark 25 25}")
+                            star:SetOffset(230, 0)
+                        elseif tostring(equip_text) ~= tostring(icor_text) and icor_text ~= "" then
+                            local equip_button = manage_bg:CreateOrGetControl("button", "equip_button", 225, 0, 30, 25)
+                            AUTO_CAST(equip_button)
+                            equip_button:SetText("{ol}{s14}E")
+                            equip_button:SetSkinName("test_red_button")
+                            equip_button:SetEventScript(ui.LBUTTONUP, "Goddess_icor_manager_equip_button")
+                            equip_button:SetEventScriptArgNumber(ui.LBUTTONUP, i) -- sets the 4th parameter (numarg)
+                            equip_button:SetEventScriptArgString(ui.LBUTTONUP, j)
+                            equip_button:SetTextTooltip(Goddess_icor_manager_language(
+                                "Equip the icor with a left click of the button."))
+                        end
+                    end
+                end
+            end
+        else
+            for i = 6, page_max do
+                local pagename_text = GET_CHILD_RECURSIVELY(frame, "pagename_text" .. i)
+                local bg = GET_CHILD_RECURSIVELY(frame, "bg" .. i)
+                for j = 1, 8 do
+                    local new_bg = GET_CHILD_RECURSIVELY(equipframe, "new_bg" .. j)
+                    local equip_textcount = new_bg:GetChildCount() - 2
+                    local equip_text = ""
+                    for k = 1, equip_textcount do
+                        local text = GET_CHILD_RECURSIVELY(new_bg, "text" .. k):GetText()
+                        equip_text = equip_text .. text
+                    end
+                    equip_text = equip_text:gsub("{[^}]+}", "")
+                    local icor_text = ""
+                    local manage_bg = GET_CHILD_RECURSIVELY(bg, "manage_bg" .. j)
+                    if manage_bg ~= nil then
+                        local bg_textcount = manage_bg:GetChildCount() - 2
+                        for k = 1, bg_textcount do
+                            local text = GET_CHILD_RECURSIVELY(manage_bg, "option" .. k):GetText()
+                            icor_text = icor_text .. text
+                        end
+                        icor_text = icor_text:gsub("{[^}]+}", "")
+                        if tostring(equip_text) == tostring(icor_text) and equip_text ~= "" then
+                            local star = manage_bg:CreateOrGetControl("richtext", "star" .. j, 25, 25)
+                            star:SetText("{img monster_card_starmark 25 25}")
+                            star:SetOffset(230, 0)
+                        elseif tostring(equip_text) ~= tostring(icor_text) and icor_text ~= "" then
+                            local equip_button = manage_bg:CreateOrGetControl("button", "equip_button", 225, 0, 30, 25)
+                            AUTO_CAST(equip_button)
+                            equip_button:SetText("{ol}{s14}E")
+                            equip_button:SetSkinName("test_red_button")
+                            equip_button:SetEventScript(ui.LBUTTONUP, "Goddess_icor_manager_equip_button")
+                            equip_button:SetEventScriptArgNumber(ui.LBUTTONUP, i) -- sets the 4th parameter (numarg)
+                            equip_button:SetEventScriptArgString(ui.LBUTTONUP, j)
+                            equip_button:SetTextTooltip(Goddess_icor_manager_language(
+                                "Equip the icor with a left click of the button."))
+                        end
+                    end
+                end
+            end
+        end
+    end
+end
+
+function Goddess_icor_manager_set_frame_color(manage_bg, parts1, parts2, parts3, manage_text)
+    local frameName = manage_bg:GetName()
+    if frameName == "manage_bg1" or frameName == "manage_bg2" or frameName == "manage_bg7" or frameName == "manage_bg8" then
+        for i = 1, #high500weapontbl do
+            local key = high500weapontbl[i]
+            local keyName = next(key)
+            local value = key[next(key)] -- 次のキー（最初のキー）の値を取得
+            for j = 1, #parts1 do
+                if tostring(parts1[j]) == tostring(keyName) and tonumber(parts3[j]) >= tonumber(value) then
+                    return "FFFFD700"
+                end
+            end
+        end
+        for i = 1, #low500weapontbl do
+            local key = low500weapontbl[i]
+            local keyName = next(key)
+            local value = key[next(key)] -- 次のキー（最初のキー）の値を取得
+            for j = 1, #parts1 do
+                if tostring(parts1[j]) == tostring(keyName) and tonumber(parts3[j]) >= tonumber(value) then
+                    return "FFDAA520"
+                end
+            end
+        end
+        for i = 1, #high480weapontbl do
+            local key = high480weapontbl[i]
+            local keyName = next(key)
+            local value = key[next(key)] -- 次のキー（最初のキー）の値を取得
+            for j = 1, #parts1 do
+                if tostring(parts1[j]) == tostring(keyName) and tonumber(parts3[j]) >= tonumber(value) then
+                    return "FF808080"
+                end
+            end
+        end
+        for i = 1, #low480weapontbl do
+            local key = low480weapontbl[i]
+            local keyName = next(key)
+            local value = key[next(key)] -- 次のキー（最初のキー）の値を取得
+            for j = 1, #parts1 do
+                if tostring(parts1[j]) == tostring(keyName) and tonumber(parts3[j]) >= tonumber(value) then
+                    return "FF808080"
+                end
+            end
+        end
+    else
+        for i = 1, #high500armortbl do
+            local key = high500armortbl[i]
+            local keyName = next(key)
+            local value = key[next(key)] -- 次のキー（最初のキー）の値を取得
+            for j = 1, #parts1 do
+                if tostring(parts1[j]) == tostring(keyName) and tonumber(parts3[j]) >= tonumber(value) then
+                    return "FFFFD700"
+                end
+            end
+        end
+        for i = 1, #low500armortbl do
+            local key = low500armortbl[i]
+            local keyName = next(key)
+            local value = key[next(key)] -- 次のキー（最初のキー）の値を取得
+            for j = 1, #parts1 do
+                if tostring(parts1[j]) == tostring(keyName) and tonumber(parts3[j]) >= tonumber(value) then
+                    return "FFDAA520"
+                end
+            end
+        end
+        for i = 1, #high480armortbl do
+            local key = high480armortbl[i]
+            local keyName = next(key)
+            local value = key[next(key)] -- 次のキー（最初のキー）の値を取得
+            for j = 1, #parts1 do
+                if tostring(parts1[j]) == tostring(keyName) and tonumber(parts3[j]) >= tonumber(value) then
+                    return "FF808080"
+                end
+            end
+        end
+        for i = 1, #low480armortbl do
+            local key = low480armortbl[i]
+            local keyName = next(key)
+            local value = key[next(key)] -- 次のキー（最初のキー）の値を取得
+            for j = 1, #parts1 do
+                if tostring(parts1[j]) == tostring(keyName) and tonumber(parts3[j]) >= tonumber(value) then
+                    return "FF808080"
+                end
+            end
+        end
+    end
+    return "FF000000"
+end
+
+function Goddess_icor_manager_check_save(frame, ctrl, argStr, argNum)
+    local ischeck = ctrl:IsChecked()
+    g.settings.check = ischeck
+    g.save_json(g.settings_path, g.settings)
+    local frame = ui.GetFrame("Goddess_icor_manager")
+    ReserveScript(string.format("Goddess_icor_manager_list_init('%s','%s','%s',%d)", frame, "", "", 1),
+        g.settings.delay or 0.5)
+end
+
+function Goddess_icor_manager_newframe_set_status(status_bg, stframe, status_str, index)
+    local child_frame = GET_CHILD_RECURSIVELY(stframe, status_str)
+    local language = option.GetCurrentCountry()
+    local level = info.GetLevel(session.GetMyHandle())
+    local setting_num = level * 30
+    local setting_num2 = level * 15
+    if language == "Japanese" then
+        local child_title = GET_CHILD(child_frame, "title", "ui::CRichText"):GetText()
+        local titletext = status_bg:CreateOrGetControl("richtext", "titletext" .. index, 10, index * 30 - 20)
+        titletext:SetText("{ol}" .. child_title)
+        local child_stat = GET_CHILD(child_frame, "stat", "ui::CRichText"):GetText()
+        local stattext = status_bg:CreateOrGetControl("richtext", "stattext" .. index, 240, index * 30 - 20)
+        if index <= 4 or (index >= 9 and index <= 13) then
+            stattext:SetText("{ol}" .. child_stat .. " {#FFFFFF}(" .. setting_num .. ")")
+        elseif index >= 5 and index <= 8 then
+            stattext:SetText("{ol}" .. child_stat .. " {#FFFFFF}(" .. setting_num2 .. ")")
+        elseif index >= 14 then
+            stattext:SetText("{ol}" .. child_stat)
+        end
+    else
+        local child_title = GET_CHILD(child_frame, "title", "ui::CRichText"):GetText()
+        local titletext = status_bg:CreateOrGetControl("richtext", "titletext" .. index, 10, index * 45 - 30)
+        titletext:SetText("{ol}" .. child_title)
+        local child_stat = GET_CHILD(child_frame, "stat", "ui::CRichText"):GetText()
+        local stattext = status_bg:CreateOrGetControl("richtext", "stattext" .. index, 200, index * 45 - 10)
+        local line = status_bg:CreateOrGetControl("labelline", "line" .. index, 10, index * 45 + 7, 455, 5)
+        if index <= 4 or (index >= 9 and index <= 13) then
+            stattext:SetText("{ol}" .. child_stat .. " {#FFFFFF}(" .. setting_num .. ")")
+        elseif index >= 5 and index <= 8 then
+            stattext:SetText("{ol}" .. child_stat .. " {#FFFFFF}(" .. setting_num2 .. ")")
+        elseif index >= 14 then
+            stattext:SetText("{ol}" .. child_stat)
+        end
+    end
+end
+
+function Goddess_icor_manager_set_frame_color_equip(bg, size, item_dic, slot)
+    local frameName = bg:GetName()
+    if frameName == "new_bg1" or frameName == "new_bg2" or frameName == "new_bg7" or frameName == "new_bg8" then
+        for i = 1, #high500weapontbl do
+            local tblkey = high500weapontbl[i]
+            local keyname = next(tblkey)
+            local tblvalue = tblkey[next(tblkey)]
+            for j = 1, size do
+                local key = "RandomOption_" .. j
+                local value_key = "RandomOptionValue_" .. j
+                local option = item_dic[key]
+                local value = item_dic[value_key]
+                if tostring(option) == tostring(keyname) and tonumber(value) >= tonumber(tblvalue) then
+                    local text = slot:GetText()
+                    return "FFFFD700"
+                end
+            end
+        end
+        for i = 1, #low500weapontbl do
+            local tblkey = low500weapontbl[i]
+            local keyname = next(tblkey)
+            local tblvalue = tblkey[next(tblkey)]
+            for j = 1, size do
+                local key = "RandomOption_" .. j
+                local value_key = "RandomOptionValue_" .. j
+                local option = item_dic[key]
+                local value = item_dic[value_key]
+                if tostring(option) == tostring(keyname) and tonumber(value) >= tonumber(tblvalue) then
+                    return "FFDAA520"
+                end
+            end
+        end
+        for i = 1, #high480weapontbl do
+            local tblkey = high480weapontbl[i]
+            local keyname = next(tblkey)
+            local tblvalue = tblkey[next(tblkey)]
+            for j = 1, size do
+                local key = "RandomOption_" .. j
+                local value_key = "RandomOptionValue_" .. j
+                local option = item_dic[key]
+                local value = item_dic[value_key]
+                if tostring(option) == tostring(keyname) and tonumber(value) >= tonumber(tblvalue) then
+                    return "FF808080"
+                end
+            end
+        end
+        for i = 1, #low480weapontbl do
+            local tblkey = low480weapontbl[i]
+            local keyname = next(tblkey)
+            local tblvalue = tblkey[next(tblkey)]
+            for j = 1, size do
+                local key = "RandomOption_" .. j
+                local value_key = "RandomOptionValue_" .. j
+                local option = item_dic[key]
+                local value = item_dic[value_key]
+                if tostring(option) == tostring(keyname) and tonumber(value) >= tonumber(tblvalue) then
+                    return "FF808080"
+                end
+            end
+        end
+    else
+        for i = 1, #high500armortbl do
+            local tblkey = high500armortbl[i]
+            local keyname = next(tblkey)
+            local tblvalue = tblkey[next(tblkey)]
+            for j = 1, size do
+                local key = "RandomOption_" .. j
+                local value_key = "RandomOptionValue_" .. j
+                local option = item_dic[key]
+                local value = item_dic[value_key]
+                if tostring(option) == tostring(keyname) and tonumber(value) >= tonumber(tblvalue) then
+                    return "FFFFD700"
+                end
+            end
+        end
+        for i = 1, #low500armortbl do
+            local tblkey = low500armortbl[i]
+            local keyname = next(tblkey)
+            local tblvalue = tblkey[next(tblkey)]
+            for j = 1, size do
+                local key = "RandomOption_" .. j
+                local value_key = "RandomOptionValue_" .. j
+                local option = item_dic[key]
+                local value = item_dic[value_key]
+                if tostring(option) == tostring(keyname) and tonumber(value) >= tonumber(tblvalue) then
+                    return "FFDAA520"
+                end
+            end
+        end
+        for i = 1, #high480armortbl do
+            local tblkey = high480armortbl[i]
+            local keyname = next(tblkey)
+            local tblvalue = tblkey[next(tblkey)]
+            for j = 1, size do
+                local key = "RandomOption_" .. j
+                local value_key = "RandomOptionValue_" .. j
+                local option = item_dic[key]
+                local value = item_dic[value_key]
+                if tostring(option) == tostring(keyname) and tonumber(value) >= tonumber(tblvalue) then
+                    return "FF808080"
+                end
+            end
+        end
+        for i = 1, #low480armortbl do
+            local tblkey = low480armortbl[i]
+            local keyname = next(tblkey)
+            local tblvalue = tblkey[next(tblkey)]
+            for j = 1, size do
+                local key = "RandomOption_" .. j
+                local value_key = "RandomOptionValue_" .. j
+                local option = item_dic[key]
+                local value = item_dic[value_key]
+                if tostring(option) == tostring(keyname) and tonumber(value) >= tonumber(tblvalue) then
+                    return "FF808080"
+                end
+            end
+        end
+
+    end
+    return "FF000000"
 end]] 
