@@ -1907,16 +1907,16 @@
 		<Class ClassID="5314" ClassName="tooltip_Grimmark_Lv4" Data="{nl} {nl}{@st66d}{s15}- 종언의 쐐기 최종 대미지{img green_up_arrow 16 16}100%"/>
 		<Class ClassID="5315" ClassName="ARCHEOLOGY_RARE_CHANCE" Data="발굴 시 희귀 유물 발견 확률 증가"/>
 		<Class ClassID="5316" ClassName="ARCHEOLOGY_QUALITY_BONUS" Data="몬스터 처치 시 유물 상태 등급 향상 확률"/>
-		<Class ClassID="5317" ClassName="ARCHEOLOGY_SPECIAL_REWARD" Data="고대인의 유물 추가 드랍률"/>
+		<Class ClassID="5317" ClassName="ARCHEOLOGY_SPECIAL_REWARD" Data="고대인의 유실물 수량 증가률(%)"/>
 		<Class ClassID="5318" ClassName="ARCHEOLOGY_CRITICAL_CHANCE" Data="크리티컬 발굴 확률 - 보상 2배"/>
-		<Class ClassID="5319" ClassName="ARCHEOLOGY_MAX_DIG" Data="일일 발굴 가능 횟수 증가"/>
+		<Class ClassID="5319" ClassName="ARCHEOLOGY_MON_FIND" Data="몬스터 발견 확률 증가(%)"/>
 		<Class ClassID="5320" ClassName="ARCHEOLOGY_DOUBLE_DROP" Data="처치 시 추가 유물 동시 획득 확률"/>
 		<Class ClassID="5321" ClassName="ARCHEOLOGY_EXP_BONUS" Data="발굴 경험치 보너스"/>
 		<Class ClassID="5322" ClassName="ARCHEOLOGY_BLOCK_PEN" Data="블록 관통"/>
 		<Class ClassID="5323" ClassName="ARCHEOLOGY_HP_BONUS" Data="최대 HP"/>
 		<Class ClassID="5324" ClassName="ARCHEOLOGY_DEF_BONUS" Data="물리 방어력"/>
 		<Class ClassID="5325" ClassName="ARCHEOLOGY_MDEF_BONUS" Data="마법 방어력"/>
-		<Class ClassID="5326" ClassName="ARCHEOLOGY_MON_DROP_RATE" Data="고고학 몬스터 드롭률"/>
+		<Class ClassID="5326" ClassName="ARCHEOLOGY_MON_DROP_RATE" Data="고고학 몬스터 처치 시 아이템 드롭률 증가"/>
 		<Class ClassID="5327" ClassName="ARCHEOLOGY_DODGE" Data="회피"/>
 		<Class ClassID="5328" ClassName="ARCHEOLOGY_CRIT_RES" Data="크리티컬 저항"/>
 		<Class ClassID="5339" ClassName="ARCHEOLOGY_HP_ON_KILL" Data="몬스터 처치 시 HP 회복"/>
@@ -12703,7 +12703,7 @@
 		<Class ClassID="119020" ClassName="AddDenied" Data="사본 젬은 등록 할 수 없습니다.{nl}사본 및 원본 젬을 동시 보유 시, 사본 젬 제거 후 다시 등록해주세요."/>
 		<Class ClassID="119021" ClassName="PerPieceInCollection" Data="등록된 구성품 1개당"/>
 		<Class ClassID="119022" ClassName="CostumeCollectionInfoText" Data="※ 등록된 코스튬 컬렉션은 마우스 우클릭 시 인벤토리에 해당 코스튬이 생성됩니다."/>
-		<Class ClassID="119023" ClassName="EventCollectionMsg" Data="{ITEM}"/>
+	<Class ClassID="119023" ClassName="EventCollectionMsg" Data="{ITEM}"/>
 		<Class ClassID="119024" ClassName="EventCollectionMagicText" Data="보상"/>
 		<Class ClassID="119025" ClassName="EventCollectionRewardMsgText" Data="보상은 마법협회 NPC를 통해 수령할 수 있습니다.{nl} - 헤느리카(클라페다), 플로아나(오르샤)"/>
 		</Category>
@@ -17190,12 +17190,17 @@
 		<Class ClassID="302907" ClassName="event_2506_summer_papaya" Data="[이벤트] TOS 백금화 상점"/>
 		<Class ClassID="302908" ClassName="event_2509_autumn" Data="[이벤트] TOS 백금화 상점"/>
 		<Class ClassID="302909" ClassName="event_2510_autumn_maple" Data="[이벤트] TOS 백금화 상점"/>
+		<Class ClassID="302910" ClassName="EVENT_2510_ARCHEOLOGY_NPC_NAME" Data="{#0033FF}오래된 흙더미{/}"/>
 		<Class ClassID="302911" ClassName="event_2512_ice_piece" Data="빙하 주화 상점"/>
 		<Class ClassID="302912" ClassName="EVENT_2512_SANTA" Data="산타 선물 보따리 (용병단 증표 필요)"/>
 		<Class ClassID="302913" ClassName="EVENT_2511_SANTA2" Data="산타 선물 보따리 (10주년 티켓 필요)"/>
 		<Class ClassID="302914" ClassName="EVENT_2512_SANTA_CAUTION2" Data="※ 뽑기 진행 시 [이벤트] 10주년 선물 티켓 1개를 소모합니다.{nl}※ 10주년 티켓은 이벤트 기간이 종료되면 더 이상 사용할 수 없습니다.{nl}"/>
 		<Class ClassID="302915" ClassName="EVENT_2512_SANTA_MSG{FREE}{TICKET}{WEEK}{MAX}" Data="{#3366FF}[산타 선물 보따리 뽑기현황]{/}{nl}무료 뽑기 진행횟수({FREE}/50){nl}10주년 선물 티켓 사용횟수({TICKET}){nl}{nl} {#3366FF}[TOS 백금화 획득현황]{/}{nl}주간 획득량({WEEK}/600){nl}총 획득량({MAX}/3600){nl}※ {@st66d_y}{s18}주간{/}{/} 획득량은 {@st66d_y}{s18}매주 월요일{/}{/} 오전 6시 초기화 됩니다."/>
 		<Class ClassID="302916" ClassName="event_2512_shop" Data="TOS 백금화 상점"/>
+		<Class ClassID="302917" ClassName="archeology_season1" Data="[이벤트] 고고학 상점"/>
+		<Class ClassID="302918" ClassName="archeology_identify_check" Data="유물을 감정하시겠습니까?"/>
+		<Class ClassID="302919" ClassName="archeology_effect" Data="{@st42}{#FFDD66}[고고학 특수 효과]{/}{/}"/>
+		<Class ClassID="302920" ClassName="archeology_cost{COST}" Data="{@st42}{#FFDD66}코스트 : {COST}{/}{/}"/>
 	</Category>
 	<Category Name="Account">
 		<Class ClassID="303001" ClassName="MaxAccountWarehouseCount" Data="팀 창고"/>
@@ -19679,6 +19684,7 @@
 	<Class ClassID="1106128" ClassName="Grimmark" Data="그림마크"/>
 		<Class ClassID="1106129" ClassName="Grimmark[T]" Data="그림마크[T]"/>
 		<Class ClassID="1106130" ClassName="Grimmark[S]" Data="그림마크[S]"/>
+		<Class ClassID="1106131" ClassName="Grimmark[A]" Data="그림마크[A]"/>
 	</Category>
 	<Category Name="LifeContent">
 		<Class ClassID="1107001" ClassName="archeology" Data="고고학"/>

@@ -13,6 +13,7 @@ ClassID,ClassName,Job,Script,UnEquipScript
 30408,"Hunter_Growling","Char3_2","SCR_SKILL_PASSIVE_Hunter_Growling",""
 30808,"Fletcher_FletcherArrowShot","Char3_11","SCR_SKILL_PASSIVE_Fletcher_FletcherArrowShot",""
 31805,"Matross_Roar","Char3_18","SCR_SKILL_PASSIVE_Matross_Roar",""
+32259,"Grimmark_ExploitWeakness_Archer","Char3_29","SCR_SKILL_PASSIVE_Grimmark_ExploitWeakness_Archer",""
 21308,"RuneCaster_Berkana","Char2_17","SCR_SKILL_PASSIVE_RuneCaster_Berkana",""
 21809,"Daoshi_LightningCharm","Char2_21","SCR_SKILL_PASSIVE_Daoshi_LightningCharm",""
 21111,"Featherfoot_Bloodtransfusion","Char2_16","SCR_SKILL_PASSIVE_Featherfoot_Bloodtransfusion",""

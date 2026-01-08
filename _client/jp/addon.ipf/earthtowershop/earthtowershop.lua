@@ -2394,7 +2394,7 @@ function EARTHTOWERSHOP_POINT_BUY_OPEN()
     elseif string.find(shopType, 'Certificate') ~= nil then
         ui.CloseFrame('earthtowershop')
         control.CustomCommand(pre_season_coin_shop[shopType],0);    
-    elseif shopType == "Archeology_Lv470" or shopType =="Archeology_Lv530" then
+    elseif shopType == "Archeology_Lv470" or shopType =="Archeology_Lv530" or shopType == "archeology_season1" then
         REQ_ITEM_POINT_EXTRACTOR_OPEN("ARCHEOLOGY_COIN")
         ui.GetFrame('item_point_extractor'):SetMargin(575, 5, 0, 0)
     elseif shopType == "event_2512_ice_piece" then

@@ -28301,6 +28301,8 @@ ClassID,ClassName,Mesh,Path,ArmbandInfo,UseAlpha,IsJiggleBoneHair,CustomRot
 740373,"accessory_grimmark02","char_hi\pc\accessory\accessory_grimmark02.xac","char_texture\pc\accessory\","","NO","",""
 740374,"warrior_m_Grimmark","char_hi\pc\warrior_m\warrior_m_grimmark.xac","char_texture\pc\body\warrior_m_grimmark\","S;Dummy_LF_armband","NO","",""
 740375,"warrior_f_Grimmark","char_hi\pc\warrior_f\warrior_f_grimmark.xac","char_texture\pc\body\warrior_f_grimmark\","S;Dummy_LF_armband","NO","",""
+740376,"archer_m_Grimmark","char_hi\pc\archer_m\archer_m_grimmark.xac","char_texture\pc\body\warrior_m_grimmark\","S;Dummy_LF_armband","NO","",""
+740377,"archer_f_Grimmark","char_hi\pc\archer_f\archer_f_grimmark.xac","char_texture\pc\body\warrior_f_grimmark\","S;Dummy_LF_armband","NO","",""
 750000,"ep16_1_greentoshell","char_hi\monster\monster_Greentopshell_set.xac","char_texture\monster\Greentopshell\pink\","","NO","",""
 750001,"ep16_1_terranymph_blue","char_hi\monster\monster_TerraNymph_set.xac","char_texture\monster\TerraNymph\pink\","","NO","",""
 750002,"ep16_1_chupacabra_desert","char_hi\monster\monster_chupacabra_desert_set.xac","char_texture\monster\chupacabra_desert\violet\","","NO","",""

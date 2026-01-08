@@ -15,6 +15,7 @@
 	<ReadXml Name="archeology_property"/>
 	<ReadXml Name="archeology_map_list"/>
 	<ReadXml Name="archeology_reward_list"/>
+	<ReadXml Name="archeology_monster_drop"/>
 	<ReadXml Name="buff_ignore"/>
 	<ReadXml Name="buff"/>
 	<ReadXml Name="buff_monster"/>
@@ -450,6 +451,7 @@
 	<ReadXml Name="archeology_exhibition_item"/>
 	<ReadXml Name="upgrade_item_value"/>
 	<ReadXml Name="archeology_exhibition_exp"/>
+	<ReadXml Name="archeology_option_list"/>
 	<ReadXml Name="boruta_reward"/>
 	<ReadXml Name="growth_support_guild"/>
 	<ReadXml Name="demonlair_user_select_info"/>

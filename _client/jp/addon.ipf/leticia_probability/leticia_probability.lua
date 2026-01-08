@@ -167,10 +167,8 @@ function CREATE_LETICIA_PROBABILITY_SLOTS(parent, table)
         percente:SetTextByKey("value", tab[3]);
         inSlotCnt:SetTextByKey("value", tab[2]);
 
-
-        local fullImage = GET_LEGENDEXPPOTION_ICON_IMAGE_FULL(ItemCls);
-
-
+        local fullImage = GET_ITEM_ICON_IMAGE(ItemCls);
+        
         local icon = pic:GetIcon()
         if icon ~= nil then
             icon:SetImage(fullImage)

@@ -20674,4 +20674,158 @@
       </Trigger>
     </TriggerList>
   </SpcItem>
+  <SpcItem Name="GEM_Grimmark_PiercingLeap_Archer">
+    <TriggerList Act="UnEquip">
+      <Trigger>
+        <ExecList>
+          <ToolScp Scp="SPCI_GEM_SKILLUP" Client="NO" UseSleep="NO">
+            <Str Str="Grimmark_PiercingLeap_Archer" />
+            <Num Num="-1" />
+          </ToolScp>
+        </ExecList>
+      </Trigger>
+    </TriggerList>
+    <TriggerList Act="Equip">
+      <Trigger>
+        <ExecList>
+          <ToolScp Scp="SPCI_GEM_SKILLUP" Client="NO" UseSleep="NO">
+            <Str Str="Grimmark_PiercingLeap_Archer" />
+            <Num Num="1" />
+          </ToolScp>
+        </ExecList>
+      </Trigger>
+    </TriggerList>
+  </SpcItem>
+  <SpcItem Name="GEM_Grimmark_HamstringPin_Archer">
+    <TriggerList Act="UnEquip">
+      <Trigger>
+        <ExecList>
+          <ToolScp Scp="SPCI_GEM_SKILLUP" Client="NO" UseSleep="NO">
+            <Str Str="Grimmark_HamstringPin_Archer" />
+            <Num Num="-1" />
+          </ToolScp>
+        </ExecList>
+      </Trigger>
+    </TriggerList>
+    <TriggerList Act="Equip">
+      <Trigger>
+        <ExecList>
+          <ToolScp Scp="SPCI_GEM_SKILLUP" Client="NO" UseSleep="NO">
+            <Str Str="Grimmark_HamstringPin_Archer" />
+            <Num Num="1" />
+          </ToolScp>
+        </ExecList>
+      </Trigger>
+    </TriggerList>
+  </SpcItem>
+  <SpcItem Name="GEM_Grimmark_BloodspearPierce_Archer">
+    <TriggerList Act="UnEquip">
+      <Trigger>
+        <ExecList>
+          <ToolScp Scp="SPCI_GEM_SKILLUP" Client="NO" UseSleep="NO">
+            <Str Str="Grimmark_BloodspearPierce_Archer" />
+            <Num Num="-1" />
+          </ToolScp>
+        </ExecList>
+      </Trigger>
+    </TriggerList>
+    <TriggerList Act="Equip">
+      <Trigger>
+        <ExecList>
+          <ToolScp Scp="SPCI_GEM_SKILLUP" Client="NO" UseSleep="NO">
+            <Str Str="Grimmark_BloodspearPierce_Archer" />
+            <Num Num="1" />
+          </ToolScp>
+        </ExecList>
+      </Trigger>
+    </TriggerList>
+  </SpcItem>
+  <SpcItem Name="GEM_Grimmark_ChainOfThirst_Archer">
+    <TriggerList Act="UnEquip">
+      <Trigger>
+        <ExecList>
+          <ToolScp Scp="SPCI_GEM_SKILLUP" Client="NO" UseSleep="NO">
+            <Str Str="Grimmark_ChainOfThirst_Archer" />
+            <Num Num="-1" />
+          </ToolScp>
+        </ExecList>
+      </Trigger>
+    </TriggerList>
+    <TriggerList Act="Equip">
+      <Trigger>
+        <ExecList>
+          <ToolScp Scp="SPCI_GEM_SKILLUP" Client="NO" UseSleep="NO">
+            <Str Str="Grimmark_ChainOfThirst_Archer" />
+            <Num Num="1" />
+          </ToolScp>
+        </ExecList>
+      </Trigger>
+    </TriggerList>
+  </SpcItem>
+  <SpcItem Name="GEM_Grimmark_StakeOfTerminus_Archer">
+    <TriggerList Act="UnEquip">
+      <Trigger>
+        <ExecList>
+          <ToolScp Scp="SPCI_GEM_SKILLUP" Client="NO" UseSleep="NO">
+            <Str Str="Grimmark_StakeOfTerminus_Archer" />
+            <Num Num="-1" />
+          </ToolScp>
+        </ExecList>
+      </Trigger>
+    </TriggerList>
+    <TriggerList Act="Equip">
+      <Trigger>
+        <ExecList>
+          <ToolScp Scp="SPCI_GEM_SKILLUP" Client="NO" UseSleep="NO">
+            <Str Str="Grimmark_StakeOfTerminus_Archer" />
+            <Num Num="1" />
+          </ToolScp>
+        </ExecList>
+      </Trigger>
+    </TriggerList>
+  </SpcItem>
+  <SpcItem Name="GEM_Grimmark_ExploitWeakness_Archer">
+    <TriggerList Act="UnEquip">
+      <Trigger>
+        <ExecList>
+          <ToolScp Scp="SPCI_GEM_SKILLUP" Client="NO" UseSleep="NO">
+            <Str Str="Grimmark_ExploitWeakness_Archer" />
+            <Num Num="-1" />
+          </ToolScp>
+        </ExecList>
+      </Trigger>
+    </TriggerList>
+    <TriggerList Act="Equip">
+      <Trigger>
+        <ExecList>
+          <ToolScp Scp="SPCI_GEM_SKILLUP" Client="NO" UseSleep="NO">
+            <Str Str="Grimmark_ExploitWeakness_Archer" />
+            <Num Num="1" />
+          </ToolScp>
+        </ExecList>
+      </Trigger>
+    </TriggerList>
+  </SpcItem>
+  <SpcItem Name="GEM_Grimmark_BloodEruption_Archer">
+    <TriggerList Act="UnEquip">
+      <Trigger>
+        <ExecList>
+          <ToolScp Scp="SPCI_GEM_SKILLUP" Client="NO" UseSleep="NO">
+            <Str Str="Grimmark_BloodEruption_Archer" />
+            <Num Num="-1" />
+          </ToolScp>
+        </ExecList>
+      </Trigger>
+    </TriggerList>
+    <TriggerList Act="Equip">
+      <Trigger>
+        <ExecList>
+          <ToolScp Scp="SPCI_GEM_SKILLUP" Client="NO" UseSleep="NO">
+            <Str Str="Grimmark_BloodEruption_Archer" />
+            <Num Num="1" />
+          </ToolScp>
+        </ExecList>
+      </Trigger>
+    </TriggerList>
+  </SpcItem>
 </SpcItemList>

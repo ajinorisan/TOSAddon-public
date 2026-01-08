@@ -7360,10 +7360,10 @@
 			<picture name="gold_border" rect="0 0 161 161" margin="0 -2 0 0" hittest="false" layout_gravity="center center"/>
 		</controls>
 	</controlset>
-	<controlset name="archeology_exhibition_effect" hittest="true" width="489" height="50" skin="None" stateskin="false" enabledrag="true">
+	<controlset name="archeology_exhibition_effect" hittest="true" width="469" height="50" skin="None" stateskin="false" enabledrag="true">
 		<controls>
-			<groupbox name="default_box" rect="0 0 489 50" margin="0 0 0 0" hittest="false" layout_gravity="center top" skin="mon_card_hollow"/>
-			<richtext name="archeology_exhibition_effect_tooltip" parent="default_box" layout_gravity="left top" textalign="left center" rect="0 0 400 20" margin="10 15 0 0" resizebytext="false" format="{@st66d}%s + {/}{@st66d_y}%s%s{/}" param1="name" param1_def="" param2="value" param2_def="" param3="sign" param3_def=""/>
+			<groupbox name="default_box" rect="0 0 469 50" margin="0 0 0 0" hittest="false" layout_gravity="center top" skin="mon_card_hollow"/>
+			<richtext name="archeology_exhibition_effect_tooltip" parent="default_box" layout_gravity="left top" textalign="left center" rect="0 0 400 20" margin="10 15 0 0" resizebytext="false" format="%s" param1="name" param1_def="" param2="value" param2_def="" param3="sign" param3_def="" slideshow="true"/>
 		</controls>
 	</controlset>
 	<!-- demonlair -->

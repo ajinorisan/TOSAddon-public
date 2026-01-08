@@ -1513,7 +1513,7 @@ function DRAW_popoboost_INFO(invitem, desc)
 	
 		desc = desc .. '{nl} {nl}' .. text
 	end
-
+	
 	return desc
 end
 
@@ -2362,7 +2362,7 @@ function DRAW_EQUIP_TRADABILITY(tooltipframe, invitem, yPos, mainframename)
 	TOGGLE_TRADE_OPTION(CSet, invitem, 'option_market', 'option_market_text', 'MarketTrade')
 	TOGGLE_TRADE_OPTION(CSet, invitem, 'option_teamware', 'option_teamware_text', 'TeamTrade')
 	TOGGLE_TRADE_OPTION(CSet, invitem, 'option_trade', 'option_trade_text', 'UserTrade')
-
+	
     local bottomMargin = CSet:GetUserConfig("BOTTOM_MARGIN");
 	CSet:Resize(CSet:GetWidth(), CSet:GetHeight() + bottomMargin)
 	gBox:Resize(gBox:GetWidth(), gBox:GetHeight() + CSet:GetHeight())

@@ -16,7 +16,7 @@ function ITEM_TOOLTIP_ETC(tooltipframe, invitem, argStr, usesubframe)
 	ypos = DRAW_ETC_RECIPE_NEEDITEM_TOOLTIP(tooltipframe, invitem, ypos, mainframename); -- 재료템이라면 필요한 재료랑 보여줌
 	ypos = DRAW_ETC_PREVIEW_TOOLTIP(tooltipframe, invitem, ypos, mainframename);			-- 아이콘 확대해서 보여줌
 	ypos = DRAW_EQUIP_TRADABILITY(tooltipframe, invitem, ypos, mainframename);
-	
+
 	local isHaveLifeTime = TryGetProp(invitem, "LifeTime", 0);	
 	if 0 == tonumber(isHaveLifeTime) and GET_ITEM_EXPIRE_TIME(invitem) == 'None' then
 		ypos = DRAW_SELL_PRICE(tooltipframe, invitem, ypos, mainframename); -- 가격
@@ -289,7 +289,7 @@ function DRAW_ETC_DESC_TOOLTIP(tooltipframe, invitem, yPos, mainframename)
 	gBox:Resize(gBox:GetWidth(),gBox:GetHeight()+CSet:GetHeight())
 
 	yPos = CSet:GetHeight() + CSet:GetY();
-
+	
 	return yPos, descRichtext
 
 end

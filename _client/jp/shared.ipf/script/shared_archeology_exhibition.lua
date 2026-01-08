@@ -1,3 +1,4 @@
+local max_level = 7;
 function GET_EXHIBITION_GOAL_EXP(pc)
     local aObj;
     if IsServerSection() == 1 then
@@ -6,9 +7,8 @@ function GET_EXHIBITION_GOAL_EXP(pc)
         aObj = GetMyAccountObj()
     end
 
-	local total_exp = TryGetProp(aObj, "ARCHEOLOGY_EXP", 0)
-	local max_level = 5;
-	local remain_exp = 0;
+	local total_exp = TryGetProp(aObj, "ARCHEOLOGY_EXP", 0)	
+    local remain_exp = 0;
 	for i = 1, max_level do
 		local cls = GetClass('archeology_exhibition_exp', tostring(i))        
 		local _exp = TryGetProp(cls, 'Exp', 0)        
@@ -17,10 +17,10 @@ function GET_EXHIBITION_GOAL_EXP(pc)
 		end
 	end
 
+    return total_exp;
 end
 function EXHIBITION_EXP_TO_LEVEL(pc, exp)
     local total_exp = exp
-    local max_level = 5;
     for i = 1, max_level do
         local cls = GetClassByType('archeology_exhibition_exp', tostring(i))        
         local _exp = TryGetProp(cls, 'Exp', 0)        
@@ -39,18 +39,20 @@ function GET_ARCHEOLOGY_EXHIBITION_INFO(pc)
             return 0, 0;
         end
         local total_exp = TryGetProp(aObj, "ARCHEOLOGY_EXP", 0)
-        local max_level = 5;
         for i = 1, max_level do
             local cls = GetClassByType('archeology_exhibition_exp', tostring(i))        
-            local _exp = TryGetProp(cls, 'Exp', 0)        
-            if total_exp < _exp then            
-                return i - 1, cls.MaxCost - 1
+            local nextcls =  GetClassByType('archeology_exhibition_exp', tostring(i + 1))
+            local _exp = TryGetProp(nextcls, 'Exp', 0)       
+
+            if total_exp < _exp then    
+                return i , cls.MaxCost
             end
         end
 
-            local cls = GetClassByType('archeology_exhibition_exp', max_level)       
-            return max_level, cls.MaxCost
-        end
+        local cls = GetClassByType('archeology_exhibition_exp', max_level)       
+        return max_level, cls.MaxCost
+    end
+
     local aObj;
 
     if IsServerSection() == 1 then
@@ -97,6 +99,13 @@ function GET_ARCEX_SLOT_ITEMS(pc)
     end
     local ARCHEOLOGY_EQUIP = TryGetProp(aObj, "ARCHEOLOGY_EQUIP", 0)
     local slot1, slot2, slot3 = UnpackSlots(ARCHEOLOGY_EQUIP)
+
+    if ARCHEOLOGY_EQUIP == 0 then
+        slot1 = TryGetProp(aObj, "ARCHEOLOGY_EQUIP_SLOT1", 0)
+        slot2 = TryGetProp(aObj, "ARCHEOLOGY_EQUIP_SLOT2", 0)
+        slot3 = TryGetProp(aObj, "ARCHEOLOGY_EQUIP_SLOT3", 0)    
+    end
+    
     return slot1, slot2, slot3;
 end
 
@@ -120,6 +129,19 @@ function GET_ARCEX_ITEM_BY_CLSID(clsid)
     return cls
 end
 
+function GET_SLOT_EFFECT(pc, index)
+    local aObj;
+    if IsServerSection() == 1 then
+        aObj = GetAccountObj(pc)
+    else
+        aObj = GetMyAccountObj()
+    end
+
+    local arc_prefix = TryGetProp(aObj, "ARCHEOLOGY_EQUIP_META_" .. index, "None")
+
+    return arc_prefix;
+end
+
 
 --버프 리스트 가져오기
 --key = 태그
@@ -131,28 +153,30 @@ function GET_CURRENT_APPLY_EFFECT_LIST(pc)
     else
         aObj = GetMyAccountObj()
     end
-
+    
     local slots = {GET_ARCEX_SLOT_ITEMS(pc)}
-
     local apply_buff_list = {}
-    for _,item_idx in pairs(slots) do
-        local item_cls = GET_ARCEX_ITEM_BY_CLSID(item_idx)
-        if item_cls then
-            local EffecTags = TryGetProp(item_cls, "EffectTags", "None")
-            local EffectValue = TryGetProp(item_cls, "EffectValues", "0")
-            local TagList = StringSplit(EffecTags, ";");
-            local ValueList = StringSplit(EffectValue, ";");
-            --버프 태그를 모아 수치를 합산 한 후, 한번에 버프를 적용시킨다.
-            for i = 1, #TagList do
-                local Effect_Tag = TagList[i];
-                local Effect_Value = tonumber(ValueList[i]);
-                if apply_buff_list[Effect_Tag] == nil then
-                    apply_buff_list[Effect_Tag] = Effect_Value
-                else
-                    apply_buff_list[Effect_Tag] = apply_buff_list[Effect_Tag] + Effect_Value
+    
+    for slot_idx, item_clsid in pairs(slots) do
+        if item_clsid and item_clsid > 0 then
+            -- 옵션 읽기 (Arc_Prefix_NT 형식)
+            local arc_prefix = TryGetProp(aObj, "ARCHEOLOGY_EQUIP_META_" .. slot_idx, "None")
+            if arc_prefix ~= "None" and arc_prefix ~= "" then
+                -- 옵션 정보 가져오기
+                local opt_info = GET_ARCHEOLOGY_OPTION_INFO(arc_prefix)
+                if opt_info and #opt_info > 0 then
+                    -- 옵션 합산
+                    for i, opt in ipairs(opt_info) do
+                        if apply_buff_list[opt.tag] == nil then
+                            apply_buff_list[opt.tag] = opt.value
+                        else
+                            apply_buff_list[opt.tag] = apply_buff_list[opt.tag] + opt.value
+                        end    
+                    end
                 end
             end
         end
     end
+    
     return apply_buff_list;
 end

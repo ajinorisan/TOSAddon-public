@@ -17,7 +17,7 @@
 		<image name="inGame_JPN_E3" file="\event_banner\inGame_JPN_E3.png" imgrect="0 0 480 180"/>
 		<image name="inGame_JPN_E4" file="\event_banner\inGame_JPN_E4.png" imgrect="0 0 480 180"/>
 		<image name="inGame_JPN_E5" file="\event_banner\inGame_JPN_E5.png" imgrect="0 0 480 180"/>
-		<image name="inGame_JPN_E6" file="\event_banner\inGame_JPN_E6.jpg" imgrect="0 0 480 180"/>
+		<image name="inGame_JPN_E6" file="\event_banner\inGame_JPN_E6.png" imgrect="0 0 480 180"/>
 		<image name="inGame_JPN_E7" file="\event_banner\inGame_JPN_E7.jpg" imgrect="0 0 480 180"/>
 		<image name="inGame_JPN_E8" file="\event_banner\inGame_JPN_E8.jpg" imgrect="0 0 480 180"/>
 		<!-- GLOBAL -->
@@ -26,7 +26,7 @@
 		<image name="inGame_GLOBAL_E3" file="\event_banner\inGame_GLOBAL_E3.png" imgrect="0 0 480 180"/>
 		<image name="inGame_GLOBAL_E4" file="\event_banner\inGame_GLOBAL_E4.png" imgrect="0 0 480 180"/>
 		<image name="inGame_GLOBAL_E5" file="\event_banner\inGame_GLOBAL_E5.png" imgrect="0 0 480 180"/>
-		<image name="inGame_GLOBAL_E6" file="\event_banner\inGame_GLOBAL_E6.jpg" imgrect="0 0 480 180"/>
+		<image name="inGame_GLOBAL_E6" file="\event_banner\inGame_GLOBAL_E6.png" imgrect="0 0 480 180"/>
 		<image name="inGame_GLOBAL_E7" file="\event_banner\inGame_GLOBAL_E7.jpg" imgrect="0 0 480 180"/>
 		<image name="inGame_GLOBAL_E8" file="\event_banner\inGame_GLOBAL_E8.jpg" imgrect="0 0 480 180"/>
 		<!-- TAIWAN -->

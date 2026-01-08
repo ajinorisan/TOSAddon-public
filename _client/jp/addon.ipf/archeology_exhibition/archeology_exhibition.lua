@@ -35,6 +35,8 @@ function ARCHEOLOGY_EXHIBITION_OPEN(frame)
     UPDATE_EXHIBITION_COST_TEXT(frame)
     UPDATE_EXHIBITION_EFFECT_TEXT(frame)
 	SET_EXP_TEXT(frame)
+
+    pc.ReqExecuteTx_Item("ARC_EQUIP_ITEM", "")
 end
 
 function ARCHEOLOGY_EXHIBITION_CLOSE(frame)
@@ -61,7 +63,8 @@ function CREATE_ARCHEOLOGY_EXHIBITION_LIST(frame)
             --해당 번호는 clslist에 존재하는 clsid기준으로 가져옴.
             if itemidx > 0 then
                 local itemcls = GET_ARCEX_ITEM_BY_CLSID(itemidx);
-                UPDATE_EXHIBITION_SLOT_ITEM(frame, i, itemcls.ClassName);
+                local itemclsname = TryGetProp(itemcls, "ClassName", "None")
+                UPDATE_EXHIBITION_SLOT_ITEM(frame, i, itemclsname);
             else
                 UPDATE_EXHIBITION_SLOT_ITEM(frame, i, nil);
             end
@@ -92,7 +95,7 @@ function INSERT_ARCHEOLOGY_EXHIBITION_ITEM_RBTN(itemObj, slot)
 
     local fromFrame = slot:GetTopParentFrame();
     if fromFrame:GetName() == "inventory" then
-        -- INSERT_ARCHEOLOGY_EXHIBITION_ITEM(frame, invItem, nil, fromFrame)
+        -- INSERT_ARCHEOLOGY_EXHIBITION_ITEM(frame, invItem, nil, fromFrame
         INSERT_ARCHEOLOGY_EXHIBITION_ITEM(frame, iconInfo:GetIESID())
     end
 end
@@ -106,6 +109,7 @@ end
 -- 완성 되면 받아서 ui처리
 -- 그 동안 입력 block해야함.
 function INSERT_ARCHEOLOGY_EXHIBITION_ITEM(frame, itemGuid)
+
     pc.ReqExecuteTx_Item("ARC_EQUIP_ITEM", itemGuid)
 end
 
@@ -132,12 +136,14 @@ end
 
 function UPDATE_EXHIBITION_SLOT_ITEM(frame, slotidx, itemName)
     local archeology_slot_Gbox = GET_CHILD_RECURSIVELY(frame, "archeology_slot_Gbox");
+    if not archeology_slot_Gbox then
+        return;
+    end
     local child_slot = archeology_slot_Gbox:GetChild("slot"..slotidx)
-    local target_item = GetClass("Item", itemName)
     if not child_slot then
         return;
     end
-
+    local target_item = GetClass("Item", itemName)
     local archeology_exhibition_slot = GET_CHILD_RECURSIVELY(child_slot, "archeology_exhibition_slot") 
     local default_image = GET_CHILD_RECURSIVELY(child_slot, "default_image")
     local gold_border = GET_CHILD_RECURSIVELY(child_slot, "gold_border")
@@ -156,12 +162,16 @@ function UPDATE_EXHIBITION_SLOT_ITEM(frame, slotidx, itemName)
 	local icon = imcSlot:SetImage(archeology_exhibition_slot, target_item.Icon);
     default_image:ShowWindow(0)
     gold_border:ShowWindow(0)
+
+    
 end
 
 function ON_CLEAR_ALL_EXHIBTTION_SLOT(frame)
     for i = 1, 3 do 
         UPDATE_EXHIBITION_SLOT_ITEM(frame, i , nil)
     end
+    UPDATE_EXHIBITION_EFFECT_TEXT(frame)
+    UPDATE_EXHIBITION_COST_TEXT(frame)
 end
 
 function UPDATE_EXHIBITION_COST_TEXT(frame)
@@ -183,19 +193,13 @@ function UPDATE_EXHIBITION_EFFECT_TEXT(frame)
     for effect_name, effect_value in pairs(apply_effect_list) do
         local text_ctrlset = archeology_effect_text_Gbox:CreateOrGetControlSet("archeology_exhibition_effect", effect_name, 3, index * offset + 3);
         local archeology_exhibition_effect_tooltip= GET_CHILD_RECURSIVELY(text_ctrlset, "archeology_exhibition_effect_tooltip")
-        local sign;
 
-        if effect_name == "ARCHEOLOGY_COIN_GAIN" then
-            sign = "%"
-        end
-        -- archeology_exhibition_effect_tooltip:SetText(ClMsg(effect_name)..' + '..effect_value.."%");
-        archeology_exhibition_effect_tooltip:SetTextByKey("name", ClMsg(effect_name))
-        archeology_exhibition_effect_tooltip:SetTextByKey("value", effect_value)
-        archeology_exhibition_effect_tooltip:SetTextByKey("sign", sign)
-
-
-        
+        local value_str = GET_ARCHEOLOGY_STAT_DESC(effect_name, effect_value)
+        archeology_exhibition_effect_tooltip:SetText(string.format("{@st42}%s{/}", value_str))        
         index = index + 1;
+    end
+    if index > 3 then
+        index = 3;
     end
 
     archeology_effect_Gbox:Resize(archeology_effect_Gbox:GetWidth(), 53 * index)
@@ -227,7 +231,7 @@ end
 function SET_EXP_TEXT(frame)
     local aObj = GetMyAccountObj()
 	local total_exp = TryGetProp(aObj, "ARCHEOLOGY_EXP", 0)
-	local max_level = 5;
+	local max_level = 7;
 	local remain_exp = 0;
 	for i = 1, max_level do
 		local cls = GetClass('archeology_exhibition_exp', tostring(i))        

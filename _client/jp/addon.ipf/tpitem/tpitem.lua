@@ -838,10 +838,10 @@ function MAKE_CATEGORY_TREE()
 
 	for i = 0, cnt - 1 do
 		local obj = GetClassByIndexFromList(clsList, i);
-		if obj.SubCategory == "TP_Package" and obj.SellEndTime ~= "None" then
+		if obj.SubCategory == "TP_Package" and obj.SellEndTime ~= "None" and obj.SellEndTime then
 			local lua_time = date_time.get_lua_datetime_from_str(obj.SellEndTime)
 			local lua_now = date_time.get_lua_now_datetime()
-		
+
 			if lua_time > lua_now then
 				isLimitedPackageExist = true
 				break

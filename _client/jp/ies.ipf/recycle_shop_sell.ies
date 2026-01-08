@@ -1780,3 +1780,5 @@ ClassID,BuyPrice,SellPrice,ClassName,Category,SubCategory,PackageList
 11783,0,17,"Hat_ep17bunnygambler03","Recyle_Shop_Sell","Recyle_Shop_Sell",""
 11784,0,17,"Hat_ep17bunnygambler04","Recyle_Shop_Sell","Recyle_Shop_Sell",""
 11785,0,17,"Hat_ep17bunnygambler05","Recyle_Shop_Sell","Recyle_Shop_Sell",""
+11786,0,17,"PersonalHousing_Item_hp_p_h_barrack_teddydoll","Recyle_Shop_Sell","Recyle_Shop_Sell",""
+11787,0,17,"PersonalHousing_Item_hp_p_h_barrack_bunnygambler","Recyle_Shop_Sell","Recyle_Shop_Sell",""
