@@ -32,6 +32,11 @@ Tree of Savior 用のアドオンを作成・改変しています。
 <details>
 <summary>紹介画像 & 更新履歴 (Nexus Addons)</summary>
 
+*   **v1.1.2**
+    *   不安定なバラックへ戻るロジック修正。
+    *   Character Change Helper: 装備装着ロジック見直し、倉庫入庫のロジック修正。
+    *   Battle Ritual: バグ修正。
+    *   Sub Map: バグ修正。
 *   **v1.1.1**
     *   Character Change Helper: 装備外すロジック見直し。
     *   Goddess Icor Manager: 追加。

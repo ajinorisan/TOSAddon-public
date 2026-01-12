@@ -24,10 +24,11 @@
 -- 1.0.9 Mutekiゲージ位置修正、ESCの挙動修正。IPベリオラアイコン修正。AR再修正。CCHロード修正。ILV掃討バフ12時間以下で表示。
 -- 1.1.0 Battle_ritualフレームスクロール。AWH fixinventorysort使える様に。DRPC200未満ですぐ補充に。
 -- 1.1.1 CCH装備外すロジック見直し。GIM追加。ILV掃討の残り時間のロジック修正。NCゴッデスアクセバグ修正。AWH CC後最速読込。
+-- 1.1.2 不安定なバラックへ移動の挙動を見直し。CCH装備装着時のロジック見直し、倉庫入庫のロジック修正。BRバグ修正。SM修正。
 local addon_name = "_NEXUS_ADDONS"
 local addon_name_lower = string.lower(addon_name)
 local author = "norisan"
-local ver = "1.1.1"
+local ver = "1.1.2"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -1291,6 +1292,7 @@ function _nexus_addons_GAME_START(_nexus_addons, msg)
     elseif menu_frame:IsVisible() == 0 then
         menu_frame:ShowWindow(1)
     end
+    g.setup_hook(_nexus_addons_APPS_TRY_MOVE_BARRACK, "APPS_TRY_MOVE_BARRACK")
     _nexus_addons_fast_func()
 end
 
@@ -1339,1917 +1341,1989 @@ function _nexus_addons_update_frames(_nexus_addons)
         end
     end
 end
--- goddess_icor_manager ここから
-g.gim_slot_list = {{
-    slot_name = "RH",
-    clmsg = "RH"
-}, {
-    slot_name = "LH",
-    clmsg = "LH"
-}, {
-    slot_name = "SHIRT",
-    clmsg = "Shirt"
-}, {
-    slot_name = "PANTS",
-    clmsg = "Pants"
-}, {
-    slot_name = "GLOVES",
-    clmsg = "Gloves"
-}, {
-    slot_name = "BOOTS",
-    clmsg = "Boots"
-}, {
-    slot_name = "RH_SUB",
-    clmsg = "RH_SUB"
-}, {
-    slot_name = "LH_SUB",
-    clmsg = "LH_SUB"
-}}
-function Goddess_icor_manager_save_settings()
-    g.save_lua(g.gim_path, g.gim_settings)
+
+function _nexus_addons_APPS_TRY_MOVE_BARRACK()
+    Other_character_skill_list_save_enchant()
+    Indun_list_viewer_save_current_char_counts()
+    if g.settings.instant_cc and g.settings.instant_cc.use == 1 then
+        if Instant_cc_APPS_TRY_LEAVE_ then
+            Instant_cc_APPS_TRY_LEAVE_("Barrack")
+            return
+        end
+    end
+    if g.settings.indun_list_viewer and g.settings.indun_list_viewer.use == 1 then
+        if Indun_list_viewer_CHECK_ALERT and Indun_list_viewer_CHECK_ALERT("Barrack") then
+            return
+        end
+    end
+    APPS_TRY_LEAVE("Barrack")
 end
 
-function Goddess_icor_manager_load_settings()
-    g.gim_path = string.format("../addons/%s/%s/goddess_icor_manager.lua", addon_name_lower, g.active_id)
-    local old_json_path = string.format("../addons/%s/settings.json", "goddess_icor_manager")
-    local settings = g.load_lua(g.gim_path)
-    local need_save = false
-    if not settings then
-        local valid_cids = {}
-        local sys_opt_path = string.format("../release/addon_setting/system_option/%s/settings.json", g.active_id)
-        local sys_opt_file = io.open(sys_opt_path, "r")
-        if sys_opt_file then
-            local content = sys_opt_file:read("*a")
-            sys_opt_file:close()
-            if content and content ~= "" then
-                local status, data = pcall(json.decode, content)
-                if status and data and data.pc_id then
-                    for cid, _ in pairs(data.pc_id) do
-                        valid_cids[cid] = true
+-- sub_map ここから
+function Sub_map_save_settings()
+    g.save_json(g.sub_map_path, g.sub_map_settings)
+end
+
+function Sub_map_load_settings()
+    g.sub_map_path = string.format("../addons/%s/%s/sub_map.json", addon_name_lower, g.active_id)
+    local settings = g.load_json(g.sub_map_path)
+    local ver = 1.1
+    if not settings or not settings.ver then
+        settings = {
+            visible = 1,
+            x = 0,
+            y = 0,
+            skin_name = "None",
+            move = 1,
+            size = 200,
+            minimap = 0,
+            challenge_minimap = 0,
+            challenge_only = 0,
+            loc_name = 0,
+            mob_display = 0,
+            ver = ver
+        }
+    end
+    g.sub_map_settings = settings
+    Sub_map_save_settings()
+end
+
+function sub_map_on_init()
+    if not g.sub_map_settings then
+        Sub_map_load_settings()
+    end
+    local old_func = g.settings.sub_map.old_init_func
+    if _G[old_func] then
+        return
+    end
+    if g.settings.sub_map.use == 0 or g.get_map_type() == "Instance" then
+        if g.settings.sub_map.use == 0 then
+            ui.DestroyFrame(addon_name_lower .. "sub_map")
+        end
+        return
+    end
+    if g.get_map_type() == "Instance" then
+        return
+    end
+    g.sub_map_handles = {}
+    g.addon:RegisterMsg("MAP_CHARACTER_UPDATE", "Sub_map_MAP_CHARACTER_UPDATE")
+    g.addon:RegisterMsg("MON_MINIMAP", "Sub_map_MAP_MON_MINIMAP")
+    g.addon:RegisterMsg("MON_MINIMAP_END", "Sub_map_ON_MON_MINIMAP_END")
+    g.addon:RegisterMsg("PARTY_INST_UPDATE", "Sub_map_MAP_UPDATE_PARTY_INST")
+    g.addon:RegisterMsg("PARTY_UPDATE", "Sub_map_update_party_or_guild")
+    g.addon:RegisterMsg("GUILD_INFO_UPDATE", "Sub_map_update_party_or_guild")
+    g.addon:RegisterMsg("UI_CHALLENGE_MODE_TOTAL_KILL_COUNT", "Sub_map_ON_CHALLENGE_MODE_TOTAL_KILL_COUNT")
+    g.sub_map_challenge_first = true
+    g.sub_map_challenge = 0
+    if g.get_map_type() == "City" then
+        Sub_map_frame_init()
+        return
+    end
+    if string.find(g.map_name, "GuildColony_") then
+        g.sub_map_challenge = 1
+    else
+        local my_info = session.party.GetMyPartyObj(PARTY_NORMAL)
+        if not my_info then
+            return
+        end
+        if my_info:GetChannel() + 1 > 10 then
+            g.sub_map_challenge = 1
+        end
+    end
+    Sub_map_frame_init()
+end
+
+function Sub_map_ON_CHALLENGE_MODE_TOTAL_KILL_COUNT(frame, msg)
+    if g.sub_map_challenge_first == true and g.sub_map_challenge == 0 then
+        g.sub_map_challenge = 1
+        Sub_map_frame_init()
+        g.sub_map_challenge_first = false
+    end
+end
+
+function Sub_map_settings()
+    local list_frame = ui.GetFrame(addon_name_lower .. "list_frame")
+    local config = ui.CreateNewFrame("notice_on_pc", addon_name_lower .. "sub_map_setting_frame", 0, 0, 0, 0)
+    AUTO_CAST(config)
+    config:RemoveAllChild()
+    config:SetLayerLevel(999)
+    config:SetSkinName("test_frame_low")
+    local title_text = config:CreateOrGetControl("richtext", "title_text", 10, 10)
+    AUTO_CAST(title_text)
+    title_text:SetText("{ol}Sub Map")
+    local config_gb = config:CreateOrGetControl("groupbox", "config_gb", 10, 40, 0, 0)
+    AUTO_CAST(config_gb)
+    config_gb:SetSkinName("bg")
+    config:SetPos(list_frame:GetX() + list_frame:GetWidth(), list_frame:GetY())
+    local close = config:CreateOrGetControl("button", "close", 0, 0, 20, 20)
+    AUTO_CAST(close)
+    close:SetImage("testclose_button")
+    close:SetGravity(ui.RIGHT, ui.TOP)
+    close:SetEventScript(ui.LBUTTONUP, "Sub_map_setting_close")
+    local y = 10
+    local info_text = config_gb:CreateOrGetControl("richtext", "info_text", 10, y + 5, 0, 30)
+    AUTO_CAST(info_text)
+    info_text:SetText(g.lang == "Japanese" and "{ol}サイズ設定" or "{ol}Size setting")
+    local size_edit = config_gb:CreateOrGetControl("edit", "size_edit", info_text:GetWidth() + 20, y, 100, 30)
+    AUTO_CAST(size_edit)
+    size_edit:SetFontName("white_16_ol")
+    size_edit:SetTextAlign("center", "center")
+    size_edit:SetNumberMode(1)
+    size_edit:SetText("{ol}" .. g.sub_map_settings.size)
+    size_edit:SetTextTooltip(g.lang == "Japanese" and "{ol}150~350の間で設定" or "{ol}Setting range: 150 to 350")
+    size_edit:SetEventScript(ui.ENTERKEY, "Sub_map_setting_change")
+    y = y + 40
+    local move_check = config_gb:CreateOrGetControl("checkbox", "move_check", 10, y, 30, 30)
+    AUTO_CAST(move_check)
+    move_check:SetCheck(g.sub_map_settings.move == 1 and 0 or 1)
+    move_check:SetText(g.lang == "Japanese" and "{ol}チェックするとフレーム固定" or
+                           "{ol}If checked, the frame is fixed")
+    move_check:SetEventScript(ui.LBUTTONUP, "Sub_map_setting_change")
+    y = y + 40
+    local challenge_minimap = config_gb:CreateOrGetControl("checkbox", "challenge_minimap", 10, y, 30, 30)
+    AUTO_CAST(challenge_minimap)
+    challenge_minimap:SetCheck(g.sub_map_settings.challenge_minimap or 0)
+    challenge_minimap:SetText(g.lang == "Japanese" and
+                                  "{ol}チェックするとチャレンジでミニマップモード" or
+                                  "{ol}If checked, mini-map mode is enabled during the Challenge")
+    challenge_minimap:SetEventScript(ui.LBUTTONUP, "Sub_map_setting_change")
+    y = y + 40
+    local challenge_only = config_gb:CreateOrGetControl("checkbox", "challenge_only", 10, y, 30, 30)
+    AUTO_CAST(challenge_only)
+    challenge_only:SetCheck(g.sub_map_settings.challenge_only or 0)
+    challenge_only:SetText(g.lang == "Japanese" and "{ol}チェックするとチャレンジでのみ表示" or
+                               "{ol}If checked, display only during Challenges")
+    challenge_only:SetEventScript(ui.LBUTTONUP, "Sub_map_setting_change")
+    y = y + 40
+    local loc_name = config_gb:CreateOrGetControl("checkbox", "loc_name", 10, y, 30, 30)
+    AUTO_CAST(loc_name)
+    loc_name:SetCheck(g.sub_map_settings.loc_name or 0)
+    loc_name:SetText(g.lang == "Japanese" and "{ol}チェックすると地域名表示" or
+                         "{ol}If checked, display the region name")
+    loc_name:SetEventScript(ui.LBUTTONUP, "Sub_map_setting_change")
+    y = y + 40
+    local mob_display = config_gb:CreateOrGetControl("checkbox", "mob_display", 10, y, 30, 30)
+    AUTO_CAST(mob_display)
+    mob_display:SetCheck(g.sub_map_settings.mob_display or 0)
+    mob_display:SetText(g.lang == "Japanese" and "{ol}チェックするとチャレンジで雑魚を表示" or
+                            "{ol}If checked, display mobs only during Challenges")
+    mob_display:SetEventScript(ui.LBUTTONUP, "Sub_map_setting_change")
+    y = y + 40
+    local default_btn = config_gb:CreateOrGetControl("button", "default_btn", 20, y, 120, 30)
+    AUTO_CAST(default_btn)
+    default_btn:SetText(g.lang == "Japanese" and "{ol}フレーム初期位置" or "{ol}Init frame pos")
+    default_btn:SetEventScript(ui.LBUTTONUP, "Sub_map_setting_change")
+    y = y + 40
+    local skin_change = config_gb:CreateOrGetControl("button", "skin_change", 20, y, 120, 30)
+    AUTO_CAST(skin_change)
+    skin_change:SetText(g.lang == "Japanese" and "{ol}フレームスキン変更" or "{ol}Change frame skin")
+    skin_change:SetEventScript(ui.LBUTTONUP, "Sub_map_skin_change_context")
+    y = y + 30
+    config:Resize(challenge_minimap:GetWidth() + 40, y + 60)
+    config_gb:Resize(config:GetWidth() - 20, y + 10)
+    config:ShowWindow(1)
+end
+
+function Sub_map_setting_close(config)
+    ui.DestroyFrame(config:GetName())
+end
+
+function Sub_map_setting_change(parent, ctrl)
+    local ctrl_name = ctrl:GetName()
+    if ctrl_name == "size_edit" then
+        local size = tonumber(ctrl:GetText())
+        if size and size >= 150 and size <= 350 then
+            g.sub_map_settings.size = size
+        else
+            ui.SysMsg(g.lang == "Japanese" and "{ol}範囲外です" or "{ol}Out of range")
+            Sub_map_settings()
+            return
+        end
+    elseif ctrl_name == "move_check" then
+        local is_check = ctrl:IsChecked()
+        g.sub_map_settings.move = is_check == 1 and 0 or 1
+    elseif ctrl_name == "default_btn" then
+        g.sub_map_settings.x = 0
+        g.sub_map_settings.y = 0
+    else
+        g.sub_map_settings[ctrl_name] = ctrl:IsChecked()
+        if ctrl_name == "challenge_only" then
+            g.sub_map_settings.visible = ctrl:IsChecked() == 1 and 0 or 1
+        end
+    end
+    Sub_map_save_settings()
+    Sub_map_frame_init()
+end
+
+function Sub_map_skin_change_context(frame, ctrl)
+    local context = ui.CreateContextMenu("sub_map_context", "{ol}Sub Map Change Skin", 0, 0, 0, 0)
+    ui.AddContextMenuItem(context, "-----", "None")
+    ui.AddContextMenuItem(context, g.lang == "Japanese" and "{ol}無し" or "{ol}None",
+        string.format("Sub_map_skin_change('%s')", "None"))
+    ui.AddContextMenuItem(context, g.lang == "Japanese" and "{ol}薄め" or "{ol}Faint",
+        string.format("Sub_map_skin_change('%s')", "bg2"))
+    ui.AddContextMenuItem(context, g.lang == "Japanese" and "{ol}濃いめ" or "{ol}Darker",
+        string.format("Sub_map_skin_change('%s')", "bg"))
+    ui.OpenContextMenu(context)
+end
+
+function Sub_map_skin_change(skin_name)
+    g.sub_map_settings.skin_name = skin_name
+    Sub_map_save_settings()
+    Sub_map_frame_init()
+end
+
+function Sub_map_frame_init()
+    local sub_map = ui.CreateNewFrame("notice_on_pc", addon_name_lower .. "sub_map", 0, 0, 0, 0)
+    AUTO_CAST(sub_map)
+    sub_map:ShowWindow(0)
+    local challenge = g.sub_map_challenge
+    sub_map:SetUserValue("CHALLENGE", challenge)
+    sub_map:RemoveAllChild()
+    sub_map:EnableMove(g.sub_map_settings.move)
+    sub_map:EnableHittestFrame(1)
+    sub_map:SetTitleBarSkin("None")
+    sub_map:SetGravity(ui.RIGHT, ui.TOP)
+    sub_map:SetMargin(0, 0, 0, 0)
+    local use_minimap = (challenge == 1 and g.sub_map_settings.challenge_minimap == 1) or
+                            (challenge == 0 and g.sub_map_settings.minimap ~= 0)
+
+    local size = g.sub_map_settings.size
+    if use_minimap then
+        size = 310
+        sub_map:SetSkinName("bg")
+        local rect = sub_map:GetMargin()
+        sub_map:SetMargin(rect.left - rect.left, rect.top - rect.top + 70,
+            rect.right == 0 and rect.right + 35 or rect.right, rect.bottom)
+        sub_map:Resize(310, 350)
+    else
+        sub_map:SetLayerLevel(12)
+        local rect = sub_map:GetMargin()
+        sub_map:SetMargin(rect.left - rect.left, rect.top - rect.top + 50,
+            rect.right == 0 and rect.right + 550 or rect.right, rect.bottom)
+        if g.sub_map_settings.x ~= 0 and g.sub_map_settings.y ~= 0 then
+            sub_map:SetPos(g.sub_map_settings.x, g.sub_map_settings.y)
+        end
+    end
+    sub_map:SetEventScript(ui.LBUTTONUP, "Sub_map_frame_end_drag")
+    local title = sub_map:CreateOrGetControl("richtext", "title", 25, 2)
+    AUTO_CAST(title)
+    local map_real_name = GetClassByType("Map", g.map_id).Name
+    title:SetText("{ol}{S12}" .. map_real_name)
+    if challenge == 0 and g.sub_map_settings.challenge_only == 1 then
+        g.sub_map_settings.visible = 0
+    end
+    local display = sub_map:CreateOrGetControl("picture", "display", 5, 3, 15, 15)
+    AUTO_CAST(display)
+    display:SetEnableStretch(1)
+    display:EnableHitTest(1)
+    display:SetEventScript(ui.LBUTTONUP, "Sub_map_frame_toggle")
+    display:SetTextTooltip("{ol}Display / hide")
+    display:ShowWindow(1)
+    local gbox_visible = 1
+    if not use_minimap then
+        if g.sub_map_settings.visible == 1 then
+            display:SetImage("btn_minus")
+            sub_map:Resize(size + 10, size + 40)
+            sub_map:SetSkinName(g.sub_map_settings.skin_name)
+            gbox_visible = 1
+        else
+            display:SetImage("btn_plus")
+            sub_map:Resize(size + 10, 40)
+            sub_map:SetSkinName("None")
+            gbox_visible = 0
+        end
+    else
+        -- display:SetImage("btn_minus") -- ミニマップモードではボタン画像はどうするか要検討
+        display:ShowWindow(0)
+        gbox_visible = 1
+    end
+    local gbox = sub_map:CreateOrGetControl("picture", "gbox", size + 10, size + 10, ui.LEFT, ui.BOTTOM, 0, 30, 0, 0)
+    AUTO_CAST(gbox)
+    gbox:ShowWindow(gbox_visible) -- ★ここで制御
+    if not use_minimap then
+        gbox:SetEventScript(ui.MOUSEON, "Sub_map_frame_layer_change")
+        gbox:SetEventScriptArgString(ui.MOUSEON, "mouse_on")
+        gbox:SetEventScript(ui.MOUSEOFF, "Sub_map_frame_layer_change")
+        gbox:SetEventScriptArgString(ui.MOUSEOFF, "mouse_off")
+    end
+    gbox:SetEventScript(ui.LBUTTONDOWN, "Sub_map_frame_map_link")
+    gbox:SetEventScript(ui.RBUTTONDOWN, "Sub_map_mini_map")
+    gbox:SetTextTooltip(g.lang == "Japanese" and
+                            "{ol}LCTRL+右クリック: ミニマップモード 切替{nl}LCTRL+左クリック: マップリンク" or
+                            "{ol}LCTRL+Right click: Minimap Mode Toggle{nl}LCTRL+Left click: Map Link")
+    local map_pic = gbox:CreateOrGetControl("picture", "map_pic", size, size, ui.LEFT, ui.TOP, 0, 0, 0, 0)
+    AUTO_CAST(map_pic)
+    map_pic:SetEnableStretch(1)
+    map_pic:EnableHitTest(0)
+    if g.sub_map_settings.loc_name == 1 then
+        local name_group = map_pic:CreateOrGetControl("picture", "name_group", ui.CENTER_HORZ, ui.CENTER_VERT,
+            map_pic:GetWidth(), map_pic:GetHeight())
+        MAKE_MAP_AREA_INFO(name_group, GetClassByType("Map", g.map_id).ClassName, "{s12}", map_pic:GetWidth(),
+            map_pic:GetHeight(), -100, -30)
+        AUTO_CAST(name_group)
+        name_group:SetSkinName("None")
+    end
+    local icon_size = use_minimap and g.sub_map_settings.size * 0.08 or size * 0.08
+    sub_map:SetUserValue("ICON_SIZE", icon_size)
+    local my = gbox:CreateOrGetControl("picture", "my", icon_size * 2, icon_size * 2, ui.LEFT, ui.TOP, 0, 0, 0, 0)
+    AUTO_CAST(my)
+    my:ShowWindow(0)
+    my:SetImage("minimap_leader")
+    my:SetEnableStretch(1)
+    map_pic:SetImage(g.map_name)
+    Sub_map_char_update(sub_map, my, map_pic)
+    if challenge == 0 then
+        Sub_map_set_warp_point(sub_map, gbox, map_pic, g.map_name, icon_size, map_real_name)
+        Sub_map_mapicon_update(sub_map, map_pic)
+    end
+    if challenge == 0 and g.sub_map_settings.challenge_only == 1 then
+        sub_map:ShowWindow(0)
+    else
+        sub_map:ShowWindow(1)
+    end
+    local _nexus_addons = ui.GetFrame("_nexus_addons")
+    local sub_map_timer = _nexus_addons:CreateOrGetControl("timer", "sub_map_timer", 0, 0)
+    AUTO_CAST(sub_map_timer)
+    sub_map_timer:SetUpdateScript("Sub_map_timer_update")
+    sub_map_timer:Start(0.5)
+end
+
+--[[function Sub_map_frame_init()
+    local sub_map = ui.CreateNewFrame("notice_on_pc", addon_name_lower .. "sub_map", 0, 0, 0, 0)
+    AUTO_CAST(sub_map)
+    sub_map:ShowWindow(0)
+    local challenge = g.sub_map_challenge
+    sub_map:SetUserValue("CHALLENGE", challenge)
+    sub_map:RemoveAllChild()
+    sub_map:EnableMove(g.sub_map_settings.move)
+    sub_map:EnableHittestFrame(1)
+    sub_map:SetTitleBarSkin("None")
+    sub_map:SetGravity(ui.RIGHT, ui.TOP)
+    sub_map:SetMargin(0, 0, 0, 0)
+    local use_minimap = (challenge == 1 and g.sub_map_settings.challenge_minimap == 1) or
+                            (challenge == 0 and g.sub_map_settings.minimap ~= 0)
+    if use_minimap then
+        sub_map:SetSkinName("bg")
+        local rect = sub_map:GetMargin()
+        sub_map:SetMargin(rect.left - rect.left, rect.top - rect.top + 70,
+            rect.right == 0 and rect.right + 35 or rect.right, rect.bottom)
+        sub_map:Resize(310, 350)
+    else
+        sub_map:SetSkinName(g.sub_map_settings.skin_name)
+        sub_map:SetLayerLevel(12)
+        local rect = sub_map:GetMargin()
+        sub_map:SetMargin(rect.left - rect.left, rect.top - rect.top + 50,
+            rect.right == 0 and rect.right + 550 or rect.right, rect.bottom)
+        if g.sub_map_settings.x ~= 0 and g.sub_map_settings.y ~= 0 then
+            sub_map:SetPos(g.sub_map_settings.x, g.sub_map_settings.y)
+        end
+    end
+    sub_map:SetEventScript(ui.LBUTTONUP, "Sub_map_frame_end_drag")
+    local title = sub_map:CreateOrGetControl("richtext", "title", 25, 2)
+    AUTO_CAST(title)
+    local map_real_name = GetClassByType("Map", g.map_id).Name
+    title:SetText("{ol}{S12}" .. map_real_name)
+    if challenge == 0 and g.sub_map_settings.challenge_only == 1 then
+        g.sub_map_settings.visible = 0
+    else
+        g.sub_map_settings.visible = 1
+    end
+    local display = sub_map:CreateOrGetControl("picture", "display", 5, 3, 15, 15)
+    AUTO_CAST(display)
+    display:SetEnableStretch(1)
+    display:EnableHitTest(1)
+    display:SetEventScript(ui.LBUTTONUP, "Sub_map_frame_toggle")
+    display:SetTextTooltip("{ol}Display / hide")
+    display:ShowWindow(1)
+    if g.sub_map_settings.visible == 1 then
+        display:SetImage("btn_minus")
+    else
+        display:SetImage("btn_plus")
+    end
+    local size = g.sub_map_settings.size
+    local gbox_visible = 1
+    if not use_minimap then
+        if g.sub_map_settings.visible == 1 then
+            sub_map:Resize(size + 10, size + 40)
+            sub_map:SetSkinName(g.sub_map_settings.skin_name)
+            gbox_visible = 1
+        else
+            sub_map:Resize(size + 10, 40)
+            sub_map:SetSkinName("None")
+            gbox_visible = 0
+        end
+    else
+        size = 310
+        gbox_visible = 1
+    end
+    local gbox = sub_map:CreateOrGetControl("picture", "gbox", size + 10, size + 10, ui.LEFT, ui.BOTTOM, 0, 30, 0, 0)
+    AUTO_CAST(gbox)
+    gbox:ShowWindow(gbox_visible)
+    if not use_minimap then
+        gbox:SetEventScript(ui.MOUSEON, "Sub_map_frame_layer_change")
+        gbox:SetEventScriptArgString(ui.MOUSEON, "mouse_on")
+        gbox:SetEventScript(ui.MOUSEOFF, "Sub_map_frame_layer_change")
+        gbox:SetEventScriptArgString(ui.MOUSEOFF, "mouse_off")
+    end
+    gbox:SetEventScript(ui.LBUTTONDOWN, "Sub_map_frame_map_link")
+    gbox:SetEventScript(ui.RBUTTONDOWN, "Sub_map_mini_map")
+    gbox:SetTextTooltip(g.lang == "Japanese" and
+                            "{ol}LCTRL+右クリック: ミニマップモード 切替{nl}LCTRL+左クリック: マップリンク" or
+                            "{ol}LCTRL+Right click: Minimap Mode Toggle{nl}LCTRL+Left click: Map Link")
+    local map_pic = gbox:CreateOrGetControl("picture", "map_pic", size, size, ui.LEFT, ui.TOP, 0, 0, 0, 0)
+    AUTO_CAST(map_pic)
+    map_pic:SetEnableStretch(1)
+    map_pic:EnableHitTest(0)
+    if g.sub_map_settings.loc_name == 1 then
+        local name_group = map_pic:CreateOrGetControl("picture", "name_group", ui.CENTER_HORZ, ui.CENTER_VERT,
+            map_pic:GetWidth(), map_pic:GetHeight())
+        MAKE_MAP_AREA_INFO(name_group, GetClassByType("Map", g.map_id).ClassName, "{s12}", map_pic:GetWidth(),
+            map_pic:GetHeight(), -100, -30)
+        AUTO_CAST(name_group)
+        name_group:SetSkinName("None")
+    end
+    local icon_size = use_minimap and g.sub_map_settings.size * 0.08 or size * 0.08
+    sub_map:SetUserValue("ICON_SIZE", icon_size)
+    local my = gbox:CreateOrGetControl("picture", "my", icon_size * 2, icon_size * 2, ui.LEFT, ui.TOP, 0, 0, 0, 0)
+    AUTO_CAST(my)
+    my:ShowWindow(0)
+    my:SetImage("minimap_leader")
+    my:SetEnableStretch(1)
+    map_pic:SetImage(g.map_name)
+    Sub_map_char_update(sub_map, my, map_pic)
+    if challenge == 0 then
+        Sub_map_set_warp_point(sub_map, gbox, map_pic, g.map_name, icon_size, map_real_name)
+        Sub_map_mapicon_update(sub_map, map_pic)
+    end
+    local _nexus_addons = ui.GetFrame("_nexus_addons")
+    local sub_map_timer = _nexus_addons:CreateOrGetControl("timer", "sub_map_timer", 0, 0)
+    AUTO_CAST(sub_map_timer)
+    sub_map_timer:SetUpdateScript("Sub_map_timer_update")
+    sub_map_timer:Start(0.5)
+end]]
+
+function Sub_map_frame_end_drag(sub_map)
+    g.sub_map_settings.x = sub_map:GetX()
+    g.sub_map_settings.y = sub_map:GetY()
+    Sub_map_save_settings()
+end
+
+function Sub_map_frame_toggle(frame, ctrl)
+    if g.sub_map_settings.visible == 1 then
+        g.sub_map_settings.visible = 0
+    else
+        g.sub_map_settings.visible = 1
+    end
+    Sub_map_save_settings()
+    Sub_map_frame_init()
+end
+
+function Sub_map_frame_map_link(sub_map, gbox)
+    if keyboard.IsKeyPressed("LCTRL") ~= 1 then
+        return
+    end
+    local x, y = GET_LOCAL_MOUSE_POS(gbox)
+    local map_prop = geMapTable.GetMapProp(g.map_name)
+    local world_pos = map_prop:MinimapPosToWorldPos(x, y, gbox:GetWidth(), gbox:GetHeight())
+    LINK_MAP_POS(g.map_name, world_pos.x, world_pos.y)
+end
+
+function Sub_map_mini_map(sub_map, gbox)
+    if keyboard.IsKeyPressed("LCTRL") ~= 1 then
+        return
+    end
+    if g.sub_map_settings.minimap == 0 then
+        g.sub_map_settings.minimap = 1
+    else
+        g.sub_map_settings.minimap = 0
+    end
+    Sub_map_save_settings()
+    ui.DestroyFrame(addon_name_lower .. "sub_map")
+    ReserveScript("Sub_map_frame_init()", 0.1)
+end
+
+function Sub_map_frame_layer_change(sub_map, gbox, str)
+    if str == "mouse_on" then
+        sub_map:SetLayerLevel(999)
+    elseif str == "mouse_off" then
+        sub_map:SetLayerLevel(12)
+    end
+end
+
+function Sub_map_char_update(sub_map, my, map_pic)
+    local my_handle = session.GetMyHandle()
+    local pos = info.GetPositionInMap(my_handle, map_pic:GetWidth(), map_pic:GetHeight())
+    my:SetOffset(pos.x - my:GetWidth() / 2, pos.y - my:GetHeight() / 2)
+    local map_prop = session.GetCurrentMapProp()
+    local angle = info.GetAngle(my_handle) - map_prop.RotateAngle
+    my:SetAngle(angle)
+    my:ShowWindow(1)
+    map_pic:Invalidate()
+end
+
+function Sub_map_set_warp_point(sub_map, gbox, map_pic, map_name, icon_size, map_real_name)
+    local map_prop = geMapTable.GetMapProp(map_name)
+    local mongens = map_prop.mongens
+    local count = mongens:Count()
+    for i = 0, count - 1 do
+        local mon_prop = mongens:Element(i)
+        local icon_name = mon_prop:GetMinimapIcon()
+        if icon_name == "minimap_portal" or icon_name == "minimap_erosion" then
+            local gen_list = mon_prop.GenList
+            local gen_count = gen_list:Count()
+            for j = 0, gen_count - 1 do
+                local dialog = mon_prop:GetDialog()
+                local warp_cls = GetClass("Warp", mon_prop:GetDialog())
+                if not warp_cls then
+                    for match in dialog:gmatch("[a-zA-Z]+_(.*)") do
+                        warp_cls = GetClass("Warp", match)
+                    end
+                end
+                if warp_cls then
+                    local pos = gen_list:Element(j)
+                    local map_pos = map_prop:WorldPosToMinimapPos(pos.x, pos.z, map_pic:GetWidth(), map_pic:GetHeight())
+                    local icon = gbox:CreateOrGetControl("picture", "icon_" .. i, icon_size, icon_size, ui.LEFT, ui.TOP,
+                        0, 0, 0, 0)
+                    AUTO_CAST(icon)
+                    icon:SetTextTooltip("{ol}{s10}" .. map_real_name)
+                    icon:SetImage(mon_prop:GetMinimapIcon())
+                    icon:SetOffset(map_pos.x - icon:GetWidth() / 2, map_pos.y - icon:GetHeight() / 2)
+                    icon:SetEnableStretch(1)
+                end
+            end
+        end
+    end
+    gbox:Invalidate()
+end
+
+function Sub_map_timer_update(_nexus_addons, sub_map_timer)
+    local sub_map = ui.GetFrame(addon_name_lower .. "sub_map")
+    AUTO_CAST(sub_map)
+    local challenge = sub_map:GetUserIValue("CHALLENGE")
+    local use_minimap = (challenge == 1 and g.sub_map_settings.challenge_minimap == 1) or
+                            (challenge == 0 and g.sub_map_settings.minimap == 1)
+    if use_minimap then
+        Sub_map_time_update_(sub_map, sub_map_timer)
+        if ui.GetFrame("buffseller_target"):IsVisible() == 1 then
+            sub_map:SetLayerLevel(79)
+        elseif sub_map:GetLayerLevel() ~= 94 then
+            sub_map:SetLayerLevel(94)
+        end
+    end
+    if MAP_USE_FOG(g.map_name) ~= 0 then
+        Sub_map_draw_fog(sub_map)
+    end
+    local challenge = sub_map:GetUserIValue("CHALLENGE")
+    if challenge == 1 then
+        Sub_map_callenge_pcicon_update(sub_map)
+    end
+    Sub_map_update_remove_member(sub_map)
+end
+
+function Sub_map_time_update_(sub_map, sub_map_timer)
+    local server_time = geTime.GetServerSystemTime()
+    local hour = server_time.wHour
+    local min = server_time.wMinute
+    local ampm = "AM"
+    local display_hour = hour
+    if hour == 0 then
+        display_hour = 12
+        ampm = "AM"
+    elseif hour == 12 then
+        display_hour = 12
+        ampm = "PM"
+    elseif hour > 12 then
+        display_hour = hour - 12
+        ampm = "PM"
+    end
+    local display_min = string.format("%02d", min)
+    local clock_text = string.format("{ol}{s18}%s %d:%s", ampm, display_hour, display_min)
+    local clock = GET_CHILD(sub_map, "clock")
+    if not clock then
+        clock = sub_map:CreateOrGetControl("richtext", "clock", 0, 0)
+        AUTO_CAST(clock)
+    end
+    clock:SetGravity(ui.RIGHT, ui.BOTTOM)
+    clock:SetMargin(0, 0, 10, 5)
+    clock:SetText(clock_text)
+    local colony_battle_info = ui.GetFrame("colony_battle_info")
+    if colony_battle_info:IsVisible() == 1 and g.sub_map_settings.minimap == 1 then
+        local colony_clock = GET_CHILD(sub_map, "colony_clock")
+        if not colony_clock then
+            colony_clock = sub_map:CreateOrGetControl("richtext", "colony_clock", 0, 0)
+            AUTO_CAST(clock)
+        end
+        colony_clock:SetGravity(ui.LEFT, ui.BOTTOM)
+        colony_clock:SetMargin(0, 0, 0, 5)
+        local colony_end_time = session.colonywar.GetEndTime()
+        local remain_time = -1 * imcTime.GetDiffSecFromNow(colony_end_time.wHour, colony_end_time.wMinute, 0)
+        if remain_time <= 0 then
+            sub_map:RemoveChild("colony_clock")
+            return
+        end
+        local remain_min = math.floor(remain_time / 60)
+        local remain_sec = remain_time % 60
+        local remain_time_str = string.format("{ol}{s18}" .. ClMsg("RemainTime") .. " %d:%02d", remain_min, remain_sec)
+        colony_clock:SetText(remain_time_str)
+    end
+end
+
+function Sub_map_draw_fog(sub_map)
+    local map_pic = GET_CHILD_RECURSIVELY(sub_map, "map_pic")
+    AUTO_CAST(map_pic)
+    HIDE_CHILD_BYNAME(map_pic, "sub_map_fog_")
+    local map_frame = ui.GetFrame("map")
+    local map = GET_CHILD(map_frame, "map")
+    AUTO_CAST(map)
+    local map_zoom = math.abs(tonumber(map_pic:GetWidth()) / tonumber(map:GetWidth()))
+    local list = session.GetMapFogList(g.map_name)
+    local cnt = list:Count()
+    for i = 0, cnt - 1 do
+        local tile = list:PtrAt(i)
+        if tile.revealed == 0 then
+            local name = string.format("sub_map_fog_%d", i)
+            local tile_X = (tile.x * map_zoom)
+            local tile_Y = (tile.y * map_zoom)
+            local tile_width = math.ceil(tile.w * map_zoom)
+            local tile_height = math.ceil(tile.h * map_zoom)
+            local pic = map_pic:CreateOrGetControl("picture", name, tile_X, tile_Y, tile_width, tile_height)
+            AUTO_CAST(pic)
+            pic:SetImage("fullred")
+            pic:SetEnableStretch(1)
+            pic:SetAlpha(40)
+            pic:EnableHitTest(0)
+            pic:ShowWindow(1)
+        end
+    end
+    sub_map:Invalidate()
+end
+
+function Sub_map_callenge_pcicon_update(sub_map)
+    local gbox = GET_CHILD(sub_map, "gbox")
+    local names = {}
+    for i = 0, gbox:GetChildCount() - 1 do
+        local child = gbox:GetChildByIndex(i)
+        if child and child:GetName() ~= "map_pic" and child:GetName() ~= "my" then
+            local aid = tonumber(child:GetName())
+            if aid then
+                gbox:RemoveChild(child:GetName())
+            end
+            names[child:GetName()] = true
+        end
+    end
+    local map_pic = GET_CHILD(gbox, "map_pic")
+    local mapprop = session.GetCurrentMapProp()
+    local party_list = session.party.GetPartyMemberList(PARTY_NORMAL)
+    local party_count = party_list:Count()
+    local my_info = session.party.GetMyPartyObj(PARTY_NORMAL)
+    local my_handle = session.GetMyHandle()
+    local icon_size = sub_map:GetUserIValue("ICON_SIZE")
+    local selected_objects, selected_objects_count = SelectObject(GetMyPCObject(), 5000, "ALL")
+    local icon_img_160063 = GetClassByType("Item", 870004).Icon
+    local icon_img_160055 = GetClassByType("Item", 664039).Icon
+    for i = 1, selected_objects_count do
+        local handle = GetHandle(selected_objects[i])
+        if not g.sub_map_handles[tostring(handle)] then
+            local actor = world.GetActor(handle)
+            if handle and actor then
+                local clsid = actor:GetType()
+                local mon_cls = GetClassByType("Monster", clsid)
+                if clsid == 160063 or clsid == 160055 then
+                    local icon_name = "mon_" .. handle
+                    names[icon_name] = false
+                    local world_pos = actor:GetPos()
+                    local pos = mapprop:WorldPosToMinimapPos(world_pos, map_pic:GetWidth(), map_pic:GetHeight())
+                    local x = (pos.x - icon_size / 4)
+                    local y = (pos.y - icon_size / 4)
+                    local icon = gbox:CreateOrGetControl("picture", icon_name, icon_size * 0.5, icon_size * 0.5,
+                        ui.LEFT, ui.TOP, 0, 0, 0, 0)
+                    AUTO_CAST(icon)
+                    icon:SetPos(x, y)
+                    if clsid == 160063 then
+                        icon:SetImage(icon_img_160063)
+                    elseif clsid == 160055 then
+                        icon:SetImage(icon_img_160055)
+                    end
+                    icon:SetEnableStretch(1)
+                    icon:ShowWindow(1)
+                end
+                if my_handle ~= handle and info.IsPC(handle) == 1 then
+                    for j = 0, party_count - 1 do
+                        local pc_info = party_list:Element(j)
+                        local name = pc_info:GetName()
+                        local apc = actor:GetPCApc()
+                        if apc then
+                            local actor_name = apc:GetFamilyName()
+                            if my_info ~= pc_info and name == actor_name then
+                                names[name] = false -- 削除対象から除外
+                                local inst_info = pc_info:GetInst()
+                                local world_pos = actor:GetPos()
+                                local hp = inst_info.hp
+                                local pc_icon = GET_CHILD(gbox, name)
+                                if not pc_icon then
+                                    pc_icon = gbox:CreateOrGetControl("picture", name, 0, 0, icon_size * 1.25,
+                                        icon_size * 1.25)
+                                end
+                                AUTO_CAST(pc_icon)
+                                pc_icon:SetTextTooltip("{ol}{s10}" .. name)
+                                pc_icon:SetEnableStretch(1)
+                                local pos = mapprop:WorldPosToMinimapPos(world_pos, map_pic:GetWidth(),
+                                    map_pic:GetHeight())
+                                local x = (pos.x - icon_size * 1.25 / 2)
+                                local y = (pos.y - icon_size * 1.25 / 2)
+                                pc_icon:SetPos(x, y)
+                                pc_icon:ShowWindow(1)
+                                local image_name = "Archer_party"
+                                if hp <= 0 then
+                                    image_name = "die_party"
+                                end
+                                pc_icon:SetImage(image_name)
+                                break
+                            end
+                        end
                     end
                 end
             end
         end
-        valid_cids[g.cid] = true
-        local old_settings = g.load_json(old_json_path)
-        if old_settings then
-            settings = {
-                delay = old_settings.delay or 0.6
-            }
-            for cid, data in pairs(old_settings) do
-                if valid_cids[cid] then
-                    settings[cid] = data
-                end
+    end
+    for check_name, bool in pairs(names) do
+        if bool == true and not string.find(check_name, "_MONPOS_") and not string.find(check_name, "SCR") then
+            local icon = GET_CHILD(gbox, check_name)
+            if icon then
+                gbox:RemoveChild(check_name)
             end
-            need_save = true
         end
-    end
-    if not settings then
-        settings = {
-            delay = 0.6
-        }
-        need_save = true
-    end
-    g.gim_settings = settings
-    if need_save then
-        Goddess_icor_manager_save_settings()
     end
 end
 
-function Goddess_icor_manager_char_load_settings()
-    if not g.gim_settings[g.cid] then
-        g.gim_settings[g.cid] = {
-            drop_items = {},
-            icor_ids = {}
+function Sub_map_update_remove_member(sub_map)
+    local gbox = GET_CHILD(sub_map, "gbox")
+    local icons = {}
+    for i = 0, gbox:GetChildCount() - 1 do
+        local child = gbox:GetChildByIndex(i)
+        if child then
+            local aid = tonumber(child:GetName())
+            if aid then
+                icons[aid] = true
+            end
+        end
+    end
+    local function process_member_list(party_type)
+        local list = session.party.GetPartyMemberList(party_type)
+        local my_handle = session.GetMyHandle()
+        local my_info = session.party.GetMyPartyObj(party_type)
+        if my_info then
+            for i = 0, list:Count() - 1 do
+                local pc_info = list:Element(i)
+                local aid = tonumber(pc_info:GetAID())
+                local handle = pc_info:GetHandle()
+                if handle ~= my_handle and pc_info:GetMapID() == my_info:GetMapID() and pc_info:GetChannel() ==
+                    my_info:GetChannel() then
+                    icons[aid] = false
+                end
+            end
+        end
+    end
+    process_member_list(PARTY_NORMAL)
+    process_member_list(PARTY_GUILD)
+    for aid, remove in pairs(icons) do
+        if remove == true then
+            gbox:RemoveChild(tostring(aid))
+        end
+    end
+end
+
+function Sub_map_MAP_CHARACTER_UPDATE()
+    local sub_map = ui.GetFrame(addon_name_lower .. "sub_map")
+    if not sub_map then
+        return
+    end
+    AUTO_CAST(sub_map)
+    local my_handle = session.GetMyHandle()
+    local map_pic = GET_CHILD_RECURSIVELY(sub_map, "map_pic")
+    AUTO_CAST(map_pic)
+    local pos = info.GetPositionInMap(my_handle, map_pic:GetWidth(), map_pic:GetHeight())
+    local my = GET_CHILD_RECURSIVELY(sub_map, "my")
+    AUTO_CAST(my)
+    my:ShowWindow(0)
+    my:SetOffset(pos.x - my:GetWidth() / 2, pos.y - my:GetHeight() / 2)
+    local mapprop = session.GetCurrentMapProp()
+    local angle = info.GetAngle(my_handle) - mapprop.RotateAngle
+    my:SetAngle(angle)
+    my:ShowWindow(1)
+    map_pic:Invalidate()
+    local challenge = sub_map:GetUserIValue("CHALLENGE")
+    if challenge == 0 then
+        Sub_map_mapicon_update(sub_map, map_pic)
+    end
+end
+
+function Sub_map_mapicon_update(sub_map, map_pic)
+    local now = imcTime.GetAppTimeMS()
+    if g.sub_map_last_update_time then
+        if now - g.sub_map_last_update_time < 1000 then
+            return
+        end
+    end
+    g.sub_map_last_update_time = now
+    local map_tbl = Sub_map_get_mapinfo(sub_map, map_pic)
+    local gbox = GET_CHILD(sub_map, "gbox")
+    local function split(str, delim)
+        local return_data = {}
+        for match in string.gmatch(str, "[^" .. delim .. "]+") do
+            table.insert(return_data, match)
+        end
+        return return_data
+    end
+    local icon_size = sub_map:GetUserIValue("ICON_SIZE")
+    for i, data in ipairs(map_tbl) do
+        if string.find(data.class_type, "treasure_box") then
+            local item_split = split(data.argstr2, ":")
+            local item_name = GetClass("Item", item_split[2]).Name
+            local icon = GET_CHILD(gbox, "icon_" .. i)
+            if not icon then
+                icon = gbox:CreateOrGetControl("picture", "icon_" .. i, 0, 0, icon_size, icon_size)
+                AUTO_CAST(icon)
+                icon:SetOffset(data.map_pos.x - icon:GetWidth() / 2, data.map_pos.y - icon:GetHeight() / 2)
+                icon:SetEnableStretch(1)
+            end
+            icon:SetTextTooltip("{ol}{s10}" .. data.argstr1 .. "{nl}" .. item_name)
+            if data.state then
+                icon:SetImage("icon_item_box")
+            else
+                icon:SetText("{ol}{s10}" .. data.argstr1)
+                icon:SetImage("compen_btn")
+            end
+        end
+        if string.find(data.class_type, "statue_vakarine") or string.find(data.class_type, "klaipeda_square_statue") or
+            string.find(data.class_type, "npc_orsha_goddess") or string.find(data.class_type, "statue_zemina") then
+            local icon = GET_CHILD(gbox, "icon_" .. i)
+            if not icon then
+                icon = gbox:CreateOrGetControl("picture", "icon_" .. i, 0, 0, icon_size, icon_size)
+                AUTO_CAST(icon)
+                icon:SetOffset(data.map_pos.x - icon:GetWidth() / 2, data.map_pos.y - icon:GetHeight() / 2)
+                icon:SetEnableStretch(1)
+                icon:SetTextTooltip("{ol}{s10}" .. data.name)
+                icon:SetImage(data.icon_name)
+            end
+            if data.state then
+                icon:SetColorTone("FFFFFFFF")
+            else
+                icon:SetColorTone("FF555555")
+            end
+        end
+    end
+    gbox:Invalidate()
+end
+
+function Sub_map_get_mapinfo(sub_map, map_pic)
+    if not g.map_name or g.map_name == "" or g.map_name == "None" then
+        return
+    end
+    local property = geMapTable.GetMapProp(g.map_name)
+    local class_list, class_count = GetClassList("GenType_" .. g.map_name)
+    local mongens = property.mongens
+    local map_tbl = {}
+    local count = mongens:Count()
+    for i = 0, count - 1 do
+        local mon_prop = mongens:Element(i)
+        local ies_data = GetClassByIndexFromList(class_list, i)
+        local class_type = ies_data.ClassType
+        local state = GetNPCState(g.map_name, ies_data.GenType)
+        if not state then
+            state = false
+        end
+        local gen_list = mon_prop.GenList
+        local map_pos
+        if gen_list:Count() > 0 then
+            map_pos = property:WorldPosToMinimapPos(gen_list:Element(0), map_pic:GetWidth(), map_pic:GetHeight())
+        end
+        local icon_name = mon_prop:GetMinimapIcon()
+        if string.find(class_type, "treasure_box") then
+            if ies_data.ArgStr1 ~= "None" then
+                local data = {
+                    class_type = class_type,
+                    state = state,
+                    map_pos = map_pos,
+                    icon_name = icon_name,
+                    argstr1 = ies_data.ArgStr1,
+                    argstr2 = ies_data.ArgStr2,
+                    argstr3 = ies_data.ArgStr3,
+                    name = ies_data.Name
+                }
+                table.insert(map_tbl, data)
+            end
+        elseif string.find(class_type, "statue_zemina") or string.find(class_type, "statue_vakarine") or
+            string.find(class_type, "klaipeda_square_statue") or string.find(class_type, "npc_orsha_goddess") then
+            local data = {
+                class_type = class_type,
+                state = state,
+                map_pos = map_pos,
+                icon_name = icon_name,
+                argstr1 = ies_data.ArgStr1,
+                argstr2 = ies_data.ArgStr2,
+                argstr3 = ies_data.ArgStr3,
+                name = ies_data.Name
+            }
+            table.insert(map_tbl, data)
+        end
+    end
+    return map_tbl
+end
+
+function Sub_map_MAP_MON_MINIMAP(frame, msg, str, num, info)
+    local sub_map = ui.GetFrame(addon_name_lower .. "sub_map")
+    if not sub_map then
+        return
+    end
+    AUTO_CAST(sub_map)
+    local gbox = GET_CHILD(sub_map, "gbox")
+    local handle = info.handle
+    g.sub_map_handles = g.sub_map_handles or {}
+    if g.sub_map_handles[tostring(handle)] then
+        return
+    end
+    local mon_cls = GetClassByType("Monster", info.type)
+    if not mon_cls then
+        return
+    end
+    local mon_rank = TryGetProp(mon_cls, "MonRank", "None")
+    local is_boss = (mon_rank == "Boss")
+    local is_mob_display = (g.sub_map_settings.mob_display == 1)
+    if not is_boss and not is_mob_display then
+        return
+    end
+    local base_size = sub_map:GetUserIValue("ICON_SIZE")
+    local icon_w, icon_h
+    if is_boss then
+        if is_mob_display then
+            icon_w, icon_h = base_size * 1.5, base_size * 1.5
+        else
+            icon_w, icon_h = base_size, base_size
+        end
+    else
+        icon_w, icon_h = base_size / 3, base_size / 3
+    end
+    g.sub_map_handles[tostring(handle)] = true
+    local mon_pic = gbox:CreateOrGetControl("picture", "_MONPOS_" .. handle, 0, 0, icon_w, icon_h)
+    AUTO_CAST(mon_pic)
+    mon_pic:SetUserValue("HANDLE", handle)
+    if mon_cls.MinimapIcon ~= "None" then
+        mon_pic:SetImage(mon_cls.MinimapIcon)
+    else
+        mon_pic:SetImage("fullwhite")
+        mon_pic:SetColorTone("FFFF4500")
+    end
+    mon_pic:SetEnableStretch(1)
+    local map_pic = GET_CHILD_RECURSIVELY(sub_map, "map_pic")
+    AUTO_CAST(map_pic)
+    if map_pic then
+        local map_prop = session.GetCurrentMapProp()
+        local pos = map_prop:WorldPosToMinimapPos(info.x, info.z, map_pic:GetWidth(), map_pic:GetHeight())
+        mon_pic:SetOffset(pos.x - icon_w / 2, pos.y - icon_h / 2)
+    end
+    mon_pic:ShowWindow(1)
+    if not mon_pic:HaveUpdateScript("Sub_map_monpic_auto_update") then
+        mon_pic:RunUpdateScript("Sub_map_monpic_auto_update", 0.5)
+    end
+end
+
+function Sub_map_monpic_auto_update(mon_pic)
+    local sub_map = mon_pic:GetTopParentFrame()
+    local gbox = GET_CHILD(sub_map, "gbox")
+    local handle = mon_pic:GetUserIValue("HANDLE")
+    local actor = world.GetActor(handle)
+    if actor then
+        local map_prop = session.GetCurrentMapProp()
+        local map_pic = GET_CHILD_RECURSIVELY(sub_map, "map_pic")
+        AUTO_CAST(map_pic)
+        local actor_pos = actor:GetPos()
+        local mon_cls = GetClassByType("Monster", actor:GetType())
+        if mon_cls then
+            local pos = map_prop:WorldPosToMinimapPos(actor_pos, map_pic:GetWidth(), map_pic:GetHeight())
+            local x = pos.x - mon_pic:GetWidth() / 2
+            local y = pos.y - mon_pic:GetHeight() / 2
+            mon_pic:SetOffset(x, y)
+        end
+    end
+    return 1
+end
+
+function Sub_map_ON_MON_MINIMAP_END(frame, msg, str, handle)
+    local sub_map = ui.GetFrame(addon_name_lower .. "sub_map")
+    if not sub_map then
+        return
+    end
+    AUTO_CAST(sub_map)
+    local gbox = GET_CHILD(sub_map, "gbox")
+    local mon_pic = GET_CHILD(gbox, "_MONPOS_" .. handle)
+    if mon_pic then
+        if g.sub_map_handles then
+            g.sub_map_handles[tostring(handle)] = nil
+        end
+        gbox:RemoveChild("_MONPOS_" .. handle)
+        gbox:Invalidate()
+    end
+end
+
+function Sub_map_MAP_UPDATE_PARTY_INST(frame, msg, str, party_type)
+    local sub_map = ui.GetFrame(addon_name_lower .. "sub_map")
+    if not sub_map then
+        return
+    end
+    AUTO_CAST(sub_map)
+    local gbox = GET_CHILD(sub_map, "gbox")
+    local map_prop = session.GetCurrentMapProp()
+    local my_info = session.party.GetMyPartyObj(party_type)
+    local list = session.party.GetPartyMemberList(party_type)
+    local count = list:Count()
+    for i = 0, count - 1 do
+        local pc_info = list:Element(i)
+        if my_info ~= pc_info then
+            local aid = pc_info:GetAID()
+            local pc_icon = GET_CHILD(gbox, aid)
+            if pc_icon then
+                local inst_info = pc_info:GetInst()
+                Sub_map_SET_MINIMAP_ICON(pc_icon, inst_info.hp, aid)
+                Sub_map_SET_MAPPOS(sub_map, pc_icon, inst_info, map_prop)
+            end
+        end
+    end
+end
+
+function Sub_map_SET_MINIMAP_ICON(pc_icon, hp, aid)
+    local image_name = "die_party"
+    if hp > 0 then
+        if session.party.GetPartyMemberInfoByAID(PARTY_NORMAL, aid) then
+            image_name = "Archer_party"
+        elseif session.party.GetPartyMemberInfoByAID(PARTY_GUILD, aid) then
+            image_name = "Wizard_party"
+        end
+    end
+    pc_icon:SetImage(image_name)
+end
+
+function Sub_map_SET_MAPPOS(sub_map, pc_icon, inst_info, map_prop, info)
+    local world_pos = inst_info:GetPos()
+    local map_pic = GET_CHILD_RECURSIVELY(sub_map, "map_pic")
+    local pos
+    if info then
+        pos = map_prop:WorldPosToMinimapPos(info.x, info.z, map_pic:GetWidth(), map_pic:GetHeight())
+    else
+        pos = map_prop:WorldPosToMinimapPos(world_pos, map_pic:GetWidth(), map_pic:GetHeight())
+    end
+    local icon_size = sub_map:GetUserIValue("ICON_SIZE")
+    local x = (pos.x - icon_size / 2)
+    local y = (pos.y - icon_size / 2)
+    pc_icon:SetPos(x, y)
+end
+
+function Sub_map_update_party_or_guild(frame, msg, arg, num, info)
+    local sub_map = ui.GetFrame(addon_name_lower .. "sub_map")
+    if not sub_map then
+        return
+    end
+    AUTO_CAST(sub_map)
+    local party_type = 0
+    if msg == "GUILD_INFO_UPDATE" then
+        party_type = 1
+    end
+    local list = session.party.GetPartyMemberList(party_type)
+    local count = list:Count()
+    if count == 1 then
+        return
+    end
+    local my_info = session.party.GetMyPartyObj(party_type)
+    if not my_info then
+        return
+    end
+    local map_prop = session.GetCurrentMapProp()
+    for i = 0, count - 1 do
+        local pc_info = list:Element(i)
+        if my_info ~= pc_info and my_info:GetMapID() == pc_info:GetMapID() and my_info:GetChannel() ==
+            pc_info:GetChannel() then
+            Sub_map_CREATE_PICTURE(sub_map, pc_info, party_type, map_prop, info)
+        end
+    end
+end
+
+function Sub_map_CREATE_PICTURE(sub_map, pc_info, party_type, mapprop, info)
+    local aid = pc_info:GetAID()
+    local gbox = GET_CHILD(sub_map, "gbox")
+    local pc_icon = GET_CHILD(gbox, aid)
+    if not pc_icon then
+        local icon_size = sub_map:GetUserIValue("ICON_SIZE")
+        pc_icon = gbox:CreateOrGetControl("picture", aid, 0, 0, icon_size, icon_size)
+        AUTO_CAST(pc_icon)
+    end
+    pc_icon:SetEnableStretch(1)
+    pc_icon:SetTooltipType("partymap")
+    local name = ""
+    if type(_G["NATIVE_LANG_ON_INIT"]) == "function" then
+        local ntr = _G["ADDONS"]["norisan"]["NATIVE_LANG"]
+        name = ntr.names[pc_info:GetName()] or pc_info:GetName() -- {#FF0000}★
+        name = string.gsub(name, "{#FF0000}★", "")
+        name = string.gsub(name, "{/}", "")
+    end
+    local inst_info = pc_info:GetInst()
+    if pc_info:GetName() ~= name then
+        local tool_msg = "{ol}" .. name .. "(" .. ClMsg("Level") .. pc_info:GetLevel() .. "){nl}" .. "HP : (" ..
+                             inst_info.hp .. "/" .. inst_info.maxhp .. "){nl}" .. "SP : (" .. inst_info.sp .. "/" ..
+                             inst_info.maxsp .. ")"
+        pc_icon:SetTextTooltip(tool_msg)
+        -- pc_icon:SetTooltipArg(pc_info:GetName(), party_type)
+    else
+        pc_icon:SetTooltipArg(pc_info:GetName(), party_type)
+    end
+    pc_icon:ShowWindow(1)
+    Sub_map_SET_MINIMAP_ICON(pc_icon, inst_info.hp, aid)
+    Sub_map_SET_MAPPOS(sub_map, pc_icon, inst_info, mapprop, info)
+end
+-- sub_map ここまで
+
+-- Battle_ritual ここから
+function Battle_ritual_save_settings()
+    g.save_json(g.battle_ritual_path, g.battle_ritual_settings)
+end
+
+function Battle_ritual_load_settings()
+    g.battle_ritual_path = string.format("../addons/%s/%s/battle_ritual.json", addon_name_lower, g.active_id)
+    local settings = g.load_json(g.battle_ritual_path)
+    if not settings then
+        settings = {
+            skills = {},
+            etc = {
+                x = 0,
+                y = 0,
+                move = 0,
+                use = 0
+            }
         }
-        for i = 1, 9 do
-            table.insert(g.gim_settings[g.cid].drop_items, {
-                set_name = "Set " .. i,
-                set = {}
+    end
+    g.battle_ritual_settings = settings
+    Battle_ritual_save_settings()
+end
+
+function battle_ritual_on_init()
+    if not g.battle_ritual_settings then
+        Battle_ritual_load_settings()
+    end
+    if g.settings.battle_ritual.use == 0 then
+        ui.DestroyFrame(addon_name_lower .. "Battle_ritual")
+        return
+    end
+    Battle_ritual_frame_init()
+    if g.get_map_type() == "Instance" or g.map_id == 11244 or g.map_id == 8022 then -- 11244 聖域3F 11227 分裂 8022 ヴェルニケ
+        g.addon:RegisterMsg('REQ_PLAYER_CONTENTS_RECORD', 'Battle_ritual_REQ_PLAYER_CONTENTS_RECORD')
+        Battle_ritual_auto_buff_skill_start()
+    end
+end
+
+function Battle_ritual_auto_buff_skill_start()
+    -- pcallでラップしてエラー落ちを防ぎつつログを出す
+    local status, err = pcall(function()
+        if g.battle_ritual_settings.etc.use == 0 then
+            return
+        end
+
+        local _nexus_addons = ui.GetFrame("_nexus_addons")
+        local list = session.party.GetPartyMemberList(PARTY_NORMAL)
+        if list:Count() > 1 then
+            _nexus_addons:StopUpdateScript("Battle_ritual_auto_buff_skill")
+            return
+        end
+        local skills_table = g.battle_ritual_settings.skills
+        if not skills_table then
+            return
+        end
+        local sorted_list = {}
+        for s_id, data in pairs(skills_table) do
+            table.insert(sorted_list, {
+                skill_id = tonumber(s_id),
+                buff_id = data.buff_id,
+                priority = data.priority
             })
         end
-        Goddess_icor_manager_save_settings()
-    end
-end
-
-function goddess_icor_manager_on_init()
-    if not g.gim_settings then
-        Goddess_icor_manager_load_settings()
-    end
-    if g.get_map_type() == "City" then
-        Goddess_icor_manager_char_load_settings()
-        Goddess_icor_manager_frame_init()
-    end
-    g.addon:RegisterMsg("ESCAPE_PRESSED", "Goddess_icor_manager_list_close")
-    g.setup_hook(Goddess_icor_manager__GODDESS_MGR_RANDOMOPTION_ENGRAVE_ICOR_EXEC,
-        "_GODDESS_MGR_RANDOMOPTION_ENGRAVE_ICOR_EXEC")
-    g.setup_hook_and_event(g.addon, "GODDESS_EQUIP_MANAGER_OPEN", "Goddess_icor_manager_GODDESS_EQUIP_MANAGER_OPEN",
-        true)
-end
-
-function Goddess_icor_manager_frame_init()
-    local inventory = ui.GetFrame("inventory")
-    local inventoryGbox = inventory:GetChild("inventoryGbox")
-    inventoryGbox:RemoveChild("icor_btn")
-    if g.settings.goddess_icor_manager.use == 0 then
-        return
-    end
-    local icor_pic = inventory:CreateOrGetControl("picture", "icor_pic", 440, 345, 30, 30)
-    AUTO_CAST(icor_pic) -- 11201008
-    local icor_cls = GetClassByType("Item", 11201008)
-    icor_pic:SetImage(icor_cls.Icon)
-    icor_pic:SetEnableStretch(1)
-    icor_pic:SetSkinName("test_red_button")
-    icor_pic:SetEventScript(ui.LBUTTONUP, "Goddess_icor_manager_list_init")
-    icor_pic:SetTextTooltip("{ol}Goddes Icor Manager")
-end
-
-function Goddess_icor_manager_list_init(frame, ctrl, str, page)
-    local gim = ui.CreateNewFrame("notice_on_pc", addon_name_lower .. "gim", 0, 0, 0, 0)
-    gim:Resize(1920, 1060) -- 1000
-    gim:SetOffset(0, 5) -- 0,20
-    gim:ShowWindow(1)
-    gim:SetLayerLevel(121)
-    gim:ShowTitleBar(0)
-    gim:SetSkinName("test_frame_midle_light")
-    gim:RemoveAllChild()
-    if not page or page == 0 then
-        page = 1
-    end
-    Goddess_icor_manager_equip_gbox_init(gim)
-    Goddess_icor_manager_list_gb_init(gim, page)
-end
-
-function Goddess_icor_manager_list_gb_init(gim, page)
-    gim:SetUserValue("PAGE", page)
-    local acc = GetMyAccountObj()
-    local etc = GetMyEtcObject()
-    local remain_time = GET_REMAIN_SECOND_ENGRAVE_SLOT_EXTENSION_TIME(acc)
-    local max_engrave_count = GET_MAX_ENGARVE_SLOT_COUNT(acc)
-    local is_expired = (tonumber(remain_time) == 0)
-    local page_max = is_expired and (max_engrave_count + 5) or max_engrave_count
-    local start_x = 10
-    local left_btn = gim:CreateOrGetControl("button", "left_btn", 690, 1025, 30, 33)
-    AUTO_CAST(left_btn)
-    left_btn:SetText("{img white_left_arrow 18 18}")
-    left_btn:SetSkinName("brown_3patch_btn")
-    left_btn:SetEventScript(ui.LBUTTONUP, "Goddess_icor_manager_list_init")
-    left_btn:SetEventScriptArgNumber(ui.LBUTTONUP, 1)
-    local right_btn = gim:CreateOrGetControl("button", "right_btn", 740, 1025, 30, 33)
-    AUTO_CAST(right_btn)
-    right_btn:SetText("{img white_right_arrow 18 18}")
-    right_btn:SetSkinName("brown_3patch_btn")
-    right_btn:SetEventScript(ui.LBUTTONUP, "Goddess_icor_manager_list_init")
-    right_btn:SetEventScriptArgNumber(ui.LBUTTONUP, 2)
-    local s_index, e_index
-    if page == 2 then
-        s_index, e_index = 6, page_max
-    elseif page == 1 then
-        s_index, e_index = 1, 5
-    end
-    local equip_bg = GET_CHILD_RECURSIVELY(gim, "equip_bg")
-    for i = s_index, e_index do
-        local bg = gim:CreateOrGetControl("groupbox", "bg" .. i, start_x, 5, 285, 1020)
-        AUTO_CAST(bg)
-        bg:RemoveAllChild()
-        bg:SetSkinName("bg")
-        bg:ShowWindow(1)
-        local pagename_text = bg:CreateOrGetControl("richtext", "pagename_text" .. i, 10, 5)
-        AUTO_CAST(pagename_text)
-        local pagename = Goddess_icor_manager_get_pagename(i)
-        start_x = start_x + 283
-        local is_disabled_page = is_expired and (tonumber(max_engrave_count) < i)
-        if is_disabled_page then
-            local text = g.lang == "Japanese" and " 使用不可" or " disabled"
-            pagename_text:SetText("{ol}{#FF0000}" .. pagename .. text)
-        else
-            pagename_text:SetText("{ol}{#FFFF00}" .. pagename)
-        end
-        local manage_y_offset = 0
-        for j = 1, #g.gim_slot_list do
-            local manage_bg = bg:CreateOrGetControl("groupbox", "manage_bg" .. j, 5, 30 + manage_y_offset, 272, 122)
-            local manage_text = manage_bg:CreateOrGetControl("richtext", "manage_text" .. j, 5, 0)
-            manage_bg:SetSkinName("test_frame_midle_light") -- "FFDAA520"
-            if is_disabled_page then
-                manage_bg:SetColorTone("FF808080")
-            end
-            manage_y_offset = manage_y_offset + 123
-            local temp_name = ""
-            local icor_ids = g.gim_settings[g.cid].icor_ids
-            if icor_ids and type(icor_ids[tostring(i)]) == "table" then
-                local spot_data = icor_ids[tostring(i)][g.gim_slot_list[j].slot_name]
-                if spot_data and spot_data > 0 then
-                    local temp_cls = GetClassByType("Item", spot_data)
-                    if temp_cls then
-                        local cls_name = temp_cls.ClassName
-                        if string.find(cls_name, "EP17", 1, true) then
-                            if string.find(cls_name, "high", 1, true) then
-                                temp_name = g.lang == "Japanese" and " [540]上級" or " [540]Advanced"
-                            else
-                                temp_name = " [540]"
-                            end
-                            manage_bg:SetColorTone("FFFFD700")
-                        elseif string.find(cls_name, "EP16", 1, true) then
-                            if string.find(cls_name, "high", 1, true) then
-                                temp_name = g.lang == "Japanese" and " [520]上級" or " [520]Advanced"
-                            else
-                                temp_name = " [520]"
-                            end
-                            manage_bg:SetColorTone("FFDAA520")
-                        elseif string.find(cls_name, "EP15", 1, true) and
-                            (string.find(cls_name, "Weapon2", 1, true) or string.find(cls_name, "Armor2", 1, true)) then
-                            temp_name = g.lang == "Japanese" and " [500]継承" or " [500]Succession"
-                            manage_bg:SetColorTone("FFFFD700")
-                        end
-                    end
-                end
-            end
-            manage_text:SetText("{ol}" .. ClMsg(g.gim_slot_list[j].clmsg) .. temp_name)
-            local option_prop, group_prop, value_prop, is_goddess_option =
-                Goddess_icor_manager_GET_ENGRAVED_OPTION_LIST(etc, i, g.gim_slot_list[j].slot_name)
-            if option_prop then
-                local parts1 = {}
-                local parts2 = {}
-                local parts3 = {}
-                for part in option_prop:gmatch("([^/]+)") do
-                    table.insert(parts1, part)
-                end
-                for part in group_prop:gmatch("([^/]+)") do
-                    table.insert(parts2, part)
-                end
-                for part in value_prop:gmatch("([^/]+)") do
-                    table.insert(parts3, part)
-                end
-                Goddess_icor_manager_set_text(manage_bg, parts1, parts2, parts3)
-                if equip_bg then
-                    local current_equip_group = GET_CHILD_RECURSIVELY(equip_bg, "equip" .. j)
-                    if current_equip_group then
-                        local equip_text = ""
-                        local eq_count = current_equip_group:GetChildCount()
-                        for k = 0, eq_count - 1 do -- GetChildByIndexは0始まり
-                            local child = current_equip_group:GetChildByIndex(k)
-                            if string.find(child:GetName(), "text") then
-                                equip_text = equip_text .. child:GetText()
-                            end
-                        end
-                        equip_text = equip_text:gsub("{.-}", ""):gsub("%s+", "")
-                        local icor_text = ""
-                        local mg_count = manage_bg:GetChildCount()
-                        for k = 0, mg_count - 1 do
-                            local child = manage_bg:GetChildByIndex(k)
-                            if string.find(child:GetName(), "option") then
-                                icor_text = icor_text .. child:GetText()
-                            end
-                        end
-                        icor_text = icor_text:gsub("{.-}", ""):gsub("%s+", "")
-                        if equip_text ~= "" and icor_text ~= "" and not is_disabled_page then
-                            if equip_text == icor_text then
-                                local star = manage_bg:CreateOrGetControl("richtext", "star" .. j, 25, 25)
-                                AUTO_CAST(star)
-                                star:SetText("{img monster_card_starmark 20 20}")
-                                star:SetOffset(245, 0)
-                            else
-                                local equip_button = manage_bg:CreateOrGetControl("button", "equip_button", 240, 0, 30,
-                                    25)
-                                AUTO_CAST(equip_button)
-                                equip_button:SetText("{ol}{s14}E")
-                                equip_button:SetSkinName("test_red_button")
-                                equip_button:SetEventScript(ui.LBUTTONUP, "Goddess_icor_manager_equip_button")
-                                equip_button:SetEventScriptArgNumber(ui.LBUTTONUP, i) -- page index
-                                equip_button:SetEventScriptArgString(ui.LBUTTONUP, j) -- slot index
-                                equip_button:SetUserValue("PAGE", page)
-                                equip_button:SetTextTooltip(g.lang == "Japanese" and "{ol}イコル付替え" or
-                                                                "{ol}Icor Swap")
-                            end
-                        end
-                    end
-                end
-            end
-        end
-    end
-end
-
-function Goddess_icor_manager_equip_gbox_init(gim)
-    local equip_gb = gim:CreateOrGetControl("groupbox", "equip_bg", 1430, 5, 485, 1050)
-    AUTO_CAST(equip_gb)
-    equip_gb:SetSkinName("test_frame_midle_light")
-    equip_gb:RemoveAllChild()
-    local close = equip_gb:CreateOrGetControl("button", "close", 0, 0, 30, 30)
-    AUTO_CAST(close)
-    close:SetImage("testclose_button")
-    close:SetGravity(ui.RIGHT, ui.TOP)
-    close:SetEventScript(ui.LBUTTONUP, "Goddess_icor_manager_list_close")
-    local swapbtn = equip_gb:CreateOrGetControl("button", "swapbtn", 0, 0, 35, 35)
-    swapbtn:SetText("{img sysmenu_skill 35 35}")
-    AUTO_CAST(swapbtn)
-    swapbtn:SetSkinName("test_pvp_btn")
-    swapbtn:SetEventScript(ui.LBUTTONUP, "Goddess_icor_manager_swap_weapon")
-    swapbtn:SetTextTooltip(g.lang == "Japanese" and "{ol}武器の裏表切替" or
-                               "{ol}Swap the reverse side of weapons")
-    local icor_save = equip_gb:CreateOrGetControl("button", "icor_save", 45, 0, 80, 35)
-    local text = g.lang == "Japanese" and "{@st66b}刻印保存" or "{@st66b}Icor save"
-    icor_save:SetText(text)
-    AUTO_CAST(icor_save)
-    icor_save:SetSkinName("test_pvp_btn")
-    icor_save:SetEventScript(ui.LBUTTONUP, "Goddess_icor_manager_icor_save_open")
-    local delay_edit = equip_gb:CreateOrGetControl("edit", "delay_edit", 130, 2, 50, 30)
-    AUTO_CAST(delay_edit)
-    delay_edit:SetFontName("white_16_ol")
-    delay_edit:SetTextAlign("center", "center")
-    delay_edit:SetText(g.gim_settings.delay or 0.5)
-    local msg = g.lang == "Japanese" and "{ol}ディレイ設定 デフォルトは0.6秒" or
-                    "{ol}Delay setting Default is 0.6 sec."
-    delay_edit:SetTextTooltip(msg)
-    delay_edit:SetEventScript(ui.ENTERKEY, "Goddess_icor_manager_setting_delay")
-    local set_droplist = equip_gb:CreateOrGetControl("droplist", "set_droplist", 180, 35, 250, 35)
-    AUTO_CAST(set_droplist)
-    set_droplist:SetSkinName("droplist_normal")
-    set_droplist:EnableHitTest(1)
-    set_droplist:SetTextAlign("center", "center")
-    set_droplist:SetSelectedScp("Goddess_icor_manager_droplist_select")
-    set_droplist:AddItem(0, " ")
-    set_droplist:SelectItem(0)
-    set_droplist:Invalidate()
-    for key, data in ipairs(g.gim_settings[g.cid].drop_items) do
-        set_droplist:AddItem(key, "{ol}" .. data.set_name)
-    end
-    local x = 5
-    local y = 50
-    local yy = 50
-    for i = 1, #g.gim_slot_list do
-        local equip
-        if i <= 2 or i >= 7 then
-            equip = equip_gb:CreateOrGetControl("groupbox", "equip" .. i, x, y + 10, 238, 130)
-            y = y + 131
-        elseif i <= 6 or i >= 3 then
-            equip = equip_gb:CreateOrGetControl("groupbox", "equip" .. i, x + 240, yy + 10, 238, 130)
-            yy = yy + 131
-        end
-        AUTO_CAST(equip)
-        equip:SetSkinName("test_frame_midle_light")
-    end
-    for i = 1, #g.gim_slot_list do
-        local slot_info = g.gim_slot_list[i]
-        local equip = GET_CHILD(equip_gb, "equip" .. i)
-        local slot = equip:CreateOrGetControl("richtext", "slot" .. i, 5, 5)
-        AUTO_CAST(slot)
-        slot:SetText("{ol}{s15}" .. ClMsg(slot_info.clmsg))
-        local inv_item = session.GetEquipItemBySpot(item.GetEquipSpotNum(slot_info.slot_name))
-        local item_obj = GetIES(inv_item:GetObject())
-        local item_dic = GET_ITEM_RANDOMOPTION_DIC(item_obj)
-        local size = item_dic["Size"]
-        local y = 25
-        if size ~= 0 then
-            for j = 1, size do
-                local key = "RandomOption_" .. j
-                local value_key = "RandomOptionValue_" .. j
-                local group_key = "RandomOptionGroup_" .. j
-                local text = equip:CreateOrGetControl("richtext", "text" .. j, 5, y)
-                AUTO_CAST(text)
-                local option = item_dic[key]
-                local value = item_dic[value_key]
-                local group = item_dic[group_key]
-                local color = Goddess_icor_manager_color(group)
-                text:SetText("{ol}{s15}" .. color .. ClMsg(option) .. "{#FFFFFF} : " .. value)
-                text:AdjustFontSizeByWidth(235)
-                y = y + 20
-            end
-            equip:SetColorTone("FFFFD700")
-        end
-    end
-    local status_gb = equip_gb:CreateOrGetControl("groupbox", "status_gb", 5, 585, 480, 465)
-    AUTO_CAST(status_gb)
-    status_gb:SetSkinName("bg")
-    local status_table = {"Cloth_Atk", "Leather_Atk", "Iron_Atk", "Ghost_Atk", "MiddleSize_Def", "Cloth_Def",
-                          "Leather_Def", "Iron_Def", "Forester_Atk", "Widling_Atk", "Klaida_Atk", "Paramune_Atk",
-                          "Velnias_Atk", "perfection", "revenge"}
-    local status = ui.GetFrame("status")
-    if status:IsVisible() == 0 then
-        ui.OpenFrame("status")
-    end
-    for i = 1, #status_table do
-        local status_str = status_table[i]
-        local child_frame = GET_CHILD_RECURSIVELY(status, status_str)
-        local level = info.GetLevel(session.GetMyHandle())
-        local setting_num = level * 30
-        local setting_num2 = level * 15
-        local child_title = GET_CHILD(child_frame, "title", "ui::CRichText"):GetText()
-        local titletext = status_gb:CreateOrGetControl("richtext", "titletext" .. i, 10, i * 30 - 20)
-        titletext:SetText("{ol}" .. child_title)
-        titletext:AdjustFontSizeByWidth(230)
-        local child_stat = GET_CHILD(child_frame, "stat", "ui::CRichText"):GetText()
-        local stattext = status_gb:CreateOrGetControl("richtext", "stattext" .. i, 240, i * 30 - 20)
-        if i <= 4 or (i >= 9 and i <= 13) then
-            stattext:SetText("{ol}" .. child_stat .. " {#FFFFFF}(" .. setting_num .. ")")
-        elseif i >= 5 and i <= 8 then
-            stattext:SetText("{ol}" .. child_stat .. " {#FFFFFF}(" .. setting_num2 .. ")")
-        elseif i >= 14 then
-            stattext:SetText("{ol}" .. child_stat)
-        end
-    end
-    local inventory = ui.GetFrame("inventory")
-    DO_WEAPON_SLOT_CHANGE(inventory, 1)
-end
-
-function Goddess_icor_manager_list_close(frame)
-    local status = ui.GetFrame("status")
-    status:ShowWindow(0)
-    local goddess_equip_manager = ui.GetFrame("goddess_equip_manager")
-    goddess_equip_manager:SetLayerLevel(92) -- 92
-    goddess_equip_manager:ShowWindow(0)
-    local inventory = ui.GetFrame("inventory")
-    inventory:SetLayerLevel(95) -- 95
-    local inputstring = ui.GetFrame("inputstring")
-    AUTO_CAST(inputstring)
-    inputstring:SetLayerLevel(98) -- 98
-    ui.DestroyFrame(addon_name_lower .. "gim")
-end
-
-function Goddess_icor_manager_setting_delay(parent, ctrl)
-    local delay = tonumber(ctrl:GetText())
-    if delay then
-        g.gim_settings.delay = delay
-        Goddess_icor_manager_save_settings()
-        local text = g.lang == "Japanese" and "{ol}ディレイを" .. delay .. "秒に設定しました" or
-                         "{ol}Delay is set to " .. delay .. " sec."
-        ui.SysMsg(text)
-    end
-end
-
-function Goddess_icor_manager_droplist_select(parent, ctrl)
-    local gim = ui.GetFrame(addon_name_lower .. "gim")
-    local ctrl_key = tonumber(ctrl:GetSelItemKey())
-    local temp_data = g.gim_settings[g.cid].drop_items[ctrl_key]
-    if ctrl_key == 0 then
-        parent:RemoveAllChild()
-        Goddess_icor_manager_equip_gbox_init(gim)
-        return
-    end
-    local save_btn = parent:CreateOrGetControl("button", "save_btn", ctrl:GetX() + 10, 5, 80, 30)
-    AUTO_CAST(save_btn)
-    save_btn:SetText(g.lang == "Japanese" and "{ol}保存" or "{ol}Save")
-    save_btn:SetEventScript(ui.LBUTTONUP, "Goddess_icor_manager_set_save")
-    save_btn:SetEventScriptArgNumber(ui.LBUTTONUP, ctrl_key)
-    save_btn:SetTextTooltip(g.lang == "Japanese" and "{ol}装備中のイコルセットを保存します" or
-                                "{ol}Save icorset being equipped")
-    if next(temp_data.set) then
-        local delete_btn = parent:CreateOrGetControl("button", "delete_btn", ctrl:GetX() + 90, 5, 80, 30)
-        AUTO_CAST(delete_btn)
-        delete_btn:SetText(g.lang == "Japanese" and "{ol}削除" or "{ol}Delete")
-        delete_btn:SetEventScript(ui.LBUTTONUP, "Goddess_icor_manager_set_delete")
-        delete_btn:SetEventScriptArgNumber(ui.LBUTTONUP, ctrl_key)
-        local change_btn = parent:CreateOrGetControl("button", "change_btn", ctrl:GetX() + 170, 5, 80, 30)
-        AUTO_CAST(change_btn)
-        change_btn:SetText(g.lang == "Japanese" and "{ol}付替" or "{ol}change")
-        change_btn:SetEventScript(ui.LBUTTONUP, "Goddess_icor_manager_set_change")
-        change_btn:SetEventScriptArgNumber(ui.LBUTTONUP, ctrl_key)
-        local status_gb = GET_CHILD(parent, "status_gb")
-        status_gb:RemoveAllChild()
-    end
-    local etc_obj = GetMyEtcObject()
-    g.gim_same = 0
-    g.gim_rh = nil
-    g.gim_lh = nil
-    g.gim_rh_sub = nil
-    g.gim_lh_sub = nil
-    local cur_strs = {}
-    for i = 1, #g.gim_slot_list do
-        local equip = GET_CHILD(parent, "equip" .. i)
-        AUTO_CAST(equip)
-        local slot_info = g.gim_slot_list[i]
-        local slot_name = slot_info.slot_name
-        local inv_item = session.GetEquipItemBySpot(item.GetEquipSpotNum(slot_name))
-        if inv_item and inv_item:GetObject() then
-            local item_obj = GetIES(inv_item:GetObject())
-            local item_dic = GET_ITEM_RANDOMOPTION_DIC(item_obj)
-            if item_dic then
-                local size = item_dic["Size"] or 0
-                if size ~= 0 then
-                    local opts, grps, vals = {}, {}, {}
-                    for j = 1, size do
-                        local key_opt = "RandomOption_" .. j
-                        local key_val = "RandomOptionValue_" .. j
-                        local key_grp = "RandomOptionGroup_" .. j
-                        local opt = item_dic[key_opt]
-                        local val = item_dic[key_val]
-                        local grp = item_dic[key_grp]
-                        table.insert(opts, opt ~= nil and tostring(opt) or "")
-                        table.insert(grps, grp ~= nil and tostring(grp) or "")
-                        table.insert(vals, val ~= nil and tostring(val) or "")
-                    end
-                    if #opts > 0 then
-                        local cur_opts = table.concat(opts, "/")
-                        local cur_grps = table.concat(grps, "/")
-                        local cur_vals = table.concat(vals, "/")
-                        cur_strs[slot_name] = string.format("%s:%s:%s", cur_opts, cur_grps, cur_vals)
-                    end
-                end
-            end
-        end
-        local tgt_str = temp_data.set[slot_name] or ""
-        local load_index, load_equip_name = string.match(tgt_str, "^(.-):::(.+)$")
-        local eng_opts, eng_grps, eng_vals
-        if load_index and load_equip_name then
-            eng_opts, eng_grps, eng_vals = Goddess_icor_manager_GET_ENGRAVED_OPTION_LIST(etc_obj, tonumber(load_index),
-                load_equip_name)
-        end
-        local eng_strs = string.format("%s:%s:%s", tostring(eng_opts or ""), tostring(eng_grps or ""),
-            tostring(eng_vals or ""))
-        if cur_strs[slot_name] == eng_strs then
-            g.gim_same = g.gim_same + 1
-        else
-            if slot_name == "RH" then
-                g.gim_rh = true
-            elseif slot_name == "LH" then
-                g.gim_lh = true
-            elseif slot_name == "RH_SUB" then
-                g.gim_rh_sub = true
-            elseif slot_name == "LH_SUB" then
-                g.gim_lh_sub = true
-            end
-        end
-        if eng_opts ~= nil then
-            local parts1, parts2, parts3 = {}, {}, {}
-            for part in eng_opts:gmatch("([^/]+)") do
-                table.insert(parts1, part)
-            end
-            if eng_grps then
-                for part in eng_grps:gmatch("([^/]+)") do
-                    table.insert(parts2, part)
-                end
-            end
-            if eng_vals then
-                for part in eng_vals:gmatch("([^/]+)") do
-                    table.insert(parts3, part)
-                end
-            end
-            for k_child = equip:GetChildCount() - 1, 0, -1 do
-                local child_to_remove = equip:GetChildByIndex(k_child)
-                if child_to_remove and string.sub(child_to_remove:GetName(), 1, 4) == "text" then
-                    equip:RemoveChild(child_to_remove:GetName())
-                end
-            end
-            local y = 25
-            for k = 1, #parts1 do
-                local opt_name = parts1[k]
-                local grp_name = parts2[k]
-                local val = parts3[k]
-                local text = equip:CreateOrGetControl("richtext", "text" .. k, 5, y)
-                AUTO_CAST(text)
-                local color = Goddess_icor_manager_color(grp_name)
-                text:SetText("{ol}{s15}" .. color .. ClMsg(opt_name) .. "{ol}{#FFFFFF} : " .. val)
-                text:AdjustFontSizeByWidth(235)
-                y = y + 20
-            end
-        end
-    end
-end
-
-function Goddess_icor_manager_swap_weapon()
-    local inventory = ui.GetFrame("inventory")
-    inventory:ShowWindow(1)
-    local gim = ui.GetFrame(addon_name_lower .. "gim")
-    local RH = GET_CHILD_RECURSIVELY(inventory, "RH")
-    local LH = GET_CHILD_RECURSIVELY(inventory, "LH")
-    local RH_SUB = GET_CHILD_RECURSIVELY(inventory, "RH_SUB")
-    local LH_SUB = GET_CHILD_RECURSIVELY(inventory, "LH_SUB")
-    local function goddess_icor_manager_swap_guid(slot_name, bool)
-        local icon = slot_name:GetIcon()
-        if bool then
-            if icon then
-                return true
+        table.sort(sorted_list, function(a, b)
+            if a.priority ~= b.priority then
+                return a.priority < b.priority
             else
-                return nil
+                return tonumber(a.skill_id) < tonumber(b.skill_id)
+            end
+        end)
+        local skill_map = {}
+        for i = 0, 40 - 1 do
+            local quick_slot_info = quickslot.GetInfoByIndex(i)
+            if quick_slot_info and quick_slot_info.category == 'Skill' then
+                skill_map[quick_slot_info.type] = i
             end
         end
-        local icon_info = icon:GetInfo()
-        local icon_guid = icon_info:GetIESID()
-        return icon_guid
-    end
-    g.gim_lh_sub_guid = goddess_icor_manager_swap_guid(LH_SUB)
-    g.gim_rh_sub_guid = goddess_icor_manager_swap_guid(RH_SUB)
-    g.gim_rh_guid = goddess_icor_manager_swap_guid(RH)
-    g.gim_lh_guid = goddess_icor_manager_swap_guid(LH)
-    if goddess_icor_manager_swap_guid(LH_SUB, true) and goddess_icor_manager_swap_guid(RH_SUB, true) then
-        local lh_sub_index = 31
-        Goddess_icor_manager_unequip(inventory, lh_sub_index)
-    end
-end
-
-function Goddess_icor_manager_unequip(inventory, lh_sub_index)
-    imcSound.PlaySoundEvent("inven_unequip")
-    item.UnEquip(lh_sub_index)
-    DO_WEAPON_SLOT_CHANGE(inventory, 1)
-    ReserveScript("Goddess_icor_manager_equip()", g.gim_settings.delay or 0.5)
-    return
-end
-
-function Goddess_icor_manager_equip()
-    local function goddess_icor_manager_swap_equip(spot_name, guid)
-        local inv_item = session.GetInvItemByGuid(guid)
-        if inv_item then
-            local inventory = ui.GetFrame("inventory")
-            if string.find(spot_name, "_SUB") then
-                DO_WEAPON_SLOT_CHANGE(inventory, 2)
-            else
-                DO_WEAPON_SLOT_CHANGE(inventory, 1)
+        g.battle_ritual_use_queue = {}
+        local my_handle = session.GetMyHandle()
+        local quickslotnexpbar = ui.GetFrame("quickslotnexpbar")
+        for _, data in ipairs(sorted_list) do
+            local skill_id = data.skill_id
+            local slot_index = skill_map[skill_id]
+            if slot_index then
+                local slot = GET_CHILD_RECURSIVELY(quickslotnexpbar, "slot" .. (slot_index + 1), "ui::CSlot")
+                if slot then
+                    local icon = slot:GetIcon()
+                    if icon then
+                        local cur_time = ICON_UPDATE_SKILL_COOLDOWN(icon)
+                        if cur_time == 0 then
+                            local buff_id = data.buff_id
+                            local need_buff = true
+                            if buff_id > 0 then
+                                if info.GetBuff(my_handle, buff_id) then
+                                    need_buff = false
+                                end
+                            end
+                            if need_buff then
+                                table.insert(g.battle_ritual_use_queue, {
+                                    buff_id = buff_id,
+                                    skill_id = skill_id,
+                                    icon = icon
+                                })
+                            end
+                        end
+                    end
+                end
             end
-            ITEM_EQUIP(inv_item.invIndex, spot_name)
-            ReserveScript("Goddess_icor_manager_equip()", g.gim_settings.delay or 0.5)
-            return
         end
-    end
-    if g.gim_rh_sub_guid then
-        goddess_icor_manager_swap_equip("RH", g.gim_rh_sub_guid)
-        g.gim_rh_sub_guid = nil
-    elseif g.gim_lh_sub_guid then
-        goddess_icor_manager_swap_equip("LH", g.gim_lh_sub_guid)
-        g.gim_lh_sub_guid = nil
-    elseif g.gim_rh_guid then
-        goddess_icor_manager_swap_equip("RH_SUB", g.gim_rh_guid)
-        g.gim_rh_guid = nil
-    elseif g.gim_lh_guid then
-        goddess_icor_manager_swap_equip("LH_SUB", g.gim_lh_guid)
-        g.gim_lh_guid = nil
-    else
-        local inventory = ui.GetFrame("inventory")
-        inventory:Invalidate()
-        if g.gim_swap then
-            Goddess_icor_manager_set_change(nil, nil, nil, g.gim_ctrl_key, 4)
-        else
-            Goddess_icor_manager_set_end()
+        if #g.battle_ritual_use_queue > 0 then
+            _nexus_addons:RunUpdateScript("Battle_ritual_auto_buff_skill", 0.1)
         end
-    end
+    end)
 end
 
-function Goddess_icor_manager_swap_weapon_run(ctrl)
-    local inventory = ui.GetFrame("inventory")
-    if inventory:IsVisible() == 0 then
-        ctrl:StopUpdateScript("Goddess_icor_manager_swap_weapon_run")
-        inventory:SetLayerLevel(95)
-        return 0
-    end
-    inventory:SetLayerLevel(122)
-    DO_WEAPON_SLOT_CHANGE(inventory, 1)
-    local step = ctrl:GetUserIValue("STEP")
-    local spot_nums = {8, 9, 30}
-    local equips = {"RH", "LH", "RH_SUB", "LH_SUB"}
-    if step <= 3 then
-        local guid = g.gim_guids[equips[step]]
-        local equip_item = session.GetEquipItemByGuid(guid)
-        if not equip_item then
-            ctrl:SetUserValue("STEP", step + 1)
-        else
-            item.UnEquip(spot_nums[step])
+function Battle_ritual_auto_buff_skill(_nexus_addons)
+    local status, result = pcall(function()
+        if not g.battle_ritual_use_queue or #g.battle_ritual_use_queue == 0 then
+            return 0
         end
-        return 1
-    end
-    if step >= 4 and step <= 7 then
-        local guid = nil
-        if step == 4 then
-            guid = g.gim_guids["RH_SUB"]
-        elseif step == 5 then
-            guid = g.gim_guids["LH_SUB"]
-        elseif step == 6 then
-            guid = g.gim_guids["RH"]
-        elseif step == 7 then
-            guid = g.gim_guids["LH"]
-        end
-        local inv_item = session.GetInvItemByGuid(guid)
-        if inv_item then
-            local item_obj = GetIES(inv_item:GetObject())
-            local spot_name = equips[step - 3]
-            ITEM_EQUIP(inv_item.invIndex, spot_name)
-            return 1
-        else
-            ctrl:SetUserValue("STEP", step + 1)
+        local next_skill_info = g.battle_ritual_use_queue[1]
+        if not next_skill_info or not next_skill_info.icon then
+            table.remove(g.battle_ritual_use_queue, 1)
             return 1
         end
-    end
-    inventory:SetLayerLevel(95)
-    ctrl:StopUpdateScript("Goddess_icor_manager_swap_weapon_run")
-    return 0
-end
-
-function Goddess_icor_manager_icor_save_open(parent, ctrl)
-    parent:ShowWindow(0)
-    local inputstring = ui.GetFrame("inputstring")
-    AUTO_CAST(inputstring)
-    inputstring:SetLayerLevel(123) -- 98
-    local inventory = ui.GetFrame("inventory")
-    inventory:SetLayerLevel(122) -- 95
-    local goddess_equip_manager = ui.GetFrame("goddess_equip_manager")
-    goddess_equip_manager:ShowWindow(1)
-    ui.CloseFrame("rareoption")
-    ui.CloseFrame("item_cabinet")
-    for i = 1, #revertrandomitemlist do
-        local revert_name = revertrandomitemlist[i]
-        local revert_frame = ui.GetFrame(revert_name)
-        if revert_frame ~= nil and revert_frame:IsVisible() == 1 then
-            ui.CloseFrame(revert_name)
+        local my_handle = session.GetMyHandle()
+        local buff_info = nil
+        if next_skill_info.buff_id and next_skill_info.buff_id > 0 then
+            buff_info = info.GetBuff(my_handle, next_skill_info.buff_id)
         end
-    end
-    local main_tab = GET_CHILD_RECURSIVELY(goddess_equip_manager, "main_tab")
-    main_tab:SelectTab(1)
-    CLEAR_GODDESS_EQUIP_MANAGER(goddess_equip_manager)
-    TOGGLE_GODDESS_EQUIP_MANAGER_TAB(goddess_equip_manager, 1)
-    ui.OpenFrame("inventory")
-    goddess_equip_manager:Resize(485, 460)
-    goddess_equip_manager:SetPos(1430, 5)
-    goddess_equip_manager:SetLayerLevel(122) -- 92
-    local main_tab = GET_CHILD_RECURSIVELY(goddess_equip_manager, "main_tab")
-    main_tab:ShowWindow(0)
-    local bg = GET_CHILD(goddess_equip_manager, "bg")
-    bg:ShowWindow(1)
-    local manager_top = GET_CHILD(goddess_equip_manager, "manager_top")
-    manager_top:ShowWindow(0)
-    local close = GET_CHILD(goddess_equip_manager, "close")
-    close:ShowWindow(0)
-    local help = GET_CHILD(goddess_equip_manager, "help")
-    help:ShowWindow(0)
-    local bg = GET_CHILD(goddess_equip_manager, "bg")
-    bg:SetMargin(0, 0, 0, 0)
-    local bg_inner = GET_CHILD(bg, "bg_inner")
-    bg_inner:SetSkinName("None")
-    bg:Resize(485, 460)
-    local randomoption_bg = GET_CHILD(bg, "randomoption_bg")
-    randomoption_bg:SetSkinName("None")
-    randomoption_bg:SetMargin(0, 0, 0, 0)
-    local randomoption_tab = GET_CHILD(randomoption_bg, "randomoption_tab")
-    randomoption_tab:ShowWindow(0)
-    local rand_icor_text = GET_CHILD_RECURSIVELY(randomoption_bg, "rand_icor_text") --
-    rand_icor_text:ShowWindow(0)
-    local rand_icor_slot = GET_CHILD_RECURSIVELY(randomoption_bg, "rand_icor_slot")
-    rand_icor_slot:SetMargin(10, 30, 0, 0)
-    local goddess_icor_spot_text = GET_CHILD_RECURSIVELY(randomoption_bg, "goddess_icor_spot_text")
-    goddess_icor_spot_text:SetMargin(10, 25, 0, 0)
-    local goddess_icor_spot_list = GET_CHILD_RECURSIVELY(randomoption_bg, "goddess_icor_spot_list")
-    goddess_icor_spot_list:SetMargin(10, 50, 0, 0)
-    local before_preset_option_text = GET_CHILD_RECURSIVELY(randomoption_bg, "before_preset_option_text")
-    before_preset_option_text:SetMargin(155, 180, 0, 0)
-    local before_preset_option_bg = GET_CHILD_RECURSIVELY(randomoption_bg, "before_preset_option_bg")
-    before_preset_option_bg:SetGravity(ui.RIGHT, ui.TOP)
-    before_preset_option_bg:Resize(310, 140)
-    local current_icor_option_text = GET_CHILD_RECURSIVELY(randomoption_bg, "current_icor_option_text")
-    current_icor_option_text:SetMargin(0, 0, 205, 0)
-    local current_icor_option_bg = GET_CHILD_RECURSIVELY(randomoption_bg, "current_icor_option_bg")
-    AUTO_CAST(current_icor_option_bg)
-    current_icor_option_bg:SetGravity(ui.RIGHT, ui.TOP)
-    current_icor_option_bg:Resize(310, 140)
-    local exec_btn = goddess_equip_manager:CreateOrGetControl("button", "exec_btn", 15, 345, 150, 60)
-    local text = g.lang == "Japanese" and "{@st41b}{s18}刻印保存" or "{@st41b}{s18}Icor save"
-    exec_btn:SetText(text)
-    AUTO_CAST(exec_btn)
-    exec_btn:SetSkinName("relic_btn_purple")
-    exec_btn:SetEventScript(ui.LBUTTONUP, "GODDESS_MGR_RANDOMOPTION_ENGRAVE_ICOR_EXEC")
-    local close_btn = goddess_equip_manager:CreateOrGetControl("button", "close_btn", 0, 0, 30, 30)
-    AUTO_CAST(close_btn)
-    close_btn:SetImage("testclose_button")
-    close_btn:SetGravity(ui.RIGHT, ui.TOP)
-    close_btn:SetEventScript(ui.LBUTTONUP, "Goddess_icor_manager_list_close")
-    current_icor_option_bg:SetMargin(0, 30, 145, 0)
-    before_preset_option_bg:SetMargin(0, 210, 145, 0)
-end
-
-function Goddess_icor_manager_save_setname(inputstring, ctrl, str, ctrl_key)
-    inputstring:ShowWindow(0)
-    local edit = GET_CHILD(inputstring, 'input')
-    local get_text = edit:GetText()
-    if get_text == "" then
-        local text = g.lang == "Japanese" and "{ol}文字を入力してください" or "{ol}Please enter text"
-        ui.SysMsg(text)
-        Goddess_icor_INPUT_STRING_BOX(ctrl_key)
-        return
-    end
-    local text = g.lang == "Japanese" and "{ol}セットを登録しました" or "{ol}Set registered"
-    ui.SysMsg(text)
-    text = g.lang == "Japanese" and "(保存済)" or "(saved)"
-    g.gim_settings[g.cid].drop_items[ctrl_key].set_name = get_text .. text
-    Goddess_icor_manager_save_settings()
-    local gim = ui.GetFrame(addon_name_lower .. "gim")
-    Goddess_icor_manager_equip_gbox_init(gim)
-end
-
-function Goddess_icor_INPUT_STRING_BOX(ctrl_key)
-    local inputstring = ui.GetFrame("inputstring")
-    inputstring:Resize(500, 220)
-    inputstring:SetLayerLevel(999)
-    local edit = GET_CHILD(inputstring, "input", "ui::CEditControl")
-    edit:SetNumberMode(0)
-    edit:SetMaxLen(999)
-    edit:SetText("")
-    inputstring:ShowWindow(1)
-    inputstring:SetEnable(1)
-    local title = inputstring:GetChild("title")
-    AUTO_CAST(title)
-    local text = g.lang == "Japanese" and "{ol}{#FFFFFF}セット名を入力" or "{ol}{#FFFFFF}Enter set name"
-    title:SetText(text)
-    local confirm = inputstring:GetChild("confirm")
-    confirm:SetEventScript(ui.LBUTTONUP, "Goddess_icor_manager_save_setname")
-    confirm:SetEventScriptArgNumber(ui.LBUTTONUP, ctrl_key)
-    edit:SetEventScript(ui.ENTERKEY, "Goddess_icor_manager_save_setname")
-    edit:SetEventScriptArgNumber(ui.ENTERKEY, ctrl_key)
-    edit:AcquireFocus()
-end
-
-function Goddess_icor_manager_set_save(frame, ctrl, str, ctrl_key)
-    local acc = GetMyAccountObj()
-    local etc_obj = GetMyEtcObject()
-    local remain_time = GET_REMAIN_SECOND_ENGRAVE_SLOT_EXTENSION_TIME(acc)
-    local page_max = 0
-    if tonumber(remain_time) == 0 then
-        page_max = GET_MAX_ENGARVE_SLOT_COUNT(acc)
-    else
-        page_max = GET_MAX_ENGARVE_SLOT_COUNT(acc) + 5
-    end
-    local cur_strs = {}
-    for i = 1, #g.gim_slot_list do
-        local slot_info = g.gim_slot_list[i]
-        local slot_name = slot_info.slot_name
-        local inv_item = session.GetEquipItemBySpot(item.GetEquipSpotNum(slot_name))
-        if inv_item and inv_item:GetObject() then
-            local item_obj = GetIES(inv_item:GetObject())
-            local item_dic = GET_ITEM_RANDOMOPTION_DIC(item_obj)
-            if item_dic then
-                local size = item_dic["Size"] or 0
-                if size ~= 0 then
-                    local opts, grps, vals = {}, {}, {}
-                    for j = 1, size do
-                        local key_opt = "RandomOption_" .. j
-                        local key_val = "RandomOptionValue_" .. j
-                        local key_grp = "RandomOptionGroup_" .. j
-                        local opt = item_dic[key_opt]
-                        local val = item_dic[key_val]
-                        local grp = item_dic[key_grp]
-                        table.insert(opts, opt ~= nil and tostring(opt) or "")
-                        table.insert(grps, grp ~= nil and tostring(grp) or "")
-                        table.insert(vals, val ~= nil and tostring(val) or "")
-                    end
-                    if #opts > 0 then
-                        local cur_opts = table.concat(opts, "/")
-                        local cur_grps = table.concat(grps, "/")
-                        local cur_vals = table.concat(vals, "/")
-                        cur_strs[slot_name] = string.format("%s:%s:%s", cur_opts, cur_grps, cur_vals)
-                    end
-                end
+        local current_cooldown = ICON_UPDATE_SKILL_COOLDOWN(next_skill_info.icon)
+        if current_cooldown == 0 and (next_skill_info.buff_id == 0 or not buff_info) then
+            ICON_USE(next_skill_info.icon)
+            if not session.GetSkill(next_skill_info.skill_id) then
+                table.remove(g.battle_ritual_use_queue, 1)
             end
-        end
-    end
-    local eng_count = 0
-    local temp_data = g.gim_settings[g.cid].drop_items[ctrl_key]
-    for base_equip_name, strs in pairs(cur_strs) do
-        for i = 1, page_max do
-            temp_data.set[base_equip_name] = ""
-            local eng_opts, eng_grps, eng_vals, is_goddess =
-                Goddess_icor_manager_GET_ENGRAVED_OPTION_LIST(etc_obj, i, base_equip_name)
-            if eng_opts then
-                local eng_strs = string.format("%s:%s:%s", tostring(eng_opts or ""), tostring(eng_grps or ""),
-                    tostring(eng_vals or ""))
-                if strs == eng_strs then
-                    temp_data.set[base_equip_name] = i .. ":::" .. base_equip_name
-                    eng_count = eng_count + 1
-                    if not string.find(base_equip_name, "_SUB") then
-                        if cur_strs[base_equip_name] == cur_strs[base_equip_name .. "_SUB"] then
-                            temp_data.set[base_equip_name .. "_SUB"] = i .. ":::" .. base_equip_name
-                            eng_count = eng_count + 1
-                        end
-                    else
-                        if cur_strs[base_equip_name] == cur_strs[string.gsub(base_equip_name, "_SUB", "")] then
-                            temp_data.set[string.gsub(base_equip_name, "_SUB", "")] = i .. ":::" .. base_equip_name
-                            eng_count = eng_count + 1
-                        end
-                    end
-                    break
-                end
+            local changed_image = QUICKSLOT_CHANGE_ICON_LIST[tostring(next_skill_info.skill_id)]
+            if changed_image then
+                table.remove(g.battle_ritual_use_queue, 1)
             end
-            if temp_data.set[base_equip_name] == "" then
-                local change_equip_name = nil
-                if base_equip_name == "RH" then
-                    change_equip_name = "RH_SUB"
-                elseif base_equip_name == "RH_SUB" then
-                    change_equip_name = "RH"
-                elseif base_equip_name == "LH" then
-                    change_equip_name = "LH_SUB"
-                elseif base_equip_name == "LH_SUB" then
-                    change_equip_name = "LH"
-                end
-                local eng_opts, eng_grps, eng_vals, is_goddess =
-                    Goddess_icor_manager_GET_ENGRAVED_OPTION_LIST(etc_obj, i, change_equip_name)
-                if eng_opts then
-                    local eng_strs = string.format("%s:%s:%s", tostring(eng_opts or ""), tostring(eng_grps or ""),
-                        tostring(eng_vals or ""))
-                    if strs == eng_strs then
-                        temp_data.set[base_equip_name] = i .. ":::" .. change_equip_name
-                        eng_count = eng_count + 1
-                        break
-                    end
-                end
-            end
+            return 1
         end
-    end
-    if eng_count >= 8 then
-        Goddess_icor_INPUT_STRING_BOX(ctrl_key)
-    else
-        local text = g.lang == "Japanese" and "{ol}付替え不可のため保存できません" or
-                         "{ol}Cannot be saved as it is not replaceable"
-        ui.SysMsg(text)
-    end
-end
-
-function Goddess_icor_manager_set_delete(frame, ctrl, str, ctrl_key)
-    local msg = g.lang == "Japanese" and "{ol}{#FFFFFF}セットを削除しますか？" or
-                    "{ol}{#FFFFFF}Do you want to remove the set?"
-    ui.MsgBox(msg, string.format("Goddess_icor_manager_set_delete_(%d)", ctrl_key), "None")
-end
-
-function Goddess_icor_manager_set_delete_(ctrl_key)
-    g.gim_settings[g.cid].drop_items[ctrl_key] = nil
-    g.gim_settings[g.cid].drop_items[ctrl_key] = {
-        set_name = "Set " .. ctrl_key,
-        set = {}
-    }
-    Goddess_icor_manager_save_settings()
-    local text = g.lang == "Japanese" and "{ol}セットを削除しました" or "{ol}Set removed"
-    ui.SysMsg(text)
-    local gim = ui.GetFrame(addon_name_lower .. "gim")
-    Goddess_icor_manager_equip_gbox_init(gim)
-end
-
-function Goddess_icor_manager_set_change(frame, ctrl, str, ctrl_key, step)
-    g.gim_ctrl_key = ctrl_key
-    if step == nil or step == 1 then
-        for i = 1, #g.gim_slot_list do
-            local slot_info = g.gim_slot_list[i]
-            local slot_name = slot_info.slot_name
-            local inv_item = session.GetEquipItemBySpot(item.GetEquipSpotNum(slot_name))
-            local guid = inv_item:GetIESID()
-            if guid == "0" then
-                local text =
-                    g.lang == "Japanese" and "{ol}装備を8ヶ所に着けてから起動してください" or
-                        "{ol}Wear the equipment in 8 places before activating it"
-                ui.SysMsg(text)
-                return
-            end
-        end
-        if g.gim_same == 8 then
-            local text = g.lang == "Japanese" and "{ol}現在装備中と同一のセットです" or
-                             "{ol}This is the same set you currently have equipped"
-            ui.SysMsg(text)
-            return
-        end
-    end
-    local acc = GetMyAccountObj()
-    local remain_time = GET_REMAIN_SECOND_ENGRAVE_SLOT_EXTENSION_TIME(acc)
-    local page_max = 0
-    if tonumber(remain_time) == 0 then
-        page_max = GET_MAX_ENGARVE_SLOT_COUNT(acc)
-    else
-        page_max = GET_MAX_ENGARVE_SLOT_COUNT(acc) + 5
-    end
-    for j = 1, #g.gim_slot_list do
-        local cur_slot_name = g.gim_slot_list[j].slot_name
-        local tgt_str = g.gim_settings[g.cid].drop_items[ctrl_key].set[cur_slot_name]
-        local load_index, load_equip_name = string.match(tgt_str, "^(.-):::(.+)$")
-        if tonumber(load_index) > page_max then
-            local text = g.lang == "Japanese" and
-                             "{ol}保存しているイコルが使用不可のため、終了します" or
-                             "{ol}Process terminated Stored Icor is unavailable"
-            ui.SysMsg(text)
-            return
-        end
-    end
-    local notice = g.lang == "Japanese" and
-                       "{ol}[GIM]セット適用中{nl}バグ防止のため操作をしないでください" or
-                       "{ol}[GIM]set is being applied{nl}Do not operate to prevent bugs"
-    imcAddOn.BroadMsg("NOTICE_Dm_stage_start", notice)
-    local gim = ui.GetFrame(addon_name_lower .. "gim")
-    gim:RunUpdateScript("Goddess_icor_manager_set_error_end", (g.gim_settings.delay or 0.5) * 6 * 2)
-    local etc_obj = GetMyEtcObject()
-    local temp_data = g.gim_settings[g.cid].drop_items[ctrl_key]
-    local cur_strs = {}
-    local spot_names = ""
-    step = step or 1
-    for i = 1, #g.gim_slot_list do
-        local slot_info = g.gim_slot_list[i]
-        local slot_name = slot_info.slot_name
-        local inv_item = session.GetEquipItemBySpot(item.GetEquipSpotNum(slot_name))
-        if inv_item and inv_item:GetObject() then
-            local item_obj = GetIES(inv_item:GetObject())
-            local item_dic = GET_ITEM_RANDOMOPTION_DIC(item_obj)
-            if item_dic then
-                local size = item_dic["Size"] or 0
-                if size ~= 0 then
-                    local opts, grps, vals = {}, {}, {}
-                    for j = 1, size do
-                        local key_opt = "RandomOption_" .. j
-                        local key_val = "RandomOptionValue_" .. j
-                        local key_grp = "RandomOptionGroup_" .. j
-                        local opt = item_dic[key_opt]
-                        local val = item_dic[key_val]
-                        local grp = item_dic[key_grp]
-                        table.insert(opts, opt ~= nil and tostring(opt) or "")
-                        table.insert(grps, grp ~= nil and tostring(grp) or "")
-                        table.insert(vals, val ~= nil and tostring(val) or "")
-                    end
-                    if #opts > 0 then
-                        local cur_opts = table.concat(opts, "/")
-                        local cur_grps = table.concat(grps, "/")
-                        local cur_vals = table.concat(vals, "/")
-                        cur_strs[slot_name] = string.format("%s:%s:%s", cur_opts, cur_grps, cur_vals)
-                    end
-                end
-            end
-        end
-    end
-    if step == 1 then
-        for base_equip_name, strs in pairs(cur_strs) do
-            if not string.find(base_equip_name, "RH") and not string.find(base_equip_name, "LH") then
-                local tgt_str = temp_data.set[base_equip_name]
-                local load_index, load_equip_name = string.match(tgt_str, "^(.-):::(.+)$")
-                local eng_opts, eng_grps, eng_vals, is_goddess =
-                    Goddess_icor_manager_GET_ENGRAVED_OPTION_LIST(etc_obj, tonumber(load_index), load_equip_name)
-                local eng_strs = string.format("%s:%s:%s", tostring(eng_opts or ""), tostring(eng_grps or ""),
-                    tostring(eng_vals or ""))
-                if cur_strs[base_equip_name] ~= eng_strs then
-                    spot_names = spot_names .. ":::" .. base_equip_name
-                end
-            end
-        end
-        if spot_names ~= "" then
-            Goddess_icor_manager_set_change_action(ctrl_key, spot_names, step)
+        if #g.battle_ritual_use_queue > 0 then
+            table.remove(g.battle_ritual_use_queue, 1)
+            return 1
         else
-            if g.gim_rh or g.gim_lh or g.gim_rh_sub or g.gim_lh_sub then
-                Goddess_icor_manager_set_change(nil, nil, nil, ctrl_key, 2)
-            else
-                Goddess_icor_manager_set_end()
-            end
+            return 0
         end
-    elseif step == 2 then -- 表武器判定
-        g.gim_swap = nil
-        for base_equip_name, strs in pairs(cur_strs) do
-            if string.find(base_equip_name, "RH") or string.find(base_equip_name, "LH") then
-                local tgt_str = temp_data.set[base_equip_name]
-                local load_index, load_equip_name = string.match(tgt_str, "^(.-):::(.+)$")
-                if base_equip_name == "RH" and g.gim_rh then
-                    if base_equip_name == load_equip_name then
-                        spot_names = spot_names .. ":::" .. base_equip_name
-                        g.gim_rh = false
-                    end
-                elseif base_equip_name == "LH" and g.gim_lh then
-                    if base_equip_name == load_equip_name then
-                        spot_names = spot_names .. ":::" .. base_equip_name
-                        g.gim_lh = false
-                    end
-                elseif base_equip_name == "RH_SUB" and g.gim_rh_sub then
-                    if base_equip_name == load_equip_name then
-                        spot_names = spot_names .. ":::" .. base_equip_name
-                        g.gim_rh_sub = false
-                    end
-                elseif base_equip_name == "LH_SUB" and g.gim_lh_sub then
-                    if base_equip_name == load_equip_name then
-                        spot_names = spot_names .. ":::" .. base_equip_name
-                        g.gim_lh_sub = false
-                    end
-                end
-            end
-        end
-        if spot_names ~= "" then
-            Goddess_icor_manager_set_change_action(ctrl_key, spot_names, step)
-        else
-            if g.gim_rh or g.gim_lh or g.gim_rh_sub or g.gim_lh_sub then
-                Goddess_icor_manager_set_change(nil, nil, nil, ctrl_key, 3)
-            else
-                Goddess_icor_manager_set_end()
-            end
-        end
-    elseif step == 3 then -- swap
-        if g.gim_rh or g.gim_lh or g.gim_rh_sub or g.gim_lh_sub then
-            g.gim_swap = true
-            Goddess_icor_manager_swap_weapon()
-        else
-            Goddess_icor_manager_set_end()
-        end
-    elseif step == 4 then -- 裏武器
-        for base_equip_name, strs in pairs(cur_strs) do
-            if string.find(base_equip_name, "RH") or string.find(base_equip_name, "LH") then
-                local tgt_str = temp_data.set[base_equip_name]
-                local load_index, load_equip_name = string.match(tgt_str, "^(.-):::(.+)$")
-
-                if base_equip_name == "RH" and g.gim_rh then
-                    spot_names = spot_names .. ":::" .. load_equip_name
-                    g.gim_rh = false
-                elseif base_equip_name == "LH" and g.gim_lh then
-                    spot_names = spot_names .. ":::" .. load_equip_name
-                    g.gim_lh = false
-                elseif base_equip_name == "RH_SUB" and g.gim_rh_sub then
-                    spot_names = spot_names .. ":::" .. load_equip_name
-                    g.gim_rh_sub = false
-                elseif base_equip_name == "LH_SUB" and g.gim_lh_sub then
-                    spot_names = spot_names .. ":::" .. load_equip_name
-                    g.gim_lh_sub = false
-                end
-            end
-        end
-        if spot_names ~= "" then
-            Goddess_icor_manager_set_change_action(ctrl_key, spot_names, step)
-        end
-    elseif step == 5 then -- 元戻す
-        g.gim_swap = false
-        Goddess_icor_manager_swap_weapon()
-    end
-end
-
-function Goddess_icor_manager_set_change_action(ctrl_key, spot_names, step)
-    local _, count = string.gsub(spot_names, ":::", "")
-    if count <= 0 then
-        step = step + 1
-        Goddess_icor_manager_set_change(nil, nil, nil, ctrl_key, step)
-        return
-    end
-    local goddess_equip_manager = ui.GetFrame("goddess_equip_manager")
-    goddess_equip_manager:ShowWindow(1)
-    local spot_name = string.match(spot_names, "^:::([A-Z0-9_]+)")
-    if spot_name then
-        spot_names = string.gsub(spot_names, "^:::" .. spot_name, "", 1)
-    end
-    local tgt_str
-    if step == 4 then
-        if spot_name == "RH" then
-            tgt_str = g.gim_settings[g.cid].drop_items[ctrl_key].set["RH_SUB"]
-        elseif spot_name == "LH" then
-            tgt_str = g.gim_settings[g.cid].drop_items[ctrl_key].set["LH_SUB"]
-        elseif spot_name == "RH_SUB" then
-            tgt_str = g.gim_settings[g.cid].drop_items[ctrl_key].set["RH"]
-        elseif spot_name == "LH_SUB" then
-            tgt_str = g.gim_settings[g.cid].drop_items[ctrl_key].set["LH"]
-        end
-    else
-        tgt_str = g.gim_settings[g.cid].drop_items[ctrl_key].set[spot_name]
-    end
-    local load_index, load_equip_name = string.match(tgt_str, "^(.-):::(.+)$")
-    load_index = tonumber(load_index)
-    session.ResetItemList()
-    local arg_list = NewStringList()
-    local tgt_item = session.GetEquipItemBySpot(item.GetEquipSpotNum(spot_name))
-    if tgt_item then
-        if tgt_item.isLockState == true then
-            ui.SysMsg(ClMsg("MaterialItemIsLock"))
-            return
-        end
-        local guid = tgt_item:GetIESID()
-        if guid ~= "None" and guid ~= "0" then
-            session.AddItemID(guid, 1)
-            arg_list:Add(spot_name)
-        end
-    end
-    if load_index then
-        arg_list:Add(load_index)
-        local result_list = session.GetItemIDList()
-        item.DialogTransaction("ICOR_PRESET_ENGRAVE_APPLY", result_list, "", arg_list)
-        if count > 0 then
-            ReserveScript(
-                string.format("Goddess_icor_manager_set_change_action(%d,'%s',%d)", ctrl_key, spot_names, step),
-                g.gim_settings.delay or 0.5)
-            return
-        end
-    end
-end
-
-function Goddess_icor_manager_set_end()
-    local notice = ui.GetFrame("notice")
-    AUTO_CAST(notice)
-    notice:ShowWindow(0)
-    ui.SysMsg("{#FFFF00}[GIM]End of Operation")
-    local gim = ui.GetFrame(addon_name_lower .. "gim")
-    gim:StopUpdateScript("Goddess_icor_manager_set_error_end")
-    local page = gim:GetUserIValue("PAGE")
-    ReserveScript(string.format("Goddess_icor_manager_list_init(nil,nil,nil,%d)", page), g.gim_settings.delay or 0.5)
-    return
-end
-
-function Goddess_icor_manager_set_error_end(frame)
-    local notice = ui.GetFrame("notice")
-    AUTO_CAST(notice)
-    notice:ShowWindow(0)
-    local msg = g.lang == "Japanese" and "{ol}{s30}{#FFFF00}[GIM]エラーのため動作を終了します" or
-                    "{ol}{s30}{#FFFF00}[GIM]Operation terminated due to error"
-    ui.SysMsg(msg)
-    local gim = ui.GetFrame(addon_name_lower .. "gim")
-    local page = gim:GetUserIValue("PAGE")
-    ReserveScript(string.format("Goddess_icor_manager_list_init(nil,nil,nil,%d)", page), g.gim_settings.delay or 0.5)
-    return
-end
-
-function Goddess_icor_manager_equip_button(parent, ctrl, slot_index_str, page_index)
-    local goddess_equip_manager = ui.GetFrame("goddess_equip_manager")
-    if not goddess_equip_manager then
-        return
-    end
-    goddess_equip_manager:ShowWindow(1)
-    GODDESS_MGR_RANDOMOPTION_APPLY_OPEN(goddess_equip_manager)
-    session.ResetItemList()
-    local target_slot_index = tonumber(slot_index_str)
-    local arg_list = NewStringList()
-    local apply_cnt = 0
-    for i = 1, #g.gim_slot_list do
-        local slot_info = g.gim_slot_list[i]
-        local ctrl_set = GET_CHILD_RECURSIVELY(goddess_equip_manager, "rand_slot_" .. slot_info.slot_name)
-        local checkbox = GET_CHILD(ctrl_set, "checkbox")
-        if i == target_slot_index then
-            checkbox:SetCheck(1)
-        else
-            checkbox:SetCheck(0)
-        end
-        if checkbox:IsChecked() == 1 then
-            local tgt_item = session.GetEquipItemBySpot(item.GetEquipSpotNum(slot_info.slot_name))
-            if tgt_item then
-                if tgt_item.isLockState then
-                    ui.SysMsg(ClMsg("MaterialItemIsLock"))
-                    return
-                end
-                local slot = GET_CHILD(ctrl_set, "slot")
-                AUTO_CAST(slot)
-                local guid = slot:GetUserValue("ITEM_GUID")
-                if guid ~= "None" then
-                    session.AddItemID(guid, 1)
-                    arg_list:Add(slot_info.slot_name)
-                    apply_cnt = apply_cnt + 1
-                end
-            end
-        end
-    end
-    if apply_cnt == 0 then
-        ui.SysMsg(ClMsg("NoSelectedItem"))
-        return
-    end
-    arg_list:Add(page_index)
-    local result_list = session.GetItemIDList()
-    item.DialogTransaction("ICOR_PRESET_ENGRAVE_APPLY", result_list, "", arg_list)
-    local page = ctrl:GetUserIValue("PAGE")
-    ReserveScript(string.format("Goddess_icor_manager_list_init(nil,nil,nil, %d)", page), g.gim_settings.delay or 0.5)
-end
-
-function Goddess_icor_manager_GODDESS_EQUIP_MANAGER_OPEN(my_frame, my_msg)
-    local goddess_equip_manager = ui.GetFrame("goddess_equip_manager")
-    goddess_equip_manager:Resize(1270, 900)
-    goddess_equip_manager:SetGravity(ui.LEFT, ui.CENTER_VERT)
-    goddess_equip_manager:SetMargin(89, 0, 0, 0);
-    goddess_equip_manager:SetLayerLevel(92)
-    local main_tab = GET_CHILD_RECURSIVELY(goddess_equip_manager, "main_tab")
-    main_tab:ShowWindow(1)
-    local manager_top = GET_CHILD(goddess_equip_manager, "manager_top")
-    manager_top:ShowWindow(1)
-    local close = GET_CHILD(goddess_equip_manager, "close")
-    close:ShowWindow(1)
-    local help = GET_CHILD(goddess_equip_manager, "help")
-    help:ShowWindow(1)
-    local bg = GET_CHILD(goddess_equip_manager, "bg")
-    bg:SetMargin(0, 10, 0, 0);
-    local bg_inner = GET_CHILD(bg, "bg_inner")
-    bg_inner:SetSkinName("relic_frame_bg")
-    bg:Resize(1218, 890)
-    local randomoption_bg = GET_CHILD(bg, "randomoption_bg")
-    randomoption_bg:SetGravity(ui.LEFT, ui.TOP)
-    randomoption_bg:SetMargin(112, 66, 0, 0);
-    local randomoption_tab = GET_CHILD(randomoption_bg, "randomoption_tab")
-    randomoption_tab:ShowWindow(1)
-    local rand_icor_slot = GET_CHILD_RECURSIVELY(randomoption_bg, "rand_icor_slot")
-    rand_icor_slot:SetMargin(50, 70, 0, 0);
-    local goddess_icor_spot_text = GET_CHILD_RECURSIVELY(randomoption_bg, "goddess_icor_spot_text")
-    goddess_icor_spot_text:SetMargin(50, 25, 0, 0);
-    local goddess_icor_spot_list = GET_CHILD_RECURSIVELY(randomoption_bg, "goddess_icor_spot_list")
-    goddess_icor_spot_list:SetMargin(50, 50, 0, 0);
-    local before_preset_option_text = GET_CHILD_RECURSIVELY(randomoption_bg, "before_preset_option_text")
-    before_preset_option_text:SetMargin(240, 280, 0, 0);
-    local before_preset_option_bg = GET_CHILD_RECURSIVELY(randomoption_bg, "before_preset_option_bg")
-    before_preset_option_bg:SetMargin(0, 310, 50, 0)
-    before_preset_option_bg:Resize(319, 140)
-    local current_icor_option_text = GET_CHILD_RECURSIVELY(randomoption_bg, "current_icor_option_text")
-    current_icor_option_text:SetMargin(0, 40, 120, 0);
-    local current_icor_option_bg = GET_CHILD_RECURSIVELY(randomoption_bg, "current_icor_option_bg")
-    current_icor_option_bg:SetMargin(0, 70, 50, 0)
-    current_icor_option_bg:Resize(319, 140)
-    goddess_equip_manager:RemoveChild("exec_btn")
-    goddess_equip_manager:RemoveChild("close_btn")
-end
-
-function Goddess_icor_manager__GODDESS_MGR_RANDOMOPTION_ENGRAVE_ICOR_EXEC()
-    local goddess_equip_manager = ui.GetFrame("goddess_equip_manager")
-    if not goddess_equip_manager then
-        return
-    end
-    session.ResetItemList()
-    local rand_icor_slot = GET_CHILD_RECURSIVELY(goddess_equip_manager, "rand_icor_slot")
-    local tgt_guid = rand_icor_slot:GetUserValue("ITEM_GUID")
-    local tgt_item = session.GetInvItemByGuid(tgt_guid)
-    if not tgt_item then
-        ui.SysMsg(ClMsg("NoSelectedItem"))
-        return
-    end
-    if tgt_item.isLockState == true then
-        ui.SysMsg(ClMsg("MaterialItemIsLock"))
-        return
-    end
-    local obj = GetIES(tgt_item:GetObject())
-    session.AddItemID(tgt_guid, 1)
-    local randomoption_bg = GET_CHILD_RECURSIVELY(goddess_equip_manager, "randomoption_bg")
-    local index = randomoption_bg:GetUserValue("PRESET_INDEX")
-    local spot = rand_icor_slot:GetUserValue("EQUIP_SPOT")
-    local arg_list = NewStringList()
-    arg_list:Add(index)
-    local cls_id = obj.ClassID
-    if shared_item_goddess_icor.get_goddess_icor_grade(obj) > 0 then
-        arg_list:Add(spot)
-    end
-    local settings_cid = g.gim_settings[g.cid]
-    if not settings_cid.icor_ids then
-        settings_cid.icor_ids = {}
-    end
-    if not settings_cid.icor_ids[index] or type(settings_cid.icor_ids[index]) ~= "table" then
-        settings_cid.icor_ids[index] = {}
-    end
-    settings_cid.icor_ids[index][spot] = cls_id
-    local result_list = session.GetItemIDList()
-    item.DialogTransaction("ICOR_PRESET_ENGRAVE_ICOR", result_list, "", arg_list)
-    Goddess_icor_manager_save_settings()
-    local rand_icor_mat_bg = GET_CHILD_RECURSIVELY(goddess_equip_manager, "rand_icor_mat_bg")
-    GODDESS_MGR_ENGRAVE_ICOR_CLEAR_BTN(rand_icor_mat_bg)
-    local gim = ui.GetFrame(addon_name_lower .. "gim")
-    if gim and gim:IsVisible() == 1 then
-        local page = gim:GetUserIValue("PAGE")
-        if page == 0 then
-            page = 1
-        end
-        Goddess_icor_manager_list_init(nil, nil, nil, page)
-    end
-end
-
-function Goddess_icor_manager_get_pagename(index)
-    local pc_etc = GetMyEtcObject()
-    local acc = GetMyAccountObj()
-    if pc_etc == nil or acc == nil then
-        return nil
-    end
-    local page_name = TryGetProp(pc_etc, "RandomOptionPresetName_" .. index, "None")
-    if page_name == "None" then
-        return ScpArgMsg("EngravePageNumber{index}", "index", index)
-    else
-        return page_name
-    end
-end
-
-function Goddess_icor_manager_GET_ENGRAVED_OPTION_LIST(etc, index, spot)
-    if etc == nil then
-        return nil
-    end
-    local suffix = string.format("_%d_%s", tonumber(index), spot)
-    local option_prop = TryGetProp(etc, "RandomOptionPreset" .. suffix, "None")
-    local group_prop = TryGetProp(etc, "RandomOptionGroupPreset" .. suffix, "None")
-    local value_prop = TryGetProp(etc, "RandomOptionValuePreset" .. suffix, "None")
-    if option_prop == "None" then
-        return nil
-    end
-    local is_goddess_option = TryGetProp(etc, "IsGoddessIcorOption" .. suffix, 0)
-    return option_prop, group_prop, value_prop, is_goddess_option
-end
-
-function Goddess_icor_manager_set_text(manage_bg, parts1, parts2, parts3, manage_text)
-    for k = 1, #parts1 do
-        local option = manage_bg:CreateOrGetControl("richtext", "option" .. k, 5, k * 20)
-        local color = Goddess_icor_manager_color(tostring(parts2[k]))
-        option:SetText("{ol}{s15}" .. color .. ClMsg(parts1[k]) .. "{ol}{#FFFFFF} : " .. parts3[k])
-        option:AdjustFontSizeByWidth(265)
-    end
-end
-
-function Goddess_icor_manager_color(str)
-    if str == "UTIL_ARMOR" then
-        return "{#9966CC}"
-    elseif str == "STAT" then
-        return "{#00FF00}"
-    elseif str == "ATK" then
-        return "{#FF4040}"
-    elseif str == "DEF" then
-        return "{#66B3FF}"
-    elseif str == "SPECIAL" then
-        return "{#FFD700}"
-    else
-        return "{#FFFFFF}"
-    end
-end
--- goddess_icor_manager ここまで
-
--- Instant CC ここから
-g.instant_cc = {
-    retry = nil,
-    do_cc = nil,
-    layer = 1
-}
-function Instant_cc_save_settings()
-    g.save_json(g.instant_cc_path, g.instant_cc_settings)
-end
-
-function Instant_cc_load_settings()
-    g.instant_cc_path = string.format("../addons/%s/%s/instant_cc.json", addon_name_lower, g.active_id)
-    local changed = false
-    local settings = g.load_json(g.instant_cc_path)
-    if not settings then
-        settings = {
-            characters = {},
-            per_barracks = false
-        }
-        changed = true
-    end
-    g.instant_cc_settings = settings
-    if changed then
-        Instant_cc_save_settings()
-    end
-end
-
-function instant_cc_on_init()
-    if not g.instant_cc_settings then
-        Instant_cc_load_settings()
-    end
-    g.instant_cc.do_cc = nil
-    g.instant_cc.retry = nil
-    _G["norisan"] = _G["norisan"] or {}
-    _G["norisan"]["HOOKS"] = _G["norisan"]["HOOKS"] or {}
-    if not _G["norisan"]["HOOKS"]["BARRACK_START_FRAME_OPEN"] then
-        _G["norisan"]["HOOKS"]["BARRACK_START_FRAME_OPEN"] = addon_name
-        Instant_cc_hook_BARRACK_START_FRAME_OPEN()
-    end
-    if _G["BARRACK_CHARLIST_ON_INIT"] and _G["current_layer"] then
-        g.instant_cc.layer = _G["current_layer"]
-    end
-    if _G["APPS_TRY_LEAVE"] ~= Instant_cc_APPS_TRY_LEAVE then
-        g.setup_hook(Instant_cc_APPS_TRY_LEAVE, "APPS_TRY_LEAVE")
-    end
-    _G["INSTANTCC_ON_INIT"] = instant_cc_on_init
-    if g.settings.instant_cc.use == 0 then
-        _G["INSTANTCC_DO_CC"] = nil
-        _G["INSTANTCC_APPS_TRY_MOVE_BARRACK"] = nil
-        return
-    else
-        _G["INSTANTCC_DO_CC"] = Instant_cc_do_cc
-        _G["INSTANTCC_APPS_TRY_MOVE_BARRACK"] = Instant_cc_APPS_TRY_MOVE_BARRACK_
-    end
-    local acc_info = session.barrack.GetMyAccount()
-    local barrack_count = acc_info:GetBarrackPCCount() -- ゲーム起動直後はtonumber(0)
-    Instant_cc_save_char_data(acc_info, barrack_count)
-end
-
-function Instant_cc_settings_frame_init()
-    local list_frame = ui.GetFrame(addon_name_lower .. "list_frame")
-    local settings = ui.CreateNewFrame("chat_memberlist", addon_name_lower .. "instant_cc_settings")
-    AUTO_CAST(settings)
-    settings:SetPos(list_frame:GetX() + list_frame:GetWidth(), list_frame:GetY())
-    settings:EnableHitTest(1)
-    settings:SetLayerLevel(999)
-    settings:SetSkinName("test_frame_low")
-    local width = 0
-    local title = settings:CreateOrGetControl("richtext", "title", 20, 10, 10, 30)
-    AUTO_CAST(title)
-    title:SetText("{#000000}{s20}instant CC Settings")
-    width = width + 20 + title:GetWidth() + 40
-    local close = settings:CreateOrGetControl("button", "close", 0, 0, 20, 20)
-    AUTO_CAST(close)
-    close:SetImage("testclose_button")
-    close:SetGravity(ui.RIGHT, ui.TOP)
-    close:SetEventScript(ui.LBUTTONUP, "Instant_cc_settings_frame_close")
-    local gb = settings:CreateOrGetControl("groupbox", "gb", 10, 40, 100, 100)
-    AUTO_CAST(gb)
-    gb:SetSkinName("bg")
-    gb:RemoveAllChild()
-    local per_barracks = gb:CreateOrGetControl("checkbox", "per_barracks", 10, 5, 100, 30)
-    AUTO_CAST(per_barracks)
-    per_barracks:SetText(g.lang == "Japanese" and "{ol}チェックするとバラックごとに表示" or
-                             "{ol}Check to display per barracks")
-    per_barracks:SetCheck(g.instant_cc_settings.per_barracks and 1 or 0)
-    per_barracks:SetEventScript(ui.LBUTTONUP, "Instant_cc_setting")
-    width = per_barracks:GetWidth() + 40
-    settings:Resize(width, 90)
-    gb:Resize(settings:GetWidth() - 20, 40)
-    settings:ShowWindow(1)
-end
-
-function Instant_cc_settings_frame_close(frame)
-    local frame_name = addon_name_lower .. "instant_cc_settings"
-    ui.DestroyFrame(frame_name)
-end
-
-function Instant_cc_setting(frame, ctrl)
-    local is_check = ctrl:IsChecked()
-    if is_check == 1 then
-        g.instant_cc_settings.per_barracks = true
-    else
-        g.instant_cc_settings.per_barracks = false
-    end
-    Instant_cc_save_settings()
-end
-
-function Instant_cc_save_char_data(acc_info, barrack_count)
-    local characters = g.instant_cc_settings.characters
-    local pc_count = acc_info:GetPCCount() -- 毎回同じレイヤーのキャラは順番を取得
-    for i = 0, pc_count - 1 do
-        local pc_info = acc_info:GetPCByIndex(i)
-        if pc_info then
-            local pc_cid = pc_info:GetCID()
-            local pc_apc = pc_info:GetApc()
-            if pc_apc then
-                local pc_name = pc_apc:GetName()
-                characters[pc_name] = {
-                    name = pc_name,
-                    layer = g.instant_cc.layer,
-                    order = i,
-                    jobid = (acc_info:GetByStrCID(pc_cid) and acc_info:GetByStrCID(pc_cid):GetRepID()) or
-                        pc_apc:GetJob(),
-                    gender = pc_apc:GetGender(),
-                    level = pc_apc:GetLv(),
-                    cid = pc_cid
-                }
-            end
-        end
-    end
-    if barrack_count > 0 then -- ゲーム起動直後はカウント0なので、2回目以降動かす
-        local barrack_chars = {}
-        for i = 0, barrack_count - 1 do
-            local pc_info = acc_info:GetBarrackPCByIndex(i)
-            if pc_info then
-                barrack_chars[pc_info:GetName()] = true
-            end
-        end
-        local chars_to_delete = {}
-        for char_name, _ in pairs(characters) do
-            if not barrack_chars[char_name] then
-                table.insert(chars_to_delete, char_name)
-            end
-        end
-        if #chars_to_delete > 0 then
-            for _, char_name in ipairs(chars_to_delete) do
-                characters[char_name] = nil
-            end
-        end
-    end
-    Instant_cc_save_settings()
-    Instant_cc_sort_char_data()
-end
-
-function Instant_cc_sort_char_data()
-    g.instant_cc_sorted_list = {}
-    for _, char_data in pairs(g.instant_cc_settings.characters) do
-        table.insert(g.instant_cc_sorted_list, char_data)
-    end
-    local function dabble_sort(a, b)
-        if a.layer == b.layer then
-            return a.order < b.order
-        else
-            return a.layer < b.layer
-        end
-    end
-    table.sort(g.instant_cc_sorted_list, dabble_sort)
-end
-
-function Instant_cc_hook_BARRACK_START_FRAME_OPEN()
-    g.FUNCS = g.FUNCS or {}
-    local origin_func_name = "BARRACK_START_FRAME_OPEN"
-    if _G[origin_func_name] then
-        if not g.FUNCS[origin_func_name] then
-            g.FUNCS[origin_func_name] = _G[origin_func_name]
-        end
-        _G[origin_func_name] = Instant_cc_BARRACK_START_FRAME_OPEN
-    end
-end
-
-function Instant_cc_BARRACK_START_FRAME_OPEN(...)
-    local frame = select(1, ...)
-    if not frame then
-        return
-    end
-    local original_func = g.FUNCS["BARRACK_START_FRAME_OPEN"]
-    local result
-    if original_func then
-        result = original_func(...)
-    end
-    local barrack_gamestart = ui.GetFrame("barrack_gamestart")
-    local hidelogin = GET_CHILD_RECURSIVELY(barrack_gamestart, "hidelogin")
-    hidelogin:SetCheck(1)
-    if g.instant_cc.do_cc and not g.instant_cc.retry then
-        g.instant_cc.retry = 0
-        barrack_gamestart:RunUpdateScript("Instant_cc_start", 0.2)
+    end)
+    if not status then
+        return 0 -- エラー時は停止
     end
     return result
 end
 
-function Instant_cc_APPS_TRY_LEAVE(type)
-    local use_icc = g.settings.instant_cc.use ~= 0
-    local use_ilv = g.settings.indun_list_viewer.use ~= 0
-    if use_icc then
-        Instant_cc_APPS_TRY_LEAVE_(type)
+--[[function Battle_ritual_auto_buff_skill_start()
+    if g.battle_ritual_settings.etc.use == 0 then
         return
     end
-    if use_ilv then
-        Indun_list_viewer_APPS_TRY_LEAVE(type)
+    local _nexus_addons = ui.GetFrame("_nexus_addons")
+    local list = session.party.GetPartyMemberList(PARTY_NORMAL)
+    if list:Count() > 1 then
+        _nexus_addons:StopUpdateScript("Battle_ritual_auto_buff_skill")
         return
     end
-    if g.FUNCS["APPS_TRY_LEAVE"] then
-        g.FUNCS["APPS_TRY_LEAVE"](type)
+    local skills_table = g.battle_ritual_settings.skills
+    if not skills_table then
+        return
     end
-end
-
-function Instant_cc_APPS_TRY_LEAVE_(type)
-    if g.instant_cc.do_cc then
-        if g.FUNCS["APPS_TRY_LEAVE"] then
-            g.FUNCS["APPS_TRY_LEAVE"](type)
+    local sorted_list = {}
+    for s_id, data in pairs(skills_table) do
+        table.insert(sorted_list, {
+            skill_id = tonumber(s_id),
+            buff_id = data.buff_id,
+            priority = data.priority
+        })
+    end
+    table.sort(sorted_list, function(a, b)
+        if a.priority ~= b.priority then
+            return a.priority < b.priority
+        else
+            return tonumber(a.skill_id) < tonumber(b.skill_id)
         end
-        return
-    end
-    local use_instant_cc = (g.settings and g.settings.instant_cc and g.settings.instant_cc.use == 1)
-    if not use_instant_cc or (type ~= "Barrack" and type ~= "Logout") or g.get_map_type() ~= "City" then
-        if g.FUNCS["APPS_TRY_LEAVE"] then
-            g.FUNCS["APPS_TRY_LEAVE"](type)
+    end)
+    local skill_map = {}
+    for i = 0, 40 - 1 do
+        local quick_slot_info = quickslot.GetInfoByIndex(i)
+        if quick_slot_info and quick_slot_info.category == 'Skill' then
+            skill_map[quick_slot_info.type] = i
         end
-        return
     end
-    Instant_cc_APPS_TRY_MOVE_BARRACK_(nil, nil, nil, 0)
-end
-
-function Instant_cc_EXPIREDITEM_ALERT_ON_MSG(frame, msg, arg_str, arg_num)
-    if msg == "EXPIREDITEM_ALERT_OPEN" then
-        Instant_cc_EXPIREDITEM_ALERT_OPEN(frame, arg_str)
-        return
-    end
-end
-
-function Instant_cc_EXPIREDITEM_ALERT_OPEN(frame, arg_str)
-    local expireditem_alert = ui.GetFrame("expireditem_alert")
-    local near_future_sec = tonumber(expireditem_alert:GetUserConfig("NearFutureSec"))
-    local itemlist = GET_CHILD(expireditem_alert, "itemlist", "ui::CGroupBox")
-    itemlist:RemoveAllChild()
-    local start_index = 0
-    local ypos = 0
-    if g.instant_cc_sweep_tbl then
-        for key, data in ipairs(g.instant_cc_sweep_tbl) do
-            if type(data) == "table" then
-                local ctrlset = itemlist:CreateOrGetControlSet("expireditem_ctrlset",
-                    "expireditem_ctrlset" .. start_index + 1, 0, ypos)
-                AUTO_CAST(ctrlset)
-                local name = GET_CHILD_RECURSIVELY(ctrlset, "name", "ui::CRichText")
-                local expiration_time = GET_CHILD_RECURSIVELY(ctrlset, "expirationTime", "ui::CRichText")
-                local remaining_time = GET_CHILD_RECURSIVELY(ctrlset, "remainingTime", "ui::CRichText")
-                local item_pic = GET_CHILD_RECURSIVELY(ctrlset, "item_pic", "ui::CPicture")
-                local buff_cls = GetClassByType("Buff", data.buff_id)
-                if buff_cls then
-                    name:SetTextByKey("itemname", buff_cls.Name)
-                    local icon_name = "icon_" .. buff_cls.Icon
-                    item_pic:SetImage(icon_name)
+    g.battle_ritual_use_queue = {}
+    local my_handle = session.GetMyHandle()
+    local quickslotnexpbar = ui.GetFrame("quickslotnexpbar")
+    for _, data in ipairs(sorted_list) do
+        local skill_id = data.skill_id
+        local slot_index = skill_map[skill_id]
+        if slot_index then
+            local slot = GET_CHILD_RECURSIVELY(quickslotnexpbar, "slot" .. (slot_index + 1), "ui::CSlot")
+            if slot then
+                local icon = slot:GetIcon()
+                if icon then
+                    local cur_time = ICON_UPDATE_SKILL_COOLDOWN(icon)
+                    if cur_time == 0 then
+                        local buff_id = data.buff_id
+                        local need_buff = true
+                        if buff_id > 0 then
+                            if info.GetBuff(my_handle, buff_id) then
+                                need_buff = false
+                            end
+                        end
+                        if need_buff then
+                            table.insert(g.battle_ritual_use_queue, {
+                                buff_id = buff_id,
+                                skill_id = skill_id,
+                                icon = icon
+                            })
+                        end
+                    end
                 end
-                local expiration_systime = geTime.GetServerSystemTime()
-                expiration_systime = imcTime.AddSec(expiration_systime, data.buff_time / 1000)
-                expiration_time:SetTextByKey("year", expiration_systime.wYear)
-                expiration_time:SetTextByKey("month", GET_TWO_DIGIT_STR(expiration_systime.wMonth))
-                expiration_time:SetTextByKey("day", GET_TWO_DIGIT_STR(expiration_systime.wDay))
-                local buff_time = data.buff_time / 1000
-                local days = math.floor(buff_time / 86400)
-                local hours = math.floor((buff_time % 86400) / 3600)
-                local mins = math.floor(((buff_time % 86400) % 3600) / 60)
-                local sec = ((buff_time % 86400) % 3600) % 60
-                local dif_sec_msg = ""
-                if days > 0 then
-                    dif_sec_msg = ScpArgMsg("{Day}Day{Hour}Hour{Min}Min", "Day", days, "Hour", hours, "Min", mins)
-                elseif hours > 0 then
-                    dif_sec_msg = ScpArgMsg("{Hour}Hour{Min}Min{Sec}Sec", "Hour", hours, "Min", mins, "Sec", sec)
-                elseif mins > 0 then
-                    dif_sec_msg = ScpArgMsg("{Min}Min{Sec}Sec", "Min", mins, "Sec", sec)
-                else
-                    dif_sec_msg = ScpArgMsg("{Sec}Sec", "Sec", sec)
-                end
-                remaining_time:SetText(dif_sec_msg)
-                local time_parent = remaining_time:GetParent()
-                local amend_h = remaining_time:GetY() + remaining_time:GetHeight()
-                if amend_h < time_parent:GetHeight() then
-                    amend_h = ctrlset:GetHeight()
-                else
-                    local addedHeight = amend_h - time_parent:GetHeight()
-                    ctrlset:Resize(ctrlset:GetWidth(), ctrlset:GetHeight() + addedHeight)
-                end
-                ypos = ypos + ctrlset:GetHeight()
-                start_index = start_index + 1
             end
         end
     end
-    if IS_NEED_TO_ALERT_TOKEN_EXPIRATION(near_future_sec, itemlist) then
-        ypos = ASK_EXPIREDITEM_ALERT_TOKEN(expireditem_alert, itemlist, start_index, ypos)
-        start_index = start_index + 1
+    if #g.battle_ritual_use_queue > 0 then
+        _nexus_addons:RunUpdateScript("Battle_ritual_auto_buff_skill", 0.1)
     end
-    local list = GET_SCHEDULED_TO_EXPIRED_ITEM_LIST(near_future_sec)
-    if list and #list >= 1 then
-        ypos = ASK_EXPIREDITEM_ALERT_LIFETIME(expireditem_alert, itemlist, near_future_sec, start_index, ypos)
-        start_index = start_index + #list
-    end
-    expireditem_alert:Resize(expireditem_alert:GetWidth(), expireditem_alert:GetOriginalHeight() + itemlist:GetHeight())
-    if arg_str then
-        expireditem_alert:SetUserValue("TimerType", arg_str)
-    end
-    expireditem_alert:ShowWindow(1)
 end
 
-function Instant_cc_APPS_TRY_MOVE_BARRACK_(frame, msg, str, barrack_layer)
-    if barrack_layer == 0 then
-        barrack_layer = g.instant_cc.layer
+function Battle_ritual_auto_buff_skill(_nexus_addons)
+    if not g.battle_ritual_use_queue or #g.battle_ritual_use_queue == 0 then
+        return 0
     end
-    local context = ui.CreateContextMenu("instant_cc_select_character", "{ol}Barrack Charactor List", 0, 0, 0, 0)
-    ui.AddContextMenuItem(context, "Return To Barrack", "Instant_cc_do_cc()")
-    if not g.instant_cc_settings.per_barracks then
-        for i = 1, #g.instant_cc_sorted_list do
-            local info = g.instant_cc_sorted_list[i]
-            local pc_name = info.name
-            local job_cls = GetClassByType("Job", info.jobid)
-            local job_name = GET_JOB_NAME(job_cls, info.gender)
-            job_name = string.gsub(dic.getTranslatedStr(job_name), "{s18}", "")
-            local str = "Lv" .. info.level .. " " .. pc_name .. " (" .. job_name .. ")          "
-            ui.AddContextMenuItem(context, str, string.format("Instant_cc_do_cc('%s',%d)", info.cid, info.layer))
+    local next_skill_info = g.battle_ritual_use_queue[1]
+    if not next_skill_info or not next_skill_info.icon then
+        table.remove(g.battle_ritual_use_queue, 1)
+        return 1
+    end
+    local my_handle = session.GetMyHandle()
+    local buff_info = nil
+    if next_skill_info.buff_id and next_skill_info.buff_id > 0 then
+        buff_info = info.GetBuff(my_handle, next_skill_info.buff_id)
+    end
+    local current_cooldown = ICON_UPDATE_SKILL_COOLDOWN(next_skill_info.icon)
+    if current_cooldown == 0 and (next_skill_info.buff_id == 0 or not buff_info) then
+        ICON_USE(next_skill_info.icon)
+        local changed_image = QUICKSLOT_CHANGE_ICON_LIST[tostring(next_skill_info.skill_id)]
+        if changed_image then
+            table.remove(g.battle_ritual_use_queue, 1)
         end
+        return 1
+    end
+    if #g.battle_ritual_use_queue > 0 then
+        table.remove(g.battle_ritual_use_queue, 1)
+        return 1
     else
-        ui.AddContextMenuItem(context, "Barrack 1",
-            string.format("Instant_cc_APPS_TRY_MOVE_BARRACK_(nil, nil, nil, %d)", 1))
-        ui.AddContextMenuItem(context, "Barrack 2",
-            string.format("Instant_cc_APPS_TRY_MOVE_BARRACK_(nil, nil, nil, %d)", 2))
-        ui.AddContextMenuItem(context, "Barrack 3",
-            string.format("Instant_cc_APPS_TRY_MOVE_BARRACK_(nil, nil, nil, %d)", 3))
-        for i = 1, #g.instant_cc_sorted_list do
-            local info = g.instant_cc_sorted_list[i]
-            local layer = info.layer
-            if barrack_layer == layer then
-                local pc_name = info.name
-                local job_cls = GetClassByType("Job", info.jobid)
-                local job_name = GET_JOB_NAME(job_cls, info.gender)
-                job_name = string.gsub(dic.getTranslatedStr(job_name), "{s18}", "")
-                local str = "Lv" .. info.level .. " " .. pc_name .. " (" .. job_name .. ")          "
-                ui.AddContextMenuItem(context, str, string.format("Instant_cc_do_cc('%s',%d)", info.cid, info.layer))
-            end
+        return 0
+    end
+end]]
+
+function Battle_ritual_frame_init()
+    local Battle_ritual = ui.CreateNewFrame("notice_on_pc", addon_name_lower .. "Battle_ritual", 0, 0, 0, 0)
+    AUTO_CAST(Battle_ritual)
+    Battle_ritual:SetSkinName("None")
+    Battle_ritual:SetTitleBarSkin("None")
+    Battle_ritual:Resize(40, 30)
+    Battle_ritual:SetGravity(ui.RIGHT, ui.TOP)
+    Battle_ritual:EnableMove(g.battle_ritual_settings.etc.move == 1 and 0 or 1)
+    Battle_ritual:EnableHittestFrame(1)
+    local rect = Battle_ritual:GetMargin()
+    Battle_ritual:SetMargin(rect.left - rect.left, rect.top - rect.top + 2,
+        rect.right == 0 and rect.right + 305 or rect.right, rect.bottom)
+    if g.battle_ritual_settings.etc.x ~= 0 and g.battle_ritual_settings.etc.y ~= 0 then
+        Battle_ritual:SetPos(g.battle_ritual_settings.etc.x, g.battle_ritual_settings.etc.y)
+    end
+    Battle_ritual:SetEventScript(ui.LBUTTONUP, "Battle_ritual_frame_location_save")
+    local pic = Battle_ritual:CreateOrGetControl("picture", "pic", 0, 0, 30, 30)
+    AUTO_CAST(pic)
+    pic:SetImage("emoticon_0015")
+    pic:SetColorTone("FFFFFFFF")
+    pic:SetEnableStretch(1)
+    pic:EnableHitTest(1)
+    pic:SetGravity(ui.LEFT, ui.TOP)
+    pic:SetTextTooltip(g.lang == "Japanese" and "{ol}Battle Ritual{nl}右クリック ON/OFF" or
+                           "{ol}Battle Ritual{nl}Right click ON/OFF")
+    if g.battle_ritual_settings.etc.use == 0 then
+        pic:SetColorTone("FF555555")
+    else
+        pic:SetColorTone("FFFFFFFF")
+    end
+    pic:SetEventScript(ui.RBUTTONUP, "Battle_ritual_onoff_switch")
+    Battle_ritual:ShowWindow(1)
+end
+
+function Battle_ritual_onoff_switch(Battle_ritual)
+    g.battle_ritual_settings.etc.use = 1 - g.battle_ritual_settings.etc.use
+    Battle_ritual_save_settings()
+    Battle_ritual_frame_init()
+end
+
+function Battle_ritual_frame_location_save(Battle_ritual)
+    g.battle_ritual_settings.etc.x = Battle_ritual:GetX()
+    g.battle_ritual_settings.etc.y = Battle_ritual:GetY()
+    Battle_ritual_save_settings()
+end
+
+function Battle_ritual_settings_frame()
+    local list_frame = ui.GetFrame(addon_name_lower .. "list_frame")
+    local setting = ui.CreateNewFrame("notice_on_pc", addon_name_lower .. "Battle_ritual_setting", 0, 0, 0, 0)
+    setting:SetPos(list_frame:GetX() + list_frame:GetWidth(), list_frame:GetY())
+    setting:SetSkinName("test_frame_low")
+    setting:EnableHittestFrame(1)
+    setting:EnableHitTest(1)
+    setting:SetLayerLevel(999)
+    setting:RemoveAllChild()
+    local title_text = setting:CreateOrGetControl('richtext', 'title_text', 20, 15, 50, 30)
+    AUTO_CAST(title_text)
+    title_text:SetText("{ol}Battle ritual Config")
+    local close = setting:CreateOrGetControl("button", "close", 0, 0, 20, 20)
+    AUTO_CAST(close)
+    close:SetImage("testclose_button")
+    close:SetGravity(ui.RIGHT, ui.TOP)
+    close:SetEventScript(ui.LBUTTONUP, "Battle_ritual_frame_close")
+    local gbox = setting:CreateOrGetControl("groupbox", "gbox", 10, 40, setting:GetWidth() - 20,
+        setting:GetHeight() - 50) -- 945
+    AUTO_CAST(gbox)
+    gbox:SetSkinName("test_frame_midle_light")
+    gbox:EnableScrollBar(1)
+    Battle_ritual_settings_frame_child(setting, gbox)
+end
+
+function Battle_ritual_settings_frame_child(setting, gbox) -- gbox:EnableScrollBar(0)
+    local move_check = gbox:CreateOrGetControl('checkbox', "move_check", 10, 10, 30, 30)
+    AUTO_CAST(move_check)
+    move_check:SetCheck(g.battle_ritual_settings.etc.move)
+    move_check:SetText(g.lang == "Japanese" and "{ol}チェックするとフレーム固定" or
+                           "{ol}If checked, the frame is fixed")
+    move_check:SetEventScript(ui.LBUTTONUP, "Battle_ritual_frame_move")
+    local default_btn = gbox:CreateOrGetControl("button", "default_btn", move_check:GetWidth() + 30, 10, 120, 30)
+    AUTO_CAST(default_btn)
+    default_btn:SetText(g.lang == "Japanese" and "{ol}フレーム初期位置" or "{ol}Init frame pos")
+    default_btn:SetEventScript(ui.LBUTTONUP, "Battle_ritual_frame_default")
+    local skill_lbl = gbox:CreateOrGetControl('richtext', 'header_skill', 10, 45, 100, 20)
+    AUTO_CAST(skill_lbl)
+    skill_lbl:SetText(g.lang == "Japanese" and "{ol}スキル" or "{ol}Skill")
+    local buff_lbl = gbox:CreateOrGetControl('richtext', 'header_buff', 230, 45, 100, 20)
+    AUTO_CAST(buff_lbl)
+    buff_lbl:SetText(g.lang == "Japanese" and "{ol}バフ" or "{ol}Buff")
+    local priority_lbl = gbox:CreateOrGetControl('richtext', 'header_priority', 450, 45, 100, 20)
+    AUTO_CAST(priority_lbl)
+    priority_lbl:SetText(g.lang == "Japanese" and "{ol}優先度" or "{ol}Priority")
+    local y_pos = 70
+    local row_height = 40
+    local sorted_skills = {}
+    if g.battle_ritual_settings.skills then
+        for s_id, data in pairs(g.battle_ritual_settings.skills) do
+            table.insert(sorted_skills, {
+                skill_id = tonumber(s_id),
+                buff_id = data.buff_id or 0,
+                priority = data.priority or 0
+            })
         end
     end
-    ui.OpenContextMenu(context)
+    table.sort(sorted_skills, function(a, b)
+        if a.priority ~= b.priority then
+            return a.priority < b.priority
+        else
+            return a.skill_id < b.skill_id
+        end
+    end)
+    for i, entry in ipairs(sorted_skills) do
+        Battle_ritual_create_row(gbox, i, entry.skill_id, entry.buff_id, entry.priority, y_pos)
+        y_pos = y_pos + row_height
+    end
+    Battle_ritual_create_row(gbox, #sorted_skills + 1, 0, 0, 0, y_pos)
 end
 
-function Instant_cc_do_cc(cid, layer)
-    if Indun_list_viewer_CHECK_ALERT("Barrack") then
-        return
-    end
-    if cid then
-        g.instant_cc.do_cc = {
-            cid = cid,
-            layer = layer
-        }
-    end
-    g.FUNCS["APPS_TRY_LEAVE"]("Barrack")
+function Battle_ritual_frame_default(parent)
+    ui.DestroyFrame(addon_name_lower .. "Battle_ritual")
+    g.battle_ritual_settings.etc.x = 0
+    g.battle_ritual_settings.etc.y = 0
+    Battle_ritual_save_settings()
+    ReserveScript("Battle_ritual_frame_init()", 0.1)
 end
 
-function Instant_cc_start()
-    barrack.SelectBarrackLayer(g.instant_cc.do_cc.layer)
-    barrack.SelectCharacterByCID(g.instant_cc.do_cc.cid)
-    local barrack_gamestart = ui.GetFrame("barrack_gamestart")
-    barrack_gamestart:StopUpdateScript("Instant_cc_to_game")
-    barrack_gamestart:RunUpdateScript("Instant_cc_to_game", 0.2)
+function Battle_ritual_frame_move(Battle_ritual, gbox)
+    g.battle_ritual_settings.etc.move = 1 - g.battle_ritual_settings.etc.move
+    Battle_ritual_save_settings()
+    Battle_ritual_frame_init()
 end
 
-function Instant_cc_retry()
-    g.instant_cc.retry = g.instant_cc.retry + 1
-    if g.instant_cc.retry > #g.instant_cc_sorted_list then
-        app.BarrackToLogin()
-        ui.SysMsg(g.lang == "Japanese" and
-                      "キャラクターの自動取得に失敗しました{nl}手動で選択してください" or
-                      "Failed to automatically retrieve the character{nl}Please select manually")
-        return
+function Battle_ritual_create_row(gbox, index, skill_id, buff_id, priority, y)
+    local skill_add = gbox:CreateOrGetControl("button", "skill_add_" .. index, 10, y, 50, 30)
+    AUTO_CAST(skill_add)
+    skill_add:SetSkinName("test_cardtext_btn")
+    skill_add:SetText("{ol}Add")
+    skill_add:SetTextTooltip(g.lang == "Japanese" and "{ol}スキルリスト表示" or "{ol}Display the skill list")
+    skill_add:SetEventScript(ui.LBUTTONUP, "Battle_ritual_skill_list_open")
+    skill_add:SetEventScriptArgNumber(ui.LBUTTONUP, index)
+    local skill_pic = gbox:CreateOrGetControl('picture', "skill_pic_" .. index, 65, y, 30, 30)
+    AUTO_CAST(skill_pic)
+    local skill_img = ""
+    if skill_id > 0 then
+        local cls = GetClassByType("Skill", skill_id)
+        if cls then
+            skill_img = "icon_" .. cls.Icon
+        end
     end
-    Instant_cc_start()
+    skill_pic:SetImage(skill_img)
+    skill_pic:SetEnableStretch(1)
+    skill_pic:EnableHitTest(1)
+    if skill_id > 0 then
+        SET_SKILL_TOOLTIP_BY_TYPE(skill_pic, skill_id)
+    end
+    local skill_edit = gbox:CreateOrGetControl('edit', 'skill_edit_' .. index, 100, y, 80, 30)
+    AUTO_CAST(skill_edit)
+    skill_edit:SetNumberMode(1)
+    skill_edit:SetFontName("white_16_ol")
+    skill_edit:SetText(skill_id == 0 and "" or skill_id)
+    skill_edit:SetTextAlign("center", "center")
+    skill_edit:SetTextTooltip(g.lang == "Japanese" and "{ol}スキルID入力{nl}錬成スキルは141001～" or
+                                  "{ol}Enter the Skill ID.{nl}Alchemic skills start from 141001")
+    if skill_edit:GetText() ~= "" then
+        skill_edit:SetUserValue("ORIG_SKILL_ID", skill_id)
+    end
+    skill_edit:SetTypingScp("Battle_ritual_add_skill")
+    local skill_remove = gbox:CreateOrGetControl("button", "skill_remove_" .. index, 185, y, 30, 30)
+    AUTO_CAST(skill_remove)
+    skill_remove:SetSkinName("test_cardtext_btn")
+    skill_remove:SetText("{ol}×")
+    skill_remove:SetTextTooltip(g.lang == "Japanese" and "{ol}登録解除" or "{ol}unregister")
+    skill_remove:SetEventScript(ui.LBUTTONUP, "Battle_ritual_remove")
+    skill_remove:SetEventScriptArgString(ui.LBUTTONUP, tostring(skill_id))
+    if skill_id > 0 then
+        local buff_add = gbox:CreateOrGetControl("button", "buff_add_" .. index, 230, y, 50, 30)
+        AUTO_CAST(buff_add)
+        buff_add:SetSkinName("test_cardtext_btn")
+        buff_add:SetText("{ol}Add")
+        buff_add:SetTextTooltip(g.lang == "Japanese" and "{ol}バフリスト表示" or "{ol}Display the buff list")
+        buff_add:SetEventScript(ui.LBUTTONUP, "Battle_ritual_buff_list_open")
+        buff_add:SetEventScriptArgNumber(ui.LBUTTONUP, skill_id)
+        gbox:SetUserValue("INDEX", index)
+        local buff_pic = gbox:CreateOrGetControl('picture', "buff_pic_" .. index, 285, y, 30, 30)
+        AUTO_CAST(buff_pic)
+        local buff_img = ""
+        if buff_id > 0 then
+            local cls = GetClassByType("Buff", buff_id)
+            if cls then
+                buff_img = "icon_" .. cls.Icon
+            end
+        end
+        buff_pic:SetImage(buff_img)
+        buff_pic:SetEnableStretch(1)
+        buff_pic:EnableHitTest(1)
+        local buff_edit = gbox:CreateOrGetControl('edit', 'buff_edit_' .. index, 320, y, 80, 30)
+        AUTO_CAST(buff_edit)
+        buff_edit:SetNumberMode(1)
+        buff_edit:SetFontName("white_16_ol")
+        buff_edit:SetText(buff_id == 0 and "" or buff_id)
+        buff_edit:SetTextAlign("center", "center")
+        buff_edit:SetTextTooltip(g.lang == "Japanese" and
+                                     "{ol}バフID入力{nl}対応バフが無い場合は 空白{nl}(例)テンペストショットは 空白{nl}ダブルアタックは 322など{nl}※入力無しは毎回掛け直し" or
+                                     "{ol}Enter the Buff ID{nl}Leave blank if there is no corresponding buff{nl}(e.g.)Tempest Shot is blank{nl}Double Attack is 322, etc.{nl}※If no input is provided,will be recast every time")
+        buff_edit:SetUserValue("SKILL_ID", skill_id)
+
+        buff_edit:SetTypingScp("Battle_ritual_add_buff")
+        local buff_remove = gbox:CreateOrGetControl("button", "buff_remove" .. index, 405, y, 30, 30)
+        AUTO_CAST(buff_remove)
+        buff_remove:SetSkinName("test_cardtext_btn")
+        buff_remove:SetText("{ol}×")
+        buff_remove:SetTextTooltip(g.lang == "Japanese" and "{ol}登録解除" or "{ol}unregister")
+        buff_remove:SetEventScript(ui.LBUTTONUP, "Battle_ritual_remove")
+        buff_remove:SetEventScriptArgString(ui.LBUTTONUP, tostring(skill_id))
+        local priority_edit = gbox:CreateOrGetControl('edit', 'priority_edit_' .. index, 450, y, 50, 30)
+        AUTO_CAST(priority_edit)
+        priority_edit:SetNumberMode(1)
+        priority_edit:SetFontName("white_16_ol")
+        priority_edit:SetText(priority)
+        priority_edit:SetTextAlign("center", "center")
+        priority_edit:SetTextTooltip(g.lang == "Japanese" and "{ol}優先度入力" or "{ol}Enter Priority")
+        priority_edit:SetUserValue("SKILL_ID", skill_id)
+        priority_edit:SetTypingScp("Battle_ritual_priority")
+    end
+    local setting = gbox:GetParent()
+    setting:Resize(550, 945)
+    gbox:Resize(setting:GetWidth() - 20, 895) -- 945
+    setting:ShowWindow(1)
 end
 
-function Instant_cc_to_game(barrack_gamestart)
-    local barrack_pc_info = barrack.GetBarrackPCInfoByCID(g.instant_cc.do_cc.cid)
-    if not barrack_pc_info then
-        Instant_cc_retry()
-        return
+function Battle_ritual_priority_change(ctrl)
+    local new_priority = tonumber(ctrl:GetText())
+    local skill_id_str = ctrl:GetUserValue("SKILL_ID")
+    local skills = g.battle_ritual_settings.skills
+    if skills and skills[skill_id_str] then
+        for s_id, data in pairs(skills) do
+            if s_id ~= skill_id_str and data.priority >= new_priority then
+                data.priority = data.priority + 1
+            end
+        end
+        skills[skill_id_str].priority = new_priority
     end
-    local barrack_start_char = barrack.GetGameStartAccount()
-    if not barrack_start_char or barrack_start_char:GetCID() ~= g.instant_cc.do_cc.cid then
-        Instant_cc_retry()
-        return
-    end
-    BARRACK_TO_GAME()
+    Battle_ritual_save_settings()
+    Battle_ritual_settings_frame()
     return 0
 end
--- Instant CC ここまで
 
--- ndun_list_viewer ここから
-g.ilv_RAID_KEYS = {"V", "L", "R", "N", "G", "M", "S", "U", "RO", "F", "P", "D"}
-g.ilv_RAID_INFO = {
-    V = {
-        name = "Veliora",
-        hard = 727,
-        solo = 726,
-        auto = 725,
-        icon = "icon_item_misc_boss_Veliora",
-        sweep_buff = 80045
-    },
-    L = {
-        name = "Limara",
-        hard = 724,
-        solo = 723,
-        auto = 722,
-        icon = "icon_item_misc_boss_Laimara",
-        sweep_buff = 80043
-    },
-    R = {
-        name = "Redania",
-        hard = 718,
-        solo = 717,
-        auto = 716,
-        icon = "icon_item_misc_boss_Redania",
-        sweep_buff = 80039
-    },
-    N = {
-        name = "Neringa",
-        hard = 709,
-        solo = 708,
-        auto = 707,
-        icon = "icon_item_misc_boss_DarkNeringa",
-        sweep_buff = 80035
-    },
-    G = {
-        name = "Golem",
-        hard = 712,
-        solo = 711,
-        auto = 710,
-        icon = "icon_item_misc_boss_CrystalGolem",
-        sweep_buff = 80037
-    },
-    M = {
-        name = "Merregina",
-        hard = 697,
-        solo = 696,
-        auto = 695,
-        icon = "icon_item_misc_merregina_blackpearl",
-        sweep_buff = 80032
-    },
-    S = {
-        name = "Slogutis",
-        hard = 690,
-        solo = 689,
-        auto = 688,
-        icon = "icon_item_misc_boss_Slogutis",
-        sweep_buff = 80031
-    },
-    U = {
-        name = "Upinis",
-        hard = 687,
-        solo = 686,
-        auto = 685,
-        icon = "icon_item_misc_boss_Upinis",
-        sweep_buff = 80030
-    },
-    RO = {
-        name = "Roze",
-        hard = 681,
-        solo = 680,
-        auto = 679,
-        icon = "icon_item_misc_boss_Roze",
-        sweep_buff = 80015
-    },
-    F = {
-        name = "Falouros",
-        hard = 678,
-        solo = 677,
-        auto = 676,
-        icon = "icon_item_misc_high_falouros",
-        sweep_buff = 80017
-    },
-    P = {
-        name = "Spreader",
-        hard = 675,
-        solo = 674,
-        auto = 673,
-        icon = "icon_item_misc_high_transmutationSpreader",
-        sweep_buff = 80016
-    },
-    D = {
-        name = "Delmore",
-        hard = 665,
-        solo = 667,
-        auto = 666,
-        icon = "icon_item_misc_RevivalPaulius",
-        sweep_buff = nil
-    }
-}
-function Indun_list_viewer_save_settings()
-    g.save_lua(g.ilv_path, g.ilv_settings)
+function Battle_ritual_priority(parent, ctrl)
+    local priority = tonumber(ctrl:GetText())
+    if priority > 0 then
+        ctrl:RunUpdateScript("Battle_ritual_priority_change", 0.5)
+    end
 end
 
-function Indun_list_viewer_load_settings()
-    g.ilv_path = string.format("../addons/%s/%s/indun_list_viewer.lua", addon_name_lower, g.active_id)
-    local json_path = string.format("../addons/%s/%s/indun_list_viewer.json", addon_name_lower, g.active_id)
-    g.ilv_old_path = string.format("../addons/%s/%s/settings_2510.json", "indun_list_viewer", g.active_id)
-    local settings = g.load_lua(g.ilv_path)
+function Battle_ritual_remove(parent, ctrl, skill_id_str)
+    local ctrl_name = ctrl:GetName()
+    if string.find(ctrl_name, "skill") then
+        g.battle_ritual_settings.skills[skill_id_str] = nil
+    else
+        g.battle_ritual_settings.skills[skill_id_str].buff_id = 0
+    end
+    Battle_ritual_save_settings()
+    Battle_ritual_settings_frame()
+end
+
+function Battle_ritual_skill_list_open(frame, add, ctrl_text, index)
+    local skill_list = ui.GetFrame(addon_name_lower .. "Battle_ritual_skill_list")
+    if not skill_list then
+        skill_list = ui.CreateNewFrame("notice_on_pc", addon_name_lower .. "Battle_ritual_skill_list", 0, 0, 10, 10)
+        AUTO_CAST(skill_list)
+        skill_list:SetSkinName("test_frame_low")
+        skill_list:Resize(500, 1005)
+        skill_list:SetPos(720, 30)
+        skill_list:SetLayerLevel(999)
+        local title_text = skill_list:CreateOrGetControl('richtext', 'title_text', 15, 15, 10, 30)
+        AUTO_CAST(title_text)
+        title_text:SetText("{#000000}{s20}Skill List")
+        local search_edit =
+            skill_list:CreateOrGetControl("edit", "search_edit", title_text:GetWidth() + 30, 10, 305, 38)
+        AUTO_CAST(search_edit)
+        search_edit:SetFontName("white_18_ol")
+        search_edit:SetTextAlign("left", "center")
+        search_edit:SetSkinName("inventory_serch")
+        search_edit:SetEventScript(ui.ENTERKEY, "Battle_ritual_skill_list_search")
+        search_edit:SetEventScriptArgNumber(ui.ENTERKEY, index)
+        local search_btn = search_edit:CreateOrGetControl("button", "search_btn", 0, 0, 40, 38)
+        AUTO_CAST(search_btn)
+        search_btn:SetImage("inven_s")
+        search_btn:SetGravity(ui.RIGHT, ui.TOP)
+        search_btn:SetEventScript(ui.LBUTTONUP, "Battle_ritual_skill_list_search")
+        local close_button = skill_list:CreateOrGetControl('button', 'close_button', 0, 0, 20, 20)
+        AUTO_CAST(close_button)
+        close_button:SetImage("testclose_button")
+        close_button:SetGravity(ui.RIGHT, ui.TOP)
+        close_button:SetEventScript(ui.LBUTTONUP, "Battle_ritual_frame_close")
+    end
+    local skill_gb = skill_list:CreateOrGetControl("groupbox", "skill_gb", 10, 50, 480, skill_list:GetHeight() - 60)
+    AUTO_CAST(skill_gb)
+    skill_gb:SetSkinName("bg")
+    skill_gb:RemoveAllChild()
+    local cls_list, count = GetClassList("Skill")
+    local y = 0
+    for i = 0, count - 1 do
+        local skill_cls = GetClassByIndexFromList(cls_list, i)
+        if skill_cls then
+            local skill_id = skill_cls.ClassID
+            local skill_cls_name = skill_cls.ClassName
+            local skill_engname = skill_cls.EngName
+            local skill_caption = skill_cls.Caption
+            local skill_name = dictionary.ReplaceDicIDInCompStr(skill_cls.Name)
+            if ctrl_text == "" or (ctrl_text ~= "" and string.find(skill_name, ctrl_text)) then
+                local skill_slot = skill_gb:CreateOrGetControl('slot', 'skill_slot' .. i, 10, y + 5, 30, 30)
+                AUTO_CAST(skill_slot)
+                local image_name = "icon_" .. skill_cls.Icon
+                if skill_id > 10000 then
+                    if not string.find(skill_cls_name, "^Mon_") and not string.find(skill_engname, "plzInputEngName") and
+                        not string.find(skill_name, "_") and not string.find(skill_name, "TEST") then
+                        if ctrl_text == "" or (ctrl_text ~= "" and string.find(skill_name, ctrl_text)) then
+                            SET_SLOT_IMG(skill_slot, image_name)
+                            local icon = CreateIcon(skill_slot)
+                            AUTO_CAST(icon)
+                            SET_SKILL_TOOLTIP_BY_TYPE(icon, skill_id)
+                            local skill_set = skill_gb:CreateOrGetControl('button', 'skill_set' .. skill_id, 45, y + 5,
+                                40, 30)
+                            AUTO_CAST(skill_set)
+                            skill_set:SetText("{ol}Add")
+                            skill_set:SetSkinName("test_cardtext_btn")
+                            skill_set:SetTextTooltip(g.lang == "Japanese" and "{ol}スキル追加" or "{ol}Add Skill")
+                            skill_set:SetEventScript(ui.LBUTTONUP, "Battle_ritual_add_skill")
+                            skill_set:SetEventScriptArgString(ui.LBUTTONUP, skill_id)
+                            skill_set:SetEventScriptArgNumber(ui.LBUTTONUP, index)
+                            local skill_text = skill_gb:CreateOrGetControl('richtext', 'skill_text' .. skill_id, 90,
+                                y + 10, 200, 30)
+                            AUTO_CAST(skill_text)
+                            skill_text:SetText("{ol}" .. skill_id .. " : " .. skill_name)
+                            skill_text:AdjustFontSizeByWidth(380)
+                            y = y + 35
+                        end
+                    end
+                end
+            end
+        end
+
+    end
+    skill_list:ShowWindow(1)
+end
+
+function Battle_ritual_skill_list_search(frame, ctrl, str, index)
+    local search_edit = GET_CHILD_RECURSIVELY(frame, "search_edit")
+    local ctrl_text = search_edit:GetText()
+    if ctrl_text ~= "" then
+        Battle_ritual_skill_list_open(frame, ctrl, ctrl_text, index)
+    else
+        Battle_ritual_skill_list_open(frame, ctrl, "", index)
+    end
+end
+
+function Battle_ritual_add_skill(parent, ctrl, skill_id_str, index)
+    local ctrl_name = ctrl:GetName()
+    if string.find(ctrl_name, "skill_edit_") then
+        ctrl:RunUpdateScript("Battle_ritual_setting_change_skill_edit", 0.5)
+    else
+        local setting = ui.GetFrame(addon_name_lower .. "Battle_ritual_setting")
+        local skill_edit = GET_CHILD_RECURSIVELY(setting, "skill_edit_" .. index)
+        skill_edit:SetText(skill_id_str)
+        ctrl:SetUserValue("SKILL_ID", skill_id_str)
+        Battle_ritual_setting_change_skill_edit(ctrl)
+    end
+end
+
+function Battle_ritual_setting_change_skill_edit(ctrl)
+    local user_val = ctrl:GetUserValue("SKILL_ID")
+    local new_id_str = (user_val == "None" or user_val == "") and ctrl:GetText() or user_val
+    local orig_id_str = ctrl:GetUserValue("ORIG_SKILL_ID")
+    local skills = g.battle_ritual_settings.skills
+    local new_skill_cls = GetClassByType("Skill", tonumber(new_id_str))
+    if not new_skill_cls then
+        if skills[orig_id_str] then
+            skills[orig_id_str] = nil
+            Battle_ritual_save_settings()
+        end
+        Battle_ritual_settings_frame()
+        return 0
+    end
+    if not skills[new_id_str] then
+        local new_data = {
+            priority = 0,
+            buff_id = 0
+        }
+        local old_data = skills[orig_id_str]
+        if old_data then
+            new_data.priority = old_data.priority
+            skills[orig_id_str] = nil
+        else
+            local max_priority = 0
+            for _, data in pairs(skills) do
+                if data.priority and data.priority > max_priority then
+                    max_priority = data.priority
+                end
+            end
+            new_data.priority = max_priority + 1
+        end
+        skills[new_id_str] = new_data
+        Battle_ritual_save_settings()
+        Battle_ritual_settings_frame()
+    end
+    return 0
+end
+
+function Battle_ritual_buff_list_open(frame, ctrl, ctrl_text, skill_id)
+    local buff_list = ui.GetFrame(addon_name_lower .. "Battle_ritual_buff_list")
+    if not buff_list then
+        buff_list = ui.CreateNewFrame("notice_on_pc", addon_name_lower .. "Battle_ritual_buff_list", 0, 0, 10, 10)
+        AUTO_CAST(buff_list)
+        buff_list:SetSkinName("test_frame_low")
+        buff_list:Resize(500, 1005)
+        buff_list:SetPos(720, 30)
+        buff_list:SetLayerLevel(999)
+        local title_text = buff_list:CreateOrGetControl('richtext', 'title_text', 15, 15, 10, 30)
+        AUTO_CAST(title_text)
+        title_text:SetText("{#000000}{s20}Buff List")
+        local search_edit = buff_list:CreateOrGetControl("edit", "search_edit", title_text:GetWidth() + 30, 10, 305, 38)
+        AUTO_CAST(search_edit)
+        search_edit:SetFontName("white_18_ol")
+        search_edit:SetTextAlign("left", "center")
+        search_edit:SetSkinName("inventory_serch")
+        search_edit:SetEventScript(ui.ENTERKEY, "Battle_ritual_buff_list_search")
+        search_edit:SetEventScriptArgNumber(ui.ENTERKEY, skill_id)
+        local search_btn = search_edit:CreateOrGetControl("button", "search_btn", 0, 0, 40, 38)
+        AUTO_CAST(search_btn)
+        search_btn:SetImage("inven_s")
+        search_btn:SetGravity(ui.RIGHT, ui.TOP)
+        search_btn:SetEventScript(ui.LBUTTONUP, "Battle_ritual_buff_list_search")
+        search_btn:SetEventScriptArgNumber(ui.LBUTTONUP, skill_id)
+        local close_button = buff_list:CreateOrGetControl('button', 'close_button', 0, 0, 20, 20)
+        AUTO_CAST(close_button)
+        close_button:SetImage("testclose_button")
+        close_button:SetGravity(ui.RIGHT, ui.TOP)
+        close_button:SetEventScript(ui.LBUTTONUP, "Battle_ritual_frame_close")
+    end
+    local buff_list_gb = buff_list:CreateOrGetControl("groupbox", "buff_list_gb", 10, 50, 480,
+        buff_list:GetHeight() - 60)
+    AUTO_CAST(buff_list_gb)
+    buff_list_gb:SetSkinName("bg")
+    buff_list_gb:RemoveAllChild()
+    local cls_list, count = GetClassList("Buff")
+    local y = 0
+    for i = 0, count - 1 do
+        local buff_cls = GetClassByIndexFromList(cls_list, i)
+        if buff_cls then
+            local buff_id = buff_cls.ClassID
+            local buff_name = dictionary.ReplaceDicIDInCompStr(buff_cls.Name)
+            if ctrl_text == "" or (ctrl_text ~= "" and string.find(buff_name, ctrl_text)) then
+                local buff_slot = buff_list_gb:CreateOrGetControl('slot', 'buffslot' .. i, 10, y + 5, 30, 30)
+                AUTO_CAST(buff_slot)
+                local image_name = GET_BUFF_ICON_NAME(buff_cls)
+                if image_name == "icon_None" then
+                    image_name = "icon_item_nothing"
+                end
+                if buff_name ~= "None" then
+                    SET_SLOT_IMG(buff_slot, image_name)
+                    local icon = CreateIcon(buff_slot)
+                    AUTO_CAST(icon)
+                    icon:SetTooltipType('buff')
+                    icon:SetTooltipArg(buff_name, buff_id, 0)
+                    local buff_set = buff_list_gb:CreateOrGetControl('button', 'buff_set' .. buff_id, 45, y + 5, 40, 30)
+                    AUTO_CAST(buff_set)
+                    buff_set:SetText("{ol}Add")
+                    buff_set:SetSkinName("test_cardtext_btn")
+                    buff_set:SetTextTooltip(g.lang == "Japanese" and "{ol}バフ追加" or "{ol}Add Buff")
+                    buff_set:SetEventScript(ui.LBUTTONUP, "Battle_ritual_add_buff")
+                    buff_set:SetEventScriptArgString(ui.LBUTTONUP, buff_id)
+                    buff_set:SetEventScriptArgNumber(ui.LBUTTONUP, skill_id)
+                    local buff_text = buff_list_gb:CreateOrGetControl('richtext', 'buff_text' .. buff_id, 90, y + 10,
+                        200, 30)
+                    AUTO_CAST(buff_text)
+                    buff_text:SetText("{ol}" .. buff_id .. " : " .. buff_name)
+                    buff_text:AdjustFontSizeByWidth(380)
+                    y = y + 35
+                end
+            end
+        end
+    end
+    buff_list:ShowWindow(1)
+end
+
+function Battle_ritual_buff_list_search(frame, ctrl, str, skill_id)
+    local search_edit = GET_CHILD_RECURSIVELY(frame, "search_edit")
+    local ctrl_text = search_edit:GetText()
+    if ctrl_text ~= "" then
+        Battle_ritual_buff_list_open(frame, ctrl, ctrl_text, skill_id)
+    else
+        Battle_ritual_buff_list_open(frame, ctrl, "", skill_id)
+    end
+end
+
+function Battle_ritual_add_buff(parent, ctrl, buff_id_str, skill_id)
+    local ctrl_name = ctrl:GetName()
+    if string.find(ctrl_name, "buff_edit") then
+        ctrl:SetUserValue("BUFF_ID", tonumber(ctrl:GetText()))
+        ctrl:RunUpdateScript("Battle_ritual_setting_change_buff_edit", 0.5)
+    else
+        local buff_cls = GetClassByType("Buff", tonumber(buff_id_str))
+        local s_id_str = tostring(skill_id)
+        if g.battle_ritual_settings.skills[s_id_str] then
+            if buff_cls then
+                g.battle_ritual_settings.skills[s_id_str].buff_id = tonumber(buff_id_str)
+            else
+                g.battle_ritual_settings.skills[s_id_str].buff_id = 0
+            end
+            Battle_ritual_save_settings()
+            Battle_ritual_settings_frame()
+        end
+    end
+end
+
+function Battle_ritual_setting_change_buff_edit(ctrl)
+    local buff_id = ctrl:GetUserIValue("BUFF_ID")
+    local skill_id_str = ctrl:GetUserValue("SKILL_ID")
+    if g.battle_ritual_settings.skills[skill_id_str] then
+        local buff_cls = GetClassByType("Buff", buff_id)
+        if not buff_cls then
+            g.battle_ritual_settings.skills[skill_id_str].buff_id = 0
+        else
+            g.battle_ritual_settings.skills[skill_id_str].buff_id = buff_id
+        end
+    end
+    Battle_ritual_save_settings()
+    Battle_ritual_settings_frame()
+end
+
+function Battle_ritual_frame_close(frame)
+    ui.DestroyFrame(frame:GetName())
+    if frame:GetName() == addon_name_lower .. "Battle_ritual_setting" then
+        ui.DestroyFrame(addon_name_lower .. "Battle_ritual_skill_list")
+        ui.DestroyFrame(addon_name_lower .. "Battle_ritual_buff_list")
+    end
+end
+
+function Battle_ritual_REQ_PLAYER_CONTENTS_RECORD(frame, type)
+    local _nexus_addons = ui.GetFrame("_nexus_addons")
+    _nexus_addons:RunUpdateScript("Battle_ritual_overlord_off", 0.1)
+end
+
+function Battle_ritual_overlord_off(_nexus_addons)
+    local buff = info.GetBuff(session.GetMyHandle(), 40049)
+    if not buff then
+        return 0
+    end
+    local quickslotnexpbar = ui.GetFrame("quickslotnexpbar")
+    for i = 1, 40 do
+        local slot = GET_CHILD_RECURSIVELY(quickslotnexpbar, "slot" .. i)
+        AUTO_CAST(slot)
+        local icon = slot:GetIcon()
+        if icon then
+            AUTO_CAST(icon)
+            local icon_info = icon:GetInfo()
+            if icon_info then
+                local category = icon_info:GetCategory()
+                if category == "Skill" then
+                    local buff_id = icon_info.type
+                    if buff_id == 100085 then
+                        local current_cooldown = ICON_UPDATE_SKILL_COOLDOWN(icon)
+                        if current_cooldown == 0 then
+                            control.Skill(buff_id)
+                        end
+                        return 1
+                    end
+                end
+            end
+        end
+    end
+end
+-- Battle_ritual ここまで
+
+-- other_character_skill_list ここから
+function Other_character_skill_list_save_settings()
+    g.save_lua(g.ocsl_path, g.ocsl_settings)
+end
+
+function Other_character_skill_list_load_settings()
+    g.ocsl_path = string.format("../addons/%s/%s/other_character_skill_list.lua", addon_name_lower, g.active_id)
+    local json_path = string.format("../addons/%s/%s/other_character_skill_list.json", addon_name_lower, g.active_id)
+    local settings = g.load_lua(g.ocsl_path)
     local need_save = false
     local ver = 1.1
     if not settings then
@@ -3259,1002 +3333,86 @@ function Indun_list_viewer_load_settings()
         end
     end
     if not settings then
-        local old_settings = g.load_json(g.ilv_old_path)
-        if old_settings then
-            settings = {
-                options = old_settings.default_options or {},
-                display = old_settings.display_options or {},
-                chars = {},
-                ver = ver
-            }
-            for key, data in pairs(old_settings) do
-                if type(data) == "table" and key ~= "default_options" and key ~= "display_options" then
-                    settings.chars[key] = data
-                end
-            end
-        else
-            settings = {
-                options = {
-                    reset_time = 0,
-                    display_mode = "full",
-                    hidden = 0
-                },
-                display = {
-                    Memo = 1
-                },
-                chars = {},
-                ver = ver
-            }
-        end
+        settings = {
+            chars = {},
+            ver = ver
+        }
         need_save = true
     end
     if not settings.ver or settings.ver < ver then
-        if not settings.display then
-            settings.display = {}
-        end
-        if settings.display.Memo == nil then
-            settings.display.Memo = 1
-        end
-        for _, info in pairs(g.ilv_RAID_INFO) do
-            if info.name then
-                local h_key = info.name .. "_H"
-                local s_key = info.name .. "_S"
-                if settings.display[h_key] == nil then
-                    settings.display[h_key] = 1
-                end
-                if settings.display[s_key] == nil then
-                    settings.display[s_key] = 1
+        if settings.chars then
+            for char_name, char_data in pairs(settings.chars) do
+                if char_data.equips and char_data.equips.EARRING then
+                    local earring = char_data.equips.EARRING
+                    if earring.lv and type(earring.lv) == "string" then
+                        earring.lv = nil
+                    end
                 end
             end
         end
         settings.ver = ver
         need_save = true
     end
-    g.ilv_settings = settings
+    if not settings.hide then
+        settings.hide = 0
+        need_save = true
+    end
+    g.ocsl_settings = settings
     if need_save then
-        Indun_list_viewer_save_settings()
+        Other_character_skill_list_save_settings()
     end
 end
 
-function Indun_list_viewer_char_load_settings()
-    local acc_info = session.barrack.GetMyAccount()
-    if acc_info then
-        local layer_pc_count = acc_info:GetPCCount()
-        local barrack_all = acc_info:GetBarrackPCCount()
-        for order = 0, layer_pc_count - 1 do
-            local pc_info = acc_info:GetPCByIndex(order)
-            if pc_info then
-                local pc_apc = pc_info:GetApc()
-                local pc_name = pc_apc:GetName()
-                local pc_cid = pc_info:GetCID()
-                local existing_data = g.ilv_settings.chars[pc_name] or {}
-                g.ilv_settings.chars[pc_name] = {
-                    layer = g.ilv_layer or existing_data.layer or 9,
-                    order = order,
-                    hide = existing_data.hide or false,
-                    memo = existing_data.memo or "",
-                    president_jobid = existing_data.president_jobid or "",
-                    jobid = existing_data.jobid or "",
-                    raid_count = existing_data.raid_count or {},
-                    auto_clear_count = existing_data.auto_clear_count or {},
-                    cid = pc_cid,
-                    pc_name = pc_name
-                }
-            end
-        end
-        if barrack_all > 0 then
-            local barrack_chars = {}
-            for i = 0, barrack_all - 1 do
-                local pc_info = acc_info:GetBarrackPCByIndex(i)
-                if pc_info then
-                    barrack_chars[pc_info:GetName()] = true
+local function GetValidCIDs()
+    local valid_cids = {}
+    local aid = session.loginInfo.GetAID()
+    local sys_opt_path = string.format("../release/addon_setting/system_option/%s/settings.json", aid)
+    local sys_opt_file = io.open(sys_opt_path, "r")
+    if sys_opt_file then
+        local content = sys_opt_file:read("*a")
+        sys_opt_file:close()
+        if content and content ~= "" then
+            local status, data = pcall(json.decode, content)
+            if status and data and data.pc_id then
+                for k, _ in pairs(data.pc_id) do
+                    valid_cids[tostring(k)] = true
                 end
             end
-            local chars_to_delete = {}
-            for char_name, _ in pairs(g.ilv_settings.chars) do
-                if not barrack_chars[char_name] then
-                    table.insert(chars_to_delete, char_name)
-                end
-            end
-            for _, char_name in ipairs(chars_to_delete) do
-                g.ilv_settings.chars[char_name] = nil
-            end
         end
-        Indun_list_viewer_save_settings()
-        return
     end
-    if g.get_map_type() == "City" then
-        local pc_name = session.GetMySession():GetPCApc():GetName()
-        local pc_cid = session.GetMySession():GetCID()
-        local existing_data = g.ilv_settings.chars[pc_name] or {}
-        g.ilv_settings.chars[pc_name] = {
-            layer = g.ilv_layer or existing_data.layer or 1,
-            order = existing_data.order or 99,
-            hide = existing_data.hide or false,
-            memo = existing_data.memo or "",
-            president_jobid = existing_data.president_jobid or "",
-            jobid = existing_data.jobid or "",
-            raid_count = existing_data.raid_count or {},
-            auto_clear_count = existing_data.auto_clear_count or {},
-            cid = pc_cid,
-            pc_name = pc_name
-        }
-        Indun_list_viewer_save_settings()
-    end
+    return valid_cids
 end
 
-function indun_list_viewer_on_init()
-    if _G["BARRACK_CHARLIST_ON_INIT"] and _G["current_layer"] then
-        g.ilv_layer = _G["current_layer"]
-    end
-    if not g.ilv_settings then
-        Indun_list_viewer_load_settings()
-    end
-    local old_func = g.settings.indun_list_viewer.old_init_func
-    if _G[old_func] then
-        return
-    end
-    g.addon:RegisterMsg("EXPIREDITEM_ALERT_OPEN", "Indun_list_viewer_EXPIREDITEM_ALERT_ON_MSG")
-    if g.get_map_type() == "City" then
-        Indun_list_viewer_char_load_settings()
-        Indun_list_viewer_sort_characters()
-        Indun_list_viewer_raid_reset_reserve()
-        Indun_list_viewer_save_current_char_counts()
-    end
-    if g.settings.indun_list_viewer.use == 0 then
-        if _G["indun_list_viewer_title_frame_open"] == _G["Indun_list_viewer_title_frame_open"] then
-            _G["indun_list_viewer_title_frame_open"] = nil
-        end
-    else
-        if type(_G["Indun_list_viewer_title_frame_open"]) == "function" then
-            if type(_G["indun_list_viewer_title_frame_open"]) ~= "function" then
-                _G["indun_list_viewer_title_frame_open"] = _G["Indun_list_viewer_title_frame_open"]
+function Other_character_skill_list_char_load_settings()
+    local valid_cids = GetValidCIDs()
+    if next(valid_cids) then
+        local chars_to_delete = {}
+        for char_name, char_data in pairs(g.ocsl_settings.chars) do
+            local cid_str = tostring(char_data.cid)
+            if not valid_cids[cid_str] then
+                table.insert(chars_to_delete, char_name)
             end
         end
-    end
-    if _G["APPS_TRY_LEAVE"] ~= Instant_cc_APPS_TRY_LEAVE then
-        g.setup_hook(Instant_cc_APPS_TRY_LEAVE, "APPS_TRY_LEAVE")
-    end
-    g.addon:RegisterMsg("ESCAPE_PRESSED", "Indun_list_viewer_ESCAPE_PRESSED")
-    g.setup_hook_and_event(g.addon, "STATUS_SELET_REPRESENTATION_CLASS",
-        "Indun_list_viewer_STATUS_SELET_REPRESENTATION_CLASS", true)
-    g.setup_hook(Indun_list_viewer_EXPIREDITEM_ALERT_OK_BTN, "EXPIREDITEM_ALERT_OK_BTN")
-    -- g.setup_hook_and_event(g.addon, "APPS_TRY_MOVE_BARRACK", "Indun_list_viewer_APPS_TRY_MOVE_BARRACK", true)
-end
-
-function Indun_list_viewer_APPS_TRY_MOVE_BARRACK()
-    if g.get_map_type() == "City" then
-        Indun_list_viewer_save_current_char_counts()
-    end
-    if g.settings.instant_cc.use == 1 then
-        Instant_cc_APPS_TRY_MOVE_BARRACK_(nil, nil, nil, 0)
-        return
-    end
-    Indun_list_viewer_APPS_TRY_LEAVE("Barrack")
-end
-
-function Indun_list_viewer_APPS_TRY_LEAVE(type)
-    if Indun_list_viewer_CHECK_ALERT(type) then
-        return
-    end
-    if g.FUNCS["APPS_TRY_LEAVE"] then
-        g.FUNCS["APPS_TRY_LEAVE"](type)
-    end
-end
-
-function Indun_list_viewer_CHECK_ALERT(type)
-    if g.settings.indun_list_viewer.use == 0 then
-        return false
-    end
-
-    type = type or "Barrack" -- typeが無い場合はBarrack扱い
-
-    if type == "Barrack" or type == "Logout" or type == "Exit" then
-        local expireditem_alert = ui.GetFrame("expireditem_alert")
-        local near_future_sec = tonumber(expireditem_alert:GetUserConfig("NearFutureSec"))
-        local need_item = false
-        local need_token = false
-        if near_future_sec then
-            local list = GET_SCHEDULED_TO_EXPIRED_ITEM_LIST(near_future_sec)
-            need_item = (list ~= nil and #list > 0)
-            need_token = IS_NEED_TO_ALERT_TOKEN_EXPIRATION(near_future_sec)
-        end
-        local sweep_buffs = {80045, 80043, 80039, 80035, 80037, 80032, 80031, 80030, 80015, 80017, 80016}
-        local sweep_tbl = {}
-        local my_handle = session.GetMyHandle()
-        local limit_time_ms = 12 * 60 * 60 * 1000
-        for _, buff_id in ipairs(sweep_buffs) do
-            local buff_info = info.GetBuff(my_handle, buff_id)
-            if buff_info and buff_info.time <= limit_time_ms then
-                table.insert(sweep_tbl, {
-                    buff_over = buff_info.over,
-                    buff_time = buff_info.time,
-                    buff_id = buff_id
-                })
-            end
-        end
-        if need_item or need_token or #sweep_tbl > 0 then
-            Indun_list_viewer_EXPIREDITEM_ALERT_OPEN(nil, type, sweep_tbl)
-            return true -- 警告あり
+        for _, char_name in ipairs(chars_to_delete) do
+            g.ocsl_settings.chars[char_name] = nil
         end
     end
-    return false -- 警告なし
-end
-
-local function get_safe_entrance_count(indun_type)
-    local indun_cls = GetClassByType("Indun", indun_type)
-    if indun_cls and indun_cls.PlayPerResetType then
-        return GET_CURRENT_ENTERANCE_COUNT(indun_cls.PlayPerResetType)
-    end
-    return nil
-end
-
-function Indun_list_viewer_save_current_char_counts()
-    if g.get_map_type() ~= "City" then
-        return
-    end
-    local raid_data = {}
-    for key, raid in pairs(g.ilv_RAID_INFO) do
-        local count = get_safe_entrance_count(raid.hard)
-        raid_data[key .. "_H"] = count or "?"
-        count = get_safe_entrance_count(raid.auto)
-        raid_data[key .. "_A"] = count or "?"
-    end
-    g.ilv_settings.chars[g.login_name].raid_count = raid_data
-    local auto_clear_data = g.ilv_settings.chars[g.login_name].auto_clear_count
     local my_handle = session.GetMyHandle()
-    for _, key in ipairs(g.ilv_RAID_KEYS) do
-        local raid = g.ilv_RAID_INFO[key]
-        auto_clear_data[key .. "_S"] = 0
-        if raid.sweep_buff then
-            local buff_info = info.GetBuff(my_handle, raid.sweep_buff)
-            if buff_info then
-                auto_clear_data[key .. "_S"] = buff_info.over
-            end
-        end
+    if my_handle then
+        local my_name = info.GetName(my_handle)
+        local my_cid = info.GetCID(my_handle)
+        local char_data = g.ocsl_settings.chars[my_name] or {}
+        char_data.name = my_name
+        char_data.cid = my_cid
+        char_data.layer = char_data.layer or g.ocsl_layer or 1
+        char_data.order = char_data.order or 0
+        char_data.hide = char_data.hide or 0
+        char_data.equips = char_data.equips or {}
+        char_data.gear_score = char_data.gear_score or 0
+        g.ocsl_settings.chars[my_name] = char_data
     end
-    g.ilv_settings.chars[g.login_name].auto_clear_count = auto_clear_data
-    Indun_list_viewer_save_settings()
+    Other_character_skill_list_save_settings()
 end
-
-function Indun_list_viewer_EXPIREDITEM_ALERT_ON_MSG(frame, msg, str, num)
-    local expireditem_alert = ui.GetFrame("expireditem_alert")
-    if expireditem_alert then
-        expireditem_alert:SetLayerLevel(100)
-    end
-end
-
-function Indun_list_viewer_EXPIREDITEM_ALERT_OPEN(frame, arg_str, tbl, cid, layer)
-    local expireditem_alert = ui.GetFrame("expireditem_alert")
-    local near_future_sec = tonumber(expireditem_alert:GetUserConfig("NearFutureSec"))
-    local itemlist = GET_CHILD(expireditem_alert, "itemlist", "ui::CGroupBox")
-    itemlist:RemoveAllChild()
-    local start_index = 0
-    local ypos = 0
-    if tbl then
-        for key, data in ipairs(tbl) do
-            if type(data) == "table" then
-                local ctrlset = itemlist:CreateOrGetControlSet("expireditem_ctrlset",
-                    "expireditem_ctrlset" .. start_index + 1, 0, ypos)
-                AUTO_CAST(ctrlset)
-                local name = GET_CHILD_RECURSIVELY(ctrlset, "name", "ui::CRichText")
-                local expiration_time = GET_CHILD_RECURSIVELY(ctrlset, "expirationTime", "ui::CRichText")
-                local remaining_time = GET_CHILD_RECURSIVELY(ctrlset, "remainingTime", "ui::CRichText")
-                local item_pic = GET_CHILD_RECURSIVELY(ctrlset, "item_pic", "ui::CPicture")
-                local buff_cls = GetClassByType("Buff", data.buff_id)
-                if buff_cls then
-                    name:SetTextByKey("itemname", buff_cls.Name)
-                    local icon_name = "icon_" .. buff_cls.Icon
-                    item_pic:SetImage(icon_name)
-                end
-                local expiration_systime = geTime.GetServerSystemTime()
-                expiration_systime = imcTime.AddSec(expiration_systime, data.buff_time / 1000)
-                expiration_time:SetTextByKey("year", expiration_systime.wYear)
-                expiration_time:SetTextByKey("month", GET_TWO_DIGIT_STR(expiration_systime.wMonth))
-                expiration_time:SetTextByKey("day", GET_TWO_DIGIT_STR(expiration_systime.wDay))
-                local buff_time = data.buff_time / 1000
-                local days = math.floor(buff_time / 86400)
-                local hours = math.floor((buff_time % 86400) / 3600)
-                local mins = math.floor(((buff_time % 86400) % 3600) / 60)
-                local sec = ((buff_time % 86400) % 3600) % 60
-                local dif_sec_msg = ""
-                if days > 0 then
-                    dif_sec_msg = ScpArgMsg("{Day}Day{Hour}Hour{Min}Min", "Day", days, "Hour", hours, "Min", mins)
-                elseif hours > 0 then
-                    dif_sec_msg = ScpArgMsg("{Hour}Hour{Min}Min{Sec}Sec", "Hour", hours, "Min", mins, "Sec", sec)
-                elseif mins > 0 then
-                    dif_sec_msg = ScpArgMsg("{Min}Min{Sec}Sec", "Min", mins, "Sec", sec)
-                else
-                    dif_sec_msg = ScpArgMsg("{Sec}Sec", "Sec", sec)
-                end
-                remaining_time:SetText(dif_sec_msg)
-                local time_parent = remaining_time:GetParent()
-                local amend_h = remaining_time:GetY() + remaining_time:GetHeight()
-                if amend_h < time_parent:GetHeight() then
-                    amend_h = ctrlset:GetHeight()
-                else
-                    local addedHeight = amend_h - time_parent:GetHeight()
-                    ctrlset:Resize(ctrlset:GetWidth(), ctrlset:GetHeight() + addedHeight)
-                end
-                ypos = ypos + ctrlset:GetHeight()
-                start_index = start_index + 1
-            end
-        end
-    end
-    if IS_NEED_TO_ALERT_TOKEN_EXPIRATION(near_future_sec, itemlist) then
-        ypos = ASK_EXPIREDITEM_ALERT_TOKEN(expireditem_alert, itemlist, start_index, ypos)
-        start_index = start_index + 1
-    end
-    local list = GET_SCHEDULED_TO_EXPIRED_ITEM_LIST(near_future_sec)
-    if list and #list >= 1 then
-        ypos = ASK_EXPIREDITEM_ALERT_LIFETIME(expireditem_alert, itemlist, near_future_sec, start_index, ypos)
-        start_index = start_index + #list
-    end
-    expireditem_alert:Resize(expireditem_alert:GetWidth(), expireditem_alert:GetOriginalHeight() + itemlist:GetHeight())
-    if arg_str then
-        expireditem_alert:SetUserValue("TimerType", arg_str)
-    end
-    if cid then
-        expireditem_alert:SetUserValue("CC_CID", cid)
-        expireditem_alert:SetUserValue("CC_LAYER", layer or 0)
-    else
-        expireditem_alert:SetUserValue("CC_CID", "None")
-    end
-    expireditem_alert:ShowWindow(1)
-end
-
-function Indun_list_viewer_raid_reset_reserve()
-    local server_time_str = date_time.get_lua_now_datetime_str()
-    if server_time_str then
-        local y, m, d, H, M, S = server_time_str:match("(%d+)-(%d+)-(%d+) (%d+):(%d+):(%d+)")
-        if y then
-            local server_now_timestamp = os.time({
-                year = tonumber(y),
-                month = tonumber(m),
-                day = tonumber(d),
-                hour = tonumber(H),
-                min = tonumber(M),
-                sec = tonumber(S)
-            })
-            if server_now_timestamp > g.ilv_settings.options.reset_time then
-                Indun_list_viewer_raid_reset()
-            end
-        end
-    end
-end
-
-function Indun_list_viewer_raid_reset()
-    local acc_info = session.barrack.GetMyAccount()
-    local barrack_pc_count = acc_info:GetBarrackPCCount() -- ゲーム起動直後はtonumber(0)そのため初期化は2回目以降
-    if barrack_pc_count > 0 then
-        for i = 0, barrack_pc_count - 1 do
-            local barrack_pc_info = acc_info:GetBarrackPCByIndex(i)
-            if barrack_pc_info then
-                local barrack_pc_name = barrack_pc_info:GetName()
-                local char_data = g.ilv_settings.chars[barrack_pc_name]
-                if char_data then
-                    char_data.raid_count = {}
-                    for _, key in ipairs(g.ilv_RAID_KEYS) do
-                        char_data.raid_count[key .. "_H"] = "?"
-                        char_data.raid_count[key .. "_A"] = "?"
-                    end
-                end
-            end
-        end
-        g.ilv_settings.options.reset_time = Indun_list_viewer_get_reset_time()
-        Indun_list_viewer_save_settings()
-        if g.settings.indun_list_viewer.use ~= 0 then
-            if g.lang == "Japanese" then
-                ui.SysMsg("[ILV]レイドの回数を初期化しました")
-            else
-                ui.SysMsg("[ILV]Raid counts were initialized")
-            end
-        end
-    end
-end
-
-function Indun_list_viewer_get_reset_time()
-    local server_time_str = date_time.get_lua_now_datetime_str()
-    if not server_time_str then
-        return 0
-    end
-    local year, month, day, hour, min, sec = server_time_str:match("(%d+)-(%d+)-(%d+) (%d+):(%d+):(%d+)")
-    if not year then
-        return 0
-    end
-    local now_table = {
-        year = tonumber(year),
-        month = tonumber(month),
-        day = tonumber(day),
-        hour = tonumber(hour),
-        min = tonumber(min),
-        sec = tonumber(sec)
-    }
-    local now_timestamp = os.time(now_table)
-    local current_day_of_week = tonumber(os.date("%w", now_timestamp)) + 1
-    local days_to_next_monday
-    if current_day_of_week == 2 and now_table.hour < 6 then
-        days_to_next_monday = 0
-    else
-        days_to_next_monday = (9 - current_day_of_week) % 7
-        if days_to_next_monday == 0 then
-            days_to_next_monday = 7
-        end
-    end
-    local next_monday_timestamp_base = now_timestamp + days_to_next_monday * 86400
-    local next_monday_date = os.date("*t", next_monday_timestamp_base)
-    local next_monday_6am_timestamp = os.time({
-        year = next_monday_date.year,
-        month = next_monday_date.month,
-        day = next_monday_date.day,
-        hour = 6,
-        min = 0,
-        sec = 0
-    })
-    return next_monday_6am_timestamp
-end
-
-function Indun_list_viewer_sort_characters()
-    g.ilv_sorted_settings = {}
-    for key, data in pairs(g.ilv_settings.chars) do
-        if type(data) == "table" then
-            table.insert(g.ilv_sorted_settings, data)
-        end
-    end
-    local function sort_layer_order(a, b)
-        if a.layer ~= b.layer then
-            return a.layer < b.layer
-        else
-            return a.order < b.order
-        end
-    end
-    table.sort(g.ilv_sorted_settings, sort_layer_order)
-end
-
-function Indun_list_viewer_STATUS_SELET_REPRESENTATION_CLASS(my_frame, my_msg)
-    if not g.ilv_settings then
-        return
-    end
-    local _, select_key = g.get_event_args(my_msg)
-    local pc_job_info = session.GetMainSession():GetPCJobInfo()
-    local job_count = pc_job_info:GetJobCount()
-    local job_id_parts = {}
-    for i = 0, job_count - 1 do
-        local job_info = pc_job_info:GetJobInfoByIndex(i)
-        table.insert(job_id_parts, job_info.jobID)
-    end
-    g.ilv_settings.chars[g.login_name].jobid = "/" .. table.concat(job_id_parts, "/")
-    g.ilv_settings.chars[g.login_name].president_jobid = tostring(select_key)
-    Indun_list_viewer_save_settings()
-    Indun_list_viewer_title_frame_open()
-end
-
-function Indun_list_viewer_INDUNINFO_SET_BUTTONS(indun_type, ctrl)
-    local indun_cls = GetClassByType("Indun", indun_type)
-    local dungeon_type = TryGetProp(indun_cls, "DungeonType", "None")
-    local btn_info_cls = GetClassByStrProp("IndunInfoButton", "DungeonType", dungeon_type)
-    if dungeon_type == "Raid" then
-        btn_info_cls = INDUNINFO_SET_BUTTONS_FIND_CLASS(indun_cls)
-    end
-    local red_button_scp = TryGetProp(btn_info_cls, "RedButtonScp")
-    ctrl:SetUserValue("MOVE_INDUN_CLASSID", indun_cls.ClassID)
-    ctrl:SetEventScript(ui.LBUTTONUP, red_button_scp)
-end
-
-function Indun_list_viewer_enter_hard(parent, ctrl, str, indun_type)
-    if str == "false" then
-        Indun_list_viewer_INDUNINFO_SET_BUTTONS(indun_type, ctrl)
-        ReserveScript(string.format("Indun_list_viewer_enter_hard(nil, nil, 'true', %d)", indun_type), 0.5)
-    else
-        SHOW_INDUNENTER_DIALOG(indun_type)
-        local indun_list_viewer = parent:GetTopParentFrame()
-        ui.DestroyFrame(indun_list_viewer:GetName())
-    end
-end
-
-function Indun_list_viewer_enter_solo_or_auto(parent, ctrl, move_type_str, indun_type)
-    local move_type = tonumber(move_type_str)
-    ReqRaidAutoUIOpen(indun_type)
-    if move_type == 2 then
-        local indunenter = ui.GetFrame("indunenter")
-        local indun_cls = GetClassByType("Indun", indunenter:GetUserValue("INDUN_TYPE"))
-        local min_rank = TryGetProp(indun_cls, "PCRank")
-        if min_rank and min_rank > session.GetPcTotalJobGrade() then
-            ui.SysMsg(ScpArgMsg("IndunEnterNeedPCRank", "NEED_RANK", min_rank))
-            return
-        end
-    end
-    ReserveScript(string.format("ReqMoveToIndun(%d, 0)", move_type), 0.3)
-    local indun_list_viewer = parent:GetTopParentFrame()
-    ui.DestroyFrame(indun_list_viewer:GetName())
-end
-
-function Indun_list_viewer_config(parent)
-    local indun_list_viewer = parent:GetTopParentFrame()
-    indun_list_viewer:RemoveAllChild()
-    local title_gb = indun_list_viewer:CreateOrGetControl("groupbox", "title_gb", 0, 0, 10, 10)
-    AUTO_CAST(title_gb)
-    local config_gb = indun_list_viewer:CreateOrGetControl("groupbox", "config_gb", 10, 35, 10, 10)
-    AUTO_CAST(config_gb)
-    config_gb:SetSkinName("bg")
-    local text = config_gb:CreateOrGetControl("richtext", "text", 10, 10)
-    AUTO_CAST(text)
-    text:SetText(g.lang == "Japanese" and "チェックすると表示" or "{ol}Check to show")
-    local x = text:GetX() + text:GetWidth() + 5
-    local text_x = 0
-    for _, raid_key in ipairs(g.ilv_RAID_KEYS) do
-        local raid_info = g.ilv_RAID_INFO[raid_key]
-        if text_x == 0 then
-            text_x = x
-        end
-        local pic = title_gb:CreateOrGetControl("picture", "title_pic_" .. raid_key .. "_H", x + 5, 5, 30, 30)
-        AUTO_CAST(pic)
-        pic:SetImage(raid_info.icon)
-        pic:SetEnableStretch(1)
-        pic:EnableHitTest(1)
-        local check = config_gb:CreateOrGetControl("checkbox", "check_" .. raid_key .. "_H", x, 5, 30, 30)
-        AUTO_CAST(check)
-        check:SetCheck(g.ilv_settings.display[raid_info.name .. "_H"])
-        check:SetEventScript(ui.LBUTTONDOWN, "Indun_list_viewer_display_check")
-        check:SetEventScriptArgString(ui.LBUTTONDOWN, raid_info.name .. "_H")
-        x = x + 30
-    end
-    local hard_text = title_gb:CreateOrGetControl("richtext", "hard_text", text_x - 40, 10)
-    AUTO_CAST(hard_text)
-    hard_text:SetText("{ol}Hard")
-    x = x + 100
-    text_x = 0
-    for _, raid_key in ipairs(g.ilv_RAID_KEYS) do
-        local raid_info = g.ilv_RAID_INFO[raid_key]
-        if text_x == 0 then
-            text_x = x
-        end
-        local pic = title_gb:CreateOrGetControl("picture", "title_pic_" .. raid_key .. "_S", x + 5, 5, 30, 30)
-        AUTO_CAST(pic)
-        pic:SetImage(raid_info.icon)
-        pic:SetEnableStretch(1)
-        pic:EnableHitTest(1)
-        local check = config_gb:CreateOrGetControl("checkbox", "check_" .. raid_key .. "_S", x, 5, 30, 30)
-        AUTO_CAST(check)
-        check:SetCheck(g.ilv_settings.display[raid_info.name .. "_S"])
-        check:SetEventScript(ui.LBUTTONDOWN, "Indun_list_viewer_display_check")
-        check:SetEventScriptArgString(ui.LBUTTONDOWN, raid_info.name .. "_S")
-        x = x + 30
-    end
-    local auto_text = title_gb:CreateOrGetControl("richtext", "auto_text", text_x - 80, 10)
-    AUTO_CAST(auto_text)
-    auto_text:SetText("{ol}Solo/Auto")
-    x = x + 30
-    local memo_text = title_gb:CreateOrGetControl("richtext", "memo_text", x, 10)
-    AUTO_CAST(memo_text)
-    memo_text:SetText("{ol}Memo")
-    local memo_check = config_gb:CreateOrGetControl("checkbox", "check_memo", x, 5, 30, 30)
-    AUTO_CAST(memo_check)
-    memo_check:SetCheck(g.ilv_settings.display["Memo"])
-    memo_check:SetEventScript(ui.LBUTTONDOWN, "Indun_list_viewer_display_check")
-    memo_check:SetEventScriptArgString(ui.LBUTTONDOWN, "Memo")
-    local close_button = title_gb:CreateOrGetControl("button", "close_button", 0, 0, 20, 20)
-    AUTO_CAST(close_button)
-    close_button:SetImage("testclose_button")
-    close_button:SetGravity(ui.LEFT, ui.TOP)
-    close_button:SetEventScript(ui.LBUTTONUP, "Indun_list_viewer_close")
-    close_button:SetEventScriptArgNumber(ui.LBUTTONUP, 1)
-    title_gb:Resize(x + 50, 55)
-    indun_list_viewer:Resize(title_gb:GetWidth() + 20, 85)
-    config_gb:Resize(indun_list_viewer:GetWidth() - 20, indun_list_viewer:GetHeight() - 45)
-end
-
-function Indun_list_viewer_display_check(parent, ctrl, key, num)
-    g.ilv_settings.display[key] = ctrl:IsChecked() == 1 and 1 or 0
-    Indun_list_viewer_save_settings()
-end
-
-function Indun_list_viewer_title_frame_open()
-    Indun_list_viewer_save_current_char_counts()
-    if g.settings.indun_list_viewer.use == 0 then
-        return
-    end
-    local indun_list_viewer = ui.CreateNewFrame("notice_on_pc", addon_name_lower .. "indun_list_viewer", 0, 0, 10, 10)
-    AUTO_CAST(indun_list_viewer)
-    indun_list_viewer:RemoveAllChild()
-    indun_list_viewer:SetLayerLevel(99)
-    indun_list_viewer:SetSkinName("test_frame_low")
-    local title_gb = indun_list_viewer:CreateOrGetControl("groupbox", "title_gb", 0, 0, 10, 10)
-    AUTO_CAST(title_gb)
-    local texts = (g.lang == "Japanese") and {
-        hard_raid = "ハード",
-        auto_raid = "左クリック:ソロ入場{nl}右クリック:自動入場{nl} {nl}入場回数/掃討回数",
-        mode_text = "チェックを入れるとスクロールモードに切替",
-        display_text = "チェックしたキャラはレイド回数非表示",
-        memo = "メモ",
-        display = "表示",
-        hidden = "チェックを入れると非表示キャラを表示しません"
-    } or {
-        hard_raid = "Hard Count",
-        auto_raid = "Left-click: Solo Entry{nl}Right-click: Automatic Entry{nl} {nl}Entry Count/Auto clear count",
-        mode_text = "Switch to scroll mode when checked",
-        display_text = "Checked characters hide raid count",
-        memo = "Memo",
-        display = "Disp",
-        hidden = "If checked, do not show hidden characters"
-    }
-    local x = 185
-    for _, raid_key in ipairs(g.ilv_RAID_KEYS) do
-        local raid_info = g.ilv_RAID_INFO[raid_key]
-        if raid_info and raid_info.name then -- ここで安全確認
-            if g.ilv_settings.display[raid_info.name .. "_H"] == 1 then
-                local pic = title_gb:CreateOrGetControl("picture", "title_pic_" .. raid_key .. "_H", x, 5, 30, 30)
-                AUTO_CAST(pic)
-                pic:SetImage(raid_info.icon)
-                pic:SetEnableStretch(1)
-                pic:EnableHitTest(1)
-                pic:SetEventScript(ui.LBUTTONDOWN, "Indun_list_viewer_enter_hard")
-                pic:SetEventScriptArgNumber(ui.LBUTTONDOWN, raid_info.hard)
-                pic:SetEventScriptArgString(ui.LBUTTONDOWN, "false")
-                pic:SetTextTooltip("{ol}" .. texts.hard_raid)
-                x = x + 30
-            end
-        end
-    end
-    x = x + 30
-    for _, raid_key in ipairs(g.ilv_RAID_KEYS) do
-        local raid_info = g.ilv_RAID_INFO[raid_key]
-        if raid_info and raid_info.name then -- ここで安全確認
-            if g.ilv_settings.display[raid_info.name .. "_S"] == 1 then
-                local pic = title_gb:CreateOrGetControl("picture", "title_pic_" .. raid_key .. "_S", x, 5, 30, 30)
-                AUTO_CAST(pic)
-                pic:SetImage(raid_info.icon)
-                pic:SetEnableStretch(1)
-                pic:EnableHitTest(1)
-                pic:SetEventScript(ui.LBUTTONUP, "Indun_list_viewer_enter_solo_or_auto")
-                pic:SetEventScriptArgString(ui.LBUTTONUP, "1")
-                pic:SetEventScriptArgNumber(ui.LBUTTONUP, raid_info.solo)
-                pic:SetEventScript(ui.RBUTTONUP, "Indun_list_viewer_enter_solo_or_auto")
-                pic:SetEventScriptArgString(ui.RBUTTONUP, "2")
-                pic:SetEventScriptArgNumber(ui.RBUTTONUP, raid_info.auto)
-                pic:SetTextTooltip("{ol}" .. texts.auto_raid)
-                x = x + 65
-            end
-        end
-    end
-    local close_button = title_gb:CreateOrGetControl("button", "close_button", 0, 0, 20, 20)
-    AUTO_CAST(close_button)
-    close_button:SetImage("testclose_button")
-    close_button:SetGravity(ui.LEFT, ui.TOP)
-    close_button:SetEventScript(ui.LBUTTONUP, "Indun_list_viewer_close")
-    local cc_button = title_gb:CreateOrGetControl("button", "cc_button", 40, 5, 30, 30)
-    AUTO_CAST(cc_button)
-    cc_button:SetSkinName("None")
-    cc_button:SetText("{img barrack_button_normal 30 30}")
-    cc_button:SetEventScript(ui.LBUTTONUP, "Indun_list_viewer_APPS_TRY_MOVE_BARRACK")
-    local config_btn = title_gb:CreateOrGetControl("button", "config_btn", 75, 5, 30, 30)
-    AUTO_CAST(config_btn)
-    config_btn:SetSkinName("None")
-    config_btn:SetText("{img config_button_normal 30 30}")
-    config_btn:SetEventScript(ui.LBUTTONUP, "Indun_list_viewer_config")
-    local mode_check = title_gb:CreateOrGetControl("checkbox", "mode_check", 115, 5, 30, 30)
-    AUTO_CAST(mode_check)
-    mode_check:SetCheck(g.ilv_settings.options.display_mode == "slide" and 1 or 0)
-    mode_check:SetEventScript(ui.LBUTTONUP, "Indun_list_viewer_modechange")
-    mode_check:SetTextTooltip("{ol}" .. texts.mode_text)
-    local hidden_check = title_gb:CreateOrGetControl("checkbox", "hidden_check", 150, 5, 30, 30)
-    AUTO_CAST(hidden_check)
-    hidden_check:SetCheck(g.ilv_settings.options.hidden)
-    hidden_check:SetEventScript(ui.LBUTTONUP, "Indun_list_viewer_modechange")
-    hidden_check:SetTextTooltip("{ol}" .. texts.hidden)
-    if g.ilv_settings.display["Memo"] == 1 then
-        local memo_text = title_gb:CreateOrGetControl("richtext", "memo_text", x, 10)
-        AUTO_CAST(memo_text)
-        memo_text:SetText("{ol}" .. texts.memo)
-        x = x + 160
-    end
-    local display_text = title_gb:CreateOrGetControl("richtext", "display_text", x, 10)
-    AUTO_CAST(display_text)
-    display_text:SetText("{ol}" .. texts.display)
-    display_text:SetTextTooltip("{ol}" .. texts.display_text)
-    indun_list_viewer:ShowWindow(1)
-    Indun_list_viewer_frame_open(indun_list_viewer)
-end
-
-function Indun_list_viewer_ESCAPE_PRESSED()
-    local indun_list_viewer = ui.GetFrame(addon_name_lower .. "indun_list_viewer")
-    Indun_list_viewer_close(indun_list_viewer)
-end
-
-function Indun_list_viewer_close(parent, ctrl, str, num)
-    local indun_list_viewer = parent:GetTopParentFrame()
-    ui.DestroyFrame(indun_list_viewer:GetName())
-    if num == 1 then
-        ReserveScript("Indun_list_viewer_title_frame_open()", 0.1)
-    end
-end
-
-function Indun_list_viewer_modechange(parent, ctrl)
-    local ctrl_name = ctrl:GetName()
-    local is_checked = ctrl:IsChecked()
-    if ctrl_name == "hidden_check" then
-        g.ilv_settings.options.hidden = is_checked
-    else -- mode_check
-        g.ilv_settings.options.display_mode = is_checked == 1 and "slide" or "full"
-    end
-    Indun_list_viewer_save_settings()
-    Indun_list_viewer_title_frame_open()
-end
-
-function Indun_list_viewer_frame_open(indun_list_viewer)
-    local title_gb = GET_CHILD(indun_list_viewer, "title_gb")
-    AUTO_CAST(title_gb)
-    local gb = indun_list_viewer:CreateOrGetControl("groupbox", "gb", 10, 35, 10, 10)
-    AUTO_CAST(gb)
-    gb:SetSkinName("bg")
-    local sorted_char_list = {}
-    for _, data in ipairs(g.ilv_sorted_settings) do
-        if type(data) == "table" then
-            if g.ilv_settings.options.hidden == 0 or not data.hide then
-                table.insert(sorted_char_list, data)
-            end
-        end
-    end
-    local y = 10
-    local max_x = 0
-    if not g.ilv_RAID_KEYS or not g.ilv_RAID_INFO then
-        return
-    end
-    for _, data in ipairs(sorted_char_list) do
-        local x = 35
-        local pc_name = data.pc_name
-        local name = gb:CreateOrGetControl("richtext", pc_name, x, y)
-        AUTO_CAST(name)
-        name:SetText(("{ol}{s14}" .. (g.login_name == pc_name and "{#FF4500}" or "") .. pc_name))
-        Indun_list_viewer_job_slot(indun_list_viewer, data, y)
-        x = x + 60
-        if not data.hide then
-            local current_x = 180
-            local raid_count_data = data.raid_count or {}
-            local auto_clear_data = data.auto_clear_count or {}
-            for _, raid_key in ipairs(g.ilv_RAID_KEYS) do
-                local raid_info = g.ilv_RAID_INFO[raid_key]
-                if raid_info and raid_info.name then
-                    if g.ilv_settings.display[raid_info.name .. "_H"] == 1 then
-                        local count = raid_count_data[raid_key .. "_H"] or "?"
-                        local text_ctrl = gb:CreateOrGetControl("richtext", raid_key .. "_H_" .. pc_name, current_x, y)
-                        AUTO_CAST(text_ctrl)
-                        text_ctrl:SetText("{ol}{s14}( " .. count .. " )")
-                        local limit = (raid_key == "P" or raid_key == "F") and 2 or 1
-                        local num_count = tonumber(count) or 0
-                        text_ctrl:SetColorTone(num_count >= limit and "FF990000" or "FFFFFFFF")
-                        current_x = current_x + 30
-                    end
-                end
-            end
-            current_x = current_x + 30
-            for _, raid_key in ipairs(g.ilv_RAID_KEYS) do
-                local raid_info = g.ilv_RAID_INFO[raid_key]
-                if raid_info and raid_info.name then
-                    if g.ilv_settings.display[raid_info.name .. "_S"] == 1 then
-                        local limit = (raid_key == "P" or raid_key == "F") and 4 or 2
-                        local count_a = raid_count_data[raid_key .. "_A"] or "?"
-                        local text_a = gb:CreateOrGetControl("richtext", raid_key .. "_A_" .. pc_name, current_x, y)
-                        AUTO_CAST(text_a)
-                        text_a:SetText("{ol}{s14}( " .. count_a .. " )")
-                        local num_a = tonumber(count_a)
-                        if num_a and num_a > 0 then
-                            text_a:SetColorTone(num_a == limit and "FF990000" or "FFFFFFFF")
-                        end
-                        if raid_key ~= "D" then
-                            current_x = current_x + 25
-                            local count_s = auto_clear_data[raid_key .. "_S"] or 0
-                            local text_s = gb:CreateOrGetControl("richtext", raid_key .. "_S_" .. pc_name, current_x, y)
-                            AUTO_CAST(text_s)
-                            text_s:SetText("{ol}{s14}/( " .. count_s .. " )")
-                            local num_s = tonumber(count_s)
-                            if num_s and num_s > 0 then
-                                -- text_s:SetColorTone(num_s == limit and "FFFFA500" or "FFFFFFFF")
-                                text_s:SetColorTone("FFFFA500")
-                            end
-                        end
-                        current_x = current_x + 40
-                    end
-                end
-            end
-            if g.ilv_settings.display["Memo"] == 1 then
-                local memo = gb:CreateOrGetControl("edit", "memo" .. pc_name, current_x, y - 2, 180, 20)
-                AUTO_CAST(memo)
-                memo:SetFontName("white_14_ol")
-                memo:SetTextAlign("left", "center")
-                memo:SetSkinName("inventory_serch")
-                memo:SetEventScript(ui.ENTERKEY, "Indun_list_viewer_memo_save")
-                memo:SetEventScriptArgString(ui.ENTERKEY, pc_name)
-                memo:SetText(data.memo or "")
-                current_x = current_x + 180
-            end
-            x = current_x
-        end
-        if x > max_x then
-            max_x = x
-        end
-        y = y + 25
-    end
-    local display_x = max_x + 20
-    y = 10
-    for _, data in ipairs(sorted_char_list) do
-        local pc_name = data.pc_name
-        local line = gb:CreateOrGetControl("labelline", "line" .. pc_name, 25, y + 20, max_x - 20, 1)
-        AUTO_CAST(line)
-        line:SetSkinName("labelline_def_3")
-        local display_check = gb:CreateOrGetControl("checkbox", "display" .. pc_name, display_x, y - 5, 25, 25)
-        AUTO_CAST(display_check)
-        display_check:SetEventScript(ui.LBUTTONUP, "Indun_list_viewer_display_save")
-        display_check:SetEventScriptArgString(ui.LBUTTONUP, pc_name)
-        display_check:SetCheck(data.hide and 1 or 0)
-        y = y + 25
-    end
-    local frame_width = display_x + 60
-    local frame_height = y + 50
-    if g.ilv_settings.options.display_mode == "slide" and frame_height > 545 then
-        frame_height = 545
-        gb:EnableScrollBar(1)
-    end
-    indun_list_viewer:Resize(frame_width, frame_height)
-    gb:Resize(indun_list_viewer:GetWidth() - 20, indun_list_viewer:GetHeight() - 45)
-    title_gb:Resize(indun_list_viewer:GetWidth() - 20, 55)
-    local display_text = GET_CHILD_RECURSIVELY(indun_list_viewer, "display_text")
-    if display_text then
-        AUTO_CAST(display_text)
-        display_text:SetPos(display_x, 10)
-    end
-    local map_frame = ui.GetFrame("map")
-    indun_list_viewer:SetPos((map_frame:GetWidth() - indun_list_viewer:GetWidth()) / 2, 35)
-end
-
-function Indun_list_viewer_job_slot(indun_list_viewer, data, y)
-    local pc_name = data.pc_name
-    local job_id_str = data.jobid or ""
-    local president_id_str = data.president_jobid or ""
-    local _, _, last_job_id = GetJobListFromAdventureBookCharData(pc_name)
-    local prepresentative_job_id = (president_id_str ~= "") and president_id_str or last_job_id
-    local job_class = GetClassByType("Job", tonumber(prepresentative_job_id) or 0)
-    local job_icon_name = "icon_item_nothing" -- デフォルト（?マークや空）
-    if job_class then
-        job_icon_name = TryGetProp(job_class, "Icon", "icon_item_nothing")
-    end
-    local gb = GET_CHILD_RECURSIVELY(indun_list_viewer, "gb")
-    local job_slot = gb:CreateOrGetControl("slot", "jobslot" .. pc_name, 5, y - 4, 25, 25)
-    AUTO_CAST(job_slot)
-    job_slot:SetSkinName("None")
-    job_slot:EnableHitTest(1)
-    job_slot:EnablePop(0)
-    local job_icon = CreateIcon(job_slot)
-    job_icon:SetImage(job_icon_name)
-    local tooltip_parts = {}
-    if job_id_str ~= "" then
-        local highlight_color = "{#FF0000}"
-        for id_str in job_id_str:gmatch("/([^/]+)") do
-            local job_id_num = tonumber(id_str)
-            if job_id_num then
-                local cls = GetClassByType("Job", job_id_num)
-                if cls and cls.Name then
-                    local name = (string.gsub(dic.getTranslatedStr(cls.Name), "{s18}", ""))
-                    if id_str == president_id_str then
-                        table.insert(tooltip_parts, highlight_color .. name .. "{/}")
-                    else
-                        table.insert(tooltip_parts, name)
-                    end
-                end
-            end
-        end
-    else
-        if job_class and job_class.Name then
-            local name = TryGetProp(job_class, "Name")
-            table.insert(tooltip_parts, (string.gsub(dic.getTranslatedStr(name), "{s18}", "")))
-        end
-    end
-    local tooltip_text = "{ol}" .. table.concat(tooltip_parts, "{nl}")
-    if g.login_name == pc_name then
-        local r_click_text = (g.lang == "Japanese") and "右クリック: 表示アイコン選択" or
-                                 "Right-click: Select Display Icon"
-        tooltip_text = tooltip_text .. "{nl} {nl}" .. r_click_text
-        job_slot:SetEventScript(ui.RBUTTONDOWN, "STATUS_OPEN_CLASS_DROPLIST")
-        local name_text = GET_CHILD_RECURSIVELY(gb, pc_name)
-        name_text:SetEventScript(ui.RBUTTONDOWN, "STATUS_OPEN_CLASS_DROPLIST")
-    end
-    if type(_G["INSTANTCC_ON_INIT"]) == "function" and g.settings.instant_cc.use == 1 then -- InstantCCアドオン連携
-        local cc_text = (g.lang == "Japanese") and "左クリック: キャラクターチェンジ" or
-                            "Left-click: Character Change"
-        tooltip_text = tooltip_text .. "{nl} {nl}{#FF4500}" .. cc_text
-        job_slot:SetEventScript(ui.LBUTTONDOWN, "Indun_list_viewer_INSTANTCC_DO_CC")
-        job_slot:SetEventScriptArgString(ui.LBUTTONDOWN, data.cid)
-        job_slot:SetEventScriptArgNumber(ui.LBUTTONDOWN, data.layer)
-        local name_text = GET_CHILD_RECURSIVELY(gb, pc_name)
-        name_text:SetEventScript(ui.LBUTTONDOWN, "Indun_list_viewer_INSTANTCC_DO_CC")
-        name_text:SetEventScriptArgString(ui.LBUTTONDOWN, data.cid)
-        name_text:SetEventScriptArgNumber(ui.LBUTTONDOWN, data.layer)
-        name_text:SetTextTooltip(tooltip_text)
-    end
-    job_icon:SetTextTooltip(tooltip_text)
-end
-
-function Indun_list_viewer_INSTANTCC_DO_CC(parent, ctrl, cid, layer)
-    if ui.CheckHoldedUI() then
-        return
-    end
-    if g.get_map_type() == "City" then
-        Indun_list_viewer_save_current_char_counts()
-    end
-    local expireditem_alert = ui.GetFrame("expireditem_alert")
-    local near_future_sec = tonumber(expireditem_alert:GetUserConfig("NearFutureSec"))
-    local need_alert = false
-    if near_future_sec then
-        local list = GET_SCHEDULED_TO_EXPIRED_ITEM_LIST(near_future_sec)
-        if list and #list > 0 then
-            need_alert = true
-        end
-        if IS_NEED_TO_ALERT_TOKEN_EXPIRATION(near_future_sec) then
-            need_alert = true
-        end
-    end
-    local sweep_buffs = {80045, 80043, 80039, 80035, 80037, 80032, 80031, 80030, 80015, 80017, 80016}
-    local sweep_tbl = {}
-    local my_handle = session.GetMyHandle()
-    local limit_time_ms = 12 * 60 * 60 * 1000
-    for _, buff_id in ipairs(sweep_buffs) do
-        local buff_info = info.GetBuff(my_handle, buff_id)
-        if buff_info and buff_info.time <= limit_time_ms then
-            table.insert(sweep_tbl, {
-                buff_over = buff_info.over,
-                buff_time = buff_info.time,
-                buff_id = buff_id
-            })
-            need_alert = true
-        end
-    end
-    if need_alert then
-        Indun_list_viewer_EXPIREDITEM_ALERT_OPEN(nil, "Barrack", sweep_tbl, cid, layer)
-        return
-    end
-    if _G["INSTANTCC_DO_CC"] then
-        _G["INSTANTCC_DO_CC"](cid, layer)
-    end
-    -- INSTANTCC_DO_CC(cid, layer)
-end
-
-function Indun_list_viewer_EXPIREDITEM_ALERT_OK_BTN(frame)
-    local timerType = frame:GetUserValue("TimerType")
-    local cid = frame:GetUserValue("CC_CID")
-    local layer = frame:GetUserIValue("CC_LAYER")
-    if cid and cid ~= "None" then
-        if not g.instant_cc then
-            g.instant_cc = {}
-        end -- 安全策
-        g.instant_cc.do_cc = {
-            cid = cid,
-            layer = layer
-        }
-        RUN_GAMEEXIT_TIMER("Barrack")
-        frame:ShowWindow(0)
-        return
-    end
-    RUN_GAMEEXIT_TIMER(timerType)
-    frame:ShowWindow(0)
-end
-
-function Indun_list_viewer_memo_save(frame, ctrl, pc_name, num)
-    if g.ilv_settings.chars[pc_name] then
-        g.ilv_settings.chars[pc_name].memo = ctrl:GetText()
-        Indun_list_viewer_save_settings()
-    end
-    ui.SysMsg(g.lang == "Japanese" and "メモを登録しました。" or "MEMO registered.")
-end
-
-function Indun_list_viewer_display_save(frame, ctrl, pc_name, num)
-    local is_checked = ctrl:IsChecked()
-    if g.ilv_settings.chars[pc_name] then
-        g.ilv_settings.chars[pc_name].hide = (is_checked == 1)
-        Indun_list_viewer_save_settings()
-    end
-    Indun_list_viewer_title_frame_open()
-end
--- ndun_list_viewer ここまで
 
 -- cc_helper ここから
 function Cc_helper_save_settings()
@@ -5882,16 +5040,17 @@ function Cc_helper_equips(out_btn)
     local inventype_Tab = GET_CHILD_RECURSIVELY(inventory, "inventype_Tab")
     inventype_Tab:SelectTab(1)
     for i, data in ipairs(g.cc_helper_tbl) do
-        for spot, equip in pairs(data) do
-            local guid = g.cc_helper_settings[g.cid].items[equip].iesid
-            local inv_item = session.GetInvItemByGuid(guid)
-            if inv_item then
-                local equip_slot = GET_CHILD_RECURSIVELY(inventory, spot)
-                local icon = equip_slot:GetIcon()
-                if not icon then
-                    local item_index = inv_item.invIndex
-                    ITEM_EQUIP(item_index, spot)
-                    return 1
+        for spot, equip_key in pairs(data) do
+            local item_data = g.cc_helper_settings[g.cid].items[equip_key]
+            local guid = item_data and item_data.iesid
+            if guid and guid ~= "" and guid ~= "0" then
+                local is_equipped = session.GetEquipItemByGuid(guid)
+                if not is_equipped then
+                    local inv_item = session.GetInvItemByGuid(guid)
+                    if inv_item then
+                        ITEM_EQUIP(inv_item.invIndex, spot)
+                        return 1
+                    end
                 end
             end
         end
@@ -6361,7 +5520,7 @@ function Cc_helper_get_goal_index()
             local num_str = string.match(itemcnt:GetText(), "{@st42}(%d+)/")
             local left = tonumber(num_str)
             if left < 70 then
-                return ((i - 1) * 70) + base_count + left + 1
+                return ((i - 1) * 70) + base_count + ADDITIONAL_SLOT_COUNT_BY_TOKEN + left + 1
             end
         else
             for j = 1, base_count do
@@ -6375,6 +5534,6542 @@ function Cc_helper_get_goal_index()
     end
 end
 -- cc_helper ここまで
+
+--[[function Other_character_skill_list_char_load_settings()
+    local acc_info = session.barrack.GetMyAccount()
+    local layer_pc_count = acc_info:GetPCCount()
+    for order = 0, layer_pc_count - 1 do
+        local pc_info = acc_info:GetPCByIndex(order)
+        if pc_info then
+            local pc_apc = pc_info:GetApc()
+            local pc_name = pc_apc:GetName()
+            local pc_cid = pc_info:GetCID()
+            local existing_data = g.ocsl_settings.chars[pc_name] or {}
+            g.ocsl_settings.chars[pc_name] = {
+                layer = g.ocsl_layer or existing_data.layer or 9,
+                order = order,
+                cid = existing_data.cid or pc_cid,
+                name = pc_name,
+                gear_score = existing_data.gear_score or 0,
+                hide = existing_data.hide or 0,
+                equips = existing_data.equips or {}
+            }
+        end
+    end
+    local barrack_all = acc_info:GetBarrackPCCount()
+    if barrack_all > 0 then
+        local barrack_chars = {}
+        for i = 0, barrack_all - 1 do
+            local pc_info = acc_info:GetBarrackPCByIndex(i)
+            if pc_info then
+                barrack_chars[pc_info:GetName()] = true
+            end
+        end
+        local chars_to_delete = {}
+        for char_name, _ in pairs(g.ocsl_settings.chars) do
+            if not barrack_chars[char_name] then
+                table.insert(chars_to_delete, char_name)
+            end
+        end
+        if #chars_to_delete > 0 then
+            for _, char_name in ipairs(chars_to_delete) do
+                g.ocsl_settings.chars[char_name] = nil
+            end
+        end
+    end
+    Other_character_skill_list_save_settings()
+end]]
+
+function other_character_skill_list_on_init()
+    local old_func = g.settings.other_character_skill_list.old_init_func
+    if _G[old_func] then
+        return
+    end
+    if _G["BARRACK_CHARLIST_ON_INIT"] and _G["current_layer"] then
+        g.ocsl_layer = _G["current_layer"]
+    end
+    if g.settings.other_character_skill_list.use == 0 then
+        if _G["other_character_skill_list_frame_open"] == _G["Other_character_skill_list_frame_open"] then
+            _G["other_character_skill_list_frame_open"] = nil
+        end
+    else
+        if type(_G["Other_character_skill_list_frame_open"]) == "function" then
+            if type(_G["other_character_skill_list_frame_open"]) ~= "function" then
+                _G["other_character_skill_list_frame_open"] = _G["Other_character_skill_list_frame_open"]
+            end
+        end
+    end
+    if not g.ocsl_settings then
+        Other_character_skill_list_load_settings()
+    end
+    if g.get_map_type() == "City" then
+        Other_character_skill_list_char_load_settings()
+        Other_character_skill_list_sort()
+    end
+    g.setup_hook_and_event(g.addon, "INVENTORY_OPEN", "Other_character_skill_list_save_enchant", true)
+    g.setup_hook_and_event(g.addon, "INVENTORY_CLOSE", "Other_character_skill_list_save_enchant", true)
+    g.addon:RegisterMsg("ESCAPE_PRESSED", "Other_character_skill_list_ESCAPE_PRESSED")
+end
+
+function Other_character_skill_list_save_enchant()
+    if g.get_map_type() ~= "City" then
+        return
+    end
+    local current_time = os.time()
+    if g.ocsl_last_save_time and current_time - g.ocsl_last_save_time < 0.5 then
+        return
+    end
+    g.ocsl_last_save_time = current_time
+    local inventory = ui.GetFrame("inventory")
+    local inventory_btns = {"moncard_btn", "helper_btn", "cabinet_btn", "goddess_mgr_btn"}
+    if inventory then
+        for _, btn_name in ipairs(inventory_btns) do
+            local btn = GET_CHILD_RECURSIVELY(inventory, btn_name)
+            if btn and btn:IsVisible() == 0 then
+                btn:ShowWindow(1)
+            end
+        end
+    end
+    local pc_name = session.GetMySession():GetPCApc():GetName()
+    local equip_item_list = session.GetEquipItemList()
+    local count = equip_item_list:Count()
+    local cid = session.GetMySession():GetCID()
+    local data = g.ocsl_settings.chars[pc_name].equips
+    local score = 0
+    for i = 0, count - 1 do
+        local equip_item = equip_item_list:GetEquipItemByIndex(i)
+        local spot_name = item.GetEquipSpotName(equip_item.equipSpot)
+        local spot_item = session.GetEquipItemBySpot(item.GetEquipSpotNum(spot_name))
+        local obj = GetIES(spot_item:GetObject())
+        if obj.ClassName ~= "NoRing" then
+            score = GET_GEAR_SCORE(obj) + score
+        end
+        local lv = TryGetProp(obj, "Reinforce_2", 0)
+        if spot_name == "SHIRT" or spot_name == "PANTS" or spot_name == "GLOVES" or spot_name == "BOOTS" then
+            local slot = GET_CHILD_RECURSIVELY(inventory, spot_name)
+            local icon = slot:GetIcon()
+            if icon then
+                local name, skill_lv = shared_skill_enchant.get_enchanted_skill(obj, 1)
+                data[spot_name] = {
+                    clsid = obj.ClassID,
+                    lv = lv,
+                    skill_name = name,
+                    skill_lv = skill_lv
+                }
+            else
+                data[spot_name] = {}
+            end
+        elseif spot_name == "RH" or spot_name == "LH" or spot_name == "RH_SUB" or spot_name == "LH_SUB" or spot_name ==
+            "RING1" or spot_name == "RING2" or spot_name == "NECK" then
+            local slot = GET_CHILD_RECURSIVELY(inventory, spot_name)
+            local icon = slot:GetIcon()
+            if icon then
+                data[spot_name] = {
+                    clsid = obj.ClassID,
+                    lv = lv
+                }
+            else
+                data[spot_name] = {}
+            end
+        elseif spot_name == "SEAL" or spot_name == "ARK" or spot_name == "RELIC" then
+            local slot = GET_CHILD_RECURSIVELY(inventory, spot_name)
+            local icon = slot:GetIcon()
+            if spot_name == "SEAL" then
+                lv = GET_CURRENT_SEAL_LEVEL(obj)
+            elseif spot_name == "ARK" then
+                lv = TryGetProp(obj, 'ArkLevel', 1)
+            elseif spot_name == "RELIC" then
+                lv = TryGetProp(obj, 'Relic_LV', 1)
+            end
+            if icon then
+                data[spot_name] = {
+                    clsid = obj.ClassID,
+                    lv = lv
+                }
+            else
+                data[spot_name] = {}
+            end
+        elseif spot_name == "EARRING" then
+            local slot = GET_CHILD_RECURSIVELY(inventory, spot_name)
+            local icon = slot:GetIcon()
+            local option_texts = {}
+            if icon then
+                local max_option_count = shared_item_earring.get_max_special_option_count(TryGetProp(obj, 'UseLv', 1))
+                for i = 1, max_option_count do
+                    local option_name = 'EarringSpecialOption_' .. i
+                    local job = TryGetProp(obj, option_name, 'None')
+                    if job ~= 'None' then
+                        local job_cls = GetClass('Job', job)
+                        if job_cls ~= nil then
+                            local item_name = dictionary.ReplaceDicIDInCompStr(job_cls.Name)
+                            local rank = TryGetProp(obj, 'EarringSpecialOptionRankValue_' .. i, 0)
+                            local skill_lv = TryGetProp(obj, 'EarringSpecialOptionLevelValue_' .. i, 0)
+                            local temp_text = ScpArgMsg('EarringSpecialOption{ctrl}{rank}{lv}', 'ctrl', item_name,
+                                'rank', rank, 'lv', skill_lv)
+                            table.insert(option_texts, temp_text)
+                        end
+                    end
+                end
+            end
+            local final_text = table.concat(option_texts, ":::")
+            if icon then
+                data[spot_name] = {
+                    clsid = obj.ClassID,
+                    lv = final_text
+                }
+            else
+                data[spot_name] = {}
+            end
+        elseif spot_name == "CORE" then -- ！
+            local slot = GET_CHILD_RECURSIVELY(inventory, spot_name)
+            local icon = slot:GetIcon()
+            if icon then
+                data[spot_name] = {
+                    clsid = obj.ClassID,
+                    lv = lv
+                }
+            else
+                data[spot_name] = {}
+            end
+        end
+    end
+    local info = equipcard.GetCardInfo(13)
+    if info then
+        data["LEG"] = {
+            clsid = info:GetCardID(),
+            lv = info.cardLv
+        }
+    else
+        data["LEG"] = {}
+    end
+    local info = equipcard.GetCardInfo(14)
+    if info then
+        data["GOD"] = {
+            clsid = info:GetCardID(),
+            lv = info.cardLv
+        }
+    else
+        data["GOD"] = {}
+    end
+    g.ocsl_settings.chars[pc_name].gear_score = score
+    Other_character_skill_list_save_settings()
+end
+
+function Other_character_skill_list_sort()
+    local function sort_layer_order(a, b)
+        if a.layer ~= b.layer then
+            return a.layer < b.layer
+        else
+            return a.order < b.order
+        end
+    end
+    local char_list = {}
+    for _, char_data in pairs(g.ocsl_settings.chars) do
+        table.insert(char_list, char_data)
+    end
+    table.sort(char_list, sort_layer_order)
+    g.ocsl_sorted_chars = char_list
+end
+
+function Other_character_skill_list_split_earring_options(earring_data_string)
+    if not earring_data_string or earring_data_string == "" then
+        return {}
+    end
+    local options_list = {}
+    for option_part in earring_data_string:gmatch("([^:]+)") do
+        table.insert(options_list, option_part)
+    end
+    return options_list
+end
+
+function Other_character_skill_list_frame_open()
+    Other_character_skill_list_save_enchant()
+    if g.settings.other_character_skill_list.use == 0 then
+        return
+    end
+    local ocsl = ui.CreateNewFrame("notice_on_pc", addon_name_lower .. "ocsl", 0, 0, 70, 30)
+    AUTO_CAST(ocsl)
+    ocsl:SetSkinName("test_frame_midle_light")
+    ocsl:SetLayerLevel(99)
+    local title_box = Other_character_skill_create_title_bar(ocsl)
+    local main_gbox = ocsl:CreateOrGetControl("groupbox", "gbox", 5, 35, 1070, 280)
+    AUTO_CAST(main_gbox)
+    main_gbox:RemoveAllChild()
+    main_gbox:SetSkinName("bg2")
+    main_gbox:EnableScrollBar(0)
+    local all_skills = GetClassList("Skill")
+    local y_pos = 10
+    local char_count = 0
+    local last_etc_x = 0
+    for i, char_info in ipairs(g.ocsl_sorted_chars) do
+        local char_settings = g.ocsl_settings.chars[char_info.name]
+        if char_settings.hide ~= 1 or g.ocsl_settings.hide == 0 then
+            local job_list, level, last_job_id = GetJobListFromAdventureBookCharData(char_info.name)
+            if type(_G["INDUN_LIST_VIEWER_ON_INIT"]) == "function" then
+                local ilv_settings = _G["ADDONS"]["norisan"]["indun_list_viewer"].settings
+                if ilv_settings[char_info.name] then
+                    if ilv_settings[char_info.name].president_jobid ~= "" then
+                        last_job_id = ilv_settings[char_info.name].president_jobid
+                    end
+                end
+            elseif type(_G["indun_list_viewer_on_init"]) == "function" then
+                local ilv_settings = _G["ADDONS"]["norisan"]["_NEXUS_ADDONS"].ilv_settings
+                if ilv_settings.chars[char_info.name] then
+                    if ilv_settings.chars[char_info.name].president_jobid ~= "" then
+                        last_job_id = ilv_settings.chars[char_info.name].president_jobid
+                    end
+                end
+            end
+            local last_job_class = GetClassByType("Job", last_job_id)
+            local last_job_icon = TryGetProp(last_job_class, "Icon")
+            local job_slot = main_gbox:CreateOrGetControl("slot", "jobslot" .. i, 0, y_pos - 3, 25, 25)
+            AUTO_CAST(job_slot)
+            job_slot:SetSkinName("None")
+            job_slot:EnableHitTest(1)
+            job_slot:EnablePop(0)
+            local job_icon = CreateIcon(job_slot)
+            job_icon:SetImage(last_job_icon)
+            local name_lbl = main_gbox:CreateOrGetControl("richtext", "name_text" .. i, 25, y_pos, 195, 20)
+            AUTO_CAST(name_lbl)
+            name_lbl:SetText("{ol}" .. char_info.name)
+            name_lbl:AdjustFontSizeByWidth(195)
+            name_lbl:SetEventScript(ui.RBUTTONUP, "Other_character_skill_list_char_report")
+            name_lbl:SetEventScriptArgString(ui.RBUTTONUP, char_info.name)
+            local gs_str = char_settings.gear_score ~= 0 and tostring(char_settings.gear_score) or "NoData"
+            if type(_G["INSTANTCC_ON_INIT"]) == "function" and g.settings.instant_cc.use == 1 then
+                name_lbl:SetEventScript(ui.LBUTTONDOWN, "Other_character_skill_list_save_enchant")
+                name_lbl:SetEventScript(ui.LBUTTONUP, "Other_character_skill_list_INSTANTCC_DO_CC")
+                name_lbl:SetEventScriptArgString(ui.LBUTTONUP, char_info.cid)
+                name_lbl:SetEventScriptArgNumber(ui.LBUTTONUP, char_info.layer)
+                name_lbl:SetTextTooltip(g.lang == "Japanese" and "{ol}GearScore: " .. gs_str .. "{nl} {nl}" ..
+                                            "右クリック: 各キャラ装備詳細{nl}左クリック：キャラクターチェンジ" or
+                                            "{ol}GearScore: " .. gs_str .. "{nl} {nl}" ..
+                                            "Right click: Details of each character's equipment{nl}Left click: Character change")
+            else
+                name_lbl:SetTextTooltip(g.lang == "Japanese" and "{ol}GearScore: " .. gs_str .. "{nl} {nl}" ..
+                                            "右クリック: 各キャラ装備詳細" or "{ol}GearScore: " .. gs_str ..
+                                            "{nl} {nl}" .. "Right-click: Details of each character's equipment")
+            end
+            local equips = {"SHIRT", "PANTS", "GLOVES", "BOOTS", "LEG", "GOD", "SEAL", "ARK", "RELIC", "EARRING",
+                            "CORE", "RH", "LH", "RH_SUB", "LH_SUB", "RING1", "RING2", "NECK"}
+            Other_character_skill_list_create_weapon_slots(main_gbox, char_settings.equips, equips, i, y_pos)
+            Other_character_skill_list_create_armor_slots(main_gbox, char_settings.equips, equips, all_skills, i, y_pos)
+            last_etc_x = Other_character_skill_list_create_etc_slots(main_gbox, char_settings.equips, equips, i, y_pos)
+            local hide_check_char = main_gbox:CreateOrGetControl('checkbox', "hide_check" .. i, last_etc_x, y_pos, 25,
+                25)
+            AUTO_CAST(hide_check_char)
+            hide_check_char:SetCheck(char_settings.hide)
+            hide_check_char:SetEventScript(ui.LBUTTONDOWN, 'Other_character_skill_list_display_check')
+            hide_check_char:SetEventScriptArgString(ui.LBUTTONDOWN, char_info.name)
+            hide_check_char:SetTextTooltip(g.lang == "Japanese" and "{ol}チェックすると非表示" or
+                                               "{ol}Check to hide")
+            y_pos = y_pos + 25
+            char_count = char_count + 1
+        end
+    end
+    local frame_height = char_count * 25
+    ocsl:Resize(last_etc_x + 40, frame_height + 60)
+    title_box:Resize(last_etc_x + 30, 40)
+    main_gbox:Resize(last_etc_x + 30, frame_height + 20)
+    local current_frame_w = ocsl:GetWidth()
+    local map_frame = ui.GetFrame("map")
+    local map_width = map_frame:GetWidth()
+    ocsl:SetPos((map_width - current_frame_w) / 2, 0)
+    ocsl:ShowWindow(1)
+end
+
+function Other_character_skill_create_title_bar(ocsl)
+    local title_box = ocsl:CreateOrGetControl("groupbox", "title", 0, 0, 1070, 40)
+    AUTO_CAST(title_box)
+    title_box:SetSkinName("None")
+    title_box:EnableScrollBar(0)
+    local close_btn = title_box:CreateOrGetControl("button", "close", 0, 0, 20, 20)
+    AUTO_CAST(close_btn)
+    close_btn:SetImage("testclose_button")
+    close_btn:SetGravity(ui.LEFT, ui.TOP)
+    close_btn:SetEventScript(ui.LBUTTONUP, "Other_character_skill_list_frame_close")
+    local help_btn = title_box:CreateOrGetControl('button', "help", 40, 0, 35, 35)
+    AUTO_CAST(help_btn)
+    help_btn:SetText("{ol}{img question_mark 20 20}")
+    help_btn:SetSkinName("test_pvp_btn")
+    local ccbtn = title_box:CreateOrGetControl('button', 'ccbtn', 75, 0, 35, 35)
+    AUTO_CAST(ccbtn)
+    ccbtn:SetSkinName("None")
+    ccbtn:SetText("{ol}{img barrack_button_normal 35 35}")
+    ccbtn:SetEventScript(ui.LBUTTONUP, "APPS_TRY_MOVE_BARRACK")
+    ccbtn:SetTextTooltip(g.lang == "Japanese" and "{ol}バラックに戻ります" or "{ol}Return to Barracks")
+    local hide_check = title_box:CreateOrGetControl('checkbox', 'hide_check', 120, 0, 35, 35)
+    AUTO_CAST(hide_check)
+    hide_check:SetEventScript(ui.LBUTTONUP, 'Other_character_skill_list_display_check')
+    hide_check:SetTextTooltip(g.lang == "Japanese" and "{ol}チェックしたキャラを非表示" or
+                                  "{ol}Hide Checked Characters")
+    hide_check:SetCheck(g.ocsl_settings.hide)
+    help_btn:SetTextTooltip(g.lang == "Japanese" and
+                                "{ol}順番に並ばない場合は一度バラックに戻ってバラック1､2､3毎にログインしてください。{nl}" ..
+                                "{ol}名前部分を押すと、ログインキャラと同一バラックの各キャラの装備詳細が見れます。" or
+                                "{ol}If you do not line up in order,{nl}" ..
+                                "please return to the barracks once and log in for each barracks 1,2,3.{nl}" ..
+                                "{ol}Press the name section to see the equipment details of each character{nl}in the same barrack as the login character.")
+    local weapon_lbl = title_box:CreateOrGetControl("richtext", "weapon", 160, 10, 100, 20)
+    weapon_lbl:SetText(g.lang == "Japanese" and "{ol}" .. "武器" or "{ol}" .. "weapons")
+    weapon_lbl:AdjustFontSizeByWidth(100)
+    local acc_lbl = title_box:CreateOrGetControl("richtext", "Accessory", 290, 10, 100, 20)
+    acc_lbl:SetText(g.lang == "Japanese" and "{ol}" .. "アクセ" or "{ol}" .. "Accessory")
+    local equip_x = 390
+    local equip_labels = {ClMsg("Shirt"), ClMsg("Pants"), ClMsg("GLOVES"), ClMsg("BOOTS"),
+                          (g.lang == "Japanese" and "その他" or "etc.")}
+    for i = 0, 4 do
+        local equip_lbl = title_box:CreateOrGetControl("richtext", "equip_text" .. i, equip_x, 10, 100, 20)
+        equip_lbl:SetText("{ol}" .. equip_labels[i + 1])
+        equip_lbl:AdjustFontSizeByWidth(100)
+        equip_x = equip_x + 225
+    end
+    return title_box
+end
+
+function Other_character_skill_list_create_weapon_slots(parent_gbox, char_equips, equips, i, y_pos)
+    for j = 12, #equips do
+        local equip_type = equips[j]
+        local equip_data_entry = char_equips[equip_type]
+        local weapon_slot_x = 155 + 30 * (j - 12)
+        if j >= 16 then
+            weapon_slot_x = weapon_slot_x + 10
+        end
+        local weapon_slot = parent_gbox:CreateOrGetControl("slot", "slot" .. equip_type .. i, weapon_slot_x, y_pos, 25,
+            24)
+        AUTO_CAST(weapon_slot)
+        weapon_slot:SetSkinName('invenslot2')
+        if equip_data_entry then
+            local clsid = equip_data_entry.clsid
+            if clsid and clsid ~= 0 then
+                local lv = equip_data_entry.lv
+                local item_cls = GetClassByType("Item", clsid)
+                if item_cls then
+                    SET_SLOT_ICON(weapon_slot, item_cls.Icon)
+                    SET_SLOT_BG_BY_ITEMGRADE(weapon_slot, item_cls)
+                    weapon_slot:SetText('{s12}{ol}{#FFFF00}+' .. lv, 'count', ui.RIGHT, ui.BOTTOM, 0, 0)
+                    local icon = weapon_slot:GetIcon()
+                    if icon then
+                        icon:SetTextTooltip("{ol}" .. item_cls.Name)
+                    end
+                end
+            end
+        end
+    end
+end
+
+function Other_character_skill_list_create_armor_slots(parent_gbox, char_equips, equips, all_skills, i, y_pos)
+    local equip_grp_x = 385
+    for j = 1, 4 do
+        local equip_type = equips[j]
+        local equip_data_entry = char_equips[equip_type]
+        local skill_slot = parent_gbox:CreateOrGetControl("slot", "slot" .. equip_type .. i,
+            equip_grp_x + (225 * (j - 1)) + 30, y_pos, 25, 24)
+        AUTO_CAST(skill_slot)
+        skill_slot:SetSkinName('invenslot2')
+        local item_slot = parent_gbox:CreateOrGetControl("slot", "equip" .. equip_type .. i,
+            equip_grp_x + (225 * (j - 1)), y_pos, 25, 24)
+        AUTO_CAST(item_slot)
+        item_slot:SetSkinName('invenslot2')
+        if equip_data_entry then
+            local clsid = equip_data_entry.clsid
+            local item_cls = GetClassByType("Item", clsid)
+            if item_cls then
+                SET_SLOT_ICON(item_slot, item_cls.Icon)
+                SET_SLOT_BG_BY_ITEMGRADE(item_slot, item_cls)
+                item_slot:SetText('{s12}{ol}{#FFFF00}+' .. equip_data_entry.lv, 'count', ui.RIGHT, ui.BOTTOM, 0, 0)
+                local icon = item_slot:GetIcon()
+                if icon then
+                    icon:SetTextTooltip("{ol}" .. item_cls.Name)
+                end
+            end
+            local skill = GetClassByNameFromList(all_skills, equip_data_entry.skill_name)
+            if skill then
+                SET_SLOT_ICON(skill_slot, 'icon_' .. skill.Icon)
+                skill_slot:SetText('{s14}{ol}{#FFFF00}' .. equip_data_entry.skill_lv, 'count', ui.RIGHT, ui.BOTTOM, -2,
+                    -2)
+                local icon = skill_slot:GetIcon()
+                if icon then
+                    icon:SetTooltipType('skill')
+                    icon:SetTooltipArg("Level", skill.ClassID, equip_data_entry.skill_lv)
+                end
+                local skill_name_lbl = parent_gbox:CreateOrGetControl("richtext", "skill_name" .. equip_type .. i,
+                    equip_grp_x + 60 + (225 * (j - 1)), y_pos, 140, 20)
+                skill_name_lbl:SetText("{ol}{s16}" .. skill.Name)
+                skill_name_lbl:AdjustFontSizeByWidth(160)
+            end
+        end
+    end
+end
+
+function Other_character_skill_list_create_etc_slots(parent_gbox, char_equips, equips, i, y_pos)
+    local etc_x_offset = 0
+    local equip_grp_x = 385
+    local last_x = equip_grp_x + 225 * 4
+    for j = 5, 11 do
+        local equip_type = equips[j]
+        local equip_data_entry = char_equips[equip_type]
+        local current_x = equip_grp_x + 225 * 4 + etc_x_offset
+        local etc_slot = parent_gbox:CreateOrGetControl("slot", "etc_slot" .. equip_type .. i, current_x, y_pos, 25, 24)
+        AUTO_CAST(etc_slot)
+        etc_slot:SetSkinName('invenslot2')
+        if equip_data_entry and equip_data_entry.clsid then
+            local text_prefix = (j >= 5 and j <= 6) and "{s12}{ol}{#FFFF00}{img mon_legendstar 10 10}{nl}" or
+                                    "{s12}{ol}{#FFFF00}+"
+            local item_cls = GetClassByType("Item", equip_data_entry.clsid)
+            if item_cls then
+                SET_SLOT_ICON(etc_slot, item_cls.Icon)
+                local icon = etc_slot:GetIcon()
+                if icon then
+                    local tooltip = item_cls.Name
+                    if j == 10 then -- Earring
+                        local earring_str = Other_character_skill_list_split_earring_options(equip_data_entry.lv)
+                        for _, option_str in ipairs(earring_str) do
+                            tooltip = "{ol}" .. tooltip .. "{nl}" .. option_str
+                        end
+                    elseif j ~= 11 then -- Ark
+                        etc_slot:SetText(text_prefix .. equip_data_entry.lv, 'count', ui.RIGHT, ui.BOTTOM, 0, 0)
+                    end
+                    icon:SetTextTooltip(tooltip)
+                end
+            end
+        end
+        etc_x_offset = etc_x_offset + 30
+        last_x = current_x
+    end
+    return last_x + 30
+end
+
+function Other_character_skill_list_char_report(ocsl, ctrl, char_name_str, num)
+    local report = ui.CreateNewFrame("notice_on_pc", addon_name_lower .. "ocsl_report", 5, 40, 0, 0)
+    AUTO_CAST(report)
+    report:RemoveAllChild()
+    report:SetLayerLevel(104)
+    report:SetSkinName("None")
+    report:Resize(410, 480)
+    local cid = g.ocsl_settings.chars[char_name_str].cid
+    local current_cid = report:GetUserValue("CID")
+    if current_cid ~= "None" and current_cid ~= cid then
+        DESTROY_CHILD_BYNAME(report, "char_" .. current_cid)
+    else
+        local char_frame = GET_CHILD_RECURSIVELY(report, "char_" .. current_cid)
+        if char_frame then
+            char_frame:ShowWindow(1)
+        end
+    end
+    local bpc_info = barrack.GetBarrackPCInfoByCID(cid)
+    if not bpc_info then
+        local language = option.GetCurrentCountry()
+        ui.SysMsg(language == "Japanese" and
+                      "{ol}詳細表示は、ログイン中のキャラと同一バラックのキャラのみ対応しています" or
+                      "{ol}Detailed view is supported only for characters{nl}in the same barracks as the currently logged-in character")
+        Other_character_skill_list_frame_open()
+        return
+    end
+    local char_ctrl = report:CreateOrGetControlSet('barrack_charlist', 'char_' .. cid, 10, 10)
+    AUTO_CAST(char_ctrl)
+    report:SetUserValue("CID", cid)
+    local main_box = GET_CHILD(char_ctrl, 'mainBox')
+    AUTO_CAST(main_box)
+    local btn = main_box:GetChild("btn")
+    btn:SetSkinName('character_off')
+    btn:SetSValue(char_name_str)
+    btn:SetOverSound('button_over')
+    btn:SetClickSound('button_click_2')
+    local indun_btn = main_box:GetChild("indunBtn")
+    AUTO_CAST(indun_btn)
+    indun_btn:SetImage("testclose_button")
+    indun_btn:SetEventScript(ui.LBUTTONUP, "Other_character_skill_list_char_report_close")
+    btn:ShowWindow(1)
+    local apc = bpc_info:GetApc()
+    local gender = apc:GetGender()
+    local job_id = apc:GetJob()
+    local level = apc:GetLv()
+    local pic = GET_CHILD(main_box, "char_icon")
+    AUTO_CAST(pic)
+    local head_icon = ui.CaptureModelHeadImageByApperance(apc)
+    pic:SetImage(head_icon)
+    local name_label = GET_CHILD(main_box, "name")
+    AUTO_CAST(name_label)
+    name_label:SetText("{@st42b}{b}" .. char_name_str)
+    local barrack_pc = session.barrack.GetMyAccount():GetByStrCID(cid)
+    if barrack_pc ~= nil and barrack_pc:GetRepID() ~= 0 then
+        job_id = barrack_pc:GetRepID()
+    end
+    local job_cls = GetClassByType("Job", job_id)
+    local job_label = GET_CHILD(main_box, "job")
+    AUTO_CAST(job_label)
+    job_label:SetText("{@st42b}" .. GET_JOB_NAME(job_cls, gender))
+    local level_label = GET_CHILD(main_box, "level")
+    AUTO_CAST(level_label)
+    level_label:SetText("{@st42b}Lv." .. level)
+    local detail_box = GET_CHILD(char_ctrl, 'detailBox')
+    AUTO_CAST(detail_box)
+    local rh_sub_slot = detail_box:CreateOrGetControl("slot", "RH_SUB", 138, 214, 55, 55)
+    local lh_sub_slot = detail_box:CreateOrGetControl("slot", "LH_SUB", 198, 214, 55, 55)
+    local map_label = GET_CHILD(detail_box, 'mapName')
+    AUTO_CAST(map_label)
+    local map_cls = GetClassByType("Map", apc.mapID)
+    if map_cls ~= nil then
+        local map_name = map_cls.Name
+        map_label:SetText("{@st66b}" .. map_name)
+    end
+    local spot_count = item.GetEquipSpotCount() - 1
+    local skin_list = {}
+    for i = 0, spot_count do
+        local equip_obj = bpc_info:GetEquipObj(i)
+        local spot_name = item.GetEquipSpotName(i)
+        if equip_obj then
+            local ies_obj = GetIES(equip_obj)
+            local equip_type = TryGet_Str(ies_obj, "EqpType")
+            if equip_type == "HELMET" then
+                if item.IsNoneItem(ies_obj.ClassID) == 0 then
+                    spot_name = "HAIR"
+                end
+            end
+            if spot_name == "TRINKET" and item.IsNoneItem(ies_obj.ClassID) == 0 then
+                spot_name = "LH"
+            end
+        end
+        local slot_ctrl = GET_CHILD(detail_box, spot_name)
+        AUTO_CAST(slot_ctrl)
+        if slot_ctrl then
+            if slot_ctrl:GetName() == "SHIRT" then
+                slot_ctrl:SetMargin(-120, 150, 0, 0)
+            elseif slot_ctrl:GetName() == "PANTS" then
+                slot_ctrl:SetMargin(-60, 150, 0, 0)
+            elseif slot_ctrl:GetName() == "GLOVES" then
+                slot_ctrl:SetMargin(0, 150, 0, 0)
+            elseif slot_ctrl:GetName() == "BOOTS" then
+                slot_ctrl:SetMargin(60, 150, 0, 0)
+            elseif slot_ctrl:GetName() == "RH" then
+                slot_ctrl:SetMargin(-120, 214, 0, 0)
+            elseif slot_ctrl:GetName() == "LH" then
+                slot_ctrl:SetMargin(-60, 214, 0, 0)
+            elseif slot_ctrl:GetName() == "ARK" then
+                slot_ctrl:SetMargin(120, 150, 0, 0)
+            elseif slot_ctrl:GetName() == "RELIC" then
+                slot_ctrl:SetMargin(120, 214, 0, 0)
+            end
+            if skin_list[spot_name] == nil then
+                skin_list[spot_name] = slot_ctrl:GetSkinName()
+            end
+            slot_ctrl:EnableDrag(0)
+            if not equip_obj then
+                CLEAR_SLOT_ITEM_INFO(slot_ctrl)
+            else
+                local ies_item = GetIES(equip_obj)
+                local refresh_scp = ies_item.RefreshScp
+                if refresh_scp ~= "None" then
+                    local scp_func = _G[refresh_scp]
+                    scp_func(ies_item)
+                end
+                if 0 == item.IsNoneItem(ies_item.ClassID) then
+                    CLEAR_SLOT_ITEM_INFO(slot_ctrl)
+                    SET_SLOT_ITEM_OBJ(slot_ctrl, ies_item, gender, 1)
+                else
+                    local current_skin = skin_list[spot_name]
+                    if current_skin ~= nil then
+                        slot_ctrl:SetSkinName(current_skin)
+                    end
+                    SET_SLOT_TRANSCEND_LEVEL(slot_ctrl, 0)
+                    SET_SLOT_REINFORCE_LEVEL(slot_ctrl, 0)
+                    CLEAR_SLOT_ITEM_INFO(slot_ctrl)
+                end
+            end
+        end
+    end
+    char_ctrl:Resize(400, 430)
+    local map_frame = ui.GetFrame("map")
+    local map_width = map_frame:GetWidth()
+    report:SetPos((map_width) / 2 - 410 * 1.5, 40)
+    report:ShowWindow(1)
+end
+
+function Other_character_skill_list_ESCAPE_PRESSED()
+    local ocsl = ui.GetFrame(addon_name_lower .. "ocsl")
+    Other_character_skill_list_frame_close(ocsl)
+end
+
+function Other_character_skill_list_frame_close(parent)
+    local ocsl = parent:GetTopParentFrame()
+    ui.DestroyFrame(ocsl:GetName())
+    Other_character_skill_list_char_report_close()
+end
+
+function Other_character_skill_list_char_report_close(parent, ctrl, str, num)
+    local report = parent:GetTopParentFrame()
+    ui.DestroyFrame(report:GetName())
+end
+
+function Other_character_skill_list_display_check(parent, ctrl, char_name, num)
+    local ischeck = ctrl:IsChecked()
+    if char_name == "" then
+        g.ocsl_settings.hide = ischeck
+    else
+        g.ocsl_settings.chars[char_name].hide = ischeck
+    end
+    Other_character_skill_list_save_settings()
+    Other_character_skill_list_frame_open()
+end
+
+function Other_character_skill_list_INSTANTCC_DO_CC(frame, ctrl, cid, layer)
+    if _G["INSTANTCC_DO_CC"] then
+        _G["INSTANTCC_DO_CC"](cid, layer)
+    end
+end
+-- other_character_skill_list ここまで
+
+-- Instant CC ここから
+g.instant_cc = {
+    retry = nil,
+    do_cc = nil,
+    layer = 1
+}
+function Instant_cc_save_settings()
+    g.save_json(g.instant_cc_path, g.instant_cc_settings)
+end
+
+function Instant_cc_load_settings()
+    g.instant_cc_path = string.format("../addons/%s/%s/instant_cc.json", addon_name_lower, g.active_id)
+    local changed = false
+    local settings = g.load_json(g.instant_cc_path)
+    if not settings then
+        settings = {
+            characters = {},
+            per_barracks = false
+        }
+        changed = true
+    end
+    g.instant_cc_settings = settings
+    if changed then
+        Instant_cc_save_settings()
+    end
+end
+
+function instant_cc_on_init()
+    if not g.instant_cc_settings then
+        Instant_cc_load_settings()
+    end
+    g.instant_cc.do_cc = nil
+    g.instant_cc.retry = nil
+    _G["norisan"] = _G["norisan"] or {}
+    _G["norisan"]["HOOKS"] = _G["norisan"]["HOOKS"] or {}
+    if not _G["norisan"]["HOOKS"]["BARRACK_START_FRAME_OPEN"] then
+        _G["norisan"]["HOOKS"]["BARRACK_START_FRAME_OPEN"] = addon_name
+        Instant_cc_hook_BARRACK_START_FRAME_OPEN()
+    end
+    if _G["BARRACK_CHARLIST_ON_INIT"] and _G["current_layer"] then
+        g.instant_cc.layer = _G["current_layer"]
+    end
+    _G["INSTANTCC_ON_INIT"] = instant_cc_on_init
+    if g.settings.instant_cc.use == 0 then
+        _G["INSTANTCC_DO_CC"] = nil
+        _G["INSTANTCC_APPS_TRY_MOVE_BARRACK"] = nil
+        return
+    else
+        _G["INSTANTCC_DO_CC"] = Instant_cc_do_cc
+        _G["INSTANTCC_APPS_TRY_MOVE_BARRACK"] = Instant_cc_APPS_TRY_MOVE_BARRACK_
+    end
+    local acc_info = session.barrack.GetMyAccount()
+    local barrack_count = acc_info:GetBarrackPCCount() -- ゲーム起動直後はtonumber(0)
+    Instant_cc_save_char_data(acc_info, barrack_count)
+end
+
+function Instant_cc_APPS_TRY_LEAVE_(type)
+    if g.instant_cc.do_cc or g.get_map_type() ~= "City" then
+        APPS_TRY_LEAVE("Barrack")
+        return
+    end
+    Instant_cc_APPS_TRY_MOVE_BARRACK_(nil, nil, nil, 0)
+end
+
+function Instant_cc_APPS_TRY_MOVE_BARRACK_(frame, msg, str, barrack_layer)
+    if barrack_layer == 0 then
+        barrack_layer = g.instant_cc.layer
+    end
+    local context = ui.CreateContextMenu("instant_cc_select_character", "{ol}Barrack Charactor List", 0, 0, 0, 0)
+    ui.AddContextMenuItem(context, "Return To Barrack", "Instant_cc_do_cc()")
+    if not g.instant_cc_settings.per_barracks then
+        for i = 1, #g.instant_cc_sorted_list do
+            local info = g.instant_cc_sorted_list[i]
+            local pc_name = info.name
+            local job_cls = GetClassByType("Job", info.jobid)
+            local job_name = GET_JOB_NAME(job_cls, info.gender)
+            job_name = string.gsub(dic.getTranslatedStr(job_name), "{s18}", "")
+            local str = "Lv" .. info.level .. " " .. pc_name .. " (" .. job_name .. ")          "
+            ui.AddContextMenuItem(context, str, string.format("Instant_cc_do_cc('%s',%d)", info.cid, info.layer))
+        end
+    else
+        ui.AddContextMenuItem(context, "Barrack 1",
+            string.format("Instant_cc_APPS_TRY_MOVE_BARRACK_(nil, nil, nil, %d)", 1))
+        ui.AddContextMenuItem(context, "Barrack 2",
+            string.format("Instant_cc_APPS_TRY_MOVE_BARRACK_(nil, nil, nil, %d)", 2))
+        ui.AddContextMenuItem(context, "Barrack 3",
+            string.format("Instant_cc_APPS_TRY_MOVE_BARRACK_(nil, nil, nil, %d)", 3))
+        for i = 1, #g.instant_cc_sorted_list do
+            local info = g.instant_cc_sorted_list[i]
+            local layer = info.layer
+            if barrack_layer == layer then
+                local pc_name = info.name
+                local job_cls = GetClassByType("Job", info.jobid)
+                local job_name = GET_JOB_NAME(job_cls, info.gender)
+                job_name = string.gsub(dic.getTranslatedStr(job_name), "{s18}", "")
+                local str = "Lv" .. info.level .. " " .. pc_name .. " (" .. job_name .. ")          "
+                ui.AddContextMenuItem(context, str, string.format("Instant_cc_do_cc('%s',%d)", info.cid, info.layer))
+            end
+        end
+    end
+    ui.OpenContextMenu(context)
+end
+
+function Instant_cc_do_cc(cid, layer)
+    if cid then
+        g.instant_cc.do_cc = {
+            cid = cid,
+            layer = layer
+        }
+    end
+    if Indun_list_viewer_CHECK_ALERT("Barrack") then
+        return
+    end
+    APPS_TRY_LEAVE("Barrack")
+end
+
+function Instant_cc_settings_frame_init()
+    local list_frame = ui.GetFrame(addon_name_lower .. "list_frame")
+    local settings = ui.CreateNewFrame("chat_memberlist", addon_name_lower .. "instant_cc_settings")
+    AUTO_CAST(settings)
+    settings:SetPos(list_frame:GetX() + list_frame:GetWidth(), list_frame:GetY())
+    settings:EnableHitTest(1)
+    settings:SetLayerLevel(999)
+    settings:SetSkinName("test_frame_low")
+    local width = 0
+    local title = settings:CreateOrGetControl("richtext", "title", 20, 10, 10, 30)
+    AUTO_CAST(title)
+    title:SetText("{#000000}{s20}instant CC Settings")
+    width = width + 20 + title:GetWidth() + 40
+    local close = settings:CreateOrGetControl("button", "close", 0, 0, 20, 20)
+    AUTO_CAST(close)
+    close:SetImage("testclose_button")
+    close:SetGravity(ui.RIGHT, ui.TOP)
+    close:SetEventScript(ui.LBUTTONUP, "Instant_cc_settings_frame_close")
+    local gb = settings:CreateOrGetControl("groupbox", "gb", 10, 40, 100, 100)
+    AUTO_CAST(gb)
+    gb:SetSkinName("bg")
+    gb:RemoveAllChild()
+    local per_barracks = gb:CreateOrGetControl("checkbox", "per_barracks", 10, 5, 100, 30)
+    AUTO_CAST(per_barracks)
+    per_barracks:SetText(g.lang == "Japanese" and "{ol}チェックするとバラックごとに表示" or
+                             "{ol}Check to display per barracks")
+    per_barracks:SetCheck(g.instant_cc_settings.per_barracks and 1 or 0)
+    per_barracks:SetEventScript(ui.LBUTTONUP, "Instant_cc_setting")
+    width = per_barracks:GetWidth() + 40
+    settings:Resize(width, 90)
+    gb:Resize(settings:GetWidth() - 20, 40)
+    settings:ShowWindow(1)
+end
+
+function Instant_cc_settings_frame_close(frame)
+    local frame_name = addon_name_lower .. "instant_cc_settings"
+    ui.DestroyFrame(frame_name)
+end
+
+function Instant_cc_setting(frame, ctrl)
+    local is_check = ctrl:IsChecked()
+    if is_check == 1 then
+        g.instant_cc_settings.per_barracks = true
+    else
+        g.instant_cc_settings.per_barracks = false
+    end
+    Instant_cc_save_settings()
+end
+
+function Instant_cc_save_char_data(acc_info, barrack_count)
+    local characters = g.instant_cc_settings.characters
+    local pc_count = acc_info:GetPCCount() -- 毎回同じレイヤーのキャラは順番を取得
+    for i = 0, pc_count - 1 do
+        local pc_info = acc_info:GetPCByIndex(i)
+        if pc_info then
+            local pc_cid = pc_info:GetCID()
+            local pc_apc = pc_info:GetApc()
+            if pc_apc then
+                local pc_name = pc_apc:GetName()
+                characters[pc_name] = {
+                    name = pc_name,
+                    layer = g.instant_cc.layer,
+                    order = i,
+                    jobid = (acc_info:GetByStrCID(pc_cid) and acc_info:GetByStrCID(pc_cid):GetRepID()) or
+                        pc_apc:GetJob(),
+                    gender = pc_apc:GetGender(),
+                    level = pc_apc:GetLv(),
+                    cid = pc_cid
+                }
+            end
+        end
+    end
+    if barrack_count > 0 then -- ゲーム起動直後はカウント0なので、2回目以降動かす
+        local barrack_chars = {}
+        for i = 0, barrack_count - 1 do
+            local pc_info = acc_info:GetBarrackPCByIndex(i)
+            if pc_info then
+                barrack_chars[pc_info:GetName()] = true
+            end
+        end
+        local chars_to_delete = {}
+        for char_name, _ in pairs(characters) do
+            if not barrack_chars[char_name] then
+                table.insert(chars_to_delete, char_name)
+            end
+        end
+        if #chars_to_delete > 0 then
+            for _, char_name in ipairs(chars_to_delete) do
+                characters[char_name] = nil
+            end
+        end
+    end
+    Instant_cc_save_settings()
+    Instant_cc_sort_char_data()
+end
+
+function Instant_cc_sort_char_data()
+    g.instant_cc_sorted_list = {}
+    for _, char_data in pairs(g.instant_cc_settings.characters) do
+        table.insert(g.instant_cc_sorted_list, char_data)
+    end
+    local function dabble_sort(a, b)
+        if a.layer == b.layer then
+            return a.order < b.order
+        else
+            return a.layer < b.layer
+        end
+    end
+    table.sort(g.instant_cc_sorted_list, dabble_sort)
+end
+
+function Instant_cc_hook_BARRACK_START_FRAME_OPEN()
+    g.FUNCS = g.FUNCS or {}
+    local origin_func_name = "BARRACK_START_FRAME_OPEN"
+    if _G[origin_func_name] then
+        if not g.FUNCS[origin_func_name] then
+            g.FUNCS[origin_func_name] = _G[origin_func_name]
+        end
+        _G[origin_func_name] = Instant_cc_BARRACK_START_FRAME_OPEN
+    end
+end
+
+function Instant_cc_BARRACK_START_FRAME_OPEN(...)
+    local frame = select(1, ...)
+    if not frame then
+        return
+    end
+    local original_func = g.FUNCS["BARRACK_START_FRAME_OPEN"]
+    local result
+    if original_func then
+        result = original_func(...)
+    end
+    local barrack_gamestart = ui.GetFrame("barrack_gamestart")
+    local hidelogin = GET_CHILD_RECURSIVELY(barrack_gamestart, "hidelogin")
+    hidelogin:SetCheck(1)
+    if g.instant_cc.do_cc and not g.instant_cc.retry then
+        g.instant_cc.retry = 0
+        barrack_gamestart:RunUpdateScript("Instant_cc_start", 0.2)
+    end
+    return result
+end
+
+function Instant_cc_start()
+    barrack.SelectBarrackLayer(g.instant_cc.do_cc.layer)
+    barrack.SelectCharacterByCID(g.instant_cc.do_cc.cid)
+    local barrack_gamestart = ui.GetFrame("barrack_gamestart")
+    barrack_gamestart:StopUpdateScript("Instant_cc_to_game")
+    barrack_gamestart:RunUpdateScript("Instant_cc_to_game", 0.2)
+end
+
+function Instant_cc_retry()
+    g.instant_cc.retry = g.instant_cc.retry + 1
+    if g.instant_cc.retry > #g.instant_cc_sorted_list then
+        app.BarrackToLogin()
+        ui.SysMsg(g.lang == "Japanese" and
+                      "キャラクターの自動取得に失敗しました{nl}手動で選択してください" or
+                      "Failed to automatically retrieve the character{nl}Please select manually")
+        return
+    end
+    Instant_cc_start()
+end
+
+function Instant_cc_to_game(barrack_gamestart)
+    local barrack_pc_info = barrack.GetBarrackPCInfoByCID(g.instant_cc.do_cc.cid)
+    if not barrack_pc_info then
+        Instant_cc_retry()
+        return
+    end
+    local barrack_start_char = barrack.GetGameStartAccount()
+    if not barrack_start_char or barrack_start_char:GetCID() ~= g.instant_cc.do_cc.cid then
+        Instant_cc_retry()
+        return
+    end
+    BARRACK_TO_GAME()
+    return 0
+end
+-- Instant CC ここまで
+
+-- ndun_list_viewer ここから
+g.ilv_RAID_KEYS = {"V", "L", "R", "N", "G", "M", "S", "U", "RO", "F", "P", "D"}
+g.ilv_RAID_INFO = {
+    V = {
+        name = "Veliora",
+        hard = 727,
+        solo = 726,
+        auto = 725,
+        icon = "icon_item_misc_boss_Veliora",
+        sweep_buff = 80045
+    },
+    L = {
+        name = "Limara",
+        hard = 724,
+        solo = 723,
+        auto = 722,
+        icon = "icon_item_misc_boss_Laimara",
+        sweep_buff = 80043
+    },
+    R = {
+        name = "Redania",
+        hard = 718,
+        solo = 717,
+        auto = 716,
+        icon = "icon_item_misc_boss_Redania",
+        sweep_buff = 80039
+    },
+    N = {
+        name = "Neringa",
+        hard = 709,
+        solo = 708,
+        auto = 707,
+        icon = "icon_item_misc_boss_DarkNeringa",
+        sweep_buff = 80035
+    },
+    G = {
+        name = "Golem",
+        hard = 712,
+        solo = 711,
+        auto = 710,
+        icon = "icon_item_misc_boss_CrystalGolem",
+        sweep_buff = 80037
+    },
+    M = {
+        name = "Merregina",
+        hard = 697,
+        solo = 696,
+        auto = 695,
+        icon = "icon_item_misc_merregina_blackpearl",
+        sweep_buff = 80032
+    },
+    S = {
+        name = "Slogutis",
+        hard = 690,
+        solo = 689,
+        auto = 688,
+        icon = "icon_item_misc_boss_Slogutis",
+        sweep_buff = 80031
+    },
+    U = {
+        name = "Upinis",
+        hard = 687,
+        solo = 686,
+        auto = 685,
+        icon = "icon_item_misc_boss_Upinis",
+        sweep_buff = 80030
+    },
+    RO = {
+        name = "Roze",
+        hard = 681,
+        solo = 680,
+        auto = 679,
+        icon = "icon_item_misc_boss_Roze",
+        sweep_buff = 80015
+    },
+    F = {
+        name = "Falouros",
+        hard = 678,
+        solo = 677,
+        auto = 676,
+        icon = "icon_item_misc_high_falouros",
+        sweep_buff = 80017
+    },
+    P = {
+        name = "Spreader",
+        hard = 675,
+        solo = 674,
+        auto = 673,
+        icon = "icon_item_misc_high_transmutationSpreader",
+        sweep_buff = 80016
+    },
+    D = {
+        name = "Delmore",
+        hard = 665,
+        solo = 667,
+        auto = 666,
+        icon = "icon_item_misc_RevivalPaulius",
+        sweep_buff = nil
+    }
+}
+function Indun_list_viewer_save_settings()
+    g.save_lua(g.ilv_path, g.ilv_settings)
+end
+
+function Indun_list_viewer_load_settings()
+    g.ilv_path = string.format("../addons/%s/%s/indun_list_viewer.lua", addon_name_lower, g.active_id)
+    local json_path = string.format("../addons/%s/%s/indun_list_viewer.json", addon_name_lower, g.active_id)
+    g.ilv_old_path = string.format("../addons/%s/%s/settings_2510.json", "indun_list_viewer", g.active_id)
+    local settings = g.load_lua(g.ilv_path)
+    local need_save = false
+    local ver = 1.1
+    if not settings then
+        settings = g.load_json(json_path)
+        if settings then
+            need_save = true
+        end
+    end
+    if not settings then
+        local old_settings = g.load_json(g.ilv_old_path)
+        if old_settings then
+            settings = {
+                options = old_settings.default_options or {},
+                display = old_settings.display_options or {},
+                chars = {},
+                ver = ver
+            }
+            for key, data in pairs(old_settings) do
+                if type(data) == "table" and key ~= "default_options" and key ~= "display_options" then
+                    settings.chars[key] = data
+                end
+            end
+        else
+            settings = {
+                options = {
+                    reset_time = 0,
+                    display_mode = "full",
+                    hidden = 0
+                },
+                display = {
+                    Memo = 1
+                },
+                chars = {},
+                ver = ver
+            }
+        end
+        need_save = true
+    end
+    if not settings.ver or settings.ver < ver then
+        if not settings.display then
+            settings.display = {}
+        end
+        if settings.display.Memo == nil then
+            settings.display.Memo = 1
+        end
+        for _, info in pairs(g.ilv_RAID_INFO) do
+            if info.name then
+                local h_key = info.name .. "_H"
+                local s_key = info.name .. "_S"
+                if settings.display[h_key] == nil then
+                    settings.display[h_key] = 1
+                end
+                if settings.display[s_key] == nil then
+                    settings.display[s_key] = 1
+                end
+            end
+        end
+        settings.ver = ver
+        need_save = true
+    end
+    g.ilv_settings = settings
+    if need_save then
+        Indun_list_viewer_save_settings()
+    end
+end
+
+function Indun_list_viewer_char_load_settings()
+    local acc_info = session.barrack.GetMyAccount()
+    if acc_info then
+        local layer_pc_count = acc_info:GetPCCount()
+        local barrack_all = acc_info:GetBarrackPCCount()
+        for order = 0, layer_pc_count - 1 do
+            local pc_info = acc_info:GetPCByIndex(order)
+            if pc_info then
+                local pc_apc = pc_info:GetApc()
+                local pc_name = pc_apc:GetName()
+                local pc_cid = pc_info:GetCID()
+                local existing_data = g.ilv_settings.chars[pc_name] or {}
+                g.ilv_settings.chars[pc_name] = {
+                    layer = g.ilv_layer or existing_data.layer or 9,
+                    order = order,
+                    hide = existing_data.hide or false,
+                    memo = existing_data.memo or "",
+                    president_jobid = existing_data.president_jobid or "",
+                    jobid = existing_data.jobid or "",
+                    raid_count = existing_data.raid_count or {},
+                    auto_clear_count = existing_data.auto_clear_count or {},
+                    cid = pc_cid,
+                    pc_name = pc_name
+                }
+            end
+        end
+        if barrack_all > 0 then
+            local barrack_chars = {}
+            for i = 0, barrack_all - 1 do
+                local pc_info = acc_info:GetBarrackPCByIndex(i)
+                if pc_info then
+                    barrack_chars[pc_info:GetName()] = true
+                end
+            end
+            local chars_to_delete = {}
+            for char_name, _ in pairs(g.ilv_settings.chars) do
+                if not barrack_chars[char_name] then
+                    table.insert(chars_to_delete, char_name)
+                end
+            end
+            for _, char_name in ipairs(chars_to_delete) do
+                g.ilv_settings.chars[char_name] = nil
+            end
+        end
+        Indun_list_viewer_save_settings()
+        return
+    end
+    if g.get_map_type() == "City" then
+        local pc_name = session.GetMySession():GetPCApc():GetName()
+        local pc_cid = session.GetMySession():GetCID()
+        local existing_data = g.ilv_settings.chars[pc_name] or {}
+        g.ilv_settings.chars[pc_name] = {
+            layer = g.ilv_layer or existing_data.layer or 1,
+            order = existing_data.order or 99,
+            hide = existing_data.hide or false,
+            memo = existing_data.memo or "",
+            president_jobid = existing_data.president_jobid or "",
+            jobid = existing_data.jobid or "",
+            raid_count = existing_data.raid_count or {},
+            auto_clear_count = existing_data.auto_clear_count or {},
+            cid = pc_cid,
+            pc_name = pc_name
+        }
+        Indun_list_viewer_save_settings()
+    end
+end
+
+function indun_list_viewer_on_init()
+    if _G["BARRACK_CHARLIST_ON_INIT"] and _G["current_layer"] then
+        g.ilv_layer = _G["current_layer"]
+    end
+    if not g.ilv_settings then
+        Indun_list_viewer_load_settings()
+    end
+    local old_func = g.settings.indun_list_viewer.old_init_func
+    if _G[old_func] then
+        return
+    end
+    g.addon:RegisterMsg("EXPIREDITEM_ALERT_OPEN", "Indun_list_viewer_EXPIREDITEM_ALERT_ON_MSG")
+    if g.get_map_type() == "City" then
+        Indun_list_viewer_char_load_settings()
+        Indun_list_viewer_sort_characters()
+        Indun_list_viewer_raid_reset_reserve()
+        Indun_list_viewer_save_current_char_counts()
+    end
+    if g.settings.indun_list_viewer.use == 0 then
+        if _G["indun_list_viewer_title_frame_open"] == _G["Indun_list_viewer_title_frame_open"] then
+            _G["indun_list_viewer_title_frame_open"] = nil
+        end
+    else
+        if type(_G["Indun_list_viewer_title_frame_open"]) == "function" then
+            if type(_G["indun_list_viewer_title_frame_open"]) ~= "function" then
+                _G["indun_list_viewer_title_frame_open"] = _G["Indun_list_viewer_title_frame_open"]
+            end
+        end
+    end
+    g.addon:RegisterMsg("ESCAPE_PRESSED", "Indun_list_viewer_ESCAPE_PRESSED")
+    g.setup_hook_and_event(g.addon, "STATUS_SELET_REPRESENTATION_CLASS",
+        "Indun_list_viewer_STATUS_SELET_REPRESENTATION_CLASS", true)
+    g.setup_hook(Indun_list_viewer_EXPIREDITEM_ALERT_OK_BTN, "EXPIREDITEM_ALERT_OK_BTN")
+end
+
+function Indun_list_viewer_CHECK_ALERT(type)
+    if g.settings.indun_list_viewer.use == 0 then
+        return false
+    end
+    type = type or "Barrack" -- typeが無い場合はBarrack扱い
+    if type == "Barrack" or type == "Logout" or type == "Exit" then
+        local expireditem_alert = ui.GetFrame("expireditem_alert")
+        local near_future_sec = tonumber(expireditem_alert:GetUserConfig("NearFutureSec"))
+        local need_item = false
+        local need_token = false
+        if near_future_sec then
+            local list = GET_SCHEDULED_TO_EXPIRED_ITEM_LIST(near_future_sec)
+            need_item = (list ~= nil and #list > 0)
+            need_token = IS_NEED_TO_ALERT_TOKEN_EXPIRATION(near_future_sec)
+        end
+        local sweep_buffs = {80045, 80043, 80039, 80035, 80037, 80032, 80031, 80030, 80015, 80017, 80016}
+        local sweep_tbl = {}
+        local my_handle = session.GetMyHandle()
+        local limit_time_ms = 12 * 60 * 60 * 1000
+        for _, buff_id in ipairs(sweep_buffs) do
+            local buff_info = info.GetBuff(my_handle, buff_id)
+            if buff_info and buff_info.time <= limit_time_ms then
+                table.insert(sweep_tbl, {
+                    buff_over = buff_info.over,
+                    buff_time = buff_info.time,
+                    buff_id = buff_id
+                })
+            end
+        end
+        if need_item or need_token or #sweep_tbl > 0 then
+            Indun_list_viewer_EXPIREDITEM_ALERT_OPEN(nil, type, sweep_tbl)
+            return true -- 警告あり
+        end
+    end
+    return false -- 警告なし
+end
+
+function Indun_list_viewer_EXPIREDITEM_ALERT_OPEN(frame, arg_str, tbl, cid, layer)
+    local expireditem_alert = ui.GetFrame("expireditem_alert")
+    local near_future_sec = tonumber(expireditem_alert:GetUserConfig("NearFutureSec"))
+    local itemlist = GET_CHILD(expireditem_alert, "itemlist", "ui::CGroupBox")
+    itemlist:RemoveAllChild()
+    local start_index = 0
+    local ypos = 0
+    if tbl then
+        for key, data in ipairs(tbl) do
+            if type(data) == "table" then
+                local ctrlset = itemlist:CreateOrGetControlSet("expireditem_ctrlset",
+                    "expireditem_ctrlset" .. start_index + 1, 0, ypos)
+                AUTO_CAST(ctrlset)
+                local name = GET_CHILD_RECURSIVELY(ctrlset, "name", "ui::CRichText")
+                local expiration_time = GET_CHILD_RECURSIVELY(ctrlset, "expirationTime", "ui::CRichText")
+                local remaining_time = GET_CHILD_RECURSIVELY(ctrlset, "remainingTime", "ui::CRichText")
+                local item_pic = GET_CHILD_RECURSIVELY(ctrlset, "item_pic", "ui::CPicture")
+                local buff_cls = GetClassByType("Buff", data.buff_id)
+                if buff_cls then
+                    name:SetTextByKey("itemname", buff_cls.Name)
+                    local icon_name = "icon_" .. buff_cls.Icon
+                    item_pic:SetImage(icon_name)
+                end
+                local expiration_systime = geTime.GetServerSystemTime()
+                expiration_systime = imcTime.AddSec(expiration_systime, data.buff_time / 1000)
+                expiration_time:SetTextByKey("year", expiration_systime.wYear)
+                expiration_time:SetTextByKey("month", GET_TWO_DIGIT_STR(expiration_systime.wMonth))
+                expiration_time:SetTextByKey("day", GET_TWO_DIGIT_STR(expiration_systime.wDay))
+                local buff_time = data.buff_time / 1000
+                local days = math.floor(buff_time / 86400)
+                local hours = math.floor((buff_time % 86400) / 3600)
+                local mins = math.floor(((buff_time % 86400) % 3600) / 60)
+                local sec = ((buff_time % 86400) % 3600) % 60
+                local dif_sec_msg = ""
+                if days > 0 then
+                    dif_sec_msg = ScpArgMsg("{Day}Day{Hour}Hour{Min}Min", "Day", days, "Hour", hours, "Min", mins)
+                elseif hours > 0 then
+                    dif_sec_msg = ScpArgMsg("{Hour}Hour{Min}Min{Sec}Sec", "Hour", hours, "Min", mins, "Sec", sec)
+                elseif mins > 0 then
+                    dif_sec_msg = ScpArgMsg("{Min}Min{Sec}Sec", "Min", mins, "Sec", sec)
+                else
+                    dif_sec_msg = ScpArgMsg("{Sec}Sec", "Sec", sec)
+                end
+                remaining_time:SetText(dif_sec_msg)
+                local time_parent = remaining_time:GetParent()
+                local amend_h = remaining_time:GetY() + remaining_time:GetHeight()
+                if amend_h < time_parent:GetHeight() then
+                    amend_h = ctrlset:GetHeight()
+                else
+                    local addedHeight = amend_h - time_parent:GetHeight()
+                    ctrlset:Resize(ctrlset:GetWidth(), ctrlset:GetHeight() + addedHeight)
+                end
+                ypos = ypos + ctrlset:GetHeight()
+                start_index = start_index + 1
+            end
+        end
+    end
+    if IS_NEED_TO_ALERT_TOKEN_EXPIRATION(near_future_sec, itemlist) then
+        ypos = ASK_EXPIREDITEM_ALERT_TOKEN(expireditem_alert, itemlist, start_index, ypos)
+        start_index = start_index + 1
+    end
+    local list = GET_SCHEDULED_TO_EXPIRED_ITEM_LIST(near_future_sec)
+    if list and #list >= 1 then
+        ypos = ASK_EXPIREDITEM_ALERT_LIFETIME(expireditem_alert, itemlist, near_future_sec, start_index, ypos)
+        start_index = start_index + #list
+    end
+    expireditem_alert:Resize(expireditem_alert:GetWidth(), expireditem_alert:GetOriginalHeight() + itemlist:GetHeight())
+    if arg_str then
+        expireditem_alert:SetUserValue("TimerType", arg_str)
+    end
+    if cid then
+        expireditem_alert:SetUserValue("CC_CID", cid)
+        expireditem_alert:SetUserValue("CC_LAYER", layer or 0)
+    else
+        expireditem_alert:SetUserValue("CC_CID", "None")
+    end
+    expireditem_alert:ShowWindow(1)
+end
+
+local function get_safe_entrance_count(indun_type)
+    local indun_cls = GetClassByType("Indun", indun_type)
+    if indun_cls and indun_cls.PlayPerResetType then
+        return GET_CURRENT_ENTERANCE_COUNT(indun_cls.PlayPerResetType)
+    end
+    return nil
+end
+
+function Indun_list_viewer_save_current_char_counts()
+    if g.get_map_type() ~= "City" then
+        return
+    end
+    local raid_data = {}
+    for key, raid in pairs(g.ilv_RAID_INFO) do
+        local count = get_safe_entrance_count(raid.hard)
+        raid_data[key .. "_H"] = count or "?"
+        count = get_safe_entrance_count(raid.auto)
+        raid_data[key .. "_A"] = count or "?"
+    end
+    g.ilv_settings.chars[g.login_name].raid_count = raid_data
+    local auto_clear_data = g.ilv_settings.chars[g.login_name].auto_clear_count
+    local my_handle = session.GetMyHandle()
+    for _, key in ipairs(g.ilv_RAID_KEYS) do
+        local raid = g.ilv_RAID_INFO[key]
+        auto_clear_data[key .. "_S"] = 0
+        if raid.sweep_buff then
+            local buff_info = info.GetBuff(my_handle, raid.sweep_buff)
+            if buff_info then
+                auto_clear_data[key .. "_S"] = buff_info.over
+            end
+        end
+    end
+    g.ilv_settings.chars[g.login_name].auto_clear_count = auto_clear_data
+    Indun_list_viewer_save_settings()
+end
+
+function Indun_list_viewer_EXPIREDITEM_ALERT_ON_MSG(frame, msg, str, num)
+    local expireditem_alert = ui.GetFrame("expireditem_alert")
+    if expireditem_alert then
+        expireditem_alert:SetLayerLevel(100)
+    end
+end
+
+function Indun_list_viewer_raid_reset_reserve()
+    local server_time_str = date_time.get_lua_now_datetime_str()
+    if server_time_str then
+        local y, m, d, H, M, S = server_time_str:match("(%d+)-(%d+)-(%d+) (%d+):(%d+):(%d+)")
+        if y then
+            local server_now_timestamp = os.time({
+                year = tonumber(y),
+                month = tonumber(m),
+                day = tonumber(d),
+                hour = tonumber(H),
+                min = tonumber(M),
+                sec = tonumber(S)
+            })
+            if server_now_timestamp > g.ilv_settings.options.reset_time then
+                Indun_list_viewer_raid_reset()
+            end
+        end
+    end
+end
+
+function Indun_list_viewer_raid_reset()
+    local acc_info = session.barrack.GetMyAccount()
+    local barrack_pc_count = acc_info:GetBarrackPCCount() -- ゲーム起動直後はtonumber(0)そのため初期化は2回目以降
+    if barrack_pc_count > 0 then
+        for i = 0, barrack_pc_count - 1 do
+            local barrack_pc_info = acc_info:GetBarrackPCByIndex(i)
+            if barrack_pc_info then
+                local barrack_pc_name = barrack_pc_info:GetName()
+                local char_data = g.ilv_settings.chars[barrack_pc_name]
+                if char_data then
+                    char_data.raid_count = {}
+                    for _, key in ipairs(g.ilv_RAID_KEYS) do
+                        char_data.raid_count[key .. "_H"] = "?"
+                        char_data.raid_count[key .. "_A"] = "?"
+                    end
+                end
+            end
+        end
+        g.ilv_settings.options.reset_time = Indun_list_viewer_get_reset_time()
+        Indun_list_viewer_save_settings()
+        if g.settings.indun_list_viewer.use ~= 0 then
+            if g.lang == "Japanese" then
+                ui.SysMsg("[ILV]レイドの回数を初期化しました")
+            else
+                ui.SysMsg("[ILV]Raid counts were initialized")
+            end
+        end
+    end
+end
+
+function Indun_list_viewer_get_reset_time()
+    local server_time_str = date_time.get_lua_now_datetime_str()
+    if not server_time_str then
+        return 0
+    end
+    local year, month, day, hour, min, sec = server_time_str:match("(%d+)-(%d+)-(%d+) (%d+):(%d+):(%d+)")
+    if not year then
+        return 0
+    end
+    local now_table = {
+        year = tonumber(year),
+        month = tonumber(month),
+        day = tonumber(day),
+        hour = tonumber(hour),
+        min = tonumber(min),
+        sec = tonumber(sec)
+    }
+    local now_timestamp = os.time(now_table)
+    local current_day_of_week = tonumber(os.date("%w", now_timestamp)) + 1
+    local days_to_next_monday
+    if current_day_of_week == 2 and now_table.hour < 6 then
+        days_to_next_monday = 0
+    else
+        days_to_next_monday = (9 - current_day_of_week) % 7
+        if days_to_next_monday == 0 then
+            days_to_next_monday = 7
+        end
+    end
+    local next_monday_timestamp_base = now_timestamp + days_to_next_monday * 86400
+    local next_monday_date = os.date("*t", next_monday_timestamp_base)
+    local next_monday_6am_timestamp = os.time({
+        year = next_monday_date.year,
+        month = next_monday_date.month,
+        day = next_monday_date.day,
+        hour = 6,
+        min = 0,
+        sec = 0
+    })
+    return next_monday_6am_timestamp
+end
+
+function Indun_list_viewer_sort_characters()
+    g.ilv_sorted_settings = {}
+    for key, data in pairs(g.ilv_settings.chars) do
+        if type(data) == "table" then
+            table.insert(g.ilv_sorted_settings, data)
+        end
+    end
+    local function sort_layer_order(a, b)
+        if a.layer ~= b.layer then
+            return a.layer < b.layer
+        else
+            return a.order < b.order
+        end
+    end
+    table.sort(g.ilv_sorted_settings, sort_layer_order)
+end
+
+function Indun_list_viewer_STATUS_SELET_REPRESENTATION_CLASS(my_frame, my_msg)
+    if not g.ilv_settings then
+        return
+    end
+    local _, select_key = g.get_event_args(my_msg)
+    local pc_job_info = session.GetMainSession():GetPCJobInfo()
+    local job_count = pc_job_info:GetJobCount()
+    local job_id_parts = {}
+    for i = 0, job_count - 1 do
+        local job_info = pc_job_info:GetJobInfoByIndex(i)
+        table.insert(job_id_parts, job_info.jobID)
+    end
+    g.ilv_settings.chars[g.login_name].jobid = "/" .. table.concat(job_id_parts, "/")
+    g.ilv_settings.chars[g.login_name].president_jobid = tostring(select_key)
+    Indun_list_viewer_save_settings()
+    Indun_list_viewer_title_frame_open()
+end
+
+function Indun_list_viewer_INDUNINFO_SET_BUTTONS(indun_type, ctrl)
+    local indun_cls = GetClassByType("Indun", indun_type)
+    local dungeon_type = TryGetProp(indun_cls, "DungeonType", "None")
+    local btn_info_cls = GetClassByStrProp("IndunInfoButton", "DungeonType", dungeon_type)
+    if dungeon_type == "Raid" then
+        btn_info_cls = INDUNINFO_SET_BUTTONS_FIND_CLASS(indun_cls)
+    end
+    local red_button_scp = TryGetProp(btn_info_cls, "RedButtonScp")
+    ctrl:SetUserValue("MOVE_INDUN_CLASSID", indun_cls.ClassID)
+    ctrl:SetEventScript(ui.LBUTTONUP, red_button_scp)
+end
+
+function Indun_list_viewer_enter_hard(parent, ctrl, str, indun_type)
+    if str == "false" then
+        Indun_list_viewer_INDUNINFO_SET_BUTTONS(indun_type, ctrl)
+        ReserveScript(string.format("Indun_list_viewer_enter_hard(nil, nil, 'true', %d)", indun_type), 0.5)
+    else
+        SHOW_INDUNENTER_DIALOG(indun_type)
+        local indun_list_viewer = parent:GetTopParentFrame()
+        ui.DestroyFrame(indun_list_viewer:GetName())
+    end
+end
+
+function Indun_list_viewer_enter_solo_or_auto(parent, ctrl, move_type_str, indun_type)
+    local move_type = tonumber(move_type_str)
+    ReqRaidAutoUIOpen(indun_type)
+    if move_type == 2 then
+        local indunenter = ui.GetFrame("indunenter")
+        local indun_cls = GetClassByType("Indun", indunenter:GetUserValue("INDUN_TYPE"))
+        local min_rank = TryGetProp(indun_cls, "PCRank")
+        if min_rank and min_rank > session.GetPcTotalJobGrade() then
+            ui.SysMsg(ScpArgMsg("IndunEnterNeedPCRank", "NEED_RANK", min_rank))
+            return
+        end
+    end
+    ReserveScript(string.format("ReqMoveToIndun(%d, 0)", move_type), 0.3)
+    local indun_list_viewer = parent:GetTopParentFrame()
+    ui.DestroyFrame(indun_list_viewer:GetName())
+end
+
+function Indun_list_viewer_config(parent)
+    local indun_list_viewer = parent:GetTopParentFrame()
+    indun_list_viewer:RemoveAllChild()
+    local title_gb = indun_list_viewer:CreateOrGetControl("groupbox", "title_gb", 0, 0, 10, 10)
+    AUTO_CAST(title_gb)
+    local config_gb = indun_list_viewer:CreateOrGetControl("groupbox", "config_gb", 10, 35, 10, 10)
+    AUTO_CAST(config_gb)
+    config_gb:SetSkinName("bg")
+    local text = config_gb:CreateOrGetControl("richtext", "text", 10, 10)
+    AUTO_CAST(text)
+    text:SetText(g.lang == "Japanese" and "チェックすると表示" or "{ol}Check to show")
+    local x = text:GetX() + text:GetWidth() + 5
+    local text_x = 0
+    for _, raid_key in ipairs(g.ilv_RAID_KEYS) do
+        local raid_info = g.ilv_RAID_INFO[raid_key]
+        if text_x == 0 then
+            text_x = x
+        end
+        local pic = title_gb:CreateOrGetControl("picture", "title_pic_" .. raid_key .. "_H", x + 5, 5, 30, 30)
+        AUTO_CAST(pic)
+        pic:SetImage(raid_info.icon)
+        pic:SetEnableStretch(1)
+        pic:EnableHitTest(1)
+        local check = config_gb:CreateOrGetControl("checkbox", "check_" .. raid_key .. "_H", x, 5, 30, 30)
+        AUTO_CAST(check)
+        check:SetCheck(g.ilv_settings.display[raid_info.name .. "_H"])
+        check:SetEventScript(ui.LBUTTONDOWN, "Indun_list_viewer_display_check")
+        check:SetEventScriptArgString(ui.LBUTTONDOWN, raid_info.name .. "_H")
+        x = x + 30
+    end
+    local hard_text = title_gb:CreateOrGetControl("richtext", "hard_text", text_x - 40, 10)
+    AUTO_CAST(hard_text)
+    hard_text:SetText("{ol}Hard")
+    x = x + 100
+    text_x = 0
+    for _, raid_key in ipairs(g.ilv_RAID_KEYS) do
+        local raid_info = g.ilv_RAID_INFO[raid_key]
+        if text_x == 0 then
+            text_x = x
+        end
+        local pic = title_gb:CreateOrGetControl("picture", "title_pic_" .. raid_key .. "_S", x + 5, 5, 30, 30)
+        AUTO_CAST(pic)
+        pic:SetImage(raid_info.icon)
+        pic:SetEnableStretch(1)
+        pic:EnableHitTest(1)
+        local check = config_gb:CreateOrGetControl("checkbox", "check_" .. raid_key .. "_S", x, 5, 30, 30)
+        AUTO_CAST(check)
+        check:SetCheck(g.ilv_settings.display[raid_info.name .. "_S"])
+        check:SetEventScript(ui.LBUTTONDOWN, "Indun_list_viewer_display_check")
+        check:SetEventScriptArgString(ui.LBUTTONDOWN, raid_info.name .. "_S")
+        x = x + 30
+    end
+    local auto_text = title_gb:CreateOrGetControl("richtext", "auto_text", text_x - 80, 10)
+    AUTO_CAST(auto_text)
+    auto_text:SetText("{ol}Solo/Auto")
+    x = x + 30
+    local memo_text = title_gb:CreateOrGetControl("richtext", "memo_text", x, 10)
+    AUTO_CAST(memo_text)
+    memo_text:SetText("{ol}Memo")
+    local memo_check = config_gb:CreateOrGetControl("checkbox", "check_memo", x, 5, 30, 30)
+    AUTO_CAST(memo_check)
+    memo_check:SetCheck(g.ilv_settings.display["Memo"])
+    memo_check:SetEventScript(ui.LBUTTONDOWN, "Indun_list_viewer_display_check")
+    memo_check:SetEventScriptArgString(ui.LBUTTONDOWN, "Memo")
+    local close_button = title_gb:CreateOrGetControl("button", "close_button", 0, 0, 20, 20)
+    AUTO_CAST(close_button)
+    close_button:SetImage("testclose_button")
+    close_button:SetGravity(ui.LEFT, ui.TOP)
+    close_button:SetEventScript(ui.LBUTTONUP, "Indun_list_viewer_close")
+    close_button:SetEventScriptArgNumber(ui.LBUTTONUP, 1)
+    title_gb:Resize(x + 50, 55)
+    indun_list_viewer:Resize(title_gb:GetWidth() + 20, 85)
+    config_gb:Resize(indun_list_viewer:GetWidth() - 20, indun_list_viewer:GetHeight() - 45)
+end
+
+function Indun_list_viewer_display_check(parent, ctrl, key, num)
+    g.ilv_settings.display[key] = ctrl:IsChecked() == 1 and 1 or 0
+    Indun_list_viewer_save_settings()
+end
+
+function Indun_list_viewer_title_frame_open()
+    Indun_list_viewer_save_current_char_counts()
+    if g.settings.indun_list_viewer.use == 0 then
+        return
+    end
+    local indun_list_viewer = ui.CreateNewFrame("notice_on_pc", addon_name_lower .. "indun_list_viewer", 0, 0, 10, 10)
+    AUTO_CAST(indun_list_viewer)
+    indun_list_viewer:RemoveAllChild()
+    indun_list_viewer:SetLayerLevel(99)
+    indun_list_viewer:SetSkinName("test_frame_low")
+    local title_gb = indun_list_viewer:CreateOrGetControl("groupbox", "title_gb", 0, 0, 10, 10)
+    AUTO_CAST(title_gb)
+    local texts = (g.lang == "Japanese") and {
+        hard_raid = "ハード",
+        auto_raid = "左クリック:ソロ入場{nl}右クリック:自動入場{nl} {nl}入場回数/掃討回数",
+        mode_text = "チェックを入れるとスクロールモードに切替",
+        display_text = "チェックしたキャラはレイド回数非表示",
+        memo = "メモ",
+        display = "表示",
+        hidden = "チェックを入れると非表示キャラを表示しません"
+    } or {
+        hard_raid = "Hard Count",
+        auto_raid = "Left-click: Solo Entry{nl}Right-click: Automatic Entry{nl} {nl}Entry Count/Auto clear count",
+        mode_text = "Switch to scroll mode when checked",
+        display_text = "Checked characters hide raid count",
+        memo = "Memo",
+        display = "Disp",
+        hidden = "If checked, do not show hidden characters"
+    }
+    local x = 185
+    for _, raid_key in ipairs(g.ilv_RAID_KEYS) do
+        local raid_info = g.ilv_RAID_INFO[raid_key]
+        if raid_info and raid_info.name then -- ここで安全確認
+            if g.ilv_settings.display[raid_info.name .. "_H"] == 1 then
+                local pic = title_gb:CreateOrGetControl("picture", "title_pic_" .. raid_key .. "_H", x, 5, 30, 30)
+                AUTO_CAST(pic)
+                pic:SetImage(raid_info.icon)
+                pic:SetEnableStretch(1)
+                pic:EnableHitTest(1)
+                pic:SetEventScript(ui.LBUTTONDOWN, "Indun_list_viewer_enter_hard")
+                pic:SetEventScriptArgNumber(ui.LBUTTONDOWN, raid_info.hard)
+                pic:SetEventScriptArgString(ui.LBUTTONDOWN, "false")
+                pic:SetTextTooltip("{ol}" .. texts.hard_raid)
+                x = x + 30
+            end
+        end
+    end
+    x = x + 30
+    for _, raid_key in ipairs(g.ilv_RAID_KEYS) do
+        local raid_info = g.ilv_RAID_INFO[raid_key]
+        if raid_info and raid_info.name then -- ここで安全確認
+            if g.ilv_settings.display[raid_info.name .. "_S"] == 1 then
+                local pic = title_gb:CreateOrGetControl("picture", "title_pic_" .. raid_key .. "_S", x, 5, 30, 30)
+                AUTO_CAST(pic)
+                pic:SetImage(raid_info.icon)
+                pic:SetEnableStretch(1)
+                pic:EnableHitTest(1)
+                pic:SetEventScript(ui.LBUTTONUP, "Indun_list_viewer_enter_solo_or_auto")
+                pic:SetEventScriptArgString(ui.LBUTTONUP, "1")
+                pic:SetEventScriptArgNumber(ui.LBUTTONUP, raid_info.solo)
+                pic:SetEventScript(ui.RBUTTONUP, "Indun_list_viewer_enter_solo_or_auto")
+                pic:SetEventScriptArgString(ui.RBUTTONUP, "2")
+                pic:SetEventScriptArgNumber(ui.RBUTTONUP, raid_info.auto)
+                pic:SetTextTooltip("{ol}" .. texts.auto_raid)
+                x = x + 65
+            end
+        end
+    end
+    local close_button = title_gb:CreateOrGetControl("button", "close_button", 0, 0, 20, 20)
+    AUTO_CAST(close_button)
+    close_button:SetImage("testclose_button")
+    close_button:SetGravity(ui.LEFT, ui.TOP)
+    close_button:SetEventScript(ui.LBUTTONUP, "Indun_list_viewer_close")
+    local cc_button = title_gb:CreateOrGetControl("button", "cc_button", 40, 5, 30, 30)
+    AUTO_CAST(cc_button)
+    cc_button:SetSkinName("None")
+    cc_button:SetText("{img barrack_button_normal 30 30}")
+    cc_button:SetEventScript(ui.LBUTTONUP, "_nexus_addons_APPS_TRY_MOVE_BARRACK")
+    local config_btn = title_gb:CreateOrGetControl("button", "config_btn", 75, 5, 30, 30)
+    AUTO_CAST(config_btn)
+    config_btn:SetSkinName("None")
+    config_btn:SetText("{img config_button_normal 30 30}")
+    config_btn:SetEventScript(ui.LBUTTONUP, "Indun_list_viewer_config")
+    local mode_check = title_gb:CreateOrGetControl("checkbox", "mode_check", 115, 5, 30, 30)
+    AUTO_CAST(mode_check)
+    mode_check:SetCheck(g.ilv_settings.options.display_mode == "slide" and 1 or 0)
+    mode_check:SetEventScript(ui.LBUTTONUP, "Indun_list_viewer_modechange")
+    mode_check:SetTextTooltip("{ol}" .. texts.mode_text)
+    local hidden_check = title_gb:CreateOrGetControl("checkbox", "hidden_check", 150, 5, 30, 30)
+    AUTO_CAST(hidden_check)
+    hidden_check:SetCheck(g.ilv_settings.options.hidden)
+    hidden_check:SetEventScript(ui.LBUTTONUP, "Indun_list_viewer_modechange")
+    hidden_check:SetTextTooltip("{ol}" .. texts.hidden)
+    if g.ilv_settings.display["Memo"] == 1 then
+        local memo_text = title_gb:CreateOrGetControl("richtext", "memo_text", x, 10)
+        AUTO_CAST(memo_text)
+        memo_text:SetText("{ol}" .. texts.memo)
+        x = x + 160
+    end
+    local display_text = title_gb:CreateOrGetControl("richtext", "display_text", x, 10)
+    AUTO_CAST(display_text)
+    display_text:SetText("{ol}" .. texts.display)
+    display_text:SetTextTooltip("{ol}" .. texts.display_text)
+    indun_list_viewer:ShowWindow(1)
+    Indun_list_viewer_frame_open(indun_list_viewer)
+end
+
+function Indun_list_viewer_ESCAPE_PRESSED()
+    local indun_list_viewer = ui.GetFrame(addon_name_lower .. "indun_list_viewer")
+    Indun_list_viewer_close(indun_list_viewer)
+end
+
+function Indun_list_viewer_close(parent, ctrl, str, num)
+    local indun_list_viewer = parent:GetTopParentFrame()
+    ui.DestroyFrame(indun_list_viewer:GetName())
+    if num == 1 then
+        ReserveScript("Indun_list_viewer_title_frame_open()", 0.1)
+    end
+end
+
+function Indun_list_viewer_modechange(parent, ctrl)
+    local ctrl_name = ctrl:GetName()
+    local is_checked = ctrl:IsChecked()
+    if ctrl_name == "hidden_check" then
+        g.ilv_settings.options.hidden = is_checked
+    else -- mode_check
+        g.ilv_settings.options.display_mode = is_checked == 1 and "slide" or "full"
+    end
+    Indun_list_viewer_save_settings()
+    Indun_list_viewer_title_frame_open()
+end
+
+function Indun_list_viewer_frame_open(indun_list_viewer)
+    local title_gb = GET_CHILD(indun_list_viewer, "title_gb")
+    AUTO_CAST(title_gb)
+    local gb = indun_list_viewer:CreateOrGetControl("groupbox", "gb", 10, 35, 10, 10)
+    AUTO_CAST(gb)
+    gb:SetSkinName("bg")
+    local sorted_char_list = {}
+    for _, data in ipairs(g.ilv_sorted_settings) do
+        if type(data) == "table" then
+            if g.ilv_settings.options.hidden == 0 or not data.hide then
+                table.insert(sorted_char_list, data)
+            end
+        end
+    end
+    local y = 10
+    local max_x = 0
+    if not g.ilv_RAID_KEYS or not g.ilv_RAID_INFO then
+        return
+    end
+    for _, data in ipairs(sorted_char_list) do
+        local x = 35
+        local pc_name = data.pc_name
+        local name = gb:CreateOrGetControl("richtext", pc_name, x, y)
+        AUTO_CAST(name)
+        name:SetText(("{ol}{s14}" .. (g.login_name == pc_name and "{#FF4500}" or "") .. pc_name))
+        Indun_list_viewer_job_slot(indun_list_viewer, data, y)
+        x = x + 60
+        if not data.hide then
+            local current_x = 180
+            local raid_count_data = data.raid_count or {}
+            local auto_clear_data = data.auto_clear_count or {}
+            for _, raid_key in ipairs(g.ilv_RAID_KEYS) do
+                local raid_info = g.ilv_RAID_INFO[raid_key]
+                if raid_info and raid_info.name then
+                    if g.ilv_settings.display[raid_info.name .. "_H"] == 1 then
+                        local count = raid_count_data[raid_key .. "_H"] or "?"
+                        local text_ctrl = gb:CreateOrGetControl("richtext", raid_key .. "_H_" .. pc_name, current_x, y)
+                        AUTO_CAST(text_ctrl)
+                        text_ctrl:SetText("{ol}{s14}( " .. count .. " )")
+                        local limit = (raid_key == "P" or raid_key == "F") and 2 or 1
+                        local num_count = tonumber(count) or 0
+                        text_ctrl:SetColorTone(num_count >= limit and "FF990000" or "FFFFFFFF")
+                        current_x = current_x + 30
+                    end
+                end
+            end
+            current_x = current_x + 30
+            for _, raid_key in ipairs(g.ilv_RAID_KEYS) do
+                local raid_info = g.ilv_RAID_INFO[raid_key]
+                if raid_info and raid_info.name then
+                    if g.ilv_settings.display[raid_info.name .. "_S"] == 1 then
+                        local limit = (raid_key == "P" or raid_key == "F") and 4 or 2
+                        local count_a = raid_count_data[raid_key .. "_A"] or "?"
+                        local text_a = gb:CreateOrGetControl("richtext", raid_key .. "_A_" .. pc_name, current_x, y)
+                        AUTO_CAST(text_a)
+                        text_a:SetText("{ol}{s14}( " .. count_a .. " )")
+                        local num_a = tonumber(count_a)
+                        if num_a and num_a > 0 then
+                            text_a:SetColorTone(num_a == limit and "FF990000" or "FFFFFFFF")
+                        end
+                        if raid_key ~= "D" then
+                            current_x = current_x + 25
+                            local count_s = auto_clear_data[raid_key .. "_S"] or 0
+                            local text_s = gb:CreateOrGetControl("richtext", raid_key .. "_S_" .. pc_name, current_x, y)
+                            AUTO_CAST(text_s)
+                            text_s:SetText("{ol}{s14}/( " .. count_s .. " )")
+                            local num_s = tonumber(count_s)
+                            if num_s and num_s > 0 then
+                                -- text_s:SetColorTone(num_s == limit and "FFFFA500" or "FFFFFFFF")
+                                text_s:SetColorTone("FFFFA500")
+                            end
+                        end
+                        current_x = current_x + 40
+                    end
+                end
+            end
+            if g.ilv_settings.display["Memo"] == 1 then
+                local memo = gb:CreateOrGetControl("edit", "memo" .. pc_name, current_x, y - 2, 180, 20)
+                AUTO_CAST(memo)
+                memo:SetFontName("white_14_ol")
+                memo:SetTextAlign("left", "center")
+                memo:SetSkinName("inventory_serch")
+                memo:SetEventScript(ui.ENTERKEY, "Indun_list_viewer_memo_save")
+                memo:SetEventScriptArgString(ui.ENTERKEY, pc_name)
+                memo:SetText(data.memo or "")
+                current_x = current_x + 180
+            end
+            x = current_x
+        end
+        if x > max_x then
+            max_x = x
+        end
+        y = y + 25
+    end
+    local display_x = max_x + 20
+    y = 10
+    for _, data in ipairs(sorted_char_list) do
+        local pc_name = data.pc_name
+        local line = gb:CreateOrGetControl("labelline", "line" .. pc_name, 25, y + 20, max_x - 20, 1)
+        AUTO_CAST(line)
+        line:SetSkinName("labelline_def_3")
+        local display_check = gb:CreateOrGetControl("checkbox", "display" .. pc_name, display_x, y - 5, 25, 25)
+        AUTO_CAST(display_check)
+        display_check:SetEventScript(ui.LBUTTONUP, "Indun_list_viewer_display_save")
+        display_check:SetEventScriptArgString(ui.LBUTTONUP, pc_name)
+        display_check:SetCheck(data.hide and 1 or 0)
+        y = y + 25
+    end
+    local frame_width = display_x + 60
+    local frame_height = y + 50
+    if g.ilv_settings.options.display_mode == "slide" and frame_height > 545 then
+        frame_height = 545
+        gb:EnableScrollBar(1)
+    end
+    indun_list_viewer:Resize(frame_width, frame_height)
+    gb:Resize(indun_list_viewer:GetWidth() - 20, indun_list_viewer:GetHeight() - 45)
+    title_gb:Resize(indun_list_viewer:GetWidth() - 20, 55)
+    local display_text = GET_CHILD_RECURSIVELY(indun_list_viewer, "display_text")
+    if display_text then
+        AUTO_CAST(display_text)
+        display_text:SetPos(display_x, 10)
+    end
+    local map_frame = ui.GetFrame("map")
+    indun_list_viewer:SetPos((map_frame:GetWidth() - indun_list_viewer:GetWidth()) / 2, 35)
+end
+
+function Indun_list_viewer_job_slot(indun_list_viewer, data, y)
+    local pc_name = data.pc_name
+    local job_id_str = data.jobid or ""
+    local president_id_str = data.president_jobid or ""
+    local _, _, last_job_id = GetJobListFromAdventureBookCharData(pc_name)
+    local prepresentative_job_id = (president_id_str ~= "") and president_id_str or last_job_id
+    local job_class = GetClassByType("Job", tonumber(prepresentative_job_id) or 0)
+    local job_icon_name = "icon_item_nothing" -- デフォルト（?マークや空）
+    if job_class then
+        job_icon_name = TryGetProp(job_class, "Icon", "icon_item_nothing")
+    end
+    local gb = GET_CHILD_RECURSIVELY(indun_list_viewer, "gb")
+    local job_slot = gb:CreateOrGetControl("slot", "jobslot" .. pc_name, 5, y - 4, 25, 25)
+    AUTO_CAST(job_slot)
+    job_slot:SetSkinName("None")
+    job_slot:EnableHitTest(1)
+    job_slot:EnablePop(0)
+    local job_icon = CreateIcon(job_slot)
+    job_icon:SetImage(job_icon_name)
+    local tooltip_parts = {}
+    if job_id_str ~= "" then
+        local highlight_color = "{#FF0000}"
+        for id_str in job_id_str:gmatch("/([^/]+)") do
+            local job_id_num = tonumber(id_str)
+            if job_id_num then
+                local cls = GetClassByType("Job", job_id_num)
+                if cls and cls.Name then
+                    local name = (string.gsub(dic.getTranslatedStr(cls.Name), "{s18}", ""))
+                    if id_str == president_id_str then
+                        table.insert(tooltip_parts, highlight_color .. name .. "{/}")
+                    else
+                        table.insert(tooltip_parts, name)
+                    end
+                end
+            end
+        end
+    else
+        if job_class and job_class.Name then
+            local name = TryGetProp(job_class, "Name")
+            table.insert(tooltip_parts, (string.gsub(dic.getTranslatedStr(name), "{s18}", "")))
+        end
+    end
+    local tooltip_text = "{ol}" .. table.concat(tooltip_parts, "{nl}")
+    if g.login_name == pc_name then
+        local r_click_text = (g.lang == "Japanese") and "右クリック: 表示アイコン選択" or
+                                 "Right-click: Select Display Icon"
+        tooltip_text = tooltip_text .. "{nl} {nl}" .. r_click_text
+        job_slot:SetEventScript(ui.RBUTTONDOWN, "STATUS_OPEN_CLASS_DROPLIST")
+        local name_text = GET_CHILD_RECURSIVELY(gb, pc_name)
+        name_text:SetEventScript(ui.RBUTTONDOWN, "STATUS_OPEN_CLASS_DROPLIST")
+    end
+    if type(_G["INSTANTCC_ON_INIT"]) == "function" and g.settings.instant_cc.use == 1 then -- InstantCCアドオン連携
+        local cc_text = (g.lang == "Japanese") and "左クリック: キャラクターチェンジ" or
+                            "Left-click: Character Change"
+        tooltip_text = tooltip_text .. "{nl} {nl}{#FF4500}" .. cc_text
+        job_slot:SetEventScript(ui.LBUTTONDOWN, "Indun_list_viewer_INSTANTCC_DO_CC")
+        job_slot:SetEventScriptArgString(ui.LBUTTONDOWN, data.cid)
+        job_slot:SetEventScriptArgNumber(ui.LBUTTONDOWN, data.layer)
+        local name_text = GET_CHILD_RECURSIVELY(gb, pc_name)
+        name_text:SetEventScript(ui.LBUTTONDOWN, "Indun_list_viewer_INSTANTCC_DO_CC")
+        name_text:SetEventScriptArgString(ui.LBUTTONDOWN, data.cid)
+        name_text:SetEventScriptArgNumber(ui.LBUTTONDOWN, data.layer)
+        name_text:SetTextTooltip(tooltip_text)
+    end
+    job_icon:SetTextTooltip(tooltip_text)
+end
+
+function Indun_list_viewer_INSTANTCC_DO_CC(parent, ctrl, cid, layer)
+    if ui.CheckHoldedUI() then
+        return
+    end
+    if g.get_map_type() == "City" then
+        Indun_list_viewer_save_current_char_counts()
+    end
+    local expireditem_alert = ui.GetFrame("expireditem_alert")
+    local near_future_sec = tonumber(expireditem_alert:GetUserConfig("NearFutureSec"))
+    local need_alert = false
+    if near_future_sec then
+        local list = GET_SCHEDULED_TO_EXPIRED_ITEM_LIST(near_future_sec)
+        if list and #list > 0 then
+            need_alert = true
+        end
+        if IS_NEED_TO_ALERT_TOKEN_EXPIRATION(near_future_sec) then
+            need_alert = true
+        end
+    end
+    local sweep_buffs = {80045, 80043, 80039, 80035, 80037, 80032, 80031, 80030, 80015, 80017, 80016}
+    local sweep_tbl = {}
+    local my_handle = session.GetMyHandle()
+    local limit_time_ms = 12 * 60 * 60 * 1000
+    for _, buff_id in ipairs(sweep_buffs) do
+        local buff_info = info.GetBuff(my_handle, buff_id)
+        if buff_info and buff_info.time <= limit_time_ms then
+            table.insert(sweep_tbl, {
+                buff_over = buff_info.over,
+                buff_time = buff_info.time,
+                buff_id = buff_id
+            })
+            need_alert = true
+        end
+    end
+    if need_alert then
+        Indun_list_viewer_EXPIREDITEM_ALERT_OPEN(nil, "Barrack", sweep_tbl, cid, layer)
+        return
+    end
+    if _G["INSTANTCC_DO_CC"] then
+        _G["INSTANTCC_DO_CC"](cid, layer)
+    end
+end
+
+function Indun_list_viewer_EXPIREDITEM_ALERT_OK_BTN(frame)
+    local timerType = frame:GetUserValue("TimerType")
+    local cid = frame:GetUserValue("CC_CID")
+    local layer = frame:GetUserIValue("CC_LAYER")
+    if cid and cid ~= "None" then
+        if not g.instant_cc then
+            g.instant_cc = {}
+        end -- 安全策
+        g.instant_cc.do_cc = {
+            cid = cid,
+            layer = layer
+        }
+        RUN_GAMEEXIT_TIMER("Barrack")
+        frame:ShowWindow(0)
+        return
+    end
+    RUN_GAMEEXIT_TIMER(timerType)
+    frame:ShowWindow(0)
+end
+
+function Indun_list_viewer_memo_save(frame, ctrl, pc_name, num)
+    if g.ilv_settings.chars[pc_name] then
+        g.ilv_settings.chars[pc_name].memo = ctrl:GetText()
+        Indun_list_viewer_save_settings()
+    end
+    ui.SysMsg(g.lang == "Japanese" and "メモを登録しました。" or "MEMO registered.")
+end
+
+function Indun_list_viewer_display_save(frame, ctrl, pc_name, num)
+    local is_checked = ctrl:IsChecked()
+    if g.ilv_settings.chars[pc_name] then
+        g.ilv_settings.chars[pc_name].hide = (is_checked == 1)
+        Indun_list_viewer_save_settings()
+    end
+    Indun_list_viewer_title_frame_open()
+end
+-- indun_list_viewer ここまで
+
+-- indun_panel ここから
+local induns = {{
+    challenge = {
+        solo_520 = 1001,
+        solo_540 = 1004,
+        pt_540 = 1005,
+        jp = "チャレンジ",
+        icon = {"Item", 490363}
+    }
+}, {
+    singularity = {
+        singularity_520 = 2000,
+        singularity_540 = 2001,
+        jp = "分裂特異点",
+        icon = {"Item", 11030017}
+    }
+}, {
+    belliora = {
+        h = 727,
+        s = 726,
+        a = 725,
+        ac = 80045,
+        jp = "ベリオラ",
+        icon = {"Monster", 71043}
+    }
+}, {
+    laimara = {
+        h = 724,
+        s = 723,
+        a = 722,
+        ac = 80043,
+        jp = "ライマラ",
+        icon = {"Monster", 71040}
+    }
+}, {
+    ledania = {
+        h = 718,
+        s = 717,
+        a = 716,
+        ac = 80039,
+        jp = "レダニア",
+        icon = {"Monster", 59864}
+    }
+}, {
+    neringa = {
+        h = 709,
+        s = 708,
+        a = 707,
+        ac = 80035,
+        jp = "ネリンガ",
+        icon = {"Monster", 59856}
+    }
+}, {
+    golem = {
+        h = 712,
+        s = 711,
+        a = 710,
+        ac = 80037,
+        jp = "ゴーレム",
+        icon = {"Monster", 59859}
+    }
+}, {
+    merregina = {
+        s = 696,
+        a = 695,
+        h = 697,
+        ac = 80032,
+        jp = "メレジナ",
+        icon = {"Monster", 59824}
+    }
+}, {
+    slogutis = {
+        s = 689,
+        a = 688,
+        h = 690,
+        ac = 80031,
+        jp = "スローガティス",
+        icon = {"Monster", 59798}
+    }
+}, {
+    upinis = {
+        s = 686,
+        a = 685,
+        h = 687,
+        ac = 80030,
+        jp = "ウピニス",
+        icon = {"Monster", 59795}
+    }
+}, {
+    roze = {
+        s = 680,
+        a = 679,
+        h = 681,
+        ac = 80015,
+        jp = "ロゼ",
+        icon = {"Monster", 59773}
+    }
+}, {
+    falouros = {
+        s = 677,
+        a = 676,
+        h = 678,
+        ac = 80017,
+        jp = "ファロウロス",
+        icon = {"Monster", 59760}
+    }
+}, {
+    reservoir = {
+        s = 674,
+        a = 673,
+        h = 675,
+        ac = 80016,
+        jp = "プロパゲーター",
+        icon = {"Monster", 59752}
+    }
+}, {
+    jellyzele = {
+        s = 672,
+        a = 671,
+        h = 670,
+        jp = "ジェリージェル",
+        icon = {"Monster", 59730}
+    }
+}, {
+    delmore = {
+        s = 667,
+        a = 666,
+        h = 665,
+        jp = "デルムーア",
+        icon = {"Monster", 59690}
+    }
+}, {
+    giltine = {
+        s = 669,
+        a = 635,
+        h = 628,
+        jp = "ギルティネ",
+        icon = {"Monster", 59549}
+    }
+}, {
+    memory = {
+        s = 661,
+        a = 662,
+        h = 663,
+        jp = "焔の記憶",
+        icon = {"Item", 11100001}
+    }
+}, {
+    telharsha = {
+        id = 623,
+        jp = "テルハルシャ",
+        icon = {"Monster", 59477}
+    }
+}, {
+    bernice = {
+        id = 201,
+        jp = "ヴェルニケ",
+        icon = {"Item", 11030257}
+    }
+}, {
+    wailing = {
+        id = 684,
+        jp = "嘆きの墓地",
+        icon = {"Item", 960213}
+    }
+}, {
+    ashaq = {
+        id = 728,
+        jp = "アシャーク",
+        icon = {"Item", 11200484}
+    }
+}, {
+    jsr = {
+        id = 0,
+        jp = "ボス協同戦",
+        icon = {}
+    }
+}}
+
+function Indun_panel_save_settings()
+    g.save_json(g.indun_panel_path, g.indun_panel_settings)
+end
+
+function Indun_panel_load_settings()
+    g.indun_panel_path = string.format("../addons/%s/%s/indun_panel.json", addon_name_lower, g.active_id)
+    g.indun_panel_old_path = string.format("../addons/%s/%s/settings.json", "indun_panel", g.active_id)
+    local settings = g.load_json(g.indun_panel_path)
+    local indun_keys = {"challenge", "singularity", "belliora", "laimara", "ledania", "neringa", "golem", "merregina",
+                        "slogutis", "upinis", "roze", "falouros", "reservoir", "jellyzele", "delmore", "telharsha",
+                        "bernice", "giltine", "memory", "wailing", "ashaq", "jsr"}
+    local json_to_indun_map = {
+        veliora = "belliora",
+        limara = "laimara",
+        redania = "ledania",
+        spreader = "reservoir",
+        velnice = "bernice",
+        cemetery = "wailing",
+        demonlair = "ashaq",
+        earring = "memory"
+    }
+    if not settings then
+        local function create_default_set()
+            local set = {}
+            for _, name in ipairs(indun_keys) do
+                set[name] = 1
+            end
+            return set
+        end
+        settings = {
+            etc = {
+                challenge_ticket = "month",
+                always_open = 0,
+                singularity_check = 0,
+                skin_name = "chat_window_2",
+                en_ver = 0,
+                x = 665,
+                y = 30,
+                move = 0,
+                use_set = "set_a",
+                challenge_map = 0,
+                base_date = "",
+                shading = 0,
+                field_mode = 0,
+                toscoin = 0
+            },
+            cols = {
+                tos = 1,
+                gabija = 1,
+                vakarine = 1,
+                rada = 1,
+                jurate = 1,
+                austeja = 1,
+                pvp_mine = 1,
+                market = 1,
+                craft = 1,
+                leticia = 1
+            },
+            set_names = {{
+                set_a = "SET A"
+            }, {
+                set_b = "SET B"
+            }, {
+                set_c = "SET C"
+            }},
+            set_a = create_default_set(),
+            set_b = create_default_set(),
+            set_c = create_default_set()
+        }
+        local old_settings = g.load_json(g.indun_panel_old_path)
+        if old_settings then
+            for k, v in pairs(old_settings) do
+                if type(v) == "table" then
+                    if k == "set_a" or k == "set_b" or k == "set_c" then
+                        for k2, v2 in pairs(v) do
+                            if string.find(k2, "_checkbox") then
+                                local json_key = string.gsub(k2, "_checkbox", "")
+                                local correct_key = json_to_indun_map[json_key] or json_key
+                                if settings[k] and settings[k][correct_key] ~= nil then
+                                    settings[k][correct_key] = v2
+                                end
+                            end
+                        end
+                    elseif k == "cols" then
+                        settings.cols = v
+                    end
+                else
+                    if k ~= "auto_challenge" then
+                        if k == "checkbox" then
+                            settings.etc.always_open = v
+                        elseif settings.etc[k] ~= nil then
+                            settings.etc[k] = v
+                        end
+                    end
+                end
+            end
+        end
+    end
+    g.indun_panel_settings = settings
+    Indun_panel_save_settings()
+end
+
+function indun_panel_on_init()
+    if not g.indun_panel_settings then
+        local earthtowershop = ui.GetFrame('earthtowershop')
+        earthtowershop:Resize(0, 0)
+        pc.ReqExecuteTx_NumArgs("SCR_PVP_MINE_SHOP_OPEN", 0)
+        earthtowershop:RunUpdateScript("Indun_panel_earthtowershop_close", 0.1)
+        Indun_panel_load_settings()
+    end
+    g.setup_hook_and_event(g.addon, "CHAT_SYSTEM", "Indun_panel_CHAT_SYSTEM", true)
+    g.addon:RegisterMsg("ESCAPE_PRESSED", "Indun_panel_frame_init")
+    if g.settings.indun_panel.use == 0 then
+        ui.DestroyFrame(addon_name_lower .. "indun_panel")
+        ui.DestroyFrame(addon_name_lower .. "indun_panel_map")
+        return
+    end
+    Indun_panel_frame_init()
+    g.setup_hook_and_event(g.addon, "INDUN_ALREADY_PLAYING", "Indun_panel_INDUN_ALREADY_PLAYING", false)
+end
+
+function Indun_panel_earthtowershop_close(earthtowershop)
+    if earthtowershop:IsVisible() == 1 then
+        earthtowershop:Resize(580, 1920)
+        ui.CloseFrame("earthtowershop")
+        return 1
+    else
+        return 0
+    end
+end
+
+function Indun_panel_CHAT_SYSTEM(my_frame, my_msg)
+    local msg, color = g.get_event_args(my_msg)
+    if msg then
+        local pattern = "EVENT_TOS_WHOLE_GET_SUCCESS_MSG"
+        if string.find(msg, pattern) then
+            local daily_value_str = msg:match("%$%*%$DAILY%$%*%$(%d+)%$%*%$")
+            g.indun_panel_settings.etc.toscoin = tonumber(daily_value_str)
+            Indun_panel_save_settings()
+        end
+    end
+end
+
+function Indun_panel_INDUN_ALREADY_PLAYING(my_frame, my_msg)
+    if g.settings.indun_panel.use == 0 then
+        g.FUNCS["INDUN_ALREADY_PLAYING"]()
+        return
+    end
+    ReserveScript("Indun_panel_INDUN_ALREADY_PLAYING_dilay()", 0.3)
+end
+
+function Indun_panel_INDUN_ALREADY_PLAYING_dilay()
+    local indunenter = ui.GetFrame("indunenter")
+    local indun_type = indunenter:GetUserIValue('INDUN_TYPE')
+    if indun_type == 1005 or indun_type == 2000 or indun_type == 2001 then -- 1005＝540チャレPT 2001＝540分裂
+        AnsGiveUpPrevPlayingIndun(1)
+        ui.CloseFrame("indunenter")
+        ReserveScript(string.format("Indun_panel_enter_singularity(nil,nil,'', %d)", indun_type), 0.5)
+        return
+    else
+        local yes_scp = string.format("AnsGiveUpPrevPlayingIndun(%d)", 1)
+        local no_scp = string.format("AnsGiveUpPrevPlayingIndun(%d)", 0)
+        ui.MsgBox(ClMsg("IndunAlreadyPlaying_AreYouGiveUp"), yes_scp, no_scp)
+    end
+end
+
+function Indun_panel_challenge(_nexus_addons)
+    if not g.indun_panel_challenge_start_time then
+        _nexus_addons:StopUpdateScript("Indun_panel_challenge")
+        return 0
+    end
+    local now = imcTime.GetAppTimeMS()
+    if (now - g.indun_panel_challenge_start_time) >= 3000 then
+        _nexus_addons:StopUpdateScript("indun_panel_challenge")
+        g.indun_panel_challenge_start_time = nil
+        return 0
+    end
+    local is_auto_challenge_map = session.IsAutoChallengeMap()
+    local is_solo_challenge_map = session.IsSoloChallengeMap()
+    if is_auto_challenge_map == true or is_solo_challenge_map == true then
+        ui.DestroyFrame(addon_name_lower .. "indun_panel")
+        _nexus_addons:StopUpdateScript("Indun_panel_challenge")
+        g.indun_panel_challenge_start_time = nil
+        if g.indun_panel_settings.etc.base_date ~= "" then
+            return 0
+        end
+        local cnt = 0
+        local found_clsid = nil
+        local challenge_map_list, count = GetClassList('challenge_mode_auto_map')
+        for i = 0, count - 1 do
+            local map_cls = GetClassByIndexFromList(challenge_map_list, i)
+            if map_cls then
+                local map_name = map_cls.MapName
+                if g.map_name == map_name then
+                    cnt = cnt + 1
+                    if found_clsid == nil then
+                        found_clsid = map_cls.ClassID
+                    end
+                end
+            end
+        end
+        if cnt == 1 and found_clsid then
+            g.indun_panel_settings.etc.challenge_map = found_clsid
+            local server_time_str = date_time.get_lua_now_datetime_str()
+            if server_time_str then
+                local y, m, d, H, M, S = server_time_str:match("(%d+)-(%d+)-(%d+) (%d+):(%d+):(%d+)")
+                if y then
+                    local time_table = {
+                        year = tonumber(y),
+                        month = tonumber(m),
+                        day = tonumber(d),
+                        hour = 12,
+                        min = 0,
+                        sec = 0
+                    }
+                    g.indun_panel_settings.etc.base_date = os.time(time_table)
+                    Indun_panel_save_settings()
+                end
+            end
+        end
+        return 0
+    end
+    return 1
+end
+
+-- test_code
+--[[local challenge_map_list, count = GetClassList('challenge_mode_auto_map')
+for i = 0, count - 1 do
+    local map_cls = GetClassByIndexFromList(challenge_map_list, i)
+    if map_cls then
+        local map_name = map_cls.Name
+        local map_clsname = map_cls.MapName
+        local map_cls_ = GetClass("Map", map_clsname)
+        local map_level = map_cls_.QuestLevel
+        ts(i, dic.getTranslatedStr(map_name), map_level)
+    end
+end]]
+
+local function indun_panel_get_server_elapsed_days(base_date)
+    if not base_date or base_date == "" or base_date == 0 then
+        return 0
+    end
+    local server_time_str = date_time.get_lua_now_datetime_str()
+    if not server_time_str then
+        return 0
+    end
+    local y, m, d = server_time_str:match("(%d+)-(%d+)-(%d+)")
+    if not y then
+        return 0
+    end
+    local server_now = os.time({
+        year = tonumber(y),
+        month = tonumber(m),
+        day = tonumber(d),
+        hour = 12
+    })
+    local base_tbl = os.date("*t", base_date)
+    base_tbl.hour = 12
+    local server_base = os.time(base_tbl)
+    return math.floor((server_now - server_base) / 86400)
+end
+
+function Indun_panel_challenge_map_context(indun_panel, ctrl)
+    local base_date = g.indun_panel_settings.etc.base_date
+    if not base_date or base_date == "" or base_date == 0 then
+        return
+    end
+    local weekdays = {"Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"}
+    local elapsed_days = indun_panel_get_server_elapsed_days(base_date)
+    local context = ui.CreateContextMenu("challenge_map_schedule", "{ol}Challenge Map Schedule", 0, 100, 0, 0)
+    local challenge_map_list, count = GetClassList('challenge_mode_auto_map')
+    local start_index = g.indun_panel_settings.etc.challenge_map
+    for i = 0, 6 do
+        local map_index = (start_index + elapsed_days + i) % count
+        local map_cls = GetClassByIndexFromList(challenge_map_list, map_index)
+        if map_cls then
+            local map_name = map_cls.Name
+            local map_clsname = map_cls.MapName
+            local server_time_str = date_time.get_lua_now_datetime_str()
+            local y, m, d = server_time_str:match("(%d+)-(%d+)-(%d+)")
+            local base_time = os.time({
+                year = tonumber(y),
+                month = tonumber(m),
+                day = tonumber(d),
+                hour = 12
+            })
+            local display_time = base_time + (i * 86400)
+            local month_day = os.date("%m-%d", display_time)
+            local day_of_week_num = tonumber(os.date("%w", display_time))
+            local day_of_week_str = weekdays[day_of_week_num + 1]
+            local date_str = string.format("%s (%s)", month_day, day_of_week_str)
+            local scp = string.format("Indun_panel_challenge_map_display('%s','%s')", map_clsname, date_str)
+            ui.AddContextMenuItem(context, date_str .. " " .. map_name, scp)
+        end
+    end
+    ui.OpenContextMenu(context)
+end
+
+function Indun_panel_challenge_map_display(map_clsname, date_str)
+    local indun_panel_map = ui.CreateNewFrame("notice_on_pc", addon_name_lower .. "indun_panel_map", 0, 0, 0, 0)
+    AUTO_CAST(indun_panel_map)
+    indun_panel_map:RemoveAllChild()
+    indun_panel_map:SetSkinName("bg")
+    indun_panel_map:SetLayerLevel(100)
+    indun_panel_map:Resize(300, 320)
+    local gb = indun_panel_map:CreateOrGetControl("picture", "gb", 0, 20, indun_panel_map:GetWidth(),
+        indun_panel_map:GetHeight() - 20)
+    AUTO_CAST(gb)
+    gb:Resize(300, 300)
+    gb:EnableHitTest(0)
+    local close = indun_panel_map:CreateOrGetControl('button', 'close', 0, 0, 30, 30)
+    AUTO_CAST(close)
+    close:SetImage("testclose_button")
+    close:SetGravity(ui.RIGHT, ui.TOP)
+    close:SetEventScript(ui.LBUTTONUP, "Indun_panel_challenge_map_close")
+    local map_width = gb:GetWidth()
+    local map_height = gb:GetHeight()
+    local map_cls = GetClass("Map", map_clsname)
+    if not map_cls then
+        return
+    end
+    local map_title = indun_panel_map:CreateOrGetControl("richtext", "map_title", 0, 0)
+    map_title:SetGravity(ui.LEFT, ui.TOP)
+    map_title:SetText("{ol}" .. map_cls.Name .. " " .. date_str)
+    local pic = gb:CreateOrGetControl('picture', "picture_" .. map_clsname, ui.CENTER_HORZ, ui.CENTER_VERT, map_width,
+        map_height)
+    AUTO_CAST(pic)
+    pic:SetEnableStretch(1)
+    local is_valid = ui.IsImageExist(map_clsname .. "_fog")
+    if is_valid == false then
+        world.PreloadMinimap(map_clsname)
+    end
+    pic:SetImage(map_clsname .. "_fog")
+    local icon_group = gb:CreateOrGetControl("picture", "icon_group", ui.CENTER_HORZ, ui.CENTER_VERT, gb:GetWidth(),
+        gb:GetHeight())
+    AUTO_CAST(icon_group)
+    icon_group:SetSkinName("None")
+    local name_group = gb:CreateOrGetControl("picture", "name_group", ui.CENTER_HORZ, ui.CENTER_VERT, gb:GetWidth(),
+        gb:GetHeight())
+    AUTO_CAST(name_group)
+    name_group:SetSkinName("None")
+    UPDATE_MAP_BY_NAME(icon_group, map_clsname, pic, map_width, map_height, 0, 0)
+    MAKE_MAP_AREA_INFO(name_group, map_clsname, "{s15}", map_width, map_height, -100, -30)
+    local map_frame = ui.GetFrame("map")
+    local width = map_frame:GetWidth()
+    local height = map_frame:GetHeight()
+    indun_panel_map:SetPos(width / 2 - 620, height / 2 - 300)
+    indun_panel_map:ShowWindow(1)
+end
+
+function Indun_panel_challenge_map_close(frame)
+    ui.DestroyFrame(frame:GetName())
+end
+
+function Indun_panel_frame_init(is_toggle, msg)
+    if msg == "ESCAPE_PRESSED" then
+        if g.indun_panel_settings.etc.always_open == 1 then
+            return
+        end
+    end
+    if g.get_map_type() ~= "City" or
+        (g.indun_panel_settings.etc.field_mode ~= 1 and g.get_map_type() == "Instance" and g.map_id == 8022) then
+        return
+    end
+    ui.DestroyFrame(addon_name_lower .. "indun_panel_map")
+    local indun_panel = ui.CreateNewFrame("notice_on_pc", addon_name_lower .. "indun_panel", 0, 0, 0, 0)
+    AUTO_CAST(indun_panel)
+    indun_panel:SetSkinName('None')
+    indun_panel:SetLayerLevel(30)
+    indun_panel:RemoveAllChild()
+    Indun_panel_setup_frame(indun_panel)
+    local btn = indun_panel:CreateOrGetControl("button", "btn", 5, 5, 80, 30)
+    AUTO_CAST(btn)
+    btn:SetText("{ol}{s10}INDUNPANEL")
+    btn:SetEventScript(ui.LBUTTONUP, "Indun_panel_frame_toggle")
+    btn:SetEventScript(ui.RBUTTONUP, "Indun_panel_always_init")
+    btn:SetEventScriptArgString(ui.RBUTTONUP, "OPEN")
+    btn:SetTextTooltip(g.lang == "Japanese" and "{ol}右クリック: 常時展開で開く" or
+                           "{ol}Right click: Open in Always Expand")
+    local x = Indun_panel_create_common_buttons(indun_panel)
+    local button_keys = {"tos", "gabija", "vakarine", "rada", "jurate", "austeja", "pvp_mine", "market", "craft",
+                         "leticia"}
+    for _, key_name in ipairs(button_keys) do
+        local value = g.indun_panel_settings.cols[key_name]
+        if value == 1 then
+            if Indun_panel_create_shortcut_button(indun_panel, key_name, x) then
+                x = x + 30
+            end
+        end
+    end
+    indun_panel:Resize(x, 40)
+    indun_panel:ShowWindow(1)
+    if not is_toggle then
+        if g.indun_panel_settings.etc.always_open == 1 then
+            Indun_panel_frame_open(indun_panel)
+        end
+    end
+    local _nexus_addons = ui.GetFrame("_nexus_addons")
+    g.indun_panel_challenge_start_time = imcTime.GetAppTimeMS()
+    _nexus_addons:RunUpdateScript("Indun_panel_challenge", 0.1)
+    return indun_panel
+end
+
+function Indun_panel_setup_frame(indun_panel)
+    local map = ui.GetFrame("map")
+    local width = map:GetWidth()
+    local x = g.indun_panel_settings.etc.x
+    if width <= 1920 and x > 1920 then
+        x = x / 21 * 16
+    end
+    indun_panel:SetPos(x, g.indun_panel_settings.etc.y)
+    indun_panel:SetTitleBarSkin("None")
+    local enable = g.indun_panel_settings.etc.move == 0 and 1 or 0
+    indun_panel:EnableMove(enable)
+    indun_panel:EnableHittestFrame(enable)
+    if g.indun_panel_settings.etc.move == 1 then
+        indun_panel:SetEventScript(ui.LBUTTONUP, "Indun_panel_frame_drag")
+    else
+        indun_panel:SetEventScript(ui.LBUTTONUP, "None")
+    end
+end
+
+function Indun_panel_frame_drag(indun_panel)
+    g.indun_panel_settings.etc.x = indun_panel:GetX()
+    g.indun_panel_settings.etc.y = indun_panel:GetY()
+    Indun_panel_save_settings()
+    Indun_panel_frame_init()
+end
+
+function Indun_panel_create_common_buttons(indun_panel)
+    local ccbtn = indun_panel:CreateOrGetControl('button', 'ccbtn', 85, 5, 30, 30)
+    AUTO_CAST(ccbtn)
+    ccbtn:SetSkinName("None")
+    ccbtn:SetText("{img barrack_button_normal 30 30}")
+    local lbtn_action = "APPS_TRY_MOVE_BARRACK"
+    local rbtn_action = nil
+    local tooltip_parts = {}
+    local lbtn_tooltip = nil
+    if type(_G["INSTANTCC_APPS_TRY_MOVE_BARRACK"]) == "function" and g.settings.instant_cc.use == 1 then
+        lbtn_action = "INSTANTCC_APPS_TRY_MOVE_BARRACK"
+        lbtn_tooltip = "[InstantCC] Open"
+    end
+    if type(_G["indun_list_viewer_title_frame_open"]) == "function" and g.settings.indun_list_viewer.use == 1 then
+        lbtn_action = "indun_list_viewer_title_frame_open"
+        lbtn_tooltip = "Left-Click: [ILV] Open"
+    end
+    if lbtn_tooltip then
+        table.insert(tooltip_parts, lbtn_tooltip)
+    end
+    if type(_G["other_character_skill_list_frame_open"]) == "function" and g.settings.other_character_skill_list.use ==
+        1 then
+        rbtn_action = "other_character_skill_list_frame_open"
+        table.insert(tooltip_parts, "Right-Click: [OCSL] Open")
+    end
+    ccbtn:SetEventScript(ui.LBUTTONUP, lbtn_action)
+    if rbtn_action then
+        ccbtn:SetEventScript(ui.RBUTTONUP, rbtn_action)
+    end
+    local default_tooltip = g.lang == "Japanese" and "{ol}バラックに戻ります" or "{ol}Return to Barracks"
+    ccbtn:SetTextTooltip(#tooltip_parts > 0 and "{ol}" .. table.concat(tooltip_parts, "{nl}") or default_tooltip)
+    return 115 -- 次のボタンを開始するX座標を返す
+end
+
+function Indun_panel_create_shortcut_button(indun_panel, key_name, x)
+    local account_obj = GetMyAccountObj()
+    local coin_count = 0
+    local tooltip_msg = ""
+    local btn = nil
+    if key_name == "tos" and g.get_map_type() == "City" then
+        btn = indun_panel:CreateOrGetControl("button", "tos", x + 2, 8, 25, 25)
+        btn:SetText("{img icon_item_Tos_Event_Coin 25 25}")
+        tooltip_msg = g.lang == "Japanese" and "{ol}TOSイベントショップ" or "{ol}TOS Event Shop"
+        btn:SetEventScript(ui.LBUTTONUP, "Indun_panel_event_tos_whole_shop_open")
+    elseif key_name == "gabija" and g.get_map_type() == "City" then
+        btn = indun_panel:CreateOrGetControl("button", "gabija", x, 7, 29, 29)
+        btn:SetText("{img goddess_shop_btn 29 29}")
+        coin_count = GET_COMMAED_STRING(TryGetProp(account_obj, "GabijaCertificate", "0"))
+        tooltip_msg =
+            (g.lang == "Japanese" and "{ol}ガビヤショップ{nl}" or "{ol}Gabija Shop{nl}") .. "{#FFFF00}" ..
+                coin_count
+        btn:SetEventScript(ui.LBUTTONUP, "REQ_GabijaCertificate_SHOP_OPEN")
+    elseif key_name == "vakarine" and g.get_map_type() == "City" then
+        btn = indun_panel:CreateOrGetControl("button", "vakarine", x, 7, 29, 29)
+        btn:SetText("{img goddess2_shop_btn 29 29}")
+        coin_count = GET_COMMAED_STRING(TryGetProp(account_obj, "VakarineCertificate", "0"))
+        tooltip_msg = (g.lang == "Japanese" and "{ol}ヴァカリネショップ{nl}" or "{ol}Vakarine Shop{nl}") ..
+                          "{#FFFF00}" .. coin_count
+        btn:SetEventScript(ui.LBUTTONUP, "REQ_VakarineCertificate_SHOP_OPEN")
+    elseif key_name == "rada" and g.get_map_type() == "City" then
+        btn = indun_panel:CreateOrGetControl("button", "rada", x, 8, 29, 29)
+        btn:SetText("{img goddess3_shop_btn 29 29}")
+        coin_count = GET_COMMAED_STRING(TryGetProp(account_obj, "RadaCertificate", "0"))
+        tooltip_msg = (g.lang == "Japanese" and "{ol}ラダショップ{nl}" or "{ol}Rada Shop{nl}") .. "{#FFFF00}" ..
+                          coin_count
+        btn:SetEventScript(ui.LBUTTONUP, "REQ_RadaCertificate_SHOP_OPEN")
+    elseif key_name == "jurate" and g.get_map_type() == "City" then
+        btn = indun_panel:CreateOrGetControl("button", "jurate", x, 7, 29, 29)
+        btn:SetText("{img goddess4_shop_btn 29 29}")
+        coin_count = GET_COMMAED_STRING(TryGetProp(account_obj, "JurateCertificate", "0"))
+        tooltip_msg =
+            (g.lang == "Japanese" and "{ol}ユラテショップ{nl}" or "{ol}Jurate Shop{nl}") .. "{#FFFF00}" ..
+                coin_count
+        btn:SetEventScript(ui.LBUTTONUP, "REQ_JurateCertificate_SHOP_OPEN")
+    elseif key_name == "austeja" then
+        btn = indun_panel:CreateOrGetControl("button", "austeja", x, 7, 29, 29)
+        btn:SetText("{img goddess5_shop_btn 29 29}")
+        coin_count = GET_COMMAED_STRING(TryGetProp(account_obj, "AustejaCertificate", "0"))
+        tooltip_msg = (g.lang == "Japanese" and "{ol}アウステヤショップ{nl}" or "{ol}Austeja Shop{nl}") ..
+                          "{#FFFF00}" .. coin_count
+        btn:SetEventScript(ui.LBUTTONUP, "REQ_AustejaCertificate_SHOP_OPEN")
+    elseif key_name == "pvp_mine" then
+        btn = indun_panel:CreateOrGetControl("button", "pvp_mine", x, 7, 29, 29)
+        btn:SetText("{img pvpmine_shop_btn_total 29 29}")
+        tooltip_msg = g.lang == "Japanese" and "{ol}傭兵団ショップ" or "{ol}Mercenary Shop"
+        btn:SetEventScript(ui.LBUTTONUP, "MINIMIZED_PVPMINE_SHOP_BUTTON_CLICK")
+    elseif key_name == "market" and g.get_map_type() == "City" then
+        btn = indun_panel:CreateOrGetControl("button", "market", x, 6, 29, 29)
+        btn:SetText("{img market_shortcut_btn02 29 29}")
+        tooltip_msg = g.lang == "Japanese" and "{ol}マーケット" or "{ol}Market"
+        btn:SetEventScript(ui.LBUTTONUP, "MINIMIZED_MARKET_BUTTON_CLICK")
+    elseif key_name == "craft" and g.get_map_type() == "City" then
+        btn = indun_panel:CreateOrGetControl("button", "craft", x, 5, 29, 29)
+        btn:SetText("{img icon_fullscreen_menu_equipment_processing 28 28}")
+        tooltip_msg = g.lang == "Japanese" and "{ol}装備加工" or "{ol}Equipment Processing"
+        btn:SetEventScript(ui.LBUTTONUP, "FULLSCREEN_NAVIGATION_MENU_DEATIL_EQUIPMENT_PROCESSING_NPC")
+    elseif key_name == "leticia" and g.get_map_type() == "City" then
+        btn = indun_panel:CreateOrGetControl("button", "leticia", x, 5, 29, 29)
+        btn:SetText("{img icon_fullscreen_menu_letica 28 28}")
+        tooltip_msg = g.lang == "Japanese" and "{ol}レティーシャへ移動" or "{ol}Leticia Move"
+        btn:SetEventScript(ui.LBUTTONUP, "Indun_panel_FULLSCREEN_NAVIGATION_MENU_DETAIL_MOVE_NPC")
+        btn:SetEventScriptArgNumber(ui.LBUTTONUP, 309)
+    end
+    if btn then
+        AUTO_CAST(btn)
+        btn:SetSkinName("None")
+        btn:SetTextTooltip(tooltip_msg)
+        btn:SetEventScript(ui.LBUTTONDOWN, "Indun_panel_earthtowershop_close_restart")
+        return true -- ボタンが作成された
+    end
+    return false -- ボタンが作成されなかった
+end
+
+function Indun_panel_event_tos_whole_shop_open()
+    local earthtowershop = ui.GetFrame("earthtowershop")
+    earthtowershop:SetUserValue("SHOP_TYPE", 'EVENT_TOS_WHOLE_SHOP')
+    ui.OpenFrame('earthtowershop')
+end
+
+function Indun_panel_FULLSCREEN_NAVIGATION_MENU_DETAIL_MOVE_NPC(frame, ctrl, str, guid)
+    if g.get_map_type() ~= "City" then
+        return
+    end
+    local cls = GetClassByType("full_screen_navigation_menu", guid)
+    if cls then
+        local name = TryGetProp(cls, "Name", "None")
+        local move_zone_select = TryGetProp(cls, "MoveZoneSelect", "NO")
+        local move_zone = TryGetProp(cls, "MoveZone", "None")
+        local move_npc_dialog = TryGetProp(cls, "MoveNpcDialog", "None")
+        local move_zone_select_msg = TryGetProp(cls, "MoveZoneSelectMsg", "None")
+        local move_only_in_town = TryGetProp(cls, "MoveOnlyInTown", "None")
+        if move_zone ~= "None" and move_npc_dialog ~= "None" then
+            local pc = GetMyPCObject()
+            if session.world.IsIntegrateServer() == true or IsPVPField(pc) == 1 or IsPVPServer(pc) == 1 then
+                ui.SysMsg(ScpArgMsg("ThisLocalUseNot"))
+                return
+            end
+            if world.GetLayer() ~= 0 then
+                ui.SysMsg(ScpArgMsg("ThisLocalUseNot"))
+                return
+            end
+            if g.get_map_type() == "Dungeon" then
+                ui.SysMsg(ScpArgMsg("ThisLocalUseNot"))
+                return
+            end
+            local cur_map = GetClass("Map", session.GetMapName())
+            if cur_map then
+                local zone_keyword = TryGetProp(cur_map, 'Keyword', 'None')
+                local keyword_table = StringSplit(zone_keyword, '')
+                if table.find(keyword_table, 'IsRaidField') > 0 or table.find(keyword_table, 'WeeklyBossMap') > 0 then
+                    ui.SysMsg(ScpArgMsg('ThisLocalUseNot'))
+                    return
+                end
+                FullScreenMenuMoveNpc(name, move_zone_select, move_zone, move_npc_dialog, move_zone_select_msg,
+                    move_only_in_town)
+                ui.CloseFrame("fullscreen_navigation_menu")
+            end
+        end
+    end
+end
+
+function Indun_panel_earthtowershop_close_restart()
+    local earthtowershop = ui.GetFrame('earthtowershop')
+    if earthtowershop:IsVisible() == 1 then
+        earthtowershop:Resize(580, 1920)
+        ui.CloseFrame("earthtowershop")
+        return 0
+    else
+        earthtowershop:Resize(580, 1920)
+        return 1
+    end
+end
+
+function Indun_panel_always_init(indun_panel, ctrl, str)
+    if str == "OPEN" then
+        g.indun_panel_settings.etc.always_open = 1
+        Indun_panel_frame_open(indun_panel)
+    else
+        g.indun_panel_settings.etc.always_open = 0
+        Indun_panel_frame_init()
+    end
+    Indun_panel_save_settings()
+end
+
+function Indun_panel_frame_toggle(indun_panel)
+    if indun_panel:GetHeight() > 40 then
+        Indun_panel_frame_init(true)
+    else
+        Indun_panel_frame_open(indun_panel)
+    end
+end
+
+function Indun_panel_frame_open(indun_panel)
+    indun_panel:RemoveAllChild()
+    Indun_panel_setup_frame(indun_panel)
+    local btn = indun_panel:CreateOrGetControl("button", "btn", 5, 5, 80, 30)
+    AUTO_CAST(btn)
+    btn:SetText("{ol}{s10}INDUNPANEL")
+    btn:SetEventScript(ui.LBUTTONUP, "Indun_panel_frame_toggle")
+    btn:SetEventScript(ui.RBUTTONUP, "Indun_panel_always_init")
+    btn:SetTextTooltip(g.lang == "Japanese" and "{ol}右クリック: 常時展開解除で閉じる" or
+                           "{ol}Right click: Close with permanent unexpand")
+    local x = Indun_panel_create_common_buttons(indun_panel)
+    local configbtn = indun_panel:CreateOrGetControl('button', 'configbtn', x, 5, 30, 30)
+    AUTO_CAST(configbtn)
+    configbtn:SetSkinName("None")
+    configbtn:SetText("{img config_button_normal 30 30}")
+    configbtn:SetEventScript(ui.LBUTTONUP, "Indun_panel_setting_frame_open")
+    configbtn:SetTextTooltip(g.lang == "Japanese" and "{ol}Indun Panel 設定" or "{ol}Indun Panel Config")
+    x = x + 30
+    local button_keys = {"tos", "gabija", "vakarine", "rada", "jurate", "austeja", "pvp_mine", "market", "craft",
+                         "leticia"}
+    for _, key_name in ipairs(button_keys) do
+        local value = g.indun_panel_settings.cols[key_name]
+        if value == 1 then
+            if Indun_panel_create_shortcut_button(indun_panel, key_name, x) then
+                x = x + 30
+            end
+        end
+    end
+    local current_x = x + 10 -- SET A の開始位置
+    for _, item in ipairs(g.indun_panel_settings.set_names) do
+        for key, name in pairs(item) do
+            local btn = indun_panel:CreateOrGetControl("button", key, current_x, 5, 80, 30)
+            AUTO_CAST(btn)
+            btn:Resize(80, 30)
+            btn:SetText("{ol}" .. name)
+            btn:Resize(80, 30)
+            btn:AdjustFontSizeByWidth(80)
+            btn:SetEventScript(ui.LBUTTONUP, "Indun_panel_set_toggle")
+            btn:SetEventScriptArgString(ui.LBUTTONUP, key) -- "set_a" を渡す
+            btn:SetEventScriptArgNumber(ui.LBUTTONUP, 0) -- 0 を渡す (ArgNumberにする)
+            if g.indun_panel_settings.etc.use_set == key then
+                btn:SetSkinName("test_red_button")
+            end
+            current_x = current_x + 85
+        end
+    end
+    local always_open = indun_panel:CreateOrGetControl('checkbox', 'always_open', 710, 5, 30, 30)
+    AUTO_CAST(always_open)
+    always_open:SetCheck(g.indun_panel_settings.etc.always_open)
+    always_open:SetEventScript(ui.LBUTTONUP, "Indun_panel_ischecked")
+    always_open:SetTextTooltip(g.lang == "Japanese" and "{ol}チェックすると常時展開" or
+                                   "{ol}IsCheck AlwaysOpen")
+    local function indun_panel_FIELD_BOSS_TIME_TAB_SETTING()
+        local induninfo = ui.GetFrame("induninfo")
+        local field_boss_ranking_control = GET_CHILD_RECURSIVELY(induninfo, "field_boss_ranking_control")
+        local sub_tab = GET_CHILD_RECURSIVELY(field_boss_ranking_control, "sub_tab")
+        local server_time_str = date_time.get_lua_now_datetime_str()
+        local _, _, _, hour_str, min_str, _ = server_time_str:match("(%d+)-(%d+)-(%d+) (%d+):(%d+):(%d+)")
+        local server_hour = tonumber(hour_str)
+        local server_min = tonumber(min_str)
+        if (server_hour < 12) or (server_hour == 12 and server_min < 5) then
+            sub_tab:SelectTab(0)
+        else
+            sub_tab:SelectTab(1)
+        end
+    end
+    local current_set = g.indun_panel_settings.etc.use_set
+    if g.indun_panel_settings[current_set] and g.indun_panel_settings[current_set].jsr == 1 then
+        indun_panel_FIELD_BOSS_TIME_TAB_SETTING()
+    end
+    local final_x = current_x + 30
+    indun_panel:Resize(final_x, 40)
+    indun_panel:ShowWindow(1)
+    Indun_panel_frame_contents(configbtn)
+    configbtn:RunUpdateScript("Indun_panel_frame_contents", 1.0)
+end
+
+function Indun_panel_set_toggle(indun_panel, ctrl, set_key, num)
+    g.indun_panel_settings.etc.use_set = set_key
+    Indun_panel_save_settings()
+    if num == 1 then
+        Indun_panel_setting_frame_open()
+    else
+        Indun_panel_frame_open(indun_panel)
+    end
+end
+
+function Indun_panel_ischecked(indun_panel, ctrl)
+    local ischeck = ctrl:IsChecked()
+    local ctrlname = ctrl:GetName()
+    local current_set = g.indun_panel_settings.etc.use_set
+    local use_tbl = g.indun_panel_settings[current_set]
+    if use_tbl and use_tbl[ctrlname] then
+        use_tbl[ctrlname] = ischeck
+    elseif g.indun_panel_settings.cols then
+        if g.indun_panel_settings.cols[ctrlname] then
+            g.indun_panel_settings.cols[ctrlname] = ischeck
+        end
+    end
+    if g.indun_panel_settings.etc[ctrlname] then
+        g.indun_panel_settings.etc[ctrlname] = ischeck
+    end
+    if ctrlname == "move" then
+        local enable = g.indun_panel_settings.etc.move == 0 and 1 or 0
+        indun_panel:EnableMove(enable)
+        indun_panel:EnableHittestFrame(enable)
+    end
+    Indun_panel_save_settings()
+end
+
+function Indun_panel_setting_frame_open()
+    local indun_panel = ui.GetFrame(addon_name_lower .. "indun_panel")
+    indun_panel:SetSkinName("test_frame_low")
+    indun_panel:SetLayerLevel(90)
+    indun_panel:EnableHittestFrame(1)
+    indun_panel:SetAlpha(100)
+    indun_panel:RemoveAllChild()
+    indun_panel:ShowWindow(1)
+    local close = indun_panel:CreateOrGetControl('button', 'close', 0, 0, 30, 30)
+    AUTO_CAST(close)
+    close:SetImage("testclose_button")
+    close:SetGravity(ui.RIGHT, ui.TOP)
+    close:SetEventScript(ui.LBUTTONUP, "Indun_panel_frame_init")
+    local btn = indun_panel:CreateOrGetControl("button", "btn", 5, 5, 80, 30)
+    AUTO_CAST(btn)
+    btn:SetText("{ol}{s10}INDUNPANEL")
+    btn:SetEventScript(ui.LBUTTONUP, "Indun_panel_frame_init")
+    local position = indun_panel:CreateOrGetControl("button", "position", 90, 5, 60, 30)
+    AUTO_CAST(position)
+    position:SetText("{ol}{s10}BASE POS")
+    position:SetEventScript(ui.LBUTTONUP, "Indun_panel_frame_base_position")
+    position:SetTextTooltip(g.lang == "Japanese" and "{ol}ボタンを元の位置に戻す" or "Reset button position")
+    local x = 200
+    for _, item in ipairs(g.indun_panel_settings.set_names) do
+        for key, name in pairs(item) do
+            local btn = indun_panel:CreateOrGetControl("button", name .. key, x, 5, 80, 30)
+            AUTO_CAST(btn)
+            btn:Resize(80, 30)
+            btn:SetText("{ol}" .. name)
+            btn:Resize(80, 30)
+            btn:AdjustFontSizeByWidth(80)
+            btn:SetTextTooltip(g.lang == "Japanese" and
+                                   "{ol}左クリック: セット選択{nl}右クリック: セット名変更" or
+                                   "{ol}Left Click: Select Set{nl}Right Click: Change Set Name")
+            btn:SetEventScript(ui.LBUTTONUP, "Indun_panel_set_toggle")
+            btn:SetEventScriptArgString(ui.LBUTTONUP, key)
+            btn:SetEventScriptArgNumber(ui.LBUTTONUP, 1)
+            btn:SetEventScript(ui.RBUTTONUP, "Indun_panel_INPUT_STRING_BOX")
+            btn:SetEventScriptArgString(ui.RBUTTONUP, key)
+            if g.indun_panel_settings.etc.use_set == key then
+                btn:SetSkinName("test_red_button")
+            end
+            x = x + 85
+        end
+    end
+    local skin_change = indun_panel:CreateOrGetControl("button", "skin_change", 470, 5, 80, 30)
+    AUTO_CAST(skin_change)
+    local skin_text = g.lang == "Japanese" and "{ol}フレームスキン選択" or "{ol}Select Frame Skin"
+    skin_change:SetEventScript(ui.LBUTTONUP, "Indun_panel_frame_skin_select")
+    skin_change:SetText("{ol}SKIN SELECT")
+    skin_change:SetTextTooltip(skin_text)
+    local shortcut_icons = {{ -- ショートカットアイコンのチェックボックス作成をループ処理に
+        name = "tos",
+        img = "icon_item_Tos_Event_Coin",
+        size = 25
+    }, {
+        name = "gabija",
+        img = "goddess_shop_btn",
+        size = 29
+    }, {
+        name = "vakarine",
+        img = "goddess2_shop_btn",
+        size = 29
+    }, {
+        name = "rada",
+        img = "goddess3_shop_btn",
+        size = 29
+    }, {
+        name = "jurate",
+        img = "goddess4_shop_btn",
+        size = 29
+    }, {
+        name = "austeja",
+        img = "goddess5_shop_btn",
+        size = 29
+    }, {
+        name = "pvp_mine",
+        img = "pvpmine_shop_btn_total",
+        size = 29
+    }, {
+        name = "market",
+        img = "market_shortcut_btn02",
+        size = 29
+    }, {
+        name = "craft",
+        img = "icon_fullscreen_menu_equipment_processing",
+        size = 28
+    }, {
+        name = "leticia",
+        img = "icon_fullscreen_menu_letica",
+        size = 28
+    }}
+    local config_x = 15
+    local tooltip_always_show = g.lang == "Japanese" and "{ol}チェックすると常に表示" or
+                                    "{ol}Always visible when checked"
+    for _, icon_info in ipairs(shortcut_icons) do
+        local checkbox = indun_panel:CreateOrGetControl("checkbox", icon_info.name, config_x, 47, icon_info.size,
+            icon_info.size)
+        AUTO_CAST(checkbox)
+        checkbox:SetText(string.format("{img %s %d %d}", icon_info.img, icon_info.size, icon_info.size))
+        checkbox:SetEventScript(ui.LBUTTONUP, "Indun_panel_ischecked")
+        checkbox:SetEventScriptArgString(ui.LBUTTONUP, "config")
+        checkbox:SetTextTooltip(tooltip_always_show)
+        local is_checked = 0
+        for k, v in pairs(g.indun_panel_settings.cols) do
+            if k == icon_info.name then
+                is_checked = v
+                break
+            end
+        end
+        checkbox:SetCheck(is_checked)
+        config_x = config_x + checkbox:GetWidth() + 5
+    end
+    local label_line2 = indun_panel:CreateControl('labelline', 'label_line2', 10, 77, config_x, 5)
+    AUTO_CAST(label_line2)
+    label_line2:SetSkinName("labelline2")
+    local other_settings = {{ -- その他の設定チェックボックス作成をループ処理に
+        name = "en_ver",
+        y = 85,
+        jp = "チェックすると英語表示に変更します",
+        en = "Check to display to English"
+    }, {
+        name = "move",
+        y = 120,
+        jp = "チェックするとフレームを固定",
+        en = "Check to fixes the frame"
+    }, {
+        name = "field_mode",
+        y = 155,
+        jp = "チェックするとフィールドで表示",
+        en = "Check to display in field"
+    }, {
+        name = "shading",
+        y = 190,
+        jp = "チェックすると網掛け表示",
+        en = "Check to display shading"
+    }}
+    for _, setting_info in ipairs(other_settings) do
+        local checkbox = indun_panel:CreateOrGetControl('checkbox', setting_info.name, 25, setting_info.y, 25, 25)
+        AUTO_CAST(checkbox)
+        checkbox:SetCheck(g.indun_panel_settings.etc[setting_info.name])
+        checkbox:SetEventScript(ui.LBUTTONUP, "Indun_panel_ischecked")
+        checkbox:SetText(g.lang == "Japanese" and "{ol}" .. setting_info.jp or "{ol}" .. setting_info.en)
+    end
+    local label_line = indun_panel:CreateControl('labelline', 'label_line', 10, 215, config_x, 5)
+    AUTO_CAST(label_line)
+    label_line:SetSkinName("labelline2")
+    local posy_left = 220
+    local posy_right = 220
+    local count = #induns
+    local half_count = math.ceil(count / 2)
+    local current_set = g.indun_panel_settings.etc.use_set
+    local use_tbl = g.indun_panel_settings[current_set]
+    for i = 1, count do
+        local entry = induns[i]
+        for key, value in pairs(entry) do
+            local checkbox
+            if i <= half_count then
+                checkbox = indun_panel:CreateOrGetControl('checkbox', key, 15, posy_left, 25, 25)
+                AUTO_CAST(checkbox)
+                posy_left = posy_left + 35
+            else
+                checkbox = indun_panel:CreateOrGetControl('checkbox', key, 325, posy_right, 25, 25)
+                AUTO_CAST(checkbox)
+                posy_right = posy_right + 35
+            end
+            local is_checked = use_tbl[key]
+            if is_checked == nil then
+                is_checked = 0
+            end
+            checkbox:SetCheck(is_checked)
+            checkbox:SetEventScript(ui.LBUTTONUP, "Indun_panel_ischecked")
+            local bool = g.indun_panel_settings.etc.en_ver == 0 and g.lang == "Japanese"
+            local display_name = key
+            if bool and value.jp then
+                display_name = value.jp
+            end
+            checkbox:SetText(bool and "{ol}{#FFFFFF}{s16}" .. display_name or "{ol}{#FFFFFF}{s20}" .. key)
+            checkbox:SetTextTooltip(g.lang == "Japanese" and "チェックすると表示" or "Check to show")
+        end
+    end
+    local final_height = math.max(posy_left, posy_right)
+    indun_panel:Resize(660, final_height + 5)
+end
+
+function Indun_panel_frame_base_position(indun_panel)
+    indun_panel:SetPos(665, 30)
+    g.indun_panel_settings.etc.x = 665
+    g.indun_panel_settings.etc.y = 30
+    Indun_panel_save_settings()
+end
+
+function Indun_panel_INPUT_STRING_BOX(frame, ctrl, set_key, num)
+    local inputstring = ui.GetFrame("inputstring")
+    inputstring:Resize(500, 220)
+    inputstring:SetLayerLevel(999)
+    local edit = GET_CHILD(inputstring, 'input', "ui::CEditControl")
+    edit:SetNumberMode(0)
+    edit:SetMaxLen(999)
+    edit:SetText("")
+    inputstring:ShowWindow(1)
+    inputstring:SetEnable(1)
+    local title = inputstring:GetChild("title")
+    AUTO_CAST(title)
+    local text = g.lang == "Japanese" and "{ol}{#FFFFFF}セット名を入力" or "{ol}{#FFFFFF}Enter set name"
+    title:SetText(text)
+    local confirm = inputstring:GetChild("confirm")
+    confirm:SetEventScript(ui.LBUTTONUP, "Indun_panel_save_setname")
+    confirm:SetEventScriptArgString(ui.LBUTTONUP, set_key)
+    edit:SetEventScript(ui.ENTERKEY, "Indun_panel_save_setname")
+    edit:SetEventScriptArgString(ui.ENTERKEY, set_key)
+    edit:AcquireFocus()
+end
+
+function Indun_panel_save_setname(inputstring, ctrl, set_key, num)
+    inputstring:ShowWindow(0)
+    local edit = GET_CHILD(inputstring, 'input')
+    local get_text = edit:GetText()
+    if get_text == "" then
+        local text = g.lang == "Japanese" and "{ol}文字を入力してください" or "{ol}Please enter text"
+        ui.SysMsg(text)
+        Indun_panel_INPUT_STRING_BOX(nil, nil, set_key, 0)
+        return
+    end
+    local text = g.lang == "Japanese" and "{ol}セット名を登録しました" or "{ol}Set name registered"
+    ui.SysMsg(text)
+    for _, item in ipairs(g.indun_panel_settings.set_names) do
+        if item[set_key] then
+            item[set_key] = get_text
+            break
+        end
+    end
+    Indun_panel_save_settings()
+    Indun_panel_setting_frame_open()
+end
+
+function Indun_panel_frame_skin_select()
+    local context = ui.CreateContextMenu("indun_panel_skin_select", "{ol}Skin Select", 0, 0, 0, 0)
+    ui.AddContextMenuItem(context, " ")
+    local skin_tbl = {"chat_window_2", "bg", "bg2"}
+    for _, skin_name in ipairs(skin_tbl) do
+        local str_scp
+        str_scp = string.format("Indun_panel_frame_skin_select_('%s')", skin_name)
+        local text
+        if skin_name == "chat_window_2" then
+            text = g.lang == "Japanese" and "{ol}いつもの" or "The usual"
+        elseif skin_name == "bg" then
+            text = g.lang == "Japanese" and "{ol}黒" or "Solid black"
+        elseif skin_name == "bg2" then
+            text = g.lang == "Japanese" and "{ol}透明度高め" or "High transparency"
+        end
+        ui.AddContextMenuItem(context, text, str_scp)
+    end
+    ui.OpenContextMenu(context)
+end
+
+function Indun_panel_frame_skin_select_(skin_name)
+    g.indun_panel_settings.etc.skin_name = skin_name
+    Indun_panel_save_settings()
+    local indun_panel = ui.GetFrame(addon_name_lower .. "indun_panel")
+    Indun_panel_frame_open(indun_panel)
+end
+
+function Indun_panel_frame_contents(configbtn)
+    local indun_panel = ui.GetFrame(addon_name_lower .. "indun_panel")
+    local shop_buttons = {"gabija", "vakarine", "rada", "jurate", "austeja"}
+    local shop_props = {"GabijaCertificate", "VakarineCertificate", "RadaCertificate", "JurateCertificate",
+                        "AustejaCertificate"}
+    local shop_names_jp = {"ガビヤショップ", "ヴァカリネショップ", "ラダショップ",
+                           "ユラテショップ", "アウステヤショップ"}
+    local shop_names_en = {"Gabija Shop", "Vakarine Shop", "Rada Shop", "Jurate Shop", "Austeja Shop"}
+    local account_obj = GetMyAccountObj()
+    for i, btn_name in ipairs(shop_buttons) do
+        local btn = GET_CHILD_RECURSIVELY(indun_panel, btn_name)
+        if btn then
+            AUTO_CAST(btn)
+            local count = GET_COMMAED_STRING(TryGetProp(account_obj, shop_props[i], "0"))
+            local name = g.lang == "Japanese" and shop_names_jp[i] or shop_names_en[i]
+            local tooltip = string.format("{ol}%s{nl}{#FFFF00}%s", name, count)
+            btn:SetTextTooltip(tooltip)
+        end
+    end
+    local prefix = "DD"
+    if g.indun_panel_settings.etc.skin_name and g.indun_panel_settings.etc.skin_name == "bg" then
+        prefix = "FF"
+    end
+    local x = 150
+    local current_set = g.indun_panel_settings.etc.use_set
+    local use_tbl = g.indun_panel_settings[current_set]
+    if not use_tbl then
+        return 1
+    end
+    local y = 40
+    local index = 1
+    local index_remainder = 0
+    local lasy_y = 0
+    for i, entry in ipairs(induns) do
+        local key, value = next(entry)
+        if use_tbl[key] == 1 then
+            if g.indun_panel_settings.etc.shading == 1 then
+                local line = indun_panel:CreateOrGetControl("picture", "line" .. key, 5, y - 2, 740, 33)
+                AUTO_CAST(line)
+                line:SetImage("fullwhite")
+                line:SetEnableStretch(1)
+                line:EnableHitTest(0)
+                local tone = (index % 2 == 1) and "696969" or "A9A9A9"
+                line:SetColorTone(prefix .. tone)
+            end
+            if key == "jsr" or value.icon then
+                local img_icon = indun_panel:CreateOrGetControl("picture", "img_icon" .. key, x - 140, y + 5, 20, 20)
+                AUTO_CAST(img_icon)
+                local icon_cls = nil
+                if key == "jsr" then
+                    local fieldbossPattern = session.fieldboss.GetPatternInfo()
+                    local icon_cls_name = fieldbossPattern.MonsterClassName
+                    icon_cls = GetClass("Monster", icon_cls_name)
+                elseif value.icon then
+                    icon_cls = GetClassByType(value.icon[1], value.icon[2])
+                end
+                if icon_cls then
+                    img_icon:SetImage(icon_cls.Icon)
+                    img_icon:SetEnableStretch(1)
+                    img_icon:EnableHitTest(0)
+                end
+                local text = indun_panel:CreateOrGetControl("richtext", key, x - 120, y + 5)
+                local is_jp_mode = (g.indun_panel_settings.etc.en_ver == 0 and g.lang == "Japanese")
+                local display_name = key
+                if is_jp_mode and value.jp then
+                    display_name = value.jp
+                end
+                local font_tag = is_jp_mode and "{s16}" or "{s20}"
+                text:SetText(string.format("{ol}{#FFFFFF}%s%s", font_tag, display_name))
+                index = index + 1
+                if key == "challenge" then
+                    local tooltip = g.lang == "Japanese" and
+                                        "{ol}左クリック: チャレンジマップの1週間分のスケジュール表示" or
+                                        "{ol}Left Click: Display the schedule for one week of the Challenge Map"
+                    img_icon:EnableHitTest(1)
+                    img_icon:SetEventScript(ui.LBUTTONUP, "Indun_panel_challenge_map_context")
+                    img_icon:SetTextTooltip(tooltip)
+                    text:EnableHitTest(1)
+                    text:SetEventScript(ui.LBUTTONUP, "Indun_panel_challenge_map_context")
+                    text:SetTextTooltip(tooltip)
+                end
+                text:AdjustFontSizeByWidth(120)
+            end
+            if type(value) == "table" then
+                if key == "challenge" then
+                    for sub_key, sub_value in pairs(value) do
+                        if sub_key ~= "jp" and sub_key ~= "icon" then
+                            Indun_panel_challenge_frame(indun_panel, key, sub_key, sub_value, y, x)
+                        end
+                    end
+                elseif key == "singularity" then
+                    for sub_key, sub_value in pairs(value) do
+                        if sub_key ~= "jp" and sub_key ~= "icon" then
+                            Indun_panel_singularity_frame(indun_panel, key, sub_key, sub_value, y, x)
+                        end
+                    end
+                elseif key == "belliora" or key == "laimara" or key == "ledania" or key == "neringa" or key == "golem" or
+                    key == "merregina" or key == "slogutis" or key == "upinis" or key == "roze" or key == "falouros" or
+                    key == "reservoir" then -- レイド系 (onsweep)
+                    for sub_key, sub_value in pairs(value) do
+                        if sub_key ~= "jp" and sub_key ~= "icon" then
+                            Indun_panel_create_frame_onsweep(indun_panel, key, sub_key, sub_value, y, x)
+                        end
+                    end
+                elseif key == "jellyzele" or key == "delmore" or key == "giltine" or key == "memory" then -- 通常ダンジョン系 (create_frame)
+                    for sub_key, sub_value in pairs(value) do
+                        if sub_key ~= "jp" and sub_key ~= "icon" then
+                            Indun_panel_create_frame(indun_panel, key, sub_key, sub_value, y, x)
+                        end
+                    end
+                elseif key == "telharsha" then
+                    Indun_panel_telharsha_frame(indun_panel, key, value.id, y, x)
+                elseif key == "bernice" then
+                    Indun_panel_velnice_frame(indun_panel, key, value.id, y, x)
+                elseif key == "wailing" then
+                    Indun_panel_cemetery_frame(indun_panel, key, value.id, y, x)
+                elseif key == "ashaq" then
+                    Indun_panel_demonlair_frame(indun_panel, key, value.id, y, x)
+                elseif key == "jsr" then
+                    Indun_panel_jsr_frame(indun_panel, y, x)
+                end
+            end
+            y = y + 33
+        end
+        index_remainder = index % 2
+        lasy_y = y
+    end
+    local y = lasy_y or 40
+    local status, err = pcall(Indun_panel_create_currency_display, indun_panel, y)
+    if not status then
+        print("[IndunPanel] Currency Display Error: " .. tostring(err))
+    end
+    y = y + 40
+    if g.indun_panel_settings.etc.shading == 1 then
+        local line = indun_panel:CreateOrGetControl("picture", "last_line", 5, y - 2, 740, 33)
+        AUTO_CAST(line)
+        line:SetImage("fullwhite")
+        line:SetEnableStretch(1)
+        line:EnableHitTest(0)
+        line:SetColorTone(prefix .. (index_remainder == 1 and "696969" or "A9A9A9"))
+    end
+    indun_panel:SetLayerLevel(80)
+    indun_panel:Resize(x + 600, y)
+    indun_panel:SetSkinName(g.indun_panel_settings.etc.skin_name or "chat_window_2")
+    indun_panel:EnableHitTest(1)
+    indun_panel:SetAlpha(100)
+    return 1
+end
+
+function Indun_panel_create_currency_display(indun_panel, y)
+    local account_obj = GetMyAccountObj()
+    local bonusTP_pic = indun_panel:CreateOrGetControl("richtext", "bonusTP_pic", 320, y + 5)
+    AUTO_CAST(bonusTP_pic)
+    bonusTP_pic:SetText("{img bonusTP_pic 22 22}")
+    local bonusTP_count = indun_panel:CreateOrGetControl("richtext", "bonusTP_count", 350, y + 5)
+    AUTO_CAST(bonusTP_count)
+    bonusTP_count:SetText("{ol}{#FFD900}{s18}" .. account_obj.Medal)
+    bonusTP_count:SetTextTooltip("{ol}Free TP")
+    local housing_btn = indun_panel:CreateOrGetControl("richtext", "housing_btn", 370, y + 5)
+    AUTO_CAST(housing_btn)
+    housing_btn:SetText("{img btn_housing_editmode_small_resize 23 23}")
+    local housing_count = indun_panel:CreateOrGetControl("richtext", "housing_count", 400, y + 5)
+    AUTO_CAST(housing_count)
+    -- housing_count:SetText("{ol}{#FFD900}{s18}...")
+    housing_count:SetTextTooltip("{ol}Housing Point")
+    local current_time = imcTime.GetAppTime()
+    if not g.indun_panel_housing_call_time or (current_time - g.indun_panel_housing_call_time) > 5 then
+        g.indun_panel_housing_call_time = current_time
+        Indun_panel_get_my_housing_point_callback_ready()
+    elseif g.indun_panel_housing_point then
+        housing_count:SetText("{ol}{#FFD900}{s18}" .. g.indun_panel_housing_point)
+    end
+    local tos_coin = indun_panel:CreateOrGetControl("richtext", "tos_coin", 450, y + 5)
+    tos_coin:SetText("{img icon_item_Tos_Event_Coin 21 21}")
+    local tos_coin_count = indun_panel:CreateOrGetControl("richtext", "tos_coin_count", 475, y + 5)
+    local coin_count = GET_COMMAED_STRING(TryGetProp(account_obj, "EVENT_TOS_WHOLE_TOTAL_COIN", "0"))
+    local target_coin = GET_COMMAED_STRING(g.indun_panel_settings.etc.toscoin or 0)
+    tos_coin_count:SetText(string.format("{ol}{#FFD900}{s18}%s/{#FFD900}%s", coin_count, target_coin))
+    local pvpmine = indun_panel:CreateOrGetControl("richtext", "pvpmine", 605, y + 5)
+    pvpmine:SetText("{img pvpmine_shop_btn_total 25 25}")
+    local pvpminecount = indun_panel:CreateOrGetControl("richtext", "pvpminecount", 630, y + 5)
+    local mine_count = GET_COMMAED_STRING(TryGetProp(account_obj, "MISC_PVP_MINE2", "0"))
+    pvpminecount:SetText(string.format("{ol}{#FFD900}{s18}%s", mine_count))
+end
+
+function Indun_panel_get_my_housing_point_callback_ready()
+    local aidx = session.loginInfo.GetAID()
+    GetMyHousingPageInfo("Indun_panel_get_my_housing_point_callback", aidx)
+end
+
+function Indun_panel_get_my_housing_point_callback(code, ret_json)
+    if code ~= 200 or not ret_json or ret_json == "" then
+        return
+    end
+    local status, parsed = pcall(json.decode, ret_json)
+    if not (status and parsed) then
+        return
+    end
+    if not parsed or type(parsed) ~= "table" then
+        return
+    end
+    local housing_point = 0
+    if parsed["pointInfo"] and parsed["pointInfo"]["personalHousing_Point1"] then
+        housing_point = tonumber(parsed["pointInfo"]["personalHousing_Point1"]) or 0
+    end
+    g.indun_panel_housing_point = housing_point
+    local indun_panel = ui.GetFrame(addon_name_lower .. "indun_panel")
+    if indun_panel and indun_panel:IsVisible() == 1 then
+        local housing_count = GET_CHILD_RECURSIVELY(indun_panel, "housing_count")
+        if housing_count then
+            housing_count:SetText("{ol}{#FFD900}{s18}" .. housing_point)
+        end
+    end
+end
+
+function Indun_panel_item_buy_use(recipe_name)
+    local recipe_cls = GetClass("ItemTradeShop", recipe_name)
+    if not recipe_cls then
+        return
+    end
+    session.ResetItemList()
+    session.AddItemID(tostring(0), 1)
+    local itemlist = session.GetItemIDList()
+    local cnt_text = string.format("%s %s", recipe_cls.ClassID, 1)
+    if string.find(recipe_name, "EVENT_TOS", 1, true) then
+        item.DialogTransaction("EVENT_TOS_WHOLE_SHOP", itemlist, cnt_text)
+    else
+        item.DialogTransaction("PVP_MINE_SHOP", itemlist, cnt_text)
+    end
+    local item_name = recipe_cls.TargetItem
+    ReserveScript(string.format("Indun_panel_inv_item_use('%s')", item_name), 1.0)
+end
+
+function Indun_panel_inv_item_use(item_name)
+    local item_cls = GetClass("Item", item_name)
+    if item_cls then
+        local inv_item = session.GetInvItemByType(item_cls.ClassID)
+        if inv_item then
+            INV_ICON_USE(inv_item)
+        end
+    end
+end
+
+function Indun_panel_get_entrance_count(indun_type, index)
+    local indun_cls = GetClassByType("Indun", indun_type)
+    if not indun_cls then
+        return 0
+    end
+    local reset_type = indun_cls.PlayPerResetType
+    local current_count = GET_CURRENT_ENTERANCE_COUNT(reset_type) or 0
+    local max_count = GET_INDUN_MAX_ENTERANCE_COUNT(reset_type) or 0
+    if index == 1 then
+        return string.format("{ol}{#FFFFFF}{s16}(%s)", current_count)
+    elseif index == 2 then
+        return string.format("{ol}{#FFFFFF}{s16}(%s/%s)", current_count, max_count)
+    elseif index == 3 then
+        local count = 1
+        local class_name = TryGetProp(indun_cls, 'ClassName', 'None')
+        if string.find(class_name, 'Challenge_') then
+            local ticket_type = TryGetProp(indun_cls, 'TicketingType', 'None')
+            if ticket_type == 'Entrance_Ticket' then
+                local check_name = TryGetProp(indun_cls, 'CheckCountName', 'None')
+                local etc = GetMyEtcObject()
+                if TryGetProp(etc, check_name, 0) == 1 then
+                    count = 0
+                end
+            end
+        end
+        return string.format("{ol}{#FFFFFF}{s16}(%s/%s)", count, max_count)
+    elseif index == 4 then
+        if indun_type == 1001 then
+            return current_count
+        elseif indun_type == 1004 or indun_type == 1005 or indun_type == 2000 or indun_type == 2001 then
+            local class_name = TryGetProp(indun_cls, 'ClassName', 'None')
+            if string.find(class_name, 'Challenge_') then
+                local unit_per_reset = TryGetProp(indun_cls, 'UnitPerReset', 'None')
+                local check_name = TryGetProp(indun_cls, 'CheckCountName', 'None')
+                if unit_per_reset ~= 'None' and check_name ~= 'None' then
+                    if unit_per_reset == 'ACCOUNT' then
+                        return TryGetProp(GetMyAccountObj(), check_name, 0) or 0
+                    elseif unit_per_reset == 'PC' then
+                        return TryGetProp(GetMyEtcObject(), check_name, 0) or 0
+                    end
+                end
+            end
+        end
+        return 0
+    end
+    return 0
+end
+
+function Indun_panel_get_recipe_trade_count(recipe_name)
+    local recipe_cls = GetClass("ItemTradeShop", recipe_name)
+    if not recipe_cls then
+        return 0
+    end
+    if recipe_cls.NeedProperty ~= "None" and recipe_cls.NeedProperty ~= "" then
+        return TryGetProp(GetSessionObject(GetMyPCObject(), "ssn_shop"), recipe_cls.NeedProperty, 0)
+    end
+    if recipe_cls.AccountNeedProperty ~= "None" and recipe_cls.AccountNeedProperty ~= "" then
+        return TryGetProp(GetMyAccountObj(), recipe_cls.AccountNeedProperty, 0)
+    end
+    return 0
+end
+
+function Indun_panel_overbuy_count(recipe_name)
+    local account_obj = GetMyAccountObj()
+    local recipe_cls = GetClass('ItemTradeShop', recipe_name)
+    if not recipe_cls then
+        return 0
+    end
+    local max_count = TryGetProp(recipe_cls, 'MaxOverBuyCount', 0)
+    local prop_name = TryGetProp(recipe_cls, 'OverBuyProperty', 'None')
+    local current_count = TryGetProp(account_obj, prop_name, 0)
+    return tonumber(max_count) - tonumber(current_count)
+end
+
+function Indun_panel_overbuy_amount(recipe_name)
+    local account_obj = GetMyAccountObj()
+    local recipe_cls = GetClass('ItemTradeShop', recipe_name)
+    if not recipe_cls then
+        return 0
+    end
+    local trade_count = Indun_panel_get_recipe_trade_count(recipe_name)
+    if trade_count > 0 then
+        return 1000
+    end
+    local prop_name = TryGetProp(recipe_cls, 'OverBuyProperty', 'None')
+    local current_overbuy_count = TryGetProp(account_obj, prop_name, 0)
+    return 1050 + (current_overbuy_count * 50)
+end
+
+function Indun_panel_get_invitem_count(tbl)
+    local count = 0
+    local inv_item_list = session.GetInvItemList()
+    local guid_list = inv_item_list:GetGuidList()
+    local cnt = guid_list:Count()
+    for i = 0, cnt - 1 do
+        local guid = guid_list:Get(i)
+        local inv_item = inv_item_list:GetItemByGuid(guid)
+        if inv_item then
+            local obj = GetIES(inv_item:GetObject())
+            local item_id = obj.ClassID
+            for _, class_id in ipairs(tbl) do
+                if item_id == class_id then
+                    count = count + inv_item.count
+                    break
+                end
+            end
+        end
+    end
+    return count
+end
+
+local CHALLENGE_CONFIG = {
+    LOW = {
+        expiring = {10820019, 11030080, 641954, 641955, 641969},
+        non_expiring = {10000073, 10820028, 490363, 641953, 641963, 641987}
+    },
+    HIGH = {
+        expiring = {11201299, 11201300, 10820052},
+        non_expiring = {11201298, 11201297}
+    }
+}
+function Indun_panel_challenge_frame(indun_panel, key, sub_key, indun_type, y, x)
+    local low_indun_type = 1001
+    local btn_low = indun_panel:CreateOrGetControl('button', "btn_low", x + 0, y, 50, 30)
+    AUTO_CAST(btn_low)
+    btn_low:SetText("{ol}520")
+    btn_low:SetEventScript(ui.LBUTTONUP, "Indun_panel_enter_challenge")
+    btn_low:SetEventScriptArgString(ui.LBUTTONUP, "1")
+    btn_low:SetEventScriptArgNumber(ui.LBUTTONUP, low_indun_type)
+    local txt_low = indun_panel:CreateOrGetControl("richtext", "txt_low", x + 50, y + 5, 40, 30)
+    txt_low:SetText(Indun_panel_get_entrance_count(low_indun_type, 2))
+    local buyuse_low = indun_panel:CreateOrGetControl('button', "buyuse_low", x + 90, y, 100, 30)
+    AUTO_CAST(buyuse_low)
+    local text_low = string.format("{ol}{#EE7800}USEor{s16}{img %s 15 15}{#FFFFFF}%s", "icon_item_Tos_Event_Coin",
+        Indun_panel_get_recipe_trade_count("EVENT_TOS_WHOLE_SHOP_315") or 0)
+    local count = Indun_panel_get_invitem_count(CHALLENGE_CONFIG.LOW.expiring)
+    count = count + Indun_panel_get_invitem_count(CHALLENGE_CONFIG.LOW.non_expiring)
+    local icon_text = ""
+    local item_cls = GetClassByType('Item', CHALLENGE_CONFIG.LOW.expiring[1])
+    if item_cls then
+        local fmt = g.lang == "Japanese" and "{ol}{img %s 25 25 } %d枚持っています{nl} {nl}" or
+                        "{ol}{img %s 25 25 } Quantity in Inventory: %d{nl} {nl}"
+        icon_text = string.format(fmt, item_cls.Icon, count)
+    end
+    local tooltip_low = g.lang == "Japanese" and
+                            "{ol}優先順位{nl}1.期限付き{nl}2.期限なし{nl}3.{img icon_item_Tos_Event_Coin 20 20}チケット(買って使います)" or
+                            "{ol}Priority{nl}1.Expiring{nl}2.Non-expiring{nl}3.{img icon_item_Tos_Event_Coin 20 20}tickets(buy and use)"
+    buyuse_low:SetTextTooltip(icon_text .. tooltip_low)
+    buyuse_low:SetText(text_low)
+    buyuse_low:SetEventScript(ui.LBUTTONUP, "Indun_panel_challenge_item_use")
+    buyuse_low:SetEventScriptArgNumber(ui.LBUTTONUP, low_indun_type)
+    local high_indun_type = 1004
+    local high_pt_indun_type = 1005
+    local btn_high = indun_panel:CreateOrGetControl('button', "btn_high", x + 195, y, 50, 30)
+    AUTO_CAST(btn_high)
+    btn_high:SetText("{ol}540")
+    btn_high:SetEventScript(ui.LBUTTONUP, "Indun_panel_enter_challenge")
+    btn_high:SetEventScriptArgString(ui.LBUTTONUP, "1")
+    btn_high:SetEventScriptArgNumber(ui.LBUTTONUP, high_indun_type)
+    local btn_high_pt = indun_panel:CreateOrGetControl('button', "btn_high_pt", x + 250, y, 50, 30)
+    AUTO_CAST(btn_high_pt)
+    btn_high_pt:SetText("{ol}{#FFD900}PT")
+    btn_high_pt:SetEventScript(ui.LBUTTONUP, "Indun_panel_enter_challenge")
+    btn_high_pt:SetEventScriptArgString(ui.LBUTTONUP, "2")
+    btn_high_pt:SetEventScriptArgNumber(ui.LBUTTONUP, high_pt_indun_type)
+    local txt_high = indun_panel:CreateOrGetControl("richtext", "txt_high", x + 300, y + 5, 40, 30)
+    txt_high:SetText(Indun_panel_get_entrance_count(high_indun_type, 3))
+    local buyuse_high_tos = indun_panel:CreateOrGetControl('button', "buyuse_high_tos", x + 340, y, 100, 30)
+    AUTO_CAST(buyuse_high_tos)
+    local count = Indun_panel_get_invitem_count(CHALLENGE_CONFIG.HIGH.expiring)
+    count = count + Indun_panel_get_invitem_count(CHALLENGE_CONFIG.HIGH.non_expiring)
+    local icon_text_high = ""
+    local item_cls = GetClassByType('Item', CHALLENGE_CONFIG.HIGH.expiring[1])
+    if item_cls then
+        local fmt = g.lang == "Japanese" and "{ol}{img %s 25 25 } %d枚持っています{nl} {nl}" or
+                        "{ol}{img %s 25 25 } Quantity in Inventory: %d{nl} {nl}"
+        icon_text_high = string.format(fmt, item_cls.Icon, count)
+    end
+    local text_high_tos = string.format("{ol}{#EE7800}USEor{s16}{img %s 15 15}{#FFFFFF}%s", "icon_item_Tos_Event_Coin",
+        Indun_panel_get_recipe_trade_count("EVENT_TOS_WHOLE_SHOP_320") or 0)
+    local tooltip_high_tos = g.lang == "Japanese" and
+                                 "{ol}左クリック: PT入場{nl}右クリック: ソロ入場{nl}優先順位{nl}1.期限付き{nl}2.{img icon_item_Tos_Event_Coin 20 20}チケット(買って使います){nl}3.期限なし" or
+                                 "{ol}Left Click: PT Entry{nl}Right Click: Solo Entry{nl}Priority{nl}1.Expiring{nl}2.{img pvpmine_shop_btn_total 20 20}tickets(buy and use){nl}3.Non-expiring"
+    buyuse_high_tos:SetText(text_high_tos)
+    buyuse_high_tos:SetTextTooltip(icon_text_high .. tooltip_high_tos)
+    buyuse_high_tos:SetEventScript(ui.LBUTTONUP, "Indun_panel_challenge_item_use")
+    buyuse_high_tos:SetEventScriptArgString(ui.LBUTTONUP, "tos")
+    buyuse_high_tos:SetEventScriptArgNumber(ui.LBUTTONUP, high_pt_indun_type)
+    buyuse_high_tos:SetEventScript(ui.RBUTTONUP, "Indun_panel_challenge_item_use")
+    buyuse_high_tos:SetEventScriptArgString(ui.RBUTTONUP, "tos")
+    buyuse_high_tos:SetEventScriptArgNumber(ui.RBUTTONUP, high_indun_type)
+    local buyuse_high_pvp = indun_panel:CreateOrGetControl('button', "buyuse_high_pvp", x + 450, y, 100, 30)
+    AUTO_CAST(buyuse_high_pvp)
+    local text_high_pvp = string.format("{ol}{#FFFFFF}USEor{s16}{img pvpmine_shop_btn_total 18 18}{#FFFFFF}%s",
+        Indun_panel_get_recipe_trade_count("PVP_MINE_40") or 0)
+    local tooltip_high_pvp = g.lang == "Japanese" and
+                                 "{ol}左クリック: PT入場{nl}右クリック: ソロ入場{nl}優先順位{nl}1.期限付き{nl}2.{img pvpmine_shop_btn_total 20 20}チケット(買って使います){nl}3.期限なし" or
+                                 "{ol}Left Click: PT Entry{nl}Right Click: Solo Entry{nl}Priority{nl}1.Expiring{nl}2.{img pvpmine_shop_btn_total 20 20}tickets(buy and use){nl}3.Non-expiring"
+    buyuse_high_pvp:SetText(text_high_pvp)
+    buyuse_high_pvp:SetTextTooltip(icon_text_high .. tooltip_high_pvp)
+    buyuse_high_pvp:SetEventScript(ui.LBUTTONUP, "Indun_panel_challenge_item_use")
+    buyuse_high_pvp:SetEventScriptArgString(ui.LBUTTONUP, "pvp")
+    buyuse_high_pvp:SetEventScriptArgNumber(ui.LBUTTONUP, high_pt_indun_type)
+    buyuse_high_pvp:SetEventScript(ui.RBUTTONUP, "Indun_panel_challenge_item_use")
+    buyuse_high_pvp:SetEventScriptArgString(ui.RBUTTONUP, "pvp")
+    buyuse_high_pvp:SetEventScriptArgNumber(ui.RBUTTONUP, high_indun_type)
+end
+
+function Indun_panel_challenge_item_use(indun_panel, ctrl, mode, indun_type)
+    local entrance_count = Indun_panel_get_entrance_count(indun_type, 4)
+    if indun_type == 1001 and entrance_count > 0 then -- 520は行ける場合0行けない場合1
+        Indun_panel_process_ticket(indun_type, mode, CHALLENGE_CONFIG.LOW)
+    elseif indun_type ~= 1001 and entrance_count == 0 then -- 540は行ける場合1行けない場合0
+        Indun_panel_process_ticket(indun_type, mode, CHALLENGE_CONFIG.HIGH)
+    end
+end
+
+function Indun_panel_process_ticket(indun_type, mode, config)
+    local enter_mode = indun_type == 1005 and 2 or 1
+    if Indun_panel_use_prioritized_ticket(config.expiring, enter_mode, indun_type) then
+        return
+    end
+    local recipe_name = ""
+    if indun_type == 1001 then
+        recipe_name = "EVENT_TOS_WHOLE_SHOP_315"
+    elseif mode == "tos" then
+        recipe_name = "EVENT_TOS_WHOLE_SHOP_320"
+    elseif mode == "pvp" then
+        recipe_name = "PVP_MINE_40"
+    end
+    if Indun_panel_get_recipe_trade_count(recipe_name) >= 1 then
+        Indun_panel_item_buy_use(recipe_name)
+        Indun_panel_enter_reserve(enter_mode, indun_type)
+        return
+    end
+    if Indun_panel_use_prioritized_ticket(config.non_expiring, enter_mode, indun_type) then
+        return
+    end
+    if recipe_name == "PVP_MINE_40" then
+        local account_obj = GetMyAccountObj()
+        local recipe_cls = GetClass('ItemTradeShop', recipe_name)
+        if recipe_cls then
+            local over_max = TryGetProp(recipe_cls, 'MaxOverBuyCount', 0)
+            local over_prop = TryGetProp(recipe_cls, 'OverBuyProperty', 'None')
+            local over_count = TryGetProp(account_obj, over_prop, 0)
+            if (tonumber(over_max) - tonumber(over_count)) > 0 then
+                Indun_panel_item_buy_use(recipe_name)
+                Indun_panel_enter_reserve(enter_mode, indun_type)
+                return
+            end
+        end
+    end
+end
+
+function Indun_panel_use_prioritized_ticket(ticket_ids, enter_mode, indun_type)
+    local candidate_tickets = {}
+    local use_item = nil
+    for _, classid in ipairs(ticket_ids) do
+        local inv_item = session.GetInvItemByType(classid)
+        if inv_item then
+            if not inv_item.isLockState then
+                local item_obj = GetIES(inv_item:GetObject())
+                local life_time = tonumber(GET_REMAIN_ITEM_LIFE_TIME(item_obj)) or 0
+                if life_time > 0 then
+                    table.insert(candidate_tickets, {
+                        use_item = inv_item,
+                        priority = (life_time and life_time > 0 and life_time < 86400) and 1 or 2
+                    })
+                else
+                    if indun_type == 1001 then
+                        use_item = inv_item
+                    else
+                        if Indun_panel_get_recipe_trade_count("EVENT_TOS_WHOLE_SHOP_320") < 1 and
+                            Indun_panel_get_recipe_trade_count("PVP_MINE_40") < 1 then
+                            use_item = inv_item
+                        end
+                    end
+                end
+            else
+                ui.SysMsg(ClMsg("MaterialItemIsLock") .. " (" .. use_item.Name .. ")")
+            end
+        end
+    end
+    if #candidate_tickets > 0 then
+        table.sort(candidate_tickets, function(a, b)
+            return a.priority < b.priority
+        end)
+        use_item = candidate_tickets[1].use_item
+    end
+    if use_item then
+        INV_ICON_USE(use_item)
+        Indun_panel_enter_reserve(enter_mode, indun_type)
+        return true
+    end
+    return false
+end
+
+function Indun_panel_enter_reserve(index, indun_type)
+    AnsGiveUpPrevPlayingIndun(1)
+    ReserveScript(string.format("Indun_panel_enter_challenge(nil,nil,'%d', %d)", index, indun_type), 1.5)
+end
+
+function Indun_panel_enter_challenge(indun_panel, ctrl, index, indun_type)
+    index = tonumber(index)
+    if not indun_type then
+        return
+    end
+    local pcparty = session.party.GetPartyInfo()
+    if not pcparty then
+        CREATE_PARTY_BTN()
+    end
+    ReqChallengeAutoUIOpen(indun_type)
+    ReserveScript(string.format("ReqMoveToIndun(%d,%d)", index, 0), 0.3)
+end
+
+local SINGULARITY_CONFIG = {
+    [2000] = { -- 520
+        expiring = {10820018, 11030067},
+        non_expiring = {10000470, 11030021, 11030017}
+    },
+    [2001] = { -- 540
+        expiring = {11201303, 11201304, 10820051},
+        non_expiring = {11201302, 11201301}
+    }
+}
+function Indun_panel_singularity_frame(indun_panel, key, sub_key, indun_type, y, x)
+    local low_indun_type = 2000
+    local btn_low = indun_panel:CreateOrGetControl('button', "btn_low" .. indun_type, x, y, 50, 30)
+    AUTO_CAST(btn_low)
+    btn_low:SetText("{ol}520")
+    btn_low:SetEventScript(ui.LBUTTONUP, "Indun_panel_enter_singularity")
+    btn_low:SetEventScriptArgNumber(ui.LBUTTONUP, low_indun_type)
+    local count_low = indun_panel:CreateOrGetControl("richtext", "count_low" .. indun_type, x + 55, y + 5, 30, 30)
+    count_low:SetText("{ol}(" .. Indun_panel_get_entrance_count(low_indun_type, 4) .. ")")
+    local ticket_low = indun_panel:CreateOrGetControl('button', 'ticket_low' .. indun_type, x + 85, y, 100, 30)
+    AUTO_CAST(ticket_low)
+    local text_low = string.format("{ol}{#EE7800}USEor{s16}{img %s 15 15}{#FFFFFF}%s", "icon_item_Tos_Event_Coin",
+        Indun_panel_get_recipe_trade_count("EVENT_TOS_WHOLE_SHOP_314") or 0)
+    local count = Indun_panel_get_invitem_count(SINGULARITY_CONFIG[2000].expiring)
+    count = count + Indun_panel_get_invitem_count(SINGULARITY_CONFIG[2000].non_expiring)
+    local icon_text = ""
+    local item_cls = GetClassByType('Item', SINGULARITY_CONFIG[2000].expiring[1])
+    if item_cls then
+        local fmt = g.lang == "Japanese" and "{ol}{img %s 25 25 } %d枚持っています{nl} {nl}" or
+                        "{ol}{img %s 25 25 } Quantity in Inventory: %d{nl} {nl}"
+        icon_text = string.format(fmt, item_cls.Icon, count)
+    end
+    local tooltip_low = g.lang == "Japanese" and
+                            "{ol}優先順位{nl}1.期限付き{nl}2.期限なし{nl}3.{img icon_item_Tos_Event_Coin 20 20}チケット(買って使います)" or
+                            "{ol}Priority{nl}1.Expiring{nl}2.Non-expiring{nl}3.{img icon_item_Tos_Event_Coin 20 20}tickets(buy and use)"
+    ticket_low:SetText(text_low)
+    ticket_low:SetTextTooltip(icon_text .. tooltip_low)
+    ticket_low:SetEventScript(ui.LBUTTONUP, "Indun_panel_item_use_sin")
+    ticket_low:SetEventScriptArgNumber(ui.LBUTTONUP, low_indun_type)
+    local high_indun_type = 2001
+    local btn_high = indun_panel:CreateOrGetControl('button', "btn_high" .. indun_type, x + 195, y, 50, 30)
+    AUTO_CAST(btn_high)
+    btn_high:SetText("{ol}540")
+    btn_high:SetEventScript(ui.LBUTTONUP, "Indun_panel_enter_singularity")
+    btn_high:SetEventScriptArgNumber(ui.LBUTTONUP, high_indun_type)
+    local count_high = indun_panel:CreateOrGetControl("richtext", "count_high" .. indun_type, x + 250, y + 5, 30, 30)
+    count_high:SetText("{ol}(" .. Indun_panel_get_entrance_count(high_indun_type, 4) .. ")")
+    local ticket_high_tos = indun_panel:CreateOrGetControl('button', 'ticket_high_tos' .. indun_type, x + 280, y, 100,
+        30)
+    AUTO_CAST(ticket_high_tos)
+    local text_high_tos = string.format("{ol}{#EE7800}USEor{s16}{img %s 15 15}{#FFFFFF}%s", "icon_item_Tos_Event_Coin",
+        Indun_panel_get_recipe_trade_count("EVENT_TOS_WHOLE_SHOP_319") or 0)
+    local count = Indun_panel_get_invitem_count(SINGULARITY_CONFIG[2001].expiring)
+    count = count + Indun_panel_get_invitem_count(SINGULARITY_CONFIG[2001].non_expiring)
+    local icon_text_high = ""
+    local item_cls = GetClassByType('Item', SINGULARITY_CONFIG[2001].expiring[1])
+    if item_cls then
+        local fmt = g.lang == "Japanese" and "{ol}{img %s 25 25 } %d枚持っています{nl} {nl}" or
+                        "{ol}{img %s 25 25 } Quantity in Inventory: %d{nl} {nl}"
+        icon_text_high = string.format(fmt, item_cls.Icon, count)
+    end
+    local tooltip_high_tos = g.lang == "Japanese" and
+                                 "{ol}優先順位{nl}1.24時間以内の期限付きチケット{nl}2.期限付きチケット{nl}3.{img icon_item_Tos_Event_Coin 20 20}チケット(買って使います){nl}4.期限の無いチケット" or
+                                 "{ol}Priority{nl}1.Limited-time tickets (under 24 hours){nl}2.Limited-time tickets{nl}3.{img icon_item_Tos_Event_Coin 20 20}tickets(buy and use){nl}4.Tickets without an expiration date"
+    ticket_high_tos:SetText(text_high_tos)
+    ticket_high_tos:SetTextTooltip(icon_text_high .. tooltip_high_tos)
+    ticket_high_tos:SetEventScript(ui.LBUTTONUP, "Indun_panel_item_use_sin")
+    ticket_high_tos:SetEventScriptArgString(ui.LBUTTONUP, "tos")
+    ticket_high_tos:SetEventScriptArgNumber(ui.LBUTTONUP, high_indun_type)
+    local ticket_high_pvp = indun_panel:CreateOrGetControl('button', 'ticket_high_pvp' .. indun_type, x + 390, y, 140,
+        30)
+    AUTO_CAST(ticket_high_pvp)
+    local text_high_pvp = string.format("{ol}{#FFFFFF}{s16}USEor{img %s 18 18}d:%s w:%s", "pvpmine_shop_btn_total",
+        Indun_panel_get_recipe_trade_count("PVP_MINE_41") or 0, Indun_panel_get_recipe_trade_count("PVP_MINE_42") or 0)
+    local tooltip_high_pvp = g.lang == "Japanese" and
+                                 "{ol}優先順位{nl}1.24時間以内の期限付きチケット{nl}2.期限付きチケット{nl}3.{img pvpmine_shop_btn_total 20 20}チケット(買って使います){nl}4.期限の無いチケット" or
+                                 "{ol}Priority{nl}1.Limited-time tickets (under 24 hours){nl}2.Limited-time tickets{nl}3.{img pvpmine_shop_btn_total 20 20}tickets(buy and use){nl}4.Tickets without an expiration date"
+    ticket_high_pvp:SetText(text_high_pvp)
+    ticket_high_pvp:SetTextTooltip(icon_text_high .. tooltip_high_pvp)
+    ticket_high_pvp:SetEventScript(ui.LBUTTONUP, "Indun_panel_item_use_sin")
+    ticket_high_pvp:SetEventScriptArgString(ui.LBUTTONUP, "pvp")
+    ticket_high_pvp:SetEventScriptArgNumber(ui.LBUTTONUP, high_indun_type)
+    local singularity_check = indun_panel:CreateOrGetControl("checkbox", "singularity_check", x + 545, y, 25, 25)
+    AUTO_CAST(singularity_check)
+    singularity_check:SetEventScript(ui.LBUTTONUP, "Indun_panel_ischecked")
+    singularity_check:SetTextTooltip(g.lang == "Japanese" and
+                                         "{ol}チェックをすると自動マッチングボタンを押しません" or
+                                         "{ol}If checked, the automatic matching button will not be pressed")
+    singularity_check:SetCheck(g.indun_panel_settings.etc.singularity_check)
+end
+
+function Indun_panel_item_use_sin(frame, ctrl, mode, indun_type)
+    local ent_count = Indun_panel_get_entrance_count(indun_type, 4)
+    if tonumber(ent_count) > 0 then
+        return
+    end
+    local config = SINGULARITY_CONFIG[indun_type]
+    if not config then
+        return
+    end
+    if Indun_panel_try_use_ticket_list(config.expiring, indun_type) then
+        return
+    end
+    if mode == "tos" or indun_type == 2000 then
+        local recipe = (indun_type == 2000) and "EVENT_TOS_WHOLE_SHOP_314" or "EVENT_TOS_WHOLE_SHOP_319"
+        if Indun_panel_get_recipe_trade_count(recipe) >= 1 then
+            Indun_panel_item_buy_use(recipe)
+            ReserveScript(string.format("Indun_panel_enter_singularity(nil,nil,'', %d)", indun_type), 1.5)
+            return
+        end
+    elseif mode == "pvp" then
+        if Indun_panel_get_recipe_trade_count("PVP_MINE_41") >= 1 then
+            Indun_panel_item_buy_use("PVP_MINE_41")
+            ReserveScript(string.format("Indun_panel_enter_singularity(nil,nil,'', %d)", indun_type), 1.5)
+            return
+        end
+        if Indun_panel_get_recipe_trade_count("PVP_MINE_42") >= 1 then
+            Indun_panel_item_buy_use("PVP_MINE_42")
+            ReserveScript(string.format("Indun_panel_enter_singularity(nil,nil,'', %d)", indun_type), 1.5)
+            return
+        end
+    end
+    if Indun_panel_try_use_ticket_list(config.non_expiring, indun_type) then
+        return
+    end
+end
+
+function Indun_panel_try_use_ticket_list(ticket_ids, indun_type)
+    local candidate_tickets = {}
+    for _, classid in ipairs(ticket_ids) do
+        local inv_item = session.GetInvItemByType(classid)
+        if inv_item then
+            if not inv_item.isLockState then
+                local item_obj = GetIES(inv_item:GetObject())
+                local life_time = tonumber(GET_REMAIN_ITEM_LIFE_TIME(item_obj)) or 0
+                local priority = (life_time > 0 and life_time < 86400) and 1 or 2
+                table.insert(candidate_tickets, {
+                    use_item = inv_item,
+                    priority = priority
+                })
+            else
+                ui.SysMsg(ClMsg("MaterialItemIsLock") .. " (" .. inv_item.Name .. ")")
+            end
+        end
+    end
+    if #candidate_tickets > 0 then
+        table.sort(candidate_tickets, function(a, b)
+            return a.priority < b.priority
+        end)
+        local best_ticket = candidate_tickets[1].use_item
+        Indun_panel_item_use_and_run(best_ticket, indun_type)
+        return true
+    end
+    return false
+end
+
+function Indun_panel_item_use_and_run(use_item, indun_type)
+    AnsGiveUpPrevPlayingIndun(1)
+    if use_item and indun_type then
+        INV_ICON_USE(use_item)
+        ReserveScript(string.format("Indun_panel_enter_singularity(nil,nil,'', %d)", indun_type), 0.5)
+        return
+    end
+end
+
+function Indun_panel_enter_singularity(frame, ctrl, str, indun_type)
+    ReqChallengeAutoUIOpen(indun_type)
+    local indun_cls = GetClassByType('Indun', indun_type)
+    if indun_cls then
+        local indun_min_rank = TryGetProp(indun_cls, 'PCRank')
+        local totaljobcount = session.GetPcTotalJobGrade()
+        if indun_min_rank then
+            if indun_min_rank > totaljobcount and indun_min_rank ~= totaljobcount then
+                ui.SysMsg(ScpArgMsg('IndunEnterNeedPCRank', 'NEED_RANK', indun_min_rank))
+                return
+            end
+        end
+        if g.indun_panel_settings.etc.singularity_check == 0 then
+            ReserveScript(string.format("ReqMoveToIndun(%d,%d)", 2, 0), 0.3)
+        end
+    end
+end
+
+local raid_tbl = {
+    [725] = {11210057, 11210056, 11210055},
+    [722] = {11210053, 11210052, 11210051},
+    [716] = {11210044, 10820040, 11210043, 11210042},
+    [707] = {11210024, 11210023, 11210022},
+    [710] = {11210028, 11210027, 11210026},
+    [695] = {11200356, 11200355, 11200354},
+    [688] = {11200290, 10820036, 11200289, 11200288},
+    [685] = {11200281, 10820035, 11200280, 11200279},
+    [679] = {108020026, 11200222, 11200221, 11200220}
+}
+local buff_ids = {
+    [725] = 80045, -- ベリオラ
+    [722] = 80043, -- ライマラ
+    [716] = 80039, -- レダニア
+    [707] = 80035, -- ネリンガ
+    [710] = 80037, -- ゴーレム
+    [673] = 80016, -- スプレッダー
+    [676] = 80017, -- ファロウス
+    [679] = 80015, -- ロゼ
+    [685] = 80030, -- 蝶々
+    [688] = 80031, -- スロガ
+    [695] = 80032 -- メレジ
+}
+
+function Indun_panel_create_frame_onsweep(indun_panel, key, sub_key, sub_value, y, x)
+    if raid_tbl[sub_value] then
+        local use_btn = indun_panel:CreateOrGetControl('button', key .. "use", x + 470, y, 80, 30)
+        AUTO_CAST(use_btn)
+        use_btn:SetText("{ol}{#EE7800}USE")
+        local count = Indun_panel_get_invitem_count(raid_tbl[sub_value])
+        local item_cls = GetClassByType('Item', raid_tbl[sub_value][2])
+        if item_cls then
+            local fmt = g.lang == "Japanese" and "{ol}{img %s 25 25 } %d枚持っています" or
+                            "{ol}{img %s 25 25 } Quantity in Inventory: %d"
+            use_btn:SetTextTooltip(string.format(fmt, item_cls.Icon, count))
+        end
+        use_btn:SetEventScript(ui.LBUTTONUP, "Indun_panel_raid_itemuse")
+        use_btn:SetEventScriptArgNumber(ui.LBUTTONUP, sub_value)
+    end
+    local btn_solo = indun_panel:CreateOrGetControl('button', key .. "solo", x, y, 80, 30)
+    local btn_auto = indun_panel:CreateOrGetControl('button', key .. "auto", x + 85, y, 80, 30)
+    local btn_hard = indun_panel:CreateOrGetControl('button', key .. "hard", x + 215, y, 80, 30)
+    local btn_sweep = indun_panel:CreateOrGetControl('button', key .. "sweep", x + 350, y, 80, 30)
+    local txt_count = indun_panel:CreateOrGetControl("richtext", key .. "count", x + 170, y + 5, 50, 30)
+    local txt_hard_count = indun_panel:CreateOrGetControl("richtext", key .. "counthard", x + 300, y + 5, 50, 30)
+    local txt_sweep_count = indun_panel:CreateOrGetControl("richtext", key .. "sweepcount", x + 435, y + 5, 50, 30)
+    btn_solo:SetText("{ol}SOLO")
+    btn_auto:SetText("{ol}{#FFD900}AUTO")
+    btn_hard:SetText("{ol}{#FF0000}HARD")
+    btn_sweep:SetText("{ol}{#00FF00}ACLEAR")
+    if sub_key == "s" then -- Solo
+        txt_count:SetText(Indun_panel_get_entrance_count(sub_value, 2))
+        btn_solo:SetEventScript(ui.LBUTTONUP, "Indun_panel_enter_solo")
+        btn_solo:SetEventScriptArgNumber(ui.LBUTTONUP, sub_value)
+    elseif sub_key == "a" then -- Auto
+        btn_auto:SetEventScript(ui.LBUTTONUP, "Indun_panel_enter_auto")
+        btn_auto:SetEventScriptArgNumber(ui.LBUTTONUP, sub_value)
+        btn_sweep:SetEventScript(ui.LBUTTONUP, "Indun_panel_raid_itemuse")
+        btn_sweep:SetEventScriptArgNumber(ui.LBUTTONUP, sub_value)
+    elseif sub_key == "h" then -- Hard
+        local ent_count = Indun_panel_get_entrance_count(sub_value, 2)
+        if ent_count then
+            txt_hard_count:SetText(ent_count)
+            btn_hard:SetEventScript(ui.LBUTTONDOWN, "Indun_panel_enter_hard")
+            btn_hard:SetEventScriptArgNumber(ui.LBUTTONDOWN, sub_value)
+            btn_hard:SetEventScriptArgString(ui.LBUTTONDOWN, "false")
+        end
+    elseif sub_key == "ac" then -- Auto Clear (Sweep) Count
+        local count_str = Indun_panel_sweep_count(sub_value)
+        txt_sweep_count:SetText(string.format("{ol}{#FFFFFF}{s16}(%s)", count_str))
+    end
+end
+
+function Indun_panel_raid_itemuse(indun_panel, ctrl, str, indun_type)
+    local target_items = raid_tbl[indun_type]
+    local buff_id = buff_ids[indun_type]
+    if not buff_id then
+        return
+    end
+    local indun_cls = GetClassByType("Indun", indun_type)
+    local enter_count = 0
+    if indun_cls then
+        enter_count = GET_CURRENT_ENTERANCE_COUNT(indun_cls.PlayPerResetType) or 0
+    end
+    local limit_count = 2
+    if indun_type == 673 or indun_type == 676 then
+        limit_count = 4
+    end
+    local is_limit_reached = (enter_count >= limit_count)
+    local sweep_count = Indun_panel_sweep_count(buff_id)
+    local ticket_item = nil
+    if target_items then
+        for _, class_id in ipairs(target_items) do
+            local inv_item = session.GetInvItemByType(class_id)
+            if inv_item then
+                ticket_item = inv_item
+                break
+            end
+        end
+    end
+    if sweep_count > 0 then
+        if not is_limit_reached then
+            ReqUseRaidAutoSweep(indun_type)
+        else
+            if ticket_item then
+                INV_ICON_USE(ticket_item)
+                ReserveScript(string.format("ReqUseRaidAutoSweep(%d)", indun_type), 0.5)
+            else
+                ui.SysMsg(g.lang == "Japanese" and "入場回数不足（チケットなし）" or
+                              "Not enough entry count (No tickets).")
+            end
+        end
+    else
+        if ticket_item then
+            INV_ICON_USE(ticket_item)
+        else
+            if string.find(ctrl:GetName(), "use") then
+                ui.SysMsg(g.lang == "Japanese" and "(自動マッチング/1人)入場券を持っていません" or
+                              "There are no ticket items in inventory")
+            else
+                ui.SysMsg(g.lang == "Japanese" and "掃討バフがありません" or "There is no auto clear buff")
+            end
+        end
+    end
+end
+
+function Indun_panel_sweep_count(buff_id)
+    local my_handle = session.GetMyHandle()
+    local buff = info.GetBuff(my_handle, buff_id)
+    if buff then
+        return buff.over or 0
+    end
+    return 0
+end
+
+function Indun_panel_enter_solo(indun_panel, ctrl, str, indun_type)
+    local pcparty = session.party.GetPartyInfo()
+    if not pcparty then
+        CREATE_PARTY_BTN()
+    end
+    ReqRaidAutoUIOpen(indun_type)
+    ReserveScript(string.format("ReqMoveToIndun(%d,%d)", 1, 0), 0.3)
+end
+
+function Indun_panel_enter_auto(indun_panel, ctrl, str, indun_type)
+    ReqRaidAutoUIOpen(indun_type)
+    local indun_cls = GetClassByType('Indun', indun_type)
+    if indun_cls then
+        local indun_min_rank = TryGetProp(indun_cls, 'PCRank')
+        local totaljobcount = session.GetPcTotalJobGrade()
+        if indun_min_rank ~= nil then
+            if indun_min_rank > totaljobcount and indun_min_rank ~= totaljobcount then
+                ui.SysMsg(ScpArgMsg('IndunEnterNeedPCRank', 'NEED_RANK', indun_min_rank))
+                return
+            end
+        end
+        ReserveScript(string.format("ReqMoveToIndun(%d,%d)", 2, 0), 0.3)
+    end
+end
+
+local function Indun_panel_induninfo_set_buttons(indun_type, ctrl)
+    local indun_cls = GetClassByType('Indun', indun_type)
+    if indun_cls then
+        local dungeon_type = TryGetProp(indun_cls, "DungeonType", "None")
+        local btn_info_cls = GetClassByStrProp("IndunInfoButton", "DungeonType", dungeon_type)
+        if dungeon_type == "Raid" then
+            btn_info_cls = INDUNINFO_SET_BUTTONS_FIND_CLASS(indun_cls)
+        end
+        local red_button_scp = TryGetProp(btn_info_cls, "RedButtonScp")
+        ctrl:SetUserValue('MOVE_INDUN_CLASSID', indun_cls.ClassID)
+        ctrl:SetEventScript(ui.LBUTTONUP, red_button_scp)
+    end
+end
+
+function Indun_panel_enter_hard(indun_panel, ctrl, str, indun_type)
+    local indun_cls = GetClassByType("Indun", indun_type)
+    if str == "false" then
+        Indun_panel_induninfo_set_buttons(indun_type, ctrl)
+        str = "true"
+        if indun_type then
+            ReserveScript(string.format("Indun_panel_enter_hard(nil,nil,'%s',%d)", str, indun_type), 0.5)
+            return
+        end
+    else
+        SHOW_INDUNENTER_DIALOG(indun_type)
+        return
+    end
+end
+
+function Indun_panel_create_frame(indun_panel, key, sub_key, sub_value, y, x)
+    local btn_solo = indun_panel:CreateOrGetControl('button', key .. "solo", x, y, 80, 30)
+    local btn_auto = indun_panel:CreateOrGetControl('button', key .. "auto", x + 85, y, 80, 30)
+    local btn_hard = indun_panel:CreateOrGetControl('button', key .. "hard", x + 215, y, 80, 30)
+    local txt_count = indun_panel:CreateOrGetControl("richtext", key .. "count", x + 170, y + 5, 50, 30)
+    local txt_hard_count = indun_panel:CreateOrGetControl("richtext", key .. "counthard", x + 300, y + 5, 50, 30)
+    btn_solo:SetText("{ol}SOLO")
+    btn_auto:SetText(key == "memory" and "{ol}{#FFD900}NORMAL" or "{ol}{#FFD900}AUTO")
+    btn_hard:SetText("{ol}{#FF0000}HARD")
+    if sub_key == "s" then
+        local count_idx = (key == "memory") and 1 or 2
+        txt_count:SetText(Indun_panel_get_entrance_count(sub_value, count_idx))
+        btn_solo:SetEventScript(ui.LBUTTONUP, "Indun_panel_enter_solo")
+        btn_solo:SetEventScriptArgNumber(ui.LBUTTONUP, sub_value)
+    elseif sub_key == "a" then
+        btn_auto:SetEventScript(ui.LBUTTONUP, "Indun_panel_enter_auto")
+        btn_auto:SetEventScriptArgNumber(ui.LBUTTONUP, sub_value)
+    elseif sub_key == "h" then
+        local count_idx
+        if key == "memory" then
+            count_idx = 1
+        elseif key == "giltine" then
+            count_idx = 1
+        else
+            count_idx = 2
+        end
+        txt_hard_count:SetText(Indun_panel_get_entrance_count(sub_value, count_idx))
+        btn_hard:SetEventScript(ui.LBUTTONDOWN, "Indun_panel_enter_hard")
+        btn_hard:SetEventScriptArgNumber(ui.LBUTTONDOWN, sub_value)
+        btn_hard:SetEventScriptArgString(ui.LBUTTONDOWN, "false")
+    end
+end
+
+local TELHARSHA_CONFIG = {
+    recipe = "EVENT_TOS_WHOLE_SHOP_306",
+    ticket_id = 108020009,
+    max_count = 3
+}
+function Indun_panel_telharsha_frame(indun_panel, key, value, y, x)
+    local btn = indun_panel:CreateOrGetControl('button', key .. 'btn', x, y, 80, 30)
+    AUTO_CAST(btn)
+    btn:SetText("{ol}IN")
+    btn:SetEventScript(ui.LBUTTONUP, "Indun_panel_enter_solo")
+    btn:SetEventScriptArgNumber(ui.LBUTTONUP, value)
+    local count = indun_panel:CreateOrGetControl("richtext", key .. "count", x + 85, y + 5, 50, 30)
+    count:SetText(Indun_panel_get_entrance_count(value, 2))
+    local ticket_btn = indun_panel:CreateOrGetControl('button', key .. 'ticket_btn', x + 130, y, 80, 30)
+    AUTO_CAST(ticket_btn)
+    local tickets = {10820009, 11035056}
+    local count = Indun_panel_get_invitem_count(tickets)
+    local icon_text = ""
+    local item_cls = GetClassByType('Item', tickets[1])
+    if item_cls then
+        local fmt = g.lang == "Japanese" and "{ol}{img %s 25 25 } %d枚持っています" or
+                        "{ol}{img %s 25 25 } Quantity in Inventory: %d"
+        icon_text = string.format(fmt, item_cls.Icon, count)
+    end
+    ticket_btn:SetTextTooltip(icon_text)
+    ticket_btn:SetText("{ol}{#EE7800}{s14}BUYUSE")
+    ticket_btn:SetEventScript(ui.LBUTTONUP, "Indun_panel_buyuse_telharsha")
+    ticket_btn:SetEventScriptArgString(ui.LBUTTONUP, TELHARSHA_CONFIG.recipe)
+    ticket_btn:SetEventScriptArgNumber(ui.LBUTTONUP, value)
+    local change_count = Indun_panel_get_recipe_trade_count(TELHARSHA_CONFIG.recipe)
+    local tos_shop_count = indun_panel:CreateOrGetControl("richtext", key .. "tos_shop_count", x + 215, y + 5, 40, 30)
+    tos_shop_count:SetText(string.format("{ol}{s16}({img icon_item_Tos_Event_Coin 15 15}%s)", change_count))
+end
+
+function Indun_panel_buyuse_telharsha(indun_panel, ctrl, recipe_name, indun_type)
+    if not indun_type then
+        return
+    end
+    local indun_cls = GetClassByType("Indun", indun_type)
+    if not indun_cls then
+        return
+    end
+    local current_count = 0
+    if indun_cls then
+        current_count = GET_CURRENT_ENTERANCE_COUNT(indun_cls.PlayPerResetType) or 0
+    end
+    if tonumber(current_count) < TELHARSHA_CONFIG.max_count then
+        ReserveScript(string.format("Indun_panel_enter_solo(nil, nil, '', %d)", indun_type), 0.2)
+        return
+    end
+    local use_item = session.GetInvItemByType(TELHARSHA_CONFIG.ticket_id)
+    if use_item then
+        INV_ICON_USE(use_item)
+        ReserveScript(string.format("Indun_panel_enter_solo(nil, nil, '', %d)", indun_type), 0.5)
+        return
+    end
+    local change_count = Indun_panel_get_recipe_trade_count(recipe_name)
+    if change_count >= 1 then
+        Indun_panel_item_buy_use(recipe_name)
+        ReserveScript(string.format("Indun_panel_enter_solo(nil, nil, '', %d)", indun_type), 1.5)
+        return
+    end
+    local msg = g.lang == "Japanese" and "トレード回数が足りません。" or "No trade count."
+    ui.SysMsg(msg)
+end
+
+local VELNICE_CONFIG = {
+    recipe = "PVP_MINE_52",
+    tickets = {11030169, 11030257}, -- 優先順: 1日期限 -> 通常
+    max_count = 1
+}
+function Indun_panel_velnice_frame(indun_panel, key, value, y, x)
+    local btn = indun_panel:CreateOrGetControl('button', key .. 'btn', x, y, 80, 30)
+    AUTO_CAST(btn)
+    btn:SetText("{ol}IN")
+    btn:SetEventScript(ui.LBUTTONUP, "Indun_panel_enter_velnice_solo")
+    btn:SetEventScriptArgNumber(ui.LBUTTONUP, value)
+    local count = indun_panel:CreateOrGetControl("richtext", key .. "count", x + 85, y + 5, 50, 30)
+    count:SetText(Indun_panel_get_entrance_count(value, 2))
+    local ticket_btn = indun_panel:CreateOrGetControl('button', key .. 'ticket_btn', x + 130, y, 80, 30)
+    AUTO_CAST(ticket_btn)
+    local count = Indun_panel_get_invitem_count(VELNICE_CONFIG.tickets)
+    local icon_text = ""
+    local item_cls = GetClassByType('Item', VELNICE_CONFIG.tickets[1])
+    if item_cls then
+        local fmt = g.lang == "Japanese" and "{ol}{img %s 25 25 } %d枚持っています" or
+                        "{ol}{img %s 25 25 } Quantity in Inventory: %d"
+        icon_text = string.format(fmt, item_cls.Icon, count)
+    end
+    ticket_btn:SetTextTooltip(icon_text)
+    ticket_btn:SetText("{ol}{#EE7800}{s14}BUYUSE")
+    ticket_btn:SetEventScript(ui.LBUTTONUP, "Indun_panel_buyuse_vel")
+    ticket_btn:SetEventScriptArgString(ui.LBUTTONUP, VELNICE_CONFIG.recipe)
+    ticket_btn:SetEventScriptArgNumber(ui.LBUTTONUP, value)
+    local trade_count = Indun_panel_get_recipe_trade_count(VELNICE_CONFIG.recipe)
+    trade_count = math.max(0, trade_count)
+    local overbuy_limit = Indun_panel_overbuy_count(VELNICE_CONFIG.recipe)
+    local change_text = indun_panel:CreateOrGetControl("richtext", key .. "change_text", x + 215, y + 5, 60, 30)
+    change_text:SetText(string.format("{ol}{#FFFFFF}(%d/%d)", trade_count, overbuy_limit))
+    local amount = indun_panel:CreateOrGetControl("richtext", key .. "amount", x + 280, y + 5, 50, 30)
+    local cost = Indun_panel_overbuy_amount(VELNICE_CONFIG.recipe)
+    local color = (trade_count > 0) and "{#FFFFFF}" or "{#FF0000}"
+    local amount_str = string.format("{ol}{#FFFFFF}({img pvpmine_shop_btn_total 20 20}%s%s{ol}{#FFFFFF})", color,
+        GET_COMMAED_STRING(cost))
+    amount:SetText(amount_str)
+end
+
+function Indun_panel_buyuse_vel(indun_panel, ctrl, recipe_name, indun_type)
+    if not indun_type then
+        return
+    end
+    local indun_cls = GetClassByType("Indun", indun_type)
+    if not indun_cls then
+        return
+    end
+    local current_count = 0
+    if indun_cls then
+        current_count = GET_CURRENT_ENTERANCE_COUNT(indun_cls.PlayPerResetType) or 0
+    end
+    local reserve_script = string.format("Indun_panel_enter_velnice_solo(nil, nil, '', %d)", indun_type)
+    if tonumber(current_count) < VELNICE_CONFIG.max_count then
+        ReserveScript(reserve_script, 0.2)
+        return
+    end
+    for _, ticket_id in ipairs(VELNICE_CONFIG.tickets) do
+        local use_item = session.GetInvItemByType(ticket_id)
+        if use_item then
+            INV_ICON_USE(use_item)
+            ReserveScript(reserve_script, 1.0)
+            return
+        end
+    end
+    local trade_count = Indun_panel_get_recipe_trade_count(recipe_name)
+    local overbuy_limit = Indun_panel_overbuy_count(recipe_name)
+    if trade_count >= 1 or overbuy_limit > 0 then
+        Indun_panel_item_buy_use(recipe_name)
+        ReserveScript(reserve_script, 1.5)
+        return
+    else
+        ui.SysMsg(g.lang == "Japanese" and "トレード回数が足りません。" or "No trade count.")
+        return
+    end
+end
+
+function Indun_panel_enter_velnice_solo(indun_panel, ctrl, str, indun_type)
+    local indun_cls = GetClassByType("Indun", indun_type)
+    if not indun_cls then
+        return
+    end
+    local account_obj = GetMyAccountObj()
+    if account_obj then
+        local stage = TryGetProp(account_obj, "SOLO_DUNGEON_MINI_CLEAR_STAGE", 0)
+        local yes_scp = "INDUNINFO_MOVE_TO_SOLO_DUNGEON_PRECHECK"
+        local title = ScpArgMsg("Select_Stage_SoloDungeon", "Stage", stage + 5)
+        INDUN_EDITMSGBOX_FRAME_OPEN(indun_type, title, "", yes_scp, "", 1, stage + 5, 1)
+    end
+end
+
+local DUNGEON_TICKET_CONFIG = {
+    [684] = { -- (嘆きの墓地)
+        label = "490",
+        tickets = {11200276, 11200275, 11200274}
+    },
+    [728] = { --  (アシャーク)
+        label = "540",
+        tickets = {11200486, 11200485, 11200484}
+    }
+}
+function Indun_panel_create_common_ticket_frame(indun_panel, key, indun_type, y, x)
+    local config = DUNGEON_TICKET_CONFIG[indun_type]
+    if not config then
+        return
+    end
+    local btn = indun_panel:CreateOrGetControl('button', key .. 'btn', x, y, 80, 30)
+    AUTO_CAST(btn)
+    btn:SetText("{ol}" .. config.label)
+    btn:SetEventScript(ui.LBUTTONUP, "Indun_panel_enter_solo")
+    btn:SetEventScriptArgNumber(ui.LBUTTONUP, indun_type)
+    local count_text = indun_panel:CreateOrGetControl("richtext", key .. "count", x + 85, y + 5, 50, 30)
+    count_text:SetText(Indun_panel_get_entrance_count(indun_type, 1))
+    local ticket_btn = indun_panel:CreateOrGetControl('button', key .. 'ticket_btn', x + 115, y, 80, 30)
+    AUTO_CAST(ticket_btn)
+    ticket_btn:SetText("{ol}{#EE7800}{s14}USE")
+    local inv_count = 0
+    for _, id in ipairs(config.tickets) do
+        local inv_item = session.GetInvItemByType(id)
+        if inv_item then
+            inv_count = inv_count + inv_item.count
+        end
+    end
+    if #config.tickets > 0 then
+        local item_cls = GetClassByType('Item', config.tickets[1])
+        if item_cls then
+            local fmt = g.lang == "Japanese" and "{ol}{img %s 25 25 } %d枚持っています" or
+                            "{ol}{img %s 25 25 } Quantity in Inventory: %d"
+            ticket_btn:SetTextTooltip(string.format(fmt, item_cls.Icon, inv_count))
+        end
+    end
+    ticket_btn:SetEventScript(ui.LBUTTONUP, "Indun_panel_item_use")
+    ticket_btn:SetEventScriptArgNumber(ui.LBUTTONUP, indun_type)
+end
+
+function Indun_panel_cemetery_frame(indun_panel, key, indun_type, y, x)
+    Indun_panel_create_common_ticket_frame(indun_panel, key, indun_type, y, x)
+end
+
+function Indun_panel_demonlair_frame(indun_panel, key, indun_type, y, x)
+    Indun_panel_create_common_ticket_frame(indun_panel, key, indun_type, y, x)
+end
+
+function Indun_panel_item_use(indun_panel, ctrl, str, indun_type)
+    local config = DUNGEON_TICKET_CONFIG[indun_type]
+    if not config then
+        return
+    end
+    for _, classid in ipairs(config.tickets) do
+        local use_item = session.GetInvItemByType(classid)
+        if use_item then
+            INV_ICON_USE(use_item)
+            return
+        end
+    end
+end
+
+function Indun_panel_jsr_frame(indun_panel, y, x)
+    local jsrbtn = indun_panel:CreateOrGetControl('button', 'jsrbtn', x, y, 80, 30)
+    AUTO_CAST(jsrbtn)
+    jsrbtn:SetText("{ol}JSR")
+    jsrbtn:SetEventScript(ui.LBUTTONUP, "FIELD_BOSS_JOIN_ENTER_CLICK")
+    jsrbtn:SetUserValue("BASE_X", x)
+    jsrbtn:SetUserValue("BASE_Y", y)
+    Indun_panel_field_boss_enter_timer_setting(jsrbtn)
+    jsrbtn:RunUpdateScript("Indun_panel_field_boss_enter_timer_setting", 1.0)
+end
+
+local function format_jsr_time(seconds)
+    local hours = math.floor(seconds / 3600)
+    local minutes = math.floor((seconds % 3600) / 60)
+    local seconds_rem = seconds % 60
+
+    local jp = string.format("%d時間%d分%d秒", hours, minutes, seconds_rem)
+    local en = string.format("%02d:%02d:%02d", hours, minutes, seconds_rem)
+    return jp, en
+end
+
+function Indun_panel_field_boss_enter_timer_setting(ctrl)
+    local frame = ctrl:GetTopParentFrame()
+    if not frame then
+        return 0
+    end
+    local server_time_str = date_time.get_lua_now_datetime_str()
+    if not server_time_str then
+        return 1
+    end
+    local _, _, _, hour_str, min_str, sec_str = server_time_str:match("(%d+)-(%d+)-(%d+) (%d+):(%d+):(%d+)")
+    if not hour_str then
+        return 1
+    end
+    local today_sec = tonumber(hour_str) * 3600 + tonumber(min_str) * 60 + tonumber(sec_str)
+    local sec12 = 12 * 3600
+    local sec22 = 22 * 3600
+    local diff12 = sec12 - today_sec
+    local diff22 = sec22 - today_sec
+    local text_str = ""
+    local is_en = (g.indun_panel_settings.etc.en_ver == 1) -- 設定参照先を修正
+    if diff12 >= 0 then
+        local jp, en = format_jsr_time(diff12)
+        text_str = is_en and (en .. " After Start") or (jp .. ClMsg("After_Start"))
+    elseif diff12 >= -300 then
+        local jp, en = format_jsr_time(300 + diff12)
+        text_str = is_en and (en .. " After Exit") or (jp .. ClMsg("After_Exit"))
+    elseif diff22 >= 0 then
+        local jp, en = format_jsr_time(diff22)
+        text_str = is_en and (en .. " After Start") or (jp .. ClMsg("After_Start"))
+    elseif diff22 >= -300 then
+        local jp, en = format_jsr_time(300 + diff22)
+        text_str = is_en and (en .. " After Exit") or (jp .. ClMsg("After_Exit"))
+    else
+        text_str = is_en and "Already Exit" or ClMsg("Already_Exit")
+    end
+    local x = ctrl:GetUserIValue("BASE_X")
+    local y = ctrl:GetUserIValue("BASE_Y")
+    local jsrtime = frame:CreateOrGetControl("richtext", "jsrtime", x + 85, y + 5, 10, 10)
+    jsrtime:SetText("{ol}" .. text_str)
+    if x == 0 then
+        jsrtime:ShowWindow(0)
+    else
+        jsrtime:ShowWindow(1)
+    end
+    return 1
+end
+-- indun_panel ここまで
+
+-- characters_item_serch ここから
+g.characters_item_serch = g.characters_item_serch or {}
+function Characters_item_serch_save_settings()
+    g.save_json(g.characters_item_serch_path, g.characters_item_serch_settings)
+end
+
+function Characters_item_serch_load_settings()
+    g.characters_item_serch_path = string.format("../addons/%s/%s/characters_item_serch.json", addon_name_lower,
+        g.active_id)
+    g.characters_item_serch_dat_tbl = {string.format("../addons/%s/%s/characters_item_serch_warehouse.dat",
+        addon_name_lower, g.active_id),
+                                       string.format("../addons/%s/%s/characters_item_serch_inventory.dat",
+        addon_name_lower, g.active_id),
+                                       string.format("../addons/%s/%s/characters_item_serch_equips.dat",
+        addon_name_lower, g.active_id),
+                                       string.format("../addons/%s/%s/characters_item_serch_accountwarehouse.dat",
+        addon_name_lower, g.active_id)}
+    g.characters_item_serch_old_dat_tbl = {string.format("../addons/%s/%s/warehouse.dat", "characters_item_serch",
+        g.active_id), string.format("../addons/%s/%s/inventory.dat", "characters_item_serch", g.active_id),
+                                           string.format("../addons/%s/%s/equips.dat", "characters_item_serch",
+        g.active_id)}
+
+    local settings = g.load_json(g.characters_item_serch_path)
+    if not settings then
+        settings = {
+            chars = {}
+        }
+    end
+    g.characters_item_serch_settings = settings
+    Characters_item_serch_save_settings()
+    for i = 1, #g.characters_item_serch_dat_tbl - 1 do
+        local new_path = g.characters_item_serch_dat_tbl[i]
+        local old_path = g.characters_item_serch_old_dat_tbl[i]
+        local new_file = io.open(new_path, "r")
+        if not new_file then
+            local content_to_write = ""
+            if old_path then
+                local old_file = io.open(old_path, "r")
+                if old_file then
+                    content_to_write = old_file:read("*all")
+                    old_file:close()
+                end
+            end
+            local file_to_write = io.open(new_path, "w")
+            if file_to_write then
+                file_to_write:write(content_to_write)
+                file_to_write:close()
+            end
+        else
+            new_file:close()
+        end
+    end
+end
+
+function characters_item_serch_on_init()
+    if _G["BARRACK_CHARLIST_ON_INIT"] and _G["current_layer"] then
+        g.characters_item_serch.layer = _G["current_layer"] or 1
+    end
+    if not g.characters_item_serch_settings then
+        Characters_item_serch_load_settings()
+    end
+    local old_func = g.settings.characters_item_serch.old_init_func
+    if _G[old_func] then
+        return
+    end
+    g.setup_hook_and_event(g.addon, "APPS_TRY_LEAVE", "Characters_item_serch_APPS_TRY_LEAVE", true)
+    g.setup_hook_and_event(g.addon, "INVENTORY_CLOSE", "Characters_item_serch_INVENTORY_CLOSE", true)
+    g.setup_hook_and_event(g.addon, "ACCOUNTWAREHOUSE_CLOSE", "Characters_item_serch_ACCOUNTWAREHOUSE_CLOSE", true)
+    g.setup_hook_and_event(g.addon, "'WAREHOUSE_CLOSE", "Characters_item_serch_WAREHOUSE_CLOSE", true)
+    local sysmenu = ui.GetFrame("sysmenu")
+    local inven = GET_CHILD(sysmenu, "inven")
+    AUTO_CAST(inven)
+    inven:SetEventScript(ui.RBUTTONUP, "Characters_item_serch_toggle_frame")
+    local function get_localized_tooltip(lang)
+        if lang == "Japanese" then
+            return "{@st59}インベントリ (F2){nl}右クリック: Characters Item Serch"
+        elseif lang == "kr" then
+            return "{@st59}인벤토리 (F2){nl}Right click: Characters Item Serch"
+        else
+            return "{@st59}Inventory (F2){nl}Right click: Characters Item Serch"
+        end
+    end
+    local tooltip = get_localized_tooltip(g.lang)
+    inven:SetTextTooltip(tooltip)
+    Characters_item_serch_char_data()
+end
+
+function Characters_item_serch_toggle_frame()
+    if g.settings.characters_item_serch.use == 0 then
+        return
+    end
+    local characters_item_serch = ui.GetFrame(addon_name_lower .. "characters_item_serch")
+    if not characters_item_serch then
+        Characters_item_serch_frame_init(nil, nil, g.login_name, 0)
+    elseif characters_item_serch and characters_item_serch:IsVisible() == 0 then
+        Characters_item_serch_frame_init(nil, nil, g.login_name, 0)
+    elseif characters_item_serch:IsVisible() == 1 then
+        Characters_item_serch_close(characters_item_serch)
+    end
+end
+
+function Characters_item_serch_char_data()
+    local chars = g.characters_item_serch_settings["chars"]
+    local acc_info = session.barrack.GetMyAccount()
+    local pc_count = acc_info:GetPCCount()
+    for i = 0, pc_count - 1 do
+        local pc_info = acc_info:GetPCByIndex(i)
+        if pc_info then
+            local pc_cid = pc_info:GetCID()
+            local pc_apc = pc_info:GetApc()
+            if pc_apc then
+                local pc_name = pc_apc:GetName()
+                chars[pc_name] = {
+                    name = pc_name,
+                    layer = g.characters_item_serch.layer,
+                    order = i,
+                    cid = pc_cid
+                }
+            end
+        end
+    end
+    local barrack_all = acc_info:GetBarrackPCCount()
+    if barrack_all > 0 then
+        local barrack_chars = {}
+        for i = 0, barrack_all - 1 do
+            local pc_info = acc_info:GetBarrackPCByIndex(i)
+            if pc_info then
+                barrack_chars[pc_info:GetName()] = true
+            end
+        end
+        local chars_to_delete = {}
+        for char_name, _ in pairs(chars) do
+            if not barrack_chars[char_name] then
+                table.insert(chars_to_delete, char_name)
+            end
+        end
+        if #chars_to_delete > 0 then
+            for _, char_name in ipairs(chars_to_delete) do
+                chars[char_name] = nil
+            end
+        end
+    end
+    Characters_item_serch_save_settings()
+end
+
+function Characters_item_serch_APPS_TRY_LEAVE(my_frame, my_msg)
+    local type = g.get_event_args(my_msg)
+    if type == "Exit" or type == "Logout" or type == "Barrack" then
+        Characters_item_serch_inventory_save_list()
+    end
+end
+
+function Characters_item_serch_INVENTORY_CLOSE()
+    Characters_item_serch_inventory_save_list()
+end
+
+function Characters_item_serch_ACCOUNTWAREHOUSE_CLOSE()
+    local item_list = session.GetEtcItemList(IT_ACCOUNT_WAREHOUSE)
+    local sorted_guid_list = item_list:GetSortedGuidList()
+    local count = sorted_guid_list:Count()
+    local items_to_save = {}
+    for i = 0, count - 1 do
+        local guid = sorted_guid_list:Get(i)
+        local aw_item = item_list:GetItemByGuid(guid)
+        if aw_item then
+            local clsid = aw_item.type
+            local iesid = aw_item:GetIESID()
+            local obj = GetObjectByGuid(iesid)
+            if obj then
+                local item_name = string.lower(dictionary.ReplaceDicIDInCompStr(obj.Name))
+                local item_count = aw_item.count
+                local item_cls = GetClassByType('Item', clsid)
+                local category = "false"
+                if item_cls and item_cls.MarketCategory ~= "None" then
+                    category = item_cls.MarketCategory:match("^(.-)_")
+                end
+                table.insert(items_to_save,
+                    {g.lang == "Japanese" and "チーム倉庫" or "Account Warehouse", iesid, clsid, item_count,
+                     item_name, "accountwarehouse", category})
+            end
+        end
+    end
+    local dat_file_path = g.characters_item_serch_dat_tbl[4]
+    Characters_item_serch_save_item_list_to_dat(dat_file_path, items_to_save, true)
+end
+
+function Characters_item_serch_save_item_list_to_dat(dat_path, items_to_save, is_overwrite)
+    local lines = {}
+    if not is_overwrite then
+        local file_read = io.open(dat_path, "r")
+        if file_read then
+            for line in file_read:lines() do
+                if line:match("^(.-):::") ~= g.login_name then
+                    table.insert(lines, line)
+                end
+            end
+            file_read:close()
+        end
+    end
+    for _, item in ipairs(items_to_save) do
+        table.insert(lines, table.concat(item, ":::"))
+    end
+    local file = io.open(dat_path, "w")
+    if file then
+        file:write(table.concat(lines, "\n"))
+        file:close()
+    end
+end
+
+function Characters_item_serch_inventory_save_list()
+    local inv_item_list = session.GetInvItemList()
+    local inv_guid_list = inv_item_list:GetGuidList()
+    local cnt = inv_guid_list:Count()
+    -- inventory save
+    local items = {}
+    for i = 0, cnt - 1 do
+        local guid = inv_guid_list:Get(i)
+        local inv_Item = inv_item_list:GetItemByGuid(guid)
+        local inv_obj = GetIES(inv_Item:GetObject())
+        local inv_clsid = inv_obj.ClassID
+        local inv_count = inv_Item.count
+        local item_cls = GetClassByType('Item', inv_clsid)
+        local category = "false"
+        if item_cls ~= nil and item_cls.MarketCategory ~= "None" then
+            category = item_cls.MarketCategory:match("^(.-)_")
+        end
+        local item_name = string.lower(dictionary.ReplaceDicIDInCompStr(inv_obj.Name))
+        table.insert(items, {g.login_name, guid, inv_clsid, inv_count, item_name, "inventory", category})
+    end
+    local inventory_dat = g.characters_item_serch_dat_tbl[2]
+    Characters_item_serch_save_item_list_to_dat(inventory_dat, items)
+    -- equips save
+    local items = {}
+    local equiplist = session.GetEquipItemList()
+    for i = 0, equiplist:Count() - 1 do
+        local equip_item = equiplist:GetEquipItemByIndex(i)
+        local obj = GetIES(equip_item:GetObject())
+        if obj ~= nil then
+            local iesid = equip_item:GetIESID()
+            if iesid ~= "0" then
+                local clsid = obj.ClassID
+                local item_cls = GetClassByType('Item', clsid)
+                local category = "false"
+                if item_cls ~= nil and item_cls.MarketCategory ~= "None" then
+                    category = item_cls.MarketCategory:match("^(.-)_")
+                end
+                local item_name = string.lower(dictionary.ReplaceDicIDInCompStr(obj.Name))
+                table.insert(items, {g.login_name, iesid, clsid, 1, item_name, "equips", category})
+            end
+        end
+    end
+    local mc_frame = ui.GetFrame("monstercardslot")
+    for i = 1, 14 do
+        local card_info = equipcard.GetCardInfo(i)
+        if card_info then
+            local clsid = card_info:GetCardID()
+            local item_cls = GetClassByType("Item", clsid)
+            local item_name = string.lower(dictionary.ReplaceDicIDInCompStr(item_cls.Name))
+            local category = "false"
+            if item_cls ~= nil and item_cls.MarketCategory ~= "None" then
+                category = item_cls.MarketCategory:match("^(.-)_")
+            end
+            table.insert(items, {g.login_name, "None" .. i, clsid, 1, item_name, "equips", category})
+        end
+    end
+    local equips_dat = g.characters_item_serch_dat_tbl[3]
+    Characters_item_serch_save_item_list_to_dat(equips_dat, items)
+end
+
+function Characters_item_serch_WAREHOUSE_CLOSE()
+    local warehouse = ui.GetFrame('warehouse')
+    local gbox = warehouse:GetChild("gbox")
+    local slotset = gbox:GetChild("slotset")
+    AUTO_CAST(slotset)
+    local items = {}
+    for i = 0, slotset:GetSlotCount() - 1 do
+        local slot = slotset:GetSlotByIndex(i)
+        local icon = slot:GetIcon()
+        if icon then
+            local icon_info = icon:GetInfo()
+            local iesid = icon_info:GetIESID()
+            local obj = GetObjectByGuid(iesid)
+            local clsid = obj.ClassID
+            local item_cls = GetClassByType('Item', clsid)
+            local category = "false"
+            if item_cls and item_cls.MarketCategory ~= "None" then
+                category = item_cls.MarketCategory:match("^(.-)_")
+            end
+            local item_name = string.lower(dictionary.ReplaceDicIDInCompStr(obj.Name))
+            table.insert(items, {g.login_name, iesid, clsid, icon_info.count, item_name, "warehouse", category})
+        end
+    end
+    local warehouse_dat = g.characters_item_serch_dat_tbl[1]
+    Characters_item_serch_save_item_list_to_dat(warehouse_dat, items)
+end
+
+function Characters_item_serch_load_data(select_name, search_mode, search_text)
+    local dat_tbl = {}
+    for i = 1, #g.characters_item_serch_dat_tbl - 1 do
+        table.insert(dat_tbl, g.characters_item_serch_dat_tbl[i])
+    end
+    local items = {}
+    local target_name = (select_name == "") and g.login_name or select_name
+    if search_mode == "ITEM_SEARCH" then
+        table.insert(dat_tbl, g.characters_item_serch_dat_tbl[4])
+    end
+    local valid_chars = g.characters_item_serch_settings["chars"]
+    for _, dat_file_path in ipairs(dat_tbl) do
+        local file = io.open(dat_file_path, "r")
+        if file then
+            local content = file:read("*all")
+            file:close()
+            for line in content:gmatch("([^\n]+)") do
+                local is_match = false
+                if search_mode == "ITEM_SEARCH" then
+                    if string.find(string.lower(line), string.lower(search_text)) then
+                        is_match = true
+                    end
+                else
+                    if line:find(target_name, 1, true) == 1 then
+                        is_match = true
+                    end
+                end
+                if is_match then
+                    local parts = {}
+                    for part in (line .. ":::"):gmatch("(.-):::") do
+                        table.insert(parts, part)
+                    end
+                    if #parts > 0 and parts[#parts] == "" then
+                        table.remove(parts)
+                    end
+                    local char_name = parts[1]
+                    local is_valid_char = false
+                    if valid_chars[char_name] or char_name == "チーム倉庫" or char_name == "Account Warehouse" then
+                        is_valid_char = true
+                    end
+                    if is_valid_char then
+                        if search_mode == "ITEM_SEARCH" then
+                            parts[3] = tonumber(parts[3]) or 0
+                        else
+                            table.remove(parts, 1)
+                            if #parts > 0 then
+                                parts[2] = tonumber(parts[2]) or 0
+                            end
+                        end
+                        if #parts > 0 then
+                            table.insert(items, parts)
+                        end
+                    end
+                end
+            end
+        end
+    end
+    if search_mode == "ITEM_SEARCH" then
+        table.sort(items, function(a, b)
+            local a_is_warehouse = (a[1] == "チーム倉庫" or a[1] == "Account Warehouse")
+            local b_is_warehouse = (b[1] == "チーム倉庫" or b[1] == "Account Warehouse")
+            if a_is_warehouse and not b_is_warehouse then
+                return false
+            elseif not a_is_warehouse and b_is_warehouse then
+                return true
+            else
+                return a[3] < b[3]
+            end
+        end)
+    else
+        table.sort(items, function(a, b)
+            return a[2] < b[2]
+        end)
+    end
+    return items
+end
+
+function Characters_item_serch_item_search(my_frame, ctrl, str, num)
+    local characters_item_serch = ctrl:GetTopParentFrame()
+    local search_edit = GET_CHILD(characters_item_serch, "search_edit")
+    AUTO_CAST(search_edit)
+    local search_text = search_edit:GetText()
+    if search_text == "" then
+        Characters_item_serch_frame_init(nil, nil, g.login_name, 0)
+        return
+    end
+    local gb = GET_CHILD(characters_item_serch, "gb")
+    gb:RemoveAllChild()
+    local tree = gb:CreateOrGetControl("tree", 'name_tree', 0, 0, 0, 0)
+    AUTO_CAST(tree)
+    tree:Clear()
+    tree:EnableDrawFrame(false)
+    tree:SetFitToChild(true, 10)
+    tree:SetFontName("white_16_ol")
+    local items = Characters_item_serch_load_data("", "ITEM_SEARCH", search_text)
+    local names = {}
+    for i = 1, #items do
+        local item = items[i]
+        local name = item[1]
+        if not names[name] then
+            names[name] = true
+            local slot_set = Characters_item_serch_make_inven_slotset(tree, name)
+            tree:Add(name)
+            tree:Add(slot_set, name)
+        end
+    end
+    for i = 1, #items do
+        local item = items[i]
+        local name = item[1]
+        local clsid = item[3]
+        local item_count = item[4]
+        local slot_set = GET_CHILD(tree, name)
+        Characters_item_serch_insert_item_to_tree(slot_set, clsid, item_count)
+    end
+    tree:Resize(characters_item_serch:GetWidth() - 40, characters_item_serch:GetHeight() - 135)
+    tree:OpenNodeAll()
+end
+
+function Characters_item_serch_get_sorted_sub_categories(items)
+    local subcategories = {}
+    local subcategory_list = {}
+    local subcategory_order = {
+        ["false"] = 1,
+        ["equips"] = 2,
+        ["warehouse"] = 3,
+        ["Weapon"] = 4,
+        ["Armor"] = 5,
+        ["HairAcc"] = 6,
+        ["Accessory"] = 7,
+        ["nil"] = 8,
+        ["Premium"] = 9,
+        ["Look"] = 10,
+        ["ChangeEquip"] = 11,
+        ["Misc"] = 12,
+        ["Consume"] = 13,
+        ["Recipe"] = 14,
+        ["Card"] = 15,
+        ["Gem"] = 16,
+        ["Ancient"] = 17,
+        ["OPTMisc"] = 18,
+        ["PHousing"] = 19
+    }
+    local function get_order(name)
+        return subcategory_order[name] or 100
+    end
+    for i = 1, #items do
+        local item = items[i]
+        local category = item[5]
+        local sub_category = item[6]
+        local target_category = (category == "inventory") and sub_category or category
+        if not subcategories[target_category] then
+            subcategories[target_category] = true
+            table.insert(subcategory_list, target_category)
+        end
+    end
+    table.sort(subcategory_list, function(a, b)
+        return get_order(a) < get_order(b)
+    end)
+    return subcategory_list
+end
+
+function Characters_item_serch_frame_init(frame, ctrl, select_name, num)
+    local list_frame = ui.GetFrame(addon_name_lower .. "list_frame")
+    if not list_frame then
+        list_frame = _nexus_addons_frame_init()
+        list_frame:ShowWindow(0)
+    end
+    local characters_item_serch = ui.CreateNewFrame("notice_on_pc", addon_name_lower .. "characters_item_serch", 0, 0,
+        70, 30)
+    AUTO_CAST(characters_item_serch)
+    characters_item_serch:SetSkinName("test_frame_low")
+    characters_item_serch:Resize(670, 1080)
+    characters_item_serch:SetPos(list_frame:GetX() + list_frame:GetWidth(), 0)
+    characters_item_serch:EnableMove(0)
+    characters_item_serch:SetLayerLevel(999)
+    characters_item_serch:SetTitleBarSkin("None")
+    characters_item_serch:RemoveAllChild()
+    characters_item_serch:ShowWindow(1)
+    local title_gb = characters_item_serch:CreateOrGetControl("groupbox", "title_gb", 0, 0,
+        characters_item_serch:GetWidth(), 55)
+    title_gb:SetSkinName("test_frame_top")
+    AUTO_CAST(title_gb)
+    local title_text = title_gb:CreateOrGetControl("richtext", "title_text", 0, 0, ui.CENTER_HORZ, ui.TOP, 0, 15, 0, 0)
+    AUTO_CAST(title_text)
+    title_text:SetText('{ol}{s26}Characters Item Serch')
+    local close = characters_item_serch:CreateOrGetControl("button", "close", 0, 0, 25, 25)
+    AUTO_CAST(close)
+    close:SetImage("testclose_button")
+    close:SetGravity(ui.RIGHT, ui.TOP)
+    close:SetEventScript(ui.LBUTTONUP, "Characters_item_serch_close")
+    local login_name = characters_item_serch:CreateOrGetControl("richtext", "login_name", 20, 60, 0, 0)
+    AUTO_CAST(login_name)
+    login_name:SetText(select_name == "" and '{ol}{s18}' .. g.login_name or '{ol}{s18}' .. select_name)
+    local char_switch = characters_item_serch:CreateOrGetControl("button", "char_switch", 20, 85, 150, 30)
+    AUTO_CAST(char_switch)
+    char_switch:SetText(g.lang == "Japanese" and "{ol}キャラクター切替" or "{ol}character switch")
+    char_switch:SetSkinName("test_pvp_btn")
+    char_switch:SetEventScript(ui.LBUTTONUP, "Characters_item_serch_context")
+    local search_edit = characters_item_serch:CreateOrGetControl("edit", "search_edit", 200, 80, 250, 40)
+    AUTO_CAST(search_edit)
+    search_edit:SetFontName("white_18_ol")
+    search_edit:SetTextAlign("left", "center")
+    search_edit:SetSkinName("inventory_serch")
+    search_edit:SetEventScript(ui.ENTERKEY, "Characters_item_serch_item_search")
+    local search_btn = search_edit:CreateOrGetControl("button", "search_btn", 0, 0, 60, 38)
+    AUTO_CAST(search_btn)
+    search_btn:SetImage("inven_s")
+    search_btn:SetGravity(ui.RIGHT, ui.TOP)
+    search_btn:SetEventScript(ui.LBUTTONUP, "Characters_item_serch_item_search")
+    local gb = characters_item_serch:CreateOrGetControl("groupbox", "gb", 20, 120,
+        characters_item_serch:GetWidth() - 40, characters_item_serch:GetHeight() - 135)
+    gb:SetSkinName("test_frame_midle")
+    AUTO_CAST(gb)
+    gb:RemoveAllChild()
+    local tree = gb:CreateOrGetControl("tree", 'tree', 0, 0, 0, 0)
+    AUTO_CAST(tree)
+    tree:Clear()
+    tree:EnableDrawFrame(false)
+    tree:SetFitToChild(true, 10)
+    tree:SetFontName("white_16_ol")
+    -- tree:SetTabWidth(80)
+    Characters_item_serch_build_tree(characters_item_serch, tree, select_name)
+end
+
+function Characters_item_serch_close(characters_item_serch)
+    ui.DestroyFrame(characters_item_serch:GetName())
+end
+
+function Characters_item_serch_context()
+    local chars = g.characters_item_serch_settings["chars"]
+    local sorted_chars = {}
+    for name, data in pairs(chars) do
+        table.insert(sorted_chars, {
+            name = name,
+            data = data
+        })
+    end
+    table.sort(sorted_chars, function(a, b)
+        return a.data.layer < b.data.layer or (a.data.layer == b.data.layer and a.data.order < b.data.order)
+    end)
+    local context = ui.CreateContextMenu("Characters_item_serch_context", "{ol}Characters", 0, 0, 120, 0)
+    ui.AddContextMenuItem(context, "-----")
+    for _, char_data in ipairs(sorted_chars) do
+        local char_name = char_data.name
+        local escaped_name = string.gsub(char_name, "'", "\\'")
+        local str_scp = string.format("Characters_item_serch_frame_init(nil,nil,'%s', 0)", escaped_name)
+        ui.AddContextMenuItem(context, char_name, str_scp)
+    end
+    ui.OpenContextMenu(context)
+end
+
+function Characters_item_serch_build_tree(characters_item_serch, tree, select_name)
+    local items = Characters_item_serch_load_data(select_name)
+    local sub_category_list = Characters_item_serch_get_sorted_sub_categories(items)
+    local category_display_names = {
+        warehouse = g.lang == "Japanese" and "倉庫" or "Warehouse",
+        equips = g.lang == "Japanese" and "装備中" or "Equips",
+        Ancient = g.lang == "Japanese" and "アシスター" or "Ancient",
+        ["nil"] = g.lang == "Japanese" and "レリック" or "Relic",
+        PHousing = g.lang == "Japanese" and "家具" or "Housing"
+    }
+    local silver = 0
+    for i = 1, #items do
+        if items[i][3] == 900011 then
+            silver = items[i][4]
+            break
+        end
+    end
+    local categorized_items = {}
+    for _, item in ipairs(items) do
+        local category = item[5]
+        local sub_category = item[6]
+        local target_category = (category == "inventory") and sub_category or category
+        if not categorized_items[target_category] then
+            categorized_items[target_category] = {}
+        end
+        table.insert(categorized_items[target_category], item)
+    end
+    local iesids = {}
+    for i = 1, #sub_category_list do
+        local category = sub_category_list[i]
+        local disp_category
+        if category == "false" then
+            disp_category = "     " .. "{img icon_item_silver 20 20}" .. " " .. GET_COMMAED_STRING(tonumber(silver))
+            tree:Add(disp_category)
+        else
+            disp_category = category_display_names[category] or ClMsg(category)
+            local new_slots = Characters_item_serch_make_inven_slotset(tree, category)
+            tree:Add(disp_category)
+            tree:Add(new_slots, category)
+            local items_in_category = categorized_items[category] or {}
+            for _, item in ipairs(items_in_category) do
+                local iesid, clsid, item_count = item[1], item[2], item[3]
+                if not iesids[iesid] then
+                    iesids[iesid] = true
+                    Characters_item_serch_insert_item_to_tree(new_slots, clsid, item_count)
+                end
+            end
+        end
+    end
+    tree:Resize(characters_item_serch:GetWidth() - 40, characters_item_serch:GetHeight() - 135)
+    tree:OpenNodeAll()
+end
+
+function Characters_item_serch_make_inven_slotset(tree, name)
+    local slotset = tree:CreateOrGetControl('slotset', name, 20, 0, 0, 0)
+    AUTO_CAST(slotset)
+    slotset:EnablePop(0)
+    slotset:EnableDrag(0)
+    slotset:EnableDrop(0)
+    slotset:SetMaxSelectionCount(999)
+    slotset:SetSlotSize(40, 40)
+    slotset:SetColRow(15, 1)
+    slotset:SetSpc(0, 0)
+    slotset:SetSkinName('invenslot')
+    slotset:EnableSelection(0)
+    slotset:CreateSlots()
+    return slotset
+end
+
+function Characters_item_serch_insert_item_to_tree(new_slots, clsid, item_count)
+    local slot_count = new_slots:GetSlotCount()
+    local count = new_slots:GetUserIValue("SLOT_ITEM_COUNT") or 0
+    while slot_count <= count do
+        new_slots:ExpandRow()
+        slot_count = new_slots:GetSlotCount()
+    end
+    local slot = new_slots:GetSlotByIndex(count)
+    count = count + 1
+    new_slots:SetUserValue("SLOT_ITEM_COUNT", count)
+    slot:ShowWindow(1)
+    local item_cls = GetClassByType('Item', clsid)
+    if item_cls then
+        slot:SetSkinName('invenslot2')
+        SET_SLOT_ITEM_CLS(slot, item_cls)
+        SET_SLOT_BG_BY_ITEMGRADE(slot, item_cls)
+        if tonumber(item_count) > 1 then
+            SET_SLOT_COUNT_TEXT(slot, item_count, "{ol}{s14}")
+        end
+    end
+end
+-- characters_item_serch ここまで
+
+-- goddess_icor_manager ここから
+g.gim_slot_list = {{
+    slot_name = "RH",
+    clmsg = "RH"
+}, {
+    slot_name = "LH",
+    clmsg = "LH"
+}, {
+    slot_name = "SHIRT",
+    clmsg = "Shirt"
+}, {
+    slot_name = "PANTS",
+    clmsg = "Pants"
+}, {
+    slot_name = "GLOVES",
+    clmsg = "Gloves"
+}, {
+    slot_name = "BOOTS",
+    clmsg = "Boots"
+}, {
+    slot_name = "RH_SUB",
+    clmsg = "RH_SUB"
+}, {
+    slot_name = "LH_SUB",
+    clmsg = "LH_SUB"
+}}
+function Goddess_icor_manager_save_settings()
+    g.save_lua(g.gim_path, g.gim_settings)
+end
+
+function Goddess_icor_manager_load_settings()
+    g.gim_path = string.format("../addons/%s/%s/goddess_icor_manager.lua", addon_name_lower, g.active_id)
+    local old_json_path = string.format("../addons/%s/settings.json", "goddess_icor_manager")
+    local settings = g.load_lua(g.gim_path)
+    local need_save = false
+    if not settings then
+        local valid_cids = {}
+        local sys_opt_path = string.format("../release/addon_setting/system_option/%s/settings.json", g.active_id)
+        local sys_opt_file = io.open(sys_opt_path, "r")
+        if sys_opt_file then
+            local content = sys_opt_file:read("*a")
+            sys_opt_file:close()
+            if content and content ~= "" then
+                local status, data = pcall(json.decode, content)
+                if status and data and data.pc_id then
+                    for cid, _ in pairs(data.pc_id) do
+                        valid_cids[cid] = true
+                    end
+                end
+            end
+        end
+        valid_cids[g.cid] = true
+        local old_settings = g.load_json(old_json_path)
+        if old_settings then
+            settings = {
+                delay = old_settings.delay or 0.6
+            }
+            for cid, data in pairs(old_settings) do
+                if valid_cids[cid] then
+                    settings[cid] = data
+                end
+            end
+            need_save = true
+        end
+    end
+    if not settings then
+        settings = {
+            delay = 0.6
+        }
+        need_save = true
+    end
+    g.gim_settings = settings
+    if need_save then
+        Goddess_icor_manager_save_settings()
+    end
+end
+
+function Goddess_icor_manager_char_load_settings()
+    if not g.gim_settings[g.cid] then
+        g.gim_settings[g.cid] = {
+            drop_items = {},
+            icor_ids = {}
+        }
+        for i = 1, 9 do
+            table.insert(g.gim_settings[g.cid].drop_items, {
+                set_name = "Set " .. i,
+                set = {}
+            })
+        end
+        Goddess_icor_manager_save_settings()
+    end
+end
+
+function goddess_icor_manager_on_init()
+    if not g.gim_settings then
+        Goddess_icor_manager_load_settings()
+    end
+    if g.get_map_type() == "City" then
+        Goddess_icor_manager_char_load_settings()
+        Goddess_icor_manager_frame_init()
+    end
+    g.addon:RegisterMsg("ESCAPE_PRESSED", "Goddess_icor_manager_list_close")
+    g.setup_hook(Goddess_icor_manager__GODDESS_MGR_RANDOMOPTION_ENGRAVE_ICOR_EXEC,
+        "_GODDESS_MGR_RANDOMOPTION_ENGRAVE_ICOR_EXEC")
+    g.setup_hook_and_event(g.addon, "GODDESS_EQUIP_MANAGER_OPEN", "Goddess_icor_manager_GODDESS_EQUIP_MANAGER_OPEN",
+        true)
+end
+
+function Goddess_icor_manager_frame_init()
+    local inventory = ui.GetFrame("inventory")
+    local inventoryGbox = inventory:GetChild("inventoryGbox")
+    inventoryGbox:RemoveChild("icor_btn")
+    if g.settings.goddess_icor_manager.use == 0 then
+        return
+    end
+    local icor_pic = inventory:CreateOrGetControl("picture", "icor_pic", 440, 345, 30, 30)
+    AUTO_CAST(icor_pic) -- 11201008
+    local icor_cls = GetClassByType("Item", 11201008)
+    icor_pic:SetImage(icor_cls.Icon)
+    icor_pic:SetEnableStretch(1)
+    icor_pic:SetSkinName("test_red_button")
+    icor_pic:SetEventScript(ui.LBUTTONUP, "Goddess_icor_manager_list_init")
+    icor_pic:SetTextTooltip("{ol}Goddes Icor Manager")
+end
+
+function Goddess_icor_manager_list_init(frame, ctrl, str, page)
+    local gim = ui.CreateNewFrame("notice_on_pc", addon_name_lower .. "gim", 0, 0, 0, 0)
+    gim:Resize(1920, 1060) -- 1000
+    gim:SetOffset(0, 5) -- 0,20
+    gim:ShowWindow(1)
+    gim:SetLayerLevel(121)
+    gim:ShowTitleBar(0)
+    gim:SetSkinName("test_frame_midle_light")
+    gim:RemoveAllChild()
+    if not page or page == 0 then
+        page = 1
+    end
+    Goddess_icor_manager_equip_gbox_init(gim)
+    Goddess_icor_manager_list_gb_init(gim, page)
+end
+
+function Goddess_icor_manager_list_gb_init(gim, page)
+    gim:SetUserValue("PAGE", page)
+    local acc = GetMyAccountObj()
+    local etc = GetMyEtcObject()
+    local remain_time = GET_REMAIN_SECOND_ENGRAVE_SLOT_EXTENSION_TIME(acc)
+    local max_engrave_count = GET_MAX_ENGARVE_SLOT_COUNT(acc)
+    local is_expired = (tonumber(remain_time) == 0)
+    local page_max = is_expired and (max_engrave_count + 5) or max_engrave_count
+    local start_x = 10
+    local left_btn = gim:CreateOrGetControl("button", "left_btn", 690, 1025, 30, 33)
+    AUTO_CAST(left_btn)
+    left_btn:SetText("{img white_left_arrow 18 18}")
+    left_btn:SetSkinName("brown_3patch_btn")
+    left_btn:SetEventScript(ui.LBUTTONUP, "Goddess_icor_manager_list_init")
+    left_btn:SetEventScriptArgNumber(ui.LBUTTONUP, 1)
+    local right_btn = gim:CreateOrGetControl("button", "right_btn", 740, 1025, 30, 33)
+    AUTO_CAST(right_btn)
+    right_btn:SetText("{img white_right_arrow 18 18}")
+    right_btn:SetSkinName("brown_3patch_btn")
+    right_btn:SetEventScript(ui.LBUTTONUP, "Goddess_icor_manager_list_init")
+    right_btn:SetEventScriptArgNumber(ui.LBUTTONUP, 2)
+    local s_index, e_index
+    if page == 2 then
+        s_index, e_index = 6, page_max
+    elseif page == 1 then
+        s_index, e_index = 1, 5
+    end
+    local equip_bg = GET_CHILD_RECURSIVELY(gim, "equip_bg")
+    for i = s_index, e_index do
+        local bg = gim:CreateOrGetControl("groupbox", "bg" .. i, start_x, 5, 285, 1020)
+        AUTO_CAST(bg)
+        bg:RemoveAllChild()
+        bg:SetSkinName("bg")
+        bg:ShowWindow(1)
+        local pagename_text = bg:CreateOrGetControl("richtext", "pagename_text" .. i, 10, 5)
+        AUTO_CAST(pagename_text)
+        local pagename = Goddess_icor_manager_get_pagename(i)
+        start_x = start_x + 283
+        local is_disabled_page = is_expired and (tonumber(max_engrave_count) < i)
+        if is_disabled_page then
+            local text = g.lang == "Japanese" and " 使用不可" or " disabled"
+            pagename_text:SetText("{ol}{#FF0000}" .. pagename .. text)
+        else
+            pagename_text:SetText("{ol}{#FFFF00}" .. pagename)
+        end
+        local manage_y_offset = 0
+        for j = 1, #g.gim_slot_list do
+            local manage_bg = bg:CreateOrGetControl("groupbox", "manage_bg" .. j, 5, 30 + manage_y_offset, 272, 122)
+            local manage_text = manage_bg:CreateOrGetControl("richtext", "manage_text" .. j, 5, 0)
+            manage_bg:SetSkinName("test_frame_midle_light") -- "FFDAA520"
+            if is_disabled_page then
+                manage_bg:SetColorTone("FF808080")
+            end
+            manage_y_offset = manage_y_offset + 123
+            local temp_name = ""
+            local icor_ids = g.gim_settings[g.cid].icor_ids
+            if icor_ids and type(icor_ids[tostring(i)]) == "table" then
+                local spot_data = icor_ids[tostring(i)][g.gim_slot_list[j].slot_name]
+                if spot_data and spot_data > 0 then
+                    local temp_cls = GetClassByType("Item", spot_data)
+                    if temp_cls then
+                        local cls_name = temp_cls.ClassName
+                        if string.find(cls_name, "EP17", 1, true) then
+                            if string.find(cls_name, "high", 1, true) then
+                                temp_name = g.lang == "Japanese" and " [540]上級" or " [540]Advanced"
+                            else
+                                temp_name = " [540]"
+                            end
+                            manage_bg:SetColorTone("FFFFD700")
+                        elseif string.find(cls_name, "EP16", 1, true) then
+                            if string.find(cls_name, "high", 1, true) then
+                                temp_name = g.lang == "Japanese" and " [520]上級" or " [520]Advanced"
+                            else
+                                temp_name = " [520]"
+                            end
+                            manage_bg:SetColorTone("FFDAA520")
+                        elseif string.find(cls_name, "EP15", 1, true) and
+                            (string.find(cls_name, "Weapon2", 1, true) or string.find(cls_name, "Armor2", 1, true)) then
+                            temp_name = g.lang == "Japanese" and " [500]継承" or " [500]Succession"
+                            manage_bg:SetColorTone("FFFFD700")
+                        end
+                    end
+                end
+            end
+            manage_text:SetText("{ol}" .. ClMsg(g.gim_slot_list[j].clmsg) .. temp_name)
+            local option_prop, group_prop, value_prop, is_goddess_option =
+                Goddess_icor_manager_GET_ENGRAVED_OPTION_LIST(etc, i, g.gim_slot_list[j].slot_name)
+            if option_prop then
+                local parts1 = {}
+                local parts2 = {}
+                local parts3 = {}
+                for part in option_prop:gmatch("([^/]+)") do
+                    table.insert(parts1, part)
+                end
+                for part in group_prop:gmatch("([^/]+)") do
+                    table.insert(parts2, part)
+                end
+                for part in value_prop:gmatch("([^/]+)") do
+                    table.insert(parts3, part)
+                end
+                Goddess_icor_manager_set_text(manage_bg, parts1, parts2, parts3)
+                if equip_bg then
+                    local current_equip_group = GET_CHILD_RECURSIVELY(equip_bg, "equip" .. j)
+                    if current_equip_group then
+                        local equip_text = ""
+                        local eq_count = current_equip_group:GetChildCount()
+                        for k = 0, eq_count - 1 do -- GetChildByIndexは0始まり
+                            local child = current_equip_group:GetChildByIndex(k)
+                            if string.find(child:GetName(), "text") then
+                                equip_text = equip_text .. child:GetText()
+                            end
+                        end
+                        equip_text = equip_text:gsub("{.-}", ""):gsub("%s+", "")
+                        local icor_text = ""
+                        local mg_count = manage_bg:GetChildCount()
+                        for k = 0, mg_count - 1 do
+                            local child = manage_bg:GetChildByIndex(k)
+                            if string.find(child:GetName(), "option") then
+                                icor_text = icor_text .. child:GetText()
+                            end
+                        end
+                        icor_text = icor_text:gsub("{.-}", ""):gsub("%s+", "")
+                        if equip_text ~= "" and icor_text ~= "" and not is_disabled_page then
+                            if equip_text == icor_text then
+                                local star = manage_bg:CreateOrGetControl("richtext", "star" .. j, 25, 25)
+                                AUTO_CAST(star)
+                                star:SetText("{img monster_card_starmark 20 20}")
+                                star:SetOffset(245, 0)
+                            else
+                                local equip_button = manage_bg:CreateOrGetControl("button", "equip_button", 240, 0, 30,
+                                    25)
+                                AUTO_CAST(equip_button)
+                                equip_button:SetText("{ol}{s14}E")
+                                equip_button:SetSkinName("test_red_button")
+                                equip_button:SetEventScript(ui.LBUTTONUP, "Goddess_icor_manager_equip_button")
+                                equip_button:SetEventScriptArgNumber(ui.LBUTTONUP, i) -- page index
+                                equip_button:SetEventScriptArgString(ui.LBUTTONUP, j) -- slot index
+                                equip_button:SetUserValue("PAGE", page)
+                                equip_button:SetTextTooltip(g.lang == "Japanese" and "{ol}イコル付替え" or
+                                                                "{ol}Icor Swap")
+                            end
+                        end
+                    end
+                end
+            end
+        end
+    end
+end
+
+function Goddess_icor_manager_equip_gbox_init(gim)
+    local equip_gb = gim:CreateOrGetControl("groupbox", "equip_bg", 1430, 5, 485, 1050)
+    AUTO_CAST(equip_gb)
+    equip_gb:SetSkinName("test_frame_midle_light")
+    equip_gb:RemoveAllChild()
+    local close = equip_gb:CreateOrGetControl("button", "close", 0, 0, 30, 30)
+    AUTO_CAST(close)
+    close:SetImage("testclose_button")
+    close:SetGravity(ui.RIGHT, ui.TOP)
+    close:SetEventScript(ui.LBUTTONUP, "Goddess_icor_manager_list_close")
+    local swapbtn = equip_gb:CreateOrGetControl("button", "swapbtn", 0, 0, 35, 35)
+    swapbtn:SetText("{img sysmenu_skill 35 35}")
+    AUTO_CAST(swapbtn)
+    swapbtn:SetSkinName("test_pvp_btn")
+    swapbtn:SetEventScript(ui.LBUTTONUP, "Goddess_icor_manager_swap_weapon")
+    swapbtn:SetTextTooltip(g.lang == "Japanese" and "{ol}武器の裏表切替" or
+                               "{ol}Swap the reverse side of weapons")
+    local icor_save = equip_gb:CreateOrGetControl("button", "icor_save", 45, 0, 80, 35)
+    local text = g.lang == "Japanese" and "{@st66b}刻印保存" or "{@st66b}Icor save"
+    icor_save:SetText(text)
+    AUTO_CAST(icor_save)
+    icor_save:SetSkinName("test_pvp_btn")
+    icor_save:SetEventScript(ui.LBUTTONUP, "Goddess_icor_manager_icor_save_open")
+    local delay_edit = equip_gb:CreateOrGetControl("edit", "delay_edit", 130, 2, 50, 30)
+    AUTO_CAST(delay_edit)
+    delay_edit:SetFontName("white_16_ol")
+    delay_edit:SetTextAlign("center", "center")
+    delay_edit:SetText(g.gim_settings.delay or 0.5)
+    local msg = g.lang == "Japanese" and "{ol}ディレイ設定 デフォルトは0.6秒" or
+                    "{ol}Delay setting Default is 0.6 sec."
+    delay_edit:SetTextTooltip(msg)
+    delay_edit:SetEventScript(ui.ENTERKEY, "Goddess_icor_manager_setting_delay")
+    local set_droplist = equip_gb:CreateOrGetControl("droplist", "set_droplist", 180, 35, 250, 35)
+    AUTO_CAST(set_droplist)
+    set_droplist:SetSkinName("droplist_normal")
+    set_droplist:EnableHitTest(1)
+    set_droplist:SetTextAlign("center", "center")
+    set_droplist:SetSelectedScp("Goddess_icor_manager_droplist_select")
+    set_droplist:AddItem(0, " ")
+    set_droplist:SelectItem(0)
+    set_droplist:Invalidate()
+    for key, data in ipairs(g.gim_settings[g.cid].drop_items) do
+        set_droplist:AddItem(key, "{ol}" .. data.set_name)
+    end
+    local x = 5
+    local y = 50
+    local yy = 50
+    for i = 1, #g.gim_slot_list do
+        local equip
+        if i <= 2 or i >= 7 then
+            equip = equip_gb:CreateOrGetControl("groupbox", "equip" .. i, x, y + 10, 238, 130)
+            y = y + 131
+        elseif i <= 6 or i >= 3 then
+            equip = equip_gb:CreateOrGetControl("groupbox", "equip" .. i, x + 240, yy + 10, 238, 130)
+            yy = yy + 131
+        end
+        AUTO_CAST(equip)
+        equip:SetSkinName("test_frame_midle_light")
+    end
+    for i = 1, #g.gim_slot_list do
+        local slot_info = g.gim_slot_list[i]
+        local equip = GET_CHILD(equip_gb, "equip" .. i)
+        local slot = equip:CreateOrGetControl("richtext", "slot" .. i, 5, 5)
+        AUTO_CAST(slot)
+        slot:SetText("{ol}{s15}" .. ClMsg(slot_info.clmsg))
+        local inv_item = session.GetEquipItemBySpot(item.GetEquipSpotNum(slot_info.slot_name))
+        local item_obj = GetIES(inv_item:GetObject())
+        local item_dic = GET_ITEM_RANDOMOPTION_DIC(item_obj)
+        local size = item_dic["Size"]
+        local y = 25
+        if size ~= 0 then
+            for j = 1, size do
+                local key = "RandomOption_" .. j
+                local value_key = "RandomOptionValue_" .. j
+                local group_key = "RandomOptionGroup_" .. j
+                local text = equip:CreateOrGetControl("richtext", "text" .. j, 5, y)
+                AUTO_CAST(text)
+                local option = item_dic[key]
+                local value = item_dic[value_key]
+                local group = item_dic[group_key]
+                local color = Goddess_icor_manager_color(group)
+                text:SetText("{ol}{s15}" .. color .. ClMsg(option) .. "{#FFFFFF} : " .. value)
+                text:AdjustFontSizeByWidth(235)
+                y = y + 20
+            end
+            equip:SetColorTone("FFFFD700")
+        end
+    end
+    local status_gb = equip_gb:CreateOrGetControl("groupbox", "status_gb", 5, 585, 480, 465)
+    AUTO_CAST(status_gb)
+    status_gb:SetSkinName("bg")
+    local status_table = {"Cloth_Atk", "Leather_Atk", "Iron_Atk", "Ghost_Atk", "MiddleSize_Def", "Cloth_Def",
+                          "Leather_Def", "Iron_Def", "Forester_Atk", "Widling_Atk", "Klaida_Atk", "Paramune_Atk",
+                          "Velnias_Atk", "perfection", "revenge"}
+    local status = ui.GetFrame("status")
+    if status:IsVisible() == 0 then
+        ui.OpenFrame("status")
+    end
+    for i = 1, #status_table do
+        local status_str = status_table[i]
+        local child_frame = GET_CHILD_RECURSIVELY(status, status_str)
+        local level = info.GetLevel(session.GetMyHandle())
+        local setting_num = level * 30
+        local setting_num2 = level * 15
+        local child_title = GET_CHILD(child_frame, "title", "ui::CRichText"):GetText()
+        local titletext = status_gb:CreateOrGetControl("richtext", "titletext" .. i, 10, i * 30 - 20)
+        titletext:SetText("{ol}" .. child_title)
+        titletext:AdjustFontSizeByWidth(230)
+        local child_stat = GET_CHILD(child_frame, "stat", "ui::CRichText"):GetText()
+        local stattext = status_gb:CreateOrGetControl("richtext", "stattext" .. i, 240, i * 30 - 20)
+        if i <= 4 or (i >= 9 and i <= 13) then
+            stattext:SetText("{ol}" .. child_stat .. " {#FFFFFF}(" .. setting_num .. ")")
+        elseif i >= 5 and i <= 8 then
+            stattext:SetText("{ol}" .. child_stat .. " {#FFFFFF}(" .. setting_num2 .. ")")
+        elseif i >= 14 then
+            stattext:SetText("{ol}" .. child_stat)
+        end
+    end
+    local inventory = ui.GetFrame("inventory")
+    DO_WEAPON_SLOT_CHANGE(inventory, 1)
+end
+
+function Goddess_icor_manager_list_close(frame)
+    local status = ui.GetFrame("status")
+    status:ShowWindow(0)
+    local goddess_equip_manager = ui.GetFrame("goddess_equip_manager")
+    goddess_equip_manager:SetLayerLevel(92) -- 92
+    goddess_equip_manager:ShowWindow(0)
+    local inventory = ui.GetFrame("inventory")
+    inventory:SetLayerLevel(95) -- 95
+    local inputstring = ui.GetFrame("inputstring")
+    AUTO_CAST(inputstring)
+    inputstring:SetLayerLevel(98) -- 98
+    ui.DestroyFrame(addon_name_lower .. "gim")
+end
+
+function Goddess_icor_manager_setting_delay(parent, ctrl)
+    local delay = tonumber(ctrl:GetText())
+    if delay then
+        g.gim_settings.delay = delay
+        Goddess_icor_manager_save_settings()
+        local text = g.lang == "Japanese" and "{ol}ディレイを" .. delay .. "秒に設定しました" or
+                         "{ol}Delay is set to " .. delay .. " sec."
+        ui.SysMsg(text)
+    end
+end
+
+function Goddess_icor_manager_droplist_select(parent, ctrl)
+    local gim = ui.GetFrame(addon_name_lower .. "gim")
+    local ctrl_key = tonumber(ctrl:GetSelItemKey())
+    local temp_data = g.gim_settings[g.cid].drop_items[ctrl_key]
+    if ctrl_key == 0 then
+        parent:RemoveAllChild()
+        Goddess_icor_manager_equip_gbox_init(gim)
+        return
+    end
+    local save_btn = parent:CreateOrGetControl("button", "save_btn", ctrl:GetX() + 10, 5, 80, 30)
+    AUTO_CAST(save_btn)
+    save_btn:SetText(g.lang == "Japanese" and "{ol}保存" or "{ol}Save")
+    save_btn:SetEventScript(ui.LBUTTONUP, "Goddess_icor_manager_set_save")
+    save_btn:SetEventScriptArgNumber(ui.LBUTTONUP, ctrl_key)
+    save_btn:SetTextTooltip(g.lang == "Japanese" and "{ol}装備中のイコルセットを保存します" or
+                                "{ol}Save icorset being equipped")
+    if next(temp_data.set) then
+        local delete_btn = parent:CreateOrGetControl("button", "delete_btn", ctrl:GetX() + 90, 5, 80, 30)
+        AUTO_CAST(delete_btn)
+        delete_btn:SetText(g.lang == "Japanese" and "{ol}削除" or "{ol}Delete")
+        delete_btn:SetEventScript(ui.LBUTTONUP, "Goddess_icor_manager_set_delete")
+        delete_btn:SetEventScriptArgNumber(ui.LBUTTONUP, ctrl_key)
+        local change_btn = parent:CreateOrGetControl("button", "change_btn", ctrl:GetX() + 170, 5, 80, 30)
+        AUTO_CAST(change_btn)
+        change_btn:SetText(g.lang == "Japanese" and "{ol}付替" or "{ol}change")
+        change_btn:SetEventScript(ui.LBUTTONUP, "Goddess_icor_manager_set_change")
+        change_btn:SetEventScriptArgNumber(ui.LBUTTONUP, ctrl_key)
+        local status_gb = GET_CHILD(parent, "status_gb")
+        status_gb:RemoveAllChild()
+    end
+    local etc_obj = GetMyEtcObject()
+    g.gim_same = 0
+    g.gim_rh = nil
+    g.gim_lh = nil
+    g.gim_rh_sub = nil
+    g.gim_lh_sub = nil
+    local cur_strs = {}
+    for i = 1, #g.gim_slot_list do
+        local equip = GET_CHILD(parent, "equip" .. i)
+        AUTO_CAST(equip)
+        local slot_info = g.gim_slot_list[i]
+        local slot_name = slot_info.slot_name
+        local inv_item = session.GetEquipItemBySpot(item.GetEquipSpotNum(slot_name))
+        if inv_item and inv_item:GetObject() then
+            local item_obj = GetIES(inv_item:GetObject())
+            local item_dic = GET_ITEM_RANDOMOPTION_DIC(item_obj)
+            if item_dic then
+                local size = item_dic["Size"] or 0
+                if size ~= 0 then
+                    local opts, grps, vals = {}, {}, {}
+                    for j = 1, size do
+                        local key_opt = "RandomOption_" .. j
+                        local key_val = "RandomOptionValue_" .. j
+                        local key_grp = "RandomOptionGroup_" .. j
+                        local opt = item_dic[key_opt]
+                        local val = item_dic[key_val]
+                        local grp = item_dic[key_grp]
+                        table.insert(opts, opt ~= nil and tostring(opt) or "")
+                        table.insert(grps, grp ~= nil and tostring(grp) or "")
+                        table.insert(vals, val ~= nil and tostring(val) or "")
+                    end
+                    if #opts > 0 then
+                        local cur_opts = table.concat(opts, "/")
+                        local cur_grps = table.concat(grps, "/")
+                        local cur_vals = table.concat(vals, "/")
+                        cur_strs[slot_name] = string.format("%s:%s:%s", cur_opts, cur_grps, cur_vals)
+                    end
+                end
+            end
+        end
+        local tgt_str = temp_data.set[slot_name] or ""
+        local load_index, load_equip_name = string.match(tgt_str, "^(.-):::(.+)$")
+        local eng_opts, eng_grps, eng_vals
+        if load_index and load_equip_name then
+            eng_opts, eng_grps, eng_vals = Goddess_icor_manager_GET_ENGRAVED_OPTION_LIST(etc_obj, tonumber(load_index),
+                load_equip_name)
+        end
+        local eng_strs = string.format("%s:%s:%s", tostring(eng_opts or ""), tostring(eng_grps or ""),
+            tostring(eng_vals or ""))
+        if cur_strs[slot_name] == eng_strs then
+            g.gim_same = g.gim_same + 1
+        else
+            if slot_name == "RH" then
+                g.gim_rh = true
+            elseif slot_name == "LH" then
+                g.gim_lh = true
+            elseif slot_name == "RH_SUB" then
+                g.gim_rh_sub = true
+            elseif slot_name == "LH_SUB" then
+                g.gim_lh_sub = true
+            end
+        end
+        if eng_opts ~= nil then
+            local parts1, parts2, parts3 = {}, {}, {}
+            for part in eng_opts:gmatch("([^/]+)") do
+                table.insert(parts1, part)
+            end
+            if eng_grps then
+                for part in eng_grps:gmatch("([^/]+)") do
+                    table.insert(parts2, part)
+                end
+            end
+            if eng_vals then
+                for part in eng_vals:gmatch("([^/]+)") do
+                    table.insert(parts3, part)
+                end
+            end
+            for k_child = equip:GetChildCount() - 1, 0, -1 do
+                local child_to_remove = equip:GetChildByIndex(k_child)
+                if child_to_remove and string.sub(child_to_remove:GetName(), 1, 4) == "text" then
+                    equip:RemoveChild(child_to_remove:GetName())
+                end
+            end
+            local y = 25
+            for k = 1, #parts1 do
+                local opt_name = parts1[k]
+                local grp_name = parts2[k]
+                local val = parts3[k]
+                local text = equip:CreateOrGetControl("richtext", "text" .. k, 5, y)
+                AUTO_CAST(text)
+                local color = Goddess_icor_manager_color(grp_name)
+                text:SetText("{ol}{s15}" .. color .. ClMsg(opt_name) .. "{ol}{#FFFFFF} : " .. val)
+                text:AdjustFontSizeByWidth(235)
+                y = y + 20
+            end
+        end
+    end
+end
+
+function Goddess_icor_manager_swap_weapon()
+    local inventory = ui.GetFrame("inventory")
+    inventory:ShowWindow(1)
+    local gim = ui.GetFrame(addon_name_lower .. "gim")
+    local RH = GET_CHILD_RECURSIVELY(inventory, "RH")
+    local LH = GET_CHILD_RECURSIVELY(inventory, "LH")
+    local RH_SUB = GET_CHILD_RECURSIVELY(inventory, "RH_SUB")
+    local LH_SUB = GET_CHILD_RECURSIVELY(inventory, "LH_SUB")
+    local function goddess_icor_manager_swap_guid(slot_name, bool)
+        local icon = slot_name:GetIcon()
+        if bool then
+            if icon then
+                return true
+            else
+                return nil
+            end
+        end
+        local icon_info = icon:GetInfo()
+        local icon_guid = icon_info:GetIESID()
+        return icon_guid
+    end
+    g.gim_lh_sub_guid = goddess_icor_manager_swap_guid(LH_SUB)
+    g.gim_rh_sub_guid = goddess_icor_manager_swap_guid(RH_SUB)
+    g.gim_rh_guid = goddess_icor_manager_swap_guid(RH)
+    g.gim_lh_guid = goddess_icor_manager_swap_guid(LH)
+    if goddess_icor_manager_swap_guid(LH_SUB, true) and goddess_icor_manager_swap_guid(RH_SUB, true) then
+        local lh_sub_index = 31
+        Goddess_icor_manager_unequip(inventory, lh_sub_index)
+    end
+end
+
+function Goddess_icor_manager_unequip(inventory, lh_sub_index)
+    imcSound.PlaySoundEvent("inven_unequip")
+    item.UnEquip(lh_sub_index)
+    DO_WEAPON_SLOT_CHANGE(inventory, 1)
+    ReserveScript("Goddess_icor_manager_equip()", g.gim_settings.delay or 0.5)
+    return
+end
+
+function Goddess_icor_manager_equip()
+    local function goddess_icor_manager_swap_equip(spot_name, guid)
+        local inv_item = session.GetInvItemByGuid(guid)
+        if inv_item then
+            local inventory = ui.GetFrame("inventory")
+            if string.find(spot_name, "_SUB") then
+                DO_WEAPON_SLOT_CHANGE(inventory, 2)
+            else
+                DO_WEAPON_SLOT_CHANGE(inventory, 1)
+            end
+            ITEM_EQUIP(inv_item.invIndex, spot_name)
+            ReserveScript("Goddess_icor_manager_equip()", g.gim_settings.delay or 0.5)
+            return
+        end
+    end
+    if g.gim_rh_sub_guid then
+        goddess_icor_manager_swap_equip("RH", g.gim_rh_sub_guid)
+        g.gim_rh_sub_guid = nil
+    elseif g.gim_lh_sub_guid then
+        goddess_icor_manager_swap_equip("LH", g.gim_lh_sub_guid)
+        g.gim_lh_sub_guid = nil
+    elseif g.gim_rh_guid then
+        goddess_icor_manager_swap_equip("RH_SUB", g.gim_rh_guid)
+        g.gim_rh_guid = nil
+    elseif g.gim_lh_guid then
+        goddess_icor_manager_swap_equip("LH_SUB", g.gim_lh_guid)
+        g.gim_lh_guid = nil
+    else
+        local inventory = ui.GetFrame("inventory")
+        inventory:Invalidate()
+        if g.gim_swap then
+            Goddess_icor_manager_set_change(nil, nil, nil, g.gim_ctrl_key, 4)
+        else
+            Goddess_icor_manager_set_end()
+        end
+    end
+end
+
+function Goddess_icor_manager_swap_weapon_run(ctrl)
+    local inventory = ui.GetFrame("inventory")
+    if inventory:IsVisible() == 0 then
+        ctrl:StopUpdateScript("Goddess_icor_manager_swap_weapon_run")
+        inventory:SetLayerLevel(95)
+        return 0
+    end
+    inventory:SetLayerLevel(122)
+    DO_WEAPON_SLOT_CHANGE(inventory, 1)
+    local step = ctrl:GetUserIValue("STEP")
+    local spot_nums = {8, 9, 30}
+    local equips = {"RH", "LH", "RH_SUB", "LH_SUB"}
+    if step <= 3 then
+        local guid = g.gim_guids[equips[step]]
+        local equip_item = session.GetEquipItemByGuid(guid)
+        if not equip_item then
+            ctrl:SetUserValue("STEP", step + 1)
+        else
+            item.UnEquip(spot_nums[step])
+        end
+        return 1
+    end
+    if step >= 4 and step <= 7 then
+        local guid = nil
+        if step == 4 then
+            guid = g.gim_guids["RH_SUB"]
+        elseif step == 5 then
+            guid = g.gim_guids["LH_SUB"]
+        elseif step == 6 then
+            guid = g.gim_guids["RH"]
+        elseif step == 7 then
+            guid = g.gim_guids["LH"]
+        end
+        local inv_item = session.GetInvItemByGuid(guid)
+        if inv_item then
+            local item_obj = GetIES(inv_item:GetObject())
+            local spot_name = equips[step - 3]
+            ITEM_EQUIP(inv_item.invIndex, spot_name)
+            return 1
+        else
+            ctrl:SetUserValue("STEP", step + 1)
+            return 1
+        end
+    end
+    inventory:SetLayerLevel(95)
+    ctrl:StopUpdateScript("Goddess_icor_manager_swap_weapon_run")
+    return 0
+end
+
+function Goddess_icor_manager_icor_save_open(parent, ctrl)
+    parent:ShowWindow(0)
+    local inputstring = ui.GetFrame("inputstring")
+    AUTO_CAST(inputstring)
+    inputstring:SetLayerLevel(123) -- 98
+    local inventory = ui.GetFrame("inventory")
+    inventory:SetLayerLevel(122) -- 95
+    local goddess_equip_manager = ui.GetFrame("goddess_equip_manager")
+    goddess_equip_manager:ShowWindow(1)
+    ui.CloseFrame("rareoption")
+    ui.CloseFrame("item_cabinet")
+    for i = 1, #revertrandomitemlist do
+        local revert_name = revertrandomitemlist[i]
+        local revert_frame = ui.GetFrame(revert_name)
+        if revert_frame ~= nil and revert_frame:IsVisible() == 1 then
+            ui.CloseFrame(revert_name)
+        end
+    end
+    local main_tab = GET_CHILD_RECURSIVELY(goddess_equip_manager, "main_tab")
+    main_tab:SelectTab(1)
+    CLEAR_GODDESS_EQUIP_MANAGER(goddess_equip_manager)
+    TOGGLE_GODDESS_EQUIP_MANAGER_TAB(goddess_equip_manager, 1)
+    ui.OpenFrame("inventory")
+    goddess_equip_manager:Resize(485, 460)
+    goddess_equip_manager:SetPos(1430, 5)
+    goddess_equip_manager:SetLayerLevel(122) -- 92
+    local main_tab = GET_CHILD_RECURSIVELY(goddess_equip_manager, "main_tab")
+    main_tab:ShowWindow(0)
+    local bg = GET_CHILD(goddess_equip_manager, "bg")
+    bg:ShowWindow(1)
+    local manager_top = GET_CHILD(goddess_equip_manager, "manager_top")
+    manager_top:ShowWindow(0)
+    local close = GET_CHILD(goddess_equip_manager, "close")
+    close:ShowWindow(0)
+    local help = GET_CHILD(goddess_equip_manager, "help")
+    help:ShowWindow(0)
+    local bg = GET_CHILD(goddess_equip_manager, "bg")
+    bg:SetMargin(0, 0, 0, 0)
+    local bg_inner = GET_CHILD(bg, "bg_inner")
+    bg_inner:SetSkinName("None")
+    bg:Resize(485, 460)
+    local randomoption_bg = GET_CHILD(bg, "randomoption_bg")
+    randomoption_bg:SetSkinName("None")
+    randomoption_bg:SetMargin(0, 0, 0, 0)
+    local randomoption_tab = GET_CHILD(randomoption_bg, "randomoption_tab")
+    randomoption_tab:ShowWindow(0)
+    local rand_icor_text = GET_CHILD_RECURSIVELY(randomoption_bg, "rand_icor_text") --
+    rand_icor_text:ShowWindow(0)
+    local rand_icor_slot = GET_CHILD_RECURSIVELY(randomoption_bg, "rand_icor_slot")
+    rand_icor_slot:SetMargin(10, 30, 0, 0)
+    local goddess_icor_spot_text = GET_CHILD_RECURSIVELY(randomoption_bg, "goddess_icor_spot_text")
+    goddess_icor_spot_text:SetMargin(10, 25, 0, 0)
+    local goddess_icor_spot_list = GET_CHILD_RECURSIVELY(randomoption_bg, "goddess_icor_spot_list")
+    goddess_icor_spot_list:SetMargin(10, 50, 0, 0)
+    local before_preset_option_text = GET_CHILD_RECURSIVELY(randomoption_bg, "before_preset_option_text")
+    before_preset_option_text:SetMargin(155, 180, 0, 0)
+    local before_preset_option_bg = GET_CHILD_RECURSIVELY(randomoption_bg, "before_preset_option_bg")
+    before_preset_option_bg:SetGravity(ui.RIGHT, ui.TOP)
+    before_preset_option_bg:Resize(310, 140)
+    local current_icor_option_text = GET_CHILD_RECURSIVELY(randomoption_bg, "current_icor_option_text")
+    current_icor_option_text:SetMargin(0, 0, 205, 0)
+    local current_icor_option_bg = GET_CHILD_RECURSIVELY(randomoption_bg, "current_icor_option_bg")
+    AUTO_CAST(current_icor_option_bg)
+    current_icor_option_bg:SetGravity(ui.RIGHT, ui.TOP)
+    current_icor_option_bg:Resize(310, 140)
+    local exec_btn = goddess_equip_manager:CreateOrGetControl("button", "exec_btn", 15, 345, 150, 60)
+    local text = g.lang == "Japanese" and "{@st41b}{s18}刻印保存" or "{@st41b}{s18}Icor save"
+    exec_btn:SetText(text)
+    AUTO_CAST(exec_btn)
+    exec_btn:SetSkinName("relic_btn_purple")
+    exec_btn:SetEventScript(ui.LBUTTONUP, "GODDESS_MGR_RANDOMOPTION_ENGRAVE_ICOR_EXEC")
+    local close_btn = goddess_equip_manager:CreateOrGetControl("button", "close_btn", 0, 0, 30, 30)
+    AUTO_CAST(close_btn)
+    close_btn:SetImage("testclose_button")
+    close_btn:SetGravity(ui.RIGHT, ui.TOP)
+    close_btn:SetEventScript(ui.LBUTTONUP, "Goddess_icor_manager_list_close")
+    current_icor_option_bg:SetMargin(0, 30, 145, 0)
+    before_preset_option_bg:SetMargin(0, 210, 145, 0)
+end
+
+function Goddess_icor_manager_save_setname(inputstring, ctrl, str, ctrl_key)
+    inputstring:ShowWindow(0)
+    local edit = GET_CHILD(inputstring, 'input')
+    local get_text = edit:GetText()
+    if get_text == "" then
+        local text = g.lang == "Japanese" and "{ol}文字を入力してください" or "{ol}Please enter text"
+        ui.SysMsg(text)
+        Goddess_icor_INPUT_STRING_BOX(ctrl_key)
+        return
+    end
+    local text = g.lang == "Japanese" and "{ol}セットを登録しました" or "{ol}Set registered"
+    ui.SysMsg(text)
+    text = g.lang == "Japanese" and "(保存済)" or "(saved)"
+    g.gim_settings[g.cid].drop_items[ctrl_key].set_name = get_text .. text
+    Goddess_icor_manager_save_settings()
+    local gim = ui.GetFrame(addon_name_lower .. "gim")
+    Goddess_icor_manager_equip_gbox_init(gim)
+end
+
+function Goddess_icor_INPUT_STRING_BOX(ctrl_key)
+    local inputstring = ui.GetFrame("inputstring")
+    inputstring:Resize(500, 220)
+    inputstring:SetLayerLevel(999)
+    local edit = GET_CHILD(inputstring, "input", "ui::CEditControl")
+    edit:SetNumberMode(0)
+    edit:SetMaxLen(999)
+    edit:SetText("")
+    inputstring:ShowWindow(1)
+    inputstring:SetEnable(1)
+    local title = inputstring:GetChild("title")
+    AUTO_CAST(title)
+    local text = g.lang == "Japanese" and "{ol}{#FFFFFF}セット名を入力" or "{ol}{#FFFFFF}Enter set name"
+    title:SetText(text)
+    local confirm = inputstring:GetChild("confirm")
+    confirm:SetEventScript(ui.LBUTTONUP, "Goddess_icor_manager_save_setname")
+    confirm:SetEventScriptArgNumber(ui.LBUTTONUP, ctrl_key)
+    edit:SetEventScript(ui.ENTERKEY, "Goddess_icor_manager_save_setname")
+    edit:SetEventScriptArgNumber(ui.ENTERKEY, ctrl_key)
+    edit:AcquireFocus()
+end
+
+function Goddess_icor_manager_set_save(frame, ctrl, str, ctrl_key)
+    local acc = GetMyAccountObj()
+    local etc_obj = GetMyEtcObject()
+    local remain_time = GET_REMAIN_SECOND_ENGRAVE_SLOT_EXTENSION_TIME(acc)
+    local page_max = 0
+    if tonumber(remain_time) == 0 then
+        page_max = GET_MAX_ENGARVE_SLOT_COUNT(acc)
+    else
+        page_max = GET_MAX_ENGARVE_SLOT_COUNT(acc) + 5
+    end
+    local cur_strs = {}
+    for i = 1, #g.gim_slot_list do
+        local slot_info = g.gim_slot_list[i]
+        local slot_name = slot_info.slot_name
+        local inv_item = session.GetEquipItemBySpot(item.GetEquipSpotNum(slot_name))
+        if inv_item and inv_item:GetObject() then
+            local item_obj = GetIES(inv_item:GetObject())
+            local item_dic = GET_ITEM_RANDOMOPTION_DIC(item_obj)
+            if item_dic then
+                local size = item_dic["Size"] or 0
+                if size ~= 0 then
+                    local opts, grps, vals = {}, {}, {}
+                    for j = 1, size do
+                        local key_opt = "RandomOption_" .. j
+                        local key_val = "RandomOptionValue_" .. j
+                        local key_grp = "RandomOptionGroup_" .. j
+                        local opt = item_dic[key_opt]
+                        local val = item_dic[key_val]
+                        local grp = item_dic[key_grp]
+                        table.insert(opts, opt ~= nil and tostring(opt) or "")
+                        table.insert(grps, grp ~= nil and tostring(grp) or "")
+                        table.insert(vals, val ~= nil and tostring(val) or "")
+                    end
+                    if #opts > 0 then
+                        local cur_opts = table.concat(opts, "/")
+                        local cur_grps = table.concat(grps, "/")
+                        local cur_vals = table.concat(vals, "/")
+                        cur_strs[slot_name] = string.format("%s:%s:%s", cur_opts, cur_grps, cur_vals)
+                    end
+                end
+            end
+        end
+    end
+    local eng_count = 0
+    local temp_data = g.gim_settings[g.cid].drop_items[ctrl_key]
+    for base_equip_name, strs in pairs(cur_strs) do
+        for i = 1, page_max do
+            temp_data.set[base_equip_name] = ""
+            local eng_opts, eng_grps, eng_vals, is_goddess =
+                Goddess_icor_manager_GET_ENGRAVED_OPTION_LIST(etc_obj, i, base_equip_name)
+            if eng_opts then
+                local eng_strs = string.format("%s:%s:%s", tostring(eng_opts or ""), tostring(eng_grps or ""),
+                    tostring(eng_vals or ""))
+                if strs == eng_strs then
+                    temp_data.set[base_equip_name] = i .. ":::" .. base_equip_name
+                    eng_count = eng_count + 1
+                    if not string.find(base_equip_name, "_SUB") then
+                        if cur_strs[base_equip_name] == cur_strs[base_equip_name .. "_SUB"] then
+                            temp_data.set[base_equip_name .. "_SUB"] = i .. ":::" .. base_equip_name
+                            eng_count = eng_count + 1
+                        end
+                    else
+                        if cur_strs[base_equip_name] == cur_strs[string.gsub(base_equip_name, "_SUB", "")] then
+                            temp_data.set[string.gsub(base_equip_name, "_SUB", "")] = i .. ":::" .. base_equip_name
+                            eng_count = eng_count + 1
+                        end
+                    end
+                    break
+                end
+            end
+            if temp_data.set[base_equip_name] == "" then
+                local change_equip_name = nil
+                if base_equip_name == "RH" then
+                    change_equip_name = "RH_SUB"
+                elseif base_equip_name == "RH_SUB" then
+                    change_equip_name = "RH"
+                elseif base_equip_name == "LH" then
+                    change_equip_name = "LH_SUB"
+                elseif base_equip_name == "LH_SUB" then
+                    change_equip_name = "LH"
+                end
+                local eng_opts, eng_grps, eng_vals, is_goddess =
+                    Goddess_icor_manager_GET_ENGRAVED_OPTION_LIST(etc_obj, i, change_equip_name)
+                if eng_opts then
+                    local eng_strs = string.format("%s:%s:%s", tostring(eng_opts or ""), tostring(eng_grps or ""),
+                        tostring(eng_vals or ""))
+                    if strs == eng_strs then
+                        temp_data.set[base_equip_name] = i .. ":::" .. change_equip_name
+                        eng_count = eng_count + 1
+                        break
+                    end
+                end
+            end
+        end
+    end
+    if eng_count >= 8 then
+        Goddess_icor_INPUT_STRING_BOX(ctrl_key)
+    else
+        local text = g.lang == "Japanese" and "{ol}付替え不可のため保存できません" or
+                         "{ol}Cannot be saved as it is not replaceable"
+        ui.SysMsg(text)
+    end
+end
+
+function Goddess_icor_manager_set_delete(frame, ctrl, str, ctrl_key)
+    local msg = g.lang == "Japanese" and "{ol}{#FFFFFF}セットを削除しますか？" or
+                    "{ol}{#FFFFFF}Do you want to remove the set?"
+    ui.MsgBox(msg, string.format("Goddess_icor_manager_set_delete_(%d)", ctrl_key), "None")
+end
+
+function Goddess_icor_manager_set_delete_(ctrl_key)
+    g.gim_settings[g.cid].drop_items[ctrl_key] = nil
+    g.gim_settings[g.cid].drop_items[ctrl_key] = {
+        set_name = "Set " .. ctrl_key,
+        set = {}
+    }
+    Goddess_icor_manager_save_settings()
+    local text = g.lang == "Japanese" and "{ol}セットを削除しました" or "{ol}Set removed"
+    ui.SysMsg(text)
+    local gim = ui.GetFrame(addon_name_lower .. "gim")
+    Goddess_icor_manager_equip_gbox_init(gim)
+end
+
+function Goddess_icor_manager_set_change(frame, ctrl, str, ctrl_key, step)
+    g.gim_ctrl_key = ctrl_key
+    if step == nil or step == 1 then
+        for i = 1, #g.gim_slot_list do
+            local slot_info = g.gim_slot_list[i]
+            local slot_name = slot_info.slot_name
+            local inv_item = session.GetEquipItemBySpot(item.GetEquipSpotNum(slot_name))
+            local guid = inv_item:GetIESID()
+            if guid == "0" then
+                local text =
+                    g.lang == "Japanese" and "{ol}装備を8ヶ所に着けてから起動してください" or
+                        "{ol}Wear the equipment in 8 places before activating it"
+                ui.SysMsg(text)
+                return
+            end
+        end
+        if g.gim_same == 8 then
+            local text = g.lang == "Japanese" and "{ol}現在装備中と同一のセットです" or
+                             "{ol}This is the same set you currently have equipped"
+            ui.SysMsg(text)
+            return
+        end
+    end
+    local acc = GetMyAccountObj()
+    local remain_time = GET_REMAIN_SECOND_ENGRAVE_SLOT_EXTENSION_TIME(acc)
+    local page_max = 0
+    if tonumber(remain_time) == 0 then
+        page_max = GET_MAX_ENGARVE_SLOT_COUNT(acc)
+    else
+        page_max = GET_MAX_ENGARVE_SLOT_COUNT(acc) + 5
+    end
+    for j = 1, #g.gim_slot_list do
+        local cur_slot_name = g.gim_slot_list[j].slot_name
+        local tgt_str = g.gim_settings[g.cid].drop_items[ctrl_key].set[cur_slot_name]
+        local load_index, load_equip_name = string.match(tgt_str, "^(.-):::(.+)$")
+        if tonumber(load_index) > page_max then
+            local text = g.lang == "Japanese" and
+                             "{ol}保存しているイコルが使用不可のため、終了します" or
+                             "{ol}Process terminated Stored Icor is unavailable"
+            ui.SysMsg(text)
+            return
+        end
+    end
+    local notice = g.lang == "Japanese" and
+                       "{ol}[GIM]セット適用中{nl}バグ防止のため操作をしないでください" or
+                       "{ol}[GIM]set is being applied{nl}Do not operate to prevent bugs"
+    imcAddOn.BroadMsg("NOTICE_Dm_stage_start", notice)
+    local gim = ui.GetFrame(addon_name_lower .. "gim")
+    gim:RunUpdateScript("Goddess_icor_manager_set_error_end", (g.gim_settings.delay or 0.5) * 6 * 2)
+    local etc_obj = GetMyEtcObject()
+    local temp_data = g.gim_settings[g.cid].drop_items[ctrl_key]
+    local cur_strs = {}
+    local spot_names = ""
+    step = step or 1
+    for i = 1, #g.gim_slot_list do
+        local slot_info = g.gim_slot_list[i]
+        local slot_name = slot_info.slot_name
+        local inv_item = session.GetEquipItemBySpot(item.GetEquipSpotNum(slot_name))
+        if inv_item and inv_item:GetObject() then
+            local item_obj = GetIES(inv_item:GetObject())
+            local item_dic = GET_ITEM_RANDOMOPTION_DIC(item_obj)
+            if item_dic then
+                local size = item_dic["Size"] or 0
+                if size ~= 0 then
+                    local opts, grps, vals = {}, {}, {}
+                    for j = 1, size do
+                        local key_opt = "RandomOption_" .. j
+                        local key_val = "RandomOptionValue_" .. j
+                        local key_grp = "RandomOptionGroup_" .. j
+                        local opt = item_dic[key_opt]
+                        local val = item_dic[key_val]
+                        local grp = item_dic[key_grp]
+                        table.insert(opts, opt ~= nil and tostring(opt) or "")
+                        table.insert(grps, grp ~= nil and tostring(grp) or "")
+                        table.insert(vals, val ~= nil and tostring(val) or "")
+                    end
+                    if #opts > 0 then
+                        local cur_opts = table.concat(opts, "/")
+                        local cur_grps = table.concat(grps, "/")
+                        local cur_vals = table.concat(vals, "/")
+                        cur_strs[slot_name] = string.format("%s:%s:%s", cur_opts, cur_grps, cur_vals)
+                    end
+                end
+            end
+        end
+    end
+    if step == 1 then
+        for base_equip_name, strs in pairs(cur_strs) do
+            if not string.find(base_equip_name, "RH") and not string.find(base_equip_name, "LH") then
+                local tgt_str = temp_data.set[base_equip_name]
+                local load_index, load_equip_name = string.match(tgt_str, "^(.-):::(.+)$")
+                local eng_opts, eng_grps, eng_vals, is_goddess =
+                    Goddess_icor_manager_GET_ENGRAVED_OPTION_LIST(etc_obj, tonumber(load_index), load_equip_name)
+                local eng_strs = string.format("%s:%s:%s", tostring(eng_opts or ""), tostring(eng_grps or ""),
+                    tostring(eng_vals or ""))
+                if cur_strs[base_equip_name] ~= eng_strs then
+                    spot_names = spot_names .. ":::" .. base_equip_name
+                end
+            end
+        end
+        if spot_names ~= "" then
+            Goddess_icor_manager_set_change_action(ctrl_key, spot_names, step)
+        else
+            if g.gim_rh or g.gim_lh or g.gim_rh_sub or g.gim_lh_sub then
+                Goddess_icor_manager_set_change(nil, nil, nil, ctrl_key, 2)
+            else
+                Goddess_icor_manager_set_end()
+            end
+        end
+    elseif step == 2 then -- 表武器判定
+        g.gim_swap = nil
+        for base_equip_name, strs in pairs(cur_strs) do
+            if string.find(base_equip_name, "RH") or string.find(base_equip_name, "LH") then
+                local tgt_str = temp_data.set[base_equip_name]
+                local load_index, load_equip_name = string.match(tgt_str, "^(.-):::(.+)$")
+                if base_equip_name == "RH" and g.gim_rh then
+                    if base_equip_name == load_equip_name then
+                        spot_names = spot_names .. ":::" .. base_equip_name
+                        g.gim_rh = false
+                    end
+                elseif base_equip_name == "LH" and g.gim_lh then
+                    if base_equip_name == load_equip_name then
+                        spot_names = spot_names .. ":::" .. base_equip_name
+                        g.gim_lh = false
+                    end
+                elseif base_equip_name == "RH_SUB" and g.gim_rh_sub then
+                    if base_equip_name == load_equip_name then
+                        spot_names = spot_names .. ":::" .. base_equip_name
+                        g.gim_rh_sub = false
+                    end
+                elseif base_equip_name == "LH_SUB" and g.gim_lh_sub then
+                    if base_equip_name == load_equip_name then
+                        spot_names = spot_names .. ":::" .. base_equip_name
+                        g.gim_lh_sub = false
+                    end
+                end
+            end
+        end
+        if spot_names ~= "" then
+            Goddess_icor_manager_set_change_action(ctrl_key, spot_names, step)
+        else
+            if g.gim_rh or g.gim_lh or g.gim_rh_sub or g.gim_lh_sub then
+                Goddess_icor_manager_set_change(nil, nil, nil, ctrl_key, 3)
+            else
+                Goddess_icor_manager_set_end()
+            end
+        end
+    elseif step == 3 then -- swap
+        if g.gim_rh or g.gim_lh or g.gim_rh_sub or g.gim_lh_sub then
+            g.gim_swap = true
+            Goddess_icor_manager_swap_weapon()
+        else
+            Goddess_icor_manager_set_end()
+        end
+    elseif step == 4 then -- 裏武器
+        for base_equip_name, strs in pairs(cur_strs) do
+            if string.find(base_equip_name, "RH") or string.find(base_equip_name, "LH") then
+                local tgt_str = temp_data.set[base_equip_name]
+                local load_index, load_equip_name = string.match(tgt_str, "^(.-):::(.+)$")
+
+                if base_equip_name == "RH" and g.gim_rh then
+                    spot_names = spot_names .. ":::" .. load_equip_name
+                    g.gim_rh = false
+                elseif base_equip_name == "LH" and g.gim_lh then
+                    spot_names = spot_names .. ":::" .. load_equip_name
+                    g.gim_lh = false
+                elseif base_equip_name == "RH_SUB" and g.gim_rh_sub then
+                    spot_names = spot_names .. ":::" .. load_equip_name
+                    g.gim_rh_sub = false
+                elseif base_equip_name == "LH_SUB" and g.gim_lh_sub then
+                    spot_names = spot_names .. ":::" .. load_equip_name
+                    g.gim_lh_sub = false
+                end
+            end
+        end
+        if spot_names ~= "" then
+            Goddess_icor_manager_set_change_action(ctrl_key, spot_names, step)
+        end
+    elseif step == 5 then -- 元戻す
+        g.gim_swap = false
+        Goddess_icor_manager_swap_weapon()
+    end
+end
+
+function Goddess_icor_manager_set_change_action(ctrl_key, spot_names, step)
+    local _, count = string.gsub(spot_names, ":::", "")
+    if count <= 0 then
+        step = step + 1
+        Goddess_icor_manager_set_change(nil, nil, nil, ctrl_key, step)
+        return
+    end
+    local goddess_equip_manager = ui.GetFrame("goddess_equip_manager")
+    goddess_equip_manager:ShowWindow(1)
+    local spot_name = string.match(spot_names, "^:::([A-Z0-9_]+)")
+    if spot_name then
+        spot_names = string.gsub(spot_names, "^:::" .. spot_name, "", 1)
+    end
+    local tgt_str
+    if step == 4 then
+        if spot_name == "RH" then
+            tgt_str = g.gim_settings[g.cid].drop_items[ctrl_key].set["RH_SUB"]
+        elseif spot_name == "LH" then
+            tgt_str = g.gim_settings[g.cid].drop_items[ctrl_key].set["LH_SUB"]
+        elseif spot_name == "RH_SUB" then
+            tgt_str = g.gim_settings[g.cid].drop_items[ctrl_key].set["RH"]
+        elseif spot_name == "LH_SUB" then
+            tgt_str = g.gim_settings[g.cid].drop_items[ctrl_key].set["LH"]
+        end
+    else
+        tgt_str = g.gim_settings[g.cid].drop_items[ctrl_key].set[spot_name]
+    end
+    local load_index, load_equip_name = string.match(tgt_str, "^(.-):::(.+)$")
+    load_index = tonumber(load_index)
+    session.ResetItemList()
+    local arg_list = NewStringList()
+    local tgt_item = session.GetEquipItemBySpot(item.GetEquipSpotNum(spot_name))
+    if tgt_item then
+        if tgt_item.isLockState == true then
+            ui.SysMsg(ClMsg("MaterialItemIsLock"))
+            return
+        end
+        local guid = tgt_item:GetIESID()
+        if guid ~= "None" and guid ~= "0" then
+            session.AddItemID(guid, 1)
+            arg_list:Add(spot_name)
+        end
+    end
+    if load_index then
+        arg_list:Add(load_index)
+        local result_list = session.GetItemIDList()
+        item.DialogTransaction("ICOR_PRESET_ENGRAVE_APPLY", result_list, "", arg_list)
+        if count > 0 then
+            ReserveScript(
+                string.format("Goddess_icor_manager_set_change_action(%d,'%s',%d)", ctrl_key, spot_names, step),
+                g.gim_settings.delay or 0.5)
+            return
+        end
+    end
+end
+
+function Goddess_icor_manager_set_end()
+    local notice = ui.GetFrame("notice")
+    AUTO_CAST(notice)
+    notice:ShowWindow(0)
+    ui.SysMsg("{#FFFF00}[GIM]End of Operation")
+    local gim = ui.GetFrame(addon_name_lower .. "gim")
+    gim:StopUpdateScript("Goddess_icor_manager_set_error_end")
+    local page = gim:GetUserIValue("PAGE")
+    ReserveScript(string.format("Goddess_icor_manager_list_init(nil,nil,nil,%d)", page), g.gim_settings.delay or 0.5)
+    return
+end
+
+function Goddess_icor_manager_set_error_end(frame)
+    local notice = ui.GetFrame("notice")
+    AUTO_CAST(notice)
+    notice:ShowWindow(0)
+    local msg = g.lang == "Japanese" and "{ol}{s30}{#FFFF00}[GIM]エラーのため動作を終了します" or
+                    "{ol}{s30}{#FFFF00}[GIM]Operation terminated due to error"
+    ui.SysMsg(msg)
+    local gim = ui.GetFrame(addon_name_lower .. "gim")
+    local page = gim:GetUserIValue("PAGE")
+    ReserveScript(string.format("Goddess_icor_manager_list_init(nil,nil,nil,%d)", page), g.gim_settings.delay or 0.5)
+    return
+end
+
+function Goddess_icor_manager_equip_button(parent, ctrl, slot_index_str, page_index)
+    local goddess_equip_manager = ui.GetFrame("goddess_equip_manager")
+    if not goddess_equip_manager then
+        return
+    end
+    goddess_equip_manager:ShowWindow(1)
+    GODDESS_MGR_RANDOMOPTION_APPLY_OPEN(goddess_equip_manager)
+    session.ResetItemList()
+    local target_slot_index = tonumber(slot_index_str)
+    local arg_list = NewStringList()
+    local apply_cnt = 0
+    for i = 1, #g.gim_slot_list do
+        local slot_info = g.gim_slot_list[i]
+        local ctrl_set = GET_CHILD_RECURSIVELY(goddess_equip_manager, "rand_slot_" .. slot_info.slot_name)
+        local checkbox = GET_CHILD(ctrl_set, "checkbox")
+        if i == target_slot_index then
+            checkbox:SetCheck(1)
+        else
+            checkbox:SetCheck(0)
+        end
+        if checkbox:IsChecked() == 1 then
+            local tgt_item = session.GetEquipItemBySpot(item.GetEquipSpotNum(slot_info.slot_name))
+            if tgt_item then
+                if tgt_item.isLockState then
+                    ui.SysMsg(ClMsg("MaterialItemIsLock"))
+                    return
+                end
+                local slot = GET_CHILD(ctrl_set, "slot")
+                AUTO_CAST(slot)
+                local guid = slot:GetUserValue("ITEM_GUID")
+                if guid ~= "None" then
+                    session.AddItemID(guid, 1)
+                    arg_list:Add(slot_info.slot_name)
+                    apply_cnt = apply_cnt + 1
+                end
+            end
+        end
+    end
+    if apply_cnt == 0 then
+        ui.SysMsg(ClMsg("NoSelectedItem"))
+        return
+    end
+    arg_list:Add(page_index)
+    local result_list = session.GetItemIDList()
+    item.DialogTransaction("ICOR_PRESET_ENGRAVE_APPLY", result_list, "", arg_list)
+    local page = ctrl:GetUserIValue("PAGE")
+    ReserveScript(string.format("Goddess_icor_manager_list_init(nil,nil,nil, %d)", page), g.gim_settings.delay or 0.5)
+end
+
+function Goddess_icor_manager_GODDESS_EQUIP_MANAGER_OPEN(my_frame, my_msg)
+    local goddess_equip_manager = ui.GetFrame("goddess_equip_manager")
+    goddess_equip_manager:Resize(1270, 900)
+    goddess_equip_manager:SetGravity(ui.LEFT, ui.CENTER_VERT)
+    goddess_equip_manager:SetMargin(89, 0, 0, 0);
+    goddess_equip_manager:SetLayerLevel(92)
+    local main_tab = GET_CHILD_RECURSIVELY(goddess_equip_manager, "main_tab")
+    main_tab:ShowWindow(1)
+    local manager_top = GET_CHILD(goddess_equip_manager, "manager_top")
+    manager_top:ShowWindow(1)
+    local close = GET_CHILD(goddess_equip_manager, "close")
+    close:ShowWindow(1)
+    local help = GET_CHILD(goddess_equip_manager, "help")
+    help:ShowWindow(1)
+    local bg = GET_CHILD(goddess_equip_manager, "bg")
+    bg:SetMargin(0, 10, 0, 0);
+    local bg_inner = GET_CHILD(bg, "bg_inner")
+    bg_inner:SetSkinName("relic_frame_bg")
+    bg:Resize(1218, 890)
+    local randomoption_bg = GET_CHILD(bg, "randomoption_bg")
+    randomoption_bg:SetGravity(ui.LEFT, ui.TOP)
+    randomoption_bg:SetMargin(112, 66, 0, 0);
+    local randomoption_tab = GET_CHILD(randomoption_bg, "randomoption_tab")
+    randomoption_tab:ShowWindow(1)
+    local rand_icor_slot = GET_CHILD_RECURSIVELY(randomoption_bg, "rand_icor_slot")
+    rand_icor_slot:SetMargin(50, 70, 0, 0);
+    local goddess_icor_spot_text = GET_CHILD_RECURSIVELY(randomoption_bg, "goddess_icor_spot_text")
+    goddess_icor_spot_text:SetMargin(50, 25, 0, 0);
+    local goddess_icor_spot_list = GET_CHILD_RECURSIVELY(randomoption_bg, "goddess_icor_spot_list")
+    goddess_icor_spot_list:SetMargin(50, 50, 0, 0);
+    local before_preset_option_text = GET_CHILD_RECURSIVELY(randomoption_bg, "before_preset_option_text")
+    before_preset_option_text:SetMargin(240, 280, 0, 0);
+    local before_preset_option_bg = GET_CHILD_RECURSIVELY(randomoption_bg, "before_preset_option_bg")
+    before_preset_option_bg:SetMargin(0, 310, 50, 0)
+    before_preset_option_bg:Resize(319, 140)
+    local current_icor_option_text = GET_CHILD_RECURSIVELY(randomoption_bg, "current_icor_option_text")
+    current_icor_option_text:SetMargin(0, 40, 120, 0);
+    local current_icor_option_bg = GET_CHILD_RECURSIVELY(randomoption_bg, "current_icor_option_bg")
+    current_icor_option_bg:SetMargin(0, 70, 50, 0)
+    current_icor_option_bg:Resize(319, 140)
+    goddess_equip_manager:RemoveChild("exec_btn")
+    goddess_equip_manager:RemoveChild("close_btn")
+end
+
+function Goddess_icor_manager__GODDESS_MGR_RANDOMOPTION_ENGRAVE_ICOR_EXEC()
+    local goddess_equip_manager = ui.GetFrame("goddess_equip_manager")
+    if not goddess_equip_manager then
+        return
+    end
+    session.ResetItemList()
+    local rand_icor_slot = GET_CHILD_RECURSIVELY(goddess_equip_manager, "rand_icor_slot")
+    local tgt_guid = rand_icor_slot:GetUserValue("ITEM_GUID")
+    local tgt_item = session.GetInvItemByGuid(tgt_guid)
+    if not tgt_item then
+        ui.SysMsg(ClMsg("NoSelectedItem"))
+        return
+    end
+    if tgt_item.isLockState == true then
+        ui.SysMsg(ClMsg("MaterialItemIsLock"))
+        return
+    end
+    local obj = GetIES(tgt_item:GetObject())
+    session.AddItemID(tgt_guid, 1)
+    local randomoption_bg = GET_CHILD_RECURSIVELY(goddess_equip_manager, "randomoption_bg")
+    local index = randomoption_bg:GetUserValue("PRESET_INDEX")
+    local spot = rand_icor_slot:GetUserValue("EQUIP_SPOT")
+    local arg_list = NewStringList()
+    arg_list:Add(index)
+    local cls_id = obj.ClassID
+    if shared_item_goddess_icor.get_goddess_icor_grade(obj) > 0 then
+        arg_list:Add(spot)
+    end
+    local settings_cid = g.gim_settings[g.cid]
+    if not settings_cid.icor_ids then
+        settings_cid.icor_ids = {}
+    end
+    if not settings_cid.icor_ids[index] or type(settings_cid.icor_ids[index]) ~= "table" then
+        settings_cid.icor_ids[index] = {}
+    end
+    settings_cid.icor_ids[index][spot] = cls_id
+    local result_list = session.GetItemIDList()
+    item.DialogTransaction("ICOR_PRESET_ENGRAVE_ICOR", result_list, "", arg_list)
+    Goddess_icor_manager_save_settings()
+    local rand_icor_mat_bg = GET_CHILD_RECURSIVELY(goddess_equip_manager, "rand_icor_mat_bg")
+    GODDESS_MGR_ENGRAVE_ICOR_CLEAR_BTN(rand_icor_mat_bg)
+    local gim = ui.GetFrame(addon_name_lower .. "gim")
+    if gim and gim:IsVisible() == 1 then
+        local page = gim:GetUserIValue("PAGE")
+        if page == 0 then
+            page = 1
+        end
+        Goddess_icor_manager_list_init(nil, nil, nil, page)
+    end
+end
+
+function Goddess_icor_manager_get_pagename(index)
+    local pc_etc = GetMyEtcObject()
+    local acc = GetMyAccountObj()
+    if pc_etc == nil or acc == nil then
+        return nil
+    end
+    local page_name = TryGetProp(pc_etc, "RandomOptionPresetName_" .. index, "None")
+    if page_name == "None" then
+        return ScpArgMsg("EngravePageNumber{index}", "index", index)
+    else
+        return page_name
+    end
+end
+
+function Goddess_icor_manager_GET_ENGRAVED_OPTION_LIST(etc, index, spot)
+    if etc == nil then
+        return nil
+    end
+    local suffix = string.format("_%d_%s", tonumber(index), spot)
+    local option_prop = TryGetProp(etc, "RandomOptionPreset" .. suffix, "None")
+    local group_prop = TryGetProp(etc, "RandomOptionGroupPreset" .. suffix, "None")
+    local value_prop = TryGetProp(etc, "RandomOptionValuePreset" .. suffix, "None")
+    if option_prop == "None" then
+        return nil
+    end
+    local is_goddess_option = TryGetProp(etc, "IsGoddessIcorOption" .. suffix, 0)
+    return option_prop, group_prop, value_prop, is_goddess_option
+end
+
+function Goddess_icor_manager_set_text(manage_bg, parts1, parts2, parts3, manage_text)
+    for k = 1, #parts1 do
+        local option = manage_bg:CreateOrGetControl("richtext", "option" .. k, 5, k * 20)
+        local color = Goddess_icor_manager_color(tostring(parts2[k]))
+        option:SetText("{ol}{s15}" .. color .. ClMsg(parts1[k]) .. "{ol}{#FFFFFF} : " .. parts3[k])
+        option:AdjustFontSizeByWidth(265)
+    end
+end
+
+function Goddess_icor_manager_color(str)
+    if str == "UTIL_ARMOR" then
+        return "{#9966CC}"
+    elseif str == "STAT" then
+        return "{#00FF00}"
+    elseif str == "ATK" then
+        return "{#FF4040}"
+    elseif str == "DEF" then
+        return "{#66B3FF}"
+    elseif str == "SPECIAL" then
+        return "{#FFD700}"
+    else
+        return "{#FFFFFF}"
+    end
+end
+-- goddess_icor_manager ここまで
 
 -- another_warehouse ここから
 function Another_warehouse_save_settings()
@@ -10230,743 +15925,6 @@ function Sub_slotset_resetting(sub_slotset_name)
 end
 -- sub_slotset ここまで
 
--- other_character_skill_list ここから
-function Other_character_skill_list_save_settings()
-    g.save_lua(g.ocsl_path, g.ocsl_settings)
-end
-
-function Other_character_skill_list_load_settings()
-    g.ocsl_path = string.format("../addons/%s/%s/other_character_skill_list.lua", addon_name_lower, g.active_id)
-    local json_path = string.format("../addons/%s/%s/other_character_skill_list.json", addon_name_lower, g.active_id)
-    local settings = g.load_lua(g.ocsl_path)
-    local need_save = false
-    local ver = 1.1
-    if not settings then
-        settings = g.load_json(json_path)
-        if settings then
-            need_save = true
-        end
-    end
-    if not settings then
-        settings = {
-            chars = {},
-            ver = ver
-        }
-        need_save = true
-    end
-    if not settings.ver or settings.ver < ver then
-        if settings.chars then
-            for char_name, char_data in pairs(settings.chars) do
-                if char_data.equips and char_data.equips.EARRING then
-                    local earring = char_data.equips.EARRING
-                    if earring.lv and type(earring.lv) == "string" then
-                        earring.lv = nil
-                    end
-                end
-            end
-        end
-        settings.ver = ver
-        need_save = true
-    end
-    if not settings.hide then
-        settings.hide = 0
-        need_save = true
-    end
-    g.ocsl_settings = settings
-    if need_save then
-        Other_character_skill_list_save_settings()
-    end
-end
-
-function Other_character_skill_list_char_load_settings()
-    local acc_info = session.barrack.GetMyAccount()
-    local layer_pc_count = acc_info:GetPCCount()
-    for order = 0, layer_pc_count - 1 do
-        local pc_info = acc_info:GetPCByIndex(order)
-        if pc_info then
-            local pc_apc = pc_info:GetApc()
-            local pc_name = pc_apc:GetName()
-            local pc_cid = pc_info:GetCID()
-            local existing_data = g.ocsl_settings.chars[pc_name] or {}
-            g.ocsl_settings.chars[pc_name] = {
-                layer = g.ocsl_layer or existing_data.layer or 9,
-                order = order,
-                cid = existing_data.cid or pc_cid,
-                name = pc_name,
-                gear_score = existing_data.gear_score or 0,
-                hide = existing_data.hide or 0,
-                equips = existing_data.equips or {}
-            }
-        end
-    end
-    local barrack_all = acc_info:GetBarrackPCCount()
-    if barrack_all > 0 then
-        local barrack_chars = {}
-        for i = 0, barrack_all - 1 do
-            local pc_info = acc_info:GetBarrackPCByIndex(i)
-            if pc_info then
-                barrack_chars[pc_info:GetName()] = true
-            end
-        end
-        local chars_to_delete = {}
-        for char_name, _ in pairs(g.ocsl_settings.chars) do
-            if not barrack_chars[char_name] then
-                table.insert(chars_to_delete, char_name)
-            end
-        end
-        if #chars_to_delete > 0 then
-            for _, char_name in ipairs(chars_to_delete) do
-                g.ocsl_settings.chars[char_name] = nil
-            end
-        end
-    end
-    Other_character_skill_list_save_settings()
-end
-
-function other_character_skill_list_on_init()
-    local old_func = g.settings.other_character_skill_list.old_init_func
-    if _G[old_func] then
-        return
-    end
-    if _G["BARRACK_CHARLIST_ON_INIT"] and _G["current_layer"] then
-        g.ocsl_layer = _G["current_layer"]
-    end
-    if g.settings.other_character_skill_list.use == 0 then
-        if _G["other_character_skill_list_frame_open"] == _G["Other_character_skill_list_frame_open"] then
-            _G["other_character_skill_list_frame_open"] = nil
-        end
-    else
-        if type(_G["Other_character_skill_list_frame_open"]) == "function" then
-            if type(_G["other_character_skill_list_frame_open"]) ~= "function" then
-                _G["other_character_skill_list_frame_open"] = _G["Other_character_skill_list_frame_open"]
-            end
-        end
-    end
-    if not g.ocsl_settings then
-        Other_character_skill_list_load_settings()
-    end
-    if g.get_map_type() == "City" then
-        Other_character_skill_list_char_load_settings()
-        Other_character_skill_list_sort()
-    end
-    g.setup_hook_and_event(g.addon, "INVENTORY_OPEN", "Other_character_skill_list_save_enchant", true)
-    g.setup_hook_and_event(g.addon, "INVENTORY_CLOSE", "Other_character_skill_list_save_enchant", true)
-    g.setup_hook(Other_character_skill_list_APPS_TRY_MOVE_BARRACK, "APPS_TRY_MOVE_BARRACK")
-    -- g.setup_hook_and_event(g.addon, "APPS_TRY_MOVE_BARRACK", "Other_character_skill_list_save_enchant", true)
-    g.addon:RegisterMsg("ESCAPE_PRESSED", "Other_character_skill_list_ESCAPE_PRESSED")
-end
-
-function Other_character_skill_list_APPS_TRY_MOVE_BARRACK()
-    Other_character_skill_list_save_enchant()
-    g.FUNCS["APPS_TRY_MOVE_BARRACK"]()
-end
-
-function Other_character_skill_list_save_enchant()
-    if g.get_map_type() ~= "City" then
-        return
-    end
-    local current_time = os.time()
-    if g.ocsl_last_save_time and current_time - g.ocsl_last_save_time < 0.5 then
-        return
-    end
-    g.ocsl_last_save_time = current_time
-    local inventory = ui.GetFrame("inventory")
-    local inventory_btns = {"moncard_btn", "helper_btn", "cabinet_btn", "goddess_mgr_btn"}
-    if inventory then
-        for _, btn_name in ipairs(inventory_btns) do
-            local btn = GET_CHILD_RECURSIVELY(inventory, btn_name)
-            if btn and btn:IsVisible() == 0 then
-                btn:ShowWindow(1)
-            end
-        end
-    end
-    local pc_name = session.GetMySession():GetPCApc():GetName()
-    local equip_item_list = session.GetEquipItemList()
-    local count = equip_item_list:Count()
-    local cid = session.GetMySession():GetCID()
-    local data = g.ocsl_settings.chars[pc_name].equips
-    local score = 0
-    for i = 0, count - 1 do
-        local equip_item = equip_item_list:GetEquipItemByIndex(i)
-        local spot_name = item.GetEquipSpotName(equip_item.equipSpot)
-        local spot_item = session.GetEquipItemBySpot(item.GetEquipSpotNum(spot_name))
-        local obj = GetIES(spot_item:GetObject())
-        if obj.ClassName ~= "NoRing" then
-            score = GET_GEAR_SCORE(obj) + score
-        end
-        local lv = TryGetProp(obj, "Reinforce_2", 0)
-        if spot_name == "SHIRT" or spot_name == "PANTS" or spot_name == "GLOVES" or spot_name == "BOOTS" then
-            local slot = GET_CHILD_RECURSIVELY(inventory, spot_name)
-            local icon = slot:GetIcon()
-            if icon then
-                local name, skill_lv = shared_skill_enchant.get_enchanted_skill(obj, 1)
-                data[spot_name] = {
-                    clsid = obj.ClassID,
-                    lv = lv,
-                    skill_name = name,
-                    skill_lv = skill_lv
-                }
-            else
-                data[spot_name] = {}
-            end
-        elseif spot_name == "RH" or spot_name == "LH" or spot_name == "RH_SUB" or spot_name == "LH_SUB" or spot_name ==
-            "RING1" or spot_name == "RING2" or spot_name == "NECK" then
-            local slot = GET_CHILD_RECURSIVELY(inventory, spot_name)
-            local icon = slot:GetIcon()
-            if icon then
-                data[spot_name] = {
-                    clsid = obj.ClassID,
-                    lv = lv
-                }
-            else
-                data[spot_name] = {}
-            end
-        elseif spot_name == "SEAL" or spot_name == "ARK" or spot_name == "RELIC" then
-            local slot = GET_CHILD_RECURSIVELY(inventory, spot_name)
-            local icon = slot:GetIcon()
-            if spot_name == "SEAL" then
-                lv = GET_CURRENT_SEAL_LEVEL(obj)
-            elseif spot_name == "ARK" then
-                lv = TryGetProp(obj, 'ArkLevel', 1)
-            elseif spot_name == "RELIC" then
-                lv = TryGetProp(obj, 'Relic_LV', 1)
-            end
-            if icon then
-                data[spot_name] = {
-                    clsid = obj.ClassID,
-                    lv = lv
-                }
-            else
-                data[spot_name] = {}
-            end
-        elseif spot_name == "EARRING" then
-            local slot = GET_CHILD_RECURSIVELY(inventory, spot_name)
-            local icon = slot:GetIcon()
-            local option_texts = {}
-            if icon then
-                local max_option_count = shared_item_earring.get_max_special_option_count(TryGetProp(obj, 'UseLv', 1))
-                for i = 1, max_option_count do
-                    local option_name = 'EarringSpecialOption_' .. i
-                    local job = TryGetProp(obj, option_name, 'None')
-                    if job ~= 'None' then
-                        local job_cls = GetClass('Job', job)
-                        if job_cls ~= nil then
-                            local item_name = dictionary.ReplaceDicIDInCompStr(job_cls.Name)
-                            local rank = TryGetProp(obj, 'EarringSpecialOptionRankValue_' .. i, 0)
-                            local skill_lv = TryGetProp(obj, 'EarringSpecialOptionLevelValue_' .. i, 0)
-                            local temp_text = ScpArgMsg('EarringSpecialOption{ctrl}{rank}{lv}', 'ctrl', item_name,
-                                'rank', rank, 'lv', skill_lv)
-                            table.insert(option_texts, temp_text)
-                        end
-                    end
-                end
-            end
-            local final_text = table.concat(option_texts, ":::")
-            if icon then
-                data[spot_name] = {
-                    clsid = obj.ClassID,
-                    lv = final_text
-                }
-            else
-                data[spot_name] = {}
-            end
-        elseif spot_name == "CORE" then -- ！
-            local slot = GET_CHILD_RECURSIVELY(inventory, spot_name)
-            local icon = slot:GetIcon()
-            if icon then
-                data[spot_name] = {
-                    clsid = obj.ClassID,
-                    lv = lv
-                }
-            else
-                data[spot_name] = {}
-            end
-        end
-    end
-    local info = equipcard.GetCardInfo(13)
-    if info then
-        data["LEG"] = {
-            clsid = info:GetCardID(),
-            lv = info.cardLv
-        }
-    else
-        data["LEG"] = {}
-    end
-    local info = equipcard.GetCardInfo(14)
-    if info then
-        data["GOD"] = {
-            clsid = info:GetCardID(),
-            lv = info.cardLv
-        }
-    else
-        data["GOD"] = {}
-    end
-    g.ocsl_settings.chars[pc_name].gear_score = score
-    Other_character_skill_list_save_settings()
-end
-
-function Other_character_skill_list_sort()
-    local function sort_layer_order(a, b)
-        if a.layer ~= b.layer then
-            return a.layer < b.layer
-        else
-            return a.order < b.order
-        end
-    end
-    local char_list = {}
-    for _, char_data in pairs(g.ocsl_settings.chars) do
-        table.insert(char_list, char_data)
-    end
-    table.sort(char_list, sort_layer_order)
-    g.ocsl_sorted_chars = char_list
-end
-
-function Other_character_skill_list_split_earring_options(earring_data_string)
-    if not earring_data_string or earring_data_string == "" then
-        return {}
-    end
-    local options_list = {}
-    for option_part in earring_data_string:gmatch("([^:]+)") do
-        table.insert(options_list, option_part)
-    end
-    return options_list
-end
-
-function Other_character_skill_list_frame_open()
-    Other_character_skill_list_save_enchant()
-    if g.settings.other_character_skill_list.use == 0 then
-        return
-    end
-    local ocsl = ui.CreateNewFrame("notice_on_pc", addon_name_lower .. "ocsl", 0, 0, 70, 30)
-    AUTO_CAST(ocsl)
-    ocsl:SetSkinName("test_frame_midle_light")
-    ocsl:SetLayerLevel(99)
-    local title_box = Other_character_skill_create_title_bar(ocsl)
-    local main_gbox = ocsl:CreateOrGetControl("groupbox", "gbox", 5, 35, 1070, 280)
-    AUTO_CAST(main_gbox)
-    main_gbox:RemoveAllChild()
-    main_gbox:SetSkinName("bg2")
-    main_gbox:EnableScrollBar(0)
-    local all_skills = GetClassList("Skill")
-    local y_pos = 10
-    local char_count = 0
-    local last_etc_x = 0
-    for i, char_info in ipairs(g.ocsl_sorted_chars) do
-        local char_settings = g.ocsl_settings.chars[char_info.name]
-        if char_settings.hide ~= 1 or g.ocsl_settings.hide == 0 then
-            local job_list, level, last_job_id = GetJobListFromAdventureBookCharData(char_info.name)
-            if type(_G["INDUN_LIST_VIEWER_ON_INIT"]) == "function" then
-                local ilv_settings = _G["ADDONS"]["norisan"]["indun_list_viewer"].settings
-                if ilv_settings[char_info.name] then
-                    if ilv_settings[char_info.name].president_jobid ~= "" then
-                        last_job_id = ilv_settings[char_info.name].president_jobid
-                    end
-                end
-            elseif type(_G["indun_list_viewer_on_init"]) == "function" then
-                local ilv_settings = _G["ADDONS"]["norisan"]["_NEXUS_ADDONS"].ilv_settings
-                if ilv_settings.chars[char_info.name] then
-                    if ilv_settings.chars[char_info.name].president_jobid ~= "" then
-                        last_job_id = ilv_settings.chars[char_info.name].president_jobid
-                    end
-                end
-            end
-            local last_job_class = GetClassByType("Job", last_job_id)
-            local last_job_icon = TryGetProp(last_job_class, "Icon")
-            local job_slot = main_gbox:CreateOrGetControl("slot", "jobslot" .. i, 0, y_pos - 3, 25, 25)
-            AUTO_CAST(job_slot)
-            job_slot:SetSkinName("None")
-            job_slot:EnableHitTest(1)
-            job_slot:EnablePop(0)
-            local job_icon = CreateIcon(job_slot)
-            job_icon:SetImage(last_job_icon)
-            local name_lbl = main_gbox:CreateOrGetControl("richtext", "name_text" .. i, 25, y_pos, 195, 20)
-            AUTO_CAST(name_lbl)
-            name_lbl:SetText("{ol}" .. char_info.name)
-            name_lbl:AdjustFontSizeByWidth(195)
-            name_lbl:SetEventScript(ui.RBUTTONUP, "Other_character_skill_list_char_report")
-            name_lbl:SetEventScriptArgString(ui.RBUTTONUP, char_info.name)
-            local gs_str = char_settings.gear_score ~= 0 and tostring(char_settings.gear_score) or "NoData"
-            if type(_G["INSTANTCC_ON_INIT"]) == "function" then
-                name_lbl:SetEventScript(ui.LBUTTONDOWN, "Other_character_skill_list_save_enchant")
-                name_lbl:SetEventScript(ui.LBUTTONUP, "Other_character_skill_list_INSTANTCC_DO_CC")
-                name_lbl:SetEventScriptArgString(ui.LBUTTONUP, char_info.cid)
-                name_lbl:SetEventScriptArgNumber(ui.LBUTTONUP, char_info.layer)
-                name_lbl:SetTextTooltip(g.lang == "Japanese" and "{ol}GearScore: " .. gs_str .. "{nl} {nl}" ..
-                                            "右クリック: 各キャラ装備詳細{nl}左クリック：キャラクターチェンジ" or
-                                            "{ol}GearScore: " .. gs_str .. "{nl} {nl}" ..
-                                            "Right click: Details of each character's equipment{nl}Left click: Character change")
-            else
-                name_lbl:SetTextTooltip(g.lang == "Japanese" and "{ol}GearScore: " .. gs_str .. "{nl} {nl}" ..
-                                            "右クリック: 各キャラ装備詳細" or "{ol}GearScore: " .. gs_str ..
-                                            "{nl} {nl}" .. "Right-click: Details of each character's equipment")
-            end
-            local equips = {"SHIRT", "PANTS", "GLOVES", "BOOTS", "LEG", "GOD", "SEAL", "ARK", "RELIC", "EARRING",
-                            "CORE", "RH", "LH", "RH_SUB", "LH_SUB", "RING1", "RING2", "NECK"}
-            Other_character_skill_list_create_weapon_slots(main_gbox, char_settings.equips, equips, i, y_pos)
-            Other_character_skill_list_create_armor_slots(main_gbox, char_settings.equips, equips, all_skills, i, y_pos)
-            last_etc_x = Other_character_skill_list_create_etc_slots(main_gbox, char_settings.equips, equips, i, y_pos)
-            local hide_check_char = main_gbox:CreateOrGetControl('checkbox', "hide_check" .. i, last_etc_x, y_pos, 25,
-                25)
-            AUTO_CAST(hide_check_char)
-            hide_check_char:SetCheck(char_settings.hide)
-            hide_check_char:SetEventScript(ui.LBUTTONDOWN, 'Other_character_skill_list_display_check')
-            hide_check_char:SetEventScriptArgString(ui.LBUTTONDOWN, char_info.name)
-            hide_check_char:SetTextTooltip(g.lang == "Japanese" and "{ol}チェックすると非表示" or
-                                               "{ol}Check to hide")
-            y_pos = y_pos + 25
-            char_count = char_count + 1
-        end
-    end
-    local frame_height = char_count * 25
-    ocsl:Resize(last_etc_x + 40, frame_height + 60)
-    title_box:Resize(last_etc_x + 30, 40)
-    main_gbox:Resize(last_etc_x + 30, frame_height + 20)
-    local current_frame_w = ocsl:GetWidth()
-    local map_frame = ui.GetFrame("map")
-    local map_width = map_frame:GetWidth()
-    ocsl:SetPos((map_width - current_frame_w) / 2, 0)
-    ocsl:ShowWindow(1)
-end
-
-function Other_character_skill_create_title_bar(ocsl)
-    local title_box = ocsl:CreateOrGetControl("groupbox", "title", 0, 0, 1070, 40)
-    AUTO_CAST(title_box)
-    title_box:SetSkinName("None")
-    title_box:EnableScrollBar(0)
-    local close_btn = title_box:CreateOrGetControl("button", "close", 0, 0, 20, 20)
-    AUTO_CAST(close_btn)
-    close_btn:SetImage("testclose_button")
-    close_btn:SetGravity(ui.LEFT, ui.TOP)
-    close_btn:SetEventScript(ui.LBUTTONUP, "Other_character_skill_list_frame_close")
-    local help_btn = title_box:CreateOrGetControl('button', "help", 40, 0, 35, 35)
-    AUTO_CAST(help_btn)
-    help_btn:SetText("{ol}{img question_mark 20 20}")
-    help_btn:SetSkinName("test_pvp_btn")
-    local ccbtn = title_box:CreateOrGetControl('button', 'ccbtn', 75, 0, 35, 35)
-    AUTO_CAST(ccbtn)
-    ccbtn:SetSkinName("None")
-    ccbtn:SetText("{ol}{img barrack_button_normal 35 35}")
-    ccbtn:SetEventScript(ui.LBUTTONUP, "APPS_TRY_MOVE_BARRACK")
-    ccbtn:SetTextTooltip(g.lang == "Japanese" and "{ol}バラックに戻ります" or "{ol}Return to Barracks")
-    local hide_check = title_box:CreateOrGetControl('checkbox', 'hide_check', 120, 0, 35, 35)
-    AUTO_CAST(hide_check)
-    hide_check:SetEventScript(ui.LBUTTONUP, 'Other_character_skill_list_display_check')
-    hide_check:SetTextTooltip(g.lang == "Japanese" and "{ol}チェックしたキャラを非表示" or
-                                  "{ol}Hide Checked Characters")
-    hide_check:SetCheck(g.ocsl_settings.hide)
-    help_btn:SetTextTooltip(g.lang == "Japanese" and
-                                "{ol}順番に並ばない場合は一度バラックに戻ってバラック1､2､3毎にログインしてください。{nl}" ..
-                                "{ol}名前部分を押すと、ログインキャラと同一バラックの各キャラの装備詳細が見れます。" or
-                                "{ol}If you do not line up in order,{nl}" ..
-                                "please return to the barracks once and log in for each barracks 1,2,3.{nl}" ..
-                                "{ol}Press the name section to see the equipment details of each character{nl}in the same barrack as the login character.")
-    local weapon_lbl = title_box:CreateOrGetControl("richtext", "weapon", 160, 10, 100, 20)
-    weapon_lbl:SetText(g.lang == "Japanese" and "{ol}" .. "武器" or "{ol}" .. "weapons")
-    weapon_lbl:AdjustFontSizeByWidth(100)
-    local acc_lbl = title_box:CreateOrGetControl("richtext", "Accessory", 290, 10, 100, 20)
-    acc_lbl:SetText(g.lang == "Japanese" and "{ol}" .. "アクセ" or "{ol}" .. "Accessory")
-    local equip_x = 390
-    local equip_labels = {ClMsg("Shirt"), ClMsg("Pants"), ClMsg("GLOVES"), ClMsg("BOOTS"),
-                          (g.lang == "Japanese" and "その他" or "etc.")}
-    for i = 0, 4 do
-        local equip_lbl = title_box:CreateOrGetControl("richtext", "equip_text" .. i, equip_x, 10, 100, 20)
-        equip_lbl:SetText("{ol}" .. equip_labels[i + 1])
-        equip_lbl:AdjustFontSizeByWidth(100)
-        equip_x = equip_x + 225
-    end
-    return title_box
-end
-
-function Other_character_skill_list_create_weapon_slots(parent_gbox, char_equips, equips, i, y_pos)
-    for j = 12, #equips do
-        local equip_type = equips[j]
-        local equip_data_entry = char_equips[equip_type]
-        local weapon_slot_x = 155 + 30 * (j - 12)
-        if j >= 16 then
-            weapon_slot_x = weapon_slot_x + 10
-        end
-        local weapon_slot = parent_gbox:CreateOrGetControl("slot", "slot" .. equip_type .. i, weapon_slot_x, y_pos, 25,
-            24)
-        AUTO_CAST(weapon_slot)
-        weapon_slot:SetSkinName('invenslot2')
-        if equip_data_entry then
-            local clsid = equip_data_entry.clsid
-            if clsid and clsid ~= 0 then
-                local lv = equip_data_entry.lv
-                local item_cls = GetClassByType("Item", clsid)
-                if item_cls then
-                    SET_SLOT_ICON(weapon_slot, item_cls.Icon)
-                    SET_SLOT_BG_BY_ITEMGRADE(weapon_slot, item_cls)
-                    weapon_slot:SetText('{s12}{ol}{#FFFF00}+' .. lv, 'count', ui.RIGHT, ui.BOTTOM, 0, 0)
-                    local icon = weapon_slot:GetIcon()
-                    if icon then
-                        icon:SetTextTooltip("{ol}" .. item_cls.Name)
-                    end
-                end
-            end
-        end
-    end
-end
-
-function Other_character_skill_list_create_armor_slots(parent_gbox, char_equips, equips, all_skills, i, y_pos)
-    local equip_grp_x = 385
-    for j = 1, 4 do
-        local equip_type = equips[j]
-        local equip_data_entry = char_equips[equip_type]
-        local skill_slot = parent_gbox:CreateOrGetControl("slot", "slot" .. equip_type .. i,
-            equip_grp_x + (225 * (j - 1)) + 30, y_pos, 25, 24)
-        AUTO_CAST(skill_slot)
-        skill_slot:SetSkinName('invenslot2')
-        local item_slot = parent_gbox:CreateOrGetControl("slot", "equip" .. equip_type .. i,
-            equip_grp_x + (225 * (j - 1)), y_pos, 25, 24)
-        AUTO_CAST(item_slot)
-        item_slot:SetSkinName('invenslot2')
-        if equip_data_entry then
-            local clsid = equip_data_entry.clsid
-            local item_cls = GetClassByType("Item", clsid)
-            if item_cls then
-                SET_SLOT_ICON(item_slot, item_cls.Icon)
-                SET_SLOT_BG_BY_ITEMGRADE(item_slot, item_cls)
-                item_slot:SetText('{s12}{ol}{#FFFF00}+' .. equip_data_entry.lv, 'count', ui.RIGHT, ui.BOTTOM, 0, 0)
-                local icon = item_slot:GetIcon()
-                if icon then
-                    icon:SetTextTooltip("{ol}" .. item_cls.Name)
-                end
-            end
-            local skill = GetClassByNameFromList(all_skills, equip_data_entry.skill_name)
-            if skill then
-                SET_SLOT_ICON(skill_slot, 'icon_' .. skill.Icon)
-                skill_slot:SetText('{s14}{ol}{#FFFF00}' .. equip_data_entry.skill_lv, 'count', ui.RIGHT, ui.BOTTOM, -2,
-                    -2)
-                local icon = skill_slot:GetIcon()
-                if icon then
-                    icon:SetTooltipType('skill')
-                    icon:SetTooltipArg("Level", skill.ClassID, equip_data_entry.skill_lv)
-                end
-                local skill_name_lbl = parent_gbox:CreateOrGetControl("richtext", "skill_name" .. equip_type .. i,
-                    equip_grp_x + 60 + (225 * (j - 1)), y_pos, 140, 20)
-                skill_name_lbl:SetText("{ol}{s16}" .. skill.Name)
-                skill_name_lbl:AdjustFontSizeByWidth(160)
-            end
-        end
-    end
-end
-
-function Other_character_skill_list_create_etc_slots(parent_gbox, char_equips, equips, i, y_pos)
-    local etc_x_offset = 0
-    local equip_grp_x = 385
-    local last_x = equip_grp_x + 225 * 4
-    for j = 5, 11 do
-        local equip_type = equips[j]
-        local equip_data_entry = char_equips[equip_type]
-        local current_x = equip_grp_x + 225 * 4 + etc_x_offset
-        local etc_slot = parent_gbox:CreateOrGetControl("slot", "etc_slot" .. equip_type .. i, current_x, y_pos, 25, 24)
-        AUTO_CAST(etc_slot)
-        etc_slot:SetSkinName('invenslot2')
-        if equip_data_entry and equip_data_entry.clsid then
-            local text_prefix = (j >= 5 and j <= 6) and "{s12}{ol}{#FFFF00}{img mon_legendstar 10 10}{nl}" or
-                                    "{s12}{ol}{#FFFF00}+"
-            local item_cls = GetClassByType("Item", equip_data_entry.clsid)
-            if item_cls then
-                SET_SLOT_ICON(etc_slot, item_cls.Icon)
-                local icon = etc_slot:GetIcon()
-                if icon then
-                    local tooltip = item_cls.Name
-                    if j == 10 then -- Earring
-                        local earring_str = Other_character_skill_list_split_earring_options(equip_data_entry.lv)
-                        for _, option_str in ipairs(earring_str) do
-                            tooltip = "{ol}" .. tooltip .. "{nl}" .. option_str
-                        end
-                    elseif j ~= 11 then -- Ark
-                        etc_slot:SetText(text_prefix .. equip_data_entry.lv, 'count', ui.RIGHT, ui.BOTTOM, 0, 0)
-                    end
-                    icon:SetTextTooltip(tooltip)
-                end
-            end
-        end
-        etc_x_offset = etc_x_offset + 30
-        last_x = current_x
-    end
-    return last_x + 30
-end
-
-function Other_character_skill_list_char_report(ocsl, ctrl, char_name_str, num)
-    local report = ui.CreateNewFrame("notice_on_pc", addon_name_lower .. "ocsl_report", 5, 40, 0, 0)
-    AUTO_CAST(report)
-    report:RemoveAllChild()
-    report:SetLayerLevel(104)
-    report:SetSkinName("None")
-    report:Resize(410, 480)
-    local cid = g.ocsl_settings.chars[char_name_str].cid
-    local current_cid = report:GetUserValue("CID")
-    if current_cid ~= "None" and current_cid ~= cid then
-        DESTROY_CHILD_BYNAME(report, "char_" .. current_cid)
-    else
-        local char_frame = GET_CHILD_RECURSIVELY(report, "char_" .. current_cid)
-        if char_frame then
-            char_frame:ShowWindow(1)
-        end
-    end
-    local bpc_info = barrack.GetBarrackPCInfoByCID(cid)
-    if not bpc_info then
-        local language = option.GetCurrentCountry()
-        ui.SysMsg(language == "Japanese" and
-                      "{ol}詳細表示は、ログイン中のキャラと同一バラックのキャラのみ対応しています" or
-                      "{ol}Detailed view is supported only for characters{nl}in the same barracks as the currently logged-in character")
-        Other_character_skill_list_frame_open()
-        return
-    end
-    local char_ctrl = report:CreateOrGetControlSet('barrack_charlist', 'char_' .. cid, 10, 10)
-    AUTO_CAST(char_ctrl)
-    report:SetUserValue("CID", cid)
-    local main_box = GET_CHILD(char_ctrl, 'mainBox')
-    AUTO_CAST(main_box)
-    local btn = main_box:GetChild("btn")
-    btn:SetSkinName('character_off')
-    btn:SetSValue(char_name_str)
-    btn:SetOverSound('button_over')
-    btn:SetClickSound('button_click_2')
-    local indun_btn = main_box:GetChild("indunBtn")
-    AUTO_CAST(indun_btn)
-    indun_btn:SetImage("testclose_button")
-    indun_btn:SetEventScript(ui.LBUTTONUP, "Other_character_skill_list_char_report_close")
-    btn:ShowWindow(1)
-    local apc = bpc_info:GetApc()
-    local gender = apc:GetGender()
-    local job_id = apc:GetJob()
-    local level = apc:GetLv()
-    local pic = GET_CHILD(main_box, "char_icon")
-    AUTO_CAST(pic)
-    local head_icon = ui.CaptureModelHeadImageByApperance(apc)
-    pic:SetImage(head_icon)
-    local name_label = GET_CHILD(main_box, "name")
-    AUTO_CAST(name_label)
-    name_label:SetText("{@st42b}{b}" .. char_name_str)
-    local barrack_pc = session.barrack.GetMyAccount():GetByStrCID(cid)
-    if barrack_pc ~= nil and barrack_pc:GetRepID() ~= 0 then
-        job_id = barrack_pc:GetRepID()
-    end
-    local job_cls = GetClassByType("Job", job_id)
-    local job_label = GET_CHILD(main_box, "job")
-    AUTO_CAST(job_label)
-    job_label:SetText("{@st42b}" .. GET_JOB_NAME(job_cls, gender))
-    local level_label = GET_CHILD(main_box, "level")
-    AUTO_CAST(level_label)
-    level_label:SetText("{@st42b}Lv." .. level)
-    local detail_box = GET_CHILD(char_ctrl, 'detailBox')
-    AUTO_CAST(detail_box)
-    local rh_sub_slot = detail_box:CreateOrGetControl("slot", "RH_SUB", 138, 214, 55, 55)
-    local lh_sub_slot = detail_box:CreateOrGetControl("slot", "LH_SUB", 198, 214, 55, 55)
-    local map_label = GET_CHILD(detail_box, 'mapName')
-    AUTO_CAST(map_label)
-    local map_cls = GetClassByType("Map", apc.mapID)
-    if map_cls ~= nil then
-        local map_name = map_cls.Name
-        map_label:SetText("{@st66b}" .. map_name)
-    end
-    local spot_count = item.GetEquipSpotCount() - 1
-    local skin_list = {}
-    for i = 0, spot_count do
-        local equip_obj = bpc_info:GetEquipObj(i)
-        local spot_name = item.GetEquipSpotName(i)
-        if equip_obj then
-            local ies_obj = GetIES(equip_obj)
-            local equip_type = TryGet_Str(ies_obj, "EqpType")
-            if equip_type == "HELMET" then
-                if item.IsNoneItem(ies_obj.ClassID) == 0 then
-                    spot_name = "HAIR"
-                end
-            end
-            if spot_name == "TRINKET" and item.IsNoneItem(ies_obj.ClassID) == 0 then
-                spot_name = "LH"
-            end
-        end
-        local slot_ctrl = GET_CHILD(detail_box, spot_name)
-        AUTO_CAST(slot_ctrl)
-        if slot_ctrl then
-            if slot_ctrl:GetName() == "SHIRT" then
-                slot_ctrl:SetMargin(-120, 150, 0, 0)
-            elseif slot_ctrl:GetName() == "PANTS" then
-                slot_ctrl:SetMargin(-60, 150, 0, 0)
-            elseif slot_ctrl:GetName() == "GLOVES" then
-                slot_ctrl:SetMargin(0, 150, 0, 0)
-            elseif slot_ctrl:GetName() == "BOOTS" then
-                slot_ctrl:SetMargin(60, 150, 0, 0)
-            elseif slot_ctrl:GetName() == "RH" then
-                slot_ctrl:SetMargin(-120, 214, 0, 0)
-            elseif slot_ctrl:GetName() == "LH" then
-                slot_ctrl:SetMargin(-60, 214, 0, 0)
-            elseif slot_ctrl:GetName() == "ARK" then
-                slot_ctrl:SetMargin(120, 150, 0, 0)
-            elseif slot_ctrl:GetName() == "RELIC" then
-                slot_ctrl:SetMargin(120, 214, 0, 0)
-            end
-            if skin_list[spot_name] == nil then
-                skin_list[spot_name] = slot_ctrl:GetSkinName()
-            end
-            slot_ctrl:EnableDrag(0)
-            if not equip_obj then
-                CLEAR_SLOT_ITEM_INFO(slot_ctrl)
-            else
-                local ies_item = GetIES(equip_obj)
-                local refresh_scp = ies_item.RefreshScp
-                if refresh_scp ~= "None" then
-                    local scp_func = _G[refresh_scp]
-                    scp_func(ies_item)
-                end
-                if 0 == item.IsNoneItem(ies_item.ClassID) then
-                    CLEAR_SLOT_ITEM_INFO(slot_ctrl)
-                    SET_SLOT_ITEM_OBJ(slot_ctrl, ies_item, gender, 1)
-                else
-                    local current_skin = skin_list[spot_name]
-                    if current_skin ~= nil then
-                        slot_ctrl:SetSkinName(current_skin)
-                    end
-                    SET_SLOT_TRANSCEND_LEVEL(slot_ctrl, 0)
-                    SET_SLOT_REINFORCE_LEVEL(slot_ctrl, 0)
-                    CLEAR_SLOT_ITEM_INFO(slot_ctrl)
-                end
-            end
-        end
-    end
-    char_ctrl:Resize(400, 430)
-    local map_frame = ui.GetFrame("map")
-    local map_width = map_frame:GetWidth()
-    report:SetPos((map_width) / 2 - 410 * 1.5, 40)
-    report:ShowWindow(1)
-end
-
-function Other_character_skill_list_ESCAPE_PRESSED()
-    local ocsl = ui.GetFrame(addon_name_lower .. "ocsl")
-    Other_character_skill_list_frame_close(ocsl)
-end
-
-function Other_character_skill_list_frame_close(parent)
-    local ocsl = parent:GetTopParentFrame()
-    ui.DestroyFrame(ocsl:GetName())
-    Other_character_skill_list_char_report_close()
-end
-
-function Other_character_skill_list_char_report_close(parent, ctrl, str, num)
-    local report = parent:GetTopParentFrame()
-    ui.DestroyFrame(report:GetName())
-end
-
-function Other_character_skill_list_display_check(parent, ctrl, char_name, num)
-    local ischeck = ctrl:IsChecked()
-    if char_name == "" then
-        g.ocsl_settings.hide = ischeck
-    else
-        g.ocsl_settings.chars[char_name].hide = ischeck
-    end
-    Other_character_skill_list_save_settings()
-    Other_character_skill_list_frame_open()
-end
-
-function Other_character_skill_list_INSTANTCC_DO_CC(frame, ctrl, cid, layer)
-    INSTANTCC_DO_CC(cid, layer)
-end
--- other_character_skill_list ここまで
 -- muteki ここから
 g.muteki_trans_tbl = {
     etc = {
@@ -13780,1014 +18738,6 @@ function Monster_kill_count_map_reset(map_id)
 end
 -- monster_kill_count ここまで
 
--- sub_map ここから
-function Sub_map_save_settings()
-    g.save_json(g.sub_map_path, g.sub_map_settings)
-end
-
-function Sub_map_load_settings()
-    g.sub_map_path = string.format("../addons/%s/%s/sub_map.json", addon_name_lower, g.active_id)
-    local settings = g.load_json(g.sub_map_path)
-    local ver = 1.1
-    if not settings or not settings.ver then
-        settings = {
-            visible = 1,
-            x = 0,
-            y = 0,
-            skin_name = "None",
-            move = 1,
-            size = 200,
-            minimap = 0,
-            challenge_minimap = 0,
-            challenge_only = 0,
-            loc_name = 0,
-            mob_display = 0,
-            ver = ver
-        }
-    end
-    g.sub_map_settings = settings
-    Sub_map_save_settings()
-end
-
-function sub_map_on_init()
-    if not g.sub_map_settings then
-        Sub_map_load_settings()
-    end
-    local old_func = g.settings.sub_map.old_init_func
-    if _G[old_func] then
-        return
-    end
-    if g.settings.sub_map.use == 0 then
-        ui.DestroyFrame(addon_name_lower .. "sub_map")
-        return
-    end
-    g.sub_map_handles = {}
-    g.addon:RegisterMsg("MAP_CHARACTER_UPDATE", "Sub_map_MAP_CHARACTER_UPDATE")
-    g.addon:RegisterMsg("MON_MINIMAP", "Sub_map_MAP_MON_MINIMAP")
-    g.addon:RegisterMsg("MON_MINIMAP_END", "Sub_map_ON_MON_MINIMAP_END")
-    g.addon:RegisterMsg("PARTY_INST_UPDATE", "Sub_map_MAP_UPDATE_PARTY_INST")
-    g.addon:RegisterMsg("PARTY_UPDATE", "Sub_map_update_party_or_guild")
-    g.addon:RegisterMsg("GUILD_INFO_UPDATE", "Sub_map_update_party_or_guild")
-    g.addon:RegisterMsg("UI_CHALLENGE_MODE_TOTAL_KILL_COUNT", "Sub_map_ON_CHALLENGE_MODE_TOTAL_KILL_COUNT")
-    g.sub_map_challenge_first = true
-    g.sub_map_challenge = 0
-    if g.get_map_type() == "City" then
-        Sub_map_frame_init()
-        return
-    end
-    local colony_list, cnt = GetClassList("guild_colony")
-    for i = 0, cnt - 1 do
-        local check_word = "GuildColony_"
-        if string.find(g.map_name, check_word) then
-            g.sub_map_challenge = 1
-            break
-        end
-        Sub_map_frame_init()
-    end
-    if g.get_map_type() ~= "Instance" then
-        local list = session.party.GetPartyMemberList(PARTY_NORMAL)
-        local count = list:Count()
-        for i = 0, count - 1 do
-            local party_member_info = list:Element(i)
-            local name = party_member_info:GetName()
-            local channel = party_member_info:GetChannel() + 1
-            if channel > 10 then
-                g.sub_map_challenge = 1
-                break
-            end
-        end
-        Sub_map_frame_init()
-    end
-end
-
-function Sub_map_ON_CHALLENGE_MODE_TOTAL_KILL_COUNT(frame, msg)
-    if g.sub_map_challenge_first == true and g.sub_map_challenge == 0 then
-        g.sub_map_challenge = 1
-        Sub_map_frame_init()
-        g.sub_map_challenge_first = false
-    end
-end
-
-function Sub_map_settings()
-    local list_frame = ui.GetFrame(addon_name_lower .. "list_frame")
-    local config = ui.CreateNewFrame("notice_on_pc", addon_name_lower .. "sub_map_setting_frame", 0, 0, 0, 0)
-    AUTO_CAST(config)
-    config:RemoveAllChild()
-    config:SetLayerLevel(999)
-    config:SetSkinName("test_frame_low")
-    local title_text = config:CreateOrGetControl("richtext", "title_text", 10, 10)
-    AUTO_CAST(title_text)
-    title_text:SetText("{ol}Sub Map")
-    local config_gb = config:CreateOrGetControl("groupbox", "config_gb", 10, 40, 0, 0)
-    AUTO_CAST(config_gb)
-    config_gb:SetSkinName("bg")
-    config:SetPos(list_frame:GetX() + list_frame:GetWidth(), list_frame:GetY())
-    local close = config:CreateOrGetControl("button", "close", 0, 0, 20, 20)
-    AUTO_CAST(close)
-    close:SetImage("testclose_button")
-    close:SetGravity(ui.RIGHT, ui.TOP)
-    close:SetEventScript(ui.LBUTTONUP, "Sub_map_setting_close")
-    local y = 10
-    local info_text = config_gb:CreateOrGetControl("richtext", "info_text", 10, y + 5, 0, 30)
-    AUTO_CAST(info_text)
-    info_text:SetText(g.lang == "Japanese" and "{ol}サイズ設定" or "{ol}Size setting")
-    local size_edit = config_gb:CreateOrGetControl("edit", "size_edit", info_text:GetWidth() + 20, y, 100, 30)
-    AUTO_CAST(size_edit)
-    size_edit:SetFontName("white_16_ol")
-    size_edit:SetTextAlign("center", "center")
-    size_edit:SetNumberMode(1)
-    size_edit:SetText("{ol}" .. g.sub_map_settings.size)
-    size_edit:SetTextTooltip(g.lang == "Japanese" and "{ol}150~350の間で設定" or "{ol}Setting range: 150 to 350")
-    size_edit:SetEventScript(ui.ENTERKEY, "Sub_map_setting_change")
-    y = y + 40
-    local move_check = config_gb:CreateOrGetControl("checkbox", "move_check", 10, y, 30, 30)
-    AUTO_CAST(move_check)
-    move_check:SetCheck(g.sub_map_settings.move == 1 and 0 or 1)
-    move_check:SetText(g.lang == "Japanese" and "{ol}チェックするとフレーム固定" or
-                           "{ol}If checked, the frame is fixed")
-    move_check:SetEventScript(ui.LBUTTONUP, "Sub_map_setting_change")
-    y = y + 40
-    local challenge_minimap = config_gb:CreateOrGetControl("checkbox", "challenge_minimap", 10, y, 30, 30)
-    AUTO_CAST(challenge_minimap)
-    challenge_minimap:SetCheck(g.sub_map_settings.challenge_minimap or 0)
-    challenge_minimap:SetText(g.lang == "Japanese" and
-                                  "{ol}チェックするとチャレンジでミニマップモード" or
-                                  "{ol}If checked, mini-map mode is enabled during the Challenge")
-    challenge_minimap:SetEventScript(ui.LBUTTONUP, "Sub_map_setting_change")
-    y = y + 40
-    local challenge_only = config_gb:CreateOrGetControl("checkbox", "challenge_only", 10, y, 30, 30)
-    AUTO_CAST(challenge_only)
-    challenge_only:SetCheck(g.sub_map_settings.challenge_only or 0)
-    challenge_only:SetText(g.lang == "Japanese" and "{ol}チェックするとチャレンジでのみ表示" or
-                               "{ol}If checked, display only during Challenges")
-    challenge_only:SetEventScript(ui.LBUTTONUP, "Sub_map_setting_change")
-    y = y + 40
-    local loc_name = config_gb:CreateOrGetControl("checkbox", "loc_name", 10, y, 30, 30)
-    AUTO_CAST(loc_name)
-    loc_name:SetCheck(g.sub_map_settings.loc_name or 0)
-    loc_name:SetText(g.lang == "Japanese" and "{ol}チェックすると地域名表示" or
-                         "{ol}If checked, display the region name")
-    loc_name:SetEventScript(ui.LBUTTONUP, "Sub_map_setting_change")
-    y = y + 40
-    local mob_display = config_gb:CreateOrGetControl("checkbox", "mob_display", 10, y, 30, 30)
-    AUTO_CAST(mob_display)
-    mob_display:SetCheck(g.sub_map_settings.mob_display or 0)
-    mob_display:SetText(g.lang == "Japanese" and "{ol}チェックするとチャレンジで雑魚を表示" or
-                            "{ol}If checked, display mobs only during Challenges")
-    mob_display:SetEventScript(ui.LBUTTONUP, "Sub_map_setting_change")
-    y = y + 40
-    local default_btn = config_gb:CreateOrGetControl("button", "default_btn", 20, y, 120, 30)
-    AUTO_CAST(default_btn)
-    default_btn:SetText(g.lang == "Japanese" and "{ol}フレーム初期位置" or "{ol}Init frame pos")
-    default_btn:SetEventScript(ui.LBUTTONUP, "Sub_map_setting_change")
-    y = y + 40
-    local skin_change = config_gb:CreateOrGetControl("button", "skin_change", 20, y, 120, 30)
-    AUTO_CAST(skin_change)
-    skin_change:SetText(g.lang == "Japanese" and "{ol}フレームスキン変更" or "{ol}Change frame skin")
-    skin_change:SetEventScript(ui.LBUTTONUP, "Sub_map_skin_change_context")
-    y = y + 30
-    config:Resize(challenge_minimap:GetWidth() + 40, y + 60)
-    config_gb:Resize(config:GetWidth() - 20, y + 10)
-    config:ShowWindow(1)
-end
-
-function Sub_map_setting_close(config)
-    ui.DestroyFrame(config:GetName())
-end
-
-function Sub_map_setting_change(parent, ctrl)
-    local ctrl_name = ctrl:GetName()
-    if ctrl_name == "size_edit" then
-        local size = tonumber(ctrl:GetText())
-        if size and size >= 150 and size <= 350 then
-            g.sub_map_settings.size = size
-        else
-            ui.SysMsg(g.lang == "Japanese" and "{ol}範囲外です" or "{ol}Out of range")
-            Sub_map_settings()
-            return
-        end
-    elseif ctrl_name == "move_check" then
-        local is_check = ctrl:IsChecked()
-        g.sub_map_settings.move = is_check == 1 and 0 or 1
-    elseif ctrl_name == "default_btn" then
-        g.sub_map_settings.x = 0
-        g.sub_map_settings.y = 0
-    else
-        g.sub_map_settings[ctrl_name] = ctrl:IsChecked()
-        if ctrl_name == "challenge_only" then
-            g.sub_map_settings.visible = ctrl:IsChecked() == 1 and 0 or 1
-        end
-    end
-    Sub_map_save_settings()
-    Sub_map_frame_init()
-end
-
-function Sub_map_skin_change_context(frame, ctrl)
-    local context = ui.CreateContextMenu("sub_map_context", "{ol}Sub Map Change Skin", 0, 0, 0, 0)
-    ui.AddContextMenuItem(context, "-----", "None")
-    ui.AddContextMenuItem(context, g.lang == "Japanese" and "{ol}無し" or "{ol}None",
-        string.format("Sub_map_skin_change('%s')", "None"))
-    ui.AddContextMenuItem(context, g.lang == "Japanese" and "{ol}薄め" or "{ol}Faint",
-        string.format("Sub_map_skin_change('%s')", "bg2"))
-    ui.AddContextMenuItem(context, g.lang == "Japanese" and "{ol}濃いめ" or "{ol}Darker",
-        string.format("Sub_map_skin_change('%s')", "bg"))
-    ui.OpenContextMenu(context)
-end
-
-function Sub_map_skin_change(skin_name)
-    g.sub_map_settings.skin_name = skin_name
-    Sub_map_save_settings()
-    Sub_map_frame_init()
-end
-
-function Sub_map_frame_init()
-    local sub_map = ui.CreateNewFrame("notice_on_pc", addon_name_lower .. "sub_map", 0, 0, 0, 0)
-    AUTO_CAST(sub_map)
-    sub_map:ShowWindow(0)
-    local challenge = g.sub_map_challenge
-    sub_map:SetUserValue("CHALLENGE", challenge)
-    sub_map:RemoveAllChild()
-    sub_map:EnableMove(g.sub_map_settings.move)
-    sub_map:EnableHittestFrame(1)
-    sub_map:SetTitleBarSkin("None")
-    sub_map:SetGravity(ui.RIGHT, ui.TOP)
-    sub_map:SetMargin(0, 0, 0, 0)
-    local use_minimap = (challenge == 1 and g.sub_map_settings.challenge_minimap == 1) or
-                            (challenge == 0 and g.sub_map_settings.minimap ~= 0)
-    if use_minimap then
-        sub_map:SetSkinName("bg")
-        local rect = sub_map:GetMargin()
-        sub_map:SetMargin(rect.left - rect.left, rect.top - rect.top + 70,
-            rect.right == 0 and rect.right + 35 or rect.right, rect.bottom)
-        sub_map:Resize(310, 350)
-    else
-        sub_map:SetSkinName(g.sub_map_settings.skin_name)
-        sub_map:SetLayerLevel(12)
-        local rect = sub_map:GetMargin()
-        sub_map:SetMargin(rect.left - rect.left, rect.top - rect.top + 50,
-            rect.right == 0 and rect.right + 550 or rect.right, rect.bottom)
-        if g.sub_map_settings.x ~= 0 and g.sub_map_settings.y ~= 0 then
-            sub_map:SetPos(g.sub_map_settings.x, g.sub_map_settings.y)
-        end
-    end
-    sub_map:SetEventScript(ui.LBUTTONUP, "Sub_map_frame_end_drag")
-    local title = sub_map:CreateOrGetControl("richtext", "title", 25, 2)
-    AUTO_CAST(title)
-    local map_real_name = GetClassByType("Map", g.map_id).Name
-    title:SetText("{ol}{S12}" .. map_real_name)
-    if challenge == 0 and g.sub_map_settings.challenge_only == 1 then
-        g.sub_map_settings.visible = 0
-    else
-        g.sub_map_settings.visible = 1
-    end
-    local display = sub_map:CreateOrGetControl("picture", "display", 5, 3, 15, 15)
-    AUTO_CAST(display)
-    display:SetEnableStretch(1)
-    display:EnableHitTest(1)
-    display:SetEventScript(ui.LBUTTONUP, "Sub_map_frame_toggle")
-    display:SetTextTooltip("{ol}Display / hide")
-    display:ShowWindow(1)
-    local size = g.sub_map_settings.size
-    if not use_minimap then
-        if g.sub_map_settings.visible == 1 then
-            display:SetImage("btn_minus")
-            sub_map:Resize(size + 10, size + 40)
-            sub_map:SetSkinName(g.sub_map_settings.skin_name)
-
-        else
-            display:SetImage("btn_plus")
-            sub_map:Resize(size + 10, 40)
-            sub_map:SetSkinName("None")
-            sub_map:ShowWindow(1)
-            return
-        end
-    else
-        size = 310
-    end
-    local gbox = sub_map:CreateOrGetControl("picture", "gbox", size + 10, size + 10, ui.LEFT, ui.BOTTOM, 0, 30, 0, 0)
-    AUTO_CAST(gbox)
-    if not use_minimap then
-        gbox:SetEventScript(ui.MOUSEON, "Sub_map_frame_layer_change")
-        gbox:SetEventScriptArgString(ui.MOUSEON, "mouse_on")
-        gbox:SetEventScript(ui.MOUSEOFF, "Sub_map_frame_layer_change")
-        gbox:SetEventScriptArgString(ui.MOUSEOFF, "mouse_off")
-    end
-    gbox:SetEventScript(ui.LBUTTONDOWN, "Sub_map_frame_map_link")
-    gbox:SetEventScript(ui.RBUTTONDOWN, "Sub_map_mini_map")
-    gbox:SetTextTooltip(g.lang == "Japanese" and
-                            "{ol}LCTRL+右クリック: ミニマップモード 切替{nl}LCTRL+左クリック: マップリンク" or
-                            "{ol}LCTRL+Right click: Minimap Mode Toggle{nl}LCTRL+Left click: Map Link")
-    local map_pic = gbox:CreateOrGetControl("picture", "map_pic", size, size, ui.LEFT, ui.TOP, 0, 0, 0, 0)
-    AUTO_CAST(map_pic)
-    map_pic:SetEnableStretch(1)
-    map_pic:EnableHitTest(0)
-    if g.sub_map_settings.loc_name == 1 then
-        local name_group = map_pic:CreateOrGetControl("picture", "name_group", ui.CENTER_HORZ, ui.CENTER_VERT,
-            map_pic:GetWidth(), map_pic:GetHeight())
-        MAKE_MAP_AREA_INFO(name_group, GetClassByType("Map", g.map_id).ClassName, "{s12}", map_pic:GetWidth(),
-            map_pic:GetHeight(), -100, -30)
-        AUTO_CAST(name_group)
-        name_group:SetSkinName("None")
-    end
-    local icon_size = use_minimap and g.sub_map_settings.size * 0.08 or size * 0.08
-    sub_map:SetUserValue("ICON_SIZE", icon_size)
-    local my = gbox:CreateOrGetControl("picture", "my", icon_size * 2, icon_size * 2, ui.LEFT, ui.TOP, 0, 0, 0, 0)
-    AUTO_CAST(my)
-    my:ShowWindow(0)
-    my:SetImage("minimap_leader")
-    my:SetEnableStretch(1)
-    map_pic:SetImage(g.map_name)
-    Sub_map_char_update(sub_map, my, map_pic)
-    if challenge == 0 then
-        Sub_map_set_warp_point(sub_map, gbox, map_pic, g.map_name, icon_size, map_real_name)
-        Sub_map_mapicon_update(sub_map, map_pic)
-    end
-    local _nexus_addons = ui.GetFrame("_nexus_addons")
-    local sub_map_timer = _nexus_addons:CreateOrGetControl("timer", "sub_map_timer", 0, 0)
-    AUTO_CAST(sub_map_timer)
-    sub_map_timer:SetUpdateScript("Sub_map_timer_update")
-    sub_map_timer:Start(0.5)
-end
-
-function Sub_map_frame_end_drag(sub_map)
-    g.sub_map_settings.x = sub_map:GetX()
-    g.sub_map_settings.y = sub_map:GetY()
-    Sub_map_save_settings()
-end
-
-function Sub_map_frame_toggle(frame, ctrl)
-    if g.sub_map_settings.visible == 1 then
-        g.sub_map_settings.visible = 0
-    else
-        g.sub_map_settings.visible = 1
-    end
-    Sub_map_save_settings()
-    Sub_map_frame_init()
-end
-
-function Sub_map_frame_map_link(sub_map, gbox)
-    if keyboard.IsKeyPressed("LCTRL") ~= 1 then
-        return
-    end
-    local x, y = GET_LOCAL_MOUSE_POS(gbox)
-    local map_prop = geMapTable.GetMapProp(g.map_name)
-    local world_pos = map_prop:MinimapPosToWorldPos(x, y, gbox:GetWidth(), gbox:GetHeight())
-    LINK_MAP_POS(g.map_name, world_pos.x, world_pos.y)
-end
-
-function Sub_map_mini_map(sub_map, gbox)
-    if keyboard.IsKeyPressed("LCTRL") ~= 1 then
-        return
-    end
-    if g.sub_map_settings.minimap == 0 then
-        g.sub_map_settings.minimap = 1
-    else
-        g.sub_map_settings.minimap = 0
-    end
-    Sub_map_save_settings()
-    ui.DestroyFrame(addon_name_lower .. "sub_map")
-    ReserveScript("Sub_map_frame_init()", 0.1)
-end
-
-function Sub_map_frame_layer_change(sub_map, gbox, str)
-    if str == "mouse_on" then
-        sub_map:SetLayerLevel(999)
-    elseif str == "mouse_off" then
-        sub_map:SetLayerLevel(12)
-    end
-end
-
-function Sub_map_char_update(sub_map, my, map_pic)
-    local my_handle = session.GetMyHandle()
-    local pos = info.GetPositionInMap(my_handle, map_pic:GetWidth(), map_pic:GetHeight())
-    my:SetOffset(pos.x - my:GetWidth() / 2, pos.y - my:GetHeight() / 2)
-    local map_prop = session.GetCurrentMapProp()
-    local angle = info.GetAngle(my_handle) - map_prop.RotateAngle
-    my:SetAngle(angle)
-    my:ShowWindow(1)
-    map_pic:Invalidate()
-end
-
-function Sub_map_set_warp_point(sub_map, gbox, map_pic, map_name, icon_size, map_real_name)
-    local map_prop = geMapTable.GetMapProp(map_name)
-    local mongens = map_prop.mongens
-    local count = mongens:Count()
-    for i = 0, count - 1 do
-        local mon_prop = mongens:Element(i)
-        local icon_name = mon_prop:GetMinimapIcon()
-        if icon_name == "minimap_portal" or icon_name == "minimap_erosion" then
-            local gen_list = mon_prop.GenList
-            local gen_count = gen_list:Count()
-            for j = 0, gen_count - 1 do
-                local dialog = mon_prop:GetDialog()
-                local warp_cls = GetClass("Warp", mon_prop:GetDialog())
-                if not warp_cls then
-                    for match in dialog:gmatch("[a-zA-Z]+_(.*)") do
-                        warp_cls = GetClass("Warp", match)
-                    end
-                end
-                if warp_cls then
-                    local pos = gen_list:Element(j)
-                    local map_pos = map_prop:WorldPosToMinimapPos(pos.x, pos.z, map_pic:GetWidth(), map_pic:GetHeight())
-                    local icon = gbox:CreateOrGetControl("picture", "icon_" .. i, icon_size, icon_size, ui.LEFT, ui.TOP,
-                        0, 0, 0, 0)
-                    AUTO_CAST(icon)
-                    icon:SetTextTooltip("{ol}{s10}" .. map_real_name)
-                    icon:SetImage(mon_prop:GetMinimapIcon())
-                    icon:SetOffset(map_pos.x - icon:GetWidth() / 2, map_pos.y - icon:GetHeight() / 2)
-                    icon:SetEnableStretch(1)
-                end
-            end
-        end
-    end
-    gbox:Invalidate()
-end
-
-function Sub_map_timer_update(_nexus_addons, sub_map_timer)
-    local sub_map = ui.GetFrame(addon_name_lower .. "sub_map")
-    AUTO_CAST(sub_map)
-    local challenge = sub_map:GetUserIValue("CHALLENGE")
-    local use_minimap = (challenge == 1 and g.sub_map_settings.challenge_minimap == 1) or
-                            (challenge == 0 and g.sub_map_settings.minimap == 1)
-    if use_minimap then
-        Sub_map_time_update_(sub_map, sub_map_timer)
-        if ui.GetFrame("buffseller_target"):IsVisible() == 1 then
-            sub_map:SetLayerLevel(79)
-        elseif sub_map:GetLayerLevel() ~= 94 then
-            sub_map:SetLayerLevel(94)
-        end
-    end
-    if MAP_USE_FOG(g.map_name) ~= 0 then
-        Sub_map_draw_fog(sub_map)
-    end
-    local challenge = sub_map:GetUserIValue("CHALLENGE")
-    if challenge == 1 then
-        Sub_map_callenge_pcicon_update(sub_map)
-    end
-    Sub_map_update_remove_member(sub_map)
-end
-
-function Sub_map_time_update_(sub_map, sub_map_timer)
-    local server_time = geTime.GetServerSystemTime()
-    local hour = server_time.wHour
-    local min = server_time.wMinute
-    local ampm = "AM"
-    local display_hour = hour
-    if hour == 0 then
-        display_hour = 12
-        ampm = "AM"
-    elseif hour == 12 then
-        display_hour = 12
-        ampm = "PM"
-    elseif hour > 12 then
-        display_hour = hour - 12
-        ampm = "PM"
-    end
-    local display_min = string.format("%02d", min)
-    local clock_text = string.format("{ol}{s18}%s %d:%s", ampm, display_hour, display_min)
-    local clock = GET_CHILD(sub_map, "clock")
-    if not clock then
-        clock = sub_map:CreateOrGetControl("richtext", "clock", 0, 0)
-        AUTO_CAST(clock)
-    end
-    clock:SetGravity(ui.RIGHT, ui.BOTTOM)
-    clock:SetMargin(0, 0, 10, 5)
-    clock:SetText(clock_text)
-    local colony_battle_info = ui.GetFrame("colony_battle_info")
-    if colony_battle_info:IsVisible() == 1 and g.sub_map_settings.minimap == 1 then
-        local colony_clock = GET_CHILD(sub_map, "colony_clock")
-        if not colony_clock then
-            colony_clock = sub_map:CreateOrGetControl("richtext", "colony_clock", 0, 0)
-            AUTO_CAST(clock)
-        end
-        colony_clock:SetGravity(ui.LEFT, ui.BOTTOM)
-        colony_clock:SetMargin(0, 0, 0, 5)
-        local colony_end_time = session.colonywar.GetEndTime()
-        local remain_time = -1 * imcTime.GetDiffSecFromNow(colony_end_time.wHour, colony_end_time.wMinute, 0)
-        if remain_time <= 0 then
-            sub_map:RemoveChild("colony_clock")
-            return
-        end
-        local remain_min = math.floor(remain_time / 60)
-        local remain_sec = remain_time % 60
-        local remain_time_str = string.format("{ol}{s18}" .. ClMsg("RemainTime") .. " %d:%02d", remain_min, remain_sec)
-        colony_clock:SetText(remain_time_str)
-    end
-end
-
-function Sub_map_draw_fog(sub_map)
-    local map_pic = GET_CHILD_RECURSIVELY(sub_map, "map_pic")
-    AUTO_CAST(map_pic)
-    HIDE_CHILD_BYNAME(map_pic, "sub_map_fog_")
-    local map_frame = ui.GetFrame("map")
-    local map = GET_CHILD(map_frame, "map")
-    AUTO_CAST(map)
-    local map_zoom = math.abs(tonumber(map_pic:GetWidth()) / tonumber(map:GetWidth()))
-    local list = session.GetMapFogList(g.map_name)
-    local cnt = list:Count()
-    for i = 0, cnt - 1 do
-        local tile = list:PtrAt(i)
-        if tile.revealed == 0 then
-            local name = string.format("sub_map_fog_%d", i)
-            local tile_X = (tile.x * map_zoom)
-            local tile_Y = (tile.y * map_zoom)
-            local tile_width = math.ceil(tile.w * map_zoom)
-            local tile_height = math.ceil(tile.h * map_zoom)
-            local pic = map_pic:CreateOrGetControl("picture", name, tile_X, tile_Y, tile_width, tile_height)
-            AUTO_CAST(pic)
-            pic:SetImage("fullred")
-            pic:SetEnableStretch(1)
-            pic:SetAlpha(40)
-            pic:EnableHitTest(0)
-            pic:ShowWindow(1)
-        end
-    end
-    sub_map:Invalidate()
-end
-
-function Sub_map_callenge_pcicon_update(sub_map)
-    local gbox = GET_CHILD(sub_map, "gbox")
-    local names = {}
-    for i = 0, gbox:GetChildCount() - 1 do
-        local child = gbox:GetChildByIndex(i)
-        if child and child:GetName() ~= "map_pic" and child:GetName() ~= "my" then
-            local aid = tonumber(child:GetName())
-            if aid then
-                gbox:RemoveChild(child:GetName())
-            end
-            names[child:GetName()] = true
-        end
-    end
-    local map_pic = GET_CHILD(gbox, "map_pic")
-    local mapprop = session.GetCurrentMapProp()
-    local party_list = session.party.GetPartyMemberList(PARTY_NORMAL)
-    local party_count = party_list:Count()
-    local my_info = session.party.GetMyPartyObj(PARTY_NORMAL)
-    local my_handle = session.GetMyHandle()
-    local icon_size = sub_map:GetUserIValue("ICON_SIZE")
-    local selected_objects, selected_objects_count = SelectObject(GetMyPCObject(), 5000, "ALL")
-    local icon_img_160063 = GetClassByType("Item", 870004).Icon
-    local icon_img_160055 = GetClassByType("Item", 664039).Icon
-    for i = 1, selected_objects_count do
-        local handle = GetHandle(selected_objects[i])
-        if not g.sub_map_handles[tostring(handle)] then
-            local actor = world.GetActor(handle)
-            if handle and actor then
-                local clsid = actor:GetType()
-                local mon_cls = GetClassByType("Monster", clsid)
-                if clsid == 160063 or clsid == 160055 then
-                    local icon_name = "mon_" .. handle
-                    names[icon_name] = false
-                    local world_pos = actor:GetPos()
-                    local pos = mapprop:WorldPosToMinimapPos(world_pos, map_pic:GetWidth(), map_pic:GetHeight())
-                    local x = (pos.x - icon_size / 4)
-                    local y = (pos.y - icon_size / 4)
-                    local icon = gbox:CreateOrGetControl("picture", icon_name, icon_size * 0.5, icon_size * 0.5,
-                        ui.LEFT, ui.TOP, 0, 0, 0, 0)
-                    AUTO_CAST(icon)
-                    icon:SetPos(x, y)
-                    if clsid == 160063 then
-                        icon:SetImage(icon_img_160063)
-                    elseif clsid == 160055 then
-                        icon:SetImage(icon_img_160055)
-                    end
-                    icon:SetEnableStretch(1)
-                    icon:ShowWindow(1)
-                end
-                if my_handle ~= handle and info.IsPC(handle) == 1 then
-                    for j = 0, party_count - 1 do
-                        local pc_info = party_list:Element(j)
-                        local name = pc_info:GetName()
-                        local apc = actor:GetPCApc()
-                        if apc then
-                            local actor_name = apc:GetFamilyName()
-                            if my_info ~= pc_info and name == actor_name then
-                                names[name] = false -- 削除対象から除外
-                                local inst_info = pc_info:GetInst()
-                                local world_pos = actor:GetPos()
-                                local hp = inst_info.hp
-                                local pc_icon = GET_CHILD(gbox, name)
-                                if not pc_icon then
-                                    pc_icon = gbox:CreateOrGetControl("picture", name, 0, 0, icon_size * 1.25,
-                                        icon_size * 1.25)
-                                end
-                                AUTO_CAST(pc_icon)
-                                pc_icon:SetTextTooltip("{ol}{s10}" .. name)
-                                pc_icon:SetEnableStretch(1)
-                                local pos = mapprop:WorldPosToMinimapPos(world_pos, map_pic:GetWidth(),
-                                    map_pic:GetHeight())
-                                local x = (pos.x - icon_size * 1.25 / 2)
-                                local y = (pos.y - icon_size * 1.25 / 2)
-                                pc_icon:SetPos(x, y)
-                                pc_icon:ShowWindow(1)
-                                local image_name = "Archer_party"
-                                if hp <= 0 then
-                                    image_name = "die_party"
-                                end
-                                pc_icon:SetImage(image_name)
-                                break
-                            end
-                        end
-                    end
-                end
-            end
-        end
-    end
-    for check_name, bool in pairs(names) do
-        if bool == true and not string.find(check_name, "_MONPOS_") and not string.find(check_name, "SCR") then
-            local icon = GET_CHILD(gbox, check_name)
-            if icon then
-                gbox:RemoveChild(check_name)
-            end
-        end
-    end
-end
-
-function Sub_map_update_remove_member(sub_map)
-    local gbox = GET_CHILD(sub_map, "gbox")
-    local icons = {}
-    for i = 0, gbox:GetChildCount() - 1 do
-        local child = gbox:GetChildByIndex(i)
-        if child then
-            local aid = tonumber(child:GetName())
-            if aid then
-                icons[aid] = true
-            end
-        end
-    end
-    local function process_member_list(party_type)
-        local list = session.party.GetPartyMemberList(party_type)
-        local my_handle = session.GetMyHandle()
-        local my_info = session.party.GetMyPartyObj(party_type)
-        if my_info then
-            for i = 0, list:Count() - 1 do
-                local pc_info = list:Element(i)
-                local aid = tonumber(pc_info:GetAID())
-                local handle = pc_info:GetHandle()
-                if handle ~= my_handle and pc_info:GetMapID() == my_info:GetMapID() and pc_info:GetChannel() ==
-                    my_info:GetChannel() then
-                    icons[aid] = false
-                end
-            end
-        end
-    end
-    process_member_list(PARTY_NORMAL)
-    process_member_list(PARTY_GUILD)
-    for aid, remove in pairs(icons) do
-        if remove == true then
-            gbox:RemoveChild(tostring(aid))
-        end
-    end
-end
-
-function Sub_map_MAP_CHARACTER_UPDATE()
-    local sub_map = ui.GetFrame(addon_name_lower .. "sub_map")
-    if not sub_map then
-        return
-    end
-    AUTO_CAST(sub_map)
-    local my_handle = session.GetMyHandle()
-    local map_pic = GET_CHILD_RECURSIVELY(sub_map, "map_pic")
-    AUTO_CAST(map_pic)
-    local pos = info.GetPositionInMap(my_handle, map_pic:GetWidth(), map_pic:GetHeight())
-    local my = GET_CHILD_RECURSIVELY(sub_map, "my")
-    AUTO_CAST(my)
-    my:ShowWindow(0)
-    my:SetOffset(pos.x - my:GetWidth() / 2, pos.y - my:GetHeight() / 2)
-    local mapprop = session.GetCurrentMapProp()
-    local angle = info.GetAngle(my_handle) - mapprop.RotateAngle
-    my:SetAngle(angle)
-    my:ShowWindow(1)
-    map_pic:Invalidate()
-    local challenge = sub_map:GetUserIValue("CHALLENGE")
-    if challenge == 0 then
-        Sub_map_mapicon_update(sub_map, map_pic)
-    end
-end
-
-function Sub_map_mapicon_update(sub_map, map_pic)
-    local now = imcTime.GetAppTimeMS()
-    if g.sub_map_last_update_time then
-        if now - g.sub_map_last_update_time < 1000 then
-            return
-        end
-    end
-    g.sub_map_last_update_time = now
-    local map_tbl = Sub_map_get_mapinfo(sub_map, map_pic)
-    local gbox = GET_CHILD(sub_map, "gbox")
-    local function split(str, delim)
-        local return_data = {}
-        for match in string.gmatch(str, "[^" .. delim .. "]+") do
-            table.insert(return_data, match)
-        end
-        return return_data
-    end
-    local icon_size = sub_map:GetUserIValue("ICON_SIZE")
-    for i, data in ipairs(map_tbl) do
-        if string.find(data.class_type, "treasure_box") then
-            local item_split = split(data.argstr2, ":")
-            local item_name = GetClass("Item", item_split[2]).Name
-            local icon = GET_CHILD(gbox, "icon_" .. i)
-            if not icon then
-                icon = gbox:CreateOrGetControl("picture", "icon_" .. i, 0, 0, icon_size, icon_size)
-                AUTO_CAST(icon)
-                icon:SetOffset(data.map_pos.x - icon:GetWidth() / 2, data.map_pos.y - icon:GetHeight() / 2)
-                icon:SetEnableStretch(1)
-            end
-            icon:SetTextTooltip("{ol}{s10}" .. data.argstr1 .. "{nl}" .. item_name)
-            if data.state then
-                icon:SetImage("icon_item_box")
-            else
-                icon:SetText("{ol}{s10}" .. data.argstr1)
-                icon:SetImage("compen_btn")
-            end
-        end
-        if string.find(data.class_type, "statue_vakarine") or string.find(data.class_type, "klaipeda_square_statue") or
-            string.find(data.class_type, "npc_orsha_goddess") or string.find(data.class_type, "statue_zemina") then
-            local icon = GET_CHILD(gbox, "icon_" .. i)
-            if not icon then
-                icon = gbox:CreateOrGetControl("picture", "icon_" .. i, 0, 0, icon_size, icon_size)
-                AUTO_CAST(icon)
-                icon:SetOffset(data.map_pos.x - icon:GetWidth() / 2, data.map_pos.y - icon:GetHeight() / 2)
-                icon:SetEnableStretch(1)
-                icon:SetTextTooltip("{ol}{s10}" .. data.name)
-                icon:SetImage(data.icon_name)
-            end
-            if data.state then
-                icon:SetColorTone("FFFFFFFF")
-            else
-                icon:SetColorTone("FF555555")
-            end
-        end
-    end
-    gbox:Invalidate()
-end
-
-function Sub_map_get_mapinfo(sub_map, map_pic)
-    if not g.map_name or g.map_name == "" or g.map_name == "None" then
-        return
-    end
-    local property = geMapTable.GetMapProp(g.map_name)
-    local class_list, class_count = GetClassList("GenType_" .. g.map_name)
-    local mongens = property.mongens
-    local map_tbl = {}
-    local count = mongens:Count()
-    for i = 0, count - 1 do
-        local mon_prop = mongens:Element(i)
-        local ies_data = GetClassByIndexFromList(class_list, i)
-        local class_type = ies_data.ClassType
-        local state = GetNPCState(g.map_name, ies_data.GenType)
-        if not state then
-            state = false
-        end
-        local gen_list = mon_prop.GenList
-        local map_pos
-        if gen_list:Count() > 0 then
-            map_pos = property:WorldPosToMinimapPos(gen_list:Element(0), map_pic:GetWidth(), map_pic:GetHeight())
-        end
-        local icon_name = mon_prop:GetMinimapIcon()
-        if string.find(class_type, "treasure_box") then
-            if ies_data.ArgStr1 ~= "None" then
-                local data = {
-                    class_type = class_type,
-                    state = state,
-                    map_pos = map_pos,
-                    icon_name = icon_name,
-                    argstr1 = ies_data.ArgStr1,
-                    argstr2 = ies_data.ArgStr2,
-                    argstr3 = ies_data.ArgStr3,
-                    name = ies_data.Name
-                }
-                table.insert(map_tbl, data)
-            end
-        elseif string.find(class_type, "statue_zemina") or string.find(class_type, "statue_vakarine") or
-            string.find(class_type, "klaipeda_square_statue") or string.find(class_type, "npc_orsha_goddess") then
-            local data = {
-                class_type = class_type,
-                state = state,
-                map_pos = map_pos,
-                icon_name = icon_name,
-                argstr1 = ies_data.ArgStr1,
-                argstr2 = ies_data.ArgStr2,
-                argstr3 = ies_data.ArgStr3,
-                name = ies_data.Name
-            }
-            table.insert(map_tbl, data)
-        end
-    end
-    return map_tbl
-end
-
-function Sub_map_MAP_MON_MINIMAP(frame, msg, str, num, info)
-    local sub_map = ui.GetFrame(addon_name_lower .. "sub_map")
-    if not sub_map then
-        return
-    end
-    AUTO_CAST(sub_map)
-    local gbox = GET_CHILD(sub_map, "gbox")
-    local handle = info.handle
-    g.sub_map_handles = g.sub_map_handles or {}
-    if g.sub_map_handles[tostring(handle)] then
-        return
-    end
-    local mon_cls = GetClassByType("Monster", info.type)
-    if not mon_cls then
-        return
-    end
-    local mon_rank = TryGetProp(mon_cls, "MonRank", "None")
-    local is_boss = (mon_rank == "Boss")
-    local is_mob_display = (g.sub_map_settings.mob_display == 1)
-    if not is_boss and not is_mob_display then
-        return
-    end
-    local base_size = sub_map:GetUserIValue("ICON_SIZE")
-    local icon_w, icon_h
-    if is_boss then
-        if is_mob_display then
-            icon_w, icon_h = base_size * 1.5, base_size * 1.5
-        else
-            icon_w, icon_h = base_size, base_size
-        end
-    else
-        icon_w, icon_h = base_size / 3, base_size / 3
-    end
-    g.sub_map_handles[tostring(handle)] = true
-    local mon_pic = gbox:CreateOrGetControl("picture", "_MONPOS_" .. handle, 0, 0, icon_w, icon_h)
-    AUTO_CAST(mon_pic)
-    mon_pic:SetUserValue("HANDLE", handle)
-    if mon_cls.MinimapIcon ~= "None" then
-        mon_pic:SetImage(mon_cls.MinimapIcon)
-    else
-        mon_pic:SetImage("fullwhite")
-        mon_pic:SetColorTone("FFFF4500")
-    end
-    mon_pic:SetEnableStretch(1)
-    local map_pic = GET_CHILD_RECURSIVELY(sub_map, "map_pic")
-    AUTO_CAST(map_pic)
-    if map_pic then
-        local map_prop = session.GetCurrentMapProp()
-        local pos = map_prop:WorldPosToMinimapPos(info.x, info.z, map_pic:GetWidth(), map_pic:GetHeight())
-        mon_pic:SetOffset(pos.x - icon_w / 2, pos.y - icon_h / 2)
-    end
-    mon_pic:ShowWindow(1)
-    if not mon_pic:HaveUpdateScript("Sub_map_monpic_auto_update") then
-        mon_pic:RunUpdateScript("Sub_map_monpic_auto_update", 0.5)
-    end
-end
-
-function Sub_map_monpic_auto_update(mon_pic)
-    local sub_map = mon_pic:GetTopParentFrame()
-    local gbox = GET_CHILD(sub_map, "gbox")
-    local handle = mon_pic:GetUserIValue("HANDLE")
-    local actor = world.GetActor(handle)
-    if actor then
-        local map_prop = session.GetCurrentMapProp()
-        local map_pic = GET_CHILD_RECURSIVELY(sub_map, "map_pic")
-        AUTO_CAST(map_pic)
-        local actor_pos = actor:GetPos()
-        local mon_cls = GetClassByType("Monster", actor:GetType())
-        if mon_cls then
-            local pos = map_prop:WorldPosToMinimapPos(actor_pos, map_pic:GetWidth(), map_pic:GetHeight())
-            local x = pos.x - mon_pic:GetWidth() / 2
-            local y = pos.y - mon_pic:GetHeight() / 2
-            mon_pic:SetOffset(x, y)
-        end
-    end
-    return 1
-end
-
-function Sub_map_ON_MON_MINIMAP_END(frame, msg, str, handle)
-    local sub_map = ui.GetFrame(addon_name_lower .. "sub_map")
-    if not sub_map then
-        return
-    end
-    AUTO_CAST(sub_map)
-    local gbox = GET_CHILD(sub_map, "gbox")
-    local mon_pic = GET_CHILD(gbox, "_MONPOS_" .. handle)
-    if mon_pic then
-        if g.sub_map_handles then
-            g.sub_map_handles[tostring(handle)] = nil
-        end
-        gbox:RemoveChild("_MONPOS_" .. handle)
-        gbox:Invalidate()
-    end
-end
-
-function Sub_map_MAP_UPDATE_PARTY_INST(frame, msg, str, party_type)
-    local sub_map = ui.GetFrame(addon_name_lower .. "sub_map")
-    if not sub_map then
-        return
-    end
-    AUTO_CAST(sub_map)
-    local gbox = GET_CHILD(sub_map, "gbox")
-    local map_prop = session.GetCurrentMapProp()
-    local my_info = session.party.GetMyPartyObj(party_type)
-    local list = session.party.GetPartyMemberList(party_type)
-    local count = list:Count()
-    for i = 0, count - 1 do
-        local pc_info = list:Element(i)
-        if my_info ~= pc_info then
-            local aid = pc_info:GetAID()
-            local pc_icon = GET_CHILD(gbox, aid)
-            if pc_icon then
-                local inst_info = pc_info:GetInst()
-                Sub_map_SET_MINIMAP_ICON(pc_icon, inst_info.hp, aid)
-                Sub_map_SET_MAPPOS(sub_map, pc_icon, inst_info, map_prop)
-            end
-        end
-    end
-end
-
-function Sub_map_SET_MINIMAP_ICON(pc_icon, hp, aid)
-    local image_name = "die_party"
-    if hp > 0 then
-        if session.party.GetPartyMemberInfoByAID(PARTY_NORMAL, aid) then
-            image_name = "Archer_party"
-        elseif session.party.GetPartyMemberInfoByAID(PARTY_GUILD, aid) then
-            image_name = "Wizard_party"
-        end
-    end
-    pc_icon:SetImage(image_name)
-end
-
-function Sub_map_SET_MAPPOS(sub_map, pc_icon, inst_info, map_prop, info)
-    local world_pos = inst_info:GetPos()
-    local map_pic = GET_CHILD_RECURSIVELY(sub_map, "map_pic")
-    local pos
-    if info then
-        pos = map_prop:WorldPosToMinimapPos(info.x, info.z, map_pic:GetWidth(), map_pic:GetHeight())
-    else
-        pos = map_prop:WorldPosToMinimapPos(world_pos, map_pic:GetWidth(), map_pic:GetHeight())
-    end
-    local icon_size = sub_map:GetUserIValue("ICON_SIZE")
-    local x = (pos.x - icon_size / 2)
-    local y = (pos.y - icon_size / 2)
-    pc_icon:SetPos(x, y)
-end
-
-function Sub_map_update_party_or_guild(frame, msg, arg, num, info)
-    local sub_map = ui.GetFrame(addon_name_lower .. "sub_map")
-    if not sub_map then
-        return
-    end
-    AUTO_CAST(sub_map)
-    local party_type = 0
-    if msg == "GUILD_INFO_UPDATE" then
-        party_type = 1
-    end
-    local list = session.party.GetPartyMemberList(party_type)
-    local count = list:Count()
-    if count == 1 then
-        return
-    end
-    local my_info = session.party.GetMyPartyObj(party_type)
-    if not my_info then
-        return
-    end
-    local map_prop = session.GetCurrentMapProp()
-    for i = 0, count - 1 do
-        local pc_info = list:Element(i)
-        if my_info ~= pc_info and my_info:GetMapID() == pc_info:GetMapID() and my_info:GetChannel() ==
-            pc_info:GetChannel() then
-            Sub_map_CREATE_PICTURE(sub_map, pc_info, party_type, map_prop, info)
-        end
-    end
-end
-
-function Sub_map_CREATE_PICTURE(sub_map, pc_info, party_type, mapprop, info)
-    local aid = pc_info:GetAID()
-    local gbox = GET_CHILD(sub_map, "gbox")
-    local pc_icon = GET_CHILD(gbox, aid)
-    if not pc_icon then
-        local icon_size = sub_map:GetUserIValue("ICON_SIZE")
-        pc_icon = gbox:CreateOrGetControl("picture", aid, 0, 0, icon_size, icon_size)
-        AUTO_CAST(pc_icon)
-    end
-    pc_icon:SetEnableStretch(1)
-    pc_icon:SetTooltipType("partymap")
-    local name = ""
-    if type(_G["NATIVE_LANG_ON_INIT"]) == "function" then
-        local ntr = _G["ADDONS"]["norisan"]["NATIVE_LANG"]
-        name = ntr.names[pc_info:GetName()] or pc_info:GetName() -- {#FF0000}★
-        name = string.gsub(name, "{#FF0000}★", "")
-        name = string.gsub(name, "{/}", "")
-    end
-    local inst_info = pc_info:GetInst()
-    if pc_info:GetName() ~= name then
-        local tool_msg = "{ol}" .. name .. "(" .. ClMsg("Level") .. pc_info:GetLevel() .. "){nl}" .. "HP : (" ..
-                             inst_info.hp .. "/" .. inst_info.maxhp .. "){nl}" .. "SP : (" .. inst_info.sp .. "/" ..
-                             inst_info.maxsp .. ")"
-        pc_icon:SetTextTooltip(tool_msg)
-        -- pc_icon:SetTooltipArg(pc_info:GetName(), party_type)
-    else
-        pc_icon:SetTooltipArg(pc_info:GetName(), party_type)
-    end
-    pc_icon:ShowWindow(1)
-    Sub_map_SET_MINIMAP_ICON(pc_icon, inst_info.hp, aid)
-    Sub_map_SET_MAPPOS(sub_map, pc_icon, inst_info, mapprop, info)
-end
--- sub_map ここまで
-
 -- quickslot_operate ここから
 g.quickslot_operate_raid_list = {
     Paramune = {623, 667, 666, 665, 674, 673, 675, 680, 679, 681, 707, 708, 710, 711, 709, 712, 722, 723, 724, 725, 726,
@@ -16501,3152 +20451,6 @@ function Cupole_manager_summon_cupole(_nexus_addons)
     return 1
 end
 -- Cupole Manager ここまで
-
--- Battle_ritual ここから
-function Battle_ritual_save_settings()
-    g.save_json(g.Battle_ritual_path, g.Battle_ritual_settings)
-end
-
-function Battle_ritual_load_settings()
-    g.Battle_ritual_path = string.format("../addons/%s/%s/battle_ritual.json", addon_name_lower, g.active_id)
-    local settings = g.load_json(g.Battle_ritual_path)
-    if not settings then
-        settings = {
-            skills = {},
-            etc = {
-                x = 0,
-                y = 0,
-                move = 0,
-                use = 0
-            }
-        }
-    end
-    g.Battle_ritual_settings = settings
-    Battle_ritual_save_settings()
-end
-
-function battle_ritual_on_init()
-    if not g.Battle_ritual_settings then
-        Battle_ritual_load_settings()
-    end
-    if g.settings.battle_ritual.use == 0 then
-        ui.DestroyFrame(addon_name_lower .. "Battle_ritual")
-        return
-    end
-    Battle_ritual_frame_init()
-    if g.get_map_type() == "Instance" or g.map_id == 11244 or g.map_id == 8022 then -- 11244 聖域3F 11227 分裂 8022 ヴェルニケ
-        g.addon:RegisterMsg('REQ_PLAYER_CONTENTS_RECORD', 'Battle_ritual_REQ_PLAYER_CONTENTS_RECORD')
-        Battle_ritual_auto_buff_skill_start()
-    end
-end
-
-function Battle_ritual_auto_buff_skill_start()
-    if g.Battle_ritual_settings.etc.use == 0 then
-        return
-    end
-    local _nexus_addons = ui.GetFrame("_nexus_addons")
-    local list = session.party.GetPartyMemberList(PARTY_NORMAL)
-    if list:Count() > 1 then
-        _nexus_addons:StopUpdateScript("Battle_ritual_auto_buff_skill")
-        return
-    end
-    local skills_table = g.Battle_ritual_settings.skills
-    if not skills_table then
-        return
-    end
-    local sorted_list = {}
-    for s_id, data in pairs(skills_table) do
-        table.insert(sorted_list, {
-            skill_id = tonumber(s_id),
-            buff_id = data.buff_id,
-            priority = data.priority
-        })
-    end
-    table.sort(sorted_list, function(a, b)
-        if a.priority ~= b.priority then
-            return a.priority < b.priority
-        else
-            return tonumber(a.skill_id) < tonumber(b.skill_id)
-        end
-    end)
-    local skill_map = {}
-    for i = 0, 40 - 1 do
-        local quick_slot_info = quickslot.GetInfoByIndex(i)
-        if quick_slot_info and quick_slot_info.category == 'Skill' then
-            skill_map[quick_slot_info.type] = i
-        end
-    end
-    g.Battle_ritual_use_queue = {}
-    local my_handle = session.GetMyHandle()
-    local quickslotnexpbar = ui.GetFrame("quickslotnexpbar")
-    for _, data in ipairs(sorted_list) do
-        local skill_id = data.skill_id
-        local slot_index = skill_map[skill_id]
-        if slot_index then
-            local slot = GET_CHILD_RECURSIVELY(quickslotnexpbar, "slot" .. (slot_index + 1), "ui::CSlot")
-            if slot then
-                local icon = slot:GetIcon()
-                if icon then
-                    local cur_time = ICON_UPDATE_SKILL_COOLDOWN(icon)
-                    if cur_time == 0 then
-                        local buff_id = data.buff_id
-                        local need_buff = true
-                        if buff_id > 0 then
-                            if info.GetBuff(my_handle, buff_id) then
-                                need_buff = false
-                            end
-                        end
-                        if need_buff then
-                            table.insert(g.Battle_ritual_use_queue, {
-                                buff_id = buff_id,
-                                skill_id = skill_id,
-                                icon = icon
-                            })
-                        end
-                    end
-                end
-            end
-        end
-    end
-    if #g.Battle_ritual_use_queue > 0 then
-        _nexus_addons:RunUpdateScript("Battle_ritual_auto_buff_skill", 0.1)
-    end
-end
-
-function Battle_ritual_auto_buff_skill(_nexus_addons)
-    if not g.Battle_ritual_use_queue or #g.Battle_ritual_use_queue == 0 then
-        return 0
-    end
-    local next_skill_info = g.Battle_ritual_use_queue[1]
-    if not next_skill_info or not next_skill_info.icon then
-        table.remove(g.Battle_ritual_use_queue, 1)
-        return 1
-    end
-    local my_handle = session.GetMyHandle()
-    local buff_info = nil
-    if next_skill_info.buff_id and next_skill_info.buff_id > 0 then
-        buff_info = info.GetBuff(my_handle, next_skill_info.buff_id)
-    end
-    local current_cooldown = ICON_UPDATE_SKILL_COOLDOWN(next_skill_info.icon)
-    if current_cooldown == 0 and (next_skill_info.buff_id == 0 or not buff_info) then
-        ICON_USE(next_skill_info.icon)
-        local changed_image = QUICKSLOT_CHANGE_ICON_LIST[tostring(next_skill_info.skill_id)]
-        if changed_image then
-            table.remove(g.Battle_ritual_use_queue, 1)
-        end
-        return 1
-    end
-    if #g.Battle_ritual_use_queue > 0 then
-        table.remove(g.Battle_ritual_use_queue, 1)
-        return 1
-    else
-        return 0
-    end
-end
-
-function Battle_ritual_frame_init()
-    local Battle_ritual = ui.CreateNewFrame("notice_on_pc", addon_name_lower .. "Battle_ritual", 0, 0, 0, 0)
-    AUTO_CAST(Battle_ritual)
-    Battle_ritual:SetSkinName("None")
-    Battle_ritual:SetTitleBarSkin("None")
-    Battle_ritual:Resize(40, 30)
-    Battle_ritual:SetGravity(ui.RIGHT, ui.TOP)
-    Battle_ritual:EnableMove(g.Battle_ritual_settings.etc.move == 1 and 0 or 1)
-    Battle_ritual:EnableHittestFrame(1)
-    local rect = Battle_ritual:GetMargin()
-    Battle_ritual:SetMargin(rect.left - rect.left, rect.top - rect.top + 2,
-        rect.right == 0 and rect.right + 305 or rect.right, rect.bottom)
-    if g.Battle_ritual_settings.etc.x ~= 0 and g.Battle_ritual_settings.etc.y ~= 0 then
-        Battle_ritual:SetPos(g.Battle_ritual_settings.etc.x, g.Battle_ritual_settings.etc.y)
-    end
-    Battle_ritual:SetEventScript(ui.LBUTTONUP, "Battle_ritual_frame_location_save")
-    local pic = Battle_ritual:CreateOrGetControl("picture", "pic", 0, 0, 30, 30)
-    AUTO_CAST(pic)
-    pic:SetImage("emoticon_0015")
-    pic:SetColorTone("FFFFFFFF")
-    pic:SetEnableStretch(1)
-    pic:EnableHitTest(1)
-    pic:SetGravity(ui.LEFT, ui.TOP)
-    pic:SetTextTooltip(g.lang == "Japanese" and "{ol}Battle Ritual{nl}右クリック ON/OFF" or
-                           "{ol}Battle Ritual{nl}Right click ON/OFF")
-    if g.Battle_ritual_settings.etc.use == 0 then
-        pic:SetColorTone("FF555555")
-    else
-        pic:SetColorTone("FFFFFFFF")
-    end
-    pic:SetEventScript(ui.RBUTTONUP, "Battle_ritual_onoff_switch")
-    Battle_ritual:ShowWindow(1)
-end
-
-function Battle_ritual_onoff_switch(Battle_ritual)
-    g.Battle_ritual_settings.etc.use = 1 - g.Battle_ritual_settings.etc.use
-    Battle_ritual_save_settings()
-    Battle_ritual_frame_init()
-end
-
-function Battle_ritual_frame_location_save(Battle_ritual)
-    g.Battle_ritual_settings.etc.x = Battle_ritual:GetX()
-    g.Battle_ritual_settings.etc.y = Battle_ritual:GetY()
-    Battle_ritual_save_settings()
-end
-
-function Battle_ritual_settings_frame()
-    local list_frame = ui.GetFrame(addon_name_lower .. "list_frame")
-    local setting = ui.CreateNewFrame("notice_on_pc", addon_name_lower .. "Battle_ritual_setting", 0, 0, 0, 0)
-    setting:SetPos(list_frame:GetX() + list_frame:GetWidth(), list_frame:GetY())
-    setting:SetSkinName("test_frame_low")
-    setting:EnableHittestFrame(1)
-    setting:EnableHitTest(1)
-    setting:SetLayerLevel(999)
-    setting:RemoveAllChild()
-    local title_text = setting:CreateOrGetControl('richtext', 'title_text', 20, 15, 50, 30)
-    AUTO_CAST(title_text)
-    title_text:SetText("{ol}Battle ritual Config")
-    local close = setting:CreateOrGetControl("button", "close", 0, 0, 20, 20)
-    AUTO_CAST(close)
-    close:SetImage("testclose_button")
-    close:SetGravity(ui.RIGHT, ui.TOP)
-    close:SetEventScript(ui.LBUTTONUP, "Battle_ritual_frame_close")
-    local gbox = setting:CreateOrGetControl("groupbox", "gbox", 10, 40, setting:GetWidth() - 20,
-        setting:GetHeight() - 50) -- 945
-    AUTO_CAST(gbox)
-    gbox:SetSkinName("test_frame_midle_light")
-    gbox:EnableScrollBar(1)
-    Battle_ritual_settings_frame_child(setting, gbox)
-end
-
-function Battle_ritual_settings_frame_child(setting, gbox) -- gbox:EnableScrollBar(0)
-    local move_check = gbox:CreateOrGetControl('checkbox', "move_check", 10, 10, 30, 30)
-    AUTO_CAST(move_check)
-    move_check:SetCheck(g.Battle_ritual_settings.etc.move)
-    move_check:SetText(g.lang == "Japanese" and "{ol}チェックするとフレーム固定" or
-                           "{ol}If checked, the frame is fixed")
-    move_check:SetEventScript(ui.LBUTTONUP, "Battle_ritual_frame_move")
-    local default_btn = gbox:CreateOrGetControl("button", "default_btn", move_check:GetWidth() + 30, 10, 120, 30)
-    AUTO_CAST(default_btn)
-    default_btn:SetText(g.lang == "Japanese" and "{ol}フレーム初期位置" or "{ol}Init frame pos")
-    default_btn:SetEventScript(ui.LBUTTONUP, "Battle_ritual_frame_default")
-    local skill_lbl = gbox:CreateOrGetControl('richtext', 'header_skill', 10, 45, 100, 20)
-    AUTO_CAST(skill_lbl)
-    skill_lbl:SetText(g.lang == "Japanese" and "{ol}スキル" or "{ol}Skill")
-    local buff_lbl = gbox:CreateOrGetControl('richtext', 'header_buff', 230, 45, 100, 20)
-    AUTO_CAST(buff_lbl)
-    buff_lbl:SetText(g.lang == "Japanese" and "{ol}バフ" or "{ol}Buff")
-    local priority_lbl = gbox:CreateOrGetControl('richtext', 'header_priority', 450, 45, 100, 20)
-    AUTO_CAST(priority_lbl)
-    priority_lbl:SetText(g.lang == "Japanese" and "{ol}優先度" or "{ol}Priority")
-    local y_pos = 70
-    local row_height = 40
-    local sorted_skills = {}
-    if g.Battle_ritual_settings.skills then
-        for s_id, data in pairs(g.Battle_ritual_settings.skills) do
-            table.insert(sorted_skills, {
-                skill_id = tonumber(s_id),
-                buff_id = data.buff_id or 0,
-                priority = data.priority or 0
-            })
-        end
-    end
-    table.sort(sorted_skills, function(a, b)
-        if a.priority ~= b.priority then
-            return a.priority < b.priority
-        else
-            return a.skill_id < b.skill_id
-        end
-    end)
-    for i, entry in ipairs(sorted_skills) do
-        Battle_ritual_create_row(gbox, i, entry.skill_id, entry.buff_id, entry.priority, y_pos)
-        y_pos = y_pos + row_height
-    end
-    Battle_ritual_create_row(gbox, #sorted_skills + 1, 0, 0, 0, y_pos)
-end
-
-function Battle_ritual_frame_default(parent)
-    ui.DestroyFrame(addon_name_lower .. "Battle_ritual")
-    g.Battle_ritual_settings.etc.x = 0
-    g.Battle_ritual_settings.etc.y = 0
-    Battle_ritual_save_settings()
-    ReserveScript("Battle_ritual_frame_init()", 0.1)
-end
-
-function Battle_ritual_frame_move(Battle_ritual, gbox)
-    g.Battle_ritual_settings.etc.move = 1 - g.Battle_ritual_settings.etc.move
-    Battle_ritual_save_settings()
-    Battle_ritual_frame_init()
-end
-
-function Battle_ritual_create_row(gbox, index, skill_id, buff_id, priority, y)
-    local skill_add = gbox:CreateOrGetControl("button", "skill_add_" .. index, 10, y, 50, 30)
-    AUTO_CAST(skill_add)
-    skill_add:SetSkinName("test_cardtext_btn")
-    skill_add:SetText("{ol}Add")
-    skill_add:SetTextTooltip(g.lang == "Japanese" and "{ol}スキルリスト表示" or "{ol}Display the skill list")
-    skill_add:SetEventScript(ui.LBUTTONUP, "Battle_ritual_skill_list_open")
-    skill_add:SetEventScriptArgNumber(ui.LBUTTONUP, index)
-    local skill_pic = gbox:CreateOrGetControl('picture', "skill_pic_" .. index, 65, y, 30, 30)
-    AUTO_CAST(skill_pic)
-    local skill_img = ""
-    if skill_id > 0 then
-        local cls = GetClassByType("Skill", skill_id)
-        if cls then
-            skill_img = "icon_" .. cls.Icon
-        end
-    end
-    skill_pic:SetImage(skill_img)
-    skill_pic:SetEnableStretch(1)
-    skill_pic:EnableHitTest(1)
-    if skill_id > 0 then
-        SET_SKILL_TOOLTIP_BY_TYPE(skill_pic, skill_id)
-    end
-    local skill_edit = gbox:CreateOrGetControl('edit', 'skill_edit_' .. index, 100, y, 80, 30)
-    AUTO_CAST(skill_edit)
-    skill_edit:SetNumberMode(1)
-    skill_edit:SetFontName("white_16_ol")
-    skill_edit:SetText(skill_id == 0 and "" or skill_id)
-    skill_edit:SetTextAlign("center", "center")
-    skill_edit:SetTextTooltip(g.lang == "Japanese" and "{ol}スキルID入力{nl}錬成スキルは141001～" or
-                                  "{ol}Enter the Skill ID.{nl}Alchemic skills start from 141001")
-    if skill_edit:GetText() ~= "" then
-        skill_edit:SetUserValue("ORIG_SKILL_ID", skill_id)
-    end
-    skill_edit:SetTypingScp("Battle_ritual_add_skill")
-    local skill_remove = gbox:CreateOrGetControl("button", "skill_remove_" .. index, 185, y, 30, 30)
-    AUTO_CAST(skill_remove)
-    skill_remove:SetSkinName("test_cardtext_btn")
-    skill_remove:SetText("{ol}×")
-    skill_remove:SetTextTooltip(g.lang == "Japanese" and "{ol}登録解除" or "{ol}unregister")
-    skill_remove:SetEventScript(ui.LBUTTONUP, "Battle_ritual_remove")
-    skill_remove:SetEventScriptArgString(ui.LBUTTONUP, tostring(skill_id))
-    if skill_id > 0 then
-        local buff_add = gbox:CreateOrGetControl("button", "buff_add_" .. index, 230, y, 50, 30)
-        AUTO_CAST(buff_add)
-        buff_add:SetSkinName("test_cardtext_btn")
-        buff_add:SetText("{ol}Add")
-        buff_add:SetTextTooltip(g.lang == "Japanese" and "{ol}バフリスト表示" or "{ol}Display the buff list")
-        buff_add:SetEventScript(ui.LBUTTONUP, "Battle_ritual_buff_list_open")
-        buff_add:SetEventScriptArgNumber(ui.LBUTTONUP, skill_id)
-        gbox:SetUserValue("INDEX", index)
-        local buff_pic = gbox:CreateOrGetControl('picture', "buff_pic_" .. index, 285, y, 30, 30)
-        AUTO_CAST(buff_pic)
-        local buff_img = ""
-        if buff_id > 0 then
-            local cls = GetClassByType("Buff", buff_id)
-            if cls then
-                buff_img = "icon_" .. cls.Icon
-            end
-        end
-        buff_pic:SetImage(buff_img)
-        buff_pic:SetEnableStretch(1)
-        buff_pic:EnableHitTest(1)
-        local buff_edit = gbox:CreateOrGetControl('edit', 'buff_edit_' .. index, 320, y, 80, 30)
-        AUTO_CAST(buff_edit)
-        buff_edit:SetNumberMode(1)
-        buff_edit:SetFontName("white_16_ol")
-        buff_edit:SetText(buff_id == 0 and "" or buff_id)
-        buff_edit:SetTextAlign("center", "center")
-        buff_edit:SetTextTooltip(g.lang == "Japanese" and
-                                     "{ol}バフID入力{nl}対応バフが無い場合は 空白{nl}(例)テンペストショットは 空白{nl}ダブルアタックは 322など{nl}※入力無しは毎回掛け直し" or
-                                     "{ol}Enter the Buff ID{nl}Leave blank if there is no corresponding buff{nl}(e.g.)Tempest Shot is blank{nl}Double Attack is 322, etc.{nl}※If no input is provided,will be recast every time")
-        buff_edit:SetUserValue("SKILL_ID", skill_id)
-
-        buff_edit:SetTypingScp("Battle_ritual_add_buff")
-        local buff_remove = gbox:CreateOrGetControl("button", "buff_remove" .. index, 405, y, 30, 30)
-        AUTO_CAST(buff_remove)
-        buff_remove:SetSkinName("test_cardtext_btn")
-        buff_remove:SetText("{ol}×")
-        buff_remove:SetTextTooltip(g.lang == "Japanese" and "{ol}登録解除" or "{ol}unregister")
-        buff_remove:SetEventScript(ui.LBUTTONUP, "Battle_ritual_remove")
-        buff_remove:SetEventScriptArgString(ui.LBUTTONUP, tostring(skill_id))
-        local priority_edit = gbox:CreateOrGetControl('edit', 'priority_edit_' .. index, 450, y, 50, 30)
-        AUTO_CAST(priority_edit)
-        priority_edit:SetNumberMode(1)
-        priority_edit:SetFontName("white_16_ol")
-        priority_edit:SetText(priority)
-        priority_edit:SetTextAlign("center", "center")
-        priority_edit:SetTextTooltip(g.lang == "Japanese" and "{ol}優先度入力" or "{ol}Enter Priority")
-        priority_edit:SetUserValue("SKILL_ID", skill_id)
-        priority_edit:SetTypingScp("Battle_ritual_priority")
-    end
-    local setting = gbox:GetParent()
-    setting:Resize(550, 945)
-    gbox:Resize(setting:GetWidth() - 20, 895) -- 945
-    setting:ShowWindow(1)
-end
-
-function Battle_ritual_priority_change(ctrl)
-    local new_priority = tonumber(ctrl:GetText())
-    local skill_id_str = ctrl:GetUserValue("SKILL_ID")
-    local skills = g.Battle_ritual_settings.skills
-    if skills and skills[skill_id_str] then
-        for s_id, data in pairs(skills) do
-            if s_id ~= skill_id_str and data.priority >= new_priority then
-                data.priority = data.priority + 1
-            end
-        end
-        skills[skill_id_str].priority = new_priority
-    end
-    Battle_ritual_save_settings()
-    Battle_ritual_settings_frame()
-    return 0
-end
-
-function Battle_ritual_priority(parent, ctrl)
-    local priority = tonumber(ctrl:GetText())
-    if priority > 0 then
-        ctrl:RunUpdateScript("Battle_ritual_priority_change", 0.5)
-    end
-end
-
-function Battle_ritual_remove(parent, ctrl, skill_id_str)
-    local ctrl_name = ctrl:GetName()
-    if string.find(ctrl_name, "skill") then
-        g.Battle_ritual_settings.skills[skill_id_str] = nil
-    else
-        g.Battle_ritual_settings.skills[skill_id_str].buff_id = 0
-    end
-    Battle_ritual_save_settings()
-    Battle_ritual_settings_frame()
-end
-
-function Battle_ritual_skill_list_open(frame, add, ctrl_text, index)
-    local skill_list = ui.GetFrame(addon_name_lower .. "Battle_ritual_skill_list")
-    if not skill_list then
-        skill_list = ui.CreateNewFrame("notice_on_pc", addon_name_lower .. "Battle_ritual_skill_list", 0, 0, 10, 10)
-        AUTO_CAST(skill_list)
-        skill_list:SetSkinName("test_frame_low")
-        skill_list:Resize(500, 1005)
-        skill_list:SetPos(720, 30)
-        skill_list:SetLayerLevel(999)
-        local title_text = skill_list:CreateOrGetControl('richtext', 'title_text', 15, 15, 10, 30)
-        AUTO_CAST(title_text)
-        title_text:SetText("{#000000}{s20}Skill List")
-        local search_edit =
-            skill_list:CreateOrGetControl("edit", "search_edit", title_text:GetWidth() + 30, 10, 305, 38)
-        AUTO_CAST(search_edit)
-        search_edit:SetFontName("white_18_ol")
-        search_edit:SetTextAlign("left", "center")
-        search_edit:SetSkinName("inventory_serch")
-        search_edit:SetEventScript(ui.ENTERKEY, "Battle_ritual_skill_list_search")
-        search_edit:SetEventScriptArgNumber(ui.ENTERKEY, index)
-        local search_btn = search_edit:CreateOrGetControl("button", "search_btn", 0, 0, 40, 38)
-        AUTO_CAST(search_btn)
-        search_btn:SetImage("inven_s")
-        search_btn:SetGravity(ui.RIGHT, ui.TOP)
-        search_btn:SetEventScript(ui.LBUTTONUP, "Battle_ritual_skill_list_search")
-        local close_button = skill_list:CreateOrGetControl('button', 'close_button', 0, 0, 20, 20)
-        AUTO_CAST(close_button)
-        close_button:SetImage("testclose_button")
-        close_button:SetGravity(ui.RIGHT, ui.TOP)
-        close_button:SetEventScript(ui.LBUTTONUP, "Battle_ritual_frame_close")
-    end
-    local skill_gb = skill_list:CreateOrGetControl("groupbox", "skill_gb", 10, 50, 480, skill_list:GetHeight() - 60)
-    AUTO_CAST(skill_gb)
-    skill_gb:SetSkinName("bg")
-    skill_gb:RemoveAllChild()
-    local cls_list, count = GetClassList("Skill")
-    local y = 0
-    for i = 0, count - 1 do
-        local skill_cls = GetClassByIndexFromList(cls_list, i)
-        if skill_cls then
-            local skill_id = skill_cls.ClassID
-            local skill_cls_name = skill_cls.ClassName
-            local skill_engname = skill_cls.EngName
-            local skill_caption = skill_cls.Caption
-            local skill_name = dictionary.ReplaceDicIDInCompStr(skill_cls.Name)
-            if ctrl_text == "" or (ctrl_text ~= "" and string.find(skill_name, ctrl_text)) then
-                local skill_slot = skill_gb:CreateOrGetControl('slot', 'skill_slot' .. i, 10, y + 5, 30, 30)
-                AUTO_CAST(skill_slot)
-                local image_name = "icon_" .. skill_cls.Icon
-                if skill_id > 10000 then
-                    if not string.find(skill_cls_name, "^Mon_") and not string.find(skill_engname, "plzInputEngName") and
-                        not string.find(skill_name, "_") and not string.find(skill_name, "TEST") then
-                        if ctrl_text == "" or (ctrl_text ~= "" and string.find(skill_name, ctrl_text)) then
-                            SET_SLOT_IMG(skill_slot, image_name)
-                            local icon = CreateIcon(skill_slot)
-                            AUTO_CAST(icon)
-                            SET_SKILL_TOOLTIP_BY_TYPE(icon, skill_id)
-                            local skill_set = skill_gb:CreateOrGetControl('button', 'skill_set' .. skill_id, 45, y + 5,
-                                40, 30)
-                            AUTO_CAST(skill_set)
-                            skill_set:SetText("{ol}Add")
-                            skill_set:SetSkinName("test_cardtext_btn")
-                            skill_set:SetTextTooltip(g.lang == "Japanese" and "{ol}スキル追加" or "{ol}Add Skill")
-                            skill_set:SetEventScript(ui.LBUTTONUP, "Battle_ritual_add_skill")
-                            skill_set:SetEventScriptArgString(ui.LBUTTONUP, skill_id)
-                            skill_set:SetEventScriptArgNumber(ui.LBUTTONUP, index)
-                            local skill_text = skill_gb:CreateOrGetControl('richtext', 'skill_text' .. skill_id, 90,
-                                y + 10, 200, 30)
-                            AUTO_CAST(skill_text)
-                            skill_text:SetText("{ol}" .. skill_id .. " : " .. skill_name)
-                            skill_text:AdjustFontSizeByWidth(380)
-                            y = y + 35
-                        end
-                    end
-                end
-            end
-        end
-
-    end
-    skill_list:ShowWindow(1)
-end
-
-function Battle_ritual_skill_list_search(frame, ctrl, str, index)
-    local search_edit = GET_CHILD_RECURSIVELY(frame, "search_edit")
-    local ctrl_text = search_edit:GetText()
-    if ctrl_text ~= "" then
-        Battle_ritual_skill_list_open(frame, ctrl, ctrl_text, index)
-    else
-        Battle_ritual_skill_list_open(frame, ctrl, "", index)
-    end
-end
-
-function Battle_ritual_add_skill(parent, ctrl, skill_id_str, index)
-    local ctrl_name = ctrl:GetName()
-    if string.find(ctrl_name, "skill_edit_") then
-        ctrl:RunUpdateScript("Battle_ritual_setting_change_skill_edit", 0.5)
-    else
-        local setting = ui.GetFrame(addon_name_lower .. "Battle_ritual_setting")
-        local skill_edit = GET_CHILD_RECURSIVELY(setting, "skill_edit_" .. index)
-        skill_edit:SetText(skill_id_str)
-        ctrl:SetUserValue("SKILL_ID", skill_id_str)
-        Battle_ritual_setting_change_skill_edit(ctrl)
-    end
-end
-
-function Battle_ritual_setting_change_skill_edit(ctrl)
-    local user_val = ctrl:GetUserValue("SKILL_ID")
-    local new_id_str = (user_val == "None" or user_val == "") and ctrl:GetText() or user_val
-    local orig_id_str = ctrl:GetUserValue("ORIG_SKILL_ID")
-    local skills = g.Battle_ritual_settings.skills
-    local new_skill_cls = GetClassByType("Skill", tonumber(new_id_str))
-    if not new_skill_cls then
-        if skills[orig_id_str] then
-            skills[orig_id_str] = nil
-            Battle_ritual_save_settings()
-        end
-        Battle_ritual_settings_frame()
-        return 0
-    end
-    if not skills[new_id_str] then
-        local new_data = {
-            priority = 0,
-            buff_id = 0
-        }
-        local old_data = skills[orig_id_str]
-        if old_data then
-            new_data.priority = old_data.priority
-            skills[orig_id_str] = nil
-        else
-            local max_priority = 0
-            for _, data in pairs(skills) do
-                if data.priority and data.priority > max_priority then
-                    max_priority = data.priority
-                end
-            end
-            new_data.priority = max_priority + 1
-        end
-        skills[new_id_str] = new_data
-        Battle_ritual_save_settings()
-        Battle_ritual_settings_frame()
-    end
-    return 0
-end
-
-function Battle_ritual_buff_list_open(frame, ctrl, ctrl_text, skill_id)
-    local buff_list = ui.GetFrame(addon_name_lower .. "Battle_ritual_buff_list")
-    if not buff_list then
-        buff_list = ui.CreateNewFrame("notice_on_pc", addon_name_lower .. "Battle_ritual_buff_list", 0, 0, 10, 10)
-        AUTO_CAST(buff_list)
-        buff_list:SetSkinName("test_frame_low")
-        buff_list:Resize(500, 1005)
-        buff_list:SetPos(720, 30)
-        buff_list:SetLayerLevel(999)
-        local title_text = buff_list:CreateOrGetControl('richtext', 'title_text', 15, 15, 10, 30)
-        AUTO_CAST(title_text)
-        title_text:SetText("{#000000}{s20}Buff List")
-        local search_edit = buff_list:CreateOrGetControl("edit", "search_edit", title_text:GetWidth() + 30, 10, 305, 38)
-        AUTO_CAST(search_edit)
-        search_edit:SetFontName("white_18_ol")
-        search_edit:SetTextAlign("left", "center")
-        search_edit:SetSkinName("inventory_serch")
-        search_edit:SetEventScript(ui.ENTERKEY, "Battle_ritual_buff_list_search")
-        search_edit:SetEventScriptArgNumber(ui.ENTERKEY, skill_id)
-        local search_btn = search_edit:CreateOrGetControl("button", "search_btn", 0, 0, 40, 38)
-        AUTO_CAST(search_btn)
-        search_btn:SetImage("inven_s")
-        search_btn:SetGravity(ui.RIGHT, ui.TOP)
-        search_btn:SetEventScript(ui.LBUTTONUP, "Battle_ritual_buff_list_search")
-        search_btn:SetEventScriptArgNumber(ui.LBUTTONUP, skill_id)
-        local close_button = buff_list:CreateOrGetControl('button', 'close_button', 0, 0, 20, 20)
-        AUTO_CAST(close_button)
-        close_button:SetImage("testclose_button")
-        close_button:SetGravity(ui.RIGHT, ui.TOP)
-        close_button:SetEventScript(ui.LBUTTONUP, "Battle_ritual_frame_close")
-    end
-    local buff_list_gb = buff_list:CreateOrGetControl("groupbox", "buff_list_gb", 10, 50, 480,
-        buff_list:GetHeight() - 60)
-    AUTO_CAST(buff_list_gb)
-    buff_list_gb:SetSkinName("bg")
-    buff_list_gb:RemoveAllChild()
-    local cls_list, count = GetClassList("Buff")
-    local y = 0
-    for i = 0, count - 1 do
-        local buff_cls = GetClassByIndexFromList(cls_list, i)
-        if buff_cls then
-            local buff_id = buff_cls.ClassID
-            local buff_name = dictionary.ReplaceDicIDInCompStr(buff_cls.Name)
-            if ctrl_text == "" or (ctrl_text ~= "" and string.find(buff_name, ctrl_text)) then
-                local buff_slot = buff_list_gb:CreateOrGetControl('slot', 'buffslot' .. i, 10, y + 5, 30, 30)
-                AUTO_CAST(buff_slot)
-                local image_name = GET_BUFF_ICON_NAME(buff_cls)
-                if image_name == "icon_None" then
-                    image_name = "icon_item_nothing"
-                end
-                if buff_name ~= "None" then
-                    SET_SLOT_IMG(buff_slot, image_name)
-                    local icon = CreateIcon(buff_slot)
-                    AUTO_CAST(icon)
-                    icon:SetTooltipType('buff')
-                    icon:SetTooltipArg(buff_name, buff_id, 0)
-                    local buff_set = buff_list_gb:CreateOrGetControl('button', 'buff_set' .. buff_id, 45, y + 5, 40, 30)
-                    AUTO_CAST(buff_set)
-                    buff_set:SetText("{ol}Add")
-                    buff_set:SetSkinName("test_cardtext_btn")
-                    buff_set:SetTextTooltip(g.lang == "Japanese" and "{ol}バフ追加" or "{ol}Add Buff")
-                    buff_set:SetEventScript(ui.LBUTTONUP, "Battle_ritual_add_buff")
-                    buff_set:SetEventScriptArgString(ui.LBUTTONUP, buff_id)
-                    buff_set:SetEventScriptArgNumber(ui.LBUTTONUP, skill_id)
-                    local buff_text = buff_list_gb:CreateOrGetControl('richtext', 'buff_text' .. buff_id, 90, y + 10,
-                        200, 30)
-                    AUTO_CAST(buff_text)
-                    buff_text:SetText("{ol}" .. buff_id .. " : " .. buff_name)
-                    buff_text:AdjustFontSizeByWidth(380)
-                    y = y + 35
-                end
-            end
-        end
-    end
-    buff_list:ShowWindow(1)
-end
-
-function Battle_ritual_buff_list_search(frame, ctrl, str, skill_id)
-    local search_edit = GET_CHILD_RECURSIVELY(frame, "search_edit")
-    local ctrl_text = search_edit:GetText()
-    if ctrl_text ~= "" then
-        Battle_ritual_buff_list_open(frame, ctrl, ctrl_text, skill_id)
-    else
-        Battle_ritual_buff_list_open(frame, ctrl, "", skill_id)
-    end
-end
-
-function Battle_ritual_add_buff(parent, ctrl, buff_id_str, skill_id)
-    local ctrl_name = ctrl:GetName()
-    if string.find(ctrl_name, "buff_edit") then
-        ctrl:SetUserValue("BUFF_ID", tonumber(ctrl:GetText()))
-        ctrl:RunUpdateScript("Battle_ritual_setting_change_buff_edit", 0.5)
-    else
-        local buff_cls = GetClassByType("Buff", tonumber(buff_id_str))
-        local s_id_str = tostring(skill_id)
-        if g.Battle_ritual_settings.skills[s_id_str] then
-            if buff_cls then
-                g.Battle_ritual_settings.skills[s_id_str].buff_id = tonumber(buff_id_str)
-            else
-                g.Battle_ritual_settings.skills[s_id_str].buff_id = 0
-            end
-            Battle_ritual_save_settings()
-            Battle_ritual_settings_frame()
-        end
-    end
-end
-
-function Battle_ritual_setting_change_buff_edit(ctrl)
-    local buff_id = ctrl:GetUserIValue("BUFF_ID")
-    local skill_id_str = ctrl:GetUserValue("SKILL_ID")
-    if g.Battle_ritual_settings.skills[skill_id_str] then
-        local buff_cls = GetClassByType("Buff", buff_id)
-        if not buff_cls then
-            g.Battle_ritual_settings.skills[skill_id_str].buff_id = 0
-        else
-            g.Battle_ritual_settings.skills[skill_id_str].buff_id = buff_id
-        end
-    end
-    Battle_ritual_save_settings()
-    Battle_ritual_settings_frame()
-end
-
-function Battle_ritual_frame_close(frame)
-    ui.DestroyFrame(frame:GetName())
-    if frame:GetName() == addon_name_lower .. "Battle_ritual_setting" then
-        ui.DestroyFrame(addon_name_lower .. "Battle_ritual_skill_list")
-        ui.DestroyFrame(addon_name_lower .. "Battle_ritual_buff_list")
-    end
-end
-
-function Battle_ritual_REQ_PLAYER_CONTENTS_RECORD(frame, type)
-    local _nexus_addons = ui.GetFrame("_nexus_addons")
-    _nexus_addons:RunUpdateScript("Battle_ritual_overlord_off", 0.1)
-end
-
-function Battle_ritual_overlord_off(_nexus_addons)
-    local buff = info.GetBuff(session.GetMyHandle(), 40049)
-    if not buff then
-        return 0
-    end
-    local quickslotnexpbar = ui.GetFrame("quickslotnexpbar")
-    for i = 1, 40 do
-        local slot = GET_CHILD_RECURSIVELY(quickslotnexpbar, "slot" .. i)
-        AUTO_CAST(slot)
-        local icon = slot:GetIcon()
-        if icon then
-            AUTO_CAST(icon)
-            local icon_info = icon:GetInfo()
-            if icon_info then
-                local category = icon_info:GetCategory()
-                if category == "Skill" then
-                    local buff_id = icon_info.type
-                    if buff_id == 100085 then
-                        local current_cooldown = ICON_UPDATE_SKILL_COOLDOWN(icon)
-                        if current_cooldown == 0 then
-                            control.Skill(buff_id)
-                        end
-                        return 1
-                    end
-                end
-            end
-        end
-    end
-end
--- Battle_ritual ここまで
-
--- indun_panel ここから
-local induns = {{
-    challenge = {
-        solo_520 = 1001,
-        solo_540 = 1004,
-        pt_540 = 1005,
-        jp = "チャレンジ",
-        icon = {"Item", 490363}
-    }
-}, {
-    singularity = {
-        singularity_520 = 2000,
-        singularity_540 = 2001,
-        jp = "分裂特異点",
-        icon = {"Item", 11030017}
-    }
-}, {
-    belliora = {
-        h = 727,
-        s = 726,
-        a = 725,
-        ac = 80045,
-        jp = "ベリオラ",
-        icon = {"Monster", 71043}
-    }
-}, {
-    laimara = {
-        h = 724,
-        s = 723,
-        a = 722,
-        ac = 80043,
-        jp = "ライマラ",
-        icon = {"Monster", 71040}
-    }
-}, {
-    ledania = {
-        h = 718,
-        s = 717,
-        a = 716,
-        ac = 80039,
-        jp = "レダニア",
-        icon = {"Monster", 59864}
-    }
-}, {
-    neringa = {
-        h = 709,
-        s = 708,
-        a = 707,
-        ac = 80035,
-        jp = "ネリンガ",
-        icon = {"Monster", 59856}
-    }
-}, {
-    golem = {
-        h = 712,
-        s = 711,
-        a = 710,
-        ac = 80037,
-        jp = "ゴーレム",
-        icon = {"Monster", 59859}
-    }
-}, {
-    merregina = {
-        s = 696,
-        a = 695,
-        h = 697,
-        ac = 80032,
-        jp = "メレジナ",
-        icon = {"Monster", 59824}
-    }
-}, {
-    slogutis = {
-        s = 689,
-        a = 688,
-        h = 690,
-        ac = 80031,
-        jp = "スローガティス",
-        icon = {"Monster", 59798}
-    }
-}, {
-    upinis = {
-        s = 686,
-        a = 685,
-        h = 687,
-        ac = 80030,
-        jp = "ウピニス",
-        icon = {"Monster", 59795}
-    }
-}, {
-    roze = {
-        s = 680,
-        a = 679,
-        h = 681,
-        ac = 80015,
-        jp = "ロゼ",
-        icon = {"Monster", 59773}
-    }
-}, {
-    falouros = {
-        s = 677,
-        a = 676,
-        h = 678,
-        ac = 80017,
-        jp = "ファロウロス",
-        icon = {"Monster", 59760}
-    }
-}, {
-    reservoir = {
-        s = 674,
-        a = 673,
-        h = 675,
-        ac = 80016,
-        jp = "プロパゲーター",
-        icon = {"Monster", 59752}
-    }
-}, {
-    jellyzele = {
-        s = 672,
-        a = 671,
-        h = 670,
-        jp = "ジェリージェル",
-        icon = {"Monster", 59730}
-    }
-}, {
-    delmore = {
-        s = 667,
-        a = 666,
-        h = 665,
-        jp = "デルムーア",
-        icon = {"Monster", 59690}
-    }
-}, {
-    giltine = {
-        s = 669,
-        a = 635,
-        h = 628,
-        jp = "ギルティネ",
-        icon = {"Monster", 59549}
-    }
-}, {
-    memory = {
-        s = 661,
-        a = 662,
-        h = 663,
-        jp = "焔の記憶",
-        icon = {"Item", 11100001}
-    }
-}, {
-    telharsha = {
-        id = 623,
-        jp = "テルハルシャ",
-        icon = {"Monster", 59477}
-    }
-}, {
-    bernice = {
-        id = 201,
-        jp = "ヴェルニケ",
-        icon = {"Item", 11030257}
-    }
-}, {
-    wailing = {
-        id = 684,
-        jp = "嘆きの墓地",
-        icon = {"Item", 960213}
-    }
-}, {
-    ashaq = {
-        id = 728,
-        jp = "アシャーク",
-        icon = {"Item", 11200484}
-    }
-}, {
-    jsr = {
-        id = 0,
-        jp = "ボス協同戦",
-        icon = {}
-    }
-}}
-
-function Indun_panel_save_settings()
-    g.save_json(g.indun_panel_path, g.indun_panel_settings)
-end
-
-function Indun_panel_load_settings()
-    g.indun_panel_path = string.format("../addons/%s/%s/indun_panel.json", addon_name_lower, g.active_id)
-    g.indun_panel_old_path = string.format("../addons/%s/%s/settings.json", "indun_panel", g.active_id)
-    local settings = g.load_json(g.indun_panel_path)
-    local indun_keys = {"challenge", "singularity", "belliora", "laimara", "ledania", "neringa", "golem", "merregina",
-                        "slogutis", "upinis", "roze", "falouros", "reservoir", "jellyzele", "delmore", "telharsha",
-                        "bernice", "giltine", "memory", "wailing", "ashaq", "jsr"}
-    local json_to_indun_map = {
-        veliora = "belliora",
-        limara = "laimara",
-        redania = "ledania",
-        spreader = "reservoir",
-        velnice = "bernice",
-        cemetery = "wailing",
-        demonlair = "ashaq",
-        earring = "memory"
-    }
-    if not settings then
-        local function create_default_set()
-            local set = {}
-            for _, name in ipairs(indun_keys) do
-                set[name] = 1
-            end
-            return set
-        end
-        settings = {
-            etc = {
-                challenge_ticket = "month",
-                always_open = 0,
-                singularity_check = 0,
-                skin_name = "chat_window_2",
-                en_ver = 0,
-                x = 665,
-                y = 30,
-                move = 0,
-                use_set = "set_a",
-                challenge_map = 0,
-                base_date = "",
-                shading = 0,
-                field_mode = 0,
-                toscoin = 0
-            },
-            cols = {
-                tos = 1,
-                gabija = 1,
-                vakarine = 1,
-                rada = 1,
-                jurate = 1,
-                austeja = 1,
-                pvp_mine = 1,
-                market = 1,
-                craft = 1,
-                leticia = 1
-            },
-            set_names = {{
-                set_a = "SET A"
-            }, {
-                set_b = "SET B"
-            }, {
-                set_c = "SET C"
-            }},
-            set_a = create_default_set(),
-            set_b = create_default_set(),
-            set_c = create_default_set()
-        }
-        local old_settings = g.load_json(g.indun_panel_old_path)
-        if old_settings then
-            for k, v in pairs(old_settings) do
-                if type(v) == "table" then
-                    if k == "set_a" or k == "set_b" or k == "set_c" then
-                        for k2, v2 in pairs(v) do
-                            if string.find(k2, "_checkbox") then
-                                local json_key = string.gsub(k2, "_checkbox", "")
-                                local correct_key = json_to_indun_map[json_key] or json_key
-                                if settings[k] and settings[k][correct_key] ~= nil then
-                                    settings[k][correct_key] = v2
-                                end
-                            end
-                        end
-                    elseif k == "cols" then
-                        settings.cols = v
-                    end
-                else
-                    if k ~= "auto_challenge" then
-                        if k == "checkbox" then
-                            settings.etc.always_open = v
-                        elseif settings.etc[k] ~= nil then
-                            settings.etc[k] = v
-                        end
-                    end
-                end
-            end
-        end
-    end
-    g.indun_panel_settings = settings
-    Indun_panel_save_settings()
-end
-
-function indun_panel_on_init()
-    if not g.indun_panel_settings then
-        local earthtowershop = ui.GetFrame('earthtowershop')
-        earthtowershop:Resize(0, 0)
-        pc.ReqExecuteTx_NumArgs("SCR_PVP_MINE_SHOP_OPEN", 0)
-        earthtowershop:RunUpdateScript("Indun_panel_earthtowershop_close", 0.1)
-        Indun_panel_load_settings()
-    end
-    g.setup_hook_and_event(g.addon, "CHAT_SYSTEM", "Indun_panel_CHAT_SYSTEM", true)
-    g.addon:RegisterMsg("ESCAPE_PRESSED", "Indun_panel_frame_init")
-    if g.settings.indun_panel.use == 0 then
-        ui.DestroyFrame(addon_name_lower .. "indun_panel")
-        ui.DestroyFrame(addon_name_lower .. "indun_panel_map")
-        return
-    end
-    Indun_panel_frame_init()
-    g.setup_hook_and_event(g.addon, "INDUN_ALREADY_PLAYING", "Indun_panel_INDUN_ALREADY_PLAYING", false)
-end
-
-function Indun_panel_earthtowershop_close(earthtowershop)
-    if earthtowershop:IsVisible() == 1 then
-        earthtowershop:Resize(580, 1920)
-        ui.CloseFrame("earthtowershop")
-        return 1
-    else
-        return 0
-    end
-end
-
-function Indun_panel_CHAT_SYSTEM(my_frame, my_msg)
-    local msg, color = g.get_event_args(my_msg)
-    if msg then
-        local pattern = "EVENT_TOS_WHOLE_GET_SUCCESS_MSG"
-        if string.find(msg, pattern) then
-            local daily_value_str = msg:match("%$%*%$DAILY%$%*%$(%d+)%$%*%$")
-            g.indun_panel_settings.etc.toscoin = tonumber(daily_value_str)
-            Indun_panel_save_settings()
-        end
-    end
-end
-
-function Indun_panel_INDUN_ALREADY_PLAYING(my_frame, my_msg)
-    if g.settings.indun_panel.use == 0 then
-        g.FUNCS["INDUN_ALREADY_PLAYING"]()
-        return
-    end
-    ReserveScript("Indun_panel_INDUN_ALREADY_PLAYING_dilay()", 0.3)
-end
-
-function Indun_panel_INDUN_ALREADY_PLAYING_dilay()
-    local indunenter = ui.GetFrame("indunenter")
-    local indun_type = indunenter:GetUserIValue('INDUN_TYPE')
-    if indun_type == 1005 or indun_type == 2000 or indun_type == 2001 then -- 1005＝540チャレPT 2001＝540分裂
-        AnsGiveUpPrevPlayingIndun(1)
-        ui.CloseFrame("indunenter")
-        ReserveScript(string.format("Indun_panel_enter_singularity(nil,nil,'', %d)", indun_type), 0.5)
-        return
-    else
-        local yes_scp = string.format("AnsGiveUpPrevPlayingIndun(%d)", 1)
-        local no_scp = string.format("AnsGiveUpPrevPlayingIndun(%d)", 0)
-        ui.MsgBox(ClMsg("IndunAlreadyPlaying_AreYouGiveUp"), yes_scp, no_scp)
-    end
-end
-
-function Indun_panel_challenge(_nexus_addons)
-    if not g.indun_panel_challenge_start_time then
-        _nexus_addons:StopUpdateScript("Indun_panel_challenge")
-        return 0
-    end
-    local now = imcTime.GetAppTimeMS()
-    if (now - g.indun_panel_challenge_start_time) >= 3000 then
-        _nexus_addons:StopUpdateScript("indun_panel_challenge")
-        g.indun_panel_challenge_start_time = nil
-        return 0
-    end
-    local is_auto_challenge_map = session.IsAutoChallengeMap()
-    local is_solo_challenge_map = session.IsSoloChallengeMap()
-    if is_auto_challenge_map == true or is_solo_challenge_map == true then
-        ui.DestroyFrame(addon_name_lower .. "indun_panel")
-        _nexus_addons:StopUpdateScript("Indun_panel_challenge")
-        g.indun_panel_challenge_start_time = nil
-        if g.indun_panel_settings.etc.base_date ~= "" then
-            return 0
-        end
-        local cnt = 0
-        local found_clsid = nil
-        local challenge_map_list, count = GetClassList('challenge_mode_auto_map')
-        for i = 0, count - 1 do
-            local map_cls = GetClassByIndexFromList(challenge_map_list, i)
-            if map_cls then
-                local map_name = map_cls.MapName
-                if g.map_name == map_name then
-                    cnt = cnt + 1
-                    if found_clsid == nil then
-                        found_clsid = map_cls.ClassID
-                    end
-                end
-            end
-        end
-        if cnt == 1 and found_clsid then
-            g.indun_panel_settings.etc.challenge_map = found_clsid
-            local server_time_str = date_time.get_lua_now_datetime_str()
-            if server_time_str then
-                local y, m, d, H, M, S = server_time_str:match("(%d+)-(%d+)-(%d+) (%d+):(%d+):(%d+)")
-                if y then
-                    local time_table = {
-                        year = tonumber(y),
-                        month = tonumber(m),
-                        day = tonumber(d),
-                        hour = 12,
-                        min = 0,
-                        sec = 0
-                    }
-                    g.indun_panel_settings.etc.base_date = os.time(time_table)
-                    Indun_panel_save_settings()
-                end
-            end
-        end
-        return 0
-    end
-    return 1
-end
-
--- test_code
---[[local challenge_map_list, count = GetClassList('challenge_mode_auto_map')
-for i = 0, count - 1 do
-    local map_cls = GetClassByIndexFromList(challenge_map_list, i)
-    if map_cls then
-        local map_name = map_cls.Name
-        local map_clsname = map_cls.MapName
-        local map_cls_ = GetClass("Map", map_clsname)
-        local map_level = map_cls_.QuestLevel
-        ts(i, dic.getTranslatedStr(map_name), map_level)
-    end
-end]]
-
-local function indun_panel_get_server_elapsed_days(base_date)
-    if not base_date or base_date == "" or base_date == 0 then
-        return 0
-    end
-    local server_time_str = date_time.get_lua_now_datetime_str()
-    if not server_time_str then
-        return 0
-    end
-    local y, m, d = server_time_str:match("(%d+)-(%d+)-(%d+)")
-    if not y then
-        return 0
-    end
-    local server_now = os.time({
-        year = tonumber(y),
-        month = tonumber(m),
-        day = tonumber(d),
-        hour = 12
-    })
-    local base_tbl = os.date("*t", base_date)
-    base_tbl.hour = 12
-    local server_base = os.time(base_tbl)
-    return math.floor((server_now - server_base) / 86400)
-end
-
-function Indun_panel_challenge_map_context(indun_panel, ctrl)
-    local base_date = g.indun_panel_settings.etc.base_date
-    if not base_date or base_date == "" or base_date == 0 then
-        return
-    end
-    local weekdays = {"Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"}
-    local elapsed_days = indun_panel_get_server_elapsed_days(base_date)
-    local context = ui.CreateContextMenu("challenge_map_schedule", "{ol}Challenge Map Schedule", 0, 100, 0, 0)
-    local challenge_map_list, count = GetClassList('challenge_mode_auto_map')
-    local start_index = g.indun_panel_settings.etc.challenge_map
-    for i = 0, 6 do
-        local map_index = (start_index + elapsed_days + i) % count
-        local map_cls = GetClassByIndexFromList(challenge_map_list, map_index)
-        if map_cls then
-            local map_name = map_cls.Name
-            local map_clsname = map_cls.MapName
-            local server_time_str = date_time.get_lua_now_datetime_str()
-            local y, m, d = server_time_str:match("(%d+)-(%d+)-(%d+)")
-            local base_time = os.time({
-                year = tonumber(y),
-                month = tonumber(m),
-                day = tonumber(d),
-                hour = 12
-            })
-            local display_time = base_time + (i * 86400)
-            local month_day = os.date("%m-%d", display_time)
-            local day_of_week_num = tonumber(os.date("%w", display_time))
-            local day_of_week_str = weekdays[day_of_week_num + 1]
-            local date_str = string.format("%s (%s)", month_day, day_of_week_str)
-            local scp = string.format("Indun_panel_challenge_map_display('%s','%s')", map_clsname, date_str)
-            ui.AddContextMenuItem(context, date_str .. " " .. map_name, scp)
-        end
-    end
-    ui.OpenContextMenu(context)
-end
-
-function Indun_panel_challenge_map_display(map_clsname, date_str)
-    local indun_panel_map = ui.CreateNewFrame("notice_on_pc", addon_name_lower .. "indun_panel_map", 0, 0, 0, 0)
-    AUTO_CAST(indun_panel_map)
-    indun_panel_map:RemoveAllChild()
-    indun_panel_map:SetSkinName("bg")
-    indun_panel_map:SetLayerLevel(100)
-    indun_panel_map:Resize(300, 320)
-    local gb = indun_panel_map:CreateOrGetControl("picture", "gb", 0, 20, indun_panel_map:GetWidth(),
-        indun_panel_map:GetHeight() - 20)
-    AUTO_CAST(gb)
-    gb:Resize(300, 300)
-    gb:EnableHitTest(0)
-    local close = indun_panel_map:CreateOrGetControl('button', 'close', 0, 0, 30, 30)
-    AUTO_CAST(close)
-    close:SetImage("testclose_button")
-    close:SetGravity(ui.RIGHT, ui.TOP)
-    close:SetEventScript(ui.LBUTTONUP, "Indun_panel_challenge_map_close")
-    local map_width = gb:GetWidth()
-    local map_height = gb:GetHeight()
-    local map_cls = GetClass("Map", map_clsname)
-    if not map_cls then
-        return
-    end
-    local map_title = indun_panel_map:CreateOrGetControl("richtext", "map_title", 0, 0)
-    map_title:SetGravity(ui.LEFT, ui.TOP)
-    map_title:SetText("{ol}" .. map_cls.Name .. " " .. date_str)
-    local pic = gb:CreateOrGetControl('picture', "picture_" .. map_clsname, ui.CENTER_HORZ, ui.CENTER_VERT, map_width,
-        map_height)
-    AUTO_CAST(pic)
-    pic:SetEnableStretch(1)
-    local is_valid = ui.IsImageExist(map_clsname .. "_fog")
-    if is_valid == false then
-        world.PreloadMinimap(map_clsname)
-    end
-    pic:SetImage(map_clsname .. "_fog")
-    local icon_group = gb:CreateOrGetControl("picture", "icon_group", ui.CENTER_HORZ, ui.CENTER_VERT, gb:GetWidth(),
-        gb:GetHeight())
-    AUTO_CAST(icon_group)
-    icon_group:SetSkinName("None")
-    local name_group = gb:CreateOrGetControl("picture", "name_group", ui.CENTER_HORZ, ui.CENTER_VERT, gb:GetWidth(),
-        gb:GetHeight())
-    AUTO_CAST(name_group)
-    name_group:SetSkinName("None")
-    UPDATE_MAP_BY_NAME(icon_group, map_clsname, pic, map_width, map_height, 0, 0)
-    MAKE_MAP_AREA_INFO(name_group, map_clsname, "{s15}", map_width, map_height, -100, -30)
-    local map_frame = ui.GetFrame("map")
-    local width = map_frame:GetWidth()
-    local height = map_frame:GetHeight()
-    indun_panel_map:SetPos(width / 2 - 620, height / 2 - 300)
-    indun_panel_map:ShowWindow(1)
-end
-
-function Indun_panel_challenge_map_close(frame)
-    ui.DestroyFrame(frame:GetName())
-end
-
-function Indun_panel_frame_init(is_toggle, msg)
-    if msg == "ESCAPE_PRESSED" then
-        if g.indun_panel_settings.etc.always_open == 1 then
-            return
-        end
-    end
-    if g.get_map_type() ~= "City" or
-        (g.indun_panel_settings.etc.field_mode ~= 1 and g.get_map_type() == "Instance" and g.map_id == 8022) then
-        return
-    end
-    ui.DestroyFrame(addon_name_lower .. "indun_panel_map")
-    local indun_panel = ui.CreateNewFrame("notice_on_pc", addon_name_lower .. "indun_panel", 0, 0, 0, 0)
-    AUTO_CAST(indun_panel)
-    indun_panel:SetSkinName('None')
-    indun_panel:SetLayerLevel(30)
-    indun_panel:RemoveAllChild()
-    Indun_panel_setup_frame(indun_panel)
-    local btn = indun_panel:CreateOrGetControl("button", "btn", 5, 5, 80, 30)
-    AUTO_CAST(btn)
-    btn:SetText("{ol}{s10}INDUNPANEL")
-    btn:SetEventScript(ui.LBUTTONUP, "Indun_panel_frame_toggle")
-    btn:SetEventScript(ui.RBUTTONUP, "Indun_panel_always_init")
-    btn:SetEventScriptArgString(ui.RBUTTONUP, "OPEN")
-    btn:SetTextTooltip(g.lang == "Japanese" and "{ol}右クリック: 常時展開で開く" or
-                           "{ol}Right click: Open in Always Expand")
-    local x = Indun_panel_create_common_buttons(indun_panel)
-    local button_keys = {"tos", "gabija", "vakarine", "rada", "jurate", "austeja", "pvp_mine", "market", "craft",
-                         "leticia"}
-    for _, key_name in ipairs(button_keys) do
-        local value = g.indun_panel_settings.cols[key_name]
-        if value == 1 then
-            if Indun_panel_create_shortcut_button(indun_panel, key_name, x) then
-                x = x + 30
-            end
-        end
-    end
-    indun_panel:Resize(x, 40)
-    indun_panel:ShowWindow(1)
-    if not is_toggle then
-        if g.indun_panel_settings.etc.always_open == 1 then
-            Indun_panel_frame_open(indun_panel)
-        end
-    end
-    local _nexus_addons = ui.GetFrame("_nexus_addons")
-    g.indun_panel_challenge_start_time = imcTime.GetAppTimeMS()
-    _nexus_addons:RunUpdateScript("Indun_panel_challenge", 0.1)
-    return indun_panel
-end
-
-function Indun_panel_setup_frame(indun_panel)
-    local map = ui.GetFrame("map")
-    local width = map:GetWidth()
-    local x = g.indun_panel_settings.etc.x
-    if width <= 1920 and x > 1920 then
-        x = x / 21 * 16
-    end
-    indun_panel:SetPos(x, g.indun_panel_settings.etc.y)
-    indun_panel:SetTitleBarSkin("None")
-    local enable = g.indun_panel_settings.etc.move == 0 and 1 or 0
-    indun_panel:EnableMove(enable)
-    indun_panel:EnableHittestFrame(enable)
-    if g.indun_panel_settings.etc.move == 1 then
-        indun_panel:SetEventScript(ui.LBUTTONUP, "Indun_panel_frame_drag")
-    else
-        indun_panel:SetEventScript(ui.LBUTTONUP, "None")
-    end
-end
-
-function Indun_panel_frame_drag(indun_panel)
-    g.indun_panel_settings.etc.x = indun_panel:GetX()
-    g.indun_panel_settings.etc.y = indun_panel:GetY()
-    Indun_panel_save_settings()
-    Indun_panel_frame_init()
-end
-
-function Indun_panel_create_common_buttons(indun_panel)
-    local ccbtn = indun_panel:CreateOrGetControl('button', 'ccbtn', 85, 5, 30, 30)
-    AUTO_CAST(ccbtn)
-    ccbtn:SetSkinName("None")
-    ccbtn:SetText("{img barrack_button_normal 30 30}")
-    local lbtn_action = "APPS_TRY_MOVE_BARRACK"
-    local rbtn_action = nil
-    local tooltip_parts = {}
-    local lbtn_tooltip = nil
-    if type(_G["INSTANTCC_APPS_TRY_MOVE_BARRACK"]) == "function" and g.settings.instant_cc.use == 1 then
-        lbtn_action = "INSTANTCC_APPS_TRY_MOVE_BARRACK"
-        lbtn_tooltip = "[InstantCC] Open"
-    end
-    if type(_G["indun_list_viewer_title_frame_open"]) == "function" and g.settings.indun_list_viewer.use == 1 then
-        lbtn_action = "indun_list_viewer_title_frame_open"
-        lbtn_tooltip = "Left-Click: [ILV] Open"
-    end
-    if lbtn_tooltip then
-        table.insert(tooltip_parts, lbtn_tooltip)
-    end
-    if type(_G["other_character_skill_list_frame_open"]) == "function" and g.settings.other_character_skill_list.use ==
-        1 then
-        rbtn_action = "other_character_skill_list_frame_open"
-        table.insert(tooltip_parts, "Right-Click: [OCSL] Open")
-    end
-    ccbtn:SetEventScript(ui.LBUTTONUP, lbtn_action)
-    if rbtn_action then
-        ccbtn:SetEventScript(ui.RBUTTONUP, rbtn_action)
-    end
-    local default_tooltip = g.lang == "Japanese" and "{ol}バラックに戻ります" or "{ol}Return to Barracks"
-    ccbtn:SetTextTooltip(#tooltip_parts > 0 and "{ol}" .. table.concat(tooltip_parts, "{nl}") or default_tooltip)
-    return 115 -- 次のボタンを開始するX座標を返す
-end
-
-function Indun_panel_create_shortcut_button(indun_panel, key_name, x)
-    local account_obj = GetMyAccountObj()
-    local coin_count = 0
-    local tooltip_msg = ""
-    local btn = nil
-    if key_name == "tos" and g.get_map_type() == "City" then
-        btn = indun_panel:CreateOrGetControl("button", "tos", x + 2, 8, 25, 25)
-        btn:SetText("{img icon_item_Tos_Event_Coin 25 25}")
-        tooltip_msg = g.lang == "Japanese" and "{ol}TOSイベントショップ" or "{ol}TOS Event Shop"
-        btn:SetEventScript(ui.LBUTTONUP, "Indun_panel_event_tos_whole_shop_open")
-    elseif key_name == "gabija" and g.get_map_type() == "City" then
-        btn = indun_panel:CreateOrGetControl("button", "gabija", x, 7, 29, 29)
-        btn:SetText("{img goddess_shop_btn 29 29}")
-        coin_count = GET_COMMAED_STRING(TryGetProp(account_obj, "GabijaCertificate", "0"))
-        tooltip_msg =
-            (g.lang == "Japanese" and "{ol}ガビヤショップ{nl}" or "{ol}Gabija Shop{nl}") .. "{#FFFF00}" ..
-                coin_count
-        btn:SetEventScript(ui.LBUTTONUP, "REQ_GabijaCertificate_SHOP_OPEN")
-    elseif key_name == "vakarine" and g.get_map_type() == "City" then
-        btn = indun_panel:CreateOrGetControl("button", "vakarine", x, 7, 29, 29)
-        btn:SetText("{img goddess2_shop_btn 29 29}")
-        coin_count = GET_COMMAED_STRING(TryGetProp(account_obj, "VakarineCertificate", "0"))
-        tooltip_msg = (g.lang == "Japanese" and "{ol}ヴァカリネショップ{nl}" or "{ol}Vakarine Shop{nl}") ..
-                          "{#FFFF00}" .. coin_count
-        btn:SetEventScript(ui.LBUTTONUP, "REQ_VakarineCertificate_SHOP_OPEN")
-    elseif key_name == "rada" and g.get_map_type() == "City" then
-        btn = indun_panel:CreateOrGetControl("button", "rada", x, 8, 29, 29)
-        btn:SetText("{img goddess3_shop_btn 29 29}")
-        coin_count = GET_COMMAED_STRING(TryGetProp(account_obj, "RadaCertificate", "0"))
-        tooltip_msg = (g.lang == "Japanese" and "{ol}ラダショップ{nl}" or "{ol}Rada Shop{nl}") .. "{#FFFF00}" ..
-                          coin_count
-        btn:SetEventScript(ui.LBUTTONUP, "REQ_RadaCertificate_SHOP_OPEN")
-    elseif key_name == "jurate" and g.get_map_type() == "City" then
-        btn = indun_panel:CreateOrGetControl("button", "jurate", x, 7, 29, 29)
-        btn:SetText("{img goddess4_shop_btn 29 29}")
-        coin_count = GET_COMMAED_STRING(TryGetProp(account_obj, "JurateCertificate", "0"))
-        tooltip_msg =
-            (g.lang == "Japanese" and "{ol}ユラテショップ{nl}" or "{ol}Jurate Shop{nl}") .. "{#FFFF00}" ..
-                coin_count
-        btn:SetEventScript(ui.LBUTTONUP, "REQ_JurateCertificate_SHOP_OPEN")
-    elseif key_name == "austeja" then
-        btn = indun_panel:CreateOrGetControl("button", "austeja", x, 7, 29, 29)
-        btn:SetText("{img goddess5_shop_btn 29 29}")
-        coin_count = GET_COMMAED_STRING(TryGetProp(account_obj, "AustejaCertificate", "0"))
-        tooltip_msg = (g.lang == "Japanese" and "{ol}アウステヤショップ{nl}" or "{ol}Austeja Shop{nl}") ..
-                          "{#FFFF00}" .. coin_count
-        btn:SetEventScript(ui.LBUTTONUP, "REQ_AustejaCertificate_SHOP_OPEN")
-    elseif key_name == "pvp_mine" then
-        btn = indun_panel:CreateOrGetControl("button", "pvp_mine", x, 7, 29, 29)
-        btn:SetText("{img pvpmine_shop_btn_total 29 29}")
-        tooltip_msg = g.lang == "Japanese" and "{ol}傭兵団ショップ" or "{ol}Mercenary Shop"
-        btn:SetEventScript(ui.LBUTTONUP, "MINIMIZED_PVPMINE_SHOP_BUTTON_CLICK")
-    elseif key_name == "market" and g.get_map_type() == "City" then
-        btn = indun_panel:CreateOrGetControl("button", "market", x, 6, 29, 29)
-        btn:SetText("{img market_shortcut_btn02 29 29}")
-        tooltip_msg = g.lang == "Japanese" and "{ol}マーケット" or "{ol}Market"
-        btn:SetEventScript(ui.LBUTTONUP, "MINIMIZED_MARKET_BUTTON_CLICK")
-    elseif key_name == "craft" and g.get_map_type() == "City" then
-        btn = indun_panel:CreateOrGetControl("button", "craft", x, 5, 29, 29)
-        btn:SetText("{img icon_fullscreen_menu_equipment_processing 28 28}")
-        tooltip_msg = g.lang == "Japanese" and "{ol}装備加工" or "{ol}Equipment Processing"
-        btn:SetEventScript(ui.LBUTTONUP, "FULLSCREEN_NAVIGATION_MENU_DEATIL_EQUIPMENT_PROCESSING_NPC")
-    elseif key_name == "leticia" and g.get_map_type() == "City" then
-        btn = indun_panel:CreateOrGetControl("button", "leticia", x, 5, 29, 29)
-        btn:SetText("{img icon_fullscreen_menu_letica 28 28}")
-        tooltip_msg = g.lang == "Japanese" and "{ol}レティーシャへ移動" or "{ol}Leticia Move"
-        btn:SetEventScript(ui.LBUTTONUP, "Indun_panel_FULLSCREEN_NAVIGATION_MENU_DETAIL_MOVE_NPC")
-        btn:SetEventScriptArgNumber(ui.LBUTTONUP, 309)
-    end
-    if btn then
-        AUTO_CAST(btn)
-        btn:SetSkinName("None")
-        btn:SetTextTooltip(tooltip_msg)
-        btn:SetEventScript(ui.LBUTTONDOWN, "Indun_panel_earthtowershop_close_restart")
-        return true -- ボタンが作成された
-    end
-    return false -- ボタンが作成されなかった
-end
-
-function Indun_panel_event_tos_whole_shop_open()
-    local earthtowershop = ui.GetFrame("earthtowershop")
-    earthtowershop:SetUserValue("SHOP_TYPE", 'EVENT_TOS_WHOLE_SHOP')
-    ui.OpenFrame('earthtowershop')
-end
-
-function Indun_panel_FULLSCREEN_NAVIGATION_MENU_DETAIL_MOVE_NPC(frame, ctrl, str, guid)
-    if g.get_map_type() ~= "City" then
-        return
-    end
-    local cls = GetClassByType("full_screen_navigation_menu", guid)
-    if cls then
-        local name = TryGetProp(cls, "Name", "None")
-        local move_zone_select = TryGetProp(cls, "MoveZoneSelect", "NO")
-        local move_zone = TryGetProp(cls, "MoveZone", "None")
-        local move_npc_dialog = TryGetProp(cls, "MoveNpcDialog", "None")
-        local move_zone_select_msg = TryGetProp(cls, "MoveZoneSelectMsg", "None")
-        local move_only_in_town = TryGetProp(cls, "MoveOnlyInTown", "None")
-        if move_zone ~= "None" and move_npc_dialog ~= "None" then
-            local pc = GetMyPCObject()
-            if session.world.IsIntegrateServer() == true or IsPVPField(pc) == 1 or IsPVPServer(pc) == 1 then
-                ui.SysMsg(ScpArgMsg("ThisLocalUseNot"))
-                return
-            end
-            if world.GetLayer() ~= 0 then
-                ui.SysMsg(ScpArgMsg("ThisLocalUseNot"))
-                return
-            end
-            if g.get_map_type() == "Dungeon" then
-                ui.SysMsg(ScpArgMsg("ThisLocalUseNot"))
-                return
-            end
-            local cur_map = GetClass("Map", session.GetMapName())
-            if cur_map then
-                local zone_keyword = TryGetProp(cur_map, 'Keyword', 'None')
-                local keyword_table = StringSplit(zone_keyword, '')
-                if table.find(keyword_table, 'IsRaidField') > 0 or table.find(keyword_table, 'WeeklyBossMap') > 0 then
-                    ui.SysMsg(ScpArgMsg('ThisLocalUseNot'))
-                    return
-                end
-                FullScreenMenuMoveNpc(name, move_zone_select, move_zone, move_npc_dialog, move_zone_select_msg,
-                    move_only_in_town)
-                ui.CloseFrame("fullscreen_navigation_menu")
-            end
-        end
-    end
-end
-
-function Indun_panel_earthtowershop_close_restart()
-    local earthtowershop = ui.GetFrame('earthtowershop')
-    if earthtowershop:IsVisible() == 1 then
-        earthtowershop:Resize(580, 1920)
-        ui.CloseFrame("earthtowershop")
-        return 0
-    else
-        earthtowershop:Resize(580, 1920)
-        return 1
-    end
-end
-
-function Indun_panel_always_init(indun_panel, ctrl, str)
-    if str == "OPEN" then
-        g.indun_panel_settings.etc.always_open = 1
-        Indun_panel_frame_open(indun_panel)
-    else
-        g.indun_panel_settings.etc.always_open = 0
-        Indun_panel_frame_init()
-    end
-    Indun_panel_save_settings()
-end
-
-function Indun_panel_frame_toggle(indun_panel)
-    if indun_panel:GetHeight() > 40 then
-        Indun_panel_frame_init(true)
-    else
-        Indun_panel_frame_open(indun_panel)
-    end
-end
-
-function Indun_panel_frame_open(indun_panel)
-    indun_panel:RemoveAllChild()
-    Indun_panel_setup_frame(indun_panel)
-    local btn = indun_panel:CreateOrGetControl("button", "btn", 5, 5, 80, 30)
-    AUTO_CAST(btn)
-    btn:SetText("{ol}{s10}INDUNPANEL")
-    btn:SetEventScript(ui.LBUTTONUP, "Indun_panel_frame_toggle")
-    btn:SetEventScript(ui.RBUTTONUP, "Indun_panel_always_init")
-    btn:SetTextTooltip(g.lang == "Japanese" and "{ol}右クリック: 常時展開解除で閉じる" or
-                           "{ol}Right click: Close with permanent unexpand")
-    local x = Indun_panel_create_common_buttons(indun_panel)
-    local configbtn = indun_panel:CreateOrGetControl('button', 'configbtn', x, 5, 30, 30)
-    AUTO_CAST(configbtn)
-    configbtn:SetSkinName("None")
-    configbtn:SetText("{img config_button_normal 30 30}")
-    configbtn:SetEventScript(ui.LBUTTONUP, "Indun_panel_setting_frame_open")
-    configbtn:SetTextTooltip(g.lang == "Japanese" and "{ol}Indun Panel 設定" or "{ol}Indun Panel Config")
-    x = x + 30
-    local button_keys = {"tos", "gabija", "vakarine", "rada", "jurate", "austeja", "pvp_mine", "market", "craft",
-                         "leticia"}
-    for _, key_name in ipairs(button_keys) do
-        local value = g.indun_panel_settings.cols[key_name]
-        if value == 1 then
-            if Indun_panel_create_shortcut_button(indun_panel, key_name, x) then
-                x = x + 30
-            end
-        end
-    end
-    local current_x = x + 10 -- SET A の開始位置
-    for _, item in ipairs(g.indun_panel_settings.set_names) do
-        for key, name in pairs(item) do
-            local btn = indun_panel:CreateOrGetControl("button", key, current_x, 5, 80, 30)
-            AUTO_CAST(btn)
-            btn:Resize(80, 30)
-            btn:SetText("{ol}" .. name)
-            btn:Resize(80, 30)
-            btn:AdjustFontSizeByWidth(80)
-            btn:SetEventScript(ui.LBUTTONUP, "Indun_panel_set_toggle")
-            btn:SetEventScriptArgString(ui.LBUTTONUP, key) -- "set_a" を渡す
-            btn:SetEventScriptArgNumber(ui.LBUTTONUP, 0) -- 0 を渡す (ArgNumberにする)
-            if g.indun_panel_settings.etc.use_set == key then
-                btn:SetSkinName("test_red_button")
-            end
-            current_x = current_x + 85
-        end
-    end
-    local always_open = indun_panel:CreateOrGetControl('checkbox', 'always_open', 710, 5, 30, 30)
-    AUTO_CAST(always_open)
-    always_open:SetCheck(g.indun_panel_settings.etc.always_open)
-    always_open:SetEventScript(ui.LBUTTONUP, "Indun_panel_ischecked")
-    always_open:SetTextTooltip(g.lang == "Japanese" and "{ol}チェックすると常時展開" or
-                                   "{ol}IsCheck AlwaysOpen")
-    local function indun_panel_FIELD_BOSS_TIME_TAB_SETTING()
-        local induninfo = ui.GetFrame("induninfo")
-        local field_boss_ranking_control = GET_CHILD_RECURSIVELY(induninfo, "field_boss_ranking_control")
-        local sub_tab = GET_CHILD_RECURSIVELY(field_boss_ranking_control, "sub_tab")
-        local server_time_str = date_time.get_lua_now_datetime_str()
-        local _, _, _, hour_str, min_str, _ = server_time_str:match("(%d+)-(%d+)-(%d+) (%d+):(%d+):(%d+)")
-        local server_hour = tonumber(hour_str)
-        local server_min = tonumber(min_str)
-        if (server_hour < 12) or (server_hour == 12 and server_min < 5) then
-            sub_tab:SelectTab(0)
-        else
-            sub_tab:SelectTab(1)
-        end
-    end
-    local current_set = g.indun_panel_settings.etc.use_set
-    if g.indun_panel_settings[current_set] and g.indun_panel_settings[current_set].jsr == 1 then
-        indun_panel_FIELD_BOSS_TIME_TAB_SETTING()
-    end
-    local final_x = current_x + 30
-    indun_panel:Resize(final_x, 40)
-    indun_panel:ShowWindow(1)
-    Indun_panel_frame_contents(configbtn)
-    configbtn:RunUpdateScript("Indun_panel_frame_contents", 1.0)
-end
-
-function Indun_panel_set_toggle(indun_panel, ctrl, set_key, num)
-    g.indun_panel_settings.etc.use_set = set_key
-    Indun_panel_save_settings()
-    if num == 1 then
-        Indun_panel_setting_frame_open()
-    else
-        Indun_panel_frame_open(indun_panel)
-    end
-end
-
-function Indun_panel_ischecked(indun_panel, ctrl)
-    local ischeck = ctrl:IsChecked()
-    local ctrlname = ctrl:GetName()
-    local current_set = g.indun_panel_settings.etc.use_set
-    local use_tbl = g.indun_panel_settings[current_set]
-    if use_tbl and use_tbl[ctrlname] then
-        use_tbl[ctrlname] = ischeck
-    elseif g.indun_panel_settings.cols then
-        if g.indun_panel_settings.cols[ctrlname] then
-            g.indun_panel_settings.cols[ctrlname] = ischeck
-        end
-    end
-    if g.indun_panel_settings.etc[ctrlname] then
-        g.indun_panel_settings.etc[ctrlname] = ischeck
-    end
-    if ctrlname == "move" then
-        local enable = g.indun_panel_settings.etc.move == 0 and 1 or 0
-        indun_panel:EnableMove(enable)
-        indun_panel:EnableHittestFrame(enable)
-    end
-    Indun_panel_save_settings()
-end
-
-function Indun_panel_setting_frame_open()
-    local indun_panel = ui.GetFrame(addon_name_lower .. "indun_panel")
-    indun_panel:SetSkinName("test_frame_low")
-    indun_panel:SetLayerLevel(90)
-    indun_panel:EnableHittestFrame(1)
-    indun_panel:SetAlpha(100)
-    indun_panel:RemoveAllChild()
-    indun_panel:ShowWindow(1)
-    local close = indun_panel:CreateOrGetControl('button', 'close', 0, 0, 30, 30)
-    AUTO_CAST(close)
-    close:SetImage("testclose_button")
-    close:SetGravity(ui.RIGHT, ui.TOP)
-    close:SetEventScript(ui.LBUTTONUP, "Indun_panel_frame_init")
-    local btn = indun_panel:CreateOrGetControl("button", "btn", 5, 5, 80, 30)
-    AUTO_CAST(btn)
-    btn:SetText("{ol}{s10}INDUNPANEL")
-    btn:SetEventScript(ui.LBUTTONUP, "Indun_panel_frame_init")
-    local position = indun_panel:CreateOrGetControl("button", "position", 90, 5, 60, 30)
-    AUTO_CAST(position)
-    position:SetText("{ol}{s10}BASE POS")
-    position:SetEventScript(ui.LBUTTONUP, "Indun_panel_frame_base_position")
-    position:SetTextTooltip(g.lang == "Japanese" and "{ol}ボタンを元の位置に戻す" or "Reset button position")
-    local x = 200
-    for _, item in ipairs(g.indun_panel_settings.set_names) do
-        for key, name in pairs(item) do
-            local btn = indun_panel:CreateOrGetControl("button", name .. key, x, 5, 80, 30)
-            AUTO_CAST(btn)
-            btn:Resize(80, 30)
-            btn:SetText("{ol}" .. name)
-            btn:Resize(80, 30)
-            btn:AdjustFontSizeByWidth(80)
-            btn:SetTextTooltip(g.lang == "Japanese" and
-                                   "{ol}左クリック: セット選択{nl}右クリック: セット名変更" or
-                                   "{ol}Left Click: Select Set{nl}Right Click: Change Set Name")
-            btn:SetEventScript(ui.LBUTTONUP, "Indun_panel_set_toggle")
-            btn:SetEventScriptArgString(ui.LBUTTONUP, key)
-            btn:SetEventScriptArgNumber(ui.LBUTTONUP, 1)
-            btn:SetEventScript(ui.RBUTTONUP, "Indun_panel_INPUT_STRING_BOX")
-            btn:SetEventScriptArgString(ui.RBUTTONUP, key)
-            if g.indun_panel_settings.etc.use_set == key then
-                btn:SetSkinName("test_red_button")
-            end
-            x = x + 85
-        end
-    end
-    local skin_change = indun_panel:CreateOrGetControl("button", "skin_change", 470, 5, 80, 30)
-    AUTO_CAST(skin_change)
-    local skin_text = g.lang == "Japanese" and "{ol}フレームスキン選択" or "{ol}Select Frame Skin"
-    skin_change:SetEventScript(ui.LBUTTONUP, "Indun_panel_frame_skin_select")
-    skin_change:SetText("{ol}SKIN SELECT")
-    skin_change:SetTextTooltip(skin_text)
-    local shortcut_icons = {{ -- ショートカットアイコンのチェックボックス作成をループ処理に
-        name = "tos",
-        img = "icon_item_Tos_Event_Coin",
-        size = 25
-    }, {
-        name = "gabija",
-        img = "goddess_shop_btn",
-        size = 29
-    }, {
-        name = "vakarine",
-        img = "goddess2_shop_btn",
-        size = 29
-    }, {
-        name = "rada",
-        img = "goddess3_shop_btn",
-        size = 29
-    }, {
-        name = "jurate",
-        img = "goddess4_shop_btn",
-        size = 29
-    }, {
-        name = "austeja",
-        img = "goddess5_shop_btn",
-        size = 29
-    }, {
-        name = "pvp_mine",
-        img = "pvpmine_shop_btn_total",
-        size = 29
-    }, {
-        name = "market",
-        img = "market_shortcut_btn02",
-        size = 29
-    }, {
-        name = "craft",
-        img = "icon_fullscreen_menu_equipment_processing",
-        size = 28
-    }, {
-        name = "leticia",
-        img = "icon_fullscreen_menu_letica",
-        size = 28
-    }}
-    local config_x = 15
-    local tooltip_always_show = g.lang == "Japanese" and "{ol}チェックすると常に表示" or
-                                    "{ol}Always visible when checked"
-    for _, icon_info in ipairs(shortcut_icons) do
-        local checkbox = indun_panel:CreateOrGetControl("checkbox", icon_info.name, config_x, 47, icon_info.size,
-            icon_info.size)
-        AUTO_CAST(checkbox)
-        checkbox:SetText(string.format("{img %s %d %d}", icon_info.img, icon_info.size, icon_info.size))
-        checkbox:SetEventScript(ui.LBUTTONUP, "Indun_panel_ischecked")
-        checkbox:SetEventScriptArgString(ui.LBUTTONUP, "config")
-        checkbox:SetTextTooltip(tooltip_always_show)
-        local is_checked = 0
-        for k, v in pairs(g.indun_panel_settings.cols) do
-            if k == icon_info.name then
-                is_checked = v
-                break
-            end
-        end
-        checkbox:SetCheck(is_checked)
-        config_x = config_x + checkbox:GetWidth() + 5
-    end
-    local label_line2 = indun_panel:CreateControl('labelline', 'label_line2', 10, 77, config_x, 5)
-    AUTO_CAST(label_line2)
-    label_line2:SetSkinName("labelline2")
-    local other_settings = {{ -- その他の設定チェックボックス作成をループ処理に
-        name = "en_ver",
-        y = 85,
-        jp = "チェックすると英語表示に変更します",
-        en = "Check to display to English"
-    }, {
-        name = "move",
-        y = 120,
-        jp = "チェックするとフレームを固定",
-        en = "Check to fixes the frame"
-    }, {
-        name = "field_mode",
-        y = 155,
-        jp = "チェックするとフィールドで表示",
-        en = "Check to display in field"
-    }, {
-        name = "shading",
-        y = 190,
-        jp = "チェックすると網掛け表示",
-        en = "Check to display shading"
-    }}
-    for _, setting_info in ipairs(other_settings) do
-        local checkbox = indun_panel:CreateOrGetControl('checkbox', setting_info.name, 25, setting_info.y, 25, 25)
-        AUTO_CAST(checkbox)
-        checkbox:SetCheck(g.indun_panel_settings.etc[setting_info.name])
-        checkbox:SetEventScript(ui.LBUTTONUP, "Indun_panel_ischecked")
-        checkbox:SetText(g.lang == "Japanese" and "{ol}" .. setting_info.jp or "{ol}" .. setting_info.en)
-    end
-    local label_line = indun_panel:CreateControl('labelline', 'label_line', 10, 215, config_x, 5)
-    AUTO_CAST(label_line)
-    label_line:SetSkinName("labelline2")
-    local posy_left = 220
-    local posy_right = 220
-    local count = #induns
-    local half_count = math.ceil(count / 2)
-    local current_set = g.indun_panel_settings.etc.use_set
-    local use_tbl = g.indun_panel_settings[current_set]
-    for i = 1, count do
-        local entry = induns[i]
-        for key, value in pairs(entry) do
-            local checkbox
-            if i <= half_count then
-                checkbox = indun_panel:CreateOrGetControl('checkbox', key, 15, posy_left, 25, 25)
-                AUTO_CAST(checkbox)
-                posy_left = posy_left + 35
-            else
-                checkbox = indun_panel:CreateOrGetControl('checkbox', key, 325, posy_right, 25, 25)
-                AUTO_CAST(checkbox)
-                posy_right = posy_right + 35
-            end
-            local is_checked = use_tbl[key]
-            if is_checked == nil then
-                is_checked = 0
-            end
-            checkbox:SetCheck(is_checked)
-            checkbox:SetEventScript(ui.LBUTTONUP, "Indun_panel_ischecked")
-            local bool = g.indun_panel_settings.etc.en_ver == 0 and g.lang == "Japanese"
-            local display_name = key
-            if bool and value.jp then
-                display_name = value.jp
-            end
-            checkbox:SetText(bool and "{ol}{#FFFFFF}{s16}" .. display_name or "{ol}{#FFFFFF}{s20}" .. key)
-            checkbox:SetTextTooltip(g.lang == "Japanese" and "チェックすると表示" or "Check to show")
-        end
-    end
-    local final_height = math.max(posy_left, posy_right)
-    indun_panel:Resize(660, final_height + 5)
-end
-
-function Indun_panel_frame_base_position(indun_panel)
-    indun_panel:SetPos(665, 30)
-    g.indun_panel_settings.etc.x = 665
-    g.indun_panel_settings.etc.y = 30
-    Indun_panel_save_settings()
-end
-
-function Indun_panel_INPUT_STRING_BOX(frame, ctrl, set_key, num)
-    local inputstring = ui.GetFrame("inputstring")
-    inputstring:Resize(500, 220)
-    inputstring:SetLayerLevel(999)
-    local edit = GET_CHILD(inputstring, 'input', "ui::CEditControl")
-    edit:SetNumberMode(0)
-    edit:SetMaxLen(999)
-    edit:SetText("")
-    inputstring:ShowWindow(1)
-    inputstring:SetEnable(1)
-    local title = inputstring:GetChild("title")
-    AUTO_CAST(title)
-    local text = g.lang == "Japanese" and "{ol}{#FFFFFF}セット名を入力" or "{ol}{#FFFFFF}Enter set name"
-    title:SetText(text)
-    local confirm = inputstring:GetChild("confirm")
-    confirm:SetEventScript(ui.LBUTTONUP, "Indun_panel_save_setname")
-    confirm:SetEventScriptArgString(ui.LBUTTONUP, set_key)
-    edit:SetEventScript(ui.ENTERKEY, "Indun_panel_save_setname")
-    edit:SetEventScriptArgString(ui.ENTERKEY, set_key)
-    edit:AcquireFocus()
-end
-
-function Indun_panel_save_setname(inputstring, ctrl, set_key, num)
-    inputstring:ShowWindow(0)
-    local edit = GET_CHILD(inputstring, 'input')
-    local get_text = edit:GetText()
-    if get_text == "" then
-        local text = g.lang == "Japanese" and "{ol}文字を入力してください" or "{ol}Please enter text"
-        ui.SysMsg(text)
-        Indun_panel_INPUT_STRING_BOX(nil, nil, set_key, 0)
-        return
-    end
-    local text = g.lang == "Japanese" and "{ol}セット名を登録しました" or "{ol}Set name registered"
-    ui.SysMsg(text)
-    for _, item in ipairs(g.indun_panel_settings.set_names) do
-        if item[set_key] then
-            item[set_key] = get_text
-            break
-        end
-    end
-    Indun_panel_save_settings()
-    Indun_panel_setting_frame_open()
-end
-
-function Indun_panel_frame_skin_select()
-    local context = ui.CreateContextMenu("indun_panel_skin_select", "{ol}Skin Select", 0, 0, 0, 0)
-    ui.AddContextMenuItem(context, " ")
-    local skin_tbl = {"chat_window_2", "bg", "bg2"}
-    for _, skin_name in ipairs(skin_tbl) do
-        local str_scp
-        str_scp = string.format("Indun_panel_frame_skin_select_('%s')", skin_name)
-        local text
-        if skin_name == "chat_window_2" then
-            text = g.lang == "Japanese" and "{ol}いつもの" or "The usual"
-        elseif skin_name == "bg" then
-            text = g.lang == "Japanese" and "{ol}黒" or "Solid black"
-        elseif skin_name == "bg2" then
-            text = g.lang == "Japanese" and "{ol}透明度高め" or "High transparency"
-        end
-        ui.AddContextMenuItem(context, text, str_scp)
-    end
-    ui.OpenContextMenu(context)
-end
-
-function Indun_panel_frame_skin_select_(skin_name)
-    g.indun_panel_settings.etc.skin_name = skin_name
-    Indun_panel_save_settings()
-    local indun_panel = ui.GetFrame(addon_name_lower .. "indun_panel")
-    Indun_panel_frame_open(indun_panel)
-end
-
-function Indun_panel_frame_contents(configbtn)
-    local indun_panel = ui.GetFrame(addon_name_lower .. "indun_panel")
-    local shop_buttons = {"gabija", "vakarine", "rada", "jurate", "austeja"}
-    local shop_props = {"GabijaCertificate", "VakarineCertificate", "RadaCertificate", "JurateCertificate",
-                        "AustejaCertificate"}
-    local shop_names_jp = {"ガビヤショップ", "ヴァカリネショップ", "ラダショップ",
-                           "ユラテショップ", "アウステヤショップ"}
-    local shop_names_en = {"Gabija Shop", "Vakarine Shop", "Rada Shop", "Jurate Shop", "Austeja Shop"}
-    local account_obj = GetMyAccountObj()
-    for i, btn_name in ipairs(shop_buttons) do
-        local btn = GET_CHILD_RECURSIVELY(indun_panel, btn_name)
-        if btn then
-            AUTO_CAST(btn)
-            local count = GET_COMMAED_STRING(TryGetProp(account_obj, shop_props[i], "0"))
-            local name = g.lang == "Japanese" and shop_names_jp[i] or shop_names_en[i]
-            local tooltip = string.format("{ol}%s{nl}{#FFFF00}%s", name, count)
-            btn:SetTextTooltip(tooltip)
-        end
-    end
-    local prefix = "DD"
-    if g.indun_panel_settings.etc.skin_name and g.indun_panel_settings.etc.skin_name == "bg" then
-        prefix = "FF"
-    end
-    local x = 150
-    local current_set = g.indun_panel_settings.etc.use_set
-    local use_tbl = g.indun_panel_settings[current_set]
-    if not use_tbl then
-        return 1
-    end
-    local y = 40
-    local index = 1
-    local index_remainder = 0
-    local lasy_y = 0
-    for i, entry in ipairs(induns) do
-        local key, value = next(entry)
-        if use_tbl[key] == 1 then
-            if g.indun_panel_settings.etc.shading == 1 then
-                local line = indun_panel:CreateOrGetControl("picture", "line" .. key, 5, y - 2, 740, 33)
-                AUTO_CAST(line)
-                line:SetImage("fullwhite")
-                line:SetEnableStretch(1)
-                line:EnableHitTest(0)
-                local tone = (index % 2 == 1) and "696969" or "A9A9A9"
-                line:SetColorTone(prefix .. tone)
-            end
-            if key == "jsr" or value.icon then
-                local img_icon = indun_panel:CreateOrGetControl("picture", "img_icon" .. key, x - 140, y + 5, 20, 20)
-                AUTO_CAST(img_icon)
-                local icon_cls = nil
-                if key == "jsr" then
-                    local fieldbossPattern = session.fieldboss.GetPatternInfo()
-                    local icon_cls_name = fieldbossPattern.MonsterClassName
-                    icon_cls = GetClass("Monster", icon_cls_name)
-                elseif value.icon then
-                    icon_cls = GetClassByType(value.icon[1], value.icon[2])
-                end
-                if icon_cls then
-                    img_icon:SetImage(icon_cls.Icon)
-                    img_icon:SetEnableStretch(1)
-                    img_icon:EnableHitTest(0)
-                end
-                local text = indun_panel:CreateOrGetControl("richtext", key, x - 120, y + 5)
-                local is_jp_mode = (g.indun_panel_settings.etc.en_ver == 0 and g.lang == "Japanese")
-                local display_name = key
-                if is_jp_mode and value.jp then
-                    display_name = value.jp
-                end
-                local font_tag = is_jp_mode and "{s16}" or "{s20}"
-                text:SetText(string.format("{ol}{#FFFFFF}%s%s", font_tag, display_name))
-                index = index + 1
-                if key == "challenge" then
-                    local tooltip = g.lang == "Japanese" and
-                                        "{ol}左クリック: チャレンジマップの1週間分のスケジュール表示" or
-                                        "{ol}Left Click: Display the schedule for one week of the Challenge Map"
-                    img_icon:EnableHitTest(1)
-                    img_icon:SetEventScript(ui.LBUTTONUP, "Indun_panel_challenge_map_context")
-                    img_icon:SetTextTooltip(tooltip)
-                    text:EnableHitTest(1)
-                    text:SetEventScript(ui.LBUTTONUP, "Indun_panel_challenge_map_context")
-                    text:SetTextTooltip(tooltip)
-                end
-                text:AdjustFontSizeByWidth(120)
-            end
-            if type(value) == "table" then
-                if key == "challenge" then
-                    for sub_key, sub_value in pairs(value) do
-                        if sub_key ~= "jp" and sub_key ~= "icon" then
-                            Indun_panel_challenge_frame(indun_panel, key, sub_key, sub_value, y, x)
-                        end
-                    end
-                elseif key == "singularity" then
-                    for sub_key, sub_value in pairs(value) do
-                        if sub_key ~= "jp" and sub_key ~= "icon" then
-                            Indun_panel_singularity_frame(indun_panel, key, sub_key, sub_value, y, x)
-                        end
-                    end
-                elseif key == "belliora" or key == "laimara" or key == "ledania" or key == "neringa" or key == "golem" or
-                    key == "merregina" or key == "slogutis" or key == "upinis" or key == "roze" or key == "falouros" or
-                    key == "reservoir" then -- レイド系 (onsweep)
-                    for sub_key, sub_value in pairs(value) do
-                        if sub_key ~= "jp" and sub_key ~= "icon" then
-                            Indun_panel_create_frame_onsweep(indun_panel, key, sub_key, sub_value, y, x)
-                        end
-                    end
-                elseif key == "jellyzele" or key == "delmore" or key == "giltine" or key == "memory" then -- 通常ダンジョン系 (create_frame)
-                    for sub_key, sub_value in pairs(value) do
-                        if sub_key ~= "jp" and sub_key ~= "icon" then
-                            Indun_panel_create_frame(indun_panel, key, sub_key, sub_value, y, x)
-                        end
-                    end
-                elseif key == "telharsha" then
-                    Indun_panel_telharsha_frame(indun_panel, key, value.id, y, x)
-                elseif key == "bernice" then
-                    Indun_panel_velnice_frame(indun_panel, key, value.id, y, x)
-                elseif key == "wailing" then
-                    Indun_panel_cemetery_frame(indun_panel, key, value.id, y, x)
-                elseif key == "ashaq" then
-                    Indun_panel_demonlair_frame(indun_panel, key, value.id, y, x)
-                elseif key == "jsr" then
-                    Indun_panel_jsr_frame(indun_panel, y, x)
-                end
-            end
-            y = y + 33
-        end
-        index_remainder = index % 2
-        lasy_y = y
-    end
-    local y = lasy_y or 40
-    local status, err = pcall(Indun_panel_create_currency_display, indun_panel, y)
-    if not status then
-        print("[IndunPanel] Currency Display Error: " .. tostring(err))
-    end
-    y = y + 40
-    if g.indun_panel_settings.etc.shading == 1 then
-        local line = indun_panel:CreateOrGetControl("picture", "last_line", 5, y - 2, 740, 33)
-        AUTO_CAST(line)
-        line:SetImage("fullwhite")
-        line:SetEnableStretch(1)
-        line:EnableHitTest(0)
-        line:SetColorTone(prefix .. (index_remainder == 1 and "696969" or "A9A9A9"))
-    end
-    indun_panel:SetLayerLevel(80)
-    indun_panel:Resize(x + 600, y)
-    indun_panel:SetSkinName(g.indun_panel_settings.etc.skin_name or "chat_window_2")
-    indun_panel:EnableHitTest(1)
-    indun_panel:SetAlpha(100)
-    return 1
-end
-
-function Indun_panel_create_currency_display(indun_panel, y)
-    local account_obj = GetMyAccountObj()
-    local bonusTP_pic = indun_panel:CreateOrGetControl("richtext", "bonusTP_pic", 320, y + 5)
-    AUTO_CAST(bonusTP_pic)
-    bonusTP_pic:SetText("{img bonusTP_pic 22 22}")
-    local bonusTP_count = indun_panel:CreateOrGetControl("richtext", "bonusTP_count", 350, y + 5)
-    AUTO_CAST(bonusTP_count)
-    bonusTP_count:SetText("{ol}{#FFD900}{s18}" .. account_obj.Medal)
-    bonusTP_count:SetTextTooltip("{ol}Free TP")
-    local housing_btn = indun_panel:CreateOrGetControl("richtext", "housing_btn", 370, y + 5)
-    AUTO_CAST(housing_btn)
-    housing_btn:SetText("{img btn_housing_editmode_small_resize 23 23}")
-    local housing_count = indun_panel:CreateOrGetControl("richtext", "housing_count", 400, y + 5)
-    AUTO_CAST(housing_count)
-    -- housing_count:SetText("{ol}{#FFD900}{s18}...")
-    housing_count:SetTextTooltip("{ol}Housing Point")
-    local current_time = imcTime.GetAppTime()
-    if not g.indun_panel_housing_call_time or (current_time - g.indun_panel_housing_call_time) > 5 then
-        g.indun_panel_housing_call_time = current_time
-        Indun_panel_get_my_housing_point_callback_ready()
-    elseif g.indun_panel_housing_point then
-        housing_count:SetText("{ol}{#FFD900}{s18}" .. g.indun_panel_housing_point)
-    end
-    local tos_coin = indun_panel:CreateOrGetControl("richtext", "tos_coin", 450, y + 5)
-    tos_coin:SetText("{img icon_item_Tos_Event_Coin 21 21}")
-    local tos_coin_count = indun_panel:CreateOrGetControl("richtext", "tos_coin_count", 475, y + 5)
-    local coin_count = GET_COMMAED_STRING(TryGetProp(account_obj, "EVENT_TOS_WHOLE_TOTAL_COIN", "0"))
-    local target_coin = GET_COMMAED_STRING(g.indun_panel_settings.etc.toscoin or 0)
-    tos_coin_count:SetText(string.format("{ol}{#FFD900}{s18}%s/{#FFD900}%s", coin_count, target_coin))
-    local pvpmine = indun_panel:CreateOrGetControl("richtext", "pvpmine", 605, y + 5)
-    pvpmine:SetText("{img pvpmine_shop_btn_total 25 25}")
-    local pvpminecount = indun_panel:CreateOrGetControl("richtext", "pvpminecount", 630, y + 5)
-    local mine_count = GET_COMMAED_STRING(TryGetProp(account_obj, "MISC_PVP_MINE2", "0"))
-    pvpminecount:SetText(string.format("{ol}{#FFD900}{s18}%s", mine_count))
-end
-
-function Indun_panel_get_my_housing_point_callback_ready()
-    local aidx = session.loginInfo.GetAID()
-    GetMyHousingPageInfo("Indun_panel_get_my_housing_point_callback", aidx)
-end
-
-function Indun_panel_get_my_housing_point_callback(code, ret_json)
-    if code ~= 200 or not ret_json or ret_json == "" then
-        return
-    end
-    local status, parsed = pcall(json.decode, ret_json)
-    if not (status and parsed) then
-        return
-    end
-    if not parsed or type(parsed) ~= "table" then
-        return
-    end
-    local housing_point = 0
-    if parsed["pointInfo"] and parsed["pointInfo"]["personalHousing_Point1"] then
-        housing_point = tonumber(parsed["pointInfo"]["personalHousing_Point1"]) or 0
-    end
-    g.indun_panel_housing_point = housing_point
-    local indun_panel = ui.GetFrame(addon_name_lower .. "indun_panel")
-    if indun_panel and indun_panel:IsVisible() == 1 then
-        local housing_count = GET_CHILD_RECURSIVELY(indun_panel, "housing_count")
-        if housing_count then
-            housing_count:SetText("{ol}{#FFD900}{s18}" .. housing_point)
-        end
-    end
-end
-
-function Indun_panel_item_buy_use(recipe_name)
-    local recipe_cls = GetClass("ItemTradeShop", recipe_name)
-    if not recipe_cls then
-        return
-    end
-    session.ResetItemList()
-    session.AddItemID(tostring(0), 1)
-    local itemlist = session.GetItemIDList()
-    local cnt_text = string.format("%s %s", recipe_cls.ClassID, 1)
-    if string.find(recipe_name, "EVENT_TOS", 1, true) then
-        item.DialogTransaction("EVENT_TOS_WHOLE_SHOP", itemlist, cnt_text)
-    else
-        item.DialogTransaction("PVP_MINE_SHOP", itemlist, cnt_text)
-    end
-    local item_name = recipe_cls.TargetItem
-    ReserveScript(string.format("Indun_panel_inv_item_use('%s')", item_name), 1.0)
-end
-
-function Indun_panel_inv_item_use(item_name)
-    local item_cls = GetClass("Item", item_name)
-    if item_cls then
-        local inv_item = session.GetInvItemByType(item_cls.ClassID)
-        if inv_item then
-            INV_ICON_USE(inv_item)
-        end
-    end
-end
-
-function Indun_panel_get_entrance_count(indun_type, index)
-    local indun_cls = GetClassByType("Indun", indun_type)
-    if not indun_cls then
-        return 0
-    end
-    local reset_type = indun_cls.PlayPerResetType
-    local current_count = GET_CURRENT_ENTERANCE_COUNT(reset_type) or 0
-    local max_count = GET_INDUN_MAX_ENTERANCE_COUNT(reset_type) or 0
-    if index == 1 then
-        return string.format("{ol}{#FFFFFF}{s16}(%s)", current_count)
-    elseif index == 2 then
-        return string.format("{ol}{#FFFFFF}{s16}(%s/%s)", current_count, max_count)
-    elseif index == 3 then
-        local count = 1
-        local class_name = TryGetProp(indun_cls, 'ClassName', 'None')
-        if string.find(class_name, 'Challenge_') then
-            local ticket_type = TryGetProp(indun_cls, 'TicketingType', 'None')
-            if ticket_type == 'Entrance_Ticket' then
-                local check_name = TryGetProp(indun_cls, 'CheckCountName', 'None')
-                local etc = GetMyEtcObject()
-                if TryGetProp(etc, check_name, 0) == 1 then
-                    count = 0
-                end
-            end
-        end
-        return string.format("{ol}{#FFFFFF}{s16}(%s/%s)", count, max_count)
-    elseif index == 4 then
-        if indun_type == 1001 then
-            return current_count
-        elseif indun_type == 1004 or indun_type == 1005 or indun_type == 2000 or indun_type == 2001 then
-            local class_name = TryGetProp(indun_cls, 'ClassName', 'None')
-            if string.find(class_name, 'Challenge_') then
-                local unit_per_reset = TryGetProp(indun_cls, 'UnitPerReset', 'None')
-                local check_name = TryGetProp(indun_cls, 'CheckCountName', 'None')
-                if unit_per_reset ~= 'None' and check_name ~= 'None' then
-                    if unit_per_reset == 'ACCOUNT' then
-                        return TryGetProp(GetMyAccountObj(), check_name, 0) or 0
-                    elseif unit_per_reset == 'PC' then
-                        return TryGetProp(GetMyEtcObject(), check_name, 0) or 0
-                    end
-                end
-            end
-        end
-        return 0
-    end
-    return 0
-end
-
-function Indun_panel_get_recipe_trade_count(recipe_name)
-    local recipe_cls = GetClass("ItemTradeShop", recipe_name)
-    if not recipe_cls then
-        return 0
-    end
-    if recipe_cls.NeedProperty ~= "None" and recipe_cls.NeedProperty ~= "" then
-        return TryGetProp(GetSessionObject(GetMyPCObject(), "ssn_shop"), recipe_cls.NeedProperty, 0)
-    end
-    if recipe_cls.AccountNeedProperty ~= "None" and recipe_cls.AccountNeedProperty ~= "" then
-        return TryGetProp(GetMyAccountObj(), recipe_cls.AccountNeedProperty, 0)
-    end
-    return 0
-end
-
-function Indun_panel_overbuy_count(recipe_name)
-    local account_obj = GetMyAccountObj()
-    local recipe_cls = GetClass('ItemTradeShop', recipe_name)
-    if not recipe_cls then
-        return 0
-    end
-    local max_count = TryGetProp(recipe_cls, 'MaxOverBuyCount', 0)
-    local prop_name = TryGetProp(recipe_cls, 'OverBuyProperty', 'None')
-    local current_count = TryGetProp(account_obj, prop_name, 0)
-    return tonumber(max_count) - tonumber(current_count)
-end
-
-function Indun_panel_overbuy_amount(recipe_name)
-    local account_obj = GetMyAccountObj()
-    local recipe_cls = GetClass('ItemTradeShop', recipe_name)
-    if not recipe_cls then
-        return 0
-    end
-    local trade_count = Indun_panel_get_recipe_trade_count(recipe_name)
-    if trade_count > 0 then
-        return 1000
-    end
-    local prop_name = TryGetProp(recipe_cls, 'OverBuyProperty', 'None')
-    local current_overbuy_count = TryGetProp(account_obj, prop_name, 0)
-    return 1050 + (current_overbuy_count * 50)
-end
-
-function Indun_panel_get_invitem_count(tbl)
-    local count = 0
-    local inv_item_list = session.GetInvItemList()
-    local guid_list = inv_item_list:GetGuidList()
-    local cnt = guid_list:Count()
-    for i = 0, cnt - 1 do
-        local guid = guid_list:Get(i)
-        local inv_item = inv_item_list:GetItemByGuid(guid)
-        if inv_item then
-            local obj = GetIES(inv_item:GetObject())
-            local item_id = obj.ClassID
-            for _, class_id in ipairs(tbl) do
-                if item_id == class_id then
-                    count = count + inv_item.count
-                    break
-                end
-            end
-        end
-    end
-    return count
-end
-
-local CHALLENGE_CONFIG = {
-    LOW = {
-        expiring = {10820019, 11030080, 641954, 641955, 641969},
-        non_expiring = {10000073, 10820028, 490363, 641953, 641963, 641987}
-    },
-    HIGH = {
-        expiring = {11201299, 11201300, 10820052},
-        non_expiring = {11201298, 11201297}
-    }
-}
-function Indun_panel_challenge_frame(indun_panel, key, sub_key, indun_type, y, x)
-    local low_indun_type = 1001
-    local btn_low = indun_panel:CreateOrGetControl('button', "btn_low", x + 0, y, 50, 30)
-    AUTO_CAST(btn_low)
-    btn_low:SetText("{ol}520")
-    btn_low:SetEventScript(ui.LBUTTONUP, "Indun_panel_enter_challenge")
-    btn_low:SetEventScriptArgString(ui.LBUTTONUP, "1")
-    btn_low:SetEventScriptArgNumber(ui.LBUTTONUP, low_indun_type)
-    local txt_low = indun_panel:CreateOrGetControl("richtext", "txt_low", x + 50, y + 5, 40, 30)
-    txt_low:SetText(Indun_panel_get_entrance_count(low_indun_type, 2))
-    local buyuse_low = indun_panel:CreateOrGetControl('button', "buyuse_low", x + 90, y, 100, 30)
-    AUTO_CAST(buyuse_low)
-    local text_low = string.format("{ol}{#EE7800}USEor{s16}{img %s 15 15}{#FFFFFF}%s", "icon_item_Tos_Event_Coin",
-        Indun_panel_get_recipe_trade_count("EVENT_TOS_WHOLE_SHOP_315") or 0)
-    local count = Indun_panel_get_invitem_count(CHALLENGE_CONFIG.LOW.expiring)
-    count = count + Indun_panel_get_invitem_count(CHALLENGE_CONFIG.LOW.non_expiring)
-    local icon_text = ""
-    local item_cls = GetClassByType('Item', CHALLENGE_CONFIG.LOW.expiring[1])
-    if item_cls then
-        local fmt = g.lang == "Japanese" and "{ol}{img %s 25 25 } %d枚持っています{nl} {nl}" or
-                        "{ol}{img %s 25 25 } Quantity in Inventory: %d{nl} {nl}"
-        icon_text = string.format(fmt, item_cls.Icon, count)
-    end
-    local tooltip_low = g.lang == "Japanese" and
-                            "{ol}優先順位{nl}1.期限付き{nl}2.期限なし{nl}3.{img icon_item_Tos_Event_Coin 20 20}チケット(買って使います)" or
-                            "{ol}Priority{nl}1.Expiring{nl}2.Non-expiring{nl}3.{img icon_item_Tos_Event_Coin 20 20}tickets(buy and use)"
-    buyuse_low:SetTextTooltip(icon_text .. tooltip_low)
-    buyuse_low:SetText(text_low)
-    buyuse_low:SetEventScript(ui.LBUTTONUP, "Indun_panel_challenge_item_use")
-    buyuse_low:SetEventScriptArgNumber(ui.LBUTTONUP, low_indun_type)
-    local high_indun_type = 1004
-    local high_pt_indun_type = 1005
-    local btn_high = indun_panel:CreateOrGetControl('button', "btn_high", x + 195, y, 50, 30)
-    AUTO_CAST(btn_high)
-    btn_high:SetText("{ol}540")
-    btn_high:SetEventScript(ui.LBUTTONUP, "Indun_panel_enter_challenge")
-    btn_high:SetEventScriptArgString(ui.LBUTTONUP, "1")
-    btn_high:SetEventScriptArgNumber(ui.LBUTTONUP, high_indun_type)
-    local btn_high_pt = indun_panel:CreateOrGetControl('button', "btn_high_pt", x + 250, y, 50, 30)
-    AUTO_CAST(btn_high_pt)
-    btn_high_pt:SetText("{ol}{#FFD900}PT")
-    btn_high_pt:SetEventScript(ui.LBUTTONUP, "Indun_panel_enter_challenge")
-    btn_high_pt:SetEventScriptArgString(ui.LBUTTONUP, "2")
-    btn_high_pt:SetEventScriptArgNumber(ui.LBUTTONUP, high_pt_indun_type)
-    local txt_high = indun_panel:CreateOrGetControl("richtext", "txt_high", x + 300, y + 5, 40, 30)
-    txt_high:SetText(Indun_panel_get_entrance_count(high_indun_type, 3))
-    local buyuse_high_tos = indun_panel:CreateOrGetControl('button', "buyuse_high_tos", x + 340, y, 100, 30)
-    AUTO_CAST(buyuse_high_tos)
-    local count = Indun_panel_get_invitem_count(CHALLENGE_CONFIG.HIGH.expiring)
-    count = count + Indun_panel_get_invitem_count(CHALLENGE_CONFIG.HIGH.non_expiring)
-    local icon_text_high = ""
-    local item_cls = GetClassByType('Item', CHALLENGE_CONFIG.HIGH.expiring[1])
-    if item_cls then
-        local fmt = g.lang == "Japanese" and "{ol}{img %s 25 25 } %d枚持っています{nl} {nl}" or
-                        "{ol}{img %s 25 25 } Quantity in Inventory: %d{nl} {nl}"
-        icon_text_high = string.format(fmt, item_cls.Icon, count)
-    end
-    local text_high_tos = string.format("{ol}{#EE7800}USEor{s16}{img %s 15 15}{#FFFFFF}%s", "icon_item_Tos_Event_Coin",
-        Indun_panel_get_recipe_trade_count("EVENT_TOS_WHOLE_SHOP_320") or 0)
-    local tooltip_high_tos = g.lang == "Japanese" and
-                                 "{ol}左クリック: PT入場{nl}右クリック: ソロ入場{nl}優先順位{nl}1.期限付き{nl}2.{img icon_item_Tos_Event_Coin 20 20}チケット(買って使います){nl}3.期限なし" or
-                                 "{ol}Left Click: PT Entry{nl}Right Click: Solo Entry{nl}Priority{nl}1.Expiring{nl}2.{img pvpmine_shop_btn_total 20 20}tickets(buy and use){nl}3.Non-expiring"
-    buyuse_high_tos:SetText(text_high_tos)
-    buyuse_high_tos:SetTextTooltip(icon_text_high .. tooltip_high_tos)
-    buyuse_high_tos:SetEventScript(ui.LBUTTONUP, "Indun_panel_challenge_item_use")
-    buyuse_high_tos:SetEventScriptArgString(ui.LBUTTONUP, "tos")
-    buyuse_high_tos:SetEventScriptArgNumber(ui.LBUTTONUP, high_pt_indun_type)
-    buyuse_high_tos:SetEventScript(ui.RBUTTONUP, "Indun_panel_challenge_item_use")
-    buyuse_high_tos:SetEventScriptArgString(ui.RBUTTONUP, "tos")
-    buyuse_high_tos:SetEventScriptArgNumber(ui.RBUTTONUP, high_indun_type)
-    local buyuse_high_pvp = indun_panel:CreateOrGetControl('button', "buyuse_high_pvp", x + 450, y, 100, 30)
-    AUTO_CAST(buyuse_high_pvp)
-    local text_high_pvp = string.format("{ol}{#FFFFFF}USEor{s16}{img pvpmine_shop_btn_total 18 18}{#FFFFFF}%s",
-        Indun_panel_get_recipe_trade_count("PVP_MINE_40") or 0)
-    local tooltip_high_pvp = g.lang == "Japanese" and
-                                 "{ol}左クリック: PT入場{nl}右クリック: ソロ入場{nl}優先順位{nl}1.期限付き{nl}2.{img pvpmine_shop_btn_total 20 20}チケット(買って使います){nl}3.期限なし" or
-                                 "{ol}Left Click: PT Entry{nl}Right Click: Solo Entry{nl}Priority{nl}1.Expiring{nl}2.{img pvpmine_shop_btn_total 20 20}tickets(buy and use){nl}3.Non-expiring"
-    buyuse_high_pvp:SetText(text_high_pvp)
-    buyuse_high_pvp:SetTextTooltip(icon_text_high .. tooltip_high_pvp)
-    buyuse_high_pvp:SetEventScript(ui.LBUTTONUP, "Indun_panel_challenge_item_use")
-    buyuse_high_pvp:SetEventScriptArgString(ui.LBUTTONUP, "pvp")
-    buyuse_high_pvp:SetEventScriptArgNumber(ui.LBUTTONUP, high_pt_indun_type)
-    buyuse_high_pvp:SetEventScript(ui.RBUTTONUP, "Indun_panel_challenge_item_use")
-    buyuse_high_pvp:SetEventScriptArgString(ui.RBUTTONUP, "pvp")
-    buyuse_high_pvp:SetEventScriptArgNumber(ui.RBUTTONUP, high_indun_type)
-end
-
-function Indun_panel_challenge_item_use(indun_panel, ctrl, mode, indun_type)
-    local entrance_count = Indun_panel_get_entrance_count(indun_type, 4)
-    if indun_type == 1001 and entrance_count > 0 then -- 520は行ける場合0行けない場合1
-        Indun_panel_process_ticket(indun_type, mode, CHALLENGE_CONFIG.LOW)
-    elseif indun_type ~= 1001 and entrance_count == 0 then -- 540は行ける場合1行けない場合0
-        Indun_panel_process_ticket(indun_type, mode, CHALLENGE_CONFIG.HIGH)
-    end
-end
-
-function Indun_panel_process_ticket(indun_type, mode, config)
-    local enter_mode = indun_type == 1005 and 2 or 1
-    if Indun_panel_use_prioritized_ticket(config.expiring, enter_mode, indun_type) then
-        return
-    end
-    local recipe_name = ""
-    if indun_type == 1001 then
-        recipe_name = "EVENT_TOS_WHOLE_SHOP_315"
-    elseif mode == "tos" then
-        recipe_name = "EVENT_TOS_WHOLE_SHOP_320"
-    elseif mode == "pvp" then
-        recipe_name = "PVP_MINE_40"
-    end
-    if Indun_panel_get_recipe_trade_count(recipe_name) >= 1 then
-        Indun_panel_item_buy_use(recipe_name)
-        Indun_panel_enter_reserve(enter_mode, indun_type)
-        return
-    end
-    if Indun_panel_use_prioritized_ticket(config.non_expiring, enter_mode, indun_type) then
-        return
-    end
-    if recipe_name == "PVP_MINE_40" then
-        local account_obj = GetMyAccountObj()
-        local recipe_cls = GetClass('ItemTradeShop', recipe_name)
-        if recipe_cls then
-            local over_max = TryGetProp(recipe_cls, 'MaxOverBuyCount', 0)
-            local over_prop = TryGetProp(recipe_cls, 'OverBuyProperty', 'None')
-            local over_count = TryGetProp(account_obj, over_prop, 0)
-            if (tonumber(over_max) - tonumber(over_count)) > 0 then
-                Indun_panel_item_buy_use(recipe_name)
-                Indun_panel_enter_reserve(enter_mode, indun_type)
-                return
-            end
-        end
-    end
-end
-
-function Indun_panel_use_prioritized_ticket(ticket_ids, enter_mode, indun_type)
-    local candidate_tickets = {}
-    local use_item = nil
-    for _, classid in ipairs(ticket_ids) do
-        local inv_item = session.GetInvItemByType(classid)
-        if inv_item then
-            if not inv_item.isLockState then
-                local item_obj = GetIES(inv_item:GetObject())
-                local life_time = tonumber(GET_REMAIN_ITEM_LIFE_TIME(item_obj)) or 0
-                if life_time > 0 then
-                    table.insert(candidate_tickets, {
-                        use_item = inv_item,
-                        priority = (life_time and life_time > 0 and life_time < 86400) and 1 or 2
-                    })
-                else
-                    if indun_type == 1001 then
-                        use_item = inv_item
-                    else
-                        if Indun_panel_get_recipe_trade_count("EVENT_TOS_WHOLE_SHOP_320") < 1 and
-                            Indun_panel_get_recipe_trade_count("PVP_MINE_40") < 1 then
-                            use_item = inv_item
-                        end
-                    end
-                end
-            else
-                ui.SysMsg(ClMsg("MaterialItemIsLock") .. " (" .. use_item.Name .. ")")
-            end
-        end
-    end
-    if #candidate_tickets > 0 then
-        table.sort(candidate_tickets, function(a, b)
-            return a.priority < b.priority
-        end)
-        use_item = candidate_tickets[1].use_item
-    end
-    if use_item then
-        INV_ICON_USE(use_item)
-        Indun_panel_enter_reserve(enter_mode, indun_type)
-        return true
-    end
-    return false
-end
-
-function Indun_panel_enter_reserve(index, indun_type)
-    AnsGiveUpPrevPlayingIndun(1)
-    ReserveScript(string.format("Indun_panel_enter_challenge(nil,nil,'%d', %d)", index, indun_type), 1.5)
-end
-
-function Indun_panel_enter_challenge(indun_panel, ctrl, index, indun_type)
-    index = tonumber(index)
-    if not indun_type then
-        return
-    end
-    local pcparty = session.party.GetPartyInfo()
-    if not pcparty then
-        CREATE_PARTY_BTN()
-    end
-    ReqChallengeAutoUIOpen(indun_type)
-    ReserveScript(string.format("ReqMoveToIndun(%d,%d)", index, 0), 0.3)
-end
-
-local SINGULARITY_CONFIG = {
-    [2000] = { -- 520
-        expiring = {10820018, 11030067},
-        non_expiring = {10000470, 11030021, 11030017}
-    },
-    [2001] = { -- 540
-        expiring = {11201303, 11201304, 10820051},
-        non_expiring = {11201302, 11201301}
-    }
-}
-function Indun_panel_singularity_frame(indun_panel, key, sub_key, indun_type, y, x)
-    local low_indun_type = 2000
-    local btn_low = indun_panel:CreateOrGetControl('button', "btn_low" .. indun_type, x, y, 50, 30)
-    AUTO_CAST(btn_low)
-    btn_low:SetText("{ol}520")
-    btn_low:SetEventScript(ui.LBUTTONUP, "Indun_panel_enter_singularity")
-    btn_low:SetEventScriptArgNumber(ui.LBUTTONUP, low_indun_type)
-    local count_low = indun_panel:CreateOrGetControl("richtext", "count_low" .. indun_type, x + 55, y + 5, 30, 30)
-    count_low:SetText("{ol}(" .. Indun_panel_get_entrance_count(low_indun_type, 4) .. ")")
-    local ticket_low = indun_panel:CreateOrGetControl('button', 'ticket_low' .. indun_type, x + 85, y, 100, 30)
-    AUTO_CAST(ticket_low)
-    local text_low = string.format("{ol}{#EE7800}USEor{s16}{img %s 15 15}{#FFFFFF}%s", "icon_item_Tos_Event_Coin",
-        Indun_panel_get_recipe_trade_count("EVENT_TOS_WHOLE_SHOP_314") or 0)
-    local count = Indun_panel_get_invitem_count(SINGULARITY_CONFIG[2000].expiring)
-    count = count + Indun_panel_get_invitem_count(SINGULARITY_CONFIG[2000].non_expiring)
-    local icon_text = ""
-    local item_cls = GetClassByType('Item', SINGULARITY_CONFIG[2000].expiring[1])
-    if item_cls then
-        local fmt = g.lang == "Japanese" and "{ol}{img %s 25 25 } %d枚持っています{nl} {nl}" or
-                        "{ol}{img %s 25 25 } Quantity in Inventory: %d{nl} {nl}"
-        icon_text = string.format(fmt, item_cls.Icon, count)
-    end
-    local tooltip_low = g.lang == "Japanese" and
-                            "{ol}優先順位{nl}1.期限付き{nl}2.期限なし{nl}3.{img icon_item_Tos_Event_Coin 20 20}チケット(買って使います)" or
-                            "{ol}Priority{nl}1.Expiring{nl}2.Non-expiring{nl}3.{img icon_item_Tos_Event_Coin 20 20}tickets(buy and use)"
-    ticket_low:SetText(text_low)
-    ticket_low:SetTextTooltip(icon_text .. tooltip_low)
-    ticket_low:SetEventScript(ui.LBUTTONUP, "Indun_panel_item_use_sin")
-    ticket_low:SetEventScriptArgNumber(ui.LBUTTONUP, low_indun_type)
-    local high_indun_type = 2001
-    local btn_high = indun_panel:CreateOrGetControl('button', "btn_high" .. indun_type, x + 195, y, 50, 30)
-    AUTO_CAST(btn_high)
-    btn_high:SetText("{ol}540")
-    btn_high:SetEventScript(ui.LBUTTONUP, "Indun_panel_enter_singularity")
-    btn_high:SetEventScriptArgNumber(ui.LBUTTONUP, high_indun_type)
-    local count_high = indun_panel:CreateOrGetControl("richtext", "count_high" .. indun_type, x + 250, y + 5, 30, 30)
-    count_high:SetText("{ol}(" .. Indun_panel_get_entrance_count(high_indun_type, 4) .. ")")
-    local ticket_high_tos = indun_panel:CreateOrGetControl('button', 'ticket_high_tos' .. indun_type, x + 280, y, 100,
-        30)
-    AUTO_CAST(ticket_high_tos)
-    local text_high_tos = string.format("{ol}{#EE7800}USEor{s16}{img %s 15 15}{#FFFFFF}%s", "icon_item_Tos_Event_Coin",
-        Indun_panel_get_recipe_trade_count("EVENT_TOS_WHOLE_SHOP_319") or 0)
-    local count = Indun_panel_get_invitem_count(SINGULARITY_CONFIG[2001].expiring)
-    count = count + Indun_panel_get_invitem_count(SINGULARITY_CONFIG[2001].non_expiring)
-    local icon_text_high = ""
-    local item_cls = GetClassByType('Item', SINGULARITY_CONFIG[2001].expiring[1])
-    if item_cls then
-        local fmt = g.lang == "Japanese" and "{ol}{img %s 25 25 } %d枚持っています{nl} {nl}" or
-                        "{ol}{img %s 25 25 } Quantity in Inventory: %d{nl} {nl}"
-        icon_text_high = string.format(fmt, item_cls.Icon, count)
-    end
-    local tooltip_high_tos = g.lang == "Japanese" and
-                                 "{ol}優先順位{nl}1.24時間以内の期限付きチケット{nl}2.期限付きチケット{nl}3.{img icon_item_Tos_Event_Coin 20 20}チケット(買って使います){nl}4.期限の無いチケット" or
-                                 "{ol}Priority{nl}1.Limited-time tickets (under 24 hours){nl}2.Limited-time tickets{nl}3.{img icon_item_Tos_Event_Coin 20 20}tickets(buy and use){nl}4.Tickets without an expiration date"
-    ticket_high_tos:SetText(text_high_tos)
-    ticket_high_tos:SetTextTooltip(icon_text_high .. tooltip_high_tos)
-    ticket_high_tos:SetEventScript(ui.LBUTTONUP, "Indun_panel_item_use_sin")
-    ticket_high_tos:SetEventScriptArgString(ui.LBUTTONUP, "tos")
-    ticket_high_tos:SetEventScriptArgNumber(ui.LBUTTONUP, high_indun_type)
-    local ticket_high_pvp = indun_panel:CreateOrGetControl('button', 'ticket_high_pvp' .. indun_type, x + 390, y, 140,
-        30)
-    AUTO_CAST(ticket_high_pvp)
-    local text_high_pvp = string.format("{ol}{#FFFFFF}{s16}USEor{img %s 18 18}d:%s w:%s", "pvpmine_shop_btn_total",
-        Indun_panel_get_recipe_trade_count("PVP_MINE_41") or 0, Indun_panel_get_recipe_trade_count("PVP_MINE_42") or 0)
-    local tooltip_high_pvp = g.lang == "Japanese" and
-                                 "{ol}優先順位{nl}1.24時間以内の期限付きチケット{nl}2.期限付きチケット{nl}3.{img pvpmine_shop_btn_total 20 20}チケット(買って使います){nl}4.期限の無いチケット" or
-                                 "{ol}Priority{nl}1.Limited-time tickets (under 24 hours){nl}2.Limited-time tickets{nl}3.{img pvpmine_shop_btn_total 20 20}tickets(buy and use){nl}4.Tickets without an expiration date"
-    ticket_high_pvp:SetText(text_high_pvp)
-    ticket_high_pvp:SetTextTooltip(icon_text_high .. tooltip_high_pvp)
-    ticket_high_pvp:SetEventScript(ui.LBUTTONUP, "Indun_panel_item_use_sin")
-    ticket_high_pvp:SetEventScriptArgString(ui.LBUTTONUP, "pvp")
-    ticket_high_pvp:SetEventScriptArgNumber(ui.LBUTTONUP, high_indun_type)
-    local singularity_check = indun_panel:CreateOrGetControl("checkbox", "singularity_check", x + 545, y, 25, 25)
-    AUTO_CAST(singularity_check)
-    singularity_check:SetEventScript(ui.LBUTTONUP, "Indun_panel_ischecked")
-    singularity_check:SetTextTooltip(g.lang == "Japanese" and
-                                         "{ol}チェックをすると自動マッチングボタンを押しません" or
-                                         "{ol}If checked, the automatic matching button will not be pressed")
-    singularity_check:SetCheck(g.indun_panel_settings.etc.singularity_check)
-end
-
-function Indun_panel_item_use_sin(frame, ctrl, mode, indun_type)
-    local ent_count = Indun_panel_get_entrance_count(indun_type, 4)
-    if tonumber(ent_count) > 0 then
-        return
-    end
-    local config = SINGULARITY_CONFIG[indun_type]
-    if not config then
-        return
-    end
-    if Indun_panel_try_use_ticket_list(config.expiring, indun_type) then
-        return
-    end
-    if mode == "tos" or indun_type == 2000 then
-        local recipe = (indun_type == 2000) and "EVENT_TOS_WHOLE_SHOP_314" or "EVENT_TOS_WHOLE_SHOP_319"
-        if Indun_panel_get_recipe_trade_count(recipe) >= 1 then
-            Indun_panel_item_buy_use(recipe)
-            ReserveScript(string.format("Indun_panel_enter_singularity(nil,nil,'', %d)", indun_type), 1.5)
-            return
-        end
-    elseif mode == "pvp" then
-        if Indun_panel_get_recipe_trade_count("PVP_MINE_41") >= 1 then
-            Indun_panel_item_buy_use("PVP_MINE_41")
-            ReserveScript(string.format("Indun_panel_enter_singularity(nil,nil,'', %d)", indun_type), 1.5)
-            return
-        end
-        if Indun_panel_get_recipe_trade_count("PVP_MINE_42") >= 1 then
-            Indun_panel_item_buy_use("PVP_MINE_42")
-            ReserveScript(string.format("Indun_panel_enter_singularity(nil,nil,'', %d)", indun_type), 1.5)
-            return
-        end
-    end
-    if Indun_panel_try_use_ticket_list(config.non_expiring, indun_type) then
-        return
-    end
-end
-
-function Indun_panel_try_use_ticket_list(ticket_ids, indun_type)
-    local candidate_tickets = {}
-    for _, classid in ipairs(ticket_ids) do
-        local inv_item = session.GetInvItemByType(classid)
-        if inv_item then
-            if not inv_item.isLockState then
-                local item_obj = GetIES(inv_item:GetObject())
-                local life_time = tonumber(GET_REMAIN_ITEM_LIFE_TIME(item_obj)) or 0
-                local priority = (life_time > 0 and life_time < 86400) and 1 or 2
-                table.insert(candidate_tickets, {
-                    use_item = inv_item,
-                    priority = priority
-                })
-            else
-                ui.SysMsg(ClMsg("MaterialItemIsLock") .. " (" .. inv_item.Name .. ")")
-            end
-        end
-    end
-    if #candidate_tickets > 0 then
-        table.sort(candidate_tickets, function(a, b)
-            return a.priority < b.priority
-        end)
-        local best_ticket = candidate_tickets[1].use_item
-        Indun_panel_item_use_and_run(best_ticket, indun_type)
-        return true
-    end
-    return false
-end
-
-function Indun_panel_item_use_and_run(use_item, indun_type)
-    AnsGiveUpPrevPlayingIndun(1)
-    if use_item and indun_type then
-        INV_ICON_USE(use_item)
-        ReserveScript(string.format("Indun_panel_enter_singularity(nil,nil,'', %d)", indun_type), 0.5)
-        return
-    end
-end
-
-function Indun_panel_enter_singularity(frame, ctrl, str, indun_type)
-    ReqChallengeAutoUIOpen(indun_type)
-    local indun_cls = GetClassByType('Indun', indun_type)
-    if indun_cls then
-        local indun_min_rank = TryGetProp(indun_cls, 'PCRank')
-        local totaljobcount = session.GetPcTotalJobGrade()
-        if indun_min_rank then
-            if indun_min_rank > totaljobcount and indun_min_rank ~= totaljobcount then
-                ui.SysMsg(ScpArgMsg('IndunEnterNeedPCRank', 'NEED_RANK', indun_min_rank))
-                return
-            end
-        end
-        if g.indun_panel_settings.etc.singularity_check == 0 then
-            ReserveScript(string.format("ReqMoveToIndun(%d,%d)", 2, 0), 0.3)
-        end
-    end
-end
-
-local raid_tbl = {
-    [725] = {11210057, 11210056, 11210055},
-    [722] = {11210053, 11210052, 11210051},
-    [716] = {11210044, 10820040, 11210043, 11210042},
-    [707] = {11210024, 11210023, 11210022},
-    [710] = {11210028, 11210027, 11210026},
-    [695] = {11200356, 11200355, 11200354},
-    [688] = {11200290, 10820036, 11200289, 11200288},
-    [685] = {11200281, 10820035, 11200280, 11200279},
-    [679] = {108020026, 11200222, 11200221, 11200220}
-}
-local buff_ids = {
-    [725] = 80045, -- ベリオラ
-    [722] = 80043, -- ライマラ
-    [716] = 80039, -- レダニア
-    [707] = 80035, -- ネリンガ
-    [710] = 80037, -- ゴーレム
-    [673] = 80016, -- スプレッダー
-    [676] = 80017, -- ファロウス
-    [679] = 80015, -- ロゼ
-    [685] = 80030, -- 蝶々
-    [688] = 80031, -- スロガ
-    [695] = 80032 -- メレジ
-}
-
-function Indun_panel_create_frame_onsweep(indun_panel, key, sub_key, sub_value, y, x)
-    if raid_tbl[sub_value] then
-        local use_btn = indun_panel:CreateOrGetControl('button', key .. "use", x + 470, y, 80, 30)
-        AUTO_CAST(use_btn)
-        use_btn:SetText("{ol}{#EE7800}USE")
-        local count = Indun_panel_get_invitem_count(raid_tbl[sub_value])
-        local item_cls = GetClassByType('Item', raid_tbl[sub_value][2])
-        if item_cls then
-            local fmt = g.lang == "Japanese" and "{ol}{img %s 25 25 } %d枚持っています" or
-                            "{ol}{img %s 25 25 } Quantity in Inventory: %d"
-            use_btn:SetTextTooltip(string.format(fmt, item_cls.Icon, count))
-        end
-        use_btn:SetEventScript(ui.LBUTTONUP, "Indun_panel_raid_itemuse")
-        use_btn:SetEventScriptArgNumber(ui.LBUTTONUP, sub_value)
-    end
-    local btn_solo = indun_panel:CreateOrGetControl('button', key .. "solo", x, y, 80, 30)
-    local btn_auto = indun_panel:CreateOrGetControl('button', key .. "auto", x + 85, y, 80, 30)
-    local btn_hard = indun_panel:CreateOrGetControl('button', key .. "hard", x + 215, y, 80, 30)
-    local btn_sweep = indun_panel:CreateOrGetControl('button', key .. "sweep", x + 350, y, 80, 30)
-    local txt_count = indun_panel:CreateOrGetControl("richtext", key .. "count", x + 170, y + 5, 50, 30)
-    local txt_hard_count = indun_panel:CreateOrGetControl("richtext", key .. "counthard", x + 300, y + 5, 50, 30)
-    local txt_sweep_count = indun_panel:CreateOrGetControl("richtext", key .. "sweepcount", x + 435, y + 5, 50, 30)
-    btn_solo:SetText("{ol}SOLO")
-    btn_auto:SetText("{ol}{#FFD900}AUTO")
-    btn_hard:SetText("{ol}{#FF0000}HARD")
-    btn_sweep:SetText("{ol}{#00FF00}ACLEAR")
-    if sub_key == "s" then -- Solo
-        txt_count:SetText(Indun_panel_get_entrance_count(sub_value, 2))
-        btn_solo:SetEventScript(ui.LBUTTONUP, "Indun_panel_enter_solo")
-        btn_solo:SetEventScriptArgNumber(ui.LBUTTONUP, sub_value)
-    elseif sub_key == "a" then -- Auto
-        btn_auto:SetEventScript(ui.LBUTTONUP, "Indun_panel_enter_auto")
-        btn_auto:SetEventScriptArgNumber(ui.LBUTTONUP, sub_value)
-        btn_sweep:SetEventScript(ui.LBUTTONUP, "Indun_panel_raid_itemuse")
-        btn_sweep:SetEventScriptArgNumber(ui.LBUTTONUP, sub_value)
-    elseif sub_key == "h" then -- Hard
-        local ent_count = Indun_panel_get_entrance_count(sub_value, 2)
-        if ent_count then
-            txt_hard_count:SetText(ent_count)
-            btn_hard:SetEventScript(ui.LBUTTONDOWN, "Indun_panel_enter_hard")
-            btn_hard:SetEventScriptArgNumber(ui.LBUTTONDOWN, sub_value)
-            btn_hard:SetEventScriptArgString(ui.LBUTTONDOWN, "false")
-        end
-    elseif sub_key == "ac" then -- Auto Clear (Sweep) Count
-        local count_str = Indun_panel_sweep_count(sub_value)
-        txt_sweep_count:SetText(string.format("{ol}{#FFFFFF}{s16}(%s)", count_str))
-    end
-end
-
-function Indun_panel_raid_itemuse(indun_panel, ctrl, str, indun_type)
-    local target_items = raid_tbl[indun_type]
-    local buff_id = buff_ids[indun_type]
-    if not buff_id then
-        return
-    end
-    local indun_cls = GetClassByType("Indun", indun_type)
-    local enter_count = 0
-    if indun_cls then
-        enter_count = GET_CURRENT_ENTERANCE_COUNT(indun_cls.PlayPerResetType) or 0
-    end
-    local limit_count = 2
-    if indun_type == 673 or indun_type == 676 then
-        limit_count = 4
-    end
-    local is_limit_reached = (enter_count >= limit_count)
-    local sweep_count = Indun_panel_sweep_count(buff_id)
-    local ticket_item = nil
-    if target_items then
-        for _, class_id in ipairs(target_items) do
-            local inv_item = session.GetInvItemByType(class_id)
-            if inv_item then
-                ticket_item = inv_item
-                break
-            end
-        end
-    end
-    if sweep_count > 0 then
-        if not is_limit_reached then
-            ReqUseRaidAutoSweep(indun_type)
-        else
-            if ticket_item then
-                INV_ICON_USE(ticket_item)
-                ReserveScript(string.format("ReqUseRaidAutoSweep(%d)", indun_type), 0.5)
-            else
-                ui.SysMsg(g.lang == "Japanese" and "入場回数不足（チケットなし）" or
-                              "Not enough entry count (No tickets).")
-            end
-        end
-    else
-        if ticket_item then
-            INV_ICON_USE(ticket_item)
-        else
-            if string.find(ctrl:GetName(), "use") then
-                ui.SysMsg(g.lang == "Japanese" and "(自動マッチング/1人)入場券を持っていません" or
-                              "There are no ticket items in inventory")
-            else
-                ui.SysMsg(g.lang == "Japanese" and "掃討バフがありません" or "There is no auto clear buff")
-            end
-        end
-    end
-end
-
-function Indun_panel_sweep_count(buff_id)
-    local my_handle = session.GetMyHandle()
-    local buff = info.GetBuff(my_handle, buff_id)
-    if buff then
-        return buff.over or 0
-    end
-    return 0
-end
-
-function Indun_panel_enter_solo(indun_panel, ctrl, str, indun_type)
-    local pcparty = session.party.GetPartyInfo()
-    if not pcparty then
-        CREATE_PARTY_BTN()
-    end
-    ReqRaidAutoUIOpen(indun_type)
-    ReserveScript(string.format("ReqMoveToIndun(%d,%d)", 1, 0), 0.3)
-end
-
-function Indun_panel_enter_auto(indun_panel, ctrl, str, indun_type)
-    ReqRaidAutoUIOpen(indun_type)
-    local indun_cls = GetClassByType('Indun', indun_type)
-    if indun_cls then
-        local indun_min_rank = TryGetProp(indun_cls, 'PCRank')
-        local totaljobcount = session.GetPcTotalJobGrade()
-        if indun_min_rank ~= nil then
-            if indun_min_rank > totaljobcount and indun_min_rank ~= totaljobcount then
-                ui.SysMsg(ScpArgMsg('IndunEnterNeedPCRank', 'NEED_RANK', indun_min_rank))
-                return
-            end
-        end
-        ReserveScript(string.format("ReqMoveToIndun(%d,%d)", 2, 0), 0.3)
-    end
-end
-
-local function Indun_panel_induninfo_set_buttons(indun_type, ctrl)
-    local indun_cls = GetClassByType('Indun', indun_type)
-    if indun_cls then
-        local dungeon_type = TryGetProp(indun_cls, "DungeonType", "None")
-        local btn_info_cls = GetClassByStrProp("IndunInfoButton", "DungeonType", dungeon_type)
-        if dungeon_type == "Raid" then
-            btn_info_cls = INDUNINFO_SET_BUTTONS_FIND_CLASS(indun_cls)
-        end
-        local red_button_scp = TryGetProp(btn_info_cls, "RedButtonScp")
-        ctrl:SetUserValue('MOVE_INDUN_CLASSID', indun_cls.ClassID)
-        ctrl:SetEventScript(ui.LBUTTONUP, red_button_scp)
-    end
-end
-
-function Indun_panel_enter_hard(indun_panel, ctrl, str, indun_type)
-    local indun_cls = GetClassByType("Indun", indun_type)
-    if str == "false" then
-        Indun_panel_induninfo_set_buttons(indun_type, ctrl)
-        str = "true"
-        if indun_type then
-            ReserveScript(string.format("Indun_panel_enter_hard(nil,nil,'%s',%d)", str, indun_type), 0.5)
-            return
-        end
-    else
-        SHOW_INDUNENTER_DIALOG(indun_type)
-        return
-    end
-end
-
-function Indun_panel_create_frame(indun_panel, key, sub_key, sub_value, y, x)
-    local btn_solo = indun_panel:CreateOrGetControl('button', key .. "solo", x, y, 80, 30)
-    local btn_auto = indun_panel:CreateOrGetControl('button', key .. "auto", x + 85, y, 80, 30)
-    local btn_hard = indun_panel:CreateOrGetControl('button', key .. "hard", x + 215, y, 80, 30)
-    local txt_count = indun_panel:CreateOrGetControl("richtext", key .. "count", x + 170, y + 5, 50, 30)
-    local txt_hard_count = indun_panel:CreateOrGetControl("richtext", key .. "counthard", x + 300, y + 5, 50, 30)
-    btn_solo:SetText("{ol}SOLO")
-    btn_auto:SetText(key == "memory" and "{ol}{#FFD900}NORMAL" or "{ol}{#FFD900}AUTO")
-    btn_hard:SetText("{ol}{#FF0000}HARD")
-    if sub_key == "s" then
-        local count_idx = (key == "memory") and 1 or 2
-        txt_count:SetText(Indun_panel_get_entrance_count(sub_value, count_idx))
-        btn_solo:SetEventScript(ui.LBUTTONUP, "Indun_panel_enter_solo")
-        btn_solo:SetEventScriptArgNumber(ui.LBUTTONUP, sub_value)
-    elseif sub_key == "a" then
-        btn_auto:SetEventScript(ui.LBUTTONUP, "Indun_panel_enter_auto")
-        btn_auto:SetEventScriptArgNumber(ui.LBUTTONUP, sub_value)
-    elseif sub_key == "h" then
-        local count_idx
-        if key == "memory" then
-            count_idx = 1
-        elseif key == "giltine" then
-            count_idx = 1
-        else
-            count_idx = 2
-        end
-        txt_hard_count:SetText(Indun_panel_get_entrance_count(sub_value, count_idx))
-        btn_hard:SetEventScript(ui.LBUTTONDOWN, "Indun_panel_enter_hard")
-        btn_hard:SetEventScriptArgNumber(ui.LBUTTONDOWN, sub_value)
-        btn_hard:SetEventScriptArgString(ui.LBUTTONDOWN, "false")
-    end
-end
-
-local TELHARSHA_CONFIG = {
-    recipe = "EVENT_TOS_WHOLE_SHOP_306",
-    ticket_id = 108020009,
-    max_count = 3
-}
-function Indun_panel_telharsha_frame(indun_panel, key, value, y, x)
-    local btn = indun_panel:CreateOrGetControl('button', key .. 'btn', x, y, 80, 30)
-    AUTO_CAST(btn)
-    btn:SetText("{ol}IN")
-    btn:SetEventScript(ui.LBUTTONUP, "Indun_panel_enter_solo")
-    btn:SetEventScriptArgNumber(ui.LBUTTONUP, value)
-    local count = indun_panel:CreateOrGetControl("richtext", key .. "count", x + 85, y + 5, 50, 30)
-    count:SetText(Indun_panel_get_entrance_count(value, 2))
-    local ticket_btn = indun_panel:CreateOrGetControl('button', key .. 'ticket_btn', x + 130, y, 80, 30)
-    AUTO_CAST(ticket_btn)
-    local tickets = {10820009, 11035056}
-    local count = Indun_panel_get_invitem_count(tickets)
-    local icon_text = ""
-    local item_cls = GetClassByType('Item', tickets[1])
-    if item_cls then
-        local fmt = g.lang == "Japanese" and "{ol}{img %s 25 25 } %d枚持っています" or
-                        "{ol}{img %s 25 25 } Quantity in Inventory: %d"
-        icon_text = string.format(fmt, item_cls.Icon, count)
-    end
-    ticket_btn:SetTextTooltip(icon_text)
-    ticket_btn:SetText("{ol}{#EE7800}{s14}BUYUSE")
-    ticket_btn:SetEventScript(ui.LBUTTONUP, "Indun_panel_buyuse_telharsha")
-    ticket_btn:SetEventScriptArgString(ui.LBUTTONUP, TELHARSHA_CONFIG.recipe)
-    ticket_btn:SetEventScriptArgNumber(ui.LBUTTONUP, value)
-    local change_count = Indun_panel_get_recipe_trade_count(TELHARSHA_CONFIG.recipe)
-    local tos_shop_count = indun_panel:CreateOrGetControl("richtext", key .. "tos_shop_count", x + 215, y + 5, 40, 30)
-    tos_shop_count:SetText(string.format("{ol}{s16}({img icon_item_Tos_Event_Coin 15 15}%s)", change_count))
-end
-
-function Indun_panel_buyuse_telharsha(indun_panel, ctrl, recipe_name, indun_type)
-    if not indun_type then
-        return
-    end
-    local indun_cls = GetClassByType("Indun", indun_type)
-    if not indun_cls then
-        return
-    end
-    local current_count = 0
-    if indun_cls then
-        current_count = GET_CURRENT_ENTERANCE_COUNT(indun_cls.PlayPerResetType) or 0
-    end
-    if tonumber(current_count) < TELHARSHA_CONFIG.max_count then
-        ReserveScript(string.format("Indun_panel_enter_solo(nil, nil, '', %d)", indun_type), 0.2)
-        return
-    end
-    local use_item = session.GetInvItemByType(TELHARSHA_CONFIG.ticket_id)
-    if use_item then
-        INV_ICON_USE(use_item)
-        ReserveScript(string.format("Indun_panel_enter_solo(nil, nil, '', %d)", indun_type), 0.5)
-        return
-    end
-    local change_count = Indun_panel_get_recipe_trade_count(recipe_name)
-    if change_count >= 1 then
-        Indun_panel_item_buy_use(recipe_name)
-        ReserveScript(string.format("Indun_panel_enter_solo(nil, nil, '', %d)", indun_type), 1.5)
-        return
-    end
-    local msg = g.lang == "Japanese" and "トレード回数が足りません。" or "No trade count."
-    ui.SysMsg(msg)
-end
-
-local VELNICE_CONFIG = {
-    recipe = "PVP_MINE_52",
-    tickets = {11030169, 11030257}, -- 優先順: 1日期限 -> 通常
-    max_count = 1
-}
-function Indun_panel_velnice_frame(indun_panel, key, value, y, x)
-    local btn = indun_panel:CreateOrGetControl('button', key .. 'btn', x, y, 80, 30)
-    AUTO_CAST(btn)
-    btn:SetText("{ol}IN")
-    btn:SetEventScript(ui.LBUTTONUP, "Indun_panel_enter_velnice_solo")
-    btn:SetEventScriptArgNumber(ui.LBUTTONUP, value)
-    local count = indun_panel:CreateOrGetControl("richtext", key .. "count", x + 85, y + 5, 50, 30)
-    count:SetText(Indun_panel_get_entrance_count(value, 2))
-    local ticket_btn = indun_panel:CreateOrGetControl('button', key .. 'ticket_btn', x + 130, y, 80, 30)
-    AUTO_CAST(ticket_btn)
-    local count = Indun_panel_get_invitem_count(VELNICE_CONFIG.tickets)
-    local icon_text = ""
-    local item_cls = GetClassByType('Item', VELNICE_CONFIG.tickets[1])
-    if item_cls then
-        local fmt = g.lang == "Japanese" and "{ol}{img %s 25 25 } %d枚持っています" or
-                        "{ol}{img %s 25 25 } Quantity in Inventory: %d"
-        icon_text = string.format(fmt, item_cls.Icon, count)
-    end
-    ticket_btn:SetTextTooltip(icon_text)
-    ticket_btn:SetText("{ol}{#EE7800}{s14}BUYUSE")
-    ticket_btn:SetEventScript(ui.LBUTTONUP, "Indun_panel_buyuse_vel")
-    ticket_btn:SetEventScriptArgString(ui.LBUTTONUP, VELNICE_CONFIG.recipe)
-    ticket_btn:SetEventScriptArgNumber(ui.LBUTTONUP, value)
-    local trade_count = Indun_panel_get_recipe_trade_count(VELNICE_CONFIG.recipe)
-    trade_count = math.max(0, trade_count)
-    local overbuy_limit = Indun_panel_overbuy_count(VELNICE_CONFIG.recipe)
-    local change_text = indun_panel:CreateOrGetControl("richtext", key .. "change_text", x + 215, y + 5, 60, 30)
-    change_text:SetText(string.format("{ol}{#FFFFFF}(%d/%d)", trade_count, overbuy_limit))
-    local amount = indun_panel:CreateOrGetControl("richtext", key .. "amount", x + 280, y + 5, 50, 30)
-    local cost = Indun_panel_overbuy_amount(VELNICE_CONFIG.recipe)
-    local color = (trade_count > 0) and "{#FFFFFF}" or "{#FF0000}"
-    local amount_str = string.format("{ol}{#FFFFFF}({img pvpmine_shop_btn_total 20 20}%s%s{ol}{#FFFFFF})", color,
-        GET_COMMAED_STRING(cost))
-    amount:SetText(amount_str)
-end
-
-function Indun_panel_buyuse_vel(indun_panel, ctrl, recipe_name, indun_type)
-    if not indun_type then
-        return
-    end
-    local indun_cls = GetClassByType("Indun", indun_type)
-    if not indun_cls then
-        return
-    end
-    local current_count = 0
-    if indun_cls then
-        current_count = GET_CURRENT_ENTERANCE_COUNT(indun_cls.PlayPerResetType) or 0
-    end
-    local reserve_script = string.format("Indun_panel_enter_velnice_solo(nil, nil, '', %d)", indun_type)
-    if tonumber(current_count) < VELNICE_CONFIG.max_count then
-        ReserveScript(reserve_script, 0.2)
-        return
-    end
-    for _, ticket_id in ipairs(VELNICE_CONFIG.tickets) do
-        local use_item = session.GetInvItemByType(ticket_id)
-        if use_item then
-            INV_ICON_USE(use_item)
-            ReserveScript(reserve_script, 1.0)
-            return
-        end
-    end
-    local trade_count = Indun_panel_get_recipe_trade_count(recipe_name)
-    local overbuy_limit = Indun_panel_overbuy_count(recipe_name)
-    if trade_count >= 1 or overbuy_limit > 0 then
-        Indun_panel_item_buy_use(recipe_name)
-        ReserveScript(reserve_script, 1.5)
-        return
-    else
-        ui.SysMsg(g.lang == "Japanese" and "トレード回数が足りません。" or "No trade count.")
-        return
-    end
-end
-
-function Indun_panel_enter_velnice_solo(indun_panel, ctrl, str, indun_type)
-    local indun_cls = GetClassByType("Indun", indun_type)
-    if not indun_cls then
-        return
-    end
-    local account_obj = GetMyAccountObj()
-    if account_obj then
-        local stage = TryGetProp(account_obj, "SOLO_DUNGEON_MINI_CLEAR_STAGE", 0)
-        local yes_scp = "INDUNINFO_MOVE_TO_SOLO_DUNGEON_PRECHECK"
-        local title = ScpArgMsg("Select_Stage_SoloDungeon", "Stage", stage + 5)
-        INDUN_EDITMSGBOX_FRAME_OPEN(indun_type, title, "", yes_scp, "", 1, stage + 5, 1)
-    end
-end
-
-local DUNGEON_TICKET_CONFIG = {
-    [684] = { -- (嘆きの墓地)
-        label = "490",
-        tickets = {11200276, 11200275, 11200274}
-    },
-    [728] = { --  (アシャーク)
-        label = "540",
-        tickets = {11200486, 11200485, 11200484}
-    }
-}
-function Indun_panel_create_common_ticket_frame(indun_panel, key, indun_type, y, x)
-    local config = DUNGEON_TICKET_CONFIG[indun_type]
-    if not config then
-        return
-    end
-    local btn = indun_panel:CreateOrGetControl('button', key .. 'btn', x, y, 80, 30)
-    AUTO_CAST(btn)
-    btn:SetText("{ol}" .. config.label)
-    btn:SetEventScript(ui.LBUTTONUP, "Indun_panel_enter_solo")
-    btn:SetEventScriptArgNumber(ui.LBUTTONUP, indun_type)
-    local count_text = indun_panel:CreateOrGetControl("richtext", key .. "count", x + 85, y + 5, 50, 30)
-    count_text:SetText(Indun_panel_get_entrance_count(indun_type, 1))
-    local ticket_btn = indun_panel:CreateOrGetControl('button', key .. 'ticket_btn', x + 115, y, 80, 30)
-    AUTO_CAST(ticket_btn)
-    ticket_btn:SetText("{ol}{#EE7800}{s14}USE")
-    local inv_count = 0
-    for _, id in ipairs(config.tickets) do
-        local inv_item = session.GetInvItemByType(id)
-        if inv_item then
-            inv_count = inv_count + inv_item.count
-        end
-    end
-    if #config.tickets > 0 then
-        local item_cls = GetClassByType('Item', config.tickets[1])
-        if item_cls then
-            local fmt = g.lang == "Japanese" and "{ol}{img %s 25 25 } %d枚持っています" or
-                            "{ol}{img %s 25 25 } Quantity in Inventory: %d"
-            ticket_btn:SetTextTooltip(string.format(fmt, item_cls.Icon, inv_count))
-        end
-    end
-    ticket_btn:SetEventScript(ui.LBUTTONUP, "Indun_panel_item_use")
-    ticket_btn:SetEventScriptArgNumber(ui.LBUTTONUP, indun_type)
-end
-
-function Indun_panel_cemetery_frame(indun_panel, key, indun_type, y, x)
-    Indun_panel_create_common_ticket_frame(indun_panel, key, indun_type, y, x)
-end
-
-function Indun_panel_demonlair_frame(indun_panel, key, indun_type, y, x)
-    Indun_panel_create_common_ticket_frame(indun_panel, key, indun_type, y, x)
-end
-
-function Indun_panel_item_use(indun_panel, ctrl, str, indun_type)
-    local config = DUNGEON_TICKET_CONFIG[indun_type]
-    if not config then
-        return
-    end
-    for _, classid in ipairs(config.tickets) do
-        local use_item = session.GetInvItemByType(classid)
-        if use_item then
-            INV_ICON_USE(use_item)
-            return
-        end
-    end
-end
-
-function Indun_panel_jsr_frame(indun_panel, y, x)
-    local jsrbtn = indun_panel:CreateOrGetControl('button', 'jsrbtn', x, y, 80, 30)
-    AUTO_CAST(jsrbtn)
-    jsrbtn:SetText("{ol}JSR")
-    jsrbtn:SetEventScript(ui.LBUTTONUP, "FIELD_BOSS_JOIN_ENTER_CLICK")
-    jsrbtn:SetUserValue("BASE_X", x)
-    jsrbtn:SetUserValue("BASE_Y", y)
-    Indun_panel_field_boss_enter_timer_setting(jsrbtn)
-    jsrbtn:RunUpdateScript("Indun_panel_field_boss_enter_timer_setting", 1.0)
-end
-
-local function format_jsr_time(seconds)
-    local hours = math.floor(seconds / 3600)
-    local minutes = math.floor((seconds % 3600) / 60)
-    local seconds_rem = seconds % 60
-
-    local jp = string.format("%d時間%d分%d秒", hours, minutes, seconds_rem)
-    local en = string.format("%02d:%02d:%02d", hours, minutes, seconds_rem)
-    return jp, en
-end
-
-function Indun_panel_field_boss_enter_timer_setting(ctrl)
-    local frame = ctrl:GetTopParentFrame()
-    if not frame then
-        return 0
-    end
-    local server_time_str = date_time.get_lua_now_datetime_str()
-    if not server_time_str then
-        return 1
-    end
-    local _, _, _, hour_str, min_str, sec_str = server_time_str:match("(%d+)-(%d+)-(%d+) (%d+):(%d+):(%d+)")
-    if not hour_str then
-        return 1
-    end
-    local today_sec = tonumber(hour_str) * 3600 + tonumber(min_str) * 60 + tonumber(sec_str)
-    local sec12 = 12 * 3600
-    local sec22 = 22 * 3600
-    local diff12 = sec12 - today_sec
-    local diff22 = sec22 - today_sec
-    local text_str = ""
-    local is_en = (g.indun_panel_settings.etc.en_ver == 1) -- 設定参照先を修正
-    if diff12 >= 0 then
-        local jp, en = format_jsr_time(diff12)
-        text_str = is_en and (en .. " After Start") or (jp .. ClMsg("After_Start"))
-    elseif diff12 >= -300 then
-        local jp, en = format_jsr_time(300 + diff12)
-        text_str = is_en and (en .. " After Exit") or (jp .. ClMsg("After_Exit"))
-    elseif diff22 >= 0 then
-        local jp, en = format_jsr_time(diff22)
-        text_str = is_en and (en .. " After Start") or (jp .. ClMsg("After_Start"))
-    elseif diff22 >= -300 then
-        local jp, en = format_jsr_time(300 + diff22)
-        text_str = is_en and (en .. " After Exit") or (jp .. ClMsg("After_Exit"))
-    else
-        text_str = is_en and "Already Exit" or ClMsg("Already_Exit")
-    end
-    local x = ctrl:GetUserIValue("BASE_X")
-    local y = ctrl:GetUserIValue("BASE_Y")
-    local jsrtime = frame:CreateOrGetControl("richtext", "jsrtime", x + 85, y + 5, 10, 10)
-    jsrtime:SetText("{ol}" .. text_str)
-    if x == 0 then
-        jsrtime:ShowWindow(0)
-    else
-        jsrtime:ShowWindow(1)
-    end
-    return 1
-end
--- indun_panel ここまで
 
 -- Ancient Auto Set ここから
 function Ancient_auto_set_save_settings()
@@ -25298,645 +26102,6 @@ function Continue_reinforce_GODDESS_MGR_REFORGE_TAB_CHANGE()
     end
 end
 -- continue_reinforce ここまで
-
--- characters_item_serch ここから
-g.characters_item_serch = g.characters_item_serch or {}
-function Characters_item_serch_save_settings()
-    g.save_json(g.characters_item_serch_path, g.characters_item_serch_settings)
-end
-
-function Characters_item_serch_load_settings()
-    g.characters_item_serch_path = string.format("../addons/%s/%s/characters_item_serch.json", addon_name_lower,
-        g.active_id)
-    g.characters_item_serch_dat_tbl = {string.format("../addons/%s/%s/characters_item_serch_warehouse.dat",
-        addon_name_lower, g.active_id),
-                                       string.format("../addons/%s/%s/characters_item_serch_inventory.dat",
-        addon_name_lower, g.active_id),
-                                       string.format("../addons/%s/%s/characters_item_serch_equips.dat",
-        addon_name_lower, g.active_id),
-                                       string.format("../addons/%s/%s/characters_item_serch_accountwarehouse.dat",
-        addon_name_lower, g.active_id)}
-    g.characters_item_serch_old_dat_tbl = {string.format("../addons/%s/%s/warehouse.dat", "characters_item_serch",
-        g.active_id), string.format("../addons/%s/%s/inventory.dat", "characters_item_serch", g.active_id),
-                                           string.format("../addons/%s/%s/equips.dat", "characters_item_serch",
-        g.active_id)}
-
-    local settings = g.load_json(g.characters_item_serch_path)
-    if not settings then
-        settings = {
-            chars = {}
-        }
-    end
-    g.characters_item_serch_settings = settings
-    Characters_item_serch_save_settings()
-    for i = 1, #g.characters_item_serch_dat_tbl - 1 do
-        local new_path = g.characters_item_serch_dat_tbl[i]
-        local old_path = g.characters_item_serch_old_dat_tbl[i]
-        local new_file = io.open(new_path, "r")
-        if not new_file then
-            local content_to_write = ""
-            if old_path then
-                local old_file = io.open(old_path, "r")
-                if old_file then
-                    content_to_write = old_file:read("*all")
-                    old_file:close()
-                end
-            end
-            local file_to_write = io.open(new_path, "w")
-            if file_to_write then
-                file_to_write:write(content_to_write)
-                file_to_write:close()
-            end
-        else
-            new_file:close()
-        end
-    end
-end
-
-function characters_item_serch_on_init()
-    if _G["BARRACK_CHARLIST_ON_INIT"] and _G["current_layer"] then
-        g.characters_item_serch.layer = _G["current_layer"] or 1
-    end
-    if not g.characters_item_serch_settings then
-        Characters_item_serch_load_settings()
-    end
-    local old_func = g.settings.characters_item_serch.old_init_func
-    if _G[old_func] then
-        return
-    end
-    g.setup_hook_and_event(g.addon, "APPS_TRY_LEAVE", "Characters_item_serch_APPS_TRY_LEAVE", true)
-    g.setup_hook_and_event(g.addon, "INVENTORY_CLOSE", "Characters_item_serch_INVENTORY_CLOSE", true)
-    g.setup_hook_and_event(g.addon, "ACCOUNTWAREHOUSE_CLOSE", "Characters_item_serch_ACCOUNTWAREHOUSE_CLOSE", true)
-    g.setup_hook_and_event(g.addon, "'WAREHOUSE_CLOSE", "Characters_item_serch_WAREHOUSE_CLOSE", true)
-    local sysmenu = ui.GetFrame("sysmenu")
-    local inven = GET_CHILD(sysmenu, "inven")
-    AUTO_CAST(inven)
-    inven:SetEventScript(ui.RBUTTONUP, "Characters_item_serch_toggle_frame")
-    local function get_localized_tooltip(lang)
-        if lang == "Japanese" then
-            return "{@st59}インベントリ (F2){nl}右クリック: Characters Item Serch"
-        elseif lang == "kr" then
-            return "{@st59}인벤토리 (F2){nl}Right click: Characters Item Serch"
-        else
-            return "{@st59}Inventory (F2){nl}Right click: Characters Item Serch"
-        end
-    end
-    local tooltip = get_localized_tooltip(g.lang)
-    inven:SetTextTooltip(tooltip)
-    Characters_item_serch_char_data()
-end
-
-function Characters_item_serch_toggle_frame()
-    if g.settings.characters_item_serch.use == 0 then
-        return
-    end
-    local characters_item_serch = ui.GetFrame(addon_name_lower .. "characters_item_serch")
-    if not characters_item_serch then
-        Characters_item_serch_frame_init(nil, nil, g.login_name, 0)
-    elseif characters_item_serch and characters_item_serch:IsVisible() == 0 then
-        Characters_item_serch_frame_init(nil, nil, g.login_name, 0)
-    elseif characters_item_serch:IsVisible() == 1 then
-        Characters_item_serch_close(characters_item_serch)
-    end
-end
-
-function Characters_item_serch_char_data()
-    local chars = g.characters_item_serch_settings["chars"]
-    local acc_info = session.barrack.GetMyAccount()
-    local pc_count = acc_info:GetPCCount()
-    for i = 0, pc_count - 1 do
-        local pc_info = acc_info:GetPCByIndex(i)
-        if pc_info then
-            local pc_cid = pc_info:GetCID()
-            local pc_apc = pc_info:GetApc()
-            if pc_apc then
-                local pc_name = pc_apc:GetName()
-                chars[pc_name] = {
-                    name = pc_name,
-                    layer = g.characters_item_serch.layer,
-                    order = i,
-                    cid = pc_cid
-                }
-            end
-        end
-    end
-    local barrack_all = acc_info:GetBarrackPCCount()
-    if barrack_all > 0 then
-        local barrack_chars = {}
-        for i = 0, barrack_all - 1 do
-            local pc_info = acc_info:GetBarrackPCByIndex(i)
-            if pc_info then
-                barrack_chars[pc_info:GetName()] = true
-            end
-        end
-        local chars_to_delete = {}
-        for char_name, _ in pairs(chars) do
-            if not barrack_chars[char_name] then
-                table.insert(chars_to_delete, char_name)
-            end
-        end
-        if #chars_to_delete > 0 then
-            for _, char_name in ipairs(chars_to_delete) do
-                chars[char_name] = nil
-            end
-        end
-    end
-    Characters_item_serch_save_settings()
-end
-
-function Characters_item_serch_APPS_TRY_LEAVE(my_frame, my_msg)
-    local type = g.get_event_args(my_msg)
-    if type == "Exit" or type == "Logout" or type == "Barrack" then
-        Characters_item_serch_inventory_save_list()
-    end
-end
-
-function Characters_item_serch_INVENTORY_CLOSE()
-    Characters_item_serch_inventory_save_list()
-end
-
-function Characters_item_serch_ACCOUNTWAREHOUSE_CLOSE()
-    local item_list = session.GetEtcItemList(IT_ACCOUNT_WAREHOUSE)
-    local sorted_guid_list = item_list:GetSortedGuidList()
-    local count = sorted_guid_list:Count()
-    local items_to_save = {}
-    for i = 0, count - 1 do
-        local guid = sorted_guid_list:Get(i)
-        local aw_item = item_list:GetItemByGuid(guid)
-        if aw_item then
-            local clsid = aw_item.type
-            local iesid = aw_item:GetIESID()
-            local obj = GetObjectByGuid(iesid)
-            if obj then
-                local item_name = string.lower(dictionary.ReplaceDicIDInCompStr(obj.Name))
-                local item_count = aw_item.count
-                local item_cls = GetClassByType('Item', clsid)
-                local category = "false"
-                if item_cls and item_cls.MarketCategory ~= "None" then
-                    category = item_cls.MarketCategory:match("^(.-)_")
-                end
-                table.insert(items_to_save,
-                    {g.lang == "Japanese" and "チーム倉庫" or "Account Warehouse", iesid, clsid, item_count,
-                     item_name, "accountwarehouse", category})
-            end
-        end
-    end
-    local dat_file_path = g.characters_item_serch_dat_tbl[4]
-    Characters_item_serch_save_item_list_to_dat(dat_file_path, items_to_save, true)
-end
-
-function Characters_item_serch_save_item_list_to_dat(dat_path, items_to_save, is_overwrite)
-    local lines = {}
-    if not is_overwrite then
-        local file_read = io.open(dat_path, "r")
-        if file_read then
-            for line in file_read:lines() do
-                if line:match("^(.-):::") ~= g.login_name then
-                    table.insert(lines, line)
-                end
-            end
-            file_read:close()
-        end
-    end
-    for _, item in ipairs(items_to_save) do
-        table.insert(lines, table.concat(item, ":::"))
-    end
-    local file = io.open(dat_path, "w")
-    if file then
-        file:write(table.concat(lines, "\n"))
-        file:close()
-    end
-end
-
-function Characters_item_serch_inventory_save_list()
-    local inv_item_list = session.GetInvItemList()
-    local inv_guid_list = inv_item_list:GetGuidList()
-    local cnt = inv_guid_list:Count()
-    -- inventory save
-    local items = {}
-    for i = 0, cnt - 1 do
-        local guid = inv_guid_list:Get(i)
-        local inv_Item = inv_item_list:GetItemByGuid(guid)
-        local inv_obj = GetIES(inv_Item:GetObject())
-        local inv_clsid = inv_obj.ClassID
-        local inv_count = inv_Item.count
-        local item_cls = GetClassByType('Item', inv_clsid)
-        local category = "false"
-        if item_cls ~= nil and item_cls.MarketCategory ~= "None" then
-            category = item_cls.MarketCategory:match("^(.-)_")
-        end
-        local item_name = string.lower(dictionary.ReplaceDicIDInCompStr(inv_obj.Name))
-        table.insert(items, {g.login_name, guid, inv_clsid, inv_count, item_name, "inventory", category})
-    end
-    local inventory_dat = g.characters_item_serch_dat_tbl[2]
-    Characters_item_serch_save_item_list_to_dat(inventory_dat, items)
-    -- equips save
-    local items = {}
-    local equiplist = session.GetEquipItemList()
-    for i = 0, equiplist:Count() - 1 do
-        local equip_item = equiplist:GetEquipItemByIndex(i)
-        local obj = GetIES(equip_item:GetObject())
-        if obj ~= nil then
-            local iesid = equip_item:GetIESID()
-            if iesid ~= "0" then
-                local clsid = obj.ClassID
-                local item_cls = GetClassByType('Item', clsid)
-                local category = "false"
-                if item_cls ~= nil and item_cls.MarketCategory ~= "None" then
-                    category = item_cls.MarketCategory:match("^(.-)_")
-                end
-                local item_name = string.lower(dictionary.ReplaceDicIDInCompStr(obj.Name))
-                table.insert(items, {g.login_name, iesid, clsid, 1, item_name, "equips", category})
-            end
-        end
-    end
-    local mc_frame = ui.GetFrame("monstercardslot")
-    for i = 1, 14 do
-        local card_info = equipcard.GetCardInfo(i)
-        if card_info then
-            local clsid = card_info:GetCardID()
-            local item_cls = GetClassByType("Item", clsid)
-            local item_name = string.lower(dictionary.ReplaceDicIDInCompStr(item_cls.Name))
-            local category = "false"
-            if item_cls ~= nil and item_cls.MarketCategory ~= "None" then
-                category = item_cls.MarketCategory:match("^(.-)_")
-            end
-            table.insert(items, {g.login_name, "None" .. i, clsid, 1, item_name, "equips", category})
-        end
-    end
-    local equips_dat = g.characters_item_serch_dat_tbl[3]
-    Characters_item_serch_save_item_list_to_dat(equips_dat, items)
-end
-
-function Characters_item_serch_WAREHOUSE_CLOSE()
-    local warehouse = ui.GetFrame('warehouse')
-    local gbox = warehouse:GetChild("gbox")
-    local slotset = gbox:GetChild("slotset")
-    AUTO_CAST(slotset)
-    local items = {}
-    for i = 0, slotset:GetSlotCount() - 1 do
-        local slot = slotset:GetSlotByIndex(i)
-        local icon = slot:GetIcon()
-        if icon then
-            local icon_info = icon:GetInfo()
-            local iesid = icon_info:GetIESID()
-            local obj = GetObjectByGuid(iesid)
-            local clsid = obj.ClassID
-            local item_cls = GetClassByType('Item', clsid)
-            local category = "false"
-            if item_cls and item_cls.MarketCategory ~= "None" then
-                category = item_cls.MarketCategory:match("^(.-)_")
-            end
-            local item_name = string.lower(dictionary.ReplaceDicIDInCompStr(obj.Name))
-            table.insert(items, {g.login_name, iesid, clsid, icon_info.count, item_name, "warehouse", category})
-        end
-    end
-    local warehouse_dat = g.characters_item_serch_dat_tbl[1]
-    Characters_item_serch_save_item_list_to_dat(warehouse_dat, items)
-end
-
-function Characters_item_serch_load_data(select_name, search_mode, search_text)
-    local dat_tbl = {}
-    for i = 1, #g.characters_item_serch_dat_tbl - 1 do
-        table.insert(dat_tbl, g.characters_item_serch_dat_tbl[i])
-    end
-    local items = {}
-    local target_name = (select_name == "") and g.login_name or select_name
-    if search_mode == "ITEM_SEARCH" then
-        table.insert(dat_tbl, g.characters_item_serch_dat_tbl[4])
-    end
-    local valid_chars = g.characters_item_serch_settings["chars"]
-    for _, dat_file_path in ipairs(dat_tbl) do
-        local file = io.open(dat_file_path, "r")
-        if file then
-            local content = file:read("*all")
-            file:close()
-            for line in content:gmatch("([^\n]+)") do
-                local is_match = false
-                if search_mode == "ITEM_SEARCH" then
-                    if string.find(string.lower(line), string.lower(search_text)) then
-                        is_match = true
-                    end
-                else
-                    if line:find(target_name, 1, true) == 1 then
-                        is_match = true
-                    end
-                end
-                if is_match then
-                    local parts = {}
-                    for part in (line .. ":::"):gmatch("(.-):::") do
-                        table.insert(parts, part)
-                    end
-                    if #parts > 0 and parts[#parts] == "" then
-                        table.remove(parts)
-                    end
-                    local char_name = parts[1]
-                    local is_valid_char = false
-                    if valid_chars[char_name] or char_name == "チーム倉庫" or char_name == "Account Warehouse" then
-                        is_valid_char = true
-                    end
-                    if is_valid_char then
-                        if search_mode == "ITEM_SEARCH" then
-                            parts[3] = tonumber(parts[3]) or 0
-                        else
-                            table.remove(parts, 1)
-                            if #parts > 0 then
-                                parts[2] = tonumber(parts[2]) or 0
-                            end
-                        end
-                        if #parts > 0 then
-                            table.insert(items, parts)
-                        end
-                    end
-                end
-            end
-        end
-    end
-    if search_mode == "ITEM_SEARCH" then
-        table.sort(items, function(a, b)
-            local a_is_warehouse = (a[1] == "チーム倉庫" or a[1] == "Account Warehouse")
-            local b_is_warehouse = (b[1] == "チーム倉庫" or b[1] == "Account Warehouse")
-            if a_is_warehouse and not b_is_warehouse then
-                return false
-            elseif not a_is_warehouse and b_is_warehouse then
-                return true
-            else
-                return a[3] < b[3]
-            end
-        end)
-    else
-        table.sort(items, function(a, b)
-            return a[2] < b[2]
-        end)
-    end
-    return items
-end
-
-function Characters_item_serch_item_search(my_frame, ctrl, str, num)
-    local characters_item_serch = ctrl:GetTopParentFrame()
-    local search_edit = GET_CHILD(characters_item_serch, "search_edit")
-    AUTO_CAST(search_edit)
-    local search_text = search_edit:GetText()
-    if search_text == "" then
-        Characters_item_serch_frame_init(nil, nil, g.login_name, 0)
-        return
-    end
-    local gb = GET_CHILD(characters_item_serch, "gb")
-    gb:RemoveAllChild()
-    local tree = gb:CreateOrGetControl("tree", 'name_tree', 0, 0, 0, 0)
-    AUTO_CAST(tree)
-    tree:Clear()
-    tree:EnableDrawFrame(false)
-    tree:SetFitToChild(true, 10)
-    tree:SetFontName("white_16_ol")
-    local items = Characters_item_serch_load_data("", "ITEM_SEARCH", search_text)
-    local names = {}
-    for i = 1, #items do
-        local item = items[i]
-        local name = item[1]
-        if not names[name] then
-            names[name] = true
-            local slot_set = Characters_item_serch_make_inven_slotset(tree, name)
-            tree:Add(name)
-            tree:Add(slot_set, name)
-        end
-    end
-    for i = 1, #items do
-        local item = items[i]
-        local name = item[1]
-        local clsid = item[3]
-        local item_count = item[4]
-        local slot_set = GET_CHILD(tree, name)
-        Characters_item_serch_insert_item_to_tree(slot_set, clsid, item_count)
-    end
-    tree:Resize(characters_item_serch:GetWidth() - 40, characters_item_serch:GetHeight() - 135)
-    tree:OpenNodeAll()
-end
-
-function Characters_item_serch_get_sorted_sub_categories(items)
-    local subcategories = {}
-    local subcategory_list = {}
-    local subcategory_order = {
-        ["false"] = 1,
-        ["equips"] = 2,
-        ["warehouse"] = 3,
-        ["Weapon"] = 4,
-        ["Armor"] = 5,
-        ["HairAcc"] = 6,
-        ["Accessory"] = 7,
-        ["nil"] = 8,
-        ["Premium"] = 9,
-        ["Look"] = 10,
-        ["ChangeEquip"] = 11,
-        ["Misc"] = 12,
-        ["Consume"] = 13,
-        ["Recipe"] = 14,
-        ["Card"] = 15,
-        ["Gem"] = 16,
-        ["Ancient"] = 17,
-        ["OPTMisc"] = 18,
-        ["PHousing"] = 19
-    }
-    local function get_order(name)
-        return subcategory_order[name] or 100
-    end
-    for i = 1, #items do
-        local item = items[i]
-        local category = item[5]
-        local sub_category = item[6]
-        local target_category = (category == "inventory") and sub_category or category
-        if not subcategories[target_category] then
-            subcategories[target_category] = true
-            table.insert(subcategory_list, target_category)
-        end
-    end
-    table.sort(subcategory_list, function(a, b)
-        return get_order(a) < get_order(b)
-    end)
-    return subcategory_list
-end
-
-function Characters_item_serch_frame_init(frame, ctrl, select_name, num)
-    local list_frame = ui.GetFrame(addon_name_lower .. "list_frame")
-    if not list_frame then
-        list_frame = _nexus_addons_frame_init()
-        list_frame:ShowWindow(0)
-    end
-    local characters_item_serch = ui.CreateNewFrame("notice_on_pc", addon_name_lower .. "characters_item_serch", 0, 0,
-        70, 30)
-    AUTO_CAST(characters_item_serch)
-    characters_item_serch:SetSkinName("test_frame_low")
-    characters_item_serch:Resize(670, 1080)
-    characters_item_serch:SetPos(list_frame:GetX() + list_frame:GetWidth(), 0)
-    characters_item_serch:EnableMove(0)
-    characters_item_serch:SetLayerLevel(999)
-    characters_item_serch:SetTitleBarSkin("None")
-    characters_item_serch:RemoveAllChild()
-    characters_item_serch:ShowWindow(1)
-    local title_gb = characters_item_serch:CreateOrGetControl("groupbox", "title_gb", 0, 0,
-        characters_item_serch:GetWidth(), 55)
-    title_gb:SetSkinName("test_frame_top")
-    AUTO_CAST(title_gb)
-    local title_text = title_gb:CreateOrGetControl("richtext", "title_text", 0, 0, ui.CENTER_HORZ, ui.TOP, 0, 15, 0, 0)
-    AUTO_CAST(title_text)
-    title_text:SetText('{ol}{s26}Characters Item Serch')
-    local close = characters_item_serch:CreateOrGetControl("button", "close", 0, 0, 25, 25)
-    AUTO_CAST(close)
-    close:SetImage("testclose_button")
-    close:SetGravity(ui.RIGHT, ui.TOP)
-    close:SetEventScript(ui.LBUTTONUP, "Characters_item_serch_close")
-    local login_name = characters_item_serch:CreateOrGetControl("richtext", "login_name", 20, 60, 0, 0)
-    AUTO_CAST(login_name)
-    login_name:SetText(select_name == "" and '{ol}{s18}' .. g.login_name or '{ol}{s18}' .. select_name)
-    local char_switch = characters_item_serch:CreateOrGetControl("button", "char_switch", 20, 85, 150, 30)
-    AUTO_CAST(char_switch)
-    char_switch:SetText(g.lang == "Japanese" and "{ol}キャラクター切替" or "{ol}character switch")
-    char_switch:SetSkinName("test_pvp_btn")
-    char_switch:SetEventScript(ui.LBUTTONUP, "Characters_item_serch_context")
-    local search_edit = characters_item_serch:CreateOrGetControl("edit", "search_edit", 200, 80, 250, 40)
-    AUTO_CAST(search_edit)
-    search_edit:SetFontName("white_18_ol")
-    search_edit:SetTextAlign("left", "center")
-    search_edit:SetSkinName("inventory_serch")
-    search_edit:SetEventScript(ui.ENTERKEY, "Characters_item_serch_item_search")
-    local search_btn = search_edit:CreateOrGetControl("button", "search_btn", 0, 0, 60, 38)
-    AUTO_CAST(search_btn)
-    search_btn:SetImage("inven_s")
-    search_btn:SetGravity(ui.RIGHT, ui.TOP)
-    search_btn:SetEventScript(ui.LBUTTONUP, "Characters_item_serch_item_search")
-    local gb = characters_item_serch:CreateOrGetControl("groupbox", "gb", 20, 120,
-        characters_item_serch:GetWidth() - 40, characters_item_serch:GetHeight() - 135)
-    gb:SetSkinName("test_frame_midle")
-    AUTO_CAST(gb)
-    gb:RemoveAllChild()
-    local tree = gb:CreateOrGetControl("tree", 'tree', 0, 0, 0, 0)
-    AUTO_CAST(tree)
-    tree:Clear()
-    tree:EnableDrawFrame(false)
-    tree:SetFitToChild(true, 10)
-    tree:SetFontName("white_16_ol")
-    -- tree:SetTabWidth(80)
-    Characters_item_serch_build_tree(characters_item_serch, tree, select_name)
-end
-
-function Characters_item_serch_close(characters_item_serch)
-    ui.DestroyFrame(characters_item_serch:GetName())
-end
-
-function Characters_item_serch_context()
-    local chars = g.characters_item_serch_settings["chars"]
-    local sorted_chars = {}
-    for name, data in pairs(chars) do
-        table.insert(sorted_chars, {
-            name = name,
-            data = data
-        })
-    end
-    table.sort(sorted_chars, function(a, b)
-        return a.data.layer < b.data.layer or (a.data.layer == b.data.layer and a.data.order < b.data.order)
-    end)
-    local context = ui.CreateContextMenu("Characters_item_serch_context", "{ol}Characters", 0, 0, 120, 0)
-    ui.AddContextMenuItem(context, "-----")
-    for _, char_data in ipairs(sorted_chars) do
-        local char_name = char_data.name
-        local escaped_name = string.gsub(char_name, "'", "\\'")
-        local str_scp = string.format("Characters_item_serch_frame_init(nil,nil,'%s', 0)", escaped_name)
-        ui.AddContextMenuItem(context, char_name, str_scp)
-    end
-    ui.OpenContextMenu(context)
-end
-
-function Characters_item_serch_build_tree(characters_item_serch, tree, select_name)
-    local items = Characters_item_serch_load_data(select_name)
-    local sub_category_list = Characters_item_serch_get_sorted_sub_categories(items)
-    local category_display_names = {
-        warehouse = g.lang == "Japanese" and "倉庫" or "Warehouse",
-        equips = g.lang == "Japanese" and "装備中" or "Equips",
-        Ancient = g.lang == "Japanese" and "アシスター" or "Ancient",
-        ["nil"] = g.lang == "Japanese" and "レリック" or "Relic",
-        PHousing = g.lang == "Japanese" and "家具" or "Housing"
-    }
-    local silver = 0
-    for i = 1, #items do
-        if items[i][3] == 900011 then
-            silver = items[i][4]
-            break
-        end
-    end
-    local categorized_items = {}
-    for _, item in ipairs(items) do
-        local category = item[5]
-        local sub_category = item[6]
-        local target_category = (category == "inventory") and sub_category or category
-        if not categorized_items[target_category] then
-            categorized_items[target_category] = {}
-        end
-        table.insert(categorized_items[target_category], item)
-    end
-    local iesids = {}
-    for i = 1, #sub_category_list do
-        local category = sub_category_list[i]
-        local disp_category
-        if category == "false" then
-            disp_category = "     " .. "{img icon_item_silver 20 20}" .. " " .. GET_COMMAED_STRING(tonumber(silver))
-            tree:Add(disp_category)
-        else
-            disp_category = category_display_names[category] or ClMsg(category)
-            local new_slots = Characters_item_serch_make_inven_slotset(tree, category)
-            tree:Add(disp_category)
-            tree:Add(new_slots, category)
-            local items_in_category = categorized_items[category] or {}
-            for _, item in ipairs(items_in_category) do
-                local iesid, clsid, item_count = item[1], item[2], item[3]
-                if not iesids[iesid] then
-                    iesids[iesid] = true
-                    Characters_item_serch_insert_item_to_tree(new_slots, clsid, item_count)
-                end
-            end
-        end
-    end
-    tree:Resize(characters_item_serch:GetWidth() - 40, characters_item_serch:GetHeight() - 135)
-    tree:OpenNodeAll()
-end
-
-function Characters_item_serch_make_inven_slotset(tree, name)
-    local slotset = tree:CreateOrGetControl('slotset', name, 20, 0, 0, 0)
-    AUTO_CAST(slotset)
-    slotset:EnablePop(0)
-    slotset:EnableDrag(0)
-    slotset:EnableDrop(0)
-    slotset:SetMaxSelectionCount(999)
-    slotset:SetSlotSize(40, 40)
-    slotset:SetColRow(15, 1)
-    slotset:SetSpc(0, 0)
-    slotset:SetSkinName('invenslot')
-    slotset:EnableSelection(0)
-    slotset:CreateSlots()
-    return slotset
-end
-
-function Characters_item_serch_insert_item_to_tree(new_slots, clsid, item_count)
-    local slot_count = new_slots:GetSlotCount()
-    local count = new_slots:GetUserIValue("SLOT_ITEM_COUNT") or 0
-    while slot_count <= count do
-        new_slots:ExpandRow()
-        slot_count = new_slots:GetSlotCount()
-    end
-    local slot = new_slots:GetSlotByIndex(count)
-    count = count + 1
-    new_slots:SetUserValue("SLOT_ITEM_COUNT", count)
-    slot:ShowWindow(1)
-    local item_cls = GetClassByType('Item', clsid)
-    if item_cls then
-        slot:SetSkinName('invenslot2')
-        SET_SLOT_ITEM_CLS(slot, item_cls)
-        SET_SLOT_BG_BY_ITEMGRADE(slot, item_cls)
-        if tonumber(item_count) > 1 then
-            SET_SLOT_COUNT_TEXT(slot, item_count, "{ol}{s14}")
-        end
-    end
-end
--- characters_item_serch ここまで
 
 -- Boss Gauge ここから
 function boss_gauge_on_init()
