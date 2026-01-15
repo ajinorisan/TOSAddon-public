@@ -10474,4 +10474,354 @@ function Goddess_icor_manager_set_frame_color_equip(bg, size, item_dic, slot)
 
     end
     return "FF000000"
+end]] --[[function Indun_list_viewer_APPS_TRY_MOVE_BARRACK()
+    if g.get_map_type() == "City" then
+        Indun_list_viewer_save_current_char_counts()
+    end
+    if g.settings.instant_cc.use == 1 then
+        Instant_cc_APPS_TRY_MOVE_BARRACK_(nil, nil, nil, 0)
+        return
+    end
+    Indun_list_viewer_APPS_TRY_LEAVE("Barrack")
+end
+
+function Indun_list_viewer_APPS_TRY_LEAVE(type)
+    if Indun_list_viewer_CHECK_ALERT(type) then
+        return
+    end
+    if g.FUNCS["APPS_TRY_LEAVE"] then
+        g.FUNCS["APPS_TRY_LEAVE"](type)
+    end
+end]] --[[function Instant_cc_APPS_TRY_LEAVE(type)
+    local use_icc = g.settings.instant_cc.use ~= 0
+    local use_ilv = g.settings.indun_list_viewer.use ~= 0
+    if use_icc then
+        Instant_cc_APPS_TRY_LEAVE_(type)
+        return
+    end
+    if use_ilv then
+        Indun_list_viewer_APPS_TRY_LEAVE(type)
+        return
+    end
+    if g.FUNCS["APPS_TRY_LEAVE"] then
+        g.FUNCS["APPS_TRY_LEAVE"](type)
+    end
+end
+
+function Instant_cc_EXPIREDITEM_ALERT_ON_MSG(frame, msg, arg_str, arg_num)
+    if msg == "EXPIREDITEM_ALERT_OPEN" then
+        Instant_cc_EXPIREDITEM_ALERT_OPEN(frame, arg_str)
+        return
+    end
+end
+
+function Instant_cc_EXPIREDITEM_ALERT_OPEN(frame, arg_str)
+    local expireditem_alert = ui.GetFrame("expireditem_alert")
+    local near_future_sec = tonumber(expireditem_alert:GetUserConfig("NearFutureSec"))
+    local itemlist = GET_CHILD(expireditem_alert, "itemlist", "ui::CGroupBox")
+    itemlist:RemoveAllChild()
+    local start_index = 0
+    local ypos = 0
+    if g.instant_cc_sweep_tbl then
+        for key, data in ipairs(g.instant_cc_sweep_tbl) do
+            if type(data) == "table" then
+                local ctrlset = itemlist:CreateOrGetControlSet("expireditem_ctrlset",
+                    "expireditem_ctrlset" .. start_index + 1, 0, ypos)
+                AUTO_CAST(ctrlset)
+                local name = GET_CHILD_RECURSIVELY(ctrlset, "name", "ui::CRichText")
+                local expiration_time = GET_CHILD_RECURSIVELY(ctrlset, "expirationTime", "ui::CRichText")
+                local remaining_time = GET_CHILD_RECURSIVELY(ctrlset, "remainingTime", "ui::CRichText")
+                local item_pic = GET_CHILD_RECURSIVELY(ctrlset, "item_pic", "ui::CPicture")
+                local buff_cls = GetClassByType("Buff", data.buff_id)
+                if buff_cls then
+                    name:SetTextByKey("itemname", buff_cls.Name)
+                    local icon_name = "icon_" .. buff_cls.Icon
+                    item_pic:SetImage(icon_name)
+                end
+                local expiration_systime = geTime.GetServerSystemTime()
+                expiration_systime = imcTime.AddSec(expiration_systime, data.buff_time / 1000)
+                expiration_time:SetTextByKey("year", expiration_systime.wYear)
+                expiration_time:SetTextByKey("month", GET_TWO_DIGIT_STR(expiration_systime.wMonth))
+                expiration_time:SetTextByKey("day", GET_TWO_DIGIT_STR(expiration_systime.wDay))
+                local buff_time = data.buff_time / 1000
+                local days = math.floor(buff_time / 86400)
+                local hours = math.floor((buff_time % 86400) / 3600)
+                local mins = math.floor(((buff_time % 86400) % 3600) / 60)
+                local sec = ((buff_time % 86400) % 3600) % 60
+                local dif_sec_msg = ""
+                if days > 0 then
+                    dif_sec_msg = ScpArgMsg("{Day}Day{Hour}Hour{Min}Min", "Day", days, "Hour", hours, "Min", mins)
+                elseif hours > 0 then
+                    dif_sec_msg = ScpArgMsg("{Hour}Hour{Min}Min{Sec}Sec", "Hour", hours, "Min", mins, "Sec", sec)
+                elseif mins > 0 then
+                    dif_sec_msg = ScpArgMsg("{Min}Min{Sec}Sec", "Min", mins, "Sec", sec)
+                else
+                    dif_sec_msg = ScpArgMsg("{Sec}Sec", "Sec", sec)
+                end
+                remaining_time:SetText(dif_sec_msg)
+                local time_parent = remaining_time:GetParent()
+                local amend_h = remaining_time:GetY() + remaining_time:GetHeight()
+                if amend_h < time_parent:GetHeight() then
+                    amend_h = ctrlset:GetHeight()
+                else
+                    local addedHeight = amend_h - time_parent:GetHeight()
+                    ctrlset:Resize(ctrlset:GetWidth(), ctrlset:GetHeight() + addedHeight)
+                end
+                ypos = ypos + ctrlset:GetHeight()
+                start_index = start_index + 1
+            end
+        end
+    end
+    if IS_NEED_TO_ALERT_TOKEN_EXPIRATION(near_future_sec, itemlist) then
+        ypos = ASK_EXPIREDITEM_ALERT_TOKEN(expireditem_alert, itemlist, start_index, ypos)
+        start_index = start_index + 1
+    end
+    local list = GET_SCHEDULED_TO_EXPIRED_ITEM_LIST(near_future_sec)
+    if list and #list >= 1 then
+        ypos = ASK_EXPIREDITEM_ALERT_LIFETIME(expireditem_alert, itemlist, near_future_sec, start_index, ypos)
+        start_index = start_index + #list
+    end
+    expireditem_alert:Resize(expireditem_alert:GetWidth(), expireditem_alert:GetOriginalHeight() + itemlist:GetHeight())
+    if arg_str then
+        expireditem_alert:SetUserValue("TimerType", arg_str)
+    end
+    expireditem_alert:ShowWindow(1)
+end]] --[[function Another_warehouse_auto_item_start_logic(awh, is_retry)
+    if not is_retry then
+        g.awh_retry_count = 0
+    end
+    local accountwarehouse = ui.GetFrame('accountwarehouse')
+    local item_list = session.GetEtcItemList(IT_ACCOUNT_WAREHOUSE)
+    local sorted_guid_list = item_list:GetSortedGuidList()
+    local sorted_cnt = sorted_guid_list:Count()
+    if sorted_cnt == 0 then
+        if accountwarehouse:IsVisible() == 1 then
+            if g.awh_retry_count < 5 then
+                g.awh_retry_count = g.awh_retry_count + 1
+                accountwarehouse:StopUpdateScript("Another_warehouse_retry")
+                accountwarehouse:RunUpdateScript("Another_warehouse_retry", 0.1)
+                return
+            else
+                local msg = g.lang == "Japanese" and
+                                "倉庫情報の取得に失敗しました{nl}アイテム自動取得をスキップします" or
+                                "Failed to retrieve warehouse info{nl}Auto-take skipped"
+                ui.SysMsg(msg)
+            end
+        end
+    end
+    g.awh_take_items = {}
+    g.awh_put_items = {}
+    for i = 0, sorted_cnt - 1 do
+        local guid = sorted_guid_list:Get(i)
+        local inv_item = item_list:GetItemByGuid(guid)
+        local cls_id = inv_item.type
+        local inv_count = g.awh_settings.etc.leave_item == 1 and inv_item.count - 1 or inv_item.count
+        local is_match = false
+        local char_items = g.awh_settings.chars[g.cid].items
+        for str_index, item in pairs(char_items) do
+            local char_clsid = item.clsid
+            local char_clsid_str = tostring(char_clsid)
+            local char_count = item.count
+            if cls_id == char_clsid and cls_id ~= 900011 then
+                if inv_count > 0 then
+                    g.awh_take_items[char_clsid_str] = {
+                        iesid = guid,
+                        count = char_count
+                    }
+                end
+                is_match = true
+                break
+            end
+        end
+        if not is_match then
+            local common_items = g.awh_settings.items
+            for str_index, item in pairs(common_items) do
+                local common_clsid = item.clsid
+                local common_clsid_str = tostring(common_clsid)
+                local common_count = item.count
+                if cls_id == common_clsid and cls_id ~= 900011 then
+                    if inv_count > 0 then
+                        g.awh_take_items[common_clsid_str] = {
+                            iesid = guid,
+                            count = common_count
+                        }
+                    end
+                    break
+                end
+            end
+        end
+    end
+    local inv_item_list = session.GetInvItemList()
+    local inv_guid_list = inv_item_list:GetGuidList()
+    local inv_cnt = inv_guid_list:Count()
+    for i = 0, inv_cnt - 1 do
+        local guid = inv_guid_list:Get(i)
+        local inv_item = inv_item_list:GetItemByGuid(guid)
+        local inv_obj = GetIES(inv_item:GetObject())
+        local inv_clsid = inv_obj.ClassID
+        local inv_clsid_str = tostring(inv_clsid)
+        if inv_clsid ~= 900011 then
+            if g.awh_take_items[inv_clsid_str] then
+                local take_data = g.awh_take_items[inv_clsid_str]
+                local old_need = take_data.count
+                local take_count = take_data.count - inv_item.count
+                if take_count <= 0 then
+                    g.awh_take_items[inv_clsid_str] = nil
+                else
+                    take_data.count = take_count
+                end
+            end
+            local target_count = 0
+            local is_target = false
+            for _, item in pairs(g.awh_settings.chars[g.cid].items) do
+                if item.clsid == inv_clsid then
+                    -- target_count = item.count == 0 and 1 or item.count
+                    target_count = item.count
+                    is_target = true
+                    break
+                end
+            end
+            if not is_target then
+                for _, item in pairs(g.awh_settings.items) do
+                    if item.clsid == inv_clsid then
+                        target_count = item.count
+                        is_target = true
+                        break
+                    end
+                end
+            end
+            if is_target then
+                local put_count = inv_item.count - target_count
+                if put_count > 0 then
+                    g.awh_put_items[inv_clsid_str] = {
+                        iesid = guid,
+                        count = put_count,
+                        invcount = inv_item.count,
+                        initial_count = inv_item.count
+                    }
+                end
+            end
+        end
+    end
+    for cls_id, _ in pairs(g.awh_take_items) do
+        if g.awh_put_items[cls_id] then
+            g.awh_put_items[cls_id] = nil
+        end
+    end
+    Another_warehouse_item_take(awh)
+end
+
+function Another_warehouse_item_take(awh)
+    if awh:GetUserIValue("IS_TAKING") == 0 then
+        local item_list = session.GetEtcItemList(IT_ACCOUNT_WAREHOUSE)
+        local sorted_guid_list = item_list:GetSortedGuidList()
+        local sorted_cnt = sorted_guid_list:Count()
+        session.ResetItemList()
+        local take_count_total = 0
+        for cls_id, items in pairs(g.awh_take_items) do
+            for i = 0, sorted_cnt - 1 do
+                local guid = sorted_guid_list:Get(i)
+                local inv_item = item_list:GetItemByGuid(guid)
+                if guid == items.iesid then
+                    local count = math.min(items.count, inv_item.count)
+                    if count > 0 then
+                        session.AddItemID(guid, count)
+                        take_count_total = take_count_total + 1
+                    end
+                    break
+                end
+            end
+        end
+        if take_count_total == 0 then
+            awh:RunUpdateScript("Another_warehouse_item_put", 0.1)
+            return 0
+        end
+        local accountwarehouse = ui.GetFrame('accountwarehouse')
+        local handle = accountwarehouse:GetUserIValue('HANDLE')
+        item.TakeItemFromWarehouse_List(IT_ACCOUNT_WAREHOUSE, session.GetItemIDList(), handle)
+        awh:SetUserValue("IS_TAKING", 1)
+        awh:SetUserValue("TAKE_START_TIME", imcTime.GetAppTimeMS())
+        awh:StopUpdateScript("Another_warehouse_item_take")
+        awh:RunUpdateScript("Another_warehouse_item_take", 0.1)
+        return 1
+    end
+    local all_arrived = true
+    for cls_id, items in pairs(g.awh_take_items) do
+        local inv_item = session.GetInvItemByGuid(items.iesid)
+        if not inv_item then
+            all_arrived = false
+            break
+        end
+    end
+    local start_time = awh:GetUserIValue("TAKE_START_TIME")
+    local now = imcTime.GetAppTimeMS()
+    if all_arrived or (now - start_time > 1000) then
+        awh:SetUserValue("IS_TAKING", 0)
+        awh:SetUserValue("TOOLTIP_COUNT", 0)
+        awh:RunUpdateScript("Another_warehouse_item_put", 0.1)
+        return 0
+    end
+    return 1
+end
+
+function Another_warehouse_item_put(awh)
+    local accountwarehouse = ui.GetFrame('accountwarehouse')
+    if accountwarehouse:IsVisible() == 0 then
+        awh:StopUpdateScript("Another_warehouse_item_put")
+        return 0
+    end
+    local next_cls_id, item_data = next(g.awh_put_items)
+    if not next_cls_id then
+        if g.awh_settings.chars[g.cid].money_check == 1 then
+            Another_warehouse_silver(awh)
+        else
+            Another_warehouse_end(awh)
+        end
+        return 0
+    end
+    local is_finished = false
+    local inv_item = session.GetInvItemByGuid(item_data.iesid)
+    if not inv_item then
+        is_finished = true
+    elseif item_data.is_putting then
+        if inv_item.count < item_data.initial_count then
+            is_finished = true
+        else
+            return 1
+        end
+    end
+    if is_finished then
+        local count = item_data.real_put_count or item_data.count
+        Another_warehouse_item_put_to(awh, item_data.iesid, count, next_cls_id)
+        if geItemTable.IsStack(next_cls_id) == 1 then
+            table.insert(g.awh_new_stack_add_item, next_cls_id)
+        elseif geItemTable.IsStack(next_cls_id) == 0 then
+            table.insert(g.awh_new_stack_add_item, next_cls_id .. "_" .. item_data.iesid)
+        end
+        g.awh_put_items[tostring(next_cls_id)] = nil
+        if not next(g.awh_put_items) then
+            if g.awh_settings.chars[g.cid].money_check == 1 then
+                Another_warehouse_silver(awh)
+            else
+                Another_warehouse_end(awh)
+            end
+            return 0
+        end
+        return 1
+    end
+    if not Another_warehouse_check_valid(inv_item) then
+        awh:StopUpdateScript("Another_warehouse_item_put")
+        return 0
+    end
+    local handle = accountwarehouse:GetUserIValue("HANDLE")
+    local goal_index = Another_warehouse_get_goal_index()
+    local put_count = item_data.count
+    if put_count > inv_item.count then
+        put_count = inv_item.count
+    end
+    item_data.initial_count = inv_item.count
+    item.PutItemToWarehouse(IT_ACCOUNT_WAREHOUSE, item_data.iesid, tostring(put_count), handle, goal_index)
+    item_data.is_putting = true
+    item_data.real_put_count = put_count
+    return 1
 end]] 

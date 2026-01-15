@@ -32,6 +32,13 @@ Tree of Savior 用のアドオンを作成・改変しています。
 <details>
 <summary>紹介画像 & 更新履歴 (Nexus Addons)</summary>
 
+*   **v1.1.3**
+    *   Another Warehouse: 自動アイテム入出庫の修正。
+    *   Pick Item Tracker: 初期化処理修正。
+    *   Continue Reinforce: プレミア補助材の挙動修正。
+    *   Easy Buff: バフ屋の挙動修正。
+    *   Archeology Helper: 追加。
+    *   Tavern of Soul: 簡易データ検索追加。
 *   **v1.1.2**
     *   不安定なバラックへ戻るロジック修正。
     *   Character Change Helper: 装備装着ロジック見直し、倉庫入庫のロジック修正。
