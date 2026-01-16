@@ -32,6 +32,8 @@ Tree of Savior 用のアドオンを作成・改変しています。
 <details>
 <summary>紹介画像 & 更新履歴 (Nexus Addons)</summary>
 
+*   **v1.1.4**
+    *   AlwaysStatus: 表示をカスタマイズ出来る様に。
 *   **v1.1.3**
     *   Another Warehouse: 自動アイテム入出庫の修正。
     *   Pick Item Tracker: 初期化処理修正。
