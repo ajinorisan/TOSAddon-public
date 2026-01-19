@@ -32,6 +32,12 @@ Tree of Savior 用のアドオンを作成・改変しています。
 <details>
 <summary>紹介画像 & 更新履歴 (Nexus Addons)</summary>
 
+*   **v1.1.5**
+    *   Character Change Helper: ロードファイル処理修正。アイテム装着レベル判定追加。
+    *   AlwaysStatus: 位置固定挙動修正。
+    *   Tavern of Soul: モンスターデータ検索修正。
+    *   Indun Panel: 掃討ボタン挙動修正。
+    *   No Check: 連続アイテム使用フレームバグ修正。
 *   **v1.1.4**
     *   AlwaysStatus: 表示をカスタマイズ出来る様に。
 *   **v1.1.3**
