@@ -25,11 +25,10 @@ local function ts(...)
     end
     print(table.concat(string_parts, "   |   "))
 end
-
+-- ancient_monster_bookshelf ここから
 function ancient_monster_bookshelf_on_init()
     Ancient_monster_bookshelf_btn_init()
     g.addon:RegisterMsg('ANCIENT_CARD_COMBINE', 'Ancient_monster_bookshelf_on_ancient_card_update')
-    g.addon:RegisterMsg('ANCIENT_CARD_EVOLVE', 'Ancient_monster_bookshelf_on_ancient_card_update')
 end
 
 function Ancient_monster_bookshelf_btn_init()
@@ -42,511 +41,102 @@ function Ancient_monster_bookshelf_btn_init()
     btn:SetEventScript(ui.LBUTTONUP, "Ancient_monster_bookshelf_init_frame")
 end
 
-function Ancient_monster_bookshelf_init_frame()
+function Ancient_monster_bookshelf_close()
     ui.DestroyFrame(addon_name_lower .. "amb")
-    local amb = ui.CreateNewFrame("notice_on_pc", addon_name_lower .. "amb", 0, 0, 1270, 900)
+end
+
+function Ancient_monster_bookshelf_init_frame()
+    ts("1")
+    Ancient_monster_bookshelf_set_working(false)
+    ts("2")
+    local amb = ui.GetFrame(addon_name_lower .. "amb")
+    if amb then
+        Ancient_monster_bookshelf_close()
+        return
+    end
+    amb = ui.CreateNewFrame("notice_on_pc", addon_name_lower .. "amb", 0, 0, 1090, 900)
     AUTO_CAST(amb)
     amb:RemoveAllChild()
     amb:SetSkinName("test_frame_low")
     amb:SetLayerLevel(92)
     amb:SetPos(300, 50)
-    -- amb:SetGravity(ui.TOP, ui.CENTER_VERT)
-    amb:Resize(1270, 900)
-    amb:SetTitleBarSkin("None")
+    amb:Resize(1090, 900)
     amb:EnableHittestFrame(1)
+
+    local title_gb = amb:CreateOrGetControl("groupbox", "title_gb", 0, 0, amb:GetWidth(), 55)
+    AUTO_CAST(title_gb)
+    title_gb:SetSkinName("test_frame_top")
+    local title_text = title_gb:CreateOrGetControl("richtext", "title_text", 0, 0, ui.CENTER_HORZ, ui.TOP, 0, 15, 0, 0)
+    AUTO_CAST(title_text)
+    title_text:SetText('{ol}{s26}Ancient Monster Bookshelf')
+
+    local close = amb:CreateOrGetControl("button", "close", 0, 0, 25, 25)
+    AUTO_CAST(close)
+    close:SetImage("testclose_button")
+    close:SetOffset(1027, 18)
+    close:SetEventScript(ui.LBUTTONUP, "Ancient_monster_bookshelf_close")
+
     local txt_slot = amb:CreateOrGetControl("richtext", "labelslot", 0, 0, 90, 33)
     AUTO_CAST(txt_slot)
     txt_slot:SetGravity(ui.TOP, ui.LEFT)
-    txt_slot:SetMargin(16, 120, 0, 0)
+    txt_slot:SetMargin(20, 60, 0, 0)
     txt_slot:SetText("{ol}{s20}Assister Box")
+
     local txt_inv = amb:CreateOrGetControl("richtext", "labelinventory", 0, 0, 90, 33)
     AUTO_CAST(txt_inv)
     txt_inv:SetGravity(ui.TOP, ui.LEFT)
-    txt_inv:SetMargin(566, 120, 0, 0)
+    txt_inv:SetMargin(570, 60, 0, 0)
     txt_inv:SetText("{ol}{s20}Inventory")
-    local txt_count = amb:CreateOrGetControl("richtext", "labelcardcount", 0, 0, 90, 33)
-    AUTO_CAST(txt_count)
-    txt_count:SetGravity(ui.LEFT, ui.BOTTOM)
-    txt_count:SetMargin(40, 0, 0, 60)
-    txt_count:SetText("{ol}{s20}Cards")
-    local gauge = amb:CreateOrGetControl("gauge", "progresscardcount", 0, 0, 500, 16)
-    AUTO_CAST(gauge)
-    gauge:SetGravity(ui.LEFT, ui.BOTTOM)
-    gauge:SetMargin(40, 0, 0, 30)
-    gauge:SetDrawStyle(ui.GAUGE_DRAW_CELL)
-    gauge:SetCellPoint(1)
-    gauge:SetSkinName("dot_skillslot")
-    local gbox = amb:CreateOrGetControl("groupbox", "gboxwk", 0, 0, 800, 220)
+
+    local gbox = amb:CreateOrGetControl("groupbox", "gboxwk", 380, 670, 690, 220)
     AUTO_CAST(gbox)
-    gbox:SetGravity(ui.RIGHT, ui.BOTTOM)
-    gbox:SetMargin(0, 0, 20, 10)
+    gbox:SetGravity(ui.TOP, ui.LEFT)
     gbox:SetSkinName("bg2")
-    local txt_prog = gbox:CreateOrGetControl("richtext", "txtprogress", 0, 0, 66, 140)
-    AUTO_CAST(txt_prog)
-    txt_prog:SetGravity(ui.LEFT, ui.TOP)
-    txt_prog:SetMargin(20, 20, 0, 0)
-    txt_prog:SetText("{ol}Workbench")
+
+    local btn_combine = gbox:CreateOrGetControl("button", "btncombine", 0, 0, 120, 40)
+    AUTO_CAST(btn_combine)
+    btn_combine:SetGravity(ui.BOTTOM, ui.RIGHT)
+    btn_combine:SetMargin(0, 0, 40, 90)
+    btn_combine:SetText("{s20}{ol}Combine")
+    btn_combine:SetSkinName("test_red_button")
+    btn_combine:SetEventScript(ui.LBUTTONUP, "Ancient_monster_bookshelf_do_action")
+    btn_combine:SetEventScriptArgNumber(ui.LBUTTONUP, 1)
+
     local btn_cancel = gbox:CreateOrGetControl("button", "btncancel", 0, 0, 120, 40)
     AUTO_CAST(btn_cancel)
     btn_cancel:SetGravity(ui.BOTTOM, ui.RIGHT)
     btn_cancel:SetMargin(0, 0, 40, 40)
     btn_cancel:SetText("{s20}{ol}Cancel")
+    btn_cancel:SetSkinName("test_gray_button")
     btn_cancel:SetEventScript(ui.LBUTTONUP, "Ancient_monster_bookshelf_on_cancel")
+
     local slot1 = gbox:CreateOrGetControl("slot", "slotcombine1", 0, 0, 100, 140)
     AUTO_CAST(slot1)
     slot1:SetGravity(ui.LEFT, ui.CENTER_VERT)
     slot1:SetMargin(20 + 100 * 0, 0, 0, 0)
     slot1:SetSkinName('accountwarehouse_slot')
+
     local slot2 = gbox:CreateOrGetControl("slot", "slotcombine2", 0, 0, 100, 140)
     AUTO_CAST(slot2)
     slot2:SetGravity(ui.LEFT, ui.CENTER_VERT)
     slot2:SetMargin(20 + 100 * 1, 0, 0, 0)
     slot2:SetSkinName('accountwarehouse_slot')
+
     local slot3 = gbox:CreateOrGetControl("slot", "slotcombine3", 0, 0, 100, 140)
     AUTO_CAST(slot3)
     slot3:SetGravity(ui.LEFT, ui.CENTER_VERT)
     slot3:SetMargin(20 + 100 * 2, 0, 0, 0)
     slot3:SetSkinName('accountwarehouse_slot')
+
     local slot_prod = gbox:CreateOrGetControl("slot", "slotcombineproduct", 0, 0, 100, 140)
     AUTO_CAST(slot_prod)
     slot_prod:SetGravity(ui.LEFT, ui.CENTER_VERT)
     slot_prod:SetMargin(20 + 100 * 3 + 30, 0, 0, 0)
     slot_prod:SetSkinName('accountwarehouse_slot')
+
     amb:ShowWindow(1)
-    --[[Ancient_monster_bookshelf_refresh_cardslots(false)
-    Ancient_monster_bookshelf_refresh_cardslots(true)
-    Ancient_monster_bookshelf_update_actions()]]
+    Ancient_monster_bookshelf_update()
 end
-
---[[local addon_name = "ANCIENT_MONSTER_BOOKSHELF"
-local addon_name_lower = string.lower(addon_name)
-local author = "ebisuke"
-
-_G["ADDONS"] = _G["ADDONS"] or {}
-_G["ADDONS"][author] = _G["ADDONS"][author] or {}
-_G["ADDONS"][author][addon_name] = _G["ADDONS"][author][addon_name] or {}
-local g = _G["ADDONS"][author][addon_name]
-
-local acutil = require('acutil')
-
-g.version = 0
-g.settings = g.settings or {
-    x = 300,
-    y = 300,
-    style = 0
-}
-g.wkcards = nil
-g.wkcombine = nil
-g.wkinit = nil
-g.working = false
-g.wkreuse = nil
-g.wkcards_before = nil
-g.configurepattern = {}
-g.settings_file_loc = string.format('../addons/%s/settings.json', addon_name_lower)
-g.framename = 'ancient_monster_bookshelf'
-g.debug = false
-g.cardsize = {100, 140}
-
-local function deepcopy(orig)
-    local orig_type = type(orig)
-    local copy
-    if orig_type == 'table' then
-        copy = {}
-        for orig_key, orig_value in next, orig, nil do
-            copy[deepcopy(orig_key)] = deepcopy(orig_value)
-        end
-        setmetatable(copy, deepcopy(getmetatable(orig)))
-    else
-        copy = orig
-    end
-    return copy
-end
-
-local function DBGOUT(msg)
-    if g.debug == true then
-        CHAT_SYSTEM(msg)
-        print(msg)
-    end
-end
-
-local function ERROUT(msg)
-    CHAT_SYSTEM(msg)
-    print(msg)
-end
-
--- ロジックテーブル
-g.aam = {
-    get_selected_slot_indices = function(slotset)
-        local selected = {}
-        for i = 0, slotset:GetSlotCount() - 1 do
-            local slot = slotset:GetSlotByIndex(i)
-            if slot:GetIcon() ~= nil then
-                if slot:IsSelected() == 1 then
-                    selected[#selected + 1] = true
-                else
-                    selected[#selected + 1] = false
-                end
-            end
-        end
-        return selected
-    end,
-
-    get_selected_cards = function(compactinvitem)
-        local frame = g.frame
-        local cards = g.aam.get_selected_slots_as_card(AUTO_CAST(frame:GetChildRecursively("slotcards")), compactinvitem)
-        local cardsinv = g.aam.get_selected_slots_as_card(AUTO_CAST(frame:GetChildRecursively("slotcardsinv")), compactinvitem)
-        for k, v in ipairs(cardsinv) do
-            cards[#cards + 1] = v
-        end
-        return cards
-    end,
-
-    convert_inv_card_to_book_card = function(cards, nolocked)
-        local frame = g.frame
-        local cardsbook = g.aam.get_all_cards(false, true, nolocked, false)
-        local cards = deepcopy(cards)
-        local out = {}
-        for k, v in ipairs(cards) do
-            if not v.isinInventory then
-                -- 既にブックにあるカード
-            else
-                for kk, vv in ipairs(cardsbook) do
-                    if cards[k].isinInventory == false and cards[k].count > 0 and cardsbook[kk].count > 0 and vv.guid == v.guid then
-                        out[#out + 1] = deepcopy(vv)
-                        cardsbook[kk].count = cardsbook[kk].count - 1
-                        cards[k].count = cards[k].count - 1
-                        break
-                    end
-                end
-            end
-        end
-        for k, v in ipairs(cards) do
-            if v.isinInventory then
-                for kk, vv in ipairs(cardsbook) do
-                    if cards[k].count > 0 and cardsbook[kk].count > 0 and vv.starrank == v.starrank and vv.lv == v.lv and vv.classname == v.classname then
-                        out[#out + 1] = deepcopy(vv)
-                        cardsbook[kk].count = cardsbook[kk].count - 1
-                        cards[k].count = cards[k].count - 1
-                        break
-                    end
-                end
-            end
-        end
-        return out
-    end,
-
-    get_selected_slots_as_card = function(slotset, compactinvitem)
-        local aamcards = {}
-        local ref = g.aam.get_all_cards(nil, nil, nil, true)
-        for i = 0, slotset:GetSlotCount() - 1 do
-            local slot = slotset:GetSlotByIndex(i)
-            local icon = slot:GetIcon()
-            if icon and slot:IsSelected() == 1 then
-                local guid = icon:GetUserValue("ANCIENT_GUID")
-                if guid then
-                    for k, v in ipairs(ref) do
-                        if v.guid == guid then
-                            if compactinvitem then
-                                aamcards[#aamcards + 1] = deepcopy(v)
-                                table.remove(ref, k)
-                                break
-                            else
-                                for i = 1, ref[k].count do
-                                    aamcards[#aamcards + 1] = deepcopy(v)
-                                    aamcards[#aamcards].count = 1
-                                end
-                                table.remove(ref, k)
-                                break
-                            end
-                        end
-                    end
-                end
-            end
-        end
-        return aamcards
-    end,
-
-    get_same_stat_cards = function(cards)
-        local assisters = g.aam.get_all_cards(true, true)
-        local sames = {}
-        for k, v in ipairs(cards) do
-            for kk, vv in ipairs(assisters) do
-                if vv.islocked == false and vv.classname == v.classname and vv.lv == v.lv then
-                    sames[#sames + 1] = vv
-                    table.remove(assisters, kk)
-                    break
-                end
-            end
-        end
-        return sames
-    end,
-
-    get_same_rarity_cards = function(cards)
-        local assisters = g.aam.get_all_cards(true, true)
-        local sames = {}
-        for k, v in ipairs(cards) do
-            for kk, vv in ipairs(assisters) do
-                if vv.islocked == false and vv.rarity == v.rarity then
-                    sames[#sames + 1] = vv
-                    table.remove(assisters, kk)
-                    break
-                end
-            end
-        end
-        return sames
-    end,
-
-    get_cards_count = function(cards, noinv)
-        local count = 0
-        for k, v in ipairs(cards) do
-            if not noinv or not v.isinInventory then
-                count = count + v.count
-            end
-        end
-        return count
-    end,
-
-    get_card_by_guid = function(guid)
-        local cards = {}
-        local cardraw = session.ancient.GetAncientCardByGuid(guid)
-        if cardraw then
-            local classname = cardraw:GetClassName()
-            local ancientCls = GetClass("Ancient_Info", classname)
-            local exp = cardraw:GetStrExp()
-            local xpInfo = gePetXP.GetXPInfo(gePetXP.EXP_ANCIENT, tonumber(exp))
-            local level = xpInfo.level
-            cards[#cards + 1] = {
-                card = cardraw, cost = cardraw:GetCost(), rarity = ancientCls.Rarity, guid = cardraw:GetGuid(), invItem = nil, exp = exp, count = 1,
-                isinSlot = false, isinInventory = false, name = ancientCls.Name, islocked = cardraw.isLock, classname = cardraw:GetClassName(), starrank = cardraw.starrank, lv = level
-            }
-            return cards
-        end
-
-        local card
-        local cards_all = g.aam.get_all_cards()
-        for k, v in ipairs(cards_all) do
-            if v.guid == guid then
-                card = v
-                break
-            end
-        end
-        if card == nil then
-            return {}
-        end
-        local classname = card.card:GetClassName()
-        local ancientCls = GetClass("Ancient_Info", classname)
-        local exp = card.card:GetStrExp()
-        local xpInfo = gePetXP.GetXPInfo(gePetXP.EXP_ANCIENT, tonumber(exp))
-        local level = xpInfo.level
-
-        cards[#cards + 1] = {
-            card = card, cost = card.card:GetCost(), rarity = ancientCls.Rarity, guid = card.card:GetGuid(), invItem = nil, exp = exp, count = card.count,
-            isinSlot = false, isinInventory = card.isinInventory, name = ancientCls.Name, islocked = card.isLock, classname = card.card:GetClassName(), starrank = card.starrank, lv = level
-        }
-
-        return cards
-    end,
-
-    get_all_cards = function(nolive, noinventory, nolocked, compactinvitem)
-        local cards = {}
-        if not nolive then
-            for i = 0, 3 do
-                local card = session.ancient.GetAncientCardBySlot(i)
-                if card then
-                    local classname = card:GetClassName()
-                    local ancientCls = GetClass("Ancient_Info", classname)
-                    local exp = card:GetStrExp()
-                    local xpInfo = gePetXP.GetXPInfo(gePetXP.EXP_ANCIENT, tonumber(exp))
-                    local level = xpInfo.level
-                    if not nolocked or not card.isLock then
-                        cards[#cards + 1] = {
-                            card = card, cost = card:GetCost(), rarity = ancientCls.Rarity, guid = card:GetGuid(), invItem = nil, exp = exp, count = 1,
-                            isinSlot = true, isinInventory = false, name = ancientCls.Name, islocked = card.isLock, classname = card:GetClassName(), starrank = card.starrank, lv = level
-                        }
-                    end
-                end
-            end
-            local cnt = session.ancient.GetAncientCardCount()
-
-            for i = 0, cnt - 1 do
-                local card = session.ancient.GetAncientCardByIndex(i)
-                if card and card.slot > 3 then
-                    local classname = card:GetClassName()
-                    local ancientCls = GetClass("Ancient_Info", classname)
-                    local exp = card:GetStrExp()
-                    local xpInfo = gePetXP.GetXPInfo(gePetXP.EXP_ANCIENT, tonumber(exp))
-                    local level = xpInfo.level
-                    if not nolocked or not card.isLock then
-                        cards[#cards + 1] = {
-                            card = card, cost = card:GetCost(), rarity = ancientCls.Rarity, guid = card:GetGuid(), invItem = nil, exp = exp, count = 1,
-                            isinSlot = false, isinInventory = false, name = ancientCls.Name, islocked = card.isLock, classname = card:GetClassName(), starrank = card.starrank, lv = level
-                        }
-                    end
-                end
-            end
-        end
-        if not noinventory then
-            local invItemList = session.GetInvItemList()
-
-            FOR_EACH_INVENTORY(invItemList, function(invItemList, invItem)
-                local class = GetClassByType('Item', invItem.type)
-                if class.ClassName:find('Ancient_Card_') then
-                    local classname = TryGetProp(GetIES(invItem:GetObject()), 'StringArg')
-                    local ancientCls = GetClass("Ancient_Info", classname)
-                    local ancientCostCls = GetClassByType("Ancient_Rarity", ancientCls.Rarity)
-                    if compactinvitem then
-                        if not nolocked or not invItem.isLockState then
-                            cards[#cards + 1] = {
-                                card = {
-                                    GetStrExp = function(self) return "0" end,
-                                    GetClassName = function(self) return classname end,
-                                    GetCost = function(self) return ancientCostCls.Cost end,
-                                    GetGuid = function(self) return invItem:GetIESID() end,
-                                    level = 1,
-                                    starrank = 1,
-                                    rarity = ancientCls.Rarity,
-                                    slot = 0,
-                                },
-                                cost = ancientCostCls.Cost, rarity = ancientCls.Rarity, guid = invItem:GetIESID(), invItem = invItem, exp = 0, count = invItem.count,
-                                isinSlot = false, isinInventory = true, name = ancientCls.Name, islocked = invItem.isLockState, classname = classname, starrank = 1, lv = 1
-                            }
-                        end
-                    else
-                        for i = 1, invItem.count do
-                            if not nolocked or not invItem.isLockState then
-                                cards[#cards + 1] = {
-                                    card = {
-                                        GetStrExp = function(self) return "0" end,
-                                        GetClassName = function(self) return classname end,
-                                        GetCost = function(self) return ancientCostCls.Cost end,
-                                        GetGuid = function(self) return invItem:GetIESID() end,
-                                        level = 1,
-                                        starrank = 1,
-                                        rarity = ancientCls.Rarity,
-                                        slot = 0,
-                                    },
-                                    cost = ancientCostCls.Cost, rarity = ancientCls.Rarity, guid = invItem:GetIESID(), invItem = invItem, exp = 0, count = 1,
-                                    isinSlot = false, isinInventory = true, name = ancientCls.Name, islocked = invItem.isLockState, classname = classname, starrank = 1, lv = 1
-                                }
-                            end
-                        end
-                    end
-                end
-            end, false)
-        end
-        return cards
-    end,
-
-    actions = {
-        {
-            text = "Deselect All",
-            action = function(cards)
-                for i = 0, g.slotsetcards:GetSlotCount() - 1 do
-                    local slot = g.slotsetcards:GetSlotByIndex(i)
-                    slot:Select(0)
-                end
-                for i = 0, g.slotsetinvs:GetSlotCount() - 1 do
-                    local slot = g.slotsetinvs:GetSlotByIndex(i)
-                    slot:Select(0)
-                end
-            end,
-            state = function() return true end
-        },
-        {
-            text = "Lock",
-            action = function(cards) Ancient_monster_bookshelf_lock(cards, true) end,
-            state = function() return true end
-        },
-        {
-            text = "Unlock",
-            action = function(cards) Ancient_monster_bookshelf_lock(cards, false) end,
-            state = function() return true end
-        },
-        {
-            text = "{#00FF00}Evolve",
-            action = function(cards) Ancient_monster_bookshelf_evolve(cards) end,
-            state = function() return g.aam.is_unsafe() and g.aam.is_all_unlocked() and g.aam.can_evolve() end
-        },
-        {
-            text = "{#00FFFF}Auto Combine",
-            action = function(cards) Ancient_monster_bookshelf_combine(cards) end,
-            state = function() return g.aam.is_unsafe() and g.aam.is_all_unlocked() and g.aam.can_combine() and (g.aam.get_cards_count(g.aam.get_selected_cards()) >= 3) end
-        },
-    },
-
-    is_unsafe = function()
-        local frame = g.frame
-        local chk = frame:GetChildRecursively("chkmode")
-        AUTO_CAST(chk)
-        return chk:IsChecked() == 0
-    end,
-
-    is_all_unlocked = function()
-        local cards = g.aam.get_selected_cards()
-        for _, v in ipairs(cards) do
-            if v.islocked == true then
-                return false
-            end
-        end
-        return true
-    end,
-
-    is_all_inv = function()
-        local cards = g.aam.get_selected_cards()
-        if #cards == 0 then
-            return false
-        end
-        for _, v in ipairs(cards) do
-            if not v.isinInventory then
-                return false
-            end
-        end
-        return true
-    end,
-
-    can_evolve = function()
-        local cards = g.aam.get_selected_cards()
-        if g.aam.get_cards_count(cards) < 3 then
-            return false
-        end
-        local base = cards[1]
-        for _, v in ipairs(cards) do
-            if base.classname ~= v.classname or base.starrank ~= v.starrank then
-                return false
-            end
-        end
-        return true
-    end,
-
-    can_combine = function()
-        local cards = g.aam.get_selected_cards()
-        if g.aam.get_cards_count(cards) < 3 then
-            return false
-        end
-        local base = cards[1]
-        for _, v in ipairs(cards) do
-            if base.rarity ~= v.rarity then
-                return false
-            end
-        end
-        return true
-    end,
-}
-
--- 初期化
-function Ancient_monster_bookshelf_on_init(addon, frame)
-    g.addon = addon
-    g.frame = ui.GetFrame(g.framename)
-    
-    if not g.loaded then
-        g.loaded = true
-    end
-    Ancient_monster_bookshelf_init_frame()
-    addon:RegisterMsg('ANCIENT_CARD_COMBINE', 'Ancient_monster_bookshelf_on_ancient_card_update')
-    addon:RegisterMsg('ANCIENT_CARD_EVOLVE', 'Ancient_monster_bookshelf_on_ancient_card_update')
-end
-
-
 
 function Ancient_monster_bookshelf_update()
     Ancient_monster_bookshelf_refresh_cardslots(false)
@@ -554,140 +144,754 @@ function Ancient_monster_bookshelf_update()
     Ancient_monster_bookshelf_update_actions()
 end
 
-function Ancient_monster_bookshelf_update_actions()
-    local frame = ui.GetFrame(g.framename)
-    local gbox = frame:CreateOrGetControl("groupbox", "gboxaction", 0, 0, 150, frame:GetHeight() - 300)
-    gbox:SetGravity(ui.RIGHT, ui.TOP)
-    gbox:SetMargin(0, 150, 20, 0)
-    for k, v in ipairs(g.aam.actions) do
-        local btn = gbox:CreateOrGetControl("button", 'btn' .. k, 0, 32 * (k - 1), 150, 30)
-        btn:SetText(v.text)
-        btn:SetEventScript(ui.LBUTTONUP, "Ancient_monster_bookshelf_do_action")
-        btn:SetEventScriptArgNumber(ui.LBUTTONUP, k)
-        if v.state and g.working == false then
-            if v.state() then
-                btn:SetEnable(1)
-            else
-                btn:SetEnable(0)
-            end
-        else
-            btn:SetEnable(0)
-        end
-    end
-end
-
-function Ancient_monster_bookshelf_do_action(frame, ctrl, argstr, argnum)
-    frame = g.frame
-    local cards = g.aam.get_selected_cards(false)
-    g.aam.actions[argnum].action(cards)
-end
-
-function Ancient_monster_bookshelf_lock(aamcards, lock)
-    local delay = 0.0
-    aamcards = g.aam.get_selected_cards(true)
-    Ancient_monster_bookshelf_set_working(true)
-    local sentguid = {}
-    for _, v in ipairs(aamcards) do
-        if not sentguid[v.guid] then
-            if v.isinInventory then
-                if v.islocked ~= lock then
-                    ReserveScript(string.format("session.inventory.SendLockItem('%s', %d)", v.guid, BoolToNumber(lock)), delay)
-                    delay = delay + 0.8
-                end
-            else
-                if v.islocked ~= lock then
-                    ReserveScript(string.format("ReqLockAncientCard('%s')", v.guid), delay)
-                    delay = delay + 0.8
-                end
-            end
-            sentguid[v.guid] = true
-        end
-    end
-    delay = delay + 0
-    ReserveScript(string.format("Ancient_monster_bookshelf_set_working(false)"), delay)
-    return delay
-end
-
-function Ancient_monster_bookshelf_toggle()
-    ui.ToggleFrame(g.framename)
-end
-
-function Ancient_monster_bookshelf_on_open()
-    local frame = g.frame
-    local chk = frame:GetChildRecursively("chkmode")
-    AUTO_CAST(chk)
-    chk:SetCheck(1)
-    Ancient_monster_bookshelf_update()
-end
-
-function Ancient_monster_bookshelf_refresh_cardslots(isinv)
-    local frame = ui.GetFrame(g.framename)
-    local slotset
-    if not isinv then
-        local gbox = frame:CreateOrGetControl("groupbox", "gboxcards", 20, 150, 540, 500)
-        slotset = gbox:CreateOrGetControl("slotset", "slotcards", 0, 0, 540, 700)
-        g.slotsetcards = slotset
+function Ancient_monster_bookshelf_refresh_cardslots(is_inv)
+    local amb = ui.GetFrame(addon_name_lower .. "amb")
+    local slot_set
+    if not is_inv then
+        local gbox = amb:CreateOrGetControl("groupbox", "gboxcards", 20, 90, 540, 570)
+        slot_set = gbox:CreateOrGetControl("slotset", "slotcards", 0, 0, 540, 700)
+        g.slotsetcards = slot_set
     else
-        local gbox = frame:CreateOrGetControl("groupbox", "gboxcardsinv", 560, 150, 540, 500)
-        slotset = gbox:CreateOrGetControl("slotset", "slotcardsinv", 0, 0, 540, 700)
-        g.slotsetinvs = slotset
+        local gbox = amb:CreateOrGetControl("groupbox", "gboxcardsinv", 560, 90, 540, 570)
+        slot_set = gbox:CreateOrGetControl("slotset", "slotcardsinv", 0, 0, 540, 700)
+        g.slotsetinvs = slot_set
     end
-    AUTO_CAST(slotset)
-    slotset:SetSkinName('accountwarehouse_slot')
-    slotset:EnableDrag(0)
-    slotset:EnableDrop(0)
-    slotset:EnableSelection(0)
-    slotset:SetSlotSize(g.cardsize[1], g.cardsize[2])
-    slotset:SetSpc(3, 3)
-    local cards = g.aam.get_all_cards(isinv, not isinv, false, true)
-    if g.aam.sort then
-        table.sort(cards, g.aam.sort)
-    end
+    AUTO_CAST(slot_set)
+    slot_set:SetSkinName('accountwarehouse_slot')
+    slot_set:EnableDrag(0)
+    slot_set:EnableDrop(0)
+    slot_set:EnableSelection(0)
+    slot_set:SetSlotSize(100, 140)
+    slot_set:SetSpc(3, 3)
+
+    local cards = Ancient_monster_bookshelf_get_all_cards(is_inv, not is_inv, false, true)
     local columns = 5
-    slotset:RemoveAllChild()
-    slotset:SetColRow(columns, math.max(1, math.ceil(#cards / columns)))
-    slotset:CreateSlots()
-    
-    slotset:SetUserValue('islockedselectable', 1)
+    slot_set:RemoveAllChild()
+    slot_set:SetColRow(columns, math.max(1, math.ceil(#cards / columns)))
+    slot_set:CreateSlots()
+    slot_set:SetUserValue('islockedselectable', 1)
+
     for i, v in ipairs(cards) do
-        local slot = slotset:GetSlotByIndex(i - 1)
+        local slot = slot_set:GetSlotByIndex(i - 1)
         if slot then
             AUTO_CAST(slot)
+            -- LBUTTONDOWN から LBUTTONUP に変更、関数名も変更
+            slot:SetEventScript(ui.LBUTTONUP, 'Ancient_monster_bookshelf_slot_on_lbtn_up')
             slot:SetEventScript(ui.MOUSEMOVE, 'Ancient_monster_bookshelf_slotset_on_mousemove')
+
             Ancient_monster_bookshelf_set_slot(slot, v, false)
             slot:Select(0)
         end
     end
-    
-    local gauge = frame:GetChild("progresscardcount")
-    AUTO_CAST(gauge)
-    gauge:SetStatFont(0, "yellow_14_b")
+
+    local txt_count = amb:CreateOrGetControl("richtext", "labelcardcount", 20, 670, 90, 33)
+    AUTO_CAST(txt_count)
     local cnt = session.ancient.GetAncientCardCount()
     local max_cnt = GET_ANCIENT_CARD_SLOT_MAX()
-    gauge:SetTextStat(0, cnt .. "/" .. max_cnt)
-    gauge:SetMaxPoint(max_cnt)
-    gauge:SetCurPoint(cnt)
-    local txt = frame:CreateOrGetControl("richtext", "labelcardcountnum", 0, 0, 90, 33)
-    AUTO_CAST(txt)
-    txt:SetGravity(ui.LEFT, ui.BOTTOM)
-    txt:SetMargin(140, 0, 0, 60)
-    txt:SetText("{ol}{s20}" .. cnt .. "/" .. max_cnt)
+    txt_count:SetText("{ol}{s20}Cards " .. cnt .. "/" .. max_cnt)
+end
+
+function Ancient_monster_bookshelf_slot_on_lbtn_up(frame, slot)
+    -- デバッグログ: クリックされたら表示
+    ts("Slot LBtn Down!")
+
+    local parent = slot:GetParent()
+    AUTO_CAST(slot)
+    AUTO_CAST(parent)
+
+    -- ロック判定
+    local is_locked = slot:GetUserIValue('islocked') == 1
+    local can_select_locked = parent:GetUserIValue('islockedselectable') == 1
+
+    if is_locked and not can_select_locked then
+        ts("-> Slot is locked")
+        return
+    end
+
+    -- 選択状態の切り替え
+    if slot:IsSelected() == 1 then
+        slot:Select(0)
+        ts("-> Unselected")
+    else
+        slot:Select(1)
+        ts("-> Selected")
+    end
+
+    -- ボタン状態更新
+    Ancient_monster_bookshelf_update_actions()
+end
+
+function Ancient_monster_bookshelf_create_card_data(card_obj, inv_item, is_locked, count, is_in_slot, is_in_inventory)
+    local class_name = card_obj:GetClassName()
+    local ancient_cls = GetClass("Ancient_Info", class_name)
+    local rarity = ancient_cls.Rarity
+    local cost = card_obj:GetCost()
+    local guid = card_obj:GetGuid()
+    local exp = card_obj:GetStrExp()
+    local xp_info = gePetXP.GetXPInfo(gePetXP.EXP_ANCIENT, tonumber(exp))
+    local level = xp_info.level
+    local star_rank = card_obj.starrank or 1
+
+    return {
+        card = card_obj,
+        cost = cost,
+        rarity = rarity,
+        guid = guid,
+        invItem = inv_item,
+        exp = exp,
+        count = count,
+        isinSlot = is_in_slot,
+        isinInventory = is_in_inventory,
+        name = ancient_cls.Name,
+        islocked = is_locked,
+        classname = class_name,
+        starrank = star_rank,
+        lv = level
+    }
+end
+
+function Ancient_monster_bookshelf_deepcopy(orig)
+    local orig_type = type(orig)
+    local copy
+    if orig_type == 'table' then
+        copy = {}
+        for orig_key, orig_value in next, orig, nil do
+            copy[Ancient_monster_bookshelf_deepcopy(orig_key)] = Ancient_monster_bookshelf_deepcopy(orig_value)
+        end
+        setmetatable(copy, Ancient_monster_bookshelf_deepcopy(getmetatable(orig)))
+    else
+        copy = orig
+    end
+    return copy
+end
+
+-- =========================================================================================
+-- データ操作ロジック
+-- =========================================================================================
+
+function Ancient_monster_bookshelf_get_all_cards(no_live, no_inventory, no_locked, compact_inv_item)
+    local cards = {}
+
+    -- 装備・所持カードの収集
+    if not no_live then
+        for i = 0, 3 do
+            local card = session.ancient.GetAncientCardBySlot(i)
+            if card and (not no_locked or not card.isLock) then
+                table.insert(cards, Ancient_monster_bookshelf_create_card_data(card, nil, card.isLock, 1, true, false))
+            end
+        end
+        local cnt = session.ancient.GetAncientCardCount()
+        for i = 0, cnt - 1 do
+            local card = session.ancient.GetAncientCardByIndex(i)
+            if card and card.slot > 3 and (not no_locked or not card.isLock) then
+                table.insert(cards, Ancient_monster_bookshelf_create_card_data(card, nil, card.isLock, 1, false, false))
+            end
+        end
+    end
+
+    -- インベントリカードの収集
+    if not no_inventory then
+        local inv_item_list = session.GetInvItemList()
+        local guid_list = inv_item_list:GetGuidList()
+        local cnt = guid_list:Count()
+
+        for i = 0, cnt - 1 do
+            local guid = guid_list:Get(i)
+            local inv_item = inv_item_list:GetItemByGuid(guid)
+            local item_cls = GetClassByType('Item', inv_item.type)
+
+            if item_cls and string.find(item_cls.ClassName, 'Ancient_Card_') then
+                if not no_locked or not inv_item.isLockState then
+                    local item_obj = GetIES(inv_item:GetObject())
+                    local class_name = TryGetProp(item_obj, 'StringArg')
+                    local ancient_cls = GetClass("Ancient_Info", class_name)
+
+                    if ancient_cls then
+                        local ancient_cost_cls = GetClassByType("Ancient_Rarity", ancient_cls.Rarity)
+
+                        local dummy_card = {
+                            GetStrExp = function()
+                                return "0"
+                            end,
+                            GetClassName = function()
+                                return class_name
+                            end,
+                            GetCost = function()
+                                return ancient_cost_cls.Cost
+                            end,
+                            GetGuid = function()
+                                return inv_item:GetIESID()
+                            end,
+                            level = 1,
+                            starrank = 1,
+                            rarity = ancient_cls.Rarity,
+                            slot = 0
+                        }
+
+                        if compact_inv_item then
+                            table.insert(cards, Ancient_monster_bookshelf_create_card_data(dummy_card, inv_item,
+                                inv_item.isLockState, inv_item.count, false, true))
+                        else
+                            for j = 1, inv_item.count do
+                                table.insert(cards, Ancient_monster_bookshelf_create_card_data(dummy_card, inv_item,
+                                    inv_item.isLockState, 1, false, true))
+                            end
+                        end
+                    end
+                end
+            end
+        end
+    end
+    return cards
+end
+
+function Ancient_monster_bookshelf_get_card_by_guid(guid)
+    local cards = {}
+    local cardraw = session.ancient.GetAncientCardByGuid(guid)
+    if cardraw then
+        local classname = cardraw:GetClassName()
+        local ancientCls = GetClass("Ancient_Info", classname)
+        local exp = cardraw:GetStrExp()
+        local xpInfo = gePetXP.GetXPInfo(gePetXP.EXP_ANCIENT, tonumber(exp))
+        local level = xpInfo.level
+        cards[#cards + 1] = {
+            card = cardraw,
+            cost = cardraw:GetCost(),
+            rarity = ancientCls.Rarity,
+            guid = cardraw:GetGuid(),
+            invItem = nil,
+            exp = exp,
+            count = 1,
+            isinSlot = false,
+            isinInventory = false,
+            name = ancientCls.Name,
+            islocked = cardraw.isLock,
+            classname = cardraw:GetClassName(),
+            starrank = cardraw.starrank,
+            lv = level
+        }
+        return cards
+    end
+    local cards_all = Ancient_monster_bookshelf_get_all_cards()
+    for k, v in ipairs(cards_all) do
+        if v.guid == guid then
+            cards[#cards + 1] = v
+            break
+        end
+    end
+    return cards
+end
+
+function Ancient_monster_bookshelf_convert_inv_card_to_book_card(cards, nolocked)
+    -- 現在の全カード情報を取得（在庫管理用）
+    local cardsbook = Ancient_monster_bookshelf_get_all_cards(false, true, nolocked, false)
+    local cards = Ancient_monster_bookshelf_deepcopy(cards)
+    local out = {}
+
+    -- 1. 既に登録済み（スロット/所持）のカードを処理
+    for k, v in ipairs(cards) do
+        if not v.isinInventory then
+            -- cardsbook から GUID が一致するものを探して追加
+            for kk, vv in ipairs(cardsbook) do
+                if vv.guid == v.guid and cardsbook[kk].count > 0 then
+                    table.insert(out, Ancient_monster_bookshelf_deepcopy(vv))
+                    cardsbook[kk].count = cardsbook[kk].count - 1
+                    break
+                end
+            end
+        end
+    end
+
+    -- 2. インベントリにあるカードを処理
+    for k, v in ipairs(cards) do
+        if v.isinInventory then
+            -- cardsbook から条件（ランク・レベル・クラス名）が一致するものを探して追加
+            -- ※登録処理が完了していれば cardsbook に存在しているはず
+            for kk, vv in ipairs(cardsbook) do
+                if cardsbook[kk].count > 0 and vv.starrank == v.starrank and vv.lv == v.lv and vv.classname ==
+                    v.classname then
+                    table.insert(out, Ancient_monster_bookshelf_deepcopy(vv))
+                    cardsbook[kk].count = cardsbook[kk].count - 1
+                    break
+                end
+            end
+        end
+    end
+
+    return out
+end
+
+-- =========================================================================================
+-- 選択・合成ロジック
+-- =========================================================================================
+
+function Ancient_monster_bookshelf_get_selected_cards(compactinvitem)
+    local cards = {}
+
+    local function collect(slotset, name)
+        if not slotset then
+            ts("collect: slotset is nil for " .. name)
+            return
+        end
+
+        local slotCount = slotset:GetSlotCount()
+        -- ts("collect: Checking " .. name .. " (Count: " .. slotCount .. ")")
+
+        for i = 0, slotCount - 1 do
+            local slot = slotset:GetSlotByIndex(i)
+            local icon = slot:GetIcon()
+
+            -- 選択されているかチェック
+            if slot:IsSelected() == 1 then
+                local guid = icon and icon:GetUserValue("ANCIENT_GUID")
+                ts("collect: Slot " .. i .. " SELECTED. GUID: " .. tostring(guid))
+
+                if guid then
+                    local all = Ancient_monster_bookshelf_get_all_cards(nil, nil, nil, true)
+                    local found = false
+                    for _, v in ipairs(all) do
+                        if tostring(v.guid) == tostring(guid) then
+                            found = true
+                            if compactinvitem then
+                                table.insert(cards, deepcopy(v))
+                            else
+                                for k = 1, v.count do
+                                    local c = deepcopy(v)
+                                    c.count = 1
+                                    table.insert(cards, c)
+                                end
+                            end
+                            break
+                        end
+                    end
+                    if not found then
+                        ts("collect: Card data NOT found for GUID: " .. tostring(guid))
+                    end
+                else
+                    ts("collect: Icon or GUID missing for selected slot " .. i)
+                end
+            end
+        end
+    end
+
+    collect(g.slotsetcards, "Cards")
+    collect(g.slotsetinvs, "Invs")
+    return cards
+end
+
+function Ancient_monster_bookshelf_get_cards_count(cards)
+    local count = 0
+    for _, v in ipairs(cards) do
+        count = count + v.count
+    end
+    return count
+end
+
+function Ancient_monster_bookshelf_can_combine()
+    local cards = Ancient_monster_bookshelf_get_selected_cards()
+    local count = Ancient_monster_bookshelf_get_cards_count(cards)
+
+    ts("CanCombine: Selected Count =", count)
+
+    if count < 3 then
+        ts("-> Count < 3 (Need 3)")
+        return false
+    end
+
+    local base = cards[1]
+    for i, v in ipairs(cards) do
+        if base.rarity ~= v.rarity then
+            ts("-> Rarity Mismatch! Base:", base.rarity, "Target:", v.rarity, "Index:", i)
+            return false
+        end
+    end
+
+    ts("-> Combine OK!")
+    return true
+end
+
+-- アクション定義
+g.actions = {{
+    text = "{#00FFFF}Auto Combine",
+    action = function(cards)
+        Ancient_monster_bookshelf_combine(cards)
+    end,
+    state = function()
+        return Ancient_monster_bookshelf_can_combine()
+    end
+}}
+
+function Ancient_monster_bookshelf_update_actions()
+    local frame = ui.GetFrame(addon_name_lower .. "amb")
+    if not frame then
+        return
+    end
+
+    local btncombine = frame:GetChildRecursively("btncombine")
+    if btncombine then
+        local is_enable = 0
+
+        -- 状態確認ログ
+        local can_combine = Ancient_monster_bookshelf_can_combine()
+        ts("UpdateActions: Working:", tostring(g.amb_working), "CanCombine:", tostring(can_combine))
+
+        if not g.amb_working and can_combine then
+            is_enable = 1
+        end
+        btncombine:SetEnable(is_enable)
+    end
+end
+
+function Ancient_monster_bookshelf_do_action(frame, ctrl, argstr, argnum)
+    local cards = Ancient_monster_bookshelf_get_selected_cards(false)
+    if g.actions[argnum] then
+        g.actions[argnum].action(cards)
+    end
+end
+
+-- 合成ロジック
+function Ancient_monster_bookshelf_combine(cards)
+    if g.amb_working then
+        return
+    end
+    g.amb_wkcards = cards
+    ui.MsgBox('Do you want to combine?', string.format('Ancient_monster_bookshelf_do_combine()'), 'None')
+end
+
+function Ancient_monster_bookshelf_do_combine()
+    g.amb_wkinit = Ancient_monster_bookshelf_get_cards_count(Ancient_monster_bookshelf_get_selected_cards(false))
+    Ancient_monster_bookshelf_set_working(true)
+    Ancient_monster_bookshelf_combine_process_next()
+end
+
+function Ancient_monster_bookshelf_set_working(is_working)
+    g.amb_working = is_working
+
+    local amb = ui.GetFrame(addon_name_lower .. "amb")
+
+    if is_working == false then
+        -- フレームがある場合のみUI更新とスクリプト停止を行う
+        if amb then
+            Ancient_monster_bookshelf_update()
+
+            amb:StopUpdateScript("Ancient_monster_bookshelf_process_register_queue")
+            amb:StopUpdateScript("Ancient_monster_bookshelf_combine_process_watchdog")
+            amb:StopUpdateScript("Ancient_monster_bookshelf_retry_prepare_next")
+        end
+
+        -- 変数のクリア（これはフレームがなくても実行する）
+        g.amb_wkcards = nil
+        g.amb_wkcombine = nil
+        g.amb_wkinit = nil
+        g.amb_wkreuse = nil
+        g.amb_wkcards_before = nil
+        g.amb_reg_queue = nil
+        g.amb_next_guid = nil
+        g.amb_retry_count = 0
+    end
+
+    -- アクション更新もフレームが必要
+    if amb then
+        Ancient_monster_bookshelf_update_actions()
+    end
+end
+
+function Ancient_monster_bookshelf_combine_process_next(reuse_card)
+    ts("Process Next: Start")
+    local status, err = pcall(function()
+        local cards = g.amb_wkcards
+        if not cards then
+            ts("Process Next: No cards")
+            return
+        end
+
+        local classname_list = {}
+        for _, v in ipairs(cards) do
+            classname_list[v.classname] = (classname_list[v.classname] or 0) + v.count
+        end
+
+        local list = {}
+        for k, v in pairs(classname_list) do
+            table.insert(list, {
+                classname = k,
+                count = v
+            })
+        end
+
+        local pick = {}
+        local first_card = nil
+        local is_same_class = true
+        local start_index = 1
+
+        if reuse_card then
+            table.insert(pick, reuse_card)
+            first_card = reuse_card
+            start_index = 2
+            ts("Process Next: Reusing card", reuse_card.classname)
+        end
+
+        local wkcards_copy = Ancient_monster_bookshelf_deepcopy(g.amb_wkcards)
+
+        for i = start_index, 3 do
+            table.sort(list, function(a, b)
+                return a.count > b.count
+            end)
+            local found = false
+            for k, v in ipairs(list) do
+                if v.count > 0 then
+                    local skip = false -- passからskipに変更
+                    if i == 1 then
+                        first_card = v
+                    else
+                        if v.classname == first_card.classname then
+                            if i == 3 and is_same_class then
+                                skip = true -- 3枚目が1,2枚目と同じならスキップして次を探す
+                            end
+                        else
+                            is_same_class = false
+                        end
+                    end
+
+                    if not skip then
+                        for kk, vv in ipairs(wkcards_copy) do
+                            if vv.classname == v.classname then
+                                table.insert(pick, Ancient_monster_bookshelf_deepcopy(vv))
+                                table.remove(wkcards_copy, kk)
+                                list[k].count = list[k].count - 1
+                                found = true
+                                break
+                            end
+                        end
+                    end
+                    if found then
+                        break
+                    end
+                end
+            end
+        end
+
+        ts("Process Next: Picked count =", #pick)
+
+        if #pick < 3 then
+            ui.SysMsg("[AMB] Complete.")
+            Ancient_monster_bookshelf_set_working(false)
+            return
+        end
+
+        local inv_card_count = 0
+        for _, v in ipairs(pick) do
+            if v.isinInventory then
+                inv_card_count = inv_card_count + 1
+            end
+        end
+
+        if GET_ANCIENT_CARD_SLOT_MAX() - session.ancient.GetAncientCardCount() < inv_card_count then
+            ui.SysMsg("[AMB] Insufficient Card Slot.")
+            Ancient_monster_bookshelf_set_working(false)
+            return
+        end
+
+        g.amb_wkreuse = reuse_card
+        g.amb_wkcards_before = g.amb_wkcards
+        g.amb_wkcards = wkcards_copy
+        g.amb_wkcombine = pick
+
+        -- インベントリからの登録をキューに入れて順次実行
+        g.amb_reg_queue = {}
+        for _, v in ipairs(pick) do
+            if v.isinInventory then
+                table.insert(g.amb_reg_queue, v.guid)
+            end
+        end
+
+        ts("Process Next: Register Queue Size =", #g.amb_reg_queue)
+
+        local amb = ui.GetFrame(addon_name_lower .. "amb")
+        amb:RunUpdateScript("Ancient_monster_bookshelf_process_register_queue", 0.2)
+    end)
+
+    if not status then
+        print("[AMB] Error in combine_process_next: " .. tostring(err))
+        ts("Error:", err)
+        Ancient_monster_bookshelf_set_working(false)
+    end
+end
+
+function Ancient_monster_bookshelf_process_register_queue(amb)
+    if not g.amb_reg_queue or #g.amb_reg_queue == 0 then
+        ts("Register Queue: Empty, calling Combine Do")
+        -- キューが空になったら合成実行へ
+        amb:RunUpdateScript("Ancient_monster_bookshelf_combine_process_do", 0.5)
+        return 0
+    end
+
+    local guid = table.remove(g.amb_reg_queue, 1)
+    ts("Register Queue: Registering GUID", guid)
+
+    if _G["ANCIENT_CARD_REGISTER_C"] then
+        _G["ANCIENT_CARD_REGISTER_C"](guid)
+    end
+
+    return 1 -- 0.2秒後に次を実行
+end
+
+function Ancient_monster_bookshelf_combine_process_do(amb)
+    ts("Combine Do: Start")
+    if g.amb_wkcombine == nil then
+        ts("Combine Do: wkcombine is nil")
+        return 0
+    end
+
+    -- リトライカウンターの初期化
+    g.amb_retry_count = g.amb_retry_count or 0
+
+    -- Watchdog check
+    for _, v in ipairs(g.amb_wkcombine) do
+        local cards = Ancient_monster_bookshelf_get_card_by_guid(v.guid)
+        if #cards == 0 then
+            g.amb_retry_count = g.amb_retry_count + 1
+            if g.amb_retry_count > 5 then
+                print("[AMB] Retry limit exceeded. Aborting.")
+                Ancient_monster_bookshelf_set_working(false)
+                return 0
+            end
+
+            ts("Combine Do: Card not found, retrying... (" .. g.amb_retry_count .. "/5)", v.guid)
+            g.amb_wkcards = g.amb_wkcards_before
+            amb:StopUpdateScript("Ancient_monster_bookshelf_combine_process_watchdog")
+
+            g.amb_next_guid = g.amb_wkreuse and g.amb_wkreuse.guid or "nil"
+            amb:RunUpdateScript("Ancient_monster_bookshelf_retry_prepare_next", 0.5)
+            return 0
+        end
+    end
+
+    -- 成功したらカウンターをリセット
+    g.amb_retry_count = 0
+
+    local cards = Ancient_monster_bookshelf_convert_inv_card_to_book_card(g.amb_wkcombine, true)
+    ts("Combine Do: Converted cards count =", #cards)
+
+    if #cards < 3 then
+        ts("Combine Do: Insufficient converted cards, retrying...")
+        g.amb_wkcards = g.amb_wkcards_before
+        amb:StopUpdateScript("Ancient_monster_bookshelf_combine_process_watchdog")
+
+        g.amb_next_guid = g.amb_wkreuse and g.amb_wkreuse.guid or "nil"
+        amb:RunUpdateScript("Ancient_monster_bookshelf_retry_prepare_next", 0.5)
+        return 0
+    end
+
+    ts("Combine Do: Executing ReqCombineAncientCard")
+    amb:RunUpdateScript("Ancient_monster_bookshelf_combine_process_watchdog", 1)
+
+    imcSound.PlaySoundEvent("market_sell")
+    ReqCombineAncientCard(cards[1].guid, cards[2].guid, cards[3].guid)
+    return 0
+end
+
+function Ancient_monster_bookshelf_combine_process_watchdog(amb)
+    amb:StopUpdateScript("Ancient_monster_bookshelf_combine_process_watchdog")
+
+    print("[AMB] Combine timeout, retrying...")
+    g.amb_wkcards = g.amb_wkcards_before
+
+    g.amb_next_guid = g.amb_wkreuse and g.amb_wkreuse.guid or "nil"
+    amb:RunUpdateScript("Ancient_monster_bookshelf_retry_prepare_next", 0.5)
+    return 0
+end
+
+function Ancient_monster_bookshelf_retry_prepare_next(amb)
+    local guid = g.amb_next_guid
+    Ancient_monster_bookshelf_combine_process_prepare_next(guid)
+    return 0
+end
+
+function Ancient_monster_bookshelf_combine_process_prepare_next(guid)
+    if not g.amb_wkcombine then
+        return
+    end
+
+    local card = nil
+    if guid and guid ~= "nil" then
+        local getcards = Ancient_monster_bookshelf_get_card_by_guid(guid)
+        if #getcards == 0 then
+            -- まだカード情報が更新されていない場合は待つ
+            g.amb_next_guid = guid
+            local amb = ui.GetFrame(addon_name_lower .. "amb")
+            if amb then
+                amb:RunUpdateScript("Ancient_monster_bookshelf_retry_prepare_next", 0.5)
+            end
+            return
+        end
+
+        local c = getcards[1]
+        if c and c.rarity == g.amb_wkcombine[1].rarity and c.rarity < 4 then
+            card = c
+        end
+    end
+
+    Ancient_monster_bookshelf_combine_process_next(card)
+end
+
+function Ancient_monster_bookshelf_on_ancient_card_update(frame, msg, guid, slot)
+    if g.amb_working then
+        if msg == "ANCIENT_CARD_COMBINE" and g.amb_wkcombine then
+            Ancient_monster_bookshelf_update()
+
+            local amb = ui.GetFrame(addon_name_lower .. "amb")
+            amb:StopUpdateScript("Ancient_monster_bookshelf_combine_process_watchdog")
+
+            local getcards = Ancient_monster_bookshelf_get_card_by_guid(guid)
+            local slot1 = amb:GetChildRecursively("slotcombine1")
+            local slot2 = amb:GetChildRecursively("slotcombine2")
+            local slot3 = amb:GetChildRecursively("slotcombine3")
+            local slot_prod = amb:GetChildRecursively("slotcombineproduct")
+
+            if slot1 then
+                Ancient_monster_bookshelf_set_slot(AUTO_CAST(slot1), g.amb_wkcombine[1], false, true)
+            end
+            if slot2 then
+                Ancient_monster_bookshelf_set_slot(AUTO_CAST(slot2), g.amb_wkcombine[2], false, true)
+            end
+            if slot3 then
+                Ancient_monster_bookshelf_set_slot(AUTO_CAST(slot3), g.amb_wkcombine[3], false, true)
+            end
+
+            if slot_prod and #getcards > 0 then
+                Ancient_monster_bookshelf_set_slot(AUTO_CAST(slot_prod), getcards[1], false, true)
+            end
+
+            -- 次の合成へ
+            g.amb_next_guid = guid
+            amb:RunUpdateScript("Ancient_monster_bookshelf_retry_prepare_next", 0.5)
+        end
+    end
 end
 
 function Ancient_monster_bookshelf_set_slot(slot, v, nodesc, notooltip)
     slot:ClearIcon()
     slot:RemoveAllChild()
+
+    -- ★追加: スロット自体のヒットテストを有効化
+    slot:EnableHitTest(1)
+
     local icon = CreateIcon(slot)
-    local monCls = GetClass("Monster", v.classname)
-    local iconName = TryGetProp(monCls, "Icon")
+    local mon_cls = GetClass("Monster", v.classname)
+    if not mon_cls then
+        return
+    end
+
+    local icon_name = TryGetProp(mon_cls, "Icon")
+
     slot:EnableDrag(0)
     slot:EnableDrop(0)
-    
-    slot:SetUserValue('islocked', BoolToNumber(v.islocked))
+    slot:SetUserValue('islocked', v.islocked and 1 or 0)
+
     if nodesc == nil then
         nodesc = false
     end
-    
+
     local rarity = v.rarity
     if rarity == 1 then
         icon:SetImage("normal_card")
@@ -698,81 +902,88 @@ function Ancient_monster_bookshelf_set_slot(slot, v, nodesc, notooltip)
     elseif rarity == 4 then
         icon:SetImage("legend_card")
     end
+
     local pic = slot:CreateOrGetControl('picture', 'pic', 0, 0, 44, 44)
     AUTO_CAST(pic)
     pic:SetGravity(ui.CENTER_HORZ, ui.TOP)
     pic:SetMargin(0, 23, 0, 0)
-    pic:SetImage(iconName)
+    pic:SetImage(icon_name)
     pic:SetEnableStretch(1)
-    pic:EnableHitTest(0)
+    pic:EnableHitTest(0) -- 画像は透過してスロットをクリックさせる
+
     if nodesc == false then
-        local starStr = ''
+        local star_str = ''
         for ii = 1, v.starrank do
-            starStr = starStr .. string.format("{img monster_card_starmark %d %d}", 15, 15)
+            star_str = star_str .. string.format("{img monster_card_starmark %d %d}", 15, 15)
         end
         local starr = slot:CreateOrGetControl("richtext", 'rank', 0, 0, 60, 20)
         starr:SetGravity(ui.LEFT, ui.BOTTOM)
         starr:SetMargin(0, 0, 0, 0)
-        starr:SetText(starStr)
+        starr:SetText(star_str)
         starr:EnableHitTest(0)
         starr:SetSkinName('bg2')
-        local statetext = slot:CreateOrGetControl('richtext', 'state', 0, 0, 40, 20)
-        local stateStr = ''
+
+        local state_text = slot:CreateOrGetControl('richtext', 'state', 0, 0, 40, 20)
+        local state_str = ''
         if v.isinSlot then
-            stateStr = stateStr .. '{img icon_item_ancient_card 20 20}'
+            state_str = state_str .. '{img icon_item_ancient_card 20 20}'
         end
         if v.isinInventory then
-            stateStr = stateStr .. '{img icon_item_farm47_sack_01 20 20}'
+            state_str = state_str .. '{img icon_item_farm47_sack_01 20 20}'
         end
         if v.islocked then
-            stateStr = stateStr .. '{img inven_lock2 15 20}'
+            state_str = state_str .. '{img inven_lock2 15 20}'
         end
-        statetext:SetGravity(ui.RIGHT, ui.BOTTOM)
-        statetext:SetMargin(0, 0, 0, 0)
-        statetext:SetText(stateStr)
-        statetext:EnableHitTest(0)
-        statetext:SetSkinName('bg')
-        if v.isinInventory then
-            local statetext = slot:CreateOrGetControl('richtext', 'count', 0, 0, 40, 20)
-            statetext:SetGravity(ui.CENTER_HORZ, ui.BOTTOM)
-            statetext:SetMargin(0, 0, 0, 0)
-            statetext:SetText('{s20}{ol}x' .. v.invItem.count .. "")
-            statetext:EnableHitTest(0)
-            statetext:SetSkinName("bg")
+        state_text:SetGravity(ui.RIGHT, ui.BOTTOM)
+        state_text:SetMargin(0, 0, 0, 0)
+        state_text:SetText(state_str)
+        state_text:EnableHitTest(0)
+        state_text:SetSkinName('bg')
+
+        if v.isinInventory and v.invItem then
+            local count_text = slot:CreateOrGetControl('richtext', 'count', 0, 0, 40, 20)
+            count_text:SetGravity(ui.CENTER_HORZ, ui.BOTTOM)
+            count_text:SetMargin(0, 0, 0, 0)
+            count_text:SetText('{s20}{ol}x' .. v.invItem.count .. "")
+            count_text:EnableHitTest(0)
+            count_text:SetSkinName("bg")
         end
-        local costtext = slot:CreateOrGetControl('richtext', 'cost', 0, 0, 30, 30)
-        costtext:SetGravity(ui.RIGHT, ui.TOP)
-        costtext:SetMargin(3, 3, 3, 3)
-        costtext:SetText('{#44FFFF}{@st41}{s18}' .. tostring(v.cost))
-        costtext:EnableHitTest(0)
-        costtext:SetSkinName('none')
-        local ancientCls = GetClass("Ancient_Info", monCls.ClassName)
-        local rarity = ancientCls.Rarity
-        local raritycolor = ''
+
+        local cost_text = slot:CreateOrGetControl('richtext', 'cost', 0, 0, 30, 30)
+        cost_text:SetGravity(ui.RIGHT, ui.TOP)
+        cost_text:SetMargin(3, 3, 3, 3)
+        cost_text:SetText('{#44FFFF}{@st41}{s18}' .. tostring(v.cost))
+        cost_text:EnableHitTest(0)
+        cost_text:SetSkinName('none')
+
+        local rarity_color = ''
         if rarity == 1 then
-            raritycolor = '{#ffffff}'
+            rarity_color = '{#ffffff}'
         elseif rarity == 2 then
-            raritycolor = '{#0e7fe8}'
+            rarity_color = '{#0e7fe8}'
         elseif rarity == 3 then
-            raritycolor = '{#d92400}'
+            rarity_color = '{#d92400}'
         elseif rarity == 4 then
-            raritycolor = '{#ffa800}'
+            rarity_color = '{#ffa800}'
         end
-        local lvstr = raritycolor .. '{ol}{@st41}{s18}' .. raritycolor .. 'Lv' .. v.lv
-        local lvtext = slot:CreateOrGetControl('richtext', 'lv', 0, 0, 30, 30)
-        lvtext:SetGravity(ui.LEFT, ui.TOP)
-        lvtext:SetMargin(3, 3, 3, 3)
-        lvtext:SetText(lvstr)
-        lvtext:EnableHitTest(0)
-        lvtext:SetSkinName('none')
-        local namestr = '{ol}{s14}' .. raritycolor .. monCls.Name
-        local nametext = slot:CreateOrGetControl('richtext', 'name', 0, 0, 30, 30)
-        nametext:SetGravity(ui.CENTER_HORZ, ui.BOTTOM)
-        nametext:SetMargin(0, 0, 0, 24)
-        nametext:SetText(namestr)
-        nametext:EnableHitTest(0)
-        nametext:SetSkinName('none')
+
+        local lv_str = rarity_color .. '{ol}{@st41}{s18}' .. rarity_color .. 'Lv' .. v.lv
+        local lv_text = slot:CreateOrGetControl('richtext', 'lv', 0, 0, 30, 30)
+        lv_text:SetGravity(ui.LEFT, ui.TOP)
+        lv_text:SetMargin(3, 3, 3, 3)
+        lv_text:SetText(lv_str)
+        lv_text:EnableHitTest(0)
+        lv_text:SetSkinName('none')
+
+        local name_str = '{ol}{s14}' .. rarity_color .. mon_cls.Name
+        local name_text = slot:CreateOrGetControl('richtext', 'name', 0, 0, 30, 30)
+        name_text:SetGravity(ui.CENTER_HORZ, ui.BOTTOM)
+        name_text:SetMargin(0, 0, 0, 24)
+        name_text:SetText(name_str)
+        name_text:EnableHitTest(0)
+        name_text:SetSkinName('none')
     end
+
     if not notooltip then
         icon:SetTooltipType("ancient_card")
         icon:SetTooltipStrArg(v.guid)
@@ -780,515 +991,8 @@ function Ancient_monster_bookshelf_set_slot(slot, v, nodesc, notooltip)
     end
 end
 
-function Ancient_monster_bookshelf_slotset_on_mousemove(frame, slot)
-    local parent = slot:GetParent()
-    AUTO_CAST(slot)
-    local state = tonumber(parent:GetUserValue("lbtnpressed"))
-    if mouse.IsLBtnPressed() == 1 then
-        if state == nil then
-            if slot:IsSelected() == 1 then
-                state = 0
-            else
-                state = 1
-            end
-            parent:SetUserValue('lbtnpressed', tostring(state))
-        end
-        if (slot:GetUserIValue('islocked') == 1 and parent:GetUserIValue('islockedselectable') ~= 1) then
-            state = 0
-        end
-        if slot:IsSelected() ~= state then
-            slot:Select(state)
-            Ancient_monster_bookshelf_update_actions()
-        end
-    else
-        state = nil
-        parent:SetUserValue('lbtnpressed', nil)
-    end
-end
-
-function Ancient_monster_bookshelf_set_sort(_, _, _, type)
-    if type == nil then
-        g.aam.sort = nil
-    else
-        if type == 1 then
-            -- by rarity
-            g.aam.sort = function(a, b)
-                if a.rarity == b.rarity then
-                    if a.starrank == b.starrank then
-                        return a.name < b.name
-                    end
-                    return a.starrank > b.starrank
-                end
-                return a.rarity > b.rarity
-            end
-        elseif type == 2 then
-            -- by rank
-            g.aam.sort = function(a, b)
-                if a.starrank == b.starrank then
-                    if a.rarity == b.rarity then
-                        return a.name < b.name
-                    end
-                    return a.rarity > b.rarity
-                end
-                return a.starrank > b.starrank
-            end
-        elseif type == 3 then
-            -- by level
-            g.aam.sort = function(a, b)
-                if a.lv == b.lv then
-                    return a.name < b.name
-                end
-                return a.lv > b.lv
-            end
-        elseif type == 4 then
-            -- by name
-            g.aam.sort = function(a, b)
-                if a.name == b.name then
-                    return a.starrank > b.starrank
-                end
-                return a.name < b.name
-            end
-        end
-    end
-    Ancient_monster_bookshelf_init_frame()
-end
-
-function Ancient_monster_bookshelf_on_sort()
-    local context = ui.CreateContextMenu('context_menusort', '', 0, 10, 200, 200)
-    ui.AddContextMenuItem(context, 'No Sort', 'Ancient_monster_bookshelf_set_sort(nil,nil,nil,nil)')
-    ui.AddContextMenuItem(context, 'Sort by Rarity', 'Ancient_monster_bookshelf_set_sort(nil,nil,nil,1)')
-    ui.AddContextMenuItem(context, 'Sort by Rank', 'Ancient_monster_bookshelf_set_sort(nil,nil,nil,2)')
-    ui.AddContextMenuItem(context, 'Sort by Level', 'Ancient_monster_bookshelf_set_sort(nil,nil,nil,3)')
-    ui.AddContextMenuItem(context, 'Sort by Name', 'Ancient_monster_bookshelf_set_sort(nil,nil,nil,4)')
-    ui.OpenContextMenu(context)
-end
-
-function Ancient_monster_bookshelf_evolve(cards)
-    if g.working then
-        return
-    end
-    local basecard = cards[1]
-    local delay = 0
-    local adds = g.aam.get_cards_count(cards, true) + 1
-    local cardsforfind = g.aam.get_all_cards(true, false, true, false)
-    local invcards = {}
-    for i = adds, 3 do
-        local found = false
-        for k, v in ipairs(cardsforfind) do
-            if v.starrank == basecard.starrank and v.classname == basecard.classname then
-                cards[#cards + 1] = deepcopy(v)
-                found = true
-                invcards[#invcards + 1] = deepcopy(v)
-                table.remove(cardsforfind, k)
-                break
-            end
-        end
-        if found == false then
-            ERROUT("[AMB]Card not found.")
-            return
-        end
-    end
-    
-    if GET_ANCIENT_CARD_SLOT_MAX() - session.ancient.GetAncientCardCount() < #invcards then
-        ui.SysMsg("[AMB]Insufficient Card Slot.")
-        return
-    end
-    for k, v in ipairs(invcards) do
-        ReserveScript(string.format("ANCIENT_CARD_REGISTER_C('%s')", v.guid), delay)
-        delay = delay + 0.25
-    end
-    Ancient_monster_bookshelf_set_working(true)
-    g.wkcards = cards
-    ReserveScript(string.format("Ancient_monster_bookshelf_do_evolve()"), delay)
-    delay = delay + 0.25
-    ReserveScript(string.format("Ancient_monster_bookshelf_set_working(false)"), delay)
-end
-
-function Ancient_monster_bookshelf_set_working(wk)
-    g.working = wk
-    if wk == false then
-        Ancient_monster_bookshelf_update()
-        local frame = ui.GetFrame(g.framename)
-        local gauge = frame:GetChildRecursively("progresscombine")
-        AUTO_CAST(gauge)
-        gauge:SetCurPoint(0)
-        g.wkcards = nil
-        g.wkcombine = nil
-        g.wkinit = nil
-    else
-        Ancient_monster_bookshelf_update_actions()
-    end
-end
-
-function Ancient_monster_bookshelf_combine(cards)
-    if g.working then
-        return
-    end
-    g.wkcards = cards
-    ui.MsgBox('Do you want to combine?', string.format('Ancient_monster_bookshelf_do_combine()'), 'None')
-end
-
-function Ancient_monster_bookshelf_do_combine()
-    g.wkinit = g.aam.get_cards_count(g.aam.get_selected_cards(false))
-    Ancient_monster_bookshelf_set_working(true)
-    Ancient_monster_bookshelf_combine_process_next()
-end
-
-function Ancient_monster_bookshelf_combine_process_next(reusecard)
-    local cards = g.wkcards
-    
-    local classnamelist = {}
-    for k, v in ipairs(cards) do
-        if not classnamelist[v.classname] then
-            classnamelist[v.classname] = v.count
-        else
-            classnamelist[v.classname] = classnamelist[v.classname] + v.count
-        end
-    end
-    -- reformat
-    local list = {}
-    for k, v in pairs(classnamelist) do
-        list[#list + 1] = {classname = k, count = v}
-    end
-    
-    -- 多い順から3つピックアップ
-    local first = nil
-    local same = true
-    local cursor = 1
-    local pick = {}
-    local cd = 1
-    
-    -- 再利用
-    if reusecard then
-        pick[#pick + 1] = reusecard
-        cd = 2
-        first = reusecard
-    end
-    local wkcards = deepcopy(g.wkcards)
-    local i
-    for i = cd, 3 do
-        -- 多い順にソート
-        table.sort(list, function(a, b) return a.count > b.count end)
-        
-        local brk = false
-        for k, v in ipairs(list) do
-            local pass = false
-            if v.count > 0 then
-                if i == 1 then
-                    first = v
-                end
-                
-                for kk, vv in ipairs(wkcards) do
-                    if i == 1 then
-                    else
-                        if v.classname == first.classname then
-                            if i == 3 and same == true then
-                                -- continue
-                                pass = true
-                            end
-                        else
-                            same = false
-                        end
-                    end
-                    
-                    if not pass then
-                        if vv.classname == v.classname then
-                            pick[#pick + 1] = deepcopy(vv)
-                            table.remove(wkcards, kk)
-                            list[k].count = list[k].count - 1
-                            brk = true
-                            break
-                        end
-                    end
-                end
-                if brk then
-                    break
-                end
-            end
-        end
-    end
-    if #pick < 3 then
-        ui.SysMsg("[AMB]Complete.")
-        Ancient_monster_bookshelf_set_working(false)
-        return
-    end
-    local invCardCount = 0
-    for _, v in ipairs(pick) do
-        if v.isinInventory then
-            invCardCount = invCardCount + 1
-        end
-    end
-    if GET_ANCIENT_CARD_SLOT_MAX() - session.ancient.GetAncientCardCount() < invCardCount then
-        ui.SysMsg("[AMB]Insufficient Card Slot.")
-        Ancient_monster_bookshelf_set_working(false)
-        return
-    end
-    g.wkreuse = reusecard
-    g.wkcards_before = g.wkcards
-    g.wkcards = wkcards
-    local delay = 0.2
-    g.wkcombine = pick
-    -- インベントリにあるなら引き出す
-    for k, v in ipairs(pick) do
-        if v.isinInventory then
-            ReserveScript(string.format("ANCIENT_CARD_REGISTER_C('%s')", v.guid), delay)
-            delay = delay + 0.25
-        end
-    end
-    delay = delay + 0.8
-    ReserveScript(string.format("Ancient_monster_bookshelf_combine_process_do()"), delay)
-    delay = delay + 0.25
-end
-
-function Ancient_monster_bookshelf_combine_process_do()
-    if g.wkcombine == nil then
-        return
-    end
-    -- Watchdog
-    local frame = ui.GetFrame(g.framename)
-
-    for k, v in ipairs(g.wkcombine) do
-        if not g.aam.get_card_by_guid(v.guid) then
-            -- retry
-            g.wkcards = g.wkcards_before
-            
-            frame:StopUpdateScript("Ancient_monster_bookshelf_combine_process_watchdog", 1)
-            ReserveScript(string.format("Ancient_monster_bookshelf_combine_process_prepare_next('%s')", g.wkreuse), 0.5)
-            return
-        end
-    end
-    
-    local cards = g.aam.convert_inv_card_to_book_card(g.wkcombine, true)
-    if #cards < 3 then
-        g.wkcards = g.wkcards_before
-        
-        frame:StopUpdateScript("Ancient_monster_bookshelf_combine_process_watchdog", 1)
-        ReserveScript(string.format("Ancient_monster_bookshelf_combine_process_prepare_next('%s')", g.wkreuse), 0.5)
-        return
-    end
-    
-    frame:RunUpdateScript("Ancient_monster_bookshelf_combine_process_watchdog", 1)
-    imcSound.PlaySoundEvent("market_sell")
-    ReqCombineAncientCard(cards[1].guid, cards[2].guid, cards[3].guid)
-end
-
-function Ancient_monster_bookshelf_combine_process_watchdog()
-    local frame = ui.GetFrame(g.framename)
-    
-    frame:StopUpdateScript("Ancient_monster_bookshelf_combine_process_watchdog", 1)
-    g.wkcards = g.wkcards_before
-    ReserveScript(string.format("Ancient_monster_bookshelf_combine_process_prepare_next('%s')", g.wkreuse), 0.5)
-end
-
-function Ancient_monster_bookshelf_do_evolve()
-    imcSound.PlaySoundEvent("market_sell")
-    local cards = g.aam.convert_inv_card_to_book_card(g.wkcards, true)
-    ReqEvolveAncientCard(cards[1].guid, cards[2].guid, cards[3].guid)
-end
-
-function Ancient_monster_bookshelf_combine_process_prepare_next(guid)
-    if not g.wkcombine then
-        return
-    end
-    local getcards = g.aam.get_card_by_guid(guid)
-    if #getcards == 0 then
-        ReserveScript(string.format("Ancient_monster_bookshelf_combine_process_prepare_next('%s')", guid), 0.5)
-        return
-    end
-    local card = getcards[1]
-    
-    local frame = ui.GetFrame(g.framename)
-    
-    if card and card.rarity == g.wkcombine[1].rarity and card.rarity < 4 then
-    else
-        card = nil
-    end
-    
-    Ancient_monster_bookshelf_combine_process_next(card)
-end
-
-function Ancient_monster_bookshelf_on_ancient_card_update(frame, msg, guid, slot)
-    if g.working then
-        if msg == "ANCIENT_CARD_COMBINE" and g.wkcombine then
-            Ancient_monster_bookshelf_update()
-            local getcards = g.aam.get_card_by_guid(guid)
-            
-            local frame = ui.GetFrame(g.framename)
-            
-            frame:StopUpdateScript("Ancient_monster_bookshelf_combine_process_watchdog", 1)
-            
-            local gauge = frame:GetChildRecursively("progresscombine")
-            AUTO_CAST(gauge)
-            gauge:SetCurPoint(g.wkinit - #g.wkcards)
-            gauge:SetMaxPoint(g.wkinit)
-            local slot = frame:GetChildRecursively("slotcombine1")
-            AUTO_CAST(slot)
-            Ancient_monster_bookshelf_set_slot(slot, g.wkcombine[1], false, true)
-            local slot = frame:GetChildRecursively("slotcombine2")
-            AUTO_CAST(slot)
-            Ancient_monster_bookshelf_set_slot(slot, g.wkcombine[2], false, true)
-            local slot = frame:GetChildRecursively("slotcombine3")
-            AUTO_CAST(slot)
-            Ancient_monster_bookshelf_set_slot(slot, g.wkcombine[3], false, true)
-            local slot = frame:GetChildRecursively("slotcombineproduct")
-            AUTO_CAST(slot)
-            if #getcards > 0 then
-                Ancient_monster_bookshelf_set_slot(slot, getcards[1], false, true)
-            end
-            ReserveScript(string.format("Ancient_monster_bookshelf_combine_process_prepare_next('%s')", guid), 0.5)
-        end
-    end
-end
-
 function Ancient_monster_bookshelf_on_cancel()
     Ancient_monster_bookshelf_set_working(false)
-end]]
-
---[[function Cc_helper_save_settings()
-    g.save_lua(g.cc_helper_path, g.cc_helper_settings)
 end
 
-function Cc_helper_load_settings()
-    g.cc_helper_path = string.format("../addons/%s/%s/cc_helper.lua", addon_name_lower, g.active_id)
-    local json_path = string.format("../addons/%s/%s/cc_helper.json", addon_name_lower, g.active_id)
-    local settings = g.load_lua(g.cc_helper_path)
-    local need_save = false
-    local ver = 1.1
-    if not settings then
-        settings = g.load_json(json_path)
-        if settings then
-            need_save = true -- JSONから読み込めたので、後でLua形式で保存する
-        end
-    end
-    if not settings then
-        settings = {
-            etc = {
-                eco = 0,
-                agm_stop = 0,
-                wh_close = 0,
-                copys = {}
-            },
-            ver = ver
-        }
-        local old_copy_path = string.format("../addons/%s/%s/%s_copy.json", "cc_helper", g.active_id, g.active_id)
-        local copy_settings = g.load_json(old_copy_path)
-        if copy_settings then
-            local item_keys = {"seal", "ark", "leg", "god", "hair1", "hair2", "hair3", "gem1", "gem2", "gem3", "gem4",
-                               "pet", "core", "relic"}
-            local item_key_map = {}
-            for _, key in ipairs(item_keys) do
-                item_key_map[key] = true
-            end
-            for cid, char_data in pairs(copy_settings) do
-                if type(char_data) == "table" and next(char_data) then
-                    settings.etc.copys[cid] = {
-                        items = {}
-                    }
-                    for key, value in pairs(char_data) do
-                        if type(value) == "table" then
-                            if item_key_map[key] then
-                                settings.etc.copys[cid].items[key] = {}
-                                for k, v in pairs(value) do
-                                    if k == "memo" then
-                                        local result = StringSplit(v, ":::")
-                                        if #result > 0 then
-                                            if string.find(key, "hair") then
-                                                settings.etc.copys[cid].items[key].rank = result[#result]
-                                                table.remove(result, #result)
-                                                settings.etc.copys[cid].items[key].option = table.concat(result, ":::")
-                                            elseif key == "pet" then
-                                                settings.etc.copys[cid].items[key].option = result[#result]
-                                            end
-                                        end
-                                    elseif k ~= "skin" then
-                                        settings.etc.copys[cid].items[key][k] = v
-                                    end
-                                end
-                            end
-                        else
-                            settings.etc.copys[cid][key] = value
-                        end
-                    end
-                end
-            end
-        end
-        need_save = true
-    end
-    if not settings.ver or settings.ver < ver then
-        settings.ver = ver
-        need_save = true
-    end
-    g.cc_helper_settings = settings
-    if need_save then
-        Cc_helper_save_settings()
-    end
-end
-
-function Cc_helper_char_load_settings()
-    local settings = g.load_lua(g.cc_helper_path)
-    if not settings[g.cid] then
-        settings[g.cid] = {
-            agm = 0,
-            agm_check = 0,
-            mcc = 0,
-            items = {},
-            name = g.login_name
-        }
-    end
-    local tbl = {"seal", "ark", "leg", "god", "hair1", "hair2", "hair3", "gem1", "gem2", "gem3", "gem4", "pet", "core",
-                 "relic"}
-    for _, key in ipairs(tbl) do
-        if not settings[g.cid].items[key] then
-            settings[g.cid].items[key] = {
-                iesid = "",
-                clsid = 0,
-                option = "",
-                rank = "",
-                image = ""
-            }
-        end
-    end
-    g.cc_helper_settings[g.cid] = settings[g.cid]
-    Cc_helper_save_settings()
-end
-]]
-
---[=[function Cc_helper_unequip(in_btn)
-    local inventory = ui.GetFrame("inventory")
-    local eqp_tab = GET_CHILD_RECURSIVELY(inventory, "inventype_Tab")
-    eqp_tab:SelectTab(1)
-    local equip_tbl = {0, 20, 1, 25, 27, 29, 35}
-    local temp_tbl = {"hair1", "hair2", "hair3", "seal", "ark", "relic", "core"}
-    local equip_item_list = session.GetEquipItemList()
-    for i, equip_index in ipairs(equip_tbl) do
-        local equip_item = equip_item_list:GetEquipItemByIndex(equip_index)
-        if equip_item then
-            local iesid = equip_item:GetIESID()
-            local setting_data = g.cc_helper_settings[g.cid].items[temp_tbl[i]]
-            if setting_data and setting_data.clsid ~= 0 then
-                if iesid ~= "0" and setting_data.iesid == iesid then
-                    item.UnEquip(equip_index)
-                    return 1
-                end
-            end
-        end
-    end
-    for i, key in ipairs(temp_tbl) do
-        local setting_data = g.cc_helper_settings[g.cid].items[key]
-        if setting_data and setting_data.clsid ~= 0 then
-            if setting_data.iesid and setting_data.iesid ~= "0" then
-                local inv_item = session.GetInvItemByGuid(setting_data.iesid)
-                if inv_item == nil then
-                    local equip_item = session.GetEquipItemByGuid(setting_data.iesid)
-                    if equip_item ~= nil then
-                        return 1
-                    end
-                end
-            end
-        end
-    end
-    in_btn:StopUpdateScript("Cc_helper_unequip")
-    Cc_helper_putitem(nil, in_btn, nil, 2)
-    return 0
-end]=]
-
+-- ancient_monster_bookshelf ここまで

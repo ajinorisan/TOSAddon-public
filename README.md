@@ -32,6 +32,11 @@ Tree of Savior 用のアドオンを作成・改変しています。
 <details>
 <summary>紹介画像 & 更新履歴 (Nexus Addons)</summary>
 
+*   **v1.1.6**
+    *   AlwaysStatus: %表示追加
+    *   Indun Panel: フィールドモード修正。
+    *   Tavern of Soul: フレーム位置修正。
+    *   Skill Gem Tooltip: OFF時の挙動修正。
 *   **v1.1.5**
     *   Character Change Helper: ロードファイル処理修正。アイテム装着レベル判定追加。
     *   AlwaysStatus: 位置固定挙動修正。
