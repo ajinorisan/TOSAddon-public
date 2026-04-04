@@ -29,10 +29,15 @@
 -- 1.1.4 AS表示名をカスタマイズ可能に
 -- 1.1.5 CCHロード処理見直し、AS位置固定修正、TOSモンスター検索修正、CCHレベル判定修正、IP掃討ボタンの挙動修正、NCアイテム連続使用ロジック修正
 -- 1.1.6 AS%表示追加、IPフィールド表示修正、TOS表示位置修正、SGT無効処理追加
+-- 1.1.7 "Added Zmei"
+-- 1.1.8 “ILV convenience improvements”
+-- 1.1.9 "Automatically replace the slotted potion with a Wild Potion when matching in Zmei Dungeon"
+-- 1.1.10 Added Quick Launcher (` key / Addons Menu), fixed Auto Repair item ID (Lv.550), enlarged Addons Menu icons, IP force open from QL
+
 local addon_name = "_NEXUS_ADDONS"
 local addon_name_lower = string.lower(addon_name)
 local author = "norisan"
-local ver = "1.1.6"
+local ver = "1.1.10"
 
 _G["ADDONS"] = _G["ADDONS"] or {}
 _G["ADDONS"][author] = _G["ADDONS"][author] or {}
@@ -152,23 +157,34 @@ function g.save_lua(path, tbl)
         elseif type(o) == "boolean" then
             return tostring(o)
         elseif type(o) == "table" then
-            local s = "{\n"
+            local parts = {"{\n"}
             for k, v in pairs(o) do
-                s = s .. "[" .. serialize(k) .. "]=" .. serialize(v) .. ",\n"
+                parts[#parts + 1] = "[" .. serialize(k) .. "]=" .. serialize(v) .. ",\n"
             end
-            return s .. "}"
+            parts[#parts + 1] = "}"
+            return table.concat(parts)
         else
             return "nil"
         end
     end
-    local file, err = io.open(path, "w")
+    local ok_s, content = pcall(function() return "return " .. serialize(tbl) end)
+    if not ok_s or not content then
+        if ts then ts("Save Lua Serialize Error:", tostring(content)) end
+        return
+    end
+    local tmp_path = path .. ".tmp"
+    local file, err = io.open(tmp_path, "w")
     if file then
-        file:write("return " .. serialize(tbl))
+        local ok_w, w_err = file:write(content)
         file:close()
-    else
-        if ts then
-            ts("Save Lua Error:", err)
+        if ok_w then
+            os.remove(path)
+            os.rename(tmp_path, path)
+        else
+            if ts then ts("Save Lua Write Error:", tostring(w_err)) end
         end
+    else
+        if ts then ts("Save Lua Error:", err) end
     end
 end
 
@@ -180,17 +196,49 @@ function g.load_lua(path)
             return result
         end
     end
+    local tmp_path = path .. ".tmp"
+    local tmp_chunk = loadfile(tmp_path)
+    if tmp_chunk then
+        local status, result = pcall(tmp_chunk)
+        if status then
+            os.remove(path)
+            os.rename(tmp_path, path)
+            return result
+        end
+    end
     return nil
 end
 
 function g.load_json(path)
     local file = io.open(path, "r")
     if not file then
+        local tmp_file = io.open(path .. ".tmp", "r")
+        if tmp_file then
+            local tmp_content = tmp_file:read("*all")
+            tmp_file:close()
+            if tmp_content and tmp_content ~= "" then
+                os.remove(path)
+                os.rename(path .. ".tmp", path)
+                local s, r = pcall(json.decode, tmp_content)
+                if s then return r, nil end
+            end
+        end
         return nil, "Error opening file: " .. path
     end
     local content = file:read("*all")
     file:close()
     if not content or content == "" then
+        local tmp_file = io.open(path .. ".tmp", "r")
+        if tmp_file then
+            local tmp_content = tmp_file:read("*all")
+            tmp_file:close()
+            if tmp_content and tmp_content ~= "" then
+                os.remove(path)
+                os.rename(path .. ".tmp", path)
+                local s, r = pcall(json.decode, tmp_content)
+                if s then return r, nil end
+            end
+        end
         return nil, "File content is empty or could not be read: " .. path
     end
     if string.sub(content, 1, 3) == "\239\187\191" then
@@ -205,19 +253,25 @@ function g.load_json(path)
 end
 
 function g.save_json(path, tbl)
-    local file, err = io.open(path, "w")
-    if not file then
-        print(string.format("[g.save_json] Error opening file for write: %s (Error: %s)", tostring(path), tostring(err)))
+    local success, str = pcall(json.encode, tbl)
+    if not success then
+        print(string.format("[g.save_json] JSON Encode Error in '%s': %s", tostring(path), tostring(str)))
         return false
     end
-    local success, str = pcall(json.encode, tbl)
-    if success then
-        file:write(str)
-        file:close()
+    local tmp_path = path .. ".tmp"
+    local file, err = io.open(tmp_path, "w")
+    if not file then
+        print(string.format("[g.save_json] Error opening file for write: %s (Error: %s)", tostring(tmp_path), tostring(err)))
+        return false
+    end
+    local ok_w, w_err = file:write(str)
+    file:close()
+    if ok_w then
+        os.remove(path)
+        os.rename(tmp_path, path)
         return true
     else
-        file:close()
-        print(string.format("[g.save_json] JSON Encode Error in '%s': %s", tostring(path), tostring(str)))
+        print(string.format("[g.save_json] Write Error in '%s': %s", tostring(path), tostring(w_err)))
         return false
     end
 end
@@ -407,15 +461,6 @@ g._nexus_addons = {{
         old_init_func = "CONTINUERF_ON_INIT"
     }
 }, {
-    key = "cupole_manager",
-    data = {
-        use = 0,
-        name = "Cupole Manager",
-        frame_use = false,
-        config_func = "",
-        old_init_func = "CUPOLE_MANAGER_ON_INIT"
-    }
-}, {
     key = "debuff_notice",
     data = {
         use = 0,
@@ -587,6 +632,15 @@ g._nexus_addons = {{
         old_init_func = "PICK_ITEM_TRACKER_ON_INIT"
     }
 }, {
+    key = "quick_launcher",
+    data = {
+        use = 0,
+        name = "Quick Launcher",
+        frame_use = false,
+        config_func = "",
+        old_init_func = ""
+    }
+}, {
     key = "quickslot_operate",
     data = {
         use = 0,
@@ -731,11 +785,6 @@ g._nexus_addons_trans = {
         ja = "{ol}ボスが向いている方向を矢印でお知らせ",
         etc = "{ol}Arrow indicates the direction the boss is facing",
         kr = "{ol}보스가 향하는 방향을 화살표로 표시"
-    },
-    ["cupole_manager"] = {
-        ja = "{ol}クポル未登録キャラでも自動で呼び出します",
-        etc = "{ol}Automatically summons the Cupole{nl}even for characters without one registered",
-        kr = "{ol}쿠폴 미등록 캐릭터라도 자동으로 소환"
     },
     ["dungeon_rp_charger"] = {
         ja = "{ol}meldavyさん作成{nl}聖域で自動でレリックポイントを補充します",
@@ -936,6 +985,11 @@ g._nexus_addons_trans = {
         ja = "{ol}アーキオロジー用アドオン",
         etc = "{ol}Addon for Archaeology",
         kr = "{ol}아키올로지용 애드온"
+    },
+    ["quick_launcher"] = {
+        ja = "{ol}Ctrl+`でクイックランチャーを表示{nl}インダンパネルやギルドアジトへの移動など",
+        etc = "{ol}Show Quick Launcher with Ctrl+`{nl}Open Indun Panel, move to Guild Agit, etc.",
+        kr = "{ol}Ctrl+`로 퀵 런처 표시{nl}인던 패널 열기, 길드 아지트 이동 등"
     } --[[,
     ["ancient_monster_bookshelf"] = { -- "archeology_helper"--"ancient_monster_bookshelf"
         ja = "{ol}ebisukeさん作成{nl}アシスターカード整理アドオン",
@@ -2444,6 +2498,15 @@ local induns = {{
         icon = {"Item", 11030017}
     }
 }, {
+    zmei = {
+--         h = 731,
+        s = 730,
+        a = 729,
+        ac = 80047,
+        jp = "Zmei",
+        icon = {"Monster", 71076}
+    }
+}, {
     belliora = {
         h = 727,
         s = 726,
@@ -2614,7 +2677,7 @@ function Indun_panel_load_settings()
     g.indun_panel_path = string.format("../addons/%s/%s/indun_panel.json", addon_name_lower, g.active_id)
     g.indun_panel_old_path = string.format("../addons/%s/%s/settings.json", "indun_panel", g.active_id)
     local settings = g.load_json(g.indun_panel_path)
-    local indun_keys = {"challenge", "singularity", "belliora", "laimara", "ledania", "neringa", "golem", "merregina",
+    local indun_keys = {"challenge", "singularity", "zmei", "belliora", "laimara", "ledania", "neringa", "golem", "merregina",
                         "slogutis", "upinis", "roze", "falouros", "reservoir", "jellyzele", "delmore", "telharsha",
                         "bernice", "giltine", "memory", "wailing", "ashaq", "jsr"}
     local json_to_indun_map = {
@@ -2698,6 +2761,19 @@ function Indun_panel_load_settings()
                             settings.etc.always_open = v
                         elseif settings.etc[k] ~= nil then
                             settings.etc[k] = v
+                        end
+                    end
+                end
+            end
+        end
+    end
+    if settings.set_names then
+        for _, item in ipairs(settings.set_names) do
+            for set_key, _ in pairs(item) do
+                if settings[set_key] and type(settings[set_key]) == "table" then
+                    for _, name in ipairs(indun_keys) do
+                        if settings[set_key][name] == nil then
+                            settings[set_key][name] = 1
                         end
                     end
                 end
@@ -3710,7 +3786,7 @@ function Indun_panel_frame_contents(configbtn)
                             Indun_panel_singularity_frame(indun_panel, key, sub_key, sub_value, y, x)
                         end
                     end
-                elseif key == "belliora" or key == "laimara" or key == "ledania" or key == "neringa" or key == "golem" or
+                elseif key == "zmei" or key == "belliora" or key == "laimara" or key == "ledania" or key == "neringa" or key == "golem" or
                     key == "merregina" or key == "slogutis" or key == "upinis" or key == "roze" or key == "falouros" or
                     key == "reservoir" then -- レイド系 (onsweep)
                     for sub_key, sub_value in pairs(value) do
@@ -4356,6 +4432,7 @@ function Indun_panel_enter_singularity(frame, ctrl, str, indun_type)
 end
 
 local raid_tbl = {
+    [729] = {11210061, 11210062, 11210063},
     [725] = {11210057, 11210056, 11210055},
     [722] = {11210053, 11210052, 11210051},
     [716] = {11210044, 10820040, 11210043, 11210042},
@@ -4367,6 +4444,7 @@ local raid_tbl = {
     [679] = {108020026, 11200222, 11200221, 11200220}
 }
 local buff_ids = {
+    [729] = 80047, -- ズメイ
     [725] = 80045, -- ベリオラ
     [722] = 80043, -- ライマラ
     [716] = 80039, -- レダニア
@@ -10424,6 +10502,7 @@ function Another_warehouse_on_rbutton(frame, slot, iesid, argnum)
                 break
             end
         end
+        Another_warehouse_save_settings()
         Another_warehouse_set_items_setting(index, name_text)
         return
     end
@@ -14488,8 +14567,16 @@ end
 -- Instant CC ここまで
 
 -- ndun_list_viewer ここから
-g.ilv_RAID_KEYS = {"V", "L", "R", "N", "G", "M", "S", "U", "RO", "F", "P", "D"}
+g.ilv_RAID_KEYS = {"Z", "V", "L", "R", "N", "G", "M", "S", "U", "RO", "F", "P", "D"}
 g.ilv_RAID_INFO = {
+    Z = {
+        name = "Zmei",
+        -- hard = 731,
+        solo = 730,
+        auto = 729,
+        icon = "icon_item_misc_boss_Zmei",
+        sweep_buff = 80047
+    },
     V = {
         name = "Veliora",
         hard = 727,
@@ -14645,7 +14732,7 @@ function Indun_list_viewer_load_settings()
             if info.name then
                 local h_key = info.name .. "_H"
                 local s_key = info.name .. "_S"
-                if settings.display[h_key] == nil then
+                if info.hard and settings.display[h_key] == nil then
                     settings.display[h_key] = 1
                 end
                 if settings.display[s_key] == nil then
@@ -14684,7 +14771,8 @@ function Indun_list_viewer_char_load_settings()
                     raid_count = existing_data.raid_count or {},
                     auto_clear_count = existing_data.auto_clear_count or {},
                     cid = pc_cid,
-                    pc_name = pc_name
+                    pc_name = pc_name,
+                    level = pc_apc:GetLv() or existing_data.level or 0
                 }
             end
         end
@@ -14723,7 +14811,8 @@ function Indun_list_viewer_char_load_settings()
             raid_count = existing_data.raid_count or {},
             auto_clear_count = existing_data.auto_clear_count or {},
             cid = pc_cid,
-            pc_name = pc_name
+            pc_name = pc_name,
+            level = existing_data.level or 0
         }
         Indun_list_viewer_save_settings()
     end
@@ -14894,12 +14983,13 @@ function Indun_list_viewer_save_current_char_counts()
     end
     local raid_data = {}
     for key, raid in pairs(g.ilv_RAID_INFO) do
-        local count = get_safe_entrance_count(raid.hard)
+        local count = raid.hard and get_safe_entrance_count(raid.hard)
         raid_data[key .. "_H"] = count or "?"
         count = get_safe_entrance_count(raid.auto)
         raid_data[key .. "_A"] = count or "?"
     end
     g.ilv_settings.chars[g.login_name].raid_count = raid_data
+    g.ilv_settings.chars[g.login_name].level = info.GetLevel(session.GetMyHandle()) or 0
     local auto_clear_data = g.ilv_settings.chars[g.login_name].auto_clear_count
     local my_handle = session.GetMyHandle()
     for _, key in ipairs(g.ilv_RAID_KEYS) do
@@ -15108,20 +15198,22 @@ function Indun_list_viewer_config(parent)
     local text_x = 0
     for _, raid_key in ipairs(g.ilv_RAID_KEYS) do
         local raid_info = g.ilv_RAID_INFO[raid_key]
-        if text_x == 0 then
-            text_x = x
+        if raid_info.hard then
+            if text_x == 0 then
+                text_x = x
+            end
+            local pic = title_gb:CreateOrGetControl("picture", "title_pic_" .. raid_key .. "_H", x + 5, 5, 30, 30)
+            AUTO_CAST(pic)
+            pic:SetImage(raid_info.icon)
+            pic:SetEnableStretch(1)
+            pic:EnableHitTest(1)
+            local check = config_gb:CreateOrGetControl("checkbox", "check_" .. raid_key .. "_H", x, 5, 30, 30)
+            AUTO_CAST(check)
+            check:SetCheck(g.ilv_settings.display[raid_info.name .. "_H"])
+            check:SetEventScript(ui.LBUTTONDOWN, "Indun_list_viewer_display_check")
+            check:SetEventScriptArgString(ui.LBUTTONDOWN, raid_info.name .. "_H")
+            x = x + 30
         end
-        local pic = title_gb:CreateOrGetControl("picture", "title_pic_" .. raid_key .. "_H", x + 5, 5, 30, 30)
-        AUTO_CAST(pic)
-        pic:SetImage(raid_info.icon)
-        pic:SetEnableStretch(1)
-        pic:EnableHitTest(1)
-        local check = config_gb:CreateOrGetControl("checkbox", "check_" .. raid_key .. "_H", x, 5, 30, 30)
-        AUTO_CAST(check)
-        check:SetCheck(g.ilv_settings.display[raid_info.name .. "_H"])
-        check:SetEventScript(ui.LBUTTONDOWN, "Indun_list_viewer_display_check")
-        check:SetEventScriptArgString(ui.LBUTTONDOWN, raid_info.name .. "_H")
-        x = x + 30
     end
     local hard_text = title_gb:CreateOrGetControl("richtext", "hard_text", text_x - 40, 10)
     AUTO_CAST(hard_text)
@@ -15206,7 +15298,7 @@ function Indun_list_viewer_title_frame_open()
     for _, raid_key in ipairs(g.ilv_RAID_KEYS) do
         local raid_info = g.ilv_RAID_INFO[raid_key]
         if raid_info and raid_info.name then -- ここで安全確認
-            if g.ilv_settings.display[raid_info.name .. "_H"] == 1 then
+            if raid_info.hard and g.ilv_settings.display[raid_info.name .. "_H"] == 1 then
                 local pic = title_gb:CreateOrGetControl("picture", "title_pic_" .. raid_key .. "_H", x, 5, 30, 30)
                 AUTO_CAST(pic)
                 pic:SetImage(raid_info.icon)
@@ -15327,9 +15419,16 @@ function Indun_list_viewer_frame_open(indun_list_viewer)
     for _, data in ipairs(sorted_char_list) do
         local x = 35
         local pc_name = data.pc_name
+        if g.login_name == pc_name then
+            local row_bg = gb:CreateOrGetControl("groupbox", "row_bg_current", 0, y - 2, 3000, 25)
+            AUTO_CAST(row_bg)
+            row_bg:SetSkinName("bg")
+            row_bg:SetColorTone("AA444444")
+        end
         local name = gb:CreateOrGetControl("richtext", pc_name, x, y)
         AUTO_CAST(name)
-        name:SetText(("{ol}{s14}" .. (g.login_name == pc_name and "{#FF4500}" or "") .. pc_name))
+        local level_str = data.level and data.level > 0 and " (" .. data.level .. ")" or ""
+        name:SetText(("{ol}{s14}" .. (g.login_name == pc_name and "{#FF4500}" or "") .. pc_name .. level_str))
         Indun_list_viewer_job_slot(indun_list_viewer, data, y)
         x = x + 60
         if not data.hide then
@@ -15338,7 +15437,7 @@ function Indun_list_viewer_frame_open(indun_list_viewer)
             local auto_clear_data = data.auto_clear_count or {}
             for _, raid_key in ipairs(g.ilv_RAID_KEYS) do
                 local raid_info = g.ilv_RAID_INFO[raid_key]
-                if raid_info and raid_info.name then
+                if raid_info and raid_info.name and raid_info.hard then
                     if g.ilv_settings.display[raid_info.name .. "_H"] == 1 then
                         local count = raid_count_data[raid_key .. "_H"] or "?"
                         local text_ctrl = gb:CreateOrGetControl("richtext", raid_key .. "_H_" .. pc_name, current_x, y)
@@ -22034,7 +22133,7 @@ g.quickslot_operate_raid_list = {
     Klaida = {686, 685, 687, 716, 717, 718},
     Velnias = {689, 688, 690, 669, 635, 628, 696, 695, 697},
     Forester = {672, 671, 670},
-    Widling = {677, 676, 678}
+    Widling = {677, 676, 678, 729, 730}
 }
 g.quickslot_operate_zone_list = {11208, 11230, 11250, 11252, 11256, 11257, 11261, 11263, 11266, 11267, 11270, 11276,
                                  11277, 11278, 11285, 11286}
@@ -22683,174 +22782,6 @@ function Quickslot_operate_set_rshift_script()
 end
 -- quickslot_operate ここまで
 
--- Cupole Manager ここから
-function Cupole_manager_save_settings()
-    g.save_json(g.cupole_manager_path, g.cupole_manager_settings)
-end
-
-function Cupole_manager_load_settings()
-    g.cupole_manager_path = string.format("../addons/%s/%s/cupole_manager.json", addon_name_lower, g.active_id)
-    g.cupole_manager_old_path = string.format("../addons/%s/%s/settings.json", "cupole_manager", g.active_id)
-    local changed = false
-    local settings = g.load_json(g.cupole_manager_path)
-    if not settings then
-        local old_settings = g.load_json(g.cupole_manager_old_path)
-        settings = {}
-        if old_settings then
-            for key, value in pairs(old_settings) do
-                if tonumber(key) and string.len(key) > 3 then
-                    settings[key] = value
-                end
-            end
-        end
-        changed = true
-    end
-    if not settings.default then
-        settings.default = {}
-        changed = true
-    end
-    g.cupole_manager_settings = settings
-    if changed then
-        Cupole_manager_save_settings()
-    end
-end
-
-function cupole_manager_on_init()
-    if not g.cupole_manager_settings then
-        Cupole_manager_load_settings()
-    end
-    local old_func = g.settings.cupole_manager.old_init_func
-    if _G[old_func] then
-        return
-    end
-    if not g.cupole_manager_settings[g.cid] then
-        g.cupole_manager_settings[g.cid] = {}
-        Cupole_manager_save_settings()
-    end
-    if g.get_map_type() == "City" then
-        local equip_cupole_list = GET_EQUIP_CUPOLE_LIST()
-        for i = 1, 3 do
-            if equip_cupole_list[i] == "-1" then
-                Cupole_manager_SET_CUPOLE_SLOTS()
-                break
-            end
-        end
-        g.setup_hook_and_event(g.addon, "CLOSE_CUPOLE_ITEM", "Cupole_manager_CLOSE_CUPOLE_ITEM", true)
-        g.setup_hook_and_event(g.addon, "OPEN_CUPOLE_ITEM", "Cupole_manager_OPEN_CUPOLE_ITEM", true)
-    end
-end
-
-function Cupole_manager_OPEN_CUPOLE_ITEM()
-    if g.settings.cupole_manager.use == 0 then
-        return
-    end
-    local cupole_item = ui.GetFrame("cupole_item")
-    if not cupole_item then
-        return
-    end
-    local manageBG = GET_CHILD_RECURSIVELY(cupole_item, "manageBG")
-    local save_btn = manageBG:CreateOrGetControl("button", "save_btn", 1400, 730, 135, 45)
-    AUTO_CAST(save_btn)
-    save_btn:SetSkinName("cupole_border_btn")
-    save_btn:SetText(g.lang == "Japanese" and "{ol}{s15}デフォルト変更" or "{ol}{s15}Change Default")
-    save_btn:SetTextTooltip(g.lang == "Japanese" and "{ol}現在のセットをデフォルトに変更します" or
-                                "{ol}Change the current set to the default")
-    save_btn:SetEventScript(ui.LBUTTONUP, "Cupole_manager_save_default_settings")
-end
-
-function Cupole_manager_CLOSE_CUPOLE_ITEM(parent, ctrl)
-    if g.settings.cupole_manager.use == 0 then
-        return
-    end
-    local equip_cupole_list = GET_EQUIP_CUPOLE_LIST()
-    for i = 1, 3 do
-        local cupole_cls = GET_CUPOLE_BY_INDEX_IN_CLASSLIST(equip_cupole_list[i])
-        local cupole_class_name = TryGetProp(cupole_cls, "ClassName", "None")
-        if equip_cupole_list[i] ~= "-1" then
-            g.cupole_manager_settings[g.cid][tostring(i)] = {
-                id = equip_cupole_list[i],
-                name = cupole_class_name
-            }
-            if not g.cupole_manager_settings["default"][tostring(i)] then
-                g.cupole_manager_settings["default"][tostring(i)] = {
-                    id = equip_cupole_list[i],
-                    name = cupole_class_name
-                }
-            end
-        end
-    end
-    Cupole_manager_save_settings()
-end
-
-function Cupole_manager_save_default_settings()
-    local equip_cupole_list = GET_EQUIP_CUPOLE_LIST()
-    for i = 1, 3 do
-        if equip_cupole_list[i] == "-1" then
-            ui.SysMsg(g.lang == "Japanese" and "クポルが3体登録されていません" or
-                          "3 Cupoles are not registered")
-            return
-        end
-    end
-    for i = 1, 3 do
-        local cupole_cls = GET_CUPOLE_BY_INDEX_IN_CLASSLIST(equip_cupole_list[i])
-        local cupole_class_name = TryGetProp(cupole_cls, "ClassName", "None")
-        g.cupole_manager_settings["default"][tostring(i)] = {
-            id = equip_cupole_list[i],
-            name = cupole_class_name
-        }
-    end
-    Cupole_manager_save_settings()
-    ui.SysMsg(g.lang == "Japanese" and "現在のセットをデフォルトとして保存しました" or
-                  "Saved the current set as default")
-end
-
-function Cupole_manager_SET_CUPOLE_SLOTS(frame)
-    if g.settings.cupole_manager.use == 0 then
-        return
-    end
-    local frame = ui.GetFrame("cupole_item")
-    local bg = GET_CHILD_RECURSIVELY_NAME(frame, "managerTab/manageBG/bg")
-    local function is_valid_set(settings)
-        if not settings or not settings["1"] or not settings["2"] or not settings["3"] then
-            return false
-        end
-        if settings["1"].id == "-1" or settings["2"].id == "-1" or settings["3"].id == "-1" then
-            return false
-        end
-        return true
-    end
-    local cid_settings = g.cupole_manager_settings[g.cid]
-    local default_settings = g.cupole_manager_settings["default"]
-    if is_valid_set(cid_settings) then
-        g.cupole_manager_tbl = cid_settings
-    else
-        if is_valid_set(default_settings) then
-            if next(cid_settings) then
-                ui.SysMsg(g.lang == "Japanese" and "デフォルトのクポルセットを適用します" or
-                              "Applying the default Cupole set")
-            end
-            g.cupole_manager_tbl = default_settings
-        else
-            ui.SysMsg(g.lang == "Japanese" and "デフォルトのクポルセット未登録" or
-                          "Default Cupole set is not registered")
-            return
-        end
-    end
-    local _nexus_addons = ui.GetFrame("_nexus_addons")
-    g.cupole_manager_num = 0
-    _nexus_addons:RunUpdateScript("Cupole_manager_summon_cupole", 1.0)
-end
-
-function Cupole_manager_summon_cupole(_nexus_addons)
-    if g.cupole_manager_num == 3 then
-        _nexus_addons:StopUpdateScript("Cupole_manager_summon_cupole")
-        return 0
-    end
-    SummonCupole(tonumber(g.cupole_manager_tbl[tostring(g.cupole_manager_num + 1)].id), g.cupole_manager_num)
-    g.cupole_manager_num = g.cupole_manager_num + 1
-    return 1
-end
--- Cupole Manager ここまで
 
 -- Ancient Auto Set ここから
 function Ancient_auto_set_save_settings()
@@ -28434,7 +28365,7 @@ end
 
 -- Auto Repaire ここから
 g.auto_repair = {
-    item_cls_id = 11202000,
+    item_cls_id = 11201388,
     repair_item = "AustejaCertificate_14",
     shop_type = "AustejaCertificate"
 }
@@ -29027,6 +28958,164 @@ function Bulk_sales_sell_execution()
     Bulk_sales_frame_close()
 end
 -- Bulk Sales　ここまで
+
+-- Quick Launcher ここから
+function quick_launcher_on_init()
+    local _nexus_addons = ui.GetFrame("_nexus_addons")
+    local ql_hotkey_timer = _nexus_addons:CreateOrGetControl("timer", "quick_launcher_hotkey_timer", 0, 0)
+    AUTO_CAST(ql_hotkey_timer)
+    ql_hotkey_timer:SetUpdateScript("Quick_launcher_hotkey_check")
+    ql_hotkey_timer:Start(0.15)
+    _G["norisan"] = _G["norisan"] or {}
+    _G["norisan"]["MENU"] = _G["norisan"]["MENU"] or {}
+    _G["norisan"]["MENU"]["quick_launcher"] = {
+        name = "Quick Launcher",
+        icon = "sysmenu_sys",
+        func = "Quick_launcher_toggle",
+        image = ""
+    }
+end
+
+g.quick_launcher_hotkey_pressed = false
+function Quick_launcher_hotkey_check()
+    local grave = keyboard.IsKeyPressed("GRAVE") == 1
+    if grave then
+        if not g.quick_launcher_hotkey_pressed then
+            g.quick_launcher_hotkey_pressed = true
+            Quick_launcher_toggle()
+        end
+    else
+        g.quick_launcher_hotkey_pressed = false
+    end
+end
+
+function Quick_launcher_toggle()
+    local ql = ui.GetFrame(addon_name_lower .. "quick_launcher")
+    if ql and ql:IsVisible() == 1 then
+        Quick_launcher_close()
+    else
+        Quick_launcher_frame_init()
+    end
+end
+
+function Quick_launcher_get_items()
+    local items = {}
+    table.insert(items, {
+        name = "Indun Panel",
+        action = "Quick_launcher_open_indun_panel"
+    })
+    table.insert(items, {
+        name = "Indun List Viewer",
+        action = "Quick_launcher_open_indun_list_viewer"
+    })
+    table.insert(items, {
+        name = "Guild Agit",
+        action = "Quick_launcher_guild_agit_move"
+    })
+    return items
+end
+
+function Quick_launcher_frame_init()
+    local items = Quick_launcher_get_items()
+    local btn_w = 200
+    local btn_h = 35
+    local btn_spc = 8
+    local padding = 15
+    local title_h = 30
+    local frame_w = btn_w + (padding * 2)
+    local frame_h = title_h + (#items * btn_h) + ((#items - 1) * btn_spc) + (padding * 2)
+
+    local ql = ui.CreateNewFrame("notice_on_pc", addon_name_lower .. "quick_launcher", 0, 0, 0, 0)
+    ql:RemoveAllChild()
+    ql:Resize(frame_w, frame_h)
+    ql:SetSkinName("None")
+    ql:SetTitleBarSkin("None")
+    ql:SetLayerLevel(100)
+    ql:EnableHittestFrame(1)
+    ql:EnableMove(1)
+
+    local sw = ui.GetClientInitialWidth()
+    local sh = ui.GetClientInitialHeight()
+    ql:SetPos((sw - frame_w) / 2, (sh - frame_h) / 2)
+
+    local title = ql:CreateOrGetControl("richtext", "ql_title", padding, 8, frame_w - padding * 2, 20)
+    AUTO_CAST(title)
+    title:SetText("{ol}{s14}{b}Quick Launcher")
+
+    local close_btn = ql:CreateOrGetControl("button", "ql_close", 0, 0, 20, 20)
+    AUTO_CAST(close_btn)
+    close_btn:SetImage("testclose_button")
+    close_btn:SetGravity(ui.RIGHT, ui.TOP)
+    close_btn:SetEventScript(ui.LBUTTONUP, "Quick_launcher_close_btn")
+
+    for i, item in ipairs(items) do
+        local x = padding
+        local y = title_h + padding + (i - 1) * (btn_h + btn_spc)
+
+        local btn = ql:CreateOrGetControl("button", "ql_btn_" .. i, x, y, btn_w, btn_h)
+        AUTO_CAST(btn)
+        btn:SetText("{ol}" .. item.name)
+        btn:SetEventScript(ui.LBUTTONUP, item.action)
+        btn:SetOverSound("button_over")
+        btn:SetClickSound("button_click_stats")
+    end
+
+    local esc_timer = ql:CreateOrGetControl("timer", "ql_esc_timer", 0, 0)
+    AUTO_CAST(esc_timer)
+    esc_timer:SetUpdateScript("Quick_launcher_esc_check")
+    esc_timer:Start(0.05)
+
+    ql:ShowWindow(1)
+end
+
+function Quick_launcher_close()
+    local ql = ui.GetFrame(addon_name_lower .. "quick_launcher")
+    if ql then
+        ql:ShowWindow(0)
+    end
+end
+
+function Quick_launcher_close_btn()
+    Quick_launcher_close()
+end
+
+function Quick_launcher_esc_check(frame)
+    local esc = keyboard.IsKeyPressed("ESCAPE") == 1
+    if esc then
+        Quick_launcher_close()
+    end
+end
+
+function Quick_launcher_open_indun_panel()
+    Quick_launcher_close()
+    local indun_panel = ui.GetFrame(addon_name_lower .. "indun_panel")
+    if not indun_panel then
+        Indun_panel_frame_init()
+        indun_panel = ui.GetFrame(addon_name_lower .. "indun_panel")
+    end
+    if indun_panel then
+        Indun_panel_frame_open(indun_panel)
+    end
+end
+
+function Quick_launcher_open_indun_list_viewer()
+    Quick_launcher_close()
+    if type(_G["Indun_list_viewer_title_frame_open"]) == "function" then
+        Indun_list_viewer_title_frame_open()
+    end
+end
+
+function Quick_launcher_guild_agit_move()
+    Quick_launcher_close()
+    local success, err = pcall(function()
+        guild.RequestGuildAgitMove()
+    end)
+    if not success then
+        ui.SysMsg("[Quick Launcher] Guild Agit move failed: " .. tostring(err))
+    end
+end
+
+-- Quick Launcher ここまで
 
 -- アドオンメニューボタン
 local norisan_menu_addons = string.format("../%s", "addons")
